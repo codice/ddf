@@ -15,8 +15,8 @@
 
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD description="Metacard Attribute to WFS Feature Property Map"
-		name="Metacard Attribute to WFS Feature Property Map" id="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper">
+	<OCD description="Metacard to WFS Feature Map"
+		name="Metacard to WFS Feature Map" id="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper">
 
 		<AD name="Feature Type" id="featureType" required="true" type="String"
 			description="Feature Type. Format is {URI}local-name" />
@@ -36,7 +36,7 @@
 
 	</OCD>
 
-	<Designate factoryPid="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper">
-		<Object ocdref="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper" />
+	<Designate factoryPid="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper">
+		<Object ocdref="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper" />
 	</Designate>
 </metatype:MetaData>

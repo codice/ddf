@@ -14,17 +14,17 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.mapper;
 /**
- * Maps Metacard attributes to WFS Feature properties. 
+ * Maps Metacards to WFS Features. 
  *
  */
-public interface MetacardAttributeMapper {
+public interface MetacardMapper {
     /**
      * 
      * @param metacardAttribute The Metacard attribute to map to a Feature property.
      * 
      * @return The Feature property mapped to the given Metacard attribute.
      */
-    String getFeaturePropertyForMetacardAttribute(String metacardAttribute);
+    String getFeatureProperty(String metacardAttribute);
     
     String getFeatureType();
     

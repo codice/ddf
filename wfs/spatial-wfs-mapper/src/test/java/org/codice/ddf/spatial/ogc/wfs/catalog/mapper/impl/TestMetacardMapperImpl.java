@@ -35,9 +35,9 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 
-public class TestMetacardAttributeMapperImpl {
+public class TestMetacardMapperImpl {
 
-    private static final String FACTORY_PID = "org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper";
+    private static final String FACTORY_PID = "org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper";
     
     private static final String CONFIG_FILTER = "(" + ConfigurationAdmin.SERVICE_FACTORYPID + "=" + FACTORY_PID + ")";
     
@@ -68,13 +68,13 @@ public class TestMetacardAttributeMapperImpl {
     @Test
     public void testGetFeaturePropertyForMetacardAttribute_MappingExists() {
         // setup
-        MetacardAttributeMapperImpl metacardAttributeMapper = new MetacardAttributeMapperImpl();
-        metacardAttributeMapper.setFeatureType(exampleFeatureType);
-        metacardAttributeMapper.setMetacardAttrToFeaturePropMap(exampleMetacardAttrToFeaturePropMapping);
+        MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
+        metacardMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setMetacardAttrToFeaturePropMap(exampleMetacardAttrToFeaturePropMapping);
         
         // Test
         String metacardAttribute = "metacardattr3";
-        String featureProperty = metacardAttributeMapper.getFeaturePropertyForMetacardAttribute(metacardAttribute);
+        String featureProperty = metacardMapper.getFeatureProperty(metacardAttribute);
         
         // Verify
         String expectedFeatureProperty = "feature.prop3";
@@ -84,13 +84,13 @@ public class TestMetacardAttributeMapperImpl {
     @Test
     public void testGetFeaturePropertyForMetacardAttribute_MappingDoesNotExist() {
         // setup
-        MetacardAttributeMapperImpl metacardAttributeMapper = new MetacardAttributeMapperImpl();
-        metacardAttributeMapper.setFeatureType(exampleFeatureType);
-        metacardAttributeMapper.setMetacardAttrToFeaturePropMap(exampleMetacardAttrToFeaturePropMapping);
+        MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
+        metacardMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setMetacardAttrToFeaturePropMap(exampleMetacardAttrToFeaturePropMapping);
         
         // Test
         String metacardAttribure = "metacardattr200";
-        String featureProperty = metacardAttributeMapper.getFeaturePropertyForMetacardAttribute(metacardAttribure);
+        String featureProperty = metacardMapper.getFeatureProperty(metacardAttribure);
         
         // Verify
         assertThat(featureProperty, is(nullValue()));
@@ -104,13 +104,13 @@ public class TestMetacardAttributeMapperImpl {
     @Test
     public void testGetFeaturePropertyForMetacardAttribute_AdminConsoleBug_MappingExists() {
         // setup
-        MetacardAttributeMapperImpl metacardAttributeMapper = new MetacardAttributeMapperImpl();
-        metacardAttributeMapper.setFeatureType(exampleFeatureType);
-        metacardAttributeMapper.setMetacardAttrToFeaturePropMap(exampleMetacardAttrToFeaturePropMappingWithAdminConsoleBug);
+        MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
+        metacardMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setMetacardAttrToFeaturePropMap(exampleMetacardAttrToFeaturePropMappingWithAdminConsoleBug);
         
         // Test
         String metacardAttribute = "metacardattr3";
-        String featureProperty = metacardAttributeMapper.getFeaturePropertyForMetacardAttribute(metacardAttribute);
+        String featureProperty = metacardMapper.getFeatureProperty(metacardAttribute);
         
         // Verify
         String expectedFeatureProperty = "feature.prop3";
@@ -118,14 +118,14 @@ public class TestMetacardAttributeMapperImpl {
     }
     
     /**
-     *  Verify that if invalid syntax is used for feature type when configuring a MetacardAttributeMapper, the configuration is deleted.
+     *  Verify that if invalid syntax is used for feature type when configuring a MetacardMapper, the configuration is deleted.
      * 
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void testSetFeatureType_InvalidFeatureType() throws Exception {
         // setup
-        MetacardAttributeMapperImpl metacardAttributeMapper = new MetacardAttributeMapperImpl();
+        MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
         BundleContext mockBundleContext = mock(BundleContext.class);
         ServiceReference mockConfigurationAdminReference = mock(ServiceReference.class);
         when(mockBundleContext.getServiceReference(ConfigurationAdmin.class.getName())).thenReturn(mockConfigurationAdminReference);
@@ -137,12 +137,12 @@ public class TestMetacardAttributeMapperImpl {
         when(mockDictionary.get("featureType")).thenReturn(invalidExampleFeatureType);
         when(mockConfigurations[0].getProperties()).thenReturn(mockDictionary);
         when(mockConfigurationAdmin.listConfigurations(CONFIG_FILTER)).thenReturn(mockConfigurations);
-        metacardAttributeMapper.setContext(mockBundleContext);
+        metacardMapper.setContext(mockBundleContext);
         
         // Test
-        metacardAttributeMapper.setFeatureType(invalidExampleFeatureType);
-        metacardAttributeMapper.setMetacardAttrToFeaturePropMap(exampleMetacardAttrToFeaturePropMapping);
-        metacardAttributeMapper.init();
+        metacardMapper.setFeatureType(invalidExampleFeatureType);
+        metacardMapper.setMetacardAttrToFeaturePropMap(exampleMetacardAttrToFeaturePropMapping);
+        metacardMapper.init();
         
         // Verify
         verify(mockConfigurations[0], times(1)).delete();
@@ -151,36 +151,36 @@ public class TestMetacardAttributeMapperImpl {
     @Test
     public void testSetMetacardAttrToFeaturePropMap_InvalidMetacardAttributeToFeatureTypeMapping() {
         // setup
-        MetacardAttributeMapperImpl metacardAttributeMapper = new MetacardAttributeMapperImpl();
-        metacardAttributeMapper.setFeatureType(exampleFeatureType);
-        metacardAttributeMapper.setMetacardAttrToFeaturePropMap(invalidExampleMetacardAttrToFeaturePropMapping);
+        MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
+        metacardMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setMetacardAttrToFeaturePropMap(invalidExampleMetacardAttrToFeaturePropMapping);
         
         // Test
-        metacardAttributeMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setFeatureType(exampleFeatureType);
         // 4 mappings, but one is invalid
-        metacardAttributeMapper.setMetacardAttrToFeaturePropMap(invalidExampleMetacardAttrToFeaturePropMapping);
-        metacardAttributeMapper.init();
+        metacardMapper.setMetacardAttrToFeaturePropMap(invalidExampleMetacardAttrToFeaturePropMapping);
+        metacardMapper.init();
         
         // Verify
         // Should only contain 3 mappings since one was invalid
-        assertThat(metacardAttributeMapper.getMetacardAttributeToFeaturePropertyMap().size(), is(3));
+        assertThat(metacardMapper.getMetacardAttributeToFeaturePropertyMap().size(), is(3));
         
         Map<String, String> validMappings = removeInvalidMappings(invalidExampleMetacardAttrToFeaturePropMapping);
         
-        for(String key : metacardAttributeMapper.getMetacardAttributeToFeaturePropertyMap().keySet()) {
-            assertThat(metacardAttributeMapper.getMetacardAttributeToFeaturePropertyMap().get(key), is(validMappings.get(key)));
+        for(String key : metacardMapper.getMetacardAttributeToFeaturePropertyMap().keySet()) {
+            assertThat(metacardMapper.getMetacardAttributeToFeaturePropertyMap().get(key), is(validMappings.get(key)));
         }
     }
     
     /**
-     * Verify that if invalid syntax is used for feature type when configuring a MetacardAttributeMapper, the configuration is deleted.
+     * Verify that if invalid syntax is used for feature type when configuring a MetacardMapper, the configuration is deleted.
      * 
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
     public void testSetFeatureType_InvalidFeatureTypeAndInvalidMetacardAttributeToFeatureTypeMapping() throws Exception {
         // setup
-        MetacardAttributeMapperImpl metacardAttributeMapper = new MetacardAttributeMapperImpl();
+        MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
         BundleContext mockBundleContext = mock(BundleContext.class);
         ServiceReference mockConfigurationAdminReference = mock(ServiceReference.class);
         when(mockBundleContext.getServiceReference(ConfigurationAdmin.class.getName())).thenReturn(mockConfigurationAdminReference);
@@ -192,12 +192,12 @@ public class TestMetacardAttributeMapperImpl {
         when(mockDictionary.get("featureType")).thenReturn(invalidExampleFeatureType);
         when(mockConfigurations[0].getProperties()).thenReturn(mockDictionary);
         when(mockConfigurationAdmin.listConfigurations(CONFIG_FILTER)).thenReturn(mockConfigurations);
-        metacardAttributeMapper.setContext(mockBundleContext);
+        metacardMapper.setContext(mockBundleContext);
         
         // Test
-        metacardAttributeMapper.setFeatureType(invalidExampleFeatureType);
-        metacardAttributeMapper.setMetacardAttrToFeaturePropMap(invalidExampleMetacardAttrToFeaturePropMapping);
-        metacardAttributeMapper.init();
+        metacardMapper.setFeatureType(invalidExampleFeatureType);
+        metacardMapper.setMetacardAttrToFeaturePropMap(invalidExampleMetacardAttrToFeaturePropMapping);
+        metacardMapper.init();
         
         // Verify
         verify(mockConfigurations[0], times(1)).delete();

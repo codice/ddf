@@ -70,7 +70,7 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverterFactory;
-import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
@@ -205,7 +205,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
     
-    private List<MetacardAttributeMapper> metacardAttributeToFeaturePropertyMappers;
+    private List<MetacardMapper> metacardToFeatureMappers;
 
     public WfsSource(RemoteWfs remoteWfs, FilterAdapter filterAdapter, BundleContext context,
             AvailabilityTask task) {
@@ -213,7 +213,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         this.filterAdapter = filterAdapter;
         this.context = context;
         this.availabilityTask = task;
-        this.metacardAttributeToFeaturePropertyMappers = Collections.emptyList();
+        this.metacardToFeatureMappers = Collections.emptyList();
         configureWfsFeatures();
     }
 
@@ -425,7 +425,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                     FeatureMetacardType featureMetacardType = registration.getFtMetacard();
                     lookupFeatureConverter(ftSimpleName, featureMetacardType);
                     
-                    MetacardAttributeMapper metacardAttributeToFeaturePropertyMapper = 
+                    MetacardMapper metacardAttributeToFeaturePropertyMapper = 
                             lookupMetacardAttributeToFeaturePropertyMapper(featureMetacardType.getFeatureType());
                     
                     this.featureTypeFilters.put(featureMetacardType.getFeatureType(),
@@ -513,14 +513,14 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         remoteWfs.getFeatureCollectionReader().registerConverter(featureConverter);
     }
     
-    private MetacardAttributeMapper lookupMetacardAttributeToFeaturePropertyMapper(QName featureType) {
-        MetacardAttributeMapper metacardAttributeToFeaturePropertyMapper = null;
+    private MetacardMapper lookupMetacardAttributeToFeaturePropertyMapper(QName featureType) {
+        MetacardMapper metacardAttributeToFeaturePropertyMapper = null;
 
-        if (this.metacardAttributeToFeaturePropertyMappers != null) {
-            for (MetacardAttributeMapper mapper : this.metacardAttributeToFeaturePropertyMappers) {
+        if (this.metacardToFeatureMappers != null) {
+            for (MetacardMapper mapper : this.metacardToFeatureMappers) {
                 if (mapper != null && StringUtils.equals(mapper.getFeatureType(), featureType.toString())) {
                     LOGGER.debug("Found {} for feature type {}.",
-                            MetacardAttributeMapper.class.getSimpleName(), featureType.toString());
+                            MetacardMapper.class.getSimpleName(), featureType.toString());
                     metacardAttributeToFeaturePropertyMapper = mapper;
                     break;
                 }
@@ -528,7 +528,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
             if (metacardAttributeToFeaturePropertyMapper == null) {
                 LOGGER.warn("Unable to find a {} for feature type {}.",
-                        MetacardAttributeMapper.class.getSimpleName(), featureType.toString());
+                        MetacardMapper.class.getSimpleName(), featureType.toString());
             }
 
         }
@@ -720,21 +720,25 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     }
     
     private String mapSortByPropertyName(QName featureType, String incomingPropertyName) {
-        MetacardAttributeMapper metacardToFeaturePropertyMapper = lookupMetacardAttributeToFeaturePropertyMapper(featureType);
+        MetacardMapper metacardToFeaturePropertyMapper = lookupMetacardAttributeToFeaturePropertyMapper(featureType);
         String mappedPropertyName = null;
 
-        if (StringUtils.equals(Result.TEMPORAL, incomingPropertyName)) {
-            mappedPropertyName = StringUtils.isNotBlank(metacardToFeaturePropertyMapper
-                    .getSortByTemporalFeatureProperty()) ? metacardToFeaturePropertyMapper
-                    .getSortByTemporalFeatureProperty() : incomingPropertyName;
-        } else if (StringUtils.equals(Result.RELEVANCE, incomingPropertyName)) {
-            mappedPropertyName = StringUtils.isNotBlank(metacardToFeaturePropertyMapper
-                    .getSortByRelevanceFeatureProperty()) ? metacardToFeaturePropertyMapper
-                    .getSortByRelevanceFeatureProperty() : incomingPropertyName;
-        } else if (StringUtils.equals(Result.DISTANCE, incomingPropertyName)) {
-            mappedPropertyName = StringUtils.isNotBlank(metacardToFeaturePropertyMapper
-                    .getSortByDistanceFeatureProperty()) ? metacardToFeaturePropertyMapper
-                    .getSortByDistanceFeatureProperty() : incomingPropertyName;
+        if (metacardToFeaturePropertyMapper != null) {
+            if (StringUtils.equals(Result.TEMPORAL, incomingPropertyName)) {
+                mappedPropertyName = StringUtils.isNotBlank(metacardToFeaturePropertyMapper
+                        .getSortByTemporalFeatureProperty()) ? metacardToFeaturePropertyMapper
+                        .getSortByTemporalFeatureProperty() : incomingPropertyName;
+            } else if (StringUtils.equals(Result.RELEVANCE, incomingPropertyName)) {
+                mappedPropertyName = StringUtils.isNotBlank(metacardToFeaturePropertyMapper
+                        .getSortByRelevanceFeatureProperty()) ? metacardToFeaturePropertyMapper
+                        .getSortByRelevanceFeatureProperty() : incomingPropertyName;
+            } else if (StringUtils.equals(Result.DISTANCE, incomingPropertyName)) {
+                mappedPropertyName = StringUtils.isNotBlank(metacardToFeaturePropertyMapper
+                        .getSortByDistanceFeatureProperty()) ? metacardToFeaturePropertyMapper
+                        .getSortByDistanceFeatureProperty() : incomingPropertyName;
+            } else {
+                mappedPropertyName = incomingPropertyName;
+            }
         } else {
             mappedPropertyName = incomingPropertyName;
         }
@@ -953,12 +957,12 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         this.featureConverterFactories = factories;
     }
     
-    public void setMetacardAttributeToFeaturePropertyMapper(List<MetacardAttributeMapper> mappers) {
-        this.metacardAttributeToFeaturePropertyMappers = mappers;
+    public void setMetacardToFeatureMapper(List<MetacardMapper> mappers) {
+        this.metacardToFeatureMappers = mappers;
     }
     
-    public List<MetacardAttributeMapper> getMetacardAttributeToFeaturePropertyMappers() {
-        return this.metacardAttributeToFeaturePropertyMappers;
+    public List<MetacardMapper> getMetacardToFeatureMapper() {
+        return this.metacardToFeatureMappers;
     }
 
     public void setIsLonLatOrder(boolean isLonLatOrder) {

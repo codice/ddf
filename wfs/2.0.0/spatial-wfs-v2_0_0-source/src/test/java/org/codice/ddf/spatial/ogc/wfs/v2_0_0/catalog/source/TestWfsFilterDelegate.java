@@ -64,7 +64,7 @@ import net.opengis.gml.v_3_2_0.TimePeriodType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.COMPARISON_OPERATORS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.SPATIAL_OPERATORS;
@@ -225,8 +225,8 @@ public class TestWfsFilterDelegate {
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
         when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
         when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
-        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
-        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
+        MetacardMapper mockMapper = mock(MetacardMapper.class);
+        when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         DateTime startDate = new DateTime().minusDays(365);
@@ -267,8 +267,8 @@ public class TestWfsFilterDelegate {
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
         when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
         when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
-        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
-        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
+        MetacardMapper mockMapper = mock(MetacardMapper.class);
+        when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         DateTime startDate = new DateTime().minusDays(365);
@@ -308,8 +308,8 @@ public class TestWfsFilterDelegate {
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
         when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
         when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
-        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
-        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
+        MetacardMapper mockMapper = mock(MetacardMapper.class);
+        when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         long duration = 604800000;
@@ -364,8 +364,8 @@ public class TestWfsFilterDelegate {
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
         when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
         when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
-        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
-        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
+        MetacardMapper mockMapper = mock(MetacardMapper.class);
+        when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         long duration = 604800000;
@@ -402,8 +402,8 @@ public class TestWfsFilterDelegate {
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
         when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
         when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
-        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
-        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
+        MetacardMapper mockMapper = mock(MetacardMapper.class);
+        when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         DateTime date = new DateTime().minusDays(365);
@@ -442,8 +442,8 @@ public class TestWfsFilterDelegate {
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
         when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
         when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
-        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
-        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
+        MetacardMapper mockMapper = mock(MetacardMapper.class);
+        when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         DateTime date = new DateTime().minusDays(365);
@@ -481,8 +481,8 @@ public class TestWfsFilterDelegate {
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
         when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
         when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
-        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
-        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
+        MetacardMapper mockMapper = mock(MetacardMapper.class);
+        when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         DateTime date = new DateTime().minusDays(365);
@@ -521,8 +521,8 @@ public class TestWfsFilterDelegate {
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
         when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
         when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty)).thenReturn(mockFeatureAttributeDescriptor);
-        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
-        when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
+        MetacardMapper mockMapper = mock(MetacardMapper.class);
+        when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         DateTime date = new DateTime().minusDays(365);

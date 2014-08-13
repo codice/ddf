@@ -51,7 +51,7 @@ import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
@@ -186,14 +186,14 @@ public class TestWfsSource {
             }
         });
         
-        MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
-        List<MetacardAttributeMapper> mappers = new ArrayList<MetacardAttributeMapper>(1);
+        MetacardMapper mockMapper = mock(MetacardMapper.class);
+        List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
         mappers.add(mockMapper);
         
         WfsSource source = new WfsSource(mockWfs, new GeotoolsFilterAdapterImpl(), mockContext,
                 mockAvailabilityTask);
         
-        source.setMetacardAttributeToFeaturePropertyMapper(mappers);
+        source.setMetacardToFeatureMapper(mappers);
         return source;
     }
 
@@ -568,13 +568,13 @@ public class TestWfsSource {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,
                 false, 0);
-        MetacardAttributeMapper mockMetacardMapper = mock(MetacardAttributeMapper.class);
+        MetacardMapper mockMetacardMapper = mock(MetacardMapper.class);
         when(mockMetacardMapper.getFeatureType()).thenReturn(mockFeatureType);
         when(mockMetacardMapper.getSortByTemporalFeatureProperty()).thenReturn(
                 mockTemporalFeatureProperty);
-        List<MetacardAttributeMapper> mappers = new ArrayList<MetacardAttributeMapper>(1);
+        List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
         mappers.add(mockMetacardMapper);
-        source.setMetacardAttributeToFeaturePropertyMapper(mappers);
+        source.setMetacardToFeatureMapper(mappers);
 
         QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like()
                 .text(searchPhrase));
@@ -628,12 +628,12 @@ public class TestWfsSource {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,
                 false, 0);
-        MetacardAttributeMapper mockMetacardMapper = mock(MetacardAttributeMapper.class);
+        MetacardMapper mockMetacardMapper = mock(MetacardMapper.class);
         when(mockMetacardMapper.getFeatureType()).thenReturn(mockFeatureType);
 
-        List<MetacardAttributeMapper> mappers = new ArrayList<MetacardAttributeMapper>(1);
+        List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
         mappers.add(mockMetacardMapper);
-        source.setMetacardAttributeToFeaturePropertyMapper(mappers);
+        source.setMetacardToFeatureMapper(mappers);
 
         QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like()
                 .text(searchPhrase));
@@ -688,13 +688,13 @@ public class TestWfsSource {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,
                 false, 0);
-        MetacardAttributeMapper mockMetacardMapper = mock(MetacardAttributeMapper.class);
+        MetacardMapper mockMetacardMapper = mock(MetacardMapper.class);
         when(mockMetacardMapper.getFeatureType()).thenReturn(mockFeatureType);
         when(mockMetacardMapper.getSortByTemporalFeatureProperty()).thenReturn(
                 mockTemporalFeatureProperty);
-        List<MetacardAttributeMapper> mappers = new ArrayList<MetacardAttributeMapper>(1);
+        List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
         mappers.add(mockMetacardMapper);
-        source.setMetacardAttributeToFeaturePropertyMapper(mappers);
+        source.setMetacardToFeatureMapper(mappers);
 
         QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like()
                 .text(searchPhrase));

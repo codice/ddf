@@ -81,7 +81,7 @@ import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
-import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.COMPARISON_OPERATORS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.CONFORMANCE_CONSTRAINTS;
@@ -150,17 +150,17 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private boolean isEpsg4326 = false;
     
-    private MetacardAttributeMapper metacardAttributeToFeaturePropertyMapper;
+    private MetacardMapper metacardToFeatureMapper;
 
     public WfsFilterDelegate(FeatureMetacardType featureMetacardType,
             FilterCapabilities filterCapabilities, String srsName,
-            MetacardAttributeMapper metacardAttributeToFeaturePropertyMapper, boolean isLonLatOrder) {
+            MetacardAttributeMapper metacardToFeatureMapper, boolean isLonLatOrder) {
 
         if (featureMetacardType == null) {
             throw new IllegalArgumentException("FeatureMetacardType can not be null");
         }
         this.featureMetacardType = featureMetacardType;
-        this.metacardAttributeToFeaturePropertyMapper = metacardAttributeToFeaturePropertyMapper;
+        this.metacardToFeatureMapper = metacardAttributeToFeaturePropertyMapper;
         this.srsName = srsName;
         if (Wfs20Constants.EPSG_4326.equalsIgnoreCase(srsName)
                 || Wfs20Constants.EPSG_4326_URN.equalsIgnoreCase(srsName)) {
@@ -1783,11 +1783,11 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     private String mapMetacardAttribute(String metacardAttribute) {
         String featureProperty = null;
 
-        if (this.metacardAttributeToFeaturePropertyMapper != null) {
-            featureProperty = this.metacardAttributeToFeaturePropertyMapper
-                    .getFeaturePropertyForMetacardAttribute(metacardAttribute);
+        if (this.metacardToFeatureMapper != null) {
+            featureProperty = this.metacardToFeatureMapper
+                    .getFeatureProperty(metacardAttribute);
         } else {
-            LOGGER.debug("{} is null.", MetacardAttributeMapper.class.getSimpleName());
+            LOGGER.debug("{} is null.", MetacardMapper.class.getSimpleName());
             return metacardAttribute;
         }
 

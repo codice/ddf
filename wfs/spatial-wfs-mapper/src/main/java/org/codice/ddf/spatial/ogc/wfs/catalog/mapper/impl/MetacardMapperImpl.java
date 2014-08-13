@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -32,12 +32,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *  Maps Metacard attributes to Feature properties. 
+ *  Maps Metacards to WFS Features. 
  *
  */
-public class MetacardAttributeMapperImpl implements MetacardAttributeMapper {
+public class MetacardMapperImpl implements MetacardMapper {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardAttributeMapperImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardMapperImpl.class);
     
     private static final String METACARD_ATTR_TO_FEATURE_PROP_MAPPING_REGEX = "([^=,]+)=([^=,]+)";
     
@@ -47,7 +47,7 @@ public class MetacardAttributeMapperImpl implements MetacardAttributeMapper {
     
     private static final Pattern FEATURE_TYPE_PATTERN = Pattern.compile(FEATURE_TYPE_REGEX);
     
-    private static final String FACTORY_PID = "org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardAttributeMapper";
+    private static final String FACTORY_PID = "org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper";
     
     private static final String CONFIG_FILTER = "(" + ConfigurationAdmin.SERVICE_FACTORYPID + "=" + FACTORY_PID + ")";
     
@@ -66,8 +66,8 @@ public class MetacardAttributeMapperImpl implements MetacardAttributeMapper {
     boolean invalidFeatureType;
  
     
-    public MetacardAttributeMapperImpl() {
-        LOGGER.debug("Creating {}", MetacardAttributeMapperImpl.class.getName());
+    public MetacardMapperImpl() {
+        LOGGER.debug("Creating {}", MetacardMapperImpl.class.getName());
         metacardAttributeToFeaturePropertyMap = new HashMap<String, String>();
         invalidFeatureType = false;
     }
@@ -78,7 +78,7 @@ public class MetacardAttributeMapperImpl implements MetacardAttributeMapper {
             if (invalidFeatureType) {
                 LOGGER.warn(
                         "Use of invalid Feature Type {} during {} configuration. Attempting to delete configuration.",
-                        this.featureType, MetacardAttributeMapperImpl.class.getSimpleName());
+                        this.featureType, MetacardMapperImpl.class.getSimpleName());
 
                 deleteConfiguration();
 
@@ -93,7 +93,7 @@ public class MetacardAttributeMapperImpl implements MetacardAttributeMapper {
     }
 
     @Override
-    public String getFeaturePropertyForMetacardAttribute(String metacardAttribute) {
+    public String getFeatureProperty(String metacardAttribute) {
         return metacardAttributeToFeaturePropertyMap.get(metacardAttribute);
     }
     
