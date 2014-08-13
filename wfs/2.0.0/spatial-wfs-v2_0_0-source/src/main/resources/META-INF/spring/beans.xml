@@ -54,6 +54,7 @@
             <beans:property name="pollInterval" value=""/>
             <beans:property name="forceSpatialFilter" value="" />
             <beans:property name="metacardAttributeToFeaturePropertyMapper" ref="metacardAttrToFeaturePropMappers" />
+            <beans:property name="isLonLatOrder" value="false" />
         </beans:bean>
     </osgix:managed-service-factory>
 
@@ -81,6 +82,7 @@
             <beans:property name="pollInterval" value=""/>
             <beans:property name="forceSpatialFilter" value="" />
             <beans:property name="metacardAttributeToFeaturePropertyMapper" ref="metacardAttrToFeaturePropMapper" />
+            <beans:property name="isLonLatOrder" value="false" />
         </beans:bean>
     </osgix:managed-service-factory>
 </beans:beans>

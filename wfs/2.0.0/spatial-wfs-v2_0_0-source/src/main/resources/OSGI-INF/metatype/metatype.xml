@@ -25,6 +25,9 @@
         <AD description="Disable SSL certificate verification" name="Disable SSL certificate verification"
             id="disableSSLCertVerification" required="true"
             type="Boolean" default="false"/>
+            
+        <AD description="Force Longitude/Latitude coordinate order" name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
+            type="Boolean" default="false" />
 
         <AD description="Username for WFS Service (optional)" name="Username" id="username"
             required="false" type="String"/>
@@ -67,6 +70,9 @@
         <AD description="Disable SSL certificate verification" name="Disable SSL certificate verification"
             id="disableSSLCertVerification" required="true"
             type="Boolean" default="false"/>
+            
+        <AD description="Force Longitude/Latitude coordinate order" name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
+            type="Boolean" default="false" />
 
         <AD description="Username for WFS Service (optional)" name="Username" id="username"
             required="false" type="String"/>

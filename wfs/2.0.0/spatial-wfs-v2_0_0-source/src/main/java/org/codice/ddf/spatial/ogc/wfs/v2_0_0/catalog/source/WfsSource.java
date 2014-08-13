@@ -126,6 +126,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private Boolean disableSSLCertVerification = Boolean.FALSE;
 
+    private boolean isLonLatOrder = Boolean.FALSE;
+
     private FilterAdapter filterAdapter;
 
     private RemoteWfs remoteWfs;
@@ -159,6 +161,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private static final String NON_QUERYABLE_PROPS_PROPERTY = "nonQueryableProperties";
 
     private static final String SPATIAL_FILTER_PROPERTY = "forceSpatialFilter";
+
+    private static final String IS_LON_LAT_ORDER = "isLonLatOrder";
 
     private static final String NO_FORCED_SPATIAL_FILTER = "NO_FILTER";
 
@@ -251,6 +255,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         String password = (String) configuration.get(PASSWORD_PROPERTY);
         String username = (String) configuration.get(USERNAME_PROPERTY);
         Boolean disableSSLCertVerification = (Boolean) configuration.get(SSL_VERIFICATION_PROPERTY);
+        boolean isLonLatOrder = (Boolean) configuration.get(IS_LON_LAT_ORDER);
         String id = (String) configuration.get(ID_PROPERTY);
 
         String[] nonQueryableProperties = (String[]) configuration
@@ -265,6 +270,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         this.password = password;
         this.username = username;
         this.disableSSLCertVerification = disableSSLCertVerification;
+        this.isLonLatOrder = isLonLatOrder;
         this.forceSpatialFilter = (String) configuration.get(SPATIAL_FILTER_PROPERTY);
 
         connectToRemoteWfs();
@@ -424,7 +430,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                     
                     this.featureTypeFilters.put(featureMetacardType.getFeatureType(),
                             new WfsFilterDelegate(featureMetacardType, filterCapabilities,
-                                    registration.getSrs(), metacardAttributeToFeaturePropertyMapper));
+                                    registration.getSrs(),
+                                    metacardAttributeToFeaturePropertyMapper, isLonLatOrder));
                 }
             } catch (WfsException wfse) {
                 LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
@@ -952,6 +959,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     
     public List<MetacardAttributeMapper> getMetacardAttributeToFeaturePropertyMappers() {
         return this.metacardAttributeToFeaturePropertyMappers;
+    }
+
+    public void setIsLonLatOrder(boolean isLonLatOrder) {
+        this.isLonLatOrder = isLonLatOrder;
     }
 
     private String handleWebApplicationException(WebApplicationException wae) {

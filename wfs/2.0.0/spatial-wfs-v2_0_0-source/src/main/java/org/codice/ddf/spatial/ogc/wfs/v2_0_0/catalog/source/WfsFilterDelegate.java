@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -122,6 +124,10 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private static final String PROPERTY_NOT_QUERYABLE = "'%s' is not a queryable property.";
 
+    // Regex to match coords in WKT
+    private static final Pattern COORD_PATTERN = Pattern
+            .compile("-?\\.?\\d+(\\.?\\d+)?\\s-?\\.?\\d+(\\.?\\d+)?");
+
     private boolean logicalOps;
 
     private Set<COMPARISON_OPERATORS> comparisonOps;
@@ -138,6 +144,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private boolean isSortingSupported;
 
+    private boolean isLonLatOrder;
+
     private String srsName;
 
     private boolean isEpsg4326 = false;
@@ -145,7 +153,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     private MetacardAttributeMapper metacardAttributeToFeaturePropertyMapper;
 
     public WfsFilterDelegate(FeatureMetacardType featureMetacardType,
-            FilterCapabilities filterCapabilities, String srsName, MetacardAttributeMapper metacardAttributeToFeaturePropertyMapper) {
+            FilterCapabilities filterCapabilities, String srsName,
+            MetacardAttributeMapper metacardAttributeToFeaturePropertyMapper, boolean isLonLatOrder) {
 
         if (featureMetacardType == null) {
             throw new IllegalArgumentException("FeatureMetacardType can not be null");
@@ -161,6 +170,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     "Unable to convert geometry to {}. All geospatial queries for this featureType will be invalidated!",
                     srsName);
         }
+        this.isLonLatOrder = isLonLatOrder;
         updateAllowedOperations(filterCapabilities);
     }
 
@@ -1542,12 +1552,14 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         return filterObjectFactory.createBBOX(bboxType);
     }
 
-    private JAXBElement<?> createGeometryOperand(final String wkt) {
+    private JAXBElement<?> createGeometryOperand(String wkt) {
+        String convertedWkt = convertWktToLatLonOrdering(wkt);
         Geometry wktGeometry = null;
         try {
-            wktGeometry = getGeometryFromWkt(wkt);
+            wktGeometry = getGeometryFromWkt(convertedWkt);
         } catch (ParseException e) {
-            throw new UnsupportedOperationException("Unable to parse WKT Geometry [" + wkt + "]", e);
+            throw new UnsupportedOperationException("Unable to parse WKT Geometry [" + convertedWkt
+                    + "]", e);
         }
         if (wktGeometry instanceof Polygon) {
             GeometryOperand polygonOperand = new GeometryOperand();
@@ -1573,7 +1585,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                 return createLineString(wktGeometry);
             }
         }
-        throw new UnsupportedOperationException("Geometry Operand from WKT [" + wkt
+        throw new UnsupportedOperationException("Geometry Operand from WKT [" + convertedWkt
                 + "] is not supported.");
     }
 
@@ -1788,5 +1800,48 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     metacardAttribute);
             return featureProperty;
         }
+    }
+
+    /**
+     * The WKT passed into the spatial methods has the coordinates ordered in LON/LAT. This method
+     * will convert the WKT to LAT/LON ordering.
+     */
+    private String convertWktToLatLonOrdering(String wktInLonLat) {
+
+        if (!isLonLatOrder) {
+            LOGGER.debug("Converting WKT from LON/LAT coordinate ordering to LAT/LON coordinate ordering.");
+
+            // Normalize all whitespace in WKT before processing.
+            wktInLonLat = normalizeWhitespaceInWkt(wktInLonLat);
+
+            Matcher matcher = COORD_PATTERN.matcher(wktInLonLat);
+
+            StringBuffer stringBuffer = new StringBuffer();
+
+            while (matcher.find()) {
+                String lonLatCoord = matcher.group();
+                String latLonCoord = StringUtils.reverseDelimited(lonLatCoord, ' ');
+                LOGGER.debug("Converted LON/LAT coord: ({}) to LAT/LON coord: ({}).", lonLatCoord,
+                        latLonCoord);
+                matcher.appendReplacement(stringBuffer, latLonCoord);
+            }
+
+            matcher.appendTail(stringBuffer);
+
+            String wktInLatLon = stringBuffer.toString();
+            LOGGER.debug("Original WKT with coords in LON/LAT ordering:  {}", wktInLonLat);
+            LOGGER.debug("Converted WKT with coords in LAT/LON ordering: {}", wktInLatLon);
+
+            return wktInLatLon;
+        } else {
+            LOGGER.debug("The configured CSW source requires coordinates in LON/LAT ordering.");
+            return wktInLonLat;
+        }
+    }
+
+    private String normalizeWhitespaceInWkt(String wkt) {
+        String normalizedWkt = wkt.replaceAll("(\\s+)?([(|)|,])(\\s+)?", "$2");
+        normalizedWkt = normalizedWkt.replaceAll("\\s+", " ");
+        return normalizedWkt;
     }
 }

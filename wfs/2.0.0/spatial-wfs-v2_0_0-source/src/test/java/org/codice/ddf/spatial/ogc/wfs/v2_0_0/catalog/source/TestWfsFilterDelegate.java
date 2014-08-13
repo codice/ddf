@@ -114,7 +114,7 @@ public class TestWfsFilterDelegate {
     @Test
     public void testFullFilterCapabilities() {
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, null);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, null, false);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
@@ -131,7 +131,7 @@ public class TestWfsFilterDelegate {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setConformance(null);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null);
+                Wfs20Constants.EPSG_4326_URN, null, false);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(false));
@@ -148,7 +148,7 @@ public class TestWfsFilterDelegate {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setScalarCapabilities(null);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null);
+                Wfs20Constants.EPSG_4326_URN, null, false);
         assertThat(delegate.isLogicalOps(), is(false));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
@@ -165,7 +165,7 @@ public class TestWfsFilterDelegate {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setSpatialCapabilities(null);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null);
+                Wfs20Constants.EPSG_4326_URN, null, false);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
@@ -182,7 +182,7 @@ public class TestWfsFilterDelegate {
         FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
         capabilities.setTemporalCapabilities(null);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null);
+                Wfs20Constants.EPSG_4326_URN, null, false);
         assertThat(delegate.isLogicalOps(), is(true));
         assertThat(delegate.isEpsg4326(), is(true));
         assertThat(delegate.isSortingSupported(), is(true));
@@ -228,7 +228,7 @@ public class TestWfsFilterDelegate {
         MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
         when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         DateTime startDate = new DateTime().minusDays(365);
         DateTime endDate = new DateTime().minusDays(10);
         
@@ -270,7 +270,7 @@ public class TestWfsFilterDelegate {
         MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
         when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         DateTime startDate = new DateTime().minusDays(365);
         DateTime endDate = new DateTime().minusDays(10);
         
@@ -311,7 +311,7 @@ public class TestWfsFilterDelegate {
         MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
         when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         long duration = 604800000;
         DateTime now = new DateTime();
         /**
@@ -367,7 +367,7 @@ public class TestWfsFilterDelegate {
         MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
         when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         long duration = 604800000;
 
         // Perform Test
@@ -405,7 +405,7 @@ public class TestWfsFilterDelegate {
         MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
         when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         DateTime date = new DateTime().minusDays(365);
         
         // Perform Test
@@ -445,7 +445,7 @@ public class TestWfsFilterDelegate {
         MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
         when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         DateTime date = new DateTime().minusDays(365);
         
         // Perform Test
@@ -484,7 +484,7 @@ public class TestWfsFilterDelegate {
         MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
         when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         DateTime date = new DateTime().minusDays(365);
         
         // Perform Test
@@ -524,7 +524,7 @@ public class TestWfsFilterDelegate {
         MetacardAttributeMapper mockMapper = mock(MetacardAttributeMapper.class);
         when(mockMapper.getFeaturePropertyForMetacardAttribute(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, false);
         DateTime date = new DateTime().minusDays(365);
         
         // Perform Test
@@ -993,7 +993,7 @@ public class TestWfsFilterDelegate {
         filterCap.setScalarCapabilities(scalar);
         
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                filterCap, Wfs20Constants.EPSG_4326_URN, null);
+                filterCap, Wfs20Constants.EPSG_4326_URN, null, false);
         
         FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         FilterType compFilter2 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
@@ -1034,7 +1034,7 @@ public class TestWfsFilterDelegate {
         filterCap.setScalarCapabilities(scalar);
         
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                filterCap, Wfs20Constants.EPSG_4326_URN, null);
+                filterCap, Wfs20Constants.EPSG_4326_URN, null, false);
         
         FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         FilterType compFilter2 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
@@ -1075,7 +1075,7 @@ public class TestWfsFilterDelegate {
         filterCap.setScalarCapabilities(scalar);
         
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                filterCap, Wfs20Constants.EPSG_4326_URN, null);
+                filterCap, Wfs20Constants.EPSG_4326_URN, null, false);
         
         FilterType filterToBeNoted = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
         
@@ -1143,7 +1143,7 @@ public class TestWfsFilterDelegate {
         capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
                 .add(operator);
         return new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null);
+                Wfs20Constants.EPSG_4326_URN, null, false);
     }
 
     @Test
@@ -1354,7 +1354,7 @@ public class TestWfsFilterDelegate {
         capabilities.getSpatialCapabilities().getGeometryOperands().getGeometryOperand()
                 .add(geoOperand);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null);
+                Wfs20Constants.EPSG_4326_URN, null, false);
         
         FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
@@ -1363,6 +1363,68 @@ public class TestWfsFilterDelegate {
         XMLUnit.setNormalizeWhitespace(true);
         XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getIntersectsWithEnvelopeXmlFilter(),
+                getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testIntersectsLonLat() throws SAXException, IOException, JAXBException {
+        List<String> gmlProps = new ArrayList<String>();
+        gmlProps.add(MOCK_GEOM);
+
+        when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(
+                new FeatureAttributeDescriptor(MOCK_GEOM, MOCK_GEOM, true, false, false, false,
+                        BasicTypes.STRING_TYPE));
+
+        SpatialOperatorType operator = new SpatialOperatorType();
+        operator.setName(SPATIAL_OPERATORS.Intersects.toString());
+        FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
+        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator().clear();
+        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
+                .add(operator);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
+                Wfs20Constants.EPSG_4326_URN, null, true);
+
+        FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+
+        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertFalse(filter.isSetLogicOps());
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getIntersectsLonLatXmlFilter(), getXmlFromMarshaller(filter));
+    }
+
+    @Test
+    public void testIntersectsWithEnvelopeLonLat() throws SAXException, IOException, JAXBException {
+        List<String> gmlProps = new ArrayList<String>();
+        gmlProps.add(MOCK_GEOM);
+
+        when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
+        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM)).thenReturn(
+                new FeatureAttributeDescriptor(MOCK_GEOM, MOCK_GEOM, true, false, false, false,
+                        BasicTypes.STRING_TYPE));
+
+        SpatialOperatorType operator = new SpatialOperatorType();
+        operator.setName(SPATIAL_OPERATORS.Intersects.toString());
+        FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
+        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator().clear();
+        capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
+                .add(operator);
+        capabilities.getSpatialCapabilities().getGeometryOperands().getGeometryOperand().clear();
+        GeometryOperand geoOperand = new GeometryOperand();
+        geoOperand.setName(Wfs20Constants.ENVELOPE);
+        capabilities.getSpatialCapabilities().getGeometryOperands().getGeometryOperand()
+                .add(geoOperand);
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
+                Wfs20Constants.EPSG_4326_URN, null, true);
+
+        FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+
+        assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
+        assertFalse(filter.isSetLogicOps());
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(MockWfsServer.getIntersectsWithEnvelopeLonLatXmlFilter(),
                 getXmlFromMarshaller(filter));
     }
 
@@ -1497,7 +1559,7 @@ public class TestWfsFilterDelegate {
         capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
                 .add(operator);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null);
+                Wfs20Constants.EPSG_4326_URN, null, false);
 
         FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
         assertNotNull(filter);
@@ -1535,7 +1597,7 @@ public class TestWfsFilterDelegate {
         capabilities.getSpatialCapabilities().getSpatialOperators().getSpatialOperator()
                 .add(operator);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
-                Wfs20Constants.EPSG_4326_URN, null);
+                Wfs20Constants.EPSG_4326_URN, null, false);
 
         FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
         assertNull(filter);
@@ -1561,7 +1623,7 @@ public class TestWfsFilterDelegate {
         when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
 
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), "EPSG:42304", null);
+                MockWfsServer.getFilterCapabilities(), "EPSG:42304", null, false);
         FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
         assertTrue(filter == null);
@@ -1570,7 +1632,7 @@ public class TestWfsFilterDelegate {
     @Test(expected = IllegalArgumentException.class)
     public void testGeoFilterNullMetacardType() {
         WfsFilterDelegate delegate = new WfsFilterDelegate(null,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, null);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, null, false);
 
         FilterType filter = delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
     }
@@ -1606,7 +1668,7 @@ public class TestWfsFilterDelegate {
         when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty)).thenReturn(mockFeatureAttributeDescriptor);
         
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, null);
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, null, false);
         
         return delegate;
     }
