@@ -19,12 +19,13 @@ define([
     'marionette',
     '/configurations/js/model/Service.js',
     '/configurations/js/view/ConfigurationEdit.view.js',
+    '/configurations/js/wreqr.js',
     'text!/configurations/templates/serviceList.handlebars',
     'text!/configurations/templates/serviceRow.handlebars',
     'text!/configurations/templates/configurationRow.handlebars',
     'text!/configurations/templates/servicePage.handlebars',
     'text!/configurations/templates/configurationList.handlebars'
-],function (ich, _, Marionette, Service, ConfigurationEdit,serviceList,serviceRow,configurationRow,servicePage,configurationList) {
+    ],function (ich, _, Marionette, Service, ConfigurationEdit, wreqr, serviceList, serviceRow, configurationRow, servicePage, configurationList) {
 
     var ServiceView = {};
 
@@ -39,18 +40,15 @@ define([
         tagName: "tr",
         events: {
             'click .editLink' : 'editConfiguration',
-            'click .removeLink' : 'removeConfiguration',
-            'hidden.bs.modal' : 'cancelEditConfiguration',
-            'shown.bs.modal' : 'refreshConfiguration'
+            'click .removeLink' : 'removeConfiguration'
         },
         regions: {
-            editModal: '.modal'
-        },
-        onRender: function() {
-            this.editModal.show(new ConfigurationEdit.View({model: this.model, factory: !_.isUndefined(this.model.get("fpid"))}));
+            editModal: '.config-modal'
         },
         editConfiguration: function() {
-            this.model.get('service').get('response').trigger('editing');
+            wreqr.vent.trigger('poller:stop');
+            this.editModal.show(new ConfigurationEdit.View({model: this.model, service: this.model.collection.service}));
+            wreqr.vent.trigger('refresh');
         },
         removeConfiguration: function() {
             var question = "Are you sure you want to remove the configuration: "+this.model.get("service.pid")+"?";
@@ -58,16 +56,6 @@ define([
             if(confirmation) {
                 this.model.destroy();
                 this.close();
-            }
-        },
-        cancelEditConfiguration: function() {
-            if(this.editModal.currentView) {
-                this.editModal.currentView.cancel();
-            }
-        },
-        refreshConfiguration: function() {
-            if(this.editModal.currentView) {
-                this.editModal.currentView.refresh();
             }
         }
     });
@@ -82,32 +70,29 @@ define([
         template: "serviceRow",
         tagName: "tr",
         events: {
-            'click .newLink' : 'newConfiguration',
-            'hidden.bs.modal' : 'cancelNewConfiguration'
+            'click .newLink' : 'newConfiguration'
         },
         regions: {
             collectionRegion: '#configurationRegion',
-            editModal: '.modal'
+            editModal: '.service-modal'
         },
         onRender: function() {
             this.collectionRegion.show(new ServiceView.ConfigurationTable({ collection: this.model.get("configurations") }));
         },
         newConfiguration: function() {
             if(this.model.get("factory") || this.model.get("configurations").length === 0) {
-                this.model.get('response').trigger('editing');
+                wreqr.vent.trigger('poller:stop');
                 var configuration = new Service.Configuration();
                 if(this.model.get("factory")) {
                     configuration.initializeFromMSF(this.model);
                 } else {
                     configuration.initializeFromService(this.model);
                 }
-                this.editModal.show(new ConfigurationEdit.View({model: configuration, factory: this.model.get("factory")}));
+                this.editModal.show(new ConfigurationEdit.View({model: configuration, service: this.model}));
+            } else if(this.model.get("configurations").length === 1) {
+                this.editModal.show(new ConfigurationEdit.View({model: this.model.get("configurations").at(0), service: this.model}));
             }
-        },
-        cancelNewConfiguration: function() {
-            if(this.editModal.currentView) {
-                this.editModal.currentView.cancel();
-            }
+            wreqr.vent.trigger('refresh');
         }
     });
 
@@ -127,17 +112,18 @@ define([
         },
         initialize: function(options) {
             this.poller = options.poller;
-            this.listenTo(this.model, 'editing', this.stopPoller);
-            this.listenTo(this.model, 'canceled', this.startPoller);
+            this.listenTo(wreqr.vent, 'poller:stop', this.stopPoller);
+            this.listenTo(wreqr.vent, 'poller:start', this.startPoller);
+            this.listenTo(this.model, 'sync', this.triggerSync);
+        },
+        triggerSync: function() {
+            wreqr.vent.trigger('sync');
         },
         stopPoller: function() {
             this.poller.stop();
         },
         startPoller: function() {
             this.poller.start();
-        },
-        onClose: function() {
-            this.stopListening(this.model);
         },
         onRender: function() {
             this.collectionRegion.show(new ServiceView.ServiceTable({ collection: this.model.get("value") }));

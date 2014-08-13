@@ -18,6 +18,13 @@ define(['icanhaz','underscore','handlebars'],function (ich,_,Handlebars) {
 
 // The module to be exported
     var helper, helpers = {
+            contains: function (value, test, block) {
+                if(_.contains(value, test)) {
+                    return block.fn(this);
+                } else {
+                    block.inverse(this);
+                }
+            },
             fileSize: function (item) {
                 var bytes = parseInt(item, 10);
                 if (isNaN(bytes)) {

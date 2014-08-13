@@ -74,7 +74,7 @@ define(['backbone', 'jquery','backbonerelational'],function (Backbone, $) {
             if (!model) {
                 return;
             }
-            var configUrl = [model.configUrl, "createFactoryConfiguration", model.get("fpid")].join("/");
+            var configUrl = [model.configUrl, "createFactoryConfiguration", model.get("fpid") ? model.get("fpid") : model.get('service').get('id')].join("/");
             return $.ajax({type: 'GET',
                 url: configUrl
             });
@@ -149,7 +149,6 @@ define(['backbone', 'jquery','backbonerelational'],function (Backbone, $) {
             this.initializeFromService(msf);
         },
         initializeFromService: function(service) {
-            this.set({"service": service});
             this.initializeFromMetatype(service.get("metatype"));
         },
         initializeFromMetatype: function(metatype) {
