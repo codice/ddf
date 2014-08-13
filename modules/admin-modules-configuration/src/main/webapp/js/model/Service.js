@@ -13,12 +13,8 @@
  *
  **/
 /*global define*/
-define(function (require) {
+define(['backbone', 'jquery','backbonerelational'],function (Backbone, $) {
 
-    var Backbone = require('backbone'),
-        $ = require('jquery');
-
-    require('backbonerelational');
 
     var Service = {};
 

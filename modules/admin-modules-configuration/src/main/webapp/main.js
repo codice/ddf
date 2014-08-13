@@ -25,6 +25,7 @@
             'marionette',
             'icanhaz',
             'js/application',
+            'js/module',
             'js/HandlebarsHelpers',
             'modelbinder',
             'bootstrap'
@@ -37,10 +38,6 @@
                 if(!template){return '';}
                 return ich[template](data);
             };
-
-            app.addInitializer(function() {
-                require(['js/module']);
-            });
 
             // Start up the main Application Router
             app.addInitializer(function() {

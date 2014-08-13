@@ -10,9 +10,10 @@
  *
  **/
 /*global define*/
-define(function (require) {
-    var Backbone = require('backbone');
-    require('backbonerelational');
+define([
+    'backbone',
+    'backbonerelational'
+    ],function (Backbone) {
 
     var Module = {};
     var module = Backbone.RelationalModel.extend({});

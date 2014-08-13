@@ -15,18 +15,18 @@
 /*global define*/
 
 // #Main Application
-define(function (require) {
+define([
+    'underscore',
+    'backbone',
+    'marionette'
+    ],function (_, Backbone, Marionette) {
     'use strict';
 
     // Load non attached libs and plugins
 
 
     // Load attached libs and application modules
-    var _ = require('underscore'),
-        Backbone = require('backbone'),
-        Marionette = require('marionette'),
-        Application = {};
-    require('marionette');
+    var Application = {};
 
     Application.App = new Marionette.Application();
 

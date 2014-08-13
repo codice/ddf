@@ -54,7 +54,7 @@ casper.test.begin('Configuration View test', function(test) {
     });
 
     casper.then(function () {
-        this.fill('form#config-form', { host: "" }, false);
+        this.fill('#config-form', { host: "" }, false);
     });
 
     casper.waitFor(function() {
@@ -79,11 +79,11 @@ casper.test.begin('Configuration View test', function(test) {
     });
 
     casper.then(function () {
-        this.fill('form#config-form', { host: "localhost" }, false);
+        this.fill('#config-form', { host: "localhost" }, false);
     });
 
     casper.then(function () {
-        this.fill('form#config-form', { port: "blah" }, false);
+        this.fill('#config-form', { port: "blah" }, false);
     });
 
     casper.waitFor(function() {
@@ -108,7 +108,7 @@ casper.test.begin('Configuration View test', function(test) {
     });
 
     casper.then(function () {
-        this.fill('form#config-form', { port: "" }, false);
+        this.fill('#config-form', { port: "" }, false);
     });
 
     casper.waitFor(function() {
@@ -133,7 +133,7 @@ casper.test.begin('Configuration View test', function(test) {
     });
 
     casper.then(function () {
-        this.fill('form#config-form', { port: "8181" }, false);
+        this.fill('#config-form', { port: "8181" }, false);
     });
 
     casper.waitFor(function() {

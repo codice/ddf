@@ -14,15 +14,9 @@
  **/
 /* jshint unused: false */
 /*global define*/
-define(function(require) {
-
-    var Application = require('js/application'),
-        poller = require('poller'),
-        ServiceView = require('/configurations/js/view/Service.view.js');
+define(['js/application','poller','/configurations/js/view/Service.view.js','/configurations/js/model/Service.js'],function(Application,poller,ServiceView,Service) {
 
     Application.App.module('Configurations', function(ServiceModule, App, Backbone, Marionette, $, _) {
-
-            var Service = require('/configurations/js/model/Service.js');
 
             var serviceModel = new Service.Response();
             serviceModel.fetch();

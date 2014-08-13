@@ -10,8 +10,9 @@
  *
  **/
 /*global define*/
-define(function (require) {
-    var Backbone = require('backbone');
+define([
+    'backbone'
+    ],function (Backbone) {
 
     var AppModel = Backbone.Model.extend({
         url: "/services/admin/config"
