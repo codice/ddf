@@ -154,13 +154,13 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     public WfsFilterDelegate(FeatureMetacardType featureMetacardType,
             FilterCapabilities filterCapabilities, String srsName,
-            MetacardAttributeMapper metacardToFeatureMapper, boolean isLonLatOrder) {
+            MetacardMapper metacardToFeatureMapper, boolean isLonLatOrder) {
 
         if (featureMetacardType == null) {
             throw new IllegalArgumentException("FeatureMetacardType can not be null");
         }
         this.featureMetacardType = featureMetacardType;
-        this.metacardToFeatureMapper = metacardAttributeToFeaturePropertyMapper;
+        this.metacardToFeatureMapper = metacardToFeatureMapper;
         this.srsName = srsName;
         if (Wfs20Constants.EPSG_4326.equalsIgnoreCase(srsName)
                 || Wfs20Constants.EPSG_4326_URN.equalsIgnoreCase(srsName)) {
