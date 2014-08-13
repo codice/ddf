@@ -19,6 +19,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,12 +29,19 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
+import org.codice.ddf.admin.application.plugin.ApplicationConfigurationPlugin;
+import org.codice.ddf.admin.application.rest.model.FeatureDto;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
+import org.osgi.framework.Constants;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,8 +81,23 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     private static final String MAP_DEPENDENCIES = "dependencies";
 
     private static final String MAP_PARENTS = "parents";
+    
+    private static final String MAP_STATUS = "status";
+    
+    private static final String MAP_REPOSITORY = "repository";
 
     private Logger logger = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
+    
+    private final ConfigurationAdminExt configAdminExt;
+    
+    /** the service pid string.*/
+    private static final String SERVICE_PID = Constants.SERVICE_PID;
+
+    /** the service factor pid.*/
+    private static final String SERVICE_FACTORYPID = ConfigurationAdmin.SERVICE_FACTORYPID;
+
+    /** has all the application configuration plugins.*/
+    private List<ApplicationConfigurationPlugin> pluginList;
 
     /**
      * Creates an instance of an ApplicationServiceBean
@@ -85,8 +108,9 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
      *             If an error occurs when trying to construct the MBean
      *             objects.
      */
-    public ApplicationServiceBean(ApplicationService appService) throws ApplicationServiceException {
+    public ApplicationServiceBean(ApplicationService appService, ConfigurationAdminExt configAdminExt) throws ApplicationServiceException {
         this.appService = appService;
+        this.configAdminExt = configAdminExt;
         try {
             objectName = new ObjectName(ApplicationService.class.getName()
                     + ":service=application-service");
@@ -318,6 +342,146 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
                         applicationURL, ase);
             }
         }
+    }
+
+    /** {@inheritDoc}.*/
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Map<String, Object>> getServices(String applicationID) {
+		List<Map<String, Object>> services = configAdminExt.listServices(getDefaultFactoryLdapFilter(), getDefaultLdapFilter());
+		List<Map<String, Object>> returnValues = new ArrayList<Map<String, Object>>();
+				
+		if (!services.isEmpty()) {
+			Application app = appService.getApplication(applicationID);
+
+			if (app != null) {
+				try {
+					Set<BundleInfo> bundles = app.getBundles();
+
+					Set<String> bundleLocations = new HashSet<String>();
+					for (BundleInfo info : bundles) {
+						bundleLocations.add(info.getLocation());
+					}
+
+					for (Map<String, Object> service : services) {
+						if (service.containsKey("configurations")) {
+							List<Map<String, Object>> configurations = (List<Map<String, Object>>) service.get("configurations");
+							for (Map<String, Object> item : configurations) {
+								if (item.containsKey("bundle_location")) {
+									String bundleLocation = (String) item.get("bundle_location");
+									if (bundleLocations.contains(bundleLocation)) {
+										returnValues.add(service);
+									}
+								}
+							}
+						}
+					}
+
+				} catch (ApplicationServiceException e) {
+					logger.warn("There was an error while trying to access the application", e);
+					return new ArrayList<Map<String, Object>>();
+				}
+			}
+		}
+
+		return returnValues;
+	}
+	
+    private String getDefaultFactoryLdapFilter() {
+        List<String> filterList = new ArrayList<String>();
+        if (CollectionUtils.isNotEmpty(filterList)) {
+            StringBuilder ldapFilter = new StringBuilder();
+            ldapFilter.append("(");
+            ldapFilter.append("|");
+
+            for (String fpid : filterList) {
+                ldapFilter.append("(");
+                ldapFilter.append(SERVICE_FACTORYPID);
+                ldapFilter.append("=");
+                ldapFilter.append(fpid);
+                ldapFilter.append(")");
+            }
+
+            ldapFilter.append(")");
+
+            return ldapFilter.toString();
+        }
+        return "(" + SERVICE_FACTORYPID + "=" + "*)";
+    }
+
+    private String getDefaultLdapFilter() {
+    	List<String> filterList = new ArrayList<String>();
+        if (CollectionUtils.isNotEmpty(filterList)) {
+            StringBuilder ldapFilter = new StringBuilder();
+            ldapFilter.append("(");
+            ldapFilter.append("|");
+
+            for (String fpid : filterList) {
+                ldapFilter.append("(");
+                ldapFilter.append(SERVICE_PID);
+                ldapFilter.append("=");
+                ldapFilter.append(fpid);
+                ldapFilter.append("*");
+                ldapFilter.append(")");
+            }
+
+            ldapFilter.append(")");
+
+            return ldapFilter.toString();
+        }
+        return "(" + SERVICE_PID + "=" + "*)";
+    }
+	@Override
+	public List<Map<String, Object>> getConfigurationPlugins(String appName) {
+		List<Map<String, Object>> returnValues = new ArrayList<Map<String, Object>>();
+
+		for (ApplicationConfigurationPlugin plugin : pluginList) {
+			if (plugin.matchesApplicationName(appName)) {
+				returnValues.add(plugin.toJSON());
+			}
+		}
+		
+		return returnValues;
+	}
+	
+	/**
+	 * Getter method for the plugin list.
+	 * @return the plugin list.
+	 */
+	public List<ApplicationConfigurationPlugin> getPluginList() {
+		return pluginList;
+	}
+
+	/**
+	 * Setter method for the plugin list.
+	 * @param pluginList the plugin list.
+	 */
+	public void setPluginList(List<ApplicationConfigurationPlugin> pluginList) {
+		this.pluginList = pluginList;
+	}
+
+    @Override
+    public List<Map<String, Object>> getAllFeatures() {
+        return getFeatureMap(appService.getAllFeatures());
+    }
+
+    @Override
+    public List<Map<String, Object>> findApplicationFeatures(String applicationName) {
+        return getFeatureMap(appService.findApplicationFeatures(applicationName));
+    }
+
+    private List<Map<String, Object>> getFeatureMap(
+            List<FeatureDto> featureViews) {
+        List<Map<String, Object>> features = new ArrayList<Map<String, Object>>();
+        for (FeatureDto feature : featureViews) {
+            Map<String, Object> featureMap = new HashMap<String, Object>();
+            featureMap.put(MAP_NAME, feature.getName());
+            featureMap.put(MAP_VERSION, feature.getVersion());
+            featureMap.put(MAP_STATUS, feature.getStatus());
+            featureMap.put(MAP_REPOSITORY, feature.getRepository());
+            features.add(featureMap);
+        }
+        return features;
     }
 
 }

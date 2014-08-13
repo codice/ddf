@@ -46,7 +46,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-class ConfigurationAdminExt {
+public class ConfigurationAdminExt {
     static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
 
     private final XLogger logger = new XLogger(LoggerFactory.getLogger(ConfigurationAdminExt.class));
@@ -67,6 +67,7 @@ class ConfigurationAdminExt {
     private static final String MAP_ENTRY_NAME           = "name";
     private static final String MAP_ENTRY_BUNDLE         = "bundle";
     private static final String MAP_ENTRY_BUNDLE_NAME    = "bundle_name";
+    private static final String MAP_ENTRY_BUNDLE_LOCATION= "bundle_location";
     private static final String MAP_ENTRY_PROPERTIES     = "properties";
     private static final String MAP_ENTRY_METATYPE       = "metatype";
     private static final String MAP_ENTRY_CARDINALITY    = "cardinality";
@@ -83,7 +84,7 @@ class ConfigurationAdminExt {
      * @throws ClassCastException
      *             if {@code service} is not a MetaTypeService instances
      */
-    ConfigurationAdminExt(final BundleContext bundleContext, final Object configurationAdmin) {
+    public ConfigurationAdminExt(final BundleContext bundleContext, final Object configurationAdmin) {
         this.bundleContext = bundleContext;
         this.configurationAdmin = (ConfigurationAdmin) configurationAdmin;
     }
@@ -134,7 +135,7 @@ class ConfigurationAdminExt {
         return null;
     }
 
-    final List<Map<String, Object>> listServices(String serviceFactoryFilter, String serviceFilter) {
+    public List<Map<String, Object>> listServices(String serviceFactoryFilter, String serviceFilter) {
         List<Map<String, Object>> serviceList = null;
         List<Map<String, Object>> serviceFactoryList = null;
 
@@ -233,6 +234,7 @@ class ConfigurationAdminExt {
             if (null != bundle) {
                 configData.put(MAP_ENTRY_BUNDLE, bundle.getBundleId());
                 configData.put(MAP_ENTRY_BUNDLE_NAME, getName(bundle));
+                configData.put(MAP_ENTRY_BUNDLE_LOCATION, bundle.getLocation());
             }
 
             Map<String, Object> propertiesTable = new HashMap<String, Object>();
@@ -543,6 +545,7 @@ class ConfigurationAdminExt {
         // find all ManagedServiceFactories to get the factoryPIDs
         ServiceReference[] refs = this.getBundleContext().getAllServiceReferences(serviceClass,
                 serviceFilter);
+        
         for (int i = 0; refs != null && i < refs.length; i++) {
             Object pidObject = refs[i].getProperty(Constants.SERVICE_PID);
             // only include valid PIDs

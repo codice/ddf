@@ -38,6 +38,7 @@ define(['backbone', 'underscore', 'jquery'], function (Backbone, _, $) {
     };
 
     Installer.Model = Backbone.Model.extend({
+        ///jolokia/exec/org.apache.karaf:type=features,name=root/installFeature(java.lang.String)/featureName/
         install: 'installFeature(java.lang.String)/',
         uninstall: 'uninstallFeature(java.lang.String)/',
         url: '/jolokia/exec/org.apache.karaf:type=features,name=root/',

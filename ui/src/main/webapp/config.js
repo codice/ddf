@@ -52,7 +52,10 @@
             css: 'lib/require-css/css',
 
             // default admin ui
-            app: 'js/application'
+            app: 'js/application',
+
+            // datatables
+            datatables: 'lib/datatables/media/js/jquery.dataTables'
         },
 
 

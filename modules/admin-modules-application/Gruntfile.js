@@ -75,8 +75,8 @@ module.exports = function (grunt) {
                 ]
             },
             cssFiles : {
-                files :['src/main/webapp/css/*.css'],
-                tasks : ['cssmin']
+                files :['src/main/webapp/scss/*.scss','src/main/webapp/scss/**/*.scss'],
+                tasks : ['sass', 'cssmin']
             },
             bowerFile: {
                 files: ['src/main/webapp/bower.json'],
@@ -116,6 +116,16 @@ module.exports = function (grunt) {
                 replacement: '@import url("../../lato/css/lato.min.css");',
                 recursive: true
             }
+        },
+        sass: {
+            css: {
+               options: {
+                   style: 'expanded'
+               },
+               files: {
+                   "src/main/webapp/css/style.css":"src/main/webapp/scss/styles.scss"
+               }
+            }
         }
     });
 
@@ -124,6 +134,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-sass');
     grunt.loadNpmTasks('grunt-express');
     grunt.loadNpmTasks('grunt-casperjs');
     grunt.loadNpmTasks('grunt-sed');
@@ -165,14 +176,14 @@ module.exports = function (grunt) {
             });
     });
 
-    var buildTasks = ['clean', 'bower-offline-install', 'sed:imports', 'cssmin', 'jshint'];
+    var buildTasks = ['clean', 'bower-offline-install', 'sed:imports', 'sass', 'cssmin', 'jshint'];
 
     try {
         grunt.log.writeln('Checking for python');
         var pythonPath = which.sync('python');
         if(pythonPath) {
             grunt.log.writeln('Found python');
-            buildTasks = ['clean', 'bower-offline-install', 'sed:imports', 'cssmin', 'jshint', 'test'];
+            buildTasks = ['clean', 'bower-offline-install', 'sed:imports', 'sass', 'cssmin', 'jshint', 'test'];
         }
     } catch (e) {
         grunt.log.writeln('Python is not installed. Please install Python and ensure that it is in your path to run tests.');

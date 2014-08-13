@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.karaf.features.Feature;
+import org.codice.ddf.admin.application.rest.model.FeatureDto;
 
 /**
  * Service that keeps track and obtains status for applications running in the
@@ -181,5 +182,16 @@ public interface ApplicationService {
      * @return the inatllation profiles.
      */
     List<Feature> getInstallationProfiles();
+    /**
+     * Returns List of FeatureDtos with repository and status information
+     * @return
+     */
+    List<FeatureDto> getAllFeatures();
+    
+    /**
+     * Returns List of FeatureDtos with repository and status information by Application
+     * @return
+     */
+    List<FeatureDto> findApplicationFeatures(String applicationName);
 
 }

@@ -33,6 +33,7 @@ import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.Repository;
+import org.codice.ddf.admin.application.rest.model.FeatureDto;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
@@ -69,6 +70,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     private static final String POST_CONFIG_STOP = "admin-modules-installer";
 
     private static final String INSTALLATION_PROFILE_PREFIX = "profile-";
+    
+    private static final String INSTALLED = "Installed";
+    
+    private static final String UNINSTALLED = "Uninstalled";
 
     /**
      * Used to make sure that the config file is only checked on first run.
@@ -718,6 +723,76 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public void removeApplication(String applicationName) throws ApplicationServiceException {
         removeApplication(getApplication(applicationName));
+    }
+
+    @Override
+    public List<FeatureDto> getAllFeatures() {
+        List<FeatureDto> features = new ArrayList<FeatureDto>();
+        try {
+            for (Feature feature : featuresService.listFeatures()) {
+                features.add(getFeatureView(feature));
+            }
+        } catch (Exception ex) {
+            logger.warn("getAllFeatures Exception: " + ex.getMessage());
+        }
+        return features;
+    }
+
+    private Map<String, String> getFeature2Repo() {
+        Map<String, String> feature2repo = new HashMap<String, String>();
+        try {
+            for (Repository repository : featuresService.listRepositories()) {
+                for (Feature feature : repository.getFeatures()) {
+                    feature2repo.put(feature.getId(), repository.getName());
+                }
+            }
+        } catch (Exception ex) {
+            logger.warn("getFeature2Repo Exception: " + ex.getMessage());
+        }
+        return feature2repo;
+    }
+    
+    private FeatureDto getFeatureView(Feature feature) {
+        String status = featuresService.isInstalled(feature) ? INSTALLED
+                : UNINSTALLED;
+        String repository = getFeature2Repo().get(feature.getId());
+        return new FeatureDto(feature, status, repository);
+    }
+
+    @Override
+    public List<FeatureDto> findApplicationFeatures(String applicationName) {
+        List<FeatureDto> features = new ArrayList<FeatureDto>();
+        try {
+            for (Feature feature : getRepositoryFeatures(applicationName)) {
+                if (!isAppInFeatureList(feature, applicationName)) {
+                    features.add(getFeatureView(feature));
+                }
+            }
+        } catch (Exception ex) {
+            logger.warn("getRepositoryFeatures Exception: " + ex.getMessage());
+        }
+        return features;
+    }
+
+    private boolean isAppInFeatureList(Feature feature, String applicationName) {
+        String appKey = feature.getName() + "-" + feature.getVersion();
+        return appKey.equalsIgnoreCase(applicationName);
+    }
+
+    private List<Feature> getRepositoryFeatures(String repositoryName) {
+        List<Feature> repoFeatures = new ArrayList<Feature>();
+        for (Repository repository : featuresService.listRepositories()) {
+            if (repository.getName().equalsIgnoreCase(repositoryName)) {
+                try {
+                    repoFeatures = Arrays.asList(repository.getFeatures());
+                } catch (Exception ex) {
+                    logger.warn("getRepositoryFeatures Exception: "
+                            + ex.getMessage());
+                }
+                break;
+            }
+        }
+        return repoFeatures;
     }
 
 }

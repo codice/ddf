@@ -24,37 +24,35 @@ define([
     Application.App.module('Applications', function(ApplicationModule, App, Backbone, Marionette, $, _) {
 
         require([
-                '/applications/js/view/ApplicationGrid.view.js',
-                '/applications/js/model/ApplicationsLayout.js',
-               '/applications/js/view/features/Features.view.js',
-               '/applications/js/model/features/Feature.js'
-
-            ], function(ApplicationView, ApplicationModel, FeaturesView, FeatureModel) {
-            var appPage = new ApplicationView({modelClass: ApplicationModel, enableApplicationRemoval: true});
+                '/applications/js/controller/App.controller.js',
+                '/applications/js/controller/AppDetail.controller.js'
+            ], function(AppController, AppDetailController) {
 
             // Define a controller to run this module
             // --------------------------------------
 
-            var Controller = Marionette.Controller.extend({
 
-                initialize: function(options){
-                    this.region = options.region;
-                },
-
-                show: function(){
-                    this.region.show(appPage);
-                }
-
-            });
 
             // Initialize this module when the app starts
             // ------------------------------------------
 
             ApplicationModule.addInitializer(function(){
-                ApplicationModule.contentController = new Controller({
-                    region: App.applications
+
+
+                ApplicationModule.controllers = {};
+                ApplicationModule.controllers.appController = new AppController({
+                    regions: {
+                        applications: App.applications
+                    }
                 });
-                ApplicationModule.contentController.show();
+                ApplicationModule.controllers.appDetailController = new AppDetailController({
+                    regions: {
+                        applications: App.applications
+                    }
+                });
+
+                // display main app home.
+                ApplicationModule.controllers.appController.show();
             });
         });
     });

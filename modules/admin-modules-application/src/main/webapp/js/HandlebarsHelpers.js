@@ -152,6 +152,11 @@ define([
                 if(str && typeof str === "string") {
                     return new Handlebars.SafeString(str);
                 }
+            },
+            join: function( array, sep, options ) {
+                return array.map(function( item ) {
+                    return options.fn( item );
+                }).join( sep );
             }
         };
 

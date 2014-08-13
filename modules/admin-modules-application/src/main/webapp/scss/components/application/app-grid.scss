@@ -1,0 +1,120 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+.application-grid-buttons {
+  padding-bottom: 10px;
+  overflow: auto;
+}
+
+.apps-grids{
+  height: 600px;
+  overflow: auto;
+
+  hr {
+    margin: 6px 6px 0px 6px;
+  }
+}
+
+
+.apps-grid-header {
+  font-weight: bold;
+  margin: 0;
+  padding: 12px 0px 0px 12px;
+}
+
+.apps-grid {
+  overflow: auto;
+  .grid-cell {
+    width: (100% / 4.0);
+    margin: 0;
+    padding: 10px;
+    vertical-align: top;
+    float: left;
+  }
+
+
+
+  &[list-type="list"] {
+    margin-top: 10px;
+    .grid-cell {
+      padding: 0px;
+      float: none;
+      width: 100%;
+      margin: 0px auto;
+      max-width: 1000px; // the max length at which is look ok
+    }
+  }
+}
+
+.card-style-toggle {
+  .btn {
+    padding: 7px 6px 4px 6px;
+    i {
+      font-size: 30px;
+    }
+  }
+}
+
+.show-select {
+  width: auto;
+  display: inline-block;
+  margin-right: 10px;
+  margin-top: 1px;
+}
+
+.edit-toggle {
+  width: 85px;
+  @include btn-success();
+  .active-text {
+    display: none;
+  }
+
+  &.active {
+
+    @include btn-success();
+
+    .active-text {
+      display: inherit;
+    }
+
+    .not-active-text {
+      display: none;
+    }
+  }
+}
+
+.breadcrumb {
+  font-size: 2em;
+  padding: 0px 15px;
+  margin: 0px;
+}
+
+
+.show-in-edit-mode{
+  display: none;
+}
+
+.visible-in-edit-mode{
+  visiblity: hidden;
+}
+
+.edit-mode {
+  .show-in-edit-mode {
+    display: block;
+  }
+
+  .hide-in-edit-mode {
+    display: none;
+  }
+}

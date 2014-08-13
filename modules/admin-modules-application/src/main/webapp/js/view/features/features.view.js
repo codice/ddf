@@ -17,10 +17,10 @@ define([
         'marionette',
         'underscore',
         'jquery',
-        '/applications/js/view/features/FeatureRow.view',
+        '/applications/js/view/features/featureRow.view.js',
         'text!featureTemplate',
-        'datatables',
-        'icanhaz'
+        'icanhaz',
+        'datatables'
 ],
     function(Marionette, _, $, FeatureRowView, FeaturesTemplate, ich){
         'use strict';
@@ -30,7 +30,7 @@ define([
         }
 
         var FeaturesView = Marionette.CompositeView.extend({
-            template: FeaturesTemplate,
+            template: 'featureTemplate',
             itemViewContainer: 'tbody',
             itemView: FeatureRowView,
 
@@ -41,47 +41,37 @@ define([
             },
 
             initialize: function (options) {
+                this.collection = options.collection;
                 _.bindAll(this, 'onCompositeCollectionRendered', 'onShowFilter', 'onShowSort', 'onSort', 'onFilter');
-
-                // If a selected model is passed in as an option, cache it for use on render.
-                if (options.selectedModel) {
-                    this.selectedModel = options.selectedModel;
-                }
             },
 
             onRender: function () {
-                /*
                 // remove any listeners that may or may not yet exist
                 this.$('#filter-features').off('keyup', this.onFilter);
 
                 // Begin listening to the filter input
                 this.$('#filter-features').on('keyup', this.onFilter);
-
-                // Check to see if we need to select a specific row in the table
-                if (!(_.isUndefined(this.selectedModel))) {
-                    var selectedView = this.children.findByModel(this.selectedModel);
-                    if (selectedView) {
-                        selectedView.trigger('selected', selectedView.model);
-                    }
-
-                    // Reset the selectedModel attribute so future renders do not utilize it un-expectedly
-                    this.selectedModel = undefined;
-                }
-                */
             },
 
             onCompositeCollectionRendered: function () {
                 this.$('#features-table').dataTable({
+                    columnDefs : [{render : function(data,type,row){
+                        var icon = "fa-play fa-stack-1x fa-inverse start-button";
+                        var title = "Install";
+                        if(row[3] === 'Installed'){
+                            icon = "fa-stop fa-stack-1x fa-inverse stop-button";
+                            title = "Uninstall";
+                        }
+                        var iconDisplay = '<span class="fa-stack"><i class="fa fa-circle fa-stack-2x"></i>' +
+                            '<i id="action" class="fa ' + icon + ' pointer" title="' + title + '"' +" />" +
+                            "</span>";
+                        return iconDisplay;
+                    },"targets" : 4}],
                     bLengthChange: false,
                     bSortClasses: false,
                     sDom: 't<"table-footer"ip>',
+                    pagingType: 'full_numbers',
                     oLanguage: {
-                        oPaginate: {
-                            sFirst: '',
-                            sLast: '',
-                            sNext: '',
-                            sPrevious: ''
-                        },
                         sSearch: 'Filter:',
                         sInfo: '_START_ - _END_ of _TOTAL_'
                     },
