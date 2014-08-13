@@ -223,9 +223,12 @@ public class MetacardAttributeMapperImpl implements MetacardAttributeMapper {
         LOGGER.info("Attempting to delete configuration with feature type of {}.", this.featureType);
 
         Configuration configuration = getConfiguration();
-        configuration.delete();
-
-        LOGGER.info("Configuration with feature type of {} has been deleted.", this.featureType);
+        if(configuration != null) {
+            configuration.delete();
+            LOGGER.info("Configuration with feature type of {} has been deleted.", this.featureType);
+        } else {
+            LOGGER.info("Unable to delete configuration with feature type {}.", this.featureType);
+        }
     }
     
     private Configuration getConfiguration() throws IOException, InvalidSyntaxException {
@@ -240,19 +243,19 @@ public class MetacardAttributeMapperImpl implements MetacardAttributeMapper {
             configurations = configurationAdmin.listConfigurations(CONFIG_FILTER);
         }
 
+        Configuration configuration = null;
+        
         if (configurations != null) {
             LOGGER.debug("configurations length: {}.", configurations.length);
-        }
 
-        Configuration configuration = null;
-
-        for (Configuration config : configurations) {
-            Dictionary<String, Object> dictionary = config.getProperties();
-            String featureType = (String) dictionary.get("featureType");
-            if (StringUtils.equals(featureType, this.featureType)) {
-                LOGGER.debug("Found featureType of {}", this.featureType);
-                configuration = config;
-                break;
+            for (Configuration config : configurations) {
+                Dictionary<String, Object> dictionary = config.getProperties();
+                String featureType = (String) dictionary.get("featureType");
+                if (StringUtils.equals(featureType, this.featureType)) {
+                    LOGGER.debug("Found featureType of {}", this.featureType);
+                    configuration = config;
+                    break;
+                }
             }
         }
         
