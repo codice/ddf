@@ -181,7 +181,7 @@ public class LoginFilter implements Filter {
         //Object securityToken = httpRequest.getAttribute(DDF_SECURITY_TOKEN);
         Object ddfAuthToken = httpRequest.getAttribute(DDF_AUTHENTICATION_TOKEN);
 
-        if (ddfAuthToken != null && ddfAuthToken instanceof HandlerResult) {
+        if (ddfAuthToken instanceof HandlerResult) {
             HandlerResult result = (HandlerResult) ddfAuthToken;
             BaseAuthenticationToken thisToken = result.getToken();
 

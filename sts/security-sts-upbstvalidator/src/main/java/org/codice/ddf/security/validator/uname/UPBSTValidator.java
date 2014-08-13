@@ -32,7 +32,6 @@
  */
 package org.codice.ddf.security.validator.uname;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.jaxb.JAXBContextCache;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.sts.QNameConstants;
@@ -61,6 +60,7 @@ import org.apache.ws.security.message.token.UsernameToken;
 import org.apache.ws.security.validate.Credential;
 import org.apache.ws.security.validate.Validator;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -80,7 +80,7 @@ import org.codice.ddf.security.handler.api.UPAuthenticationToken;
  * DDFUsername BST validator for the STS.
  */
 public class UPBSTValidator implements TokenValidator {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(UPBSTValidator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UPBSTValidator.class);
 
     public static final String UPBST_VALUE_TYPE = "urn:ddf:security:sso#DDFToken";
 
