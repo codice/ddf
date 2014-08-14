@@ -149,12 +149,12 @@ define([
                     return "0 bytes";
                 }
                 else {
-                    index = Math.floor(Math.log(bytes) / Math.log(1000));
+                    index = Math.floor(Math.log(bytes) / Math.log(1024));
                     if(index > 4) {
                         index = 4;
                     }
 
-                    size = (bytes / Math.pow(1000, index)).toFixed(index < 2 ? 0 : 1);
+                    size = (bytes / Math.pow(1024, index)).toFixed(index < 2 ? 0 : 1);
                 }
                 return size + " " + type[index];
             },
