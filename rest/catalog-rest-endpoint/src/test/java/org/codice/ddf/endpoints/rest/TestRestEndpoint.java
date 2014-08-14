@@ -80,7 +80,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
@@ -668,24 +667,6 @@ public class TestRestEndpoint {
         assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
     }
 
-    /**
-     * Tests a null mimetype is sent to matching service.
-     *
-     * @throws URISyntaxException
-     * @throws SourceUnavailableException
-     * @throws IngestException
-     */
-    @Test
-    public void testNullgetSubject() throws URISyntaxException, IngestException,
-            SourceUnavailableException {
-
-        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-
-        RESTEndpoint rest = new RESTEndpoint(framework);
-
-        assertNull(rest.getSubject(request));
-    }
 
     /**
      * Test using a Head request to find out if Range headers are supported and to get resource size of a local

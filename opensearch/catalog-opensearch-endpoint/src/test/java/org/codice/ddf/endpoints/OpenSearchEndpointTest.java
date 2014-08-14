@@ -34,10 +34,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import java.io.ByteArrayInputStream;
@@ -48,7 +45,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
@@ -56,9 +52,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class OpenSearchEndpointTest {
-
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(OpenSearchEndpointTest.class));
 
     /**
      * Test method for
@@ -158,17 +151,6 @@ public class OpenSearchEndpointTest {
                         null, null, null, null, null, null, null, null, null, mockUriInfo, null,
                         null, null);
 
-    }
-    
-    @Test
-    public void testNullGetSubject() {
-        CatalogFramework mockFramework = mock(CatalogFramework.class);
-        FilterBuilder mockFilterBuilder = mock(FilterBuilder.class);
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        
-        OpenSearchEndpoint osEndPoint = new OpenSearchEndpoint(mockFramework, mockFilterBuilder);
-        
-        assertNull(osEndPoint.getSubject(request));
     }
 
 }

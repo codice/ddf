@@ -27,15 +27,13 @@ import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.codice.ddf.opensearch.query.OpenSearchQuery;
 import org.parboiled.errors.ParsingException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -63,8 +61,7 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
 
     private final FilterBuilder filterBuilder;
 
-    private static final XLogger LOGGER = new XLogger(
-            LoggerFactory.getLogger(OpenSearchEndpoint.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchEndpoint.class);
 
     private static final String DEFAULT_SORT_FIELD = "relevance";
 
@@ -173,16 +170,10 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
     String versions, @Context
     HttpServletRequest request) {
         final String methodName = "processQuery";
-        LOGGER.entry(methodName);
+        LOGGER.trace("ENTERING: " + methodName);
         Response response;
         String localCount = count;
-        Subject subject;
         LOGGER.debug("request url: " + ui.getRequestUri());
-
-        subject = getSubject(request);
-        if (subject == null) {
-            LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
-        }
 
         // honor maxResults if count is not specified
         if ((StringUtils.isEmpty(localCount)) && (!(StringUtils.isEmpty(maxResults)))) {
@@ -248,7 +239,7 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
                 query.addTypeFilter(type, versions);
             }
 
-            response = executeQuery(queryFormat, query, ui, subject);
+            response = executeQuery(queryFormat, query, ui);
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Bad input found while executing a query", iae);
             response = Response.status(Response.Status.BAD_REQUEST)
@@ -258,7 +249,7 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
             response = Response.serverError().entity(wrapStringInPreformattedTags(re.getMessage()))
                     .build();
         }
-        LOGGER.exit(methodName);
+        LOGGER.trace("EXITING: " + methodName);
 
         return response;
     }
@@ -302,16 +293,6 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
         }
     }
 
-    protected Subject getSubject(HttpServletRequest request) {
-        Subject subject = null;
-        if (request != null) {
-            subject = (Subject) request.getAttribute(SecurityConstants.SECURITY_SUBJECT);
-        } else {
-            LOGGER.debug("No servlet request found, cannot obtain user credentials.");
-        }
-        return subject;
-    }
-
     /**
      * Executes the OpenSearchQuery and formulates the response
      * 
@@ -326,7 +307,7 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
      * 
      * @return the response on the query
      */
-    private Response executeQuery(String format, OpenSearchQuery query, UriInfo ui, Subject subject) {
+    private Response executeQuery(String format, OpenSearchQuery query, UriInfo ui) {
         Response response;
         String queryFormat = format;
 
@@ -365,12 +346,6 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
                 QueryRequest queryRequest = new QueryRequestImpl(query, query.isEnterprise(),
                         query.getSiteIds(), null);
                 QueryResponse queryResponse;
-
-                if (subject != null) {
-                    LOGGER.debug("Adding " + SecurityConstants.SECURITY_SUBJECT
-                            + " property with value " + subject + " to request.");
-                    queryRequest.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
-                }
 
                 LOGGER.debug("Sending query");
                 queryResponse = framework.query(queryRequest);

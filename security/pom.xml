@@ -28,6 +28,7 @@
 
 	<modules>
         <module>catalog-security-filter</module>
+        <module>catalog-security-plugin</module>
 	</modules>
 	
 </project>

@@ -42,8 +42,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
@@ -175,7 +173,6 @@ public class RESTEndpoint implements RESTService {
         Response.ResponseBuilder responseBuilder;
         QueryResponse queryResponse;
         Metacard card = null;
-        Subject subject;
 
         LOGGER.debug("getHeaders");
         URI absolutePath = uriInfo.getAbsolutePath();
@@ -185,11 +182,6 @@ public class RESTEndpoint implements RESTService {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Got id: " + id);
                 LOGGER.debug("Map of query parameters: \n" + map.toString());
-            }
-
-            subject = getSubject(httpRequest);
-            if (subject == null) {
-                LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
             }
 
             Map<String, Serializable> convertedMap = convert(map);
@@ -211,11 +203,6 @@ public class RESTEndpoint implements RESTService {
 
                 QueryRequestImpl request = new QueryRequestImpl(new QueryImpl(filter), sources);
                 request.setProperties(convertedMap);
-                if (subject != null) {
-                    LOGGER.debug("Adding {} property with value {} to request.",
-                            SecurityConstants.SECURITY_SUBJECT, subject);
-                    request.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
-                }
                 queryResponse = catalogFramework.query(request, null);
 
                 // pull the metacard out of the blocking queue
@@ -337,18 +324,7 @@ public class RESTEndpoint implements RESTService {
         JSONArray resultsList = new JSONArray();
         SourceInfoResponse sources;
         try {
-            Subject subject = getSubject(httpRequest);
-            if (subject == null) {
-                LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
-            }
-
             SourceInfoRequestEnterprise sourceInfoRequestEnterprise = new SourceInfoRequestEnterprise(true);
-
-            if (subject != null) {
-                LOGGER.debug("Adding {} property with value {} to request.",
-                        SecurityConstants.SECURITY_SUBJECT, subject);
-                sourceInfoRequestEnterprise.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
-            }
 
             sources = catalogFramework.getSourceInfo(sourceInfoRequestEnterprise);
             for (SourceDescriptor source : sources.getSourceInfo()) {
@@ -412,7 +388,6 @@ public class RESTEndpoint implements RESTService {
         Response.ResponseBuilder responseBuilder;
         QueryResponse queryResponse;
         Metacard card = null;
-        Subject subject;
 
         LOGGER.debug("GET");
         URI absolutePath = uriInfo.getAbsolutePath();
@@ -423,11 +398,6 @@ public class RESTEndpoint implements RESTService {
                 LOGGER.debug("Got id: " + id);
                 LOGGER.debug("Got service: " + transformerParam);
                 LOGGER.debug("Map of query parameters: \n" + map.toString());
-            }
-
-            subject = getSubject(httpRequest);
-            if (subject == null) {
-                LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
             }
 
             Map<String, Serializable> convertedMap = convert(map);
@@ -451,11 +421,6 @@ public class RESTEndpoint implements RESTService {
 
                 QueryRequestImpl request = new QueryRequestImpl(new QueryImpl(filter), sources);
                 request.setProperties(convertedMap);
-                if (subject != null) {
-                    LOGGER.debug("Adding {} property with value {} to request.",
-                            SecurityConstants.SECURITY_SUBJECT, subject);
-                    request.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
-                }
                 queryResponse = catalogFramework.query(request, null);
 
                 // pull the metacard out of the blocking queue
@@ -560,20 +525,9 @@ public class RESTEndpoint implements RESTService {
         try {
             if (id != null && message != null) {
 
-                Subject subject = getSubject(httpRequest);
-                if (subject == null) {
-                    LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
-                }
-
                 MimeType mimeType = getMimeType(headers);
                 UpdateRequestImpl updateReq = new UpdateRequestImpl(id, generateMetacard(mimeType,
                         id, message));
-
-                if(subject != null) {
-                    LOGGER.debug("Adding {} property with value {} to request.",
-                            SecurityConstants.SECURITY_SUBJECT, subject);
-                    updateReq.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
-                }
 
                 catalogFramework.update(updateReq);
                 response = Response.ok().build();
@@ -618,20 +572,9 @@ public class RESTEndpoint implements RESTService {
 
         try {
             if (message != null) {
-                Subject subject = getSubject(httpRequest);
-                if (subject == null) {
-                    LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
-                }
 
                 CreateRequestImpl createReq = new CreateRequestImpl(generateMetacard(mimeType,
                         null, message));
-
-
-                if(subject != null) {
-                    LOGGER.debug("Adding {} property with value {} to request.",
-                            SecurityConstants.SECURITY_SUBJECT, subject);
-                    createReq.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
-                }
 
                 CreateResponse createResponse = catalogFramework.create(createReq);
 
@@ -688,18 +631,7 @@ public class RESTEndpoint implements RESTService {
         Response response;
         try {
             if (id != null) {
-                Subject subject = getSubject(httpRequest);
-                if (subject == null) {
-                    LOGGER.debug("Could not set security attributes for user, performing query with no permissions set.");
-                }
-
                 DeleteRequestImpl deleteReq = new DeleteRequestImpl(id);
-
-                if(subject != null) {
-                    LOGGER.debug("Adding {} property with value {} to request.",
-                            SecurityConstants.SECURITY_SUBJECT, subject);
-                    deleteReq.getProperties().put(SecurityConstants.SECURITY_SUBJECT, subject);
-                }
 
                 catalogFramework.delete(deleteReq);
                 response = Response.ok(id).build();
@@ -870,16 +802,6 @@ public class RESTEndpoint implements RESTService {
         }
 
         return response;
-    }
-
-    protected Subject getSubject(HttpServletRequest request) {
-        Subject subject = null;
-        if (request != null) {
-            subject = (Subject) request.getAttribute(SecurityConstants.SECURITY_SUBJECT);
-        } else {
-            LOGGER.debug("No servlet request found, cannot obtain user credentials.");
-        }
-        return subject;
     }
 
     public MimeTypeToTransformerMapper getMimeTypeToTransformerMapper() {
