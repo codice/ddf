@@ -269,13 +269,12 @@ body {
     display: block;
     width: 200px;
     text-align: center;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding: 3px 0;
 }
 
 .nav-divider {
     width: 100%;
-    margin: 0px;
+    margin: 0;
     border: 0;
     border-top: 1px solid #2c2c2c;
     border-bottom: 1px solid #eeeeee;
