@@ -28,6 +28,9 @@
             
         <AD description="Force Longitude/Latitude coordinate order" name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
             type="Boolean" default="false" />
+            
+        <AD description="Disable Sorting" name="Disable Sorting" id="disableSorting" required="true"
+            type="Boolean" default="false" />
 
         <AD description="Username for WFS Service (optional)" name="Username" id="username"
             required="false" type="String"/>
@@ -72,6 +75,9 @@
             type="Boolean" default="false"/>
             
         <AD description="Force Longitude/Latitude coordinate order" name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
+            type="Boolean" default="false" />
+
+        <AD description="Disable Sorting" name="Disable Sorting" id="disableSorting" required="true"
             type="Boolean" default="false" />
 
         <AD description="Username for WFS Service (optional)" name="Username" id="username"

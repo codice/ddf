@@ -74,7 +74,9 @@ import net.opengis.gml.v_3_2_0.PolygonType;
 import net.opengis.gml.v_3_2_0.TimeInstantType;
 import net.opengis.gml.v_3_2_0.TimePeriodType;
 import net.opengis.gml.v_3_2_0.TimePositionType;
+import net.opengis.ows.v_1_1_0.AllowedValues;
 import net.opengis.ows.v_1_1_0.DomainType;
+import net.opengis.ows.v_1_1_0.ValueType;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
@@ -88,6 +90,7 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.CONFO
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.SPATIAL_OPERATORS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.TEMPORAL_OPERATORS;
 import org.joda.time.DateTime;
+import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,6 +146,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             new EnumMap<TEMPORAL_OPERATORS, TemporalOperatorType>(TEMPORAL_OPERATORS.class));
 
     private boolean isSortingSupported;
+    
+    private Set<SortOrder> allowedSortOrders;
 
     private boolean isLonLatOrder;
 
@@ -171,6 +176,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     srsName);
         }
         this.isLonLatOrder = isLonLatOrder;
+        this.allowedSortOrders = new HashSet<SortOrder>();
+        this.isSortingSupported = false;
         updateAllowedOperations(filterCapabilities);
     }
 
@@ -195,9 +202,35 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             if (!CollectionUtils.isEmpty(constraints)) {
                 for (DomainType constraint : constraints) {
                     if (CONFORMANCE_CONSTRAINTS.ImplementsSorting.equals(CONFORMANCE_CONSTRAINTS
-                            .valueOf(constraint.getName())) && constraint.getDefaultValue() != null) {
-                        isSortingSupported = Boolean.parseBoolean(constraint.getDefaultValue()
-                                .getValue());
+                            .valueOf(constraint.getName()))) {
+
+                        if (constraint.getNoValues() != null
+                                && constraint.getDefaultValue() != null) {
+                            if (StringUtils.equalsIgnoreCase(constraint.getDefaultValue()
+                                    .getValue(), Boolean.TRUE.toString())) {
+                                this.isSortingSupported = true;
+                            } else if (StringUtils.equalsIgnoreCase(constraint.getDefaultValue()
+                                    .getValue(), Boolean.FALSE.toString())) {
+                                this.isSortingSupported = false;
+                            }
+                        }
+
+                        if (constraint.getAllowedValues() != null) {
+                            this.isSortingSupported = true;
+                            AllowedValues allowedValues = constraint.getAllowedValues();
+                            List<Object> values = allowedValues.getValueOrRange();
+                            for (Object value : values) {
+                                if (value instanceof ValueType) {
+                                    String sortOrder = ((ValueType) value).getValue();
+                                    // Could be ASC, ASCENDING, etc.
+                                    if (StringUtils.startsWithIgnoreCase(sortOrder, "A")) {
+                                        allowedSortOrders.add(SortOrder.ASCENDING);
+                                    } else if (StringUtils.startsWithIgnoreCase(sortOrder, "D")) {
+                                        allowedSortOrders.add(SortOrder.DESCENDING);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1755,7 +1788,11 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
 
     public boolean isSortingSupported() {
-        return isSortingSupported;
+        return this.isSortingSupported;
+    }
+    
+    public Set<SortOrder> getAllowedSortOrders() {
+        return this.allowedSortOrders;
     }
 
     public String getSrsName() {

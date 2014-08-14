@@ -36,6 +36,7 @@ import net.opengis.filter.v_2_0_0.TemporalOperandsType.TemporalOperand;
 import net.opengis.filter.v_2_0_0.TemporalOperatorType;
 import net.opengis.filter.v_2_0_0.TemporalOperatorsType;
 import net.opengis.ows.v_1_1_0.DomainType;
+import net.opengis.ows.v_1_1_0.NoValues;
 import net.opengis.ows.v_1_1_0.ValueType;
 
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
@@ -51,6 +52,8 @@ public class MockWfsServer {
         ConformanceType conformance = new ConformanceType();
         for (CONFORMANCE_CONSTRAINTS constraint : CONFORMANCE_CONSTRAINTS.values()) {
             DomainType domain = new DomainType();
+            NoValues noValues = new NoValues();
+            domain.setNoValues(noValues);
             ValueType value = new ValueType();
             value.setValue("TRUE");
             domain.setDefaultValue(value);

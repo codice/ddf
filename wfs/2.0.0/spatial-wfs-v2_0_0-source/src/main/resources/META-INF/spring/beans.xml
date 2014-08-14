@@ -55,6 +55,7 @@
             <beans:property name="forceSpatialFilter" value="" />
             <beans:property name="metacardToFeatureMapper" ref="metacardToFeatureMappers" />
             <beans:property name="isLonLatOrder" value="false" />
+            <beans:property name="disableSorting" value="false" />
         </beans:bean>
     </osgix:managed-service-factory>
 
@@ -83,6 +84,7 @@
             <beans:property name="forceSpatialFilter" value="" />
             <beans:property name="metacardToFeatureMapper" ref="metacardToFeatureMappers" />
             <beans:property name="isLonLatOrder" value="false" />
+            <beans:property name="disableSorting" value="false" />
         </beans:bean>
     </osgix:managed-service-factory>
 </beans:beans>

@@ -166,6 +166,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private static final String SPATIAL_FILTER_PROPERTY = "forceSpatialFilter";
 
     private static final String IS_LON_LAT_ORDER = "isLonLatOrder";
+    
+    private static final String DISABLE_SORTING = "disableSorting";
 
     private static final String NO_FORCED_SPATIAL_FILTER = "NO_FILTER";
 
@@ -209,6 +211,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
     
     private List<MetacardMapper> metacardToFeatureMappers;
+    
+    private boolean disableSorting;
 
     protected String keyStorePath, keyStorePassword;
 
@@ -221,6 +225,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         this.context = context;
         this.availabilityTask = task;
         this.metacardToFeatureMappers = Collections.emptyList();
+        this.disableSorting = false;
         configureWfsFeatures();
     }
 
@@ -263,6 +268,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         String username = (String) configuration.get(USERNAME_PROPERTY);
         Boolean disableSSLCertVerification = (Boolean) configuration.get(SSL_VERIFICATION_PROPERTY);
         boolean isLonLatOrder = (Boolean) configuration.get(IS_LON_LAT_ORDER);
+        boolean disableSorting = (Boolean) configuration.get(DISABLE_SORTING);
         String id = (String) configuration.get(ID_PROPERTY);
 
         String[] nonQueryableProperties = (String[]) configuration
@@ -278,6 +284,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         this.username = username;
         this.disableSSLCertVerification = disableSSLCertVerification;
         this.isLonLatOrder = isLonLatOrder;
+        this.disableSorting = disableSorting;
         this.forceSpatialFilter = (String) configuration.get(SPATIAL_FILTER_PROPERTY);
 
         connectToRemoteWfs();
@@ -662,13 +669,50 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                                 .createFilter(filter));
                     }
                     
-                    if (query.getSortBy() != null && filterDelegateEntry.getValue().isSortingSupported()) {
-                        JAXBElement<Object> sortingClause = buildingSortingClause(filterDelegateEntry.getKey(), query.getSortBy());
-                        if (sortingClause != null) {
-                            wfsQuery.setAbstractSortingClause(sortingClause);
+                    if (!this.disableSorting) {
+                        if (query.getSortBy() != null) {
+                            SortOrder sortOrder = query.getSortBy().getSortOrder();
+
+                            if (filterDelegateEntry.getValue().isSortingSupported()
+                                    && filterDelegateEntry.getValue().getAllowedSortOrders()
+                                            .contains(sortOrder)) {
+
+                                JAXBElement<SortByType> sortBy = buildSortBy(
+                                        filterDelegateEntry.getKey(), query.getSortBy());
+
+                                if (sortBy != null) {
+                                    LOGGER.debug("Sorting using sort order of [{}].",
+                                            sortOrder.identifier());
+                                    wfsQuery.setAbstractSortingClause(sortBy);
+                                }
+                            } else if (filterDelegateEntry.getValue().isSortingSupported()
+                                    && CollectionUtils.isEmpty(filterDelegateEntry.getValue()
+                                            .getAllowedSortOrders())) {
+
+                                JAXBElement<SortByType> sortBy = buildSortBy(
+                                        filterDelegateEntry.getKey(), query.getSortBy());
+
+                                if (sortBy != null) {
+                                    LOGGER.debug(
+                                            "No sort orders defined in getCapabilities.  Attempting to sort using sort order of [{}].",
+                                            sortOrder.identifier());
+                                    wfsQuery.setAbstractSortingClause(sortBy);
+                                }
+                            } else if (filterDelegateEntry.getValue().isSortingSupported()
+                                    && !filterDelegateEntry.getValue().getAllowedSortOrders()
+                                            .contains(sortOrder)) {
+                                LOGGER.warn(
+                                        "Unsupported sort order of [{}]. Supported sort orders are {}.",
+                                        sortOrder, filterDelegateEntry.getValue()
+                                                .getAllowedSortOrders());
+                            } else if (!filterDelegateEntry.getValue().isSortingSupported()) {
+                                LOGGER.debug("Sorting is not supported.");
+                            }
                         }
+                    } else {
+                        LOGGER.warn("Sorting is disabled.");
                     }
-                    
+
                     queries.add(wfsQuery);
                 } else {
                     LOGGER.debug("WFS Source {}: {} has an invalid filter.", getId(),
@@ -705,7 +749,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         }
     }
     
-    private JAXBElement<Object> buildingSortingClause(QName featureType, SortBy incomingSortBy)
+    private JAXBElement<SortByType> buildSortBy(QName featureType, SortBy incomingSortBy)
         throws UnsupportedQueryException {
         net.opengis.filter.v_2_0_0.ObjectFactory filterObjectFactory = new net.opengis.filter.v_2_0_0.ObjectFactory();
 
@@ -732,7 +776,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             SortByType sortByType = filterObjectFactory.createSortByType();
             sortByType.getSortProperty().add(sortPropertyType);
 
-            return filterObjectFactory.createAbstractSortingClause(sortByType);
+            return filterObjectFactory.createSortBy(sortByType);
         } else {
             return null;
         }
@@ -990,6 +1034,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     public void setIsLonLatOrder(boolean isLonLatOrder) {
         this.isLonLatOrder = isLonLatOrder;
+    }
+    
+    public void setDisableSorting(boolean disableSorting) {
+        this.disableSorting = disableSorting;
     }
 
     private String handleWebApplicationException(WebApplicationException wae) {

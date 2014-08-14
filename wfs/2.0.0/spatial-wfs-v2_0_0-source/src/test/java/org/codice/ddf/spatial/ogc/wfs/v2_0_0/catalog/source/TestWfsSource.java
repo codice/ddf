@@ -545,7 +545,7 @@ public class TestWfsSource {
     }
     
     /**
-     * Verify that the AbstractSortingClause is set with the mapped Feature Property and a ASC sort order.  In this case, the incoming sort property of TEMPORAL is mapped to
+     * Verify that the SortBy is set with the mapped Feature Property and a ASC sort order.  In this case, the incoming sort property of TEMPORAL is mapped to
      * myTemporalFeatureProperty.
      * 
      * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -557,12 +557,12 @@ public class TestWfsSource {
      *                <ValueReference>title</ValueReference>
      *            </PropertyIsLike>
      *        </Filter>
-     *        <AbstractSortingClause xsi:type="SortByType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+     *        <SortBy>
      *            <SortProperty>
      *                <ValueReference>myTemporalFeatureProperty</ValueReference>
      *                <SortOrder>ASC</SortOrder>
      *            </SortProperty>
-     *        </AbstractSortingClause>
+     *        </SortBy>
      *    </ns5:Query>
      * </ns5:GetFeature>
      */
@@ -606,7 +606,7 @@ public class TestWfsSource {
     }
     
     /**
-     * Verify that the AbstractSortingClause is NOT set.  In this case, sorting is not supported in the capabilities.
+     * Verify that the SortBy is NOT set.  In this case, sorting is not supported in the capabilities.
      */
     @Test
     public void testSortingAscendingSortingNotSupported() throws Exception {
@@ -656,7 +656,7 @@ public class TestWfsSource {
     }
     
     /**
-     * Verify that the AbstractSortingClause is NOT set.  In this case, there is no mapping for the incoming sort property of TEMPORAL so no AbstractSortingClause should be set.
+     * Verify that the SortBy is NOT set.  In this case, there is no mapping for the incoming sort property of TEMPORAL so no SortBy should be set.
      * 
      * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
      * <ns5:GetFeature startIndex="1" count="1" service="WFS" version="2.0.0" xmlns:ns2="http://www.opengis.net/ows/1.1" xmlns="http://www.opengis.net/fes/2.0" xmlns:ns4="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/wfs/2.0">
@@ -703,7 +703,7 @@ public class TestWfsSource {
     }
     
     /**
-     * Verify that the AbstractSortingClause is set with the mapped Feature Property and a DESC sort order.  In this case, the incoming sort property of TEMPORAL is mapped to
+     * Verify that the SortBy is set with the mapped Feature Property and a DESC sort order.  In this case, the incoming sort property of TEMPORAL is mapped to
      * myTemporalFeatureProperty.
      * 
      * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -715,12 +715,12 @@ public class TestWfsSource {
      *                <ValueReference>title</ValueReference>
      *            </PropertyIsLike>
      *        </Filter>
-     *        <AbstractSortingClause xsi:type="SortByType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+     *        <SortBy>
      *            <SortProperty>
      *                <ValueReference>myTemporalFeatureProperty</ValueReference>
      *                <SortOrder>DESC</SortOrder>
      *            </SortProperty>
-     *        </AbstractSortingClause>
+     *        </SortBy>
      *    </ns5:Query>
      * </ns5:GetFeature>
      */
