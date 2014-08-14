@@ -37,9 +37,12 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 
+import net.opengis.filter.v_2_0_0.ConformanceType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.SortByType;
 import net.opengis.filter.v_2_0_0.SortOrderType;
+import net.opengis.ows.v_1_1_0.DomainType;
+import net.opengis.ows.v_1_1_0.ValueType;
 import net.opengis.wfs.v_2_0_0.FeatureTypeListType;
 import net.opengis.wfs.v_2_0_0.FeatureTypeType;
 import net.opengis.wfs.v_2_0_0.GetFeatureType;
@@ -63,7 +66,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
-
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
@@ -79,7 +81,6 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-
 import ddf.catalog.source.UnsupportedQueryException;
 
 public class TestWfsSource {
@@ -558,7 +559,7 @@ public class TestWfsSource {
      * </ns5:GetFeature>
      */
     @Test
-    public void testSortingAscending() throws Exception {
+    public void testSortingAscendingSortingSupported() throws Exception {
         // Setup
         final String searchPhrase = "*";
         final String mockTemporalFeatureProperty = "myTemporalFeatureProperty";
@@ -597,8 +598,57 @@ public class TestWfsSource {
     }
     
     /**
-     * Verify that the AbstractSortingClause is set with the mapped Feature Property and a ASC sort order.  In this case, there is no mapping for the incoming 
-     * sort property of TEMPORAL so the incoming sort property (TEMPORAL) is returned by the mapper.
+     * Verify that the AbstractSortingClause is NOT set.  In this case, sorting is not supported in the capabilities.
+     */
+    @Test
+    public void testSortingAscendingSortingNotSupported() throws Exception {
+        // Setup
+        final String searchPhrase = "*";
+        final String mockTemporalFeatureProperty = "myTemporalFeatureProperty";
+        final String mockFeatureType = "{http://example.com}" + SAMPLE_FEATURE_NAME + 0;
+        final int pageSize = 1;
+        
+        // Set ImplementsSorting to FALSE (sorting not supported)
+        FilterCapabilities mockCapabilitiesSortingNotSupported = MockWfsServer.getFilterCapabilities();
+        ConformanceType conformance = mockCapabilitiesSortingNotSupported.getConformance();
+        List<DomainType> domainTypes = conformance.getConstraint();
+        for (DomainType domainType : domainTypes) {
+            if (StringUtils.equals(domainType.getName(), "ImplementsSorting")) {
+                ValueType valueType = new ValueType();
+                valueType.setValue("FALSE");
+                domainType.setDefaultValue(valueType);
+                break;
+            }
+        }
+
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                mockCapabilitiesSortingNotSupported, Wfs20Constants.EPSG_4326_URN, 1, false,
+                false, 0);
+        MetacardMapper mockMetacardMapper = mock(MetacardMapper.class);
+        when(mockMetacardMapper.getFeatureType()).thenReturn(mockFeatureType);
+        when(mockMetacardMapper.getSortByTemporalFeatureProperty()).thenReturn(
+                mockTemporalFeatureProperty);
+        List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
+        mappers.add(mockMetacardMapper);
+        source.setMetacardToFeatureMapper(mappers);
+
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like()
+                .text(searchPhrase));
+        query.setPageSize(pageSize);
+        SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.ASCENDING);
+        query.setSortBy(sortBy);
+
+        // Perform Test
+        GetFeatureType featureType = source.buildGetFeatureRequest(query);
+
+        // Verify
+        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0)
+                .getValue();
+        assertFalse(queryType.isSetAbstractSortingClause());
+    }
+    
+    /**
+     * Verify that the AbstractSortingClause is NOT set.  In this case, there is no mapping for the incoming sort property of TEMPORAL so no AbstractSortingClause should be set.
      * 
      * <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
      * <ns5:GetFeature startIndex="1" count="1" service="WFS" version="2.0.0" xmlns:ns2="http://www.opengis.net/ows/1.1" xmlns="http://www.opengis.net/fes/2.0" xmlns:ns4="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/wfs/2.0">
@@ -609,17 +659,11 @@ public class TestWfsSource {
      *                <ValueReference>title</ValueReference>
      *            </PropertyIsLike>
      *        </Filter>
-     *        <AbstractSortingClause xsi:type="SortByType" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-     *            <SortProperty>
-     *                <ValueReference>TEMPORAL</ValueReference>
-     *                <SortOrder>ASC</SortOrder>
-     *            </SortProperty>
-     *        </AbstractSortingClause>
      *    </ns5:Query>
      * </ns5:GetFeature>
      */
     @Test
-    public void testSortingAscendingNoFeaturePropertyMapping() throws Exception {
+    public void testSortingAscendingNoFeaturePropertyMappingSortingSupported() throws Exception {
         // Setup
         final String searchPhrase = "*";
         final String mockFeatureType = "{http://example.com}" + SAMPLE_FEATURE_NAME + 0;
@@ -647,12 +691,7 @@ public class TestWfsSource {
         // Verify
         QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0)
                 .getValue();
-        JAXBElement<?> abstractSortingClause = queryType.getAbstractSortingClause();
-        SortByType sortByType = (SortByType) abstractSortingClause.getValue();
-        assertThat(sortByType.getSortProperty().get(0).getValueReference(),
-                is(Result.TEMPORAL));
-        assertThat(sortByType.getSortProperty().get(0).getSortOrder().name(),
-                is(SortOrderType.ASC.value()));
+        assertFalse(queryType.isSetAbstractSortingClause());
     }
     
     /**
@@ -678,7 +717,7 @@ public class TestWfsSource {
      * </ns5:GetFeature>
      */
     @Test
-    public void testSortingDescending() throws Exception {
+    public void testSortingDescendingSortingSupported() throws Exception {
         // Setup
         final String searchPhrase = "*";
         final String mockTemporalFeatureProperty = "myTemporalFeatureProperty";
@@ -717,7 +756,7 @@ public class TestWfsSource {
     }
     
     @Test
-    public void testSortingNoSortBy() throws Exception {
+    public void testSortingNoSortBySortingSupported() throws Exception {
         // Setup
         final String searchPhrase = "*";
         final int pageSize = 1;

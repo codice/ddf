@@ -729,6 +729,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         }
     }
     
+    /**
+     * If a MetacardMapper cannot be found or there is no mapping for the incomingPropertyName, return null. 
+     * This will cause a query to be constructed without an AbstractSortingClause.
+     */
     private String mapSortByPropertyName(QName featureType, String incomingPropertyName) {
         MetacardMapper metacardToFeaturePropertyMapper = lookupMetacardAttributeToFeaturePropertyMapper(featureType);
         String mappedPropertyName = null;
@@ -737,15 +741,15 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             if (StringUtils.equals(Result.TEMPORAL, incomingPropertyName)) {
                 mappedPropertyName = StringUtils.isNotBlank(metacardToFeaturePropertyMapper
                         .getSortByTemporalFeatureProperty()) ? metacardToFeaturePropertyMapper
-                        .getSortByTemporalFeatureProperty() : incomingPropertyName;
+                        .getSortByTemporalFeatureProperty() : null;
             } else if (StringUtils.equals(Result.RELEVANCE, incomingPropertyName)) {
                 mappedPropertyName = StringUtils.isNotBlank(metacardToFeaturePropertyMapper
                         .getSortByRelevanceFeatureProperty()) ? metacardToFeaturePropertyMapper
-                        .getSortByRelevanceFeatureProperty() : incomingPropertyName;
+                        .getSortByRelevanceFeatureProperty() : null;
             } else if (StringUtils.equals(Result.DISTANCE, incomingPropertyName)) {
                 mappedPropertyName = StringUtils.isNotBlank(metacardToFeaturePropertyMapper
                         .getSortByDistanceFeatureProperty()) ? metacardToFeaturePropertyMapper
-                        .getSortByDistanceFeatureProperty() : incomingPropertyName;
+                        .getSortByDistanceFeatureProperty() : null;
             } else {
                 mappedPropertyName = null;
             }
