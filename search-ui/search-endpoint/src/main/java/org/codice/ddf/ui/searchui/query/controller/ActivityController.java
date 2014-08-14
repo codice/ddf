@@ -256,10 +256,8 @@ public class ActivityController extends AbstractEventController {
                         throw new IllegalArgumentException("Metadata ID is null");
                     }
 
-                    String downloadId = userId + id;
-
                     JSONObject jsonPropMap = new JSONObject();
-                    jsonPropMap.put(ActivityEvent.DOWNLOAD_ID_KEY, downloadId);
+                    jsonPropMap.put(ActivityEvent.DOWNLOAD_ID_KEY, id);
 
                     Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL, jsonPropMap);
                     eventAdmin.postEvent(event);
