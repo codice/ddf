@@ -74,7 +74,7 @@ define(['backbone', 'jquery','backbonerelational'],function (Backbone, $) {
             if (!model) {
                 return;
             }
-            var configUrl = [model.configUrl, "createFactoryConfiguration", model.get("fpid") ? model.get("fpid") : model.get('service').get('id')].join("/");
+            var configUrl = [model.configUrl, "createFactoryConfiguration", model.get("fpid")].join("/");
             return $.ajax({type: 'GET',
                 url: configUrl
             });
@@ -90,9 +90,9 @@ define(['backbone', 'jquery','backbonerelational'],function (Backbone, $) {
                 model = this,
                 addUrl = [model.configUrl, "add"].join("/");
             //if it has a pid we are editing an existing record
-            if(model.get('properties') && model.get('properties').get("service.pid"))
+            if(model.get('properties') && model.get('properties').get("service.pid") || (model.get('service').get('id') && !model.get('fpid')))
             {
-                var collect = model.collectedData(model.get('properties').get("service.pid"));
+                var collect = model.collectedData(model.get('properties').get("service.pid") || model.get('service').get('id'));
                 var jData = JSON.stringify(collect);
 
                 return $.ajax({
