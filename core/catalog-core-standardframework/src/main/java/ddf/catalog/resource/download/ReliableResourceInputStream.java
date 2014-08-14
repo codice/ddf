@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Future;
 
-import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
 import ddf.catalog.operation.ResourceResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +27,8 @@ import com.google.common.io.CountingOutputStream;
 import com.google.common.io.FileBackedOutputStream;
 
 /**
- * The @InputStream used by the client to read from the @FileBackedOutputStream being written to as the
- * resource is being downloaded.
+ * The @InputStream used by the client to read from the @FileBackedOutputStream being written to as
+ * the resource is being downloaded.
  */
 public class ReliableResourceInputStream extends InputStream {
 
@@ -55,8 +54,6 @@ public class ReliableResourceInputStream extends InputStream {
     // Indicates if this InputStream is closed or not
     private boolean streamClosed = false;
 
-    private DownloadsStatusEventListener eventListener;
-
     String downloadIdentifier;
 
     ResourceResponse resourceResponse;
@@ -68,13 +65,11 @@ public class ReliableResourceInputStream extends InputStream {
      */
     public ReliableResourceInputStream(FileBackedOutputStream fbos,
             CountingOutputStream countingFbos, DownloadManagerState downloadState,
-            DownloadsStatusEventListener eventListener, String downloadIdentifier,
-            ResourceResponse resourceResponse) {
+            String downloadIdentifier, ResourceResponse resourceResponse) {
         this.fbos = fbos;
         fbosByteSource = fbos.asByteSource();
         this.countingFbos = countingFbos;
         this.downloadState = downloadState;
-        this.eventListener = eventListener;
         this.downloadIdentifier = downloadIdentifier;
         this.resourceResponse = resourceResponse;
     }
@@ -101,13 +96,18 @@ public class ReliableResourceInputStream extends InputStream {
         // If product download not yet complete, set cancellation of download
         // (ReliableResourceDownloadManager will determine if caching should continue)
         if (!downloadFuture.isDone()) {
-            // Stop the caching thread
-            // synchronized so that Callable can finish any writing to OutputStreams before being canceled
+            // Stop the caching thread synchronized so that Callable can finish any writing to
+            // OutputStreams before being canceled
             synchronized (reliableResourceCallable) {
                 LOGGER.debug("Setting cancelDownload on ReliableResourceCallable thread");
                 reliableResourceCallable.setCancelDownload(true);
                 boolean status = downloadFuture.cancel(true);
                 LOGGER.debug("cachingFuture cancelling status = {}", status);
+
+                if (downloadState.getDownloadState()
+                        == DownloadManagerState.DownloadState.IN_PROGRESS) {
+                    downloadState.setDownloadState(DownloadManagerState.DownloadState.CANCELED);
+                }
             }
         }
 
@@ -117,9 +117,6 @@ public class ReliableResourceInputStream extends InputStream {
         fbos.reset();
 
         streamClosed = true;
-
-        eventListener.removeDownloadIdentifier(downloadIdentifier, resourceResponse);
-
     }
 
     public boolean isClosed() {
@@ -171,10 +168,12 @@ public class ReliableResourceInputStream extends InputStream {
             LOGGER.trace(
                     "numBytesRead <= 0 but client hasn't read all of the data from FBOS - block and read");
             while (downloadState.getDownloadState()
-                    == DownloadManagerState.DownloadState.IN_PROGRESS ||
-                    (fbosCount >= fbosBytesRead && downloadState.getDownloadState()
-                            != DownloadManagerState.DownloadState.FAILED
-                            && downloadState.getDownloadState() != null)) {
+                    == DownloadManagerState.DownloadState.IN_PROGRESS
+                    || (fbosCount >= fbosBytesRead
+                    && downloadState.getDownloadState() != DownloadManagerState.DownloadState.FAILED
+                    && downloadState.getDownloadState()
+                    != DownloadManagerState.DownloadState.CANCELED && downloadState
+                    .getDownloadState() != null)) {
                 numBytesRead = readFromFbosInputStream(b, off, len);
 
                 if (numBytesRead > 0) {
@@ -191,10 +190,12 @@ public class ReliableResourceInputStream extends InputStream {
                     }
                 }
             }
-            if (downloadState.getDownloadState() == DownloadManagerState.DownloadState.FAILED) {
+            if (downloadState.getDownloadState() == DownloadManagerState.DownloadState.FAILED
+                    || downloadState.getDownloadState()
+                    == DownloadManagerState.DownloadState.CANCELED) {
                 LOGGER.debug(
-                        "Throwing IOException because download failed - cannot retrieve product");
-                throw new IOException("Download failed - cannot retrieve product");
+                        "Throwing IOException because download failed or cancelled - cannot retrieve product");
+                throw new IOException("Download failed or cancelled - cannot retrieve product");
             }
         }
 
@@ -219,14 +220,9 @@ public class ReliableResourceInputStream extends InputStream {
     }
 
     private boolean isFbosCompletelyRead(int numBytesRead, long fbosCount) {
-        if (numBytesRead == -1 && fbosCount == fbosBytesRead &&
-                (downloadState.getDownloadState() == DownloadManagerState.DownloadState.COMPLETED ||
-                        downloadState.getDownloadState()
-                                == DownloadManagerState.DownloadState.FAILED)) {
-            return true;
-        }
-
-        return false;
+        return (numBytesRead == -1 && fbosCount == fbosBytesRead && (downloadState
+                .getDownloadState() == DownloadManagerState.DownloadState.COMPLETED || downloadState
+                .getDownloadState() == DownloadManagerState.DownloadState.FAILED));
     }
 
     private int readFromFbosInputStream(byte[] b, int off, int len) throws IOException {
