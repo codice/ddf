@@ -225,16 +225,12 @@ public class PolicyManager implements ContextPolicyManager {
         } else {
             restartProperties.put(AUTH_TYPES, null);
         }
-        if(restartProperties.containsKey(REQ_ATTRS) && restartProperties.containsKey(REALMS)) {
-            setPolicies(restartProperties);
-        }
+        setPolicies(restartProperties);
     }
 
     public void setAuthenticationTypes(String authenticationTypes) {
         restartProperties.put(AUTH_TYPES, authenticationTypes);
-        if(restartProperties.containsKey(REQ_ATTRS) && restartProperties.containsKey(REALMS)) {
-            setPolicies(restartProperties);
-        }
+        setPolicies(restartProperties);
     }
 
     public void setRequiredAttributes(List<String> requiredAttributes) {
@@ -243,16 +239,12 @@ public class PolicyManager implements ContextPolicyManager {
         } else {
             restartProperties.put(REQ_ATTRS, null);
         }
-        if(restartProperties.containsKey(AUTH_TYPES) && restartProperties.containsKey(REALMS)) {
-            setPolicies(restartProperties);
-        }
+        setPolicies(restartProperties);
     }
 
     public void setRequiredAttributes(String requiredAttributes) {
         restartProperties.put(REQ_ATTRS, requiredAttributes);
-        if(restartProperties.containsKey(AUTH_TYPES) && restartProperties.containsKey(REALMS)) {
-            setPolicies(restartProperties);
-        }
+        setPolicies(restartProperties);
     }
 
     public void setRealms(List<String> realms) {
@@ -261,16 +253,12 @@ public class PolicyManager implements ContextPolicyManager {
         } else {
             restartProperties.put(REALMS, null);
         }
-        if(restartProperties.containsKey(REQ_ATTRS) && restartProperties.containsKey(AUTH_TYPES)) {
-            setPolicies(restartProperties);
-        }
+        setPolicies(restartProperties);
     }
 
     public void setRealms(String realms) {
         restartProperties.put(REALMS, realms);
-        if(restartProperties.containsKey(REQ_ATTRS) && restartProperties.containsKey(AUTH_TYPES)) {
-            setPolicies(restartProperties);
-        }
+        setPolicies(restartProperties);
     }
 
     public void setWhiteListContexts(List<String> contexts) {
