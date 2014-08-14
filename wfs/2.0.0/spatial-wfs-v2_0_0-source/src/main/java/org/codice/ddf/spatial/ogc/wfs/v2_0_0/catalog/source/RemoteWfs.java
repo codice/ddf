@@ -35,17 +35,18 @@ import net.opengis.wfs.v_2_0_0.ValueCollectionType;
 import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
 
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.GetPropertyValueRequest;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
+import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20JaxbElementProvider;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs20;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.XmlSchemaMessageBodyReaderWfs20;
@@ -85,6 +86,24 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
         featureCollectionReader = new FeatureCollectionMessageBodyReaderWfs20();
         return Arrays.asList(provider,
                 new XmlSchemaMessageBodyReaderWfs20(), featureCollectionReader);
+    }
+
+    /**
+     * Sets the keystores to use for outgoing requests.
+     * 
+     * @param keyStorePath
+     *            Path to the keystore.
+     * @param keyStorePassword
+     *            Password for the keystore.
+     * @param trustStorePath
+     *            Path to the truststore.
+     * @param trustStorePassword
+     *            Password for the truststore.
+     */
+    public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
+            String trustStorePassword) {
+        this.configureKeystores(WebClient.client(wfs), keyStorePath, keyStorePassword,
+                trustStorePath, trustStorePassword);
     }
 
     public FeatureCollectionMessageBodyReaderWfs20 getFeatureCollectionReader() {

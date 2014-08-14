@@ -12,17 +12,15 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.ddf.spatial.ogc.csw.catalog.source;
+package org.codice.ddf.spatial.ogc.catalog.common;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory;
-import org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.fail;
+
+import javax.net.ssl.SSLHandshakeException;
+import javax.ws.rs.client.ClientException;
+
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;
@@ -35,19 +33,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.fail;
-
 /**
  * Tests that the certificates are properly added to outgoing requests and allow for mutual
  * authentication on a server that requires client auth.
  */
-public class TestCswAuthentication extends TestCswSourceBase {
+public class TestTrustedRemoteSource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestCswAuthentication.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestTrustedRemoteSource.class);
 
     private static Server server;
 
@@ -63,7 +55,7 @@ public class TestCswAuthentication extends TestCswSourceBase {
         context.setContextPath("/");
 
         // add dummy servlet that will return static response
-        context.addServlet(CswServlet.class, "/services/csw");
+        context.addServlet(TrustedServlet.class, "/");
 
         HandlerCollection handlers = new HandlerCollection();
         handlers.setHandlers(new Handler[] {context, new DefaultHandler()});
@@ -71,7 +63,7 @@ public class TestCswAuthentication extends TestCswSourceBase {
         SslContextFactory sslContextFactory = new SslContextFactory();
         // server uses the server cert
         sslContextFactory.setKeyStorePath(
-                TestCswAuthentication.class.getResource("/serverKeystore.jks").getPath());
+                TestTrustedRemoteSource.class.getResource("/serverKeystore.jks").getPath());
         sslContextFactory.setKeyStorePassword("changeit");
 
         // only accept connection with proper client certificate
@@ -100,10 +92,10 @@ public class TestCswAuthentication extends TestCswSourceBase {
     @Test
     public void testGoodCertificates() {
 
-        CswSource cswSource = createSecuredSource(
+        RemoteSource remoteSource = createSecuredSource(
                 "/clientKeystore.jks", "changeit", "/clientTruststore.jks", "changeit");
         // hit server
-        if (cswSource.getCapabilities() == null) {
+        if (remoteSource.get() == null) {
             fail("Could not get capabilities from the test server. This means no connection was established.");
         }
 
@@ -115,11 +107,15 @@ public class TestCswAuthentication extends TestCswSourceBase {
     @Test
     public void testBadClientCertificate() {
 
-        CswSource cswSource = createSecuredSource(
-                "/client-bad.jks", "", "/clientTruststore.jks", "changeit");
+        RemoteSource remoteSource = createSecuredSource("/client-bad.jks", "",
+                "/clientTruststore.jks", "changeit");
         // hit server
-        if (cswSource.getCapabilities() != null) {
-            fail("Server should have errored out with bad certificate but request passed instead.");
+        try {
+            if (remoteSource.get() != null) {
+                fail("Server should have errored out with bad certificate but request passed instead.");
+            }
+        } catch (ClientException e) {
+            assertThat(e.getCause(), is(SSLHandshakeException.class));
         }
 
     }
@@ -130,50 +126,26 @@ public class TestCswAuthentication extends TestCswSourceBase {
     @Test
     public void testBadServerCertificate() {
 
-        CswSource cswSource = createSecuredSource(
-                "/clientKeystore.jks", "changeit", "/client-bad.jks", "");
+        RemoteSource remoteSource = createSecuredSource("/clientKeystore.jks", "changeit",
+                "/client-bad.jks", "");
         // hit server
-        if (cswSource.getCapabilities() != null) {
-            fail("Cleint should have errored out with no valid certification path found, but request passed instead.");
+        try {
+            if (remoteSource.get() != null) {
+                fail("Cleint should have errored out with no valid certification path found, but request passed instead.");
+            }
+        } catch (ClientException e) {
+            assertThat(e.getCause(), is(SSLHandshakeException.class));
         }
 
     }
 
-    private CswSource createSecuredSource(String keyStorePath, String keyStorePassword,
+    private RemoteSource createSecuredSource(String keyStorePath, String keyStorePassword,
             String trustStorePath, String trustStorePassword) {
+        RemoteSource rs = new RemoteSource("https://localhost:" + serverPort + "/", true);
+        rs.setKeystores(getClass().getResource(keyStorePath).getPath(), keyStorePassword,
+                getClass().getResource(trustStorePath).getPath(), trustStorePassword);
 
-        // set up csw configuration
-        CswSourceConfiguration cswSourceConfiguration = new CswSourceConfiguration();
-        cswSourceConfiguration.setContentTypeMapping(CswRecordMetacardType.CSW_TYPE);
-        cswSourceConfiguration.setId(ID);
-        cswSourceConfiguration.setModifiedDateMapping(Metacard.MODIFIED);
-        cswSourceConfiguration.setProductRetrievalMethod(CswConstants.WCS_PRODUCT_RETRIEVAL);
-        cswSourceConfiguration.setCswUrl("https://localhost:" + serverPort + "/services/csw");
-
-        cswSourceConfiguration.setDisableSSLCertVerification(true);
-        cswSourceConfiguration.setPollIntervalMinutes(1);
-        RecordConverterFactory factory = new CswRecordConverterFactory();
-
-        // create new source
-        CswSource cswSource = new CswSource(null, mockContext, cswSourceConfiguration,
-                Arrays.asList(factory));
-        cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
-        cswSource.setFilterBuilder(builder);
-        cswSource.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
-
-
-        // client is using the client certificates
-        Map<String, String> configurationMap = new HashMap<String, String>();
-        configurationMap.put(ConfigurationManager.KEY_STORE, getClass().getResource(keyStorePath).getPath());
-        configurationMap.put(ConfigurationManager.KEY_STORE_PASSWORD, keyStorePassword);
-        configurationMap.put(ConfigurationManager.TRUST_STORE, getClass().getResource(trustStorePath).getPath());
-        configurationMap.put(ConfigurationManager.TRUST_STORE_PASSWORD, trustStorePassword);
-
-        cswSource.configurationUpdateCallback(configurationMap);
-
-        cswSource.connectToRemoteCsw();
-
-        return cswSource;
+        return rs;
     }
 
 }

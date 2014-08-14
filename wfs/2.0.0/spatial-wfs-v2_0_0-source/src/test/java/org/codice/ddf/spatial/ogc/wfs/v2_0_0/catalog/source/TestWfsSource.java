@@ -23,16 +23,22 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.namespace.QName;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.stream.StreamSource;
@@ -52,6 +58,7 @@ import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
@@ -69,6 +76,7 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
+import org.xml.sax.SAXException;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -776,5 +784,30 @@ public class TestWfsSource {
         QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0)
                 .getValue();
         assertFalse(queryType.isSetAbstractSortingClause());
+    }
+
+    @Test
+    public void testKeystoreConfiguration() throws JAXBException, UnsupportedQueryException,
+        DatatypeConfigurationException, SAXException, IOException, WfsException {
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,
+                false, 0);
+
+        final String keyStorePath = "/path/keystore.jks";
+        final String keyStorePassword = "password";
+        final String trustStorePath = "/path/truststore.jks";
+        final String trustStorePassword = "/password";
+
+        Map<String, String> configurationMap = new HashMap<String, String>();
+        configurationMap.put(ConfigurationManager.KEY_STORE, keyStorePath);
+        configurationMap.put(ConfigurationManager.KEY_STORE_PASSWORD, keyStorePassword);
+        configurationMap.put(ConfigurationManager.TRUST_STORE, trustStorePath);
+        configurationMap.put(ConfigurationManager.TRUST_STORE_PASSWORD, trustStorePassword);
+
+        // Perform test
+        source.configurationUpdateCallback(configurationMap);
+
+        verify(mockWfs, atLeastOnce()).setKeystores(any(String.class), any(String.class),
+                any(String.class), any(String.class));
     }
 }

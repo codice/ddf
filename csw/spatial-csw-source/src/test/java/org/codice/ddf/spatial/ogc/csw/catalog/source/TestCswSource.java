@@ -14,20 +14,47 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
-import ddf.catalog.data.ContentType;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.Result;
-import ddf.catalog.filter.impl.SortByImpl;
-import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.UnsupportedQueryException;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.ClientException;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
+
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.filter.v_1_1_0.SortOrderType;
+
+import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -56,37 +83,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.ClientException;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBException;
-import javax.xml.datatype.DatatypeConfigurationException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import ddf.catalog.data.ContentType;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.Result;
+import ddf.catalog.filter.impl.SortByImpl;
+import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.UnsupportedQueryException;
 
 public class TestCswSource extends TestCswSourceBase {
 
@@ -784,6 +790,52 @@ public class TestCswSource extends TestCswSourceBase {
 
         cswSource.query(new QueryRequestImpl(propertyIsLikeQuery));
 
+    }
+
+    @Test
+    public void testKeystoreConfiguration() throws JAXBException, UnsupportedQueryException,
+        DatatypeConfigurationException, SAXException, IOException {
+
+        final String TITLE = "title";
+
+        // Setup
+        final String searchPhrase = "*";
+        final int pageSize = 1;
+        final int numRecordsReturned = 1;
+        final long numRecordsMatched = 1;
+
+        setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
+
+        try {
+            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
+                    CswConstants.VERSION_2_0_2);
+        } catch (CswException e) {
+            fail("Could not configure Mock Remote CSW: " + e.getMessage());
+        }
+
+        RecordConverter mockRecordConverter = mock(RecordConverter.class);
+
+        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter,
+                new LinkedList<String>());
+        cswSource.setCswUrl(URL);
+        cswSource.setId(ID);
+
+        final String keyStorePath = "/path/keystore.jks";
+        final String keyStorePassword = "password";
+        final String trustStorePath = "/path/truststore.jks";
+        final String trustStorePassword = "/password";
+
+        Map<String, String> configurationMap = new HashMap<String, String>();
+        configurationMap.put(ConfigurationManager.KEY_STORE, keyStorePath);
+        configurationMap.put(ConfigurationManager.KEY_STORE_PASSWORD, keyStorePassword);
+        configurationMap.put(ConfigurationManager.TRUST_STORE, trustStorePath);
+        configurationMap.put(ConfigurationManager.TRUST_STORE_PASSWORD, trustStorePassword);
+
+        // Perform test
+        cswSource.configurationUpdateCallback(configurationMap);
+
+        verify(mockCsw, atLeastOnce()).setKeystores(any(String.class), any(String.class),
+                    any(String.class), any(String.class));
     }
 
     @Test

@@ -12,25 +12,27 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.ddf.spatial.ogc.csw.catalog.source;
+package org.codice.ddf.spatial.ogc.catalog.common;
 
-import org.apache.commons.io.IOUtils;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringReader;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
 
-public class CswServlet extends HttpServlet {
+import org.apache.commons.io.IOUtils;
+
+public class TrustedServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+        throws ServletException, IOException {
 
         OutputStream os = response.getOutputStream();
-        IOUtils.copy(getClass().getResourceAsStream("/getCapabilities.xml"), os);
+        IOUtils.copy(new StringReader("Trust this response"), os);
         os.flush();
 
     }

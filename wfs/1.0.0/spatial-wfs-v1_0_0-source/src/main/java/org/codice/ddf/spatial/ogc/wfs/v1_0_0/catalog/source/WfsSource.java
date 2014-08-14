@@ -55,19 +55,21 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.ws.commons.schema.XmlSchema;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverterFactory;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -105,7 +107,8 @@ import ddf.catalog.util.impl.MaskableImpl;
  * Provides a Federated and Connected source implementation for OGC WFS servers.
  * 
  */
-public class WfsSource extends MaskableImpl implements FederatedSource, ConnectedSource {
+public class WfsSource extends MaskableImpl implements FederatedSource, ConnectedSource,
+        ConfigurationWatcher {
 
     private String wfsUrl;
 
@@ -191,6 +194,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private AvailabilityTask availabilityTask;
 
     private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
+
+    protected String keyStorePath, keyStorePassword;
+
+    protected String trustStorePath, trustStorePassword;
 
     public WfsSource(RemoteWfs remoteWfs, FilterAdapter filterAdapter, BundleContext context,
             AvailabilityTask task) {
@@ -330,7 +337,9 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 getId(), wfsUrl, this.disableSSLCertVerification);
 
         try {
-                remoteWfs = new RemoteWfs(wfsUrl, username, password, disableSSLCertVerification);
+            remoteWfs = new RemoteWfs(wfsUrl, username, password, disableSSLCertVerification);
+            remoteWfs.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
+                    trustStorePassword);
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Unable to create RemoteWfs.", iae);
             remoteWfs = null;
@@ -930,6 +939,20 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     
                 LOGGER.debug("Transform complete. Metacard: {}", sb.toString());
             }
+        }
+    }
+
+    @Override
+    public void configurationUpdateCallback(Map<String, String> configurationMap) {
+
+        LOGGER.debug("Got new configurations, updating the keystore and truststore.");
+        keyStorePath = configurationMap.get(ConfigurationManager.KEY_STORE);
+        keyStorePassword = configurationMap.get(ConfigurationManager.KEY_STORE_PASSWORD);
+        trustStorePath = configurationMap.get(ConfigurationManager.TRUST_STORE);
+        trustStorePassword = configurationMap.get(ConfigurationManager.TRUST_STORE_PASSWORD);
+        if (remoteWfs != null) {
+            remoteWfs.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
+                    trustStorePassword);
         }
     }
 

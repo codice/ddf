@@ -43,6 +43,27 @@
                     <groupId>xerces</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>         
+        </dependency>
+        
+        <!-- Two-way SSL Testing -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
 </project>

@@ -23,25 +23,29 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.ClientException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.namespace.QName;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.stream.StreamSource;
@@ -61,27 +65,24 @@ import ogc.schema.opengis.wfs_capabilities.v_1_0_0.FeatureTypeListType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.FeatureTypeType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.RemoteWfs;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsSource;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs10;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
+import org.xml.sax.SAXException;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -1000,7 +1001,7 @@ public class TestWfsSource {
     public void testHandleClientException() {
         try {
             setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE);
-            source.setId("TestCswServer");
+            source.setId("TestWfsServer");
         } catch (WfsException e) {
             fail("Unable to do test setup for testHandleClientException()");
         }
@@ -1036,6 +1037,29 @@ public class TestWfsSource {
         } catch (UnsupportedQueryException e) {
             assertThat(e.getMessage(), containsString("Exception text goes here"));
         }
+    }
+
+    @Test
+    public void testKeystoreConfiguration() throws JAXBException, UnsupportedQueryException,
+        DatatypeConfigurationException, SAXException, IOException, WfsException {
+        setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE);
+
+        final String keyStorePath = "/path/keystore.jks";
+        final String keyStorePassword = "password";
+        final String trustStorePath = "/path/truststore.jks";
+        final String trustStorePassword = "/password";
+
+        Map<String, String> configurationMap = new HashMap<String, String>();
+        configurationMap.put(ConfigurationManager.KEY_STORE, keyStorePath);
+        configurationMap.put(ConfigurationManager.KEY_STORE_PASSWORD, keyStorePassword);
+        configurationMap.put(ConfigurationManager.TRUST_STORE, trustStorePath);
+        configurationMap.put(ConfigurationManager.TRUST_STORE_PASSWORD, trustStorePassword);
+
+        // Perform test
+        source.configurationUpdateCallback(configurationMap);
+
+        verify(mockWfs, atLeastOnce()).setKeystores(any(String.class), any(String.class),
+                any(String.class), any(String.class));
     }
 
     private SourceResponse executeQuery(int startIndex, int pageSize)

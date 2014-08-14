@@ -33,20 +33,19 @@ import ogc.schema.opengis.wfs.v_1_0_0.GetFeatureType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType;
 
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
-import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs10;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader.XmlSchemaMessageBodyReaderWfs10;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A client to a WFS 1.0.0 Service. This class uses the {@link Wfs} interface to create a client
@@ -83,6 +82,24 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
 
         return Arrays.asList(provider, new WfsResponseExceptionMapper(),
                 new XmlSchemaMessageBodyReaderWfs10(), featureCollectionReader);
+    }
+
+    /**
+     * Sets the keystores to use for outgoing requests.
+     * 
+     * @param keyStorePath
+     *            Path to the keystore.
+     * @param keyStorePassword
+     *            Password for the keystore.
+     * @param trustStorePath
+     *            Path to the truststore.
+     * @param trustStorePassword
+     *            Password for the truststore.
+     */
+    public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
+            String trustStorePassword) {
+        this.configureKeystores(WebClient.client(wfs), keyStorePath, keyStorePassword,
+                trustStorePath, trustStorePassword);
     }
 
     public FeatureCollectionMessageBodyReaderWfs10 getFeatureCollectionReader() {
