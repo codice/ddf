@@ -256,7 +256,11 @@ public class WebSSOFilter implements Filter {
         try {
             LOGGER.debug("Sending response code {}", code);
             response.setStatus(code);
-            response.setContentLength(0);
+            if(code >= 400) {
+                response.sendError(code);
+            } else {
+                response.setContentLength(0);
+            }
             response.flushBuffer();
         } catch (IOException ioe) {
             LOGGER.debug("Failed to send auth response", ioe);
