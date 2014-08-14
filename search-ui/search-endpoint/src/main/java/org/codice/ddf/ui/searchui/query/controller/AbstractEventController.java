@@ -79,7 +79,7 @@ public abstract class AbstractEventController implements EventHandler {
 
     protected PersistentStore persistentStore;
 
-    private EventAdmin eventAdmin;
+    protected EventAdmin eventAdmin;
 
     /**
      * Establishes {@code AbstractEventController} as a listener to events published by the OSGi
@@ -119,40 +119,13 @@ public abstract class AbstractEventController implements EventHandler {
         return notifications;
     }
 
-    public List<Map<String, Object>> getActivitiesForUser(String userId) {
-        List<Map<String, Object>> activities = new ArrayList<Map<String, Object>>();
-        List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-        try {
-            results = persistentStore.get(PersistentStore.ACTIVITY_TYPE,
-                    ActivityEvent.USER_ID_KEY + " = '" + userId + "'");
-        } catch (PersistenceException e) {
-            LOGGER.debug("PersistenceException trying to get activities for user {}", userId, e);
-        }
-        for (Map<String, Object> result : results) {
-            Map<String, Object> sanitizedResult = PersistentItem.stripSuffixes(result);
-            Map<String, Object> activity = new HashMap<String, Object>();
-            activity.put(ActivityEvent.OPERATIONS_KEY, new HashMap<String, String>());
-            for (Map.Entry<String, Object> entry: sanitizedResult.entrySet()) {
-                if (entry.getKey().contains(ActivityEvent.OPERATIONS_KEY + "_")) {
-                    ((Map) activity.get(ActivityEvent.OPERATIONS_KEY)).put(
-                            entry.getKey().substring((ActivityEvent.OPERATIONS_KEY + "_").length()),
-                            entry.getValue().toString());
-                } else {
-                    activity.put(entry.getKey(), entry.getValue().toString());
-                }
-            }
-            activities.add(activity);
-        }
-
-        return activities;
-    }
-
     /**
      * Obtains the {@link ServerSession} associated with a given user id.
      *
-     * @param userId The id of the user associated with the {@code ServerSession} to be retrieved.
+     * @param userId
+     *            The id of the user associated with the {@code ServerSession} to be retrieved.
      * @return The {@code ServerSession} associated with the received userId or null if the user
-     * does not have an established {@code ServerSession}
+     *         does not have an established {@code ServerSession}
      */
     public ServerSession getSessionByUserId(String userId) {
         return userSessionMap.get(userId);
@@ -163,9 +136,11 @@ public abstract class AbstractEventController implements EventHandler {
      * and deregisters the user. This should be invoked in order to remove
      * {@code AbstractEventController} references to invalid {@link ServerSession}s.
      *
-     * @param serverSession The {@code ServerSession} object associated with the client that is disconnecting
-     * @param serverMessage The {@link ServerMessage} that was sent from the client on the /meta/disconnect
-     *                      Channel
+     * @param serverSession
+     *            The {@code ServerSession} object associated with the client that is disconnecting
+     * @param serverMessage
+     *            The {@link ServerMessage} that was sent from the client on the /meta/disconnect
+     *            Channel
      */
     @Listener("/meta/disconnect")
     public void deregisterUserSession(ServerSession serverSession, ServerMessage serverMessage) {
@@ -195,51 +170,51 @@ public abstract class AbstractEventController implements EventHandler {
         }
     }
 
-    @Listener("/service/action")
-    public void actionSession(final ServerSession serverSession, ServerMessage serverMessage) {
-        LOGGER.debug("\nServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
-
-        if (null == serverSession) {
-            throw new IllegalArgumentException("ServerSession is null");
-        }
-
-        if (null == serverMessage) {
-            throw new IllegalArgumentException("ServerMessage is null");
-        }
-
-        Map<String, Object> actionMessage = serverMessage.getDataAsMap();
-        String actionName = (String) actionMessage.get("action");
-        String downloadIdentifier = (String) actionMessage.get("id");
-        LOGGER.debug("\nAction: {}", actionName);
-
-        if (StringUtils.equalsIgnoreCase(actionName, "cancel")) {
-            Subject subject = null;
-            try {
-                subject = SecurityUtils.getSubject();
-            } catch (Exception e) {
-                LOGGER.debug("Couldn't grab user subject from Shiro.", e);
-            }
-
-            String userId = getUserId(serverSession, subject);
-
-            if (null == userId) {
-                throw new IllegalArgumentException("User ID is null");
-            }
-            if (null == downloadIdentifier) {
-                throw new IllegalArgumentException("Metadata ID is null");
-            }
-
-            String downloadId = userId + downloadIdentifier;
-
-            JSONObject jsonPropMap = new JSONObject();
-            jsonPropMap.put(ActivityEvent.DOWNLOAD_ID_KEY, downloadId);
-
-            Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL, jsonPropMap);
-            eventAdmin.postEvent(event);
-
-        }
-
-    }
+//    @Listener("/service/action")
+//    public void actionSession(final ServerSession serverSession, ServerMessage serverMessage) {
+//        LOGGER.debug("\nServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
+//
+//        if (null == serverSession) {
+//            throw new IllegalArgumentException("ServerSession is null");
+//        }
+//
+//        if (null == serverMessage) {
+//            throw new IllegalArgumentException("ServerMessage is null");
+//        }
+//
+//        Map<String, Object> actionMessage = serverMessage.getDataAsMap();
+//        String actionName = (String) actionMessage.get("action");
+//        String downloadIdentifier = (String) actionMessage.get("id");
+//        LOGGER.debug("\nAction: {}", actionName);
+//
+//        if (StringUtils.equalsIgnoreCase(actionName, "cancel")) {
+//            Subject subject = null;
+//            try {
+//                subject = SecurityUtils.getSubject();
+//            } catch (Exception e) {
+//                LOGGER.debug("Couldn't grab user subject from Shiro.", e);
+//            }
+//
+//            String userId = getUserId(serverSession, subject);
+//
+//            if (null == userId) {
+//                throw new IllegalArgumentException("User ID is null");
+//            }
+//            if (null == downloadIdentifier) {
+//                throw new IllegalArgumentException("Metadata ID is null");
+//            }
+//
+//            String downloadId = userId + downloadIdentifier;
+//
+//            JSONObject jsonPropMap = new JSONObject();
+//            jsonPropMap.put(ActivityEvent.DOWNLOAD_ID_KEY, downloadId);
+//
+//            Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL, jsonPropMap);
+//            eventAdmin.postEvent(event);
+//
+//        }
+//
+//    }
 
     /**
      * Called by {@link  ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl.cancelDownload} to fire a
@@ -265,14 +240,17 @@ public abstract class AbstractEventController implements EventHandler {
      * >Obtaining user and session information for private message delivery</a> for more
      * information.
      *
-     * @param serverSession The {@link ServerSession} on which to deliver messages to the user for the user.
-     * @param serverMessage The {@link ServerMessage} containing the userId property with which to associate
-     *                      the {@code ServerSession}.
-     * @throws IllegalArgumentException when the received {@code ServerSession} or the {@code ServerSession}'s id is
-     *                                  null.
+     * @param serverSession
+     *            The {@link ServerSession} on which to deliver messages to the user for the user.
+     * @param serverMessage
+     *            The {@link ServerMessage} containing the userId property with which to associate
+     *            the {@code ServerSession}.
+     * @throws IllegalArgumentException
+     *             when the received {@code ServerSession} or the {@code ServerSession}'s id is
+     *             null.
      */
     public void registerUserSession(final ServerSession serverSession, ServerMessage serverMessage)
-            throws IllegalArgumentException {
+        throws IllegalArgumentException {
 
         LOGGER.debug("ServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
 
@@ -294,7 +272,6 @@ public abstract class AbstractEventController implements EventHandler {
         }
 
         userSessionMap.put(userId, serverSession);
-
 
         LOGGER.debug("Added ServerSession to userSessionMap - New map: {}", userSessionMap);
     }
@@ -323,8 +300,8 @@ public abstract class AbstractEventController implements EventHandler {
                     }
 
                     LOGGER.trace("Sending notifications back to client.");
-                        serverSession.deliver(controllerServerSession, topic,
-                                jsonPropMap.toJSONString(), null);
+                    serverSession.deliver(controllerServerSession, topic,
+                            jsonPropMap.toJSONString(), null);
                 }
             });
         }

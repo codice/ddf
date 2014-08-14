@@ -121,7 +121,7 @@ define([
             var id = e.target.id;
             if(id) {
                 if(id !== 'close' && id !== 'cancelRemove') {
-                    Cometd.Comet.publish(this.model.url, {id: this.model.get('id'), action: id});
+                    Cometd.Comet.publish(this.model.url, {data: [{id: this.model.get('id'), action: id}]});
                     if(id === 'remove') {
                         this.model.collection.remove(this.model);
                         wreqr.vent.trigger('task:remove', this.model);

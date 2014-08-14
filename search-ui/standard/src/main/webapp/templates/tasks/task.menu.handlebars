@@ -41,7 +41,7 @@
         {{#if progress}}
             <div class="task-progressbar">
                 {{#is progress '-1'}}
-                    {{fileSize bytes}} read
+                    {{fileSizeGuaranteedInt bytes}} read
                 {{/is}}
             </div>
             {{#is status "STOPPED"}}
