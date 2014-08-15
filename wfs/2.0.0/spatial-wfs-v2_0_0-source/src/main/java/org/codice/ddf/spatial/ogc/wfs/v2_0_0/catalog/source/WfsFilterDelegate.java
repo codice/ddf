@@ -963,10 +963,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         FilterType returnFilter = new FilterType();
         // If this is a Content Type filter verify its for this Filter delegate.
         if (Metacard.CONTENT_TYPE.equals(propertyName)) {
-            if (featureMetacardType.getName().equals(literal)) {
-                return returnFilter;
-            }
-            return null;
+            return returnFilter;
         }
         // Special Case - If we get an ANY_TEXT we want to convert that to a
         // series of OR's

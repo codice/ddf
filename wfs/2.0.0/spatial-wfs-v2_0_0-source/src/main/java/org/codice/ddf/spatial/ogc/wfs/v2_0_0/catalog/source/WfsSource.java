@@ -632,9 +632,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         } catch (WfsException wfse) {
             LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
             throw new UnsupportedQueryException("Error received from WFS Server", wfse);
-        } catch (WebApplicationException wae) {
-            handleWebApplicationException(wae);
-        } catch (ClientException ce) {
+        }  catch (ClientException ce) {
             String msg = handleClientException(ce);
             throw new UnsupportedQueryException(msg, ce);
         }
@@ -644,6 +642,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     protected GetFeatureType buildGetFeatureRequest(Query query) throws UnsupportedQueryException {
         List<ContentType> contentTypes = getContentTypesFromQuery(query);
+        
         List<QueryType> queries = new ArrayList<QueryType>();
         for (Entry<QName, WfsFilterDelegate> filterDelegateEntry : featureTypeFilters.entrySet()) {
             if (contentTypes.isEmpty()
@@ -662,7 +661,6 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 wfsQuery.setTypeNames(Arrays.asList(typeName));
                 wfsQuery.setHandle(filterDelegateEntry.getKey().getLocalPart());
                 FilterType filter = filterAdapter.adapt(query, filterDelegateEntry.getValue()); 
-
                 if (filter != null) {
                     if (areAnyFiltersSet(filter)) {
                         wfsQuery.setAbstractSelectionClause(new net.opengis.filter.v_2_0_0.ObjectFactory()
@@ -742,6 +740,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 incomingQueries.add(new net.opengis.wfs.v_2_0_0.ObjectFactory().createQuery(queryType));
             }
             logMessage(getFeatureType);
+            
             return getFeatureType;
         } else {
             throw new UnsupportedQueryException(

@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -810,4 +811,50 @@ public class TestWfsSource {
         verify(mockWfs, atLeastOnce()).setKeystores(any(String.class), any(String.class),
                 any(String.class), any(String.class));
     }
+    
+    @Test
+    public void testSearchByType() throws Exception {
+        //Setup
+        int startIndex = 0;
+        int pageSize = 10;
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 10, false);
+        Filter filter = builder.attribute(Metacard.CONTENT_TYPE).is().equalTo().text(SAMPLE_FEATURE_NAME + "0");
+        QueryImpl query = new QueryImpl(filter);
+        query.setPageSize(pageSize);
+
+        //Execute
+        GetFeatureType featureType = source.buildGetFeatureRequest(query);
+        QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0).getValue();
+        
+        //Validate
+        assertEquals(SAMPLE_FEATURE_NAME + "0", queryType.getTypeNames().get(0));
+    }
+    
+    @Test
+    public void testSearchByMultipleTypes() throws Exception {
+        //Setup
+        int startIndex = 0;
+        int pageSize = 10;
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 10, false);
+        Filter filter0 = builder.attribute(Metacard.CONTENT_TYPE).is().equalTo().text(SAMPLE_FEATURE_NAME + "8");
+        Filter filter1 = builder.attribute(Metacard.CONTENT_TYPE).is().equalTo().text(SAMPLE_FEATURE_NAME + "9");
+        Filter filter2 = builder.attribute(Metacard.ANY_TEXT).is().like().text("*");
+        
+        Filter typeSearchFilters = builder.anyOf(filter0, filter1);
+        
+        QueryImpl query = new QueryImpl(builder.allOf(filter2, typeSearchFilters));
+        query.setPageSize(pageSize);
+
+        //Execute
+        GetFeatureType featureType = source.buildGetFeatureRequest(query);
+        int numTypes = featureType.getAbstractQueryExpression().size();
+        
+        //Validate
+        assertEquals(2, numTypes);
+    }
+    
 }

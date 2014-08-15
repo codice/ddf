@@ -191,7 +191,7 @@ public class FeatureCollectionConverterWfs20 implements Converter {
         }
         return featureCollection;
     }
-
+    
     public void setFeatureConverterMap(Map<String, FeatureConverter> featureConverterMap) {
         this.featureConverterMap = featureConverterMap;
     }
