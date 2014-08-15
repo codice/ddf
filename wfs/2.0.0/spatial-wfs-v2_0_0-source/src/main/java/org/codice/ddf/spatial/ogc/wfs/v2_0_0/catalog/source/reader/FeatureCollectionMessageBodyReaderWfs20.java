@@ -85,6 +85,9 @@ public class FeatureCollectionMessageBodyReaderWfs20 implements MessageBodyReade
     @Override
     public boolean isReadable(Class<?> clazz, Type type, Annotation[] annotations,
             MediaType mediaType) {
+        if(!Wfs20FeatureCollection.class.isAssignableFrom(clazz)) {
+            LOGGER.warn("{} class is not readable.", clazz);
+        }
         return Wfs20FeatureCollection.class.isAssignableFrom(clazz);
     }
 
@@ -107,7 +110,7 @@ public class FeatureCollectionMessageBodyReaderWfs20 implements MessageBodyReade
             wfsFeatureCollectionType = (JAXBElement<FeatureCollectionType>) unmarshaller
                     .unmarshal(reader);
         } catch (ClassCastException e1) {
-            LOGGER.error("Exception unmarshalling {}", e1);
+            LOGGER.warn("Exception unmarshalling {}, could be an error from server.", e1);
             
             // If an ExceptionReport is sent from the remote WFS site it will be sent with an
             // JAX-RS "OK" status, hence the ErrorResponse exception mapper will not fire.

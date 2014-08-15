@@ -172,6 +172,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private static final String NO_FORCED_SPATIAL_FILTER = "NO_FILTER";
 
     private static final String WFS_ERROR_MESSAGE = "Error received from Wfs Server.";
+    
+    private static final String UNKNOWN = "unknown";
 
     public static final int WFS_MAX_FEATURES_RETURNED = 1000;
 
@@ -600,15 +602,17 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         try {
             LOGGER.debug("WFS Source {}: Sending query ...", getId());
             Wfs20FeatureCollection featureCollection = remoteWfs.getFeature(getFeature);
+            int numResults = -1;
 
             if (featureCollection == null) {
                 throw new UnsupportedQueryException("Invalid results returned from server");
             }
             if (featureCollection.getNumberReturned() == null){
-                throw new UnsupportedQueryException("The number of features returned did not exist");
+                //Number Returned attribute was not added to the response per specification so executing alternative
+                numResults = featureCollection.getMembers().size();
+            } else {
+                numResults = featureCollection.getNumberReturned().intValue();
             }
-            
-            int numResults = featureCollection.getNumberReturned().intValue();
 
             if (numResults > 0){
                 availabilityTask.updateLastAvailableTimestamp(System.currentTimeMillis());
@@ -625,9 +629,19 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                     debugResult(result);
                 }
                 
-                simpleResponse = new SourceResponseImpl(request, results, new Long(numResults));
+                //Fetch total results available
+                Long totalResults = new Long(0);
+                if(featureCollection.getNumberMatched() == null){
+                    totalResults = Long.valueOf(numResults);
+                } else if (featureCollection.getNumberMatched().equals(UNKNOWN)){
+                    totalResults = Long.valueOf(numResults);
+                } else if (StringUtils.isNumeric(featureCollection.getNumberMatched())){
+                    totalResults = Long.parseLong(featureCollection.getNumberMatched());
+                }
+                
+                simpleResponse = new SourceResponseImpl(request, results, totalResults);
             } else {
-                throw new UnsupportedQueryException("The number of features returned is a 0 or negative number");
+                throw new UnsupportedQueryException("The number of features returned is a negative number");
             }
         } catch (WfsException wfse) {
             LOGGER.warn(WFS_ERROR_MESSAGE, wfse);

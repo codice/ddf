@@ -29,6 +29,7 @@ import javax.xml.namespace.QName;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsQnameBuilder;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.slf4j.Logger;
@@ -75,32 +76,39 @@ public class FeatureCollectionConverterWfs20 implements Converter {
     
     @Override
     public boolean canConvert(Class clazz) {
+        if (!WfsFeatureCollection.class.isAssignableFrom(clazz)) {
+            LOGGER.warn("Cannot convert: {}", clazz.getName());
+        }
         return Wfs20FeatureCollection.class.isAssignableFrom(clazz);
     }
 
     @Override
     public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
-        Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) value;
-
-        String schemaLoc = generateSchemaLocationFromMetacards(wfc.getMembers(),
-                prefixToUriMapping);
-
-        for (Entry<String, String> entry : prefixToUriMapping.entrySet()) {
-            writer.addAttribute(XMLConstants.XMLNS_ATTRIBUTE + ":" + entry.getKey(), entry.getValue());
-        }
-        writer.addAttribute(Wfs20Constants.ATTRIBUTE_SCHEMA_LOCATION, schemaLoc);
-
-        Geometry allGeometry = getBounds(wfc.getMembers());
-        if (!allGeometry.isEmpty()) {
-            XmlNode.writeEnvelope(Wfs20Constants.GML_PREFIX + ":" + "boundedBy", context, writer,
-                    allGeometry.getEnvelopeInternal());
-        }
-
-        for (Metacard mc : wfc.getMembers()) {
-            writer.startNode(Wfs20Constants.GML_PREFIX + ":"
-                    + featureMember);
-            context.convertAnother(mc);
-            writer.endNode();
+        if (value != null) {
+            Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) value;
+    
+            String schemaLoc = generateSchemaLocationFromMetacards(wfc.getMembers(),
+                    prefixToUriMapping);
+    
+            for (Entry<String, String> entry : prefixToUriMapping.entrySet()) {
+                writer.addAttribute(XMLConstants.XMLNS_ATTRIBUTE + ":" + entry.getKey(), entry.getValue());
+            }
+            writer.addAttribute(Wfs20Constants.ATTRIBUTE_SCHEMA_LOCATION, schemaLoc);
+    
+            Geometry allGeometry = getBounds(wfc.getMembers());
+            if (!allGeometry.isEmpty()) {
+                XmlNode.writeEnvelope(Wfs20Constants.GML_PREFIX + ":" + "boundedBy", context, writer,
+                        allGeometry.getEnvelopeInternal());
+            }
+    
+            for (Metacard mc : wfc.getMembers()) {
+                writer.startNode(Wfs20Constants.GML_PREFIX + ":"
+                        + featureMember);
+                context.convertAnother(mc);
+                writer.endNode();
+            }
+        } else {
+            LOGGER.warn("Incoming value was null");
         }
     }
 
@@ -112,42 +120,51 @@ public class FeatureCollectionConverterWfs20 implements Converter {
 
     private String generateSchemaLocationFromMetacards(List<Metacard> metacards,
             Map<String, String> prefixToUriMapping) {
-
-        StringBuilder descFeatureService = new StringBuilder();
-        descFeatureService.append(contextRoot).append(
-                "/wfs?service=wfs&request=DescribeFeatureType&version=2.0.0&typeName=");
-
-        StringBuilder schemaLocation = new StringBuilder();
-        Set<QName> qnames = new HashSet<QName>();
-        for (Metacard metacard : metacards) {
-            qnames.add(WfsQnameBuilder.buildQName(metacard.getMetacardType().getName(),
-                    metacard.getContentTypeName()));
+        if (metacards != null) {
+            StringBuilder descFeatureService = new StringBuilder();
+            descFeatureService.append(contextRoot).append(
+                    "/wfs?service=wfs&request=DescribeFeatureType&version=2.0.0&typeName=");
+    
+            StringBuilder schemaLocation = new StringBuilder();
+            Set<QName> qnames = new HashSet<QName>();
+            for (Metacard metacard : metacards) {
+                qnames.add(WfsQnameBuilder.buildQName(metacard.getMetacardType().getName(),
+                        metacard.getContentTypeName()));
+            }
+            for (QName qname : qnames) {
+                prefixToUriMapping.put(qname.getPrefix(), qname.getNamespaceURI());
+                schemaLocation.append(qname.getNamespaceURI()).append(" ")
+                        .append(descFeatureService).append(qname.getPrefix())
+                        .append(":").append(qname.getLocalPart())
+                        .append(" ");
+    
+            }
+            return schemaLocation.toString();
+        } else {
+            LOGGER.warn("Metacard list is null");
+            return null;
         }
-        for (QName qname : qnames) {
-            prefixToUriMapping.put(qname.getPrefix(), qname.getNamespaceURI());
-            schemaLocation.append(qname.getNamespaceURI()).append(" ")
-                    .append(descFeatureService).append(qname.getPrefix())
-                    .append(":").append(qname.getLocalPart())
-                    .append(" ");
-
-        }
-        return schemaLocation.toString();
     }
 
     private Geometry getBounds(List<Metacard> metacards) {
-        List<Geometry> geometries = new ArrayList<Geometry>();
-        for (Metacard card : metacards) {
-            if (null != card.getLocation()) {
-                Geometry geo = XmlNode.readGeometry(card.getLocation());
-                if (null != geo) {
-                    geometries.add(geo);
+        if (metacards != null) {
+            List<Geometry> geometries = new ArrayList<Geometry>();
+            for (Metacard card : metacards) {
+                if (null != card.getLocation()) {
+                    Geometry geo = XmlNode.readGeometry(card.getLocation());
+                    if (null != geo) {
+                        geometries.add(geo);
+                    }
                 }
             }
+    
+            Geometry allGeometry = new GeometryCollection(geometries.toArray(new Geometry[0]),
+                    new GeometryFactory());
+            return allGeometry;
+        } else {
+            LOGGER.warn("Metacard list is null");
+            return null;
         }
-
-        Geometry allGeometry = new GeometryCollection(geometries.toArray(new Geometry[0]),
-                new GeometryFactory());
-        return allGeometry;
     }
 
     @Override

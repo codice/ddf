@@ -32,6 +32,8 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsQnameBuilder;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -57,6 +59,8 @@ public class FeatureCollectionConverterWfs10 implements Converter {
     protected String featureMember = "";
 
     private String contextRoot;
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureCollectionConverterWfs10.class);
 
     private Map<String, FeatureConverter> featureConverterMap = new HashMap<String, FeatureConverter>();
     
@@ -71,6 +75,9 @@ public class FeatureCollectionConverterWfs10 implements Converter {
     
     @Override
     public boolean canConvert(Class clazz) {
+        if (!WfsFeatureCollection.class.isAssignableFrom(clazz)) {
+            LOGGER.warn("Cannot convert: {}", clazz.getName());
+        }
         return WfsFeatureCollection.class.isAssignableFrom(clazz);
     }
 
@@ -131,19 +138,24 @@ public class FeatureCollectionConverterWfs10 implements Converter {
     }
 
     private Geometry getBounds(List<Metacard> metacards) {
-        List<Geometry> geometries = new ArrayList<Geometry>();
-        for (Metacard card : metacards) {
-            if (null != card.getLocation()) {
-                Geometry geo = XmlNode.readGeometry(card.getLocation());
-                if (null != geo) {
-                    geometries.add(geo);
+        if (metacards != null) {
+            List<Geometry> geometries = new ArrayList<Geometry>();
+            for (Metacard card : metacards) {
+                if (null != card.getLocation()) {
+                    Geometry geo = XmlNode.readGeometry(card.getLocation());
+                    if (null != geo) {
+                        geometries.add(geo);
+                    }
                 }
             }
+    
+            Geometry allGeometry = new GeometryCollection(geometries.toArray(new Geometry[0]),
+                    new GeometryFactory());
+            return allGeometry;
+        } else {
+            LOGGER.error("List of metacards was null.");
+            return null;
         }
-
-        Geometry allGeometry = new GeometryCollection(geometries.toArray(new Geometry[0]),
-                new GeometryFactory());
-        return allGeometry;
     }
 
     @Override

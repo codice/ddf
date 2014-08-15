@@ -73,6 +73,9 @@ public class FeatureCollectionMessageBodyReaderWfs10 implements MessageBodyReade
     @Override
     public boolean isReadable(Class<?> clazz, Type type, Annotation[] annotations,
             MediaType mediaType) {
+        if (!WfsFeatureCollection.class.isAssignableFrom(clazz)) {
+            LOGGER.warn("{} class is not readable", clazz);
+        }
         return WfsFeatureCollection.class.isAssignableFrom(clazz);
     }
 
