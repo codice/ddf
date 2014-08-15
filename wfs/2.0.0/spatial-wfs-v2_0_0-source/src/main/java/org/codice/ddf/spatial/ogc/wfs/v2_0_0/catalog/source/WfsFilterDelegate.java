@@ -961,7 +961,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
         }
         FilterType returnFilter = new FilterType();
-        // If this is a Content Type filter verify its for this Filter delegate.
+ 
         if (Metacard.CONTENT_TYPE.equals(propertyName)) {
             return returnFilter;
         }
