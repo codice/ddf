@@ -188,9 +188,7 @@ public class FeatureCollectionConverterWfs20 implements Converter {
                         if (featureMember.equals(subNodeName2)) {
                             reader.moveDown();
                             // lookup the converter for this featuretype
-                            featureCollection.getMembers().add(
-                                    (Metacard) context.convertAnother(null, MetacardImpl.class,
-                                            featureConverterMap.get(reader.getNodeName())));
+                            featureCollection = addMetacardToFeatureCollection(featureCollection, context, reader); 
                             reader.moveUp();
                         }
                         reader.moveUp();
@@ -198,14 +196,20 @@ public class FeatureCollectionConverterWfs20 implements Converter {
                     
                 } else {
                     // lookup the converter for this featuretype
-                    featureCollection.getMembers().add(
-                            (Metacard) context.convertAnother(null, MetacardImpl.class,
-                                    featureConverterMap.get(reader.getNodeName())));
+                    featureCollection = addMetacardToFeatureCollection(featureCollection, context, reader); 
                 }
                 reader.moveUp();
             }
             reader.moveUp();
         }
+        return featureCollection;
+    }
+    
+    private Wfs20FeatureCollection addMetacardToFeatureCollection(Wfs20FeatureCollection featureCollection, UnmarshallingContext context, 
+            HierarchicalStreamReader reader) {
+        featureCollection.getMembers().add(
+                (Metacard) context.convertAnother(null, MetacardImpl.class,
+                        featureConverterMap.get(reader.getNodeName())));
         return featureCollection;
     }
     
