@@ -127,7 +127,9 @@
             multiselect: ['jquery', 'jqueryuiWidget'],
             multiselectfilter: ['jquery', 'multiselect'],
 
-            perfectscrollbar: ['jquery']
+            perfectscrollbar: ['jquery'],
+
+            purl: ['jquery']
 
         },
 

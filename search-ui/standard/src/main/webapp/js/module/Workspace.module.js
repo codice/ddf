@@ -18,6 +18,7 @@ define(['application',
         'wreqr',
         'poller',
         'js/model/source',
+        'underscore',
         // Load non attached libs and plugins
         'datepicker',
         'datepickerOverride',
@@ -25,19 +26,46 @@ define(['application',
         'multiselect',
         'multiselectfilter'
     ],
-    function(Application, Cometd, Marionette, WorkspaceView, Workspace, wreqr, poller, Source) {
+    function(Application, Cometd, Marionette, WorkspaceView, Workspace, wreqr, poller, Source, _) {
 
         Application.App.module('WorkspaceModule', function(WorkspaceModule) {
 
+            var setTypes = function () {
+                var allTypes = _.chain(WorkspaceModule.sources.map(function (source) {
+                    return source.get('contentTypes');
+                })).flatten().value();
+                allTypes.sort(function compare(a, b) {
+                    if (a.name.toUpperCase() < b.name.toUpperCase())
+                        return -1;
+                    if (a.name.toUpperCase() > b.name.toUpperCase())
+                        return 1;
+                    return 0;
+                });
+                allTypes = _.uniq(allTypes, false, function (type) {
+                    return type.name + ':' + type.version;
+                });
+                WorkspaceModule.types.set(allTypes);
+            };
+
             WorkspaceModule.sources = new Source.Collection();
-            WorkspaceModule.sources.fetch();
+            WorkspaceModule.sources.fetch().success(function() {
+                setTypes();
+            });
+
+            WorkspaceModule.types = new Source.Types();
 
             // Poll the server for changes to Sources every 60 seconds -
             // This matches the DDF SourcePoller polling interval
             poller.get(WorkspaceModule.sources, { delay: 60000 }).start();
 
-            wreqr.reqres.setHandler('sources', function () {
+            wreqr.reqres.setHandler('workspace:getsources', function () {
                 return WorkspaceModule.sources;
+            });
+
+            this.listenTo(WorkspaceModule.sources, 'change', setTypes);
+
+            wreqr.reqres.setHandler('workspace:gettypes', function () {
+                return WorkspaceModule.types;
             });
 
             WorkspaceModule.workspaces = new Workspace.WorkspaceResult();

@@ -78,18 +78,29 @@ define([
                                  converter: function (direction, value) {
                                      return !value;
                                }}
+                };
 
-
+                var typesBindings = {
+                    name: [ { selector: '',
+                        elAttribute: 'value'},
+                        { selector: ''} ]
                 };
 
                 this.sourcesCollectionBinder = new Backbone.CollectionBinder(
                     new Backbone.CollectionBinder.ElManagerFactory(
                         '<option></option>', sourcesBindings));
 
+                this.typesCollectionBinder = new Backbone.CollectionBinder(
+                    new Backbone.CollectionBinder.ElManagerFactory(
+                        '<option></option>', typesBindings));
+
                 this.isWorkspace = options.isWorkspace;
 
-                if (wreqr.reqres.hasHandler('sources')) {
-                    this.sources = wreqr.reqres.request('sources');
+                if (wreqr.reqres.hasHandler('workspace:getsources')) {
+                    this.sources = wreqr.reqres.request('workspace:getsources');
+                }
+                if (wreqr.reqres.hasHandler('workspace:gettypes')) {
+                    this.types = wreqr.reqres.request('workspace:gettypes');
                 }
             },
 
@@ -173,20 +184,10 @@ define([
             serializeData: function () {
                 var allSources, allTypes;
                 if(this.sources) {
-                    allTypes = _.chain(this.sources.map(function (source) {
-                        return source.get('contentTypes');
-                    })).flatten().value();
-                    allTypes.sort(function compare(a, b) {
-                        if (a.name.toUpperCase() < b.name.toUpperCase())
-                            return -1;
-                        if (a.name.toUpperCase() > b.name.toUpperCase())
-                            return 1;
-                        return 0;
-                    });
-                    allTypes = _.uniq(allTypes, false, function (type) {
-                        return type.name + ':' + type.version;
-                    });
                     allSources = this.sources.toJSON();
+                }
+                if(this.types) {
+                    allTypes = this.types.toJSON();
                 }
                 return _.extend(this.model.toJSON(), {types: allTypes, sources: allSources, isWorkspace: this.isWorkspace});
             },
@@ -248,6 +249,7 @@ define([
                 // the QueryModel so that the sources exist in the select list
                 // before the model bindings attempt to select them.
                 this.sourcesCollectionBinder.bind(this.sources, this.$('#federationSources'));
+                this.typesCollectionBinder.bind(this.types, this.$('#typeList'));
                 this.modelBinder.bind(this.model, this.$el, queryModelBindings);
 
                 // Refresh the sources multiselect widget to reflect
@@ -255,6 +257,10 @@ define([
                 // modified (e.g., become available/unavailable)
                 this.sources.bind('add change remove', function() {
                     $('#federationSources').multiselect("refresh");
+                });
+
+                this.types.bind('add change remove', function() {
+                    $('#typeList').multiselect("refresh");
                 });
 
                 this.initDateTimePicker('#absoluteStartTime');

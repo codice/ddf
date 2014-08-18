@@ -20,6 +20,9 @@ define([
             Collection: Backbone.Collection.extend({
                 url: "/services/catalog/sources",
                 useAjaxSync: true
+            }),
+            Types: Backbone.Collection.extend({
+
             })
         };
 });
