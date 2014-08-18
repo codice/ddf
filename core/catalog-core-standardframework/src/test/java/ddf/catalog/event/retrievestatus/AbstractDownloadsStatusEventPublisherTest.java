@@ -15,6 +15,7 @@
 package ddf.catalog.event.retrievestatus;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -32,6 +33,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.notifications.Notification;
 import org.junit.After;
 import org.junit.Before;
@@ -188,6 +190,63 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
                 "test detail", 500L, downloadIdentifier);
         verify(eventAdmin, times(4)).postEvent(any(Event.class));
         assertEquals(correctUser, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
+    }
+
+    /**
+     * Verifies client can set parameter to only publish a notification, no corresponding activity.
+     */
+    @org.junit.Test
+    public void testPostRetrievalStatusNotificationOnly() {
+        setupPublisher();
+        publisher.setActivityEnabled(true);
+        publisher.setNotificationEnabled(true);
+        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
+                "test detail", 20L, downloadIdentifier, true, false);
+        // By expecting only 1 invocation of postEvent(), this verifies only a notification was sent,
+        // and no activity. No way to check absence of ActivityEvent.
+        verify(eventAdmin, times(1)).postEvent(any(Event.class));
+        assertEquals(DEFAULT_USER_ID, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
+    }
+
+    /**
+     * Verifies client can set parameter to only publish an activity, no corresponding notification.
+     */
+    @org.junit.Test
+    public void testPostRetrievalStatusActivityOnly() {
+        setupPublisher();
+        publisher.setActivityEnabled(true);
+        publisher.setNotificationEnabled(true);
+        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
+                "test detail", 20L, downloadIdentifier, false, true);
+        // By expecting only 1 invocation of postEvent(), this verifies only an activity was sent,
+        // and no notification. No way to check absence of Notification.
+        verify(eventAdmin, times(1)).postEvent(any(Event.class));
+        assertEquals(DEFAULT_USER_ID, curEvent.getProperty(ActivityEvent.USER_ID_KEY));
+    }
+
+    /**
+     * Verifies client can set parameters to publish an activity and its corresponding notification.
+     * This is the default behavior.
+     */
+    @org.junit.Test
+    public void testPostRetrievalStatusSendNotificationAndActivity() {
+        setupPublisher();
+        publisher.setActivityEnabled(true);
+        publisher.setNotificationEnabled(true);
+        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
+                "test detail", 20L, downloadIdentifier, true, true);
+        // Expect 2 invocations of postEvent(), one for Notification and one for ActivityEvent
+        verify(eventAdmin, times(2)).postEvent(any(Event.class));
+        assertEquals(DEFAULT_USER_ID, curEvent.getProperty(ActivityEvent.USER_ID_KEY));
+        assertEquals(DEFAULT_USER_ID, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
+        
+        // Also verifying the method with default values to always send both notification and activity
+        // is working.
+        publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
+                "test detail", 20L, downloadIdentifier);
+        verify(eventAdmin, times(4)).postEvent(any(Event.class));
+        assertEquals(DEFAULT_USER_ID, curEvent.getProperty(ActivityEvent.USER_ID_KEY));
+        assertEquals(DEFAULT_USER_ID, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
     }
 
     /**
