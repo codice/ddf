@@ -196,45 +196,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         }
 
         // CONFORMANCE
-        ConformanceType conformance = filterCapabilities.getConformance();
-        if (conformance != null) {
-            List<DomainType> constraints = conformance.getConstraint();
-            if (!CollectionUtils.isEmpty(constraints)) {
-                for (DomainType constraint : constraints) {
-                    if (CONFORMANCE_CONSTRAINTS.ImplementsSorting.equals(CONFORMANCE_CONSTRAINTS
-                            .valueOf(constraint.getName()))) {
-
-                        if (constraint.getNoValues() != null
-                                && constraint.getDefaultValue() != null) {
-                            if (StringUtils.equalsIgnoreCase(constraint.getDefaultValue()
-                                    .getValue(), Boolean.TRUE.toString())) {
-                                this.isSortingSupported = true;
-                            } else if (StringUtils.equalsIgnoreCase(constraint.getDefaultValue()
-                                    .getValue(), Boolean.FALSE.toString())) {
-                                this.isSortingSupported = false;
-                            }
-                        }
-
-                        if (constraint.getAllowedValues() != null) {
-                            this.isSortingSupported = true;
-                            AllowedValues allowedValues = constraint.getAllowedValues();
-                            List<Object> values = allowedValues.getValueOrRange();
-                            for (Object value : values) {
-                                if (value instanceof ValueType) {
-                                    String sortOrder = ((ValueType) value).getValue();
-                                    // Could be ASC, ASCENDING, etc.
-                                    if (StringUtils.startsWithIgnoreCase(sortOrder, "A")) {
-                                        allowedSortOrders.add(SortOrder.ASCENDING);
-                                    } else if (StringUtils.startsWithIgnoreCase(sortOrder, "D")) {
-                                        allowedSortOrders.add(SortOrder.DESCENDING);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        configureConformance(filterCapabilities.getConformance());
 
         ScalarCapabilitiesType scalarCapabilities = filterCapabilities.getScalarCapabilities();
         if (scalarCapabilities != null) {
@@ -294,6 +256,49 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     }
                 }
                 LOGGER.debug("temporalOperands: {}", temporalOperands);
+            }
+        }
+    }
+    
+    private void configureConformance(ConformanceType conformance) {
+        if (conformance != null) {
+            List<DomainType> constraints = conformance.getConstraint();
+            if (!CollectionUtils.isEmpty(constraints)) {
+                for (DomainType constraint : constraints) {
+                    if (CONFORMANCE_CONSTRAINTS.ImplementsSorting.equals(CONFORMANCE_CONSTRAINTS
+                            .valueOf(constraint.getName()))) {
+                        configureSorting(constraint);
+                    }
+                }
+            }
+        }
+    }
+
+    private void configureSorting(DomainType constraint) {
+        if (constraint.getNoValues() != null && constraint.getDefaultValue() != null) {
+            if (StringUtils.equalsIgnoreCase(constraint.getDefaultValue().getValue(),
+                    Boolean.TRUE.toString())) {
+                this.isSortingSupported = true;
+            } else if (StringUtils.equalsIgnoreCase(constraint.getDefaultValue().getValue(),
+                    Boolean.FALSE.toString())) {
+                this.isSortingSupported = false;
+            }
+        }
+
+        if (constraint.getAllowedValues() != null) {
+            this.isSortingSupported = true;
+            AllowedValues allowedValues = constraint.getAllowedValues();
+            List<Object> values = allowedValues.getValueOrRange();
+            for (Object value : values) {
+                if (value instanceof ValueType) {
+                    String sortOrder = ((ValueType) value).getValue();
+                    // Could be ASC, ASCENDING, etc.
+                    if (StringUtils.startsWithIgnoreCase(sortOrder, "A")) {
+                        allowedSortOrders.add(SortOrder.ASCENDING);
+                    } else if (StringUtils.startsWithIgnoreCase(sortOrder, "D")) {
+                        allowedSortOrders.add(SortOrder.DESCENDING);
+                    }
+                }
             }
         }
     }

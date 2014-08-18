@@ -48,6 +48,7 @@ import net.opengis.filter.v_2_0_0.BinarySpatialOpType;
 import net.opengis.filter.v_2_0_0.BinaryTemporalOpType;
 import net.opengis.filter.v_2_0_0.ComparisonOperatorType;
 import net.opengis.filter.v_2_0_0.ComparisonOperatorsType;
+import net.opengis.filter.v_2_0_0.ConformanceType;
 import net.opengis.filter.v_2_0_0.DistanceBufferType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
@@ -60,6 +61,9 @@ import net.opengis.filter.v_2_0_0.SpatialOperatorType;
 import net.opengis.filter.v_2_0_0.UnaryLogicOpType;
 import net.opengis.gml.v_3_2_0.TimeInstantType;
 import net.opengis.gml.v_3_2_0.TimePeriodType;
+import net.opengis.ows.v_1_1_0.AllowedValues;
+import net.opengis.ows.v_1_1_0.DomainType;
+import net.opengis.ows.v_1_1_0.ValueType;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
@@ -75,6 +79,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -199,6 +204,43 @@ public class TestWfsFilterDelegate {
         assertThat(delegate.getSpatialOps().size(), is(SPATIAL_OPERATORS.values().length));
         assertThat(delegate.getTemporalOps().size(), is(0));
         assertThat(delegate.getTemporalOperands().size(), is(0));
+    }
+    
+    @Test
+    public void testConformanceAllowedValues() {
+        // Setup
+        FilterCapabilities capabilities = MockWfsServer.getFilterCapabilities();
+        ConformanceType conformance = capabilities.getConformance();
+        List<DomainType> domainTypes = conformance.getConstraint();
+        for (DomainType domainType : domainTypes) {
+            if (StringUtils.equals(domainType.getName(), "ImplementsSorting")) {
+                domainType.setNoValues(null);
+                ValueType asc = new ValueType();
+                asc.setValue("ASC");
+                ValueType desc = new ValueType();
+                desc.setValue("DESC");
+                AllowedValues allowedValues = new AllowedValues();
+                List<Object> values = new ArrayList<Object>();
+                values.add(asc);
+                values.add(desc);
+                allowedValues.setValueOrRange(values);
+                domainType.setAllowedValues(allowedValues);
+                ValueType defaultValue = new ValueType();
+                defaultValue.setValue("ASC");
+                domainType.setDefaultValue(defaultValue);
+                break;
+            }
+        }
+        
+        // Perform Test
+        WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType, capabilities,
+                Wfs20Constants.EPSG_4326_URN, null, false);
+        
+        // Verify
+        assertThat(delegate.isSortingSupported(), is(true));
+        assertThat(delegate.getAllowedSortOrders().size(), is(2));
+        assertThat(delegate.getAllowedSortOrders().contains(SortOrder.ASCENDING), is(true));
+        assertThat(delegate.getAllowedSortOrders().contains(SortOrder.DESCENDING), is(true));
     }
     
     @Test
