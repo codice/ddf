@@ -27,6 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
 
+import ddf.security.Subject;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
@@ -97,6 +98,10 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
             String trustStorePassword) {
         this.configureKeystores(WebClient.client(csw), keyStorePath, keyStorePassword,
                 trustStorePath, trustStorePassword);
+    }
+
+    public void setSubject(Subject subject) {
+        this.setSubjectOnRequest(WebClient.client(csw), subject);
     }
 
     protected List<? extends Object> initProviders(

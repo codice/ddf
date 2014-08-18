@@ -53,6 +53,18 @@
                     <artifactId>cxf-rt-frontend-jaxrs</artifactId>
                     <groupId>org.apache.cxf</groupId>
                 </exclusion>
+                <exclusion>
+                    <groupId>ddf.security.core</groupId>
+                    <artifactId>security-core-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.cxf</groupId>
+                    <artifactId>cxf-rt-rs-security-xml</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.cxf</groupId>
+                    <artifactId>cxf-rt-rs-security-sso-saml</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

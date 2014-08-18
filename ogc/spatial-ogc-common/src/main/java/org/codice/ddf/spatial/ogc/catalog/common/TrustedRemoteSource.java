@@ -33,14 +33,11 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
-
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.FiltersType;
@@ -52,7 +49,11 @@ import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
+import javax.ws.rs.core.Cookie;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.ws.security.WSSecurityException;
+import org.apache.ws.security.saml.ext.AssertionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +68,8 @@ public abstract class TrustedRemoteSource {
             {
                     ".*_WITH_NULL_.*", ".*_DH_anon_.*"
             };
+
+    private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TrustedRemoteSource.class);
 
@@ -332,5 +335,60 @@ public abstract class TrustedRemoteSource {
         }});
         params.setDisableCNCheck(true);
 
+    }
+
+    /**
+     * Sets a subject cookie on a {@link org.apache.cxf.jaxrs.client.WebClient} and returns the
+     * resulting client.
+     * @param client - {@link org.apache.cxf.jaxrs.client.Client} to update
+     * @param subject - {@link ddf.security.Subject} to inject
+     * @return {@link org.apache.cxf.jaxrs.client.WebClient}
+     */
+    protected void setSubjectOnRequest(Client client, Subject subject) {
+        if(subject != null) {
+            Cookie cookie = createSamlCookie(subject);
+            client.reset();
+            client.cookie(cookie);
+        }
+    }
+
+    /**
+     * Creates a cookie to be returned to the browser if the token was successfully exchanged for
+     * a SAML assertion.
+     *
+     * @param subject - {@link ddf.security.Subject} to create the cookie from
+     */
+    private Cookie createSamlCookie(Subject subject) {
+        Cookie cookie = null;
+        org.w3c.dom.Element samlToken = null;
+        try {
+            for (Object principal : subject.getPrincipals().asList()) {
+                if (principal instanceof SecurityAssertion) {
+                    samlToken = ((SecurityAssertion) principal).getSecurityToken()
+                            .getToken();
+                }
+            }
+            if (samlToken != null) {
+                cookie = new Cookie(SAML_COOKIE_NAME, encodeSaml(samlToken));
+            }
+        } catch (WSSecurityException e) {
+            LOGGER.error("Unable to parse SAML assertion from subject.", e);
+        }
+        return cookie;
+    }
+
+    /**
+     * Encodes the SAML assertion as a deflated Base64 String so that it can be used as a Cookie.
+     *
+     * @param token
+     * @return String
+     * @throws WSSecurityException
+     */
+    private String encodeSaml(org.w3c.dom.Element token) throws WSSecurityException {
+        AssertionWrapper assertion = new AssertionWrapper(token);
+        String samlStr = assertion.assertionToString();
+        DeflateEncoderDecoder deflateEncoderDecoder = new DeflateEncoderDecoder();
+        byte[] deflatedToken = deflateEncoderDecoder.deflateToken(samlStr.getBytes());
+        return Base64Utility.encode(deflatedToken);
     }
 }

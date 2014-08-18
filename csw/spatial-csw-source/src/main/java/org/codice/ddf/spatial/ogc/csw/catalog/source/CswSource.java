@@ -40,6 +40,8 @@ import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
@@ -412,6 +414,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             // elapsed.
             availabilityPollFuture = scheduler.scheduleWithFixedDelay(availabilityTask,
                     AvailabilityTask.NO_DELAY, AvailabilityTask.ONE_SECOND, TimeUnit.SECONDS);
+        } else {
+            LOGGER.debug("No changes being made on the poller.");
         }
 
     }
@@ -448,7 +452,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             wcsResourceReader.init();
         } else {
             LOGGER.debug(
-                    "CSW Source not configured for WCS product retrival - no WcsResourceReader to configure");
+                    "CSW Source not configured for WCS product retrieval - no WcsResourceReader to configure");
             if (wcsResourceReader != null) {
                 wcsResourceReader.destroy();
             }
@@ -548,6 +552,14 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         Long totalHits = 0L;
 
         try {
+
+            Subject subject = (Subject)queryRequest.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
+            if (subject != null) {
+                LOGGER.debug("Setting user credentials on outgoing CSW request.");
+                remoteCsw.setSubject(subject);
+            } else {
+                LOGGER.debug("No user credentials found, sending CSW request with no user information.");
+            }
             CswRecordCollection cswRecordCollection = this.remoteCsw.getRecords(getRecordsType);
 
             if (cswRecordCollection == null) {
