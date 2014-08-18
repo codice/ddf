@@ -214,14 +214,30 @@ public class TestWfsSource {
         // GetCapabilities Response
         when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class)))
                 .thenReturn(mockCapabilites);
-        Wfs20FeatureCollection featureCollection = new Wfs20FeatureCollection();
+        
+        when(mockFeatureCollection.getMembers()).thenAnswer(new Answer<List<Metacard>>() {
+            @Override
+            public List<Metacard> answer(InvocationOnMock invocation) {
+                // Create as many metacards as there are features
+                List<Metacard> metacards = new ArrayList<Metacard>(numFeatures);
+                for (int i = 0; i < numFeatures; i++) {
+                    MetacardImpl mc = new MetacardImpl();
+                    mc.setId("ID_" + String.valueOf(i + 1));
+                    metacards.add(mc);
+                }
+
+                return metacards;
+            }
+        });
         
         if (numReturned != NULL_NUM_RETURNED) {
-            featureCollection.setNumberReturned(BigInteger.valueOf(numReturned));
+            when(mockFeatureCollection.getNumberReturned()).thenReturn(BigInteger.valueOf(numReturned));
+        } else {
+            when(mockFeatureCollection.getNumberReturned()).thenReturn(null);
         }
         
         when(mockWfs.getFeature(any(GetFeatureType.class)))
-            .thenReturn(featureCollection);
+            .thenReturn(mockFeatureCollection);
         mockCapabilites.setFilterCapabilities(filterCapabilities);
 
         when(mockAvailabilityTask.isAvailable()).thenReturn(true);
@@ -520,7 +536,15 @@ public class TestWfsSource {
         
     }
     
-    @Test(expected = UnsupportedQueryException.class)
+    /**
+     * If numberReturned is null, then query should return back size equivalent to the number of members in the
+     * feature collection.
+     * 
+     * @throws WfsException
+     * @throws TransformerConfigurationException
+     * @throws UnsupportedQueryException
+     */
+    @Test
     public void testResultNumReturnedIsNull() throws WfsException,
         TransformerConfigurationException, UnsupportedQueryException {
       //Setup
@@ -542,6 +566,33 @@ public class TestWfsSource {
                 
         // Perform test
         SourceResponse resp = source.query(queryReq);
+        assertEquals(3, resp.getResults().size());
+        
+    }
+    
+    @Test
+    public void testResultNumReturnedIsZero() throws WfsException,
+        TransformerConfigurationException, UnsupportedQueryException {
+      //Setup
+        final String TITLE = "title";
+        final String searchPhrase = "*";
+        final int pageSize = 1;
+        
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 3, false, true, 0);
+        
+        
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
+                .like().text(searchPhrase));
+        query.setPageSize(pageSize);
+        SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
+        query.setSortBy(sortBy);
+        QueryRequestImpl queryReq = new QueryRequestImpl(query);
+                
+        // Perform test
+        SourceResponse resp = source.query(queryReq);
+        assertEquals(0, resp.getResults().size());
         
     }
     

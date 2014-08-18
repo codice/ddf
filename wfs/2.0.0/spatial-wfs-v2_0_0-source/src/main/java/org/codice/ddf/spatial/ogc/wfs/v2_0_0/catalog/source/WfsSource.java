@@ -590,12 +590,6 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         
         LOGGER.debug("WFS Source {}: Received query: \n{}", getId(), query);
         
-        if (query.getStartIndex() < 1) {
-            throw new UnsupportedQueryException(
-                    "Start Index is one-based and must be an integer greater than 0; should not be ["
-                            + query.getStartIndex() + "]");
-        }
-        
         SourceResponseImpl simpleResponse = null;
         GetFeatureType getFeature = buildGetFeatureRequest(query);
         
@@ -614,7 +608,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 numResults = featureCollection.getNumberReturned().intValue();
             }
 
-            if (numResults > 0){
+            if (numResults > -1){
                 availabilityTask.updateLastAvailableTimestamp(System.currentTimeMillis());
                 LOGGER.debug("WFS Source {}: Received featureCollection with {} metacards.", getId(),
                         numResults);
