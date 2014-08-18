@@ -15,8 +15,11 @@
 package org.codice.ddf.spatial.ogc.catalog.common;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
+
+import java.net.SocketException;
 
 import javax.net.ssl.SSLHandshakeException;
 import javax.ws.rs.client.ClientException;
@@ -115,7 +118,8 @@ public class TestTrustedRemoteSource {
                 fail("Server should have errored out with bad certificate but request passed instead.");
             }
         } catch (ClientException e) {
-            assertThat(e.getCause(), is(SSLHandshakeException.class));
+            assertThat(e.getCause(),
+                    anyOf(is(SSLHandshakeException.class), is(SocketException.class)));
         }
 
     }
