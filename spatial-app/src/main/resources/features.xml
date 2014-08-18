@@ -45,7 +45,6 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
         </bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-api/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-source/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-mapper/${project.version}</bundle>
     </feature>
         
