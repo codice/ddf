@@ -73,6 +73,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.hamcrest.text.pattern.PatternMatcher;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,6 +111,12 @@ public class TestWfsFilterDelegate {
     private static final double DISTANCE = 1000.0;
 
     private FeatureMetacardType mockFeatureMetacardType = mock(FeatureMetacardType.class);
+
+    @BeforeClass
+    public static void setUp() {
+        XMLUnit.setNormalizeWhitespace(true);
+        XMLUnit.setIgnoreWhitespace(true);
+    }
 
     @Test
     public void testFullFilterCapabilities() {
@@ -1154,8 +1161,7 @@ public class TestWfsFilterDelegate {
 
         assertTrue(filter.isSetSpatialOps());
         assertTrue(filter.getSpatialOps().getValue() instanceof DistanceBufferType);
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
+
         assertXMLEqual(MockWfsServer.getBeyondXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1184,8 +1190,6 @@ public class TestWfsFilterDelegate {
         FilterType filter = delegate.contains(Metacard.ANY_GEO, POLYGON);
         assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getContainsXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1203,8 +1207,6 @@ public class TestWfsFilterDelegate {
         FilterType filter = delegate.crosses(Metacard.ANY_GEO, LINESTRING);
         assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getCrossesXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1222,8 +1224,6 @@ public class TestWfsFilterDelegate {
 
         FilterType filter = delegate.disjoint(Metacard.ANY_GEO, POLYGON);
         assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getDisjointXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1235,8 +1235,6 @@ public class TestWfsFilterDelegate {
         assertTrue(filter.getLogicOps().getValue() instanceof UnaryLogicOpType);
         UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps().getValue();
         assertTrue(type.getSpatialOps().getValue() instanceof BBOXType);
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getNotBboxXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1248,8 +1246,6 @@ public class TestWfsFilterDelegate {
         assertTrue(filter.getLogicOps().getValue() instanceof UnaryLogicOpType);
         UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps().getValue();
         assertTrue(type.getSpatialOps().getValue() instanceof BinarySpatialOpType);
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getNotIntersectsXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1261,8 +1257,6 @@ public class TestWfsFilterDelegate {
         assertFalse(filter.isSetLogicOps());
         assertTrue(filter.isSetSpatialOps());
         assertTrue(filter.getSpatialOps().getValue() instanceof DistanceBufferType);
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getDWithinXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1274,8 +1268,6 @@ public class TestWfsFilterDelegate {
         assertFalse(filter.isSetLogicOps());
         assertTrue(filter.isSetSpatialOps());
         assertTrue(filter.getSpatialOps().getValue() instanceof DistanceBufferType);
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getDWithinPointXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1306,8 +1298,6 @@ public class TestWfsFilterDelegate {
 
         String xml = getXmlFromMarshaller(filter);
 
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getDWithinAsIntersectsXml(), xml);
     }
 
@@ -1327,8 +1317,6 @@ public class TestWfsFilterDelegate {
 
         assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getIntersectsXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1360,8 +1348,6 @@ public class TestWfsFilterDelegate {
 
         assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getIntersectsWithEnvelopeXmlFilter(),
                 getXmlFromMarshaller(filter));
     }
@@ -1389,8 +1375,6 @@ public class TestWfsFilterDelegate {
 
         assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getIntersectsLonLatXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1422,8 +1406,6 @@ public class TestWfsFilterDelegate {
 
         assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getIntersectsWithEnvelopeLonLatXmlFilter(),
                 getXmlFromMarshaller(filter));
     }
@@ -1436,8 +1418,6 @@ public class TestWfsFilterDelegate {
         assertTrue(filter instanceof FilterType);
         assertTrue(filter.getSpatialOps().getValue() instanceof BBOXType);
         assertFalse(filter.isSetLogicOps());
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getBboxXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1469,8 +1449,6 @@ public class TestWfsFilterDelegate {
 
         assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getOverlapsXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1490,8 +1468,6 @@ public class TestWfsFilterDelegate {
 
         assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getTouchesXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1511,8 +1487,6 @@ public class TestWfsFilterDelegate {
 
         assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getWithinXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1524,8 +1498,6 @@ public class TestWfsFilterDelegate {
 
         assertTrue(filter.getSpatialOps().getValue() instanceof BinarySpatialOpType);
         assertFalse(filter.isSetLogicOps());
-        XMLUnit.setNormalizeWhitespace(true);
-        XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(MockWfsServer.getContainsXmlFilter(), getXmlFromMarshaller(filter));
     }
 
