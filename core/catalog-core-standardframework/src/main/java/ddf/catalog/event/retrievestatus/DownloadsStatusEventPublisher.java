@@ -77,12 +77,12 @@ public class DownloadsStatusEventPublisher {
     /**
      * Send notification and activity with current retrieval status.
      * 
-     * @param resourceResponse
-     * @param status
-     * @param metacard
-     * @param detail
-     * @param bytes
-     * @param downloadIdentifier
+     * @param resourceResponse the response from the product retrieval containing the actual @Resource
+     * @param status the status of the product retrieval, e.g., IN_PROGRESS, STARTED, etc.
+     * @param metacard the @Metacard associated with the product being downloaded
+     * @param detail detailed message to be displayed in the notification and/or activity
+     * @param bytes the number of bytes read thus far during the product download
+     * @param downloadIdentifier unique ID for this product download
      */
     public void postRetrievalStatus(final ResourceResponse resourceResponse,
             ProductRetrievalStatus status, Metacard metacard, String detail, Long bytes,
@@ -93,12 +93,12 @@ public class DownloadsStatusEventPublisher {
     /**
      * Based on the input parameters send notification and/or activity with current retrieval status.
      * 
-     * @param resourceResponse
-     * @param status
-     * @param metacard
-     * @param detail
-     * @param bytes
-     * @param downloadIdentifier
+     * @param resourceResponse the response from the product retrieval containing the actual @Resource
+     * @param status the status of the product retrieval, e.g., IN_PROGRESS, STARTED, etc.
+     * @param metacard the @Metacard associated with the product being downloaded
+     * @param detail detailed message to be displayed in the notification and/or activity
+     * @param bytes the number of bytes read thus far during the product download
+     * @param downloadIdentifier unique ID for this product download
      * @param sendNotification true indicates a notification with current retrieval status is to be sent
      * @param sendActivity true indicates an activity with current retrieval status is to be sent
      */
