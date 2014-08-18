@@ -18,6 +18,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
+import ddf.security.common.audit.SecurityLogger;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 public class SAMLCache {
     private static final Logger LOGGER = LoggerFactory.getLogger(SAMLCache.class);
 
+    // Default expiration is 1 minute longer than default STS SAML expiration
     private static final int DEFAULT_EXPIRATION_MINUTES = 31;
 
     private int currentExpiration = DEFAULT_EXPIRATION_MINUTES;
@@ -79,11 +81,13 @@ public class SAMLCache {
             LOGGER.debug(
                     "New expiration value passed in. Changing cache to expire every {} minutes instead of every {}.",
                     expirationMinutes, currentExpiration);
+            SecurityLogger.logDebug("Updating Login Filter SAML cache to expire assertions every "
+                    + expirationMinutes + " minutes.");
             Cache<String, SecurityToken> tmpCache = CacheBuilder.newBuilder()
                     .expireAfterWrite(expirationMinutes, TimeUnit.MINUTES)
                     .removalListener(new RemovalListenerLogger()).build();
-            LOGGER.debug("Adding old cache items to cache with updated expiration.");
             tmpCache.putAll(cache.asMap());
+            LOGGER.debug("All cache items updated to expire after {} minutes.", expirationMinutes);
             cache = tmpCache;
             currentExpiration = expirationMinutes;
         } else {

@@ -16,7 +16,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
     <OCD name="Security SAML Cache" id="org.codice.ddf.security.filter.login.SAMLCache">
-        <AD description="The amount of minutes after a SAML assertion is cached that it should be expired. On expiration a new SAML assertion will need to be retrieved."
+        <AD description="The amount of minutes after a SAML assertion is cached that it should be expired. On expiration a new SAML assertion will need to be retrieved. This can be used to enforce periodic client re-authentication with underlying single sign-on providers."
             name="Expiration Time (in minutes)" id="expirationTime" required="true" type="Integer"
             default="31"/>
     </OCD>
