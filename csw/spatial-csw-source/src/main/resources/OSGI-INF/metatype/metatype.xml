@@ -34,7 +34,7 @@
             type="Boolean" default="false" />
             
         <AD description="Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing" 
-        	name="Use posList in LinearRing" id="usePosList" required="true" type="Boolean" default="false" />
+        	name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean" default="false" />
             
         <AD name="Product Retrieval Method" id="productRetrievalMethod" required="true" type="String" default="Source URI"
             description="How products are to be retrieved from the CSW Source: Source URI = CSW record will specify URI to product in its <source> element; WCS = use the CSW Source's Web Coverage Service (WCS)">
@@ -124,7 +124,7 @@
             type="Boolean" default="false" />
             
         <AD description="Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing" 
-        	name="Use posList in LinearRing" id="usePosList" required="true" type="Boolean" default="false" />
+        	name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean" default="false" />
 
         <!--<AD name="Product Retrieval Method" id="productRetrievalMethod" required="true" type="String" default="Source URI"-->
             <!--description="How products are to be retrieved from the CSW Source: Source URI = CSW record will specify URI to product in its <source> element; WCS = use the CSW Source's Web Coverage Service (WCS)">-->

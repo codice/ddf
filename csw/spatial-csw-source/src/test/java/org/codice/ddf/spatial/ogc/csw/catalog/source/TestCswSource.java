@@ -36,6 +36,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -839,9 +840,15 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void junk() {
-        UnsupportedQueryException e = new UnsupportedQueryException("this is an error");
-        LOGGER.debug("error: {}", e.getMessage());
+    public void testRefresh(){
+        CswSource cswSource = getCswSource(null, null, null,
+                Collections.<String> emptyList());
+
+        cswSource.refresh(null);
+
+        Map<String, Object> configuration = new HashMap<String, Object>();
+        cswSource.refresh(configuration);
+
     }
 
     private CswSourceConfiguration getStandardCswSourceConfiguration(String contentTypeMapping) {

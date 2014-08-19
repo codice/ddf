@@ -14,34 +14,39 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
-import ddf.catalog.Constants;
-import ddf.catalog.data.ContentType;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.ContentTypeImpl;
-import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.FilterDelegate;
-import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.operation.impl.SourceResponseImpl;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.ResourceReader;
-import ddf.catalog.source.ConnectedSource;
-import ddf.catalog.source.FederatedSource;
-import ddf.catalog.source.SourceMonitor;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.util.impl.MaskableImpl;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.math.BigInteger;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.ClientException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
@@ -63,6 +68,7 @@ import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
 import net.opengis.ows.v_1_0_0.DomainType;
 import net.opengis.ows.v_1_0_0.Operation;
 import net.opengis.ows.v_1_0_0.OperationsMetadata;
+
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
@@ -91,37 +97,34 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.ClientException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.math.BigInteger;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import ddf.catalog.Constants;
+import ddf.catalog.data.ContentType;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.ContentTypeImpl;
+import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.SourceResponseImpl;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.source.ConnectedSource;
+import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.SourceMonitor;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.util.impl.MaskableImpl;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 
 /**
  * CswSource provides a DDF {@link FederatedSource} and {@link ConnectedSource} for CSW 2.0.2
@@ -303,41 +306,74 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     public void refresh(Map<String, Object> configuration) {
         LOGGER.debug("{}: Entering refresh()", cswSourceConfiguration.getId());
 
-        cswSourceConfiguration.setId((String) configuration.get(ID_PROPERTY));
+        if (configuration == null) {
+            LOGGER.error("Recieved null configuration during refresh for {}: {}", this.getClass()
+                    .getSimpleName(), cswSourceConfiguration.getId());
+            return;
+        }
 
-        cswSourceConfiguration.setCswUrl((String) configuration.get(CSWURL_PROPERTY));
+        String idProp = (String) configuration.get(ID_PROPERTY);
+        if (StringUtils.isNotBlank(idProp)) {
+            cswSourceConfiguration.setId(idProp);
+        }
 
-        cswSourceConfiguration.setPassword((String) configuration.get(PASSWORD_PROPERTY));
+        String cswUrlProp = (String) configuration.get(CSWURL_PROPERTY);
+        if (StringUtils.isNotBlank(cswUrlProp)) {
+            cswSourceConfiguration.setCswUrl(cswUrlProp);
+        }
 
-        cswSourceConfiguration.setUsername((String) configuration.get(USERNAME_PROPERTY));
+        String passProp = (String) configuration.get(PASSWORD_PROPERTY);
+        if (StringUtils.isNotBlank(passProp)) {
+            cswSourceConfiguration.setPassword(passProp);
+        }
 
-        cswSourceConfiguration.setWcsUrl((String) configuration.get(WCSURL_PROPERTY));
+        String userProp = (String) configuration.get(USERNAME_PROPERTY);
+        if (StringUtils.isNotBlank(userProp)) {
+            cswSourceConfiguration.setUsername(userProp);
+        }
 
-        String oldOutputSchema = cswSourceConfiguration.getOutputSchema();
-        cswSourceConfiguration.setOutputSchema((String) configuration.get(OUTPUT_SCHEMA_PROPERTY));
-        LOGGER.debug("{}: new output schema: {}", cswSourceConfiguration.getId(),
-                cswSourceConfiguration.getOutputSchema());
-        LOGGER.debug("{}: old output schema: {}", cswSourceConfiguration.getId(),
-                oldOutputSchema);
+        String wcsUrlProp = (String) configuration.get(WCSURL_PROPERTY);
+        if (StringUtils.isNotBlank(wcsUrlProp)) {
+            cswSourceConfiguration.setWcsUrl(wcsUrlProp);
+        }
 
-        cswSourceConfiguration.setDisableSSLCertVerification(
-                (Boolean) configuration.get(SSL_VERIFICATION_PROPERTY));
+        String schemaProp = (String) configuration.get(OUTPUT_SCHEMA_PROPERTY);
+        if (StringUtils.isNotBlank(schemaProp)) {
+            String oldOutputSchema = cswSourceConfiguration.getOutputSchema();
+            cswSourceConfiguration.setOutputSchema(schemaProp);
 
-        cswSourceConfiguration.setIsLonLatOrder((Boolean) configuration
-                .get(IS_LON_LAT_ORDER_PROPERTY));
-        if (cswSourceConfiguration.isLonLatOrder()) {
-            LOGGER.debug("{}: Setting coordinate ordering to LON/LAT.",
-                    cswSourceConfiguration.getId());
-        } else {
-            LOGGER.debug("{}: Setting coordinate ordering to LAT/LON.",
-                    cswSourceConfiguration.getId());
+            LOGGER.debug("{}: new output schema: {}", cswSourceConfiguration.getId(),
+                    cswSourceConfiguration.getOutputSchema());
+            LOGGER.debug("{}: old output schema: {}", cswSourceConfiguration.getId(),
+                    oldOutputSchema);
+        }
+
+        Boolean sslProp = (Boolean) configuration.get(SSL_VERIFICATION_PROPERTY);
+        if (sslProp != null) {
+            cswSourceConfiguration.setDisableSSLCertVerification(sslProp);
+        }
+
+        Boolean latLonProp = (Boolean) configuration.get(IS_LON_LAT_ORDER_PROPERTY);
+        if (latLonProp != null) {
+            cswSourceConfiguration.setIsLonLatOrder(latLonProp);
+            if (cswSourceConfiguration.isLonLatOrder()) {
+                LOGGER.debug("{}: Setting coordinate ordering to LON/LAT.",
+                        cswSourceConfiguration.getId());
+            } else {
+                LOGGER.debug("{}: Setting coordinate ordering to LAT/LON.",
+                        cswSourceConfiguration.getId());
+            }
         }
         
-        cswSourceConfiguration.setUsePosList((Boolean) configuration
-                .get(USE_POS_LIST_PROPERTY));
+        Boolean posListProp = (Boolean) configuration.get(USE_POS_LIST_PROPERTY);
+        if (posListProp != null) {
+            cswSourceConfiguration.setUsePosList(posListProp);
+        }
         
-        cswSourceConfiguration.setProductRetrievalMethod((String) configuration
-                .get(PRODUCT_RETRIEVAL_METHOD_PROPERTY));
+        String prProp = (String) configuration.get(PRODUCT_RETRIEVAL_METHOD_PROPERTY);
+        if (StringUtils.isNotBlank(prProp)) {
+            cswSourceConfiguration.setProductRetrievalMethod(prProp);
+        }
 
         String spatialFilter = (String) configuration.get(FORCE_SPATIAL_FILTER_PROPERTY);
         if (StringUtils.isBlank(spatialFilter)) {
@@ -345,31 +381,44 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         }
         forceSpatialFilter = spatialFilter;
 
+
         String[] contentTypeNames = (String[]) configuration.get(CONTENTTYPES_PROPERTY);
-        setContentTypeNames(Arrays.asList(contentTypeNames));
+        if (contentTypeNames != null) {
+            setContentTypeNames(Arrays.asList(contentTypeNames));
+        }
 
-        cswSourceConfiguration.setCreatedDateMapping((String) configuration
-                .get(CREATED_DATE_MAPPING_PROPERTY));
+        String createdProp = (String) configuration.get(CREATED_DATE_MAPPING_PROPERTY);
+        if (StringUtils.isNotBlank(createdProp)) {
+            cswSourceConfiguration.setCreatedDateMapping(createdProp);
+        }
 
-        cswSourceConfiguration.setEffectiveDateMapping((String) configuration
-                .get(EFFECTIVE_DATE_MAPPING_PROPERTY));
+        String effectiveProp = (String) configuration.get(EFFECTIVE_DATE_MAPPING_PROPERTY);
+        if (StringUtils.isNotBlank(effectiveProp)) {
+            cswSourceConfiguration.setEffectiveDateMapping(effectiveProp);
+        }
 
-        cswSourceConfiguration.setModifiedDateMapping((String) configuration
-                .get(MODIFIED_DATE_MAPPING_PROPERTY));
-
-        String previousContentTypeMapping = cswSourceConfiguration.getContentTypeMapping();
-        LOGGER.debug("{}: Previous content type mapping: {}.", cswSourceConfiguration.getId(),
-                previousContentTypeMapping);
+        String modifiedProp = (String) configuration.get(MODIFIED_DATE_MAPPING_PROPERTY);
+        if (StringUtils.isNotBlank(modifiedProp)) {
+            cswSourceConfiguration.setModifiedDateMapping(modifiedProp);
+        }
 
         String currentContentTypeMapping = ((String) configuration
                 .get(CONTENT_TYPE_MAPPING_PROPERTY));
 
-        contentTypeMappingUpdated = !currentContentTypeMapping.equals(previousContentTypeMapping);
-
-        if (StringUtils.isEmpty(currentContentTypeMapping)) {
-            currentContentTypeMapping = CswRecordMetacardType.CSW_TYPE;
-        } else {
+        if (StringUtils.isNotBlank(currentContentTypeMapping)) {
+            String previousContentTypeMapping = cswSourceConfiguration.getContentTypeMapping();
+            LOGGER.debug("{}: Previous content type mapping: {}.", cswSourceConfiguration.getId(),
+                    previousContentTypeMapping);
+            contentTypeMappingUpdated = !currentContentTypeMapping
+                    .equals(previousContentTypeMapping);
             currentContentTypeMapping = currentContentTypeMapping.trim();
+            if (contentTypeMappingUpdated) {
+                LOGGER.debug("{}: The content type has been updated from {} to {}.",
+                        cswSourceConfiguration.getId(), previousContentTypeMapping,
+                        currentContentTypeMapping);
+            }
+        } else {
+            currentContentTypeMapping = CswRecordMetacardType.CSW_TYPE;
         }
 
         cswSourceConfiguration.setContentTypeMapping(currentContentTypeMapping);
@@ -377,18 +426,13 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         LOGGER.debug("{}: Current content type mapping: {}.", cswSourceConfiguration.getId(),
                 currentContentTypeMapping);
 
-        if (contentTypeMappingUpdated) {
-            LOGGER.debug("{}: The content type has been updated from {} to {}.",
-                    cswSourceConfiguration.getId(), previousContentTypeMapping,
-                    currentContentTypeMapping);
-        }
-
-        // recordConverter = getRecordConverter();
         connectToRemoteCsw();
         configureCswSource();
 
         Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_PROPERTY);
-        if (!cswSourceConfiguration.getPollIntervalMinutes().equals(newPollInterval)) {
+
+        if (newPollInterval != null
+                && !newPollInterval.equals(cswSourceConfiguration.getPollIntervalMinutes())) {
             LOGGER.debug("Poll Interval was changed for source {}.",
                     cswSourceConfiguration.getId());
             cswSourceConfiguration.setPollIntervalMinutes(newPollInterval);
@@ -436,8 +480,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     protected void configureWcs() {
 
-        if (cswSourceConfiguration.getProductRetrievalMethod().equalsIgnoreCase(
-                CswConstants.WCS_PRODUCT_RETRIEVAL)
+        if (CswConstants.WCS_PRODUCT_RETRIEVAL.equalsIgnoreCase(cswSourceConfiguration
+                .getProductRetrievalMethod())
                 && wcsResourceReader != null) {
             LOGGER.debug("Configuring WcsResourceReader for CSW Source {}",
                     cswSourceConfiguration.getId());
