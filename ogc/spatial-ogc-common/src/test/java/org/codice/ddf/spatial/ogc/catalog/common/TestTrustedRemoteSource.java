@@ -135,7 +135,7 @@ public class TestTrustedRemoteSource {
         // hit server
         try {
             if (remoteSource.get() != null) {
-                fail("Cleint should have errored out with no valid certification path found, but request passed instead.");
+                fail("Client should have errored out with no valid certification path found, but request passed instead.");
             }
         } catch (ClientException e) {
             assertThat(e.getCause(), is(SSLHandshakeException.class));
