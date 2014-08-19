@@ -14,9 +14,11 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.source;
 
-import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -36,10 +38,13 @@ public class MarkableStreamInterceptor extends AbstractPhaseInterceptor<Message>
     public void handleMessage(Message message) throws Fault {
         LOGGER.debug("Converting message input stream to a buffered stream");
         InputStream is = message.getContent(InputStream.class);
-
-        BufferedInputStream bis = new BufferedInputStream(is);
-        bis.mark(1000);
-
-        message.setContent(InputStream.class, bis);
+         
+        try {
+            message.setContent(InputStream.class, new ByteArrayInputStream(IOUtils.toByteArray(is)));
+        } catch (IOException e) {
+            LOGGER.warn("Failed to convert buffered stream");
+        } catch (NullPointerException e) {
+            LOGGER.warn("InputStream was null");
+        }
     }
 }

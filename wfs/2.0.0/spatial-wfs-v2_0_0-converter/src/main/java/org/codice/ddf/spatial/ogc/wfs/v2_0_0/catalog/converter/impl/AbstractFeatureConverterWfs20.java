@@ -56,7 +56,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFeatureConverterWfs20.class);
     private static final String XML_PARSE_FAILURE = "Failed to parse GML based XML into a Document.";
     private static final String CREATE_TRANSFORMER_FAILURE = "Failed to create Transformer.";
-    private static final String GML_GEOMETRY_FAILURE = "Failed to transform GML to Geometry.\n";
+    private static final String GML_FAILURE = "Failed to transform GML.\n";
     private String geometryXml = "";
 
     protected Serializable writeFeaturePropertyToMetacardAttribute(AttributeFormat attributeFormat,
@@ -90,7 +90,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             XmlNode node = new XmlNode(reader);
             geometryXml = node.toString();
             Geometry geo = null;
-            geo = readGml(geometryXml);
+            geo = (Geometry) readGml(geometryXml);
             
             if (geo != null) {
                 WKTWriter wktWriter = new WKTWriter();
@@ -113,8 +113,8 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         return ser;
 
     }
-    
-    private Geometry readGml(String xml) {
+
+    protected Object readGml(String xml) {
         //Add namespace into XML for processing
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = null;
@@ -148,7 +148,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             LOGGER.warn("Namespace already exists.");
         } else {
             //Add GML 3.2.1 namespace to XML chunk
-            doc.getDocumentElement().setAttribute("xmlns:" + prefix, Wfs20Constants.GML_3_2_NAMESPACE);
+            doc.getDocumentElement().setAttribute("xmlns" + prefix, Wfs20Constants.GML_3_2_NAMESPACE);
         }
         
         //Convert DOM to InputStream
@@ -175,17 +175,17 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         parser.setFailOnValidationError(false);
         parser.setForceParserDelegate(false);
 
-        Geometry geo = null;
+        Object gml = null;
         try {
-            geo = (Geometry)parser.parse(xmlIs);
+            gml = parser.parse(xmlIs);
         } catch (IOException e) {
-            LOGGER.error("{} {}", GML_GEOMETRY_FAILURE, geometryXml);
+            LOGGER.error("{} {}", GML_FAILURE, xml);
         } catch (SAXException e) {
-            LOGGER.error("{} {}", GML_GEOMETRY_FAILURE, geometryXml);
+            LOGGER.error("{} {}", GML_FAILURE, xml);
         } catch (ParserConfigurationException e) {
-            LOGGER.error("{} {}", GML_GEOMETRY_FAILURE, geometryXml);
+            LOGGER.error("{} {}", GML_FAILURE, xml);
         }
         
-        return geo;
+        return gml;
     }
 }

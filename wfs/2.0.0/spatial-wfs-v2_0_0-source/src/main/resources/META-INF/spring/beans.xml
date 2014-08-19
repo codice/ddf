@@ -28,7 +28,7 @@
     
     <list id="metacardToFeatureMappers" interface="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper" cardinality="0..N" />
 
-    <list id="converterList" interface="org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverterFactory" cardinality="0..N"/>
+    <list id="converterList" interface="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.FeatureConverterFactory" cardinality="0..N"/>
 
     <osgix:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.WfsFederatedSource.id" factory-pid="Wfs_v2_0_0_Federated_Source"

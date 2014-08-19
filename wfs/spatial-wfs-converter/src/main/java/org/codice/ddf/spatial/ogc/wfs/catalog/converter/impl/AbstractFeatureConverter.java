@@ -124,10 +124,11 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
             if (attributeDescriptor != null
                     && (StringUtils.isNotBlank(reader.getValue()) || BasicTypes.GEO_TYPE
                             .getAttributeFormat().equals(attributeDescriptor.getType()
-                                    .getAttributeFormat()))) {
+                                    .getAttributeFormat()) || BasicTypes.DATE_TYPE
+                                    .getAttributeFormat().equals(attributeDescriptor.getType()
+                                            .getAttributeFormat()))) {
                 value = writeFeaturePropertyToMetacardAttribute(attributeDescriptor.getType()
                         .getAttributeFormat(), reader);
-
             }
 
             if (null != value) {
@@ -227,7 +228,10 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     }
 
     protected Date parseDateFromXml(HierarchicalStreamReader reader) {
-        Date date = null;
+        if(StringUtils.isBlank(reader.getValue())) {
+            return null;
+        }
+        Date date = null;        
         try { // trying to parse xsd:date
             date = DatatypeConverter.parseDate(reader.getValue()).getTime();
         } catch (IllegalArgumentException e) {
