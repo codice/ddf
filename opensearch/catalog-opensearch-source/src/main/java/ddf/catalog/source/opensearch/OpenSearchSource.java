@@ -860,13 +860,8 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                         // by the given number of bytes, so we need to take care of it here.
                         String rangeHeader = clientResponse.getHeaderString(HEADER_ACCEPT_RANGES);
 
-                        /*DDF-643
-                        if ((rangeHeader == null) || (!rangeHeader.equals(BYTES))) {
-                            LOGGER.debug("Skipping {} bytes", (Long) requestProperties.get(BYTES_TO_SKIP));
-                            ((InputStream) binaryContent).skip((Long) requestProperties.get(BYTES_TO_SKIP));
-                        }
-                        */
-                        //DDF-643
+                        //DDF-643: Set response property indicating remote JSON Source did the byte skipping
+                        // so that Catalog Framework's download manager will not try to also skip bytes.
                         if ((rangeHeader != null) && (rangeHeader.equals(BYTES))) {
                             LOGGER.info("Adding {} to response properties with value = {}", BYTES_SKIPPED, true);
                             responseProperties.put(BYTES_SKIPPED, true);
