@@ -76,6 +76,9 @@ define([
                 return duration;
             },
             fileSize: function (item) {
+                if(_.isUndefined(item)) {
+                    return 'Unknown Size';
+                }
                 var givenProductSize = item.replace(/[,]+/g,'').trim();    //remove any commas and trailing whitespace
                 var bytes = parseInt(givenProductSize, 10);
                 var noUnitsGiven = /[0-9]$/;    //number without a word following
@@ -138,7 +141,10 @@ define([
                     }
                 }
             },
-             fileSizeGuaranteedInt: function (item) {
+            fileSizeGuaranteedInt: function (item) {
+                if(_.isUndefined(item)) {
+                    return 'Unknown Size';
+                }
                 var bytes = parseInt(item, 10);
                 if (isNaN(bytes)) {
                     return item;
