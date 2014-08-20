@@ -139,7 +139,9 @@ define([
                         collection: profiles
                     }));
                 }).fail(function(error){
-                    console.log(error);
+                    if(console){
+                        console.log(error);
+                    }
                 }).done();
             }
             this.$(this.profiles.el).show();

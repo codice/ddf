@@ -70,7 +70,9 @@ define([
                 // fallback: just don't show the install profile steps.
                 installerModel.set('showInstallProfileStep', false);
                 installerModel.setTotalSteps(3);
-                console.log(error);
+                if(console){
+                    console.log(error);
+                }
             }).done(function(){
                 // regardless of success, lets display the page.
                 AppModule.contentController.show();

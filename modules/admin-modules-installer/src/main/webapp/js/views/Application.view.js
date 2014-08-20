@@ -62,7 +62,9 @@ define([
                     }
                     self.applications.show(appView);
                 }).fail(function(error){
-                    console.log(error);
+                    if(console){
+                        console.log(error);
+                    }
                 });
 
             },
