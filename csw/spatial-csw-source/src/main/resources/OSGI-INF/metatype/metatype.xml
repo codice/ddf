@@ -27,7 +27,7 @@
         <AD description="Password for CSW Service (optional)" name="Password" id="password"
             required="false" type="String" />
             
-        <AD description="Disable SSL certificate verification" name="Disable SSL certificate verification" id="disableSSLCertVerification" required="true"
+        <AD description="Disable CN check for the server certificate. This should only be used when testing." name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false" />
             
         <AD description="Force Longitude/Latitude coordinate order" name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
@@ -117,7 +117,7 @@
         <AD description="Password for CSW Service (optional)" name="Password" id="password"
             required="false" type="String" />
             
-        <AD description="Disable SSL certificate verification" name="Disable SSL certificate verification" id="disableSSLCertVerification" required="true"
+        <AD description="Disable CN check for the server certificate. This should only be used when testing." name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false" />
             
         <AD description="Force Longitude/Latitude coordinate order" name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"

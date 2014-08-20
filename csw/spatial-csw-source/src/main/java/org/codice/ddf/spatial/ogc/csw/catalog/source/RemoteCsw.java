@@ -82,7 +82,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
             CswSourceConfiguration cswSourceConfiguration) {
         csw = createClientBean(Csw.class, cswSourceConfiguration.getCswUrl(),
                 cswSourceConfiguration.getUsername(), cswSourceConfiguration.getPassword(),
-                cswSourceConfiguration.getDisableSSLCertVerification(),
+                cswSourceConfiguration.getDisableCnCheck(),
                 initProviders(recordConverterFactories, cswSourceConfiguration), getClass()
                         .getClassLoader());
     }

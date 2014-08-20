@@ -77,6 +77,7 @@ import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
+import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
@@ -218,8 +219,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     protected static final String CONTENT_TYPE_MAPPING_PROPERTY = "contentTypeMapping";
 
-    protected static final String SSL_VERIFICATION_PROPERTY = "disableSSLCertVerification";
-
     protected static final String IS_LON_LAT_ORDER_PROPERTY = "isLonLatOrder";
     
     private static final String USE_POS_LIST_PROPERTY = "usePosList";
@@ -348,9 +347,10 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                     oldOutputSchema);
         }
 
-        Boolean sslProp = (Boolean) configuration.get(SSL_VERIFICATION_PROPERTY);
+        Boolean sslProp = (Boolean) configuration
+                .get(TrustedRemoteSource.DISABLE_CN_CHECK_PROPERTY);
         if (sslProp != null) {
-            cswSourceConfiguration.setDisableSSLCertVerification(sslProp);
+            cswSourceConfiguration.setDisableCnCheck(sslProp);
         }
 
         Boolean latLonProp = (Boolean) configuration.get(IS_LON_LAT_ORDER_PROPERTY);
@@ -489,8 +489,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             wcsResourceReader.setWcsUrl(cswSourceConfiguration.getWcsUrl());
             wcsResourceReader.setUsername(cswSourceConfiguration.getUsername());
             wcsResourceReader.setPassword(cswSourceConfiguration.getPassword());
-            wcsResourceReader.setDisableSSLCertVerification(
-                    cswSourceConfiguration.getDisableSSLCertVerification());
+            wcsResourceReader.setDisableCnCheck(
+                    cswSourceConfiguration.getDisableCnCheck());
             wcsResourceReader.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
                     trustStorePassword);
             wcsResourceReader.init();
@@ -786,8 +786,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         cswSourceConfiguration.setPassword(password);
     }
 
-    public void setDisableSSLCertVerification(Boolean disableSSLCertVerification) {
-        cswSourceConfiguration.setDisableSSLCertVerification(disableSSLCertVerification);
+    public void setDisableCnCheck(Boolean disableCnCheck) {
+        cswSourceConfiguration.setDisableCnCheck(disableCnCheck);
     }
 
     public void setIsLonLatOrder(Boolean isLonLatOrder) {

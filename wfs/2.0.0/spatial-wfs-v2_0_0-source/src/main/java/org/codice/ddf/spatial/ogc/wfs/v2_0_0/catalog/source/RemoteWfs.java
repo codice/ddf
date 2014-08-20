@@ -63,9 +63,9 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
     private FeatureCollectionMessageBodyReaderWfs20 featureCollectionReader;
 
     public RemoteWfs(String wfsServerUrl, String username, String password,
-            boolean disableSSLCertVerification) {
+            boolean disableCnCheck) {
         wfs = createClientBean(Wfs.class, wfsServerUrl, username, password,
-                disableSSLCertVerification, initProviders(), getClass().getClassLoader(),
+                disableCnCheck, initProviders(), getClass().getClassLoader(),
                 new MarkableStreamInterceptor());
     }
 

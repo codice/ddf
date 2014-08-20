@@ -30,9 +30,9 @@ public class RemoteSource extends TrustedRemoteSource implements GenericRemoteSo
 
     private GenericRemoteSource grs;
 
-    public RemoteSource(String url, boolean disableSslCertValidation) {
+    public RemoteSource(String url, boolean disableCnCheck) {
         grs = createClientBean(GenericRemoteSource.class, url, null, null,
-                disableSslCertValidation, null, getClass().getClassLoader());
+                disableCnCheck, null, getClass().getClassLoader());
     }
 
     public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,

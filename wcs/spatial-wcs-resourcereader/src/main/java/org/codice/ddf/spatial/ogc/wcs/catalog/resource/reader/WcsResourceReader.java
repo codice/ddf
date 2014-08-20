@@ -211,12 +211,12 @@ public class WcsResourceReader {
         return wcsConfiguration.getId();
     }
 
-    public void setDisableSSLCertVerification(boolean disableSSLCertVerification) {
-        wcsConfiguration.setDisableSSLCertVerification(disableSSLCertVerification);
+    public void setDisableCnCheck(boolean disableCnCheck) {
+        wcsConfiguration.setDisableCnCheck(disableCnCheck);
     }
 
-    public boolean getDisableSSLCertVerification() {
-        return wcsConfiguration.getDisableSSLCertVerification();
+    public boolean getDisableCnCheck() {
+        return wcsConfiguration.getDisableCnCheck();
     }
 
     /**

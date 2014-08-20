@@ -22,8 +22,7 @@
         <AD description="URL to the endpoint implementing the Web Feature Service (WFS) spec"
             name="WFS URL" id="wfsUrl" required="true" type="String" />
 
-        <AD description="Disable SSL certificate verification" name="Disable SSL certificate verification"
-            id="disableSSLCertVerification" required="true"
+        <AD description="Disable CN check for the server certificate. This should only be used when testing." name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
 
         <AD description="Username for WFS Service (optional)" name="Username" id="username"
@@ -64,8 +63,7 @@
         <AD description="URL to the endpoint implementing the Web Feature Service (WFS) spec"
             name="WFS URL" id="wfsUrl" required="true" type="String" />
 
-        <AD description="Disable SSL certificate verification" name="Disable SSL certificate verification"
-            id="disableSSLCertVerification" required="true"
+        <AD description="Disable CN check for the server certificate. This should only be used when testing." name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
 
         <AD description="Username for WFS Service (optional)" name="Username" id="username"

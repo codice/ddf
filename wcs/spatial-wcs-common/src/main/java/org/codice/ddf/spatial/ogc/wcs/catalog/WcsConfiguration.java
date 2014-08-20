@@ -30,7 +30,7 @@ public class WcsConfiguration {
 
     private String password;
 
-    private boolean disableSSLCertVerification;
+    private boolean disableCnCheck;
 
     public String getWcsUrl() {
         return wcsUrl;
@@ -64,12 +64,12 @@ public class WcsConfiguration {
         this.password = password;
     }
 
-    public void setDisableSSLCertVerification(boolean disableSSLCertVerification) {
-        this.disableSSLCertVerification = disableSSLCertVerification;
+    public void setDisableCnCheck(boolean disableCnCheck) {
+        this.disableCnCheck = disableCnCheck;
     }
 
-    public boolean getDisableSSLCertVerification() {
-        return disableSSLCertVerification;
+    public boolean getDisableCnCheck() {
+        return disableCnCheck;
     }
 
 }

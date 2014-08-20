@@ -61,6 +61,7 @@ import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
+import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
@@ -118,7 +119,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private String password;
 
-    private Boolean disableSSLCertVerification = Boolean.FALSE;
+    private Boolean disableCnCheck = Boolean.FALSE;
 
     private FilterAdapter filterAdapter;
 
@@ -147,8 +148,6 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private static final String USERNAME_PROPERTY = "username";
 
     private static final String PASSWORD_PROPERTY = "password";
-
-    private static final String SSL_VERIFICATION_PROPERTY = "disableSSLCertVerification";
 
     private static final String NON_QUERYABLE_PROPS_PROPERTY = "nonQueryableProperties";
 
@@ -245,7 +244,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         String wfsUrl = (String) configuration.get(WFSURL_PROPERTY);
         String password = (String) configuration.get(PASSWORD_PROPERTY);
         String username = (String) configuration.get(USERNAME_PROPERTY);
-        Boolean disableSSLCertVerification = (Boolean) configuration.get(SSL_VERIFICATION_PROPERTY);
+        Boolean disableCnCheckProp = (Boolean) configuration
+                .get(TrustedRemoteSource.DISABLE_CN_CHECK_PROPERTY);
         String id = (String) configuration.get(ID_PROPERTY);
 
 
@@ -263,11 +263,11 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 || hasWfsUrlChanged(wfsUrl)
                 || hasPasswordChanged(password) 
                 || hasUsernameChanged(username)
-                || hasDisableSslCertVerificationChanged(disableSSLCertVerification)) {
+                || hasDisableCnCheck(disableCnCheckProp)) {
             this.wfsUrl = wfsUrl;
             this.password = password;
             this.username = username;
-            this.disableSSLCertVerification = disableSSLCertVerification;
+            this.disableCnCheck = disableCnCheckProp;
 
             connectToRemoteWfs();
             configureWfsFeatures();
@@ -307,8 +307,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         return !StringUtils.equals(this.username, username);
     }
     
-    private boolean hasDisableSslCertVerificationChanged(Boolean disableSSLCertVerification) {
-        return this.disableSSLCertVerification != disableSSLCertVerification;
+    private boolean hasDisableCnCheck(Boolean disableCnCheck) {
+        return this.disableCnCheck != disableCnCheck;
     }
 
     private void setupAvailabilityPoll() {
@@ -334,10 +334,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private void connectToRemoteWfs() {
         LOGGER.debug(
                 "WfsSource {}: Connecting to remote WFS Server {}. SSL cert verification disabled? {}",
-                getId(), wfsUrl, this.disableSSLCertVerification);
+                getId(), wfsUrl, this.disableCnCheck);
 
         try {
-            remoteWfs = new RemoteWfs(wfsUrl, username, password, disableSSLCertVerification);
+            remoteWfs = new RemoteWfs(wfsUrl, username, password, disableCnCheck);
             remoteWfs.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
                     trustStorePassword);
         } catch (IllegalArgumentException iae) {
@@ -839,8 +839,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         this.password = password;
     }
 
-    public void setDisableSSLCertVerification(Boolean disableSSLCertVerification) {
-        this.disableSSLCertVerification = disableSSLCertVerification;
+    public void setDisableCnCheck(Boolean disableCnCheck) {
+        this.disableCnCheck = disableCnCheck;
     }
 
     public void setPollInterval(Integer interval) {

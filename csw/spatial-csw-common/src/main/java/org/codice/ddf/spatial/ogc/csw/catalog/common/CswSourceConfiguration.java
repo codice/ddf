@@ -35,7 +35,7 @@ public class CswSourceConfiguration {
 
     private String password;
 
-    private boolean disableSSLCertVerification = false;
+    private boolean disableCnCheck = false;
 
     private String wcsUrl;
 
@@ -133,12 +133,12 @@ public class CswSourceConfiguration {
         this.thumbnailMapping = thumbnailMapping;
     }
 
-    public boolean getDisableSSLCertVerification() {
-        return disableSSLCertVerification;
+    public boolean getDisableCnCheck() {
+        return disableCnCheck;
     }
 
-    public void setDisableSSLCertVerification(boolean disableSSLCertVerification) {
-        this.disableSSLCertVerification = disableSSLCertVerification;
+    public void setDisableCnCheck(boolean disableCnCheck) {
+        this.disableCnCheck = disableCnCheck;
 
     }
 

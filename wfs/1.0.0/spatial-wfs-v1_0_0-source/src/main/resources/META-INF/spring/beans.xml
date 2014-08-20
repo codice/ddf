@@ -44,7 +44,7 @@
             <beans:property name="id" value=""/>
             <beans:property name="username" value=""/>
             <beans:property name="password" value=""/>
-            <beans:property name="disableSSLCertVerification" value="false"/>
+            <beans:property name="disableCnCheck" value="false"/>
             <beans:property name="nonQueryableProperties">
                 <beans:list></beans:list>
             </beans:property>
@@ -70,7 +70,7 @@
             <beans:property name="id" value=""/>
             <beans:property name="username" value=""/>
             <beans:property name="password" value=""/>
-            <beans:property name="disableSSLCertVerification" value="false"/>
+            <beans:property name="disableCnCheck" value="false"/>
             <beans:property name="nonQueryableProperties">
                 <beans:list></beans:list>
             </beans:property>

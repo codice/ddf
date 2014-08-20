@@ -64,7 +64,7 @@ public class RemoteWcs extends TrustedRemoteSource implements Wcs {
 
         wcs = createClientBean(Wcs.class, wcsConfiguration.getWcsUrl(),
                 wcsConfiguration.getUsername(), wcsConfiguration.getPassword(),
-                wcsConfiguration.getDisableSSLCertVerification(),
+                wcsConfiguration.getDisableCnCheck(),
                 Arrays.asList(new GetCoverageMessageBodyReader()), getClass().getClassLoader());
 
     }
