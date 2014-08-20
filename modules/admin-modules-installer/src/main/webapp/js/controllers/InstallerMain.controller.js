@@ -37,7 +37,7 @@ define([
                         defer.resolve(collection);
                     },
                     failure: function(){
-                        defer.reject("There was an error fetching the installation items.");
+                        defer.reject(new Error("There was an error fetching the installation items."));
                     }
                 });
             }

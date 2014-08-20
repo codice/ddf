@@ -49,31 +49,43 @@ define([
         },
         changePage: function() {
             //close whatever view is open
-            if(this.welcome.currentView && this.model.get('stepNumber') !== 0) {
+            var welcomeStep = 0, configStep = 1, profileStep = null, applicationStep = null, finishStep = null;
+            if(this.model.get('showInstallProfileStep')){
+                // factor in profile step
+                profileStep = 2;
+                applicationStep = 3;
+                finishStep = 4;
+            } else {
+                // no profile step.
+                profileStep = null;
+                applicationStep = 2;
+                finishStep = 3;
+            }
+            if(this.welcome.currentView && this.model.get('stepNumber') !== welcomeStep) {
                 this.hideWelcome();
             }
-            if(this.configuration.currentView && this.model.get('stepNumber') !== 1) {
+            if(this.configuration.currentView && this.model.get('stepNumber') !== configStep) {
                 this.hideConfiguration();
             }
-            if(this.profiles.currentView && this.model.get('stepNumber') !== 2) {
+            if(this.profiles.currentView && this.model.get('stepNumber') !== profileStep) {
                 this.hideProfiles();
             }
-            if(this.applications.currentView && this.model.get('stepNumber') !== 3) {
+            if(this.applications.currentView && this.model.get('stepNumber') !== applicationStep) {
                 this.hideApplications();
             }
-            if(this.finish.currentView && this.model.get('stepNumber') !== 4) {
+            if(this.finish.currentView && this.model.get('stepNumber') !== finishStep) {
                 this.hideFinish();
             }
             //show the next or previous view
-            if(!this.welcome.currentView && this.model.get('stepNumber') <= 0) {
+            if(!this.welcome.currentView && this.model.get('stepNumber') <= welcomeStep) {
                 this.showWelcome();
-            } else if(!this.configuration.currentView && this.model.get('stepNumber') === 1) {
+            } else if(!this.configuration.currentView && this.model.get('stepNumber') === configStep) {
                 this.showConfiguration();
-            } else if(!this.profiles.currentView && this.model.get('stepNumber') === 2) {
+            } else  if(!this.profiles.currentView && this.model.get('stepNumber') === profileStep) {
                 this.showProfiles();
-            } else if(!this.applications.currentView && this.model.get('stepNumber') === 3) {
+            } else if(!this.applications.currentView && this.model.get('stepNumber') === applicationStep) {
                 this.showApplications();
-            } else if(!this.finish.currentView && this.model.get('stepNumber') >= 4) {
+            } else if(!this.finish.currentView && this.model.get('stepNumber') >= finishStep) {
                 this.showFinish();
             }
         },
@@ -117,7 +129,7 @@ define([
                 Application.App.submodules.Installation.installerMainController.fetchInstallProfiles().then(function(profiles){
                     // set initial selected profile if null.
                     var profileKey = self.model.get('selectedProfile');
-                    if(!profileKey){
+                    if(!profileKey && !profiles.isEmpty()){
                         profileKey = profiles.first().get('name');
                         self.model.set('selectedProfile',profileKey);
                     }
@@ -126,7 +138,11 @@ define([
                         navigationModel: self.model,
                         collection: profiles
                     }));
-                });
+                }).fail(function(error){
+                    if(console){
+                        console.log(error);
+                    }
+                }).done();
             }
             this.$(this.profiles.el).show();
         },

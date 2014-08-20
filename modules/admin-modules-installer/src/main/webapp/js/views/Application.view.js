@@ -52,12 +52,19 @@ define([
                     var profileKey = self.navigationModel.get('selectedProfile');
                     var selectedProfile = profiles.findWhere({name: profileKey});
                     var appView  = new AppView({selectedProfile: selectedProfile, modelClass: self.modelClass, showAddUpgradeBtn: false});
-                    self.listenToOnce(appView, 'collection:loaded', function(){
-                        if(!self.navigationModel.get('isCustomProfile')){
-                            self.navigationModel.trigger('next'); // force next step... which will trigger the apps to be installed.
-                        }
-                    });
+                    if(selectedProfile){
+                        self.listenToOnce(appView, 'collection:loaded', function(){
+                            if(!self.navigationModel.get('isCustomProfile')){
+                                //if a profile is selected and the customized is not used, we automatically install the apps.
+                                self.navigationModel.trigger('next'); // force next step... which will trigger the apps to be installed.
+                            }
+                        });
+                    }
                     self.applications.show(appView);
+                }).fail(function(error){
+                    if(console){
+                        console.log(error);
+                    }
                 });
 
             },
