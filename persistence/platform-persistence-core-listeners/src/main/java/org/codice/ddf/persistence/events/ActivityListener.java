@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,8 +44,7 @@ public class ActivityListener implements EventHandler {
         } catch (PersistenceException e) {
             LOGGER.debug("PersistenceException trying to get {} activities", ActivityEvent.ActivityStatus.STARTED, e);
         }
-        for (Map<String, Object> result :results) {
-            //Map<String, Object> sanitizedResult = PersistentItem.stripSuffixes(result);
+        for (Map<String, Object> result : results) {
             result.put(ActivityEvent.STATUS_KEY + "_txt",
                     ActivityEvent.ActivityStatus.FAILED.toString());
             result.put(ActivityEvent.MESSAGE_KEY + "_txt", "Resource retrieval failed");
@@ -54,7 +52,7 @@ public class ActivityListener implements EventHandler {
             try {
                 persistentStore.add(PersistentStore.ACTIVITY_TYPE, result);
             } catch (PersistenceException e) {
-                LOGGER.info("Caught PersistenceException {}", e.getMessage());
+                LOGGER.info("Caught PersistenceException {}", e);
             }
         }
     }
