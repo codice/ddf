@@ -30,6 +30,10 @@ public class WcsConfiguration {
 
     private String password;
 
+    private Integer connectionTimeout;
+
+    private Integer receiveTimeout;
+
     private boolean disableCnCheck;
 
     public String getWcsUrl() {
@@ -70,6 +74,21 @@ public class WcsConfiguration {
 
     public boolean getDisableCnCheck() {
         return disableCnCheck;
+
+    public Integer getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    public void setConnectionTimeout(Integer timeout) {
+        this.connectionTimeout = timeout;
+    }
+
+    public Integer getReceiveTimeout() {
+        return receiveTimeout;
+    }
+
+    public void setReceiveTimeout(Integer timeout) {
+        this.receiveTimeout = timeout;
     }
 
 }

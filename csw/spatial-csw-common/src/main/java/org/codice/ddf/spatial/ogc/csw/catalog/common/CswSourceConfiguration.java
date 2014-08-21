@@ -51,6 +51,10 @@ public class CswSourceConfiguration {
 
     private Integer pollIntervalMinutes;
 
+    private Integer connectionTimeout;
+
+    private Integer receiveTimeout;
+
     private String productRetrievalMethod;
 
     private boolean isCqlForced;
@@ -184,6 +188,22 @@ public class CswSourceConfiguration {
 
     public void setPollIntervalMinutes(Integer pollIntervalMinutes) {
         this.pollIntervalMinutes = pollIntervalMinutes;
+    }
+
+    public Integer getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    public void setConnectionTimeout(Integer connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+    }
+
+    public Integer getReceiveTimeout() {
+        return receiveTimeout;
+    }
+
+    public void setReceiveTimeout(Integer receiveTimeout) {
+        this.receiveTimeout= receiveTimeout;
     }
 
     public String getWcsUrl() {

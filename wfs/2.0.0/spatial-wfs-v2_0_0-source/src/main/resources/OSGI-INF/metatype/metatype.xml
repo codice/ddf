@@ -59,6 +59,14 @@
             <Option label="Within" value="Within" />
 		</AD>
 
+        <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
+            name="Connection Timeout" id="connectionTimeout"
+            required="true" type="Integer" default="30000"/>
+
+        <AD description="Amount of time to wait for a response before timing out, in milliseconds."
+            name="Receive Timeout" id="receiveTimeout"
+            required="true" type="Integer" default="60000"/>
+
     </OCD>
 
     <OCD description="WFS 2.0.0 Connected Source" name="WFS 2.0.0 Connected Source" id="Wfs_v2_0_0_Connected_Source">
@@ -105,6 +113,14 @@
             <Option label="Touches" value="Touches" />
             <Option label="Within" value="Within" />
 		</AD>
+
+        <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
+            name="Connection Timeout" id="connectionTimeout"
+            required="true" type="Integer" default="30000"/>
+
+        <AD description="Amount of time to wait for a response before timing out, in milliseconds."
+            name="Receive Timeout" id="receiveTimeout"
+            required="true" type="Integer" default="60000"/>
 		
     </OCD>
 

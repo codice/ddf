@@ -57,6 +57,8 @@
             <beans:property name="metacardToFeatureMapper" ref="metacardToFeatureMappers" />
             <beans:property name="isLonLatOrder" value="false" />
             <beans:property name="disableSorting" value="false" />
+            <beans:property name="connectionTimeout" value=""/>
+            <beans:property name="receiveTimeout" value=""/>
         </beans:bean>
     </osgix:managed-service-factory>
 
@@ -87,6 +89,8 @@
             <beans:property name="metacardToFeatureMapper" ref="metacardToFeatureMappers" />
             <beans:property name="isLonLatOrder" value="false" />
             <beans:property name="disableSorting" value="false" />
+            <beans:property name="connectionTimeout" value=""/>
+            <beans:property name="receiveTimeout" value=""/>
         </beans:bean>
     </osgix:managed-service-factory>
 </beans:beans>

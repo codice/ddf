@@ -97,9 +97,9 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
      *            Password for the truststore.
      */
     public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
-            String trustStorePassword) {
+            String trustStorePassword, Integer connectionTimeout, Integer receiveTimeout) {
         this.configureKeystores(WebClient.client(wfs), keyStorePath, keyStorePassword,
-                trustStorePath, trustStorePassword);
+                trustStorePath, trustStorePassword, connectionTimeout, receiveTimeout);
     }
 
     public FeatureCollectionMessageBodyReaderWfs10 getFeatureCollectionReader() {

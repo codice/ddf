@@ -15,24 +15,6 @@
 
 package org.codice.ddf.spatial.ogc.catalog.common;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.ws.rs.core.Cookie;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.Base64Utility;
@@ -49,10 +31,29 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.saml.ext.AssertionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.List;
+import javax.ws.rs.core.Cookie;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
@@ -88,7 +89,7 @@ public abstract class TrustedRemoteSource {
      * @param trustStorePassword Password for the truststore.
      */
     protected void configureKeystores(Client client, String keyStorePath, String keyStorePassword,
-            String trustStorePath, String trustStorePassword) {
+            String trustStorePath, String trustStorePassword, Integer connectionTimeout, Integer receiveTimeout) {
         ClientConfiguration clientConfiguration = WebClient.getConfig(client);
 
         HTTPConduit httpConduit = clientConfiguration.getHttpConduit();
@@ -99,6 +100,22 @@ public abstract class TrustedRemoteSource {
                 tlsParams = new TLSClientParameters();
                 httpConduit.setTlsClientParameters(tlsParams);
             }
+
+            HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
+            httpClientPolicy.setConnectionTimeout(connectionTimeout);
+            if(httpClientPolicy.isSetConnectionTimeout()) {
+                LOGGER.info("Connection timeout has been set.");
+            } else {
+                LOGGER.error("Connection timeout has NOT been set.");
+            }
+            httpClientPolicy.setReceiveTimeout(receiveTimeout);
+            if(httpClientPolicy.isSetReceiveTimeout()) {
+                LOGGER.info("Receive timeout has been set.");
+            } else {
+                LOGGER.error("Receive timeout has NOT been set.");
+            }
+
+            httpConduit.setClient(httpClientPolicy);
 
             // the default type is JKS
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());

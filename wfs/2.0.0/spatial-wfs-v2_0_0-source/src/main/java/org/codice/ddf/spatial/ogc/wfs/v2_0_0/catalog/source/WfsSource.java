@@ -170,6 +170,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private static final String NO_FORCED_SPATIAL_FILTER = "NO_FILTER";
 
+    private static final String CONNECTION_TIMEOUT_PROPERTY = "connectionTimeout";
+
+    private static final String RECEIVE_TIMEOUT_PROPERTY = "receiveTimeout";
+
     private static final String WFS_ERROR_MESSAGE = "Error received from Wfs Server.";
     
     private static final String UNKNOWN = "unknown";
@@ -198,6 +202,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private static final String POLL_INTERVAL_PROPERTY = "pollInterval";
 
     private Integer pollInterval;
+
+    private Integer connectionTimeout;
+
+    private Integer receiveTimeout;
 
     private String forceSpatialFilter = NO_FORCED_SPATIAL_FILTER;
 
@@ -273,6 +281,9 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         boolean disableSorting = (Boolean) configuration.get(DISABLE_SORTING);
         String id = (String) configuration.get(ID_PROPERTY);
 
+        setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY));
+        setReceiveTimeout((Integer) configuration.get(RECEIVE_TIMEOUT_PROPERTY));
+
         String[] nonQueryableProperties = (String[]) configuration
                 .get(NON_QUERYABLE_PROPS_PROPERTY);
 
@@ -328,7 +339,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         try {
             remoteWfs = new RemoteWfs(wfsUrl, username, password, disableCnCheck);
             remoteWfs.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword);
+                    trustStorePassword, connectionTimeout, receiveTimeout);
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Unable to create RemoteWfs.", iae);
             remoteWfs = null;
@@ -995,6 +1006,14 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         this.pollInterval = interval;
     }
 
+    public void setConnectionTimeout(Integer timeout) {
+        this.connectionTimeout = timeout;
+    }
+
+    public void setReceiveTimeout(Integer timeout) {
+        this.receiveTimeout = timeout;
+    }
+
     public void setFilterAdapter(FilterAdapter filterAdapter) {
         this.filterAdapter = filterAdapter;
     }
@@ -1119,7 +1138,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         trustStorePassword = configurationMap.get(ConfigurationManager.TRUST_STORE_PASSWORD);
         if (remoteWfs != null) {
             remoteWfs.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword);
+                    trustStorePassword, connectionTimeout, receiveTimeout);
         }
     }
 

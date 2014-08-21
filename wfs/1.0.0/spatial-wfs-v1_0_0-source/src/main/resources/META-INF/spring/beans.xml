@@ -52,6 +52,8 @@
             <beans:property name="featureConverterFactoryList" ref="converterList"/>
             <beans:property name="pollInterval" value=""/>
             <beans:property name="forceSpatialFilter" value="" />
+            <beans:property name="connectionTimeout" value=""/>
+            <beans:property name="receiveTimeout" value=""/>
         </beans:bean>
     </osgix:managed-service-factory>
 
@@ -79,6 +81,8 @@
             <beans:property name="featureConverterFactoryList" ref="converterList"/>
             <beans:property name="pollInterval" value=""/>
             <beans:property name="forceSpatialFilter" value="" />
+            <beans:property name="connectionTimeout" value=""/>
+            <beans:property name="receiveTimeout" value=""/>
         </beans:bean>
     </osgix:managed-service-factory>
 </beans:beans>

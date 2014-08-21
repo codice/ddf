@@ -14,24 +14,15 @@
  **/
 package org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.impl.ResourceResponseImpl;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.resource.impl.ResourceImpl;
+import ddf.mime.MimeTypeMapper;
+import ddf.mime.MimeTypeResolutionException;
 import net.opengis.gml.profiles.gml4wcs.v_1_0_0.CodeListType;
 import net.opengis.gml.profiles.gml4wcs.v_1_0_0.CodeType;
 import net.opengis.gml.profiles.gml4wcs.v_1_0_0.DirectPositionType;
@@ -48,7 +39,6 @@ import net.opengis.wcs.v_1_0_0.SpatialDomainType;
 import net.opengis.wcs.v_1_0_0.SpatialSubsetType;
 import net.opengis.wcs.v_1_0_0.TimeSequenceType;
 import net.opengis.wcs.v_1_0_0.WCSCapabilitiesType;
-
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.wcs.catalog.GetCoverageResponse;
 import org.codice.ddf.spatial.ogc.wcs.catalog.WcsConfiguration;
@@ -59,15 +49,22 @@ import org.opengis.geometry.DirectPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.impl.ResourceResponseImpl;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.ResourceReader;
-import ddf.catalog.resource.impl.ResourceImpl;
-import ddf.mime.MimeTypeMapper;
-import ddf.mime.MimeTypeResolutionException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class WcsResourceReader {
 
@@ -138,7 +135,8 @@ public class WcsResourceReader {
 
         try {
             remoteWcs = new RemoteWcs(wcsConfiguration);
-            remoteWcs.setKeystores(keyStorePath, keyStorePassword, trustStorePath, trustStorePassword);
+            remoteWcs.setKeystores(keyStorePath, keyStorePassword, trustStorePath, trustStorePassword,
+                    wcsConfiguration.getConnectionTimeout(), wcsConfiguration.getReceiveTimeout());
             configureWcs();
         } catch (IllegalArgumentException iae) {
             LOGGER.error("Unable to create RemoteWcs.", iae);
@@ -174,7 +172,8 @@ public class WcsResourceReader {
 
         // if wcs is already set, update with new keystores
         if (remoteWcs != null) {
-            remoteWcs.setKeystores(keyStorePath, keyStorePassword, trustStorePath, trustStorePassword);
+            remoteWcs.setKeystores(keyStorePath, keyStorePassword, trustStorePath, trustStorePassword,
+                    wcsConfiguration.getConnectionTimeout(), wcsConfiguration.getReceiveTimeout());
         }
 
     }
@@ -209,6 +208,22 @@ public class WcsResourceReader {
 
     public String getId() {
         return wcsConfiguration.getId();
+    }
+
+    public void setConnectionTimeout(Integer timeout) {
+        wcsConfiguration.setConnectionTimeout(timeout);
+    }
+
+    public Integer getConnectionTimeout() {
+        return wcsConfiguration.getConnectionTimeout();
+    }
+
+    public void setReceiveTimeout(Integer timeout) {
+        wcsConfiguration.setReceiveTimeout(timeout);
+    }
+
+    public Integer getReceiveTimeout() {
+        return wcsConfiguration.getReceiveTimeout();
     }
 
     public void setDisableCnCheck(boolean disableCnCheck) {

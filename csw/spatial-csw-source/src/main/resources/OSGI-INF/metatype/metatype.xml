@@ -80,6 +80,14 @@
         	
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)." name="Poll Interval" id="pollInterval"
             required="true" type="Integer" default="5"/>
+
+        <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
+            name="Connection Timeout" id="connectionTimeout"
+            required="true" type="Integer" default="30000"/>
+
+        <AD description="Amount of time to wait for a response before timing out, in milliseconds."
+            name="Receive Timeout" id="receiveTimeout"
+            required="true" type="Integer" default="60000"/>
             
         <AD description="Output Schema" name="Output Schema" id="outputSchema" required="true" type="String" default="http://www.opengis.net/cat/csw/2.0.2" />
         
@@ -160,9 +168,18 @@
 
         <AD name="Content Types" id="contentTypeNames" required="false" type="String"
         	cardinality="100" description="The content types that can be found on server" />
+
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)." name="Poll Interval" id="pollInterval"
             required="true" type="Integer" default="5"/>
-            
+
+        <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
+            name="Connection Timeout" id="connectionTimeout"
+            required="true" type="Integer" default="30000"/>
+
+        <AD description="Amount of time to wait for a response before timing out, in milliseconds."
+            name="Receive Timeout" id="receiveTimeout"
+            required="true" type="Integer" default="60000"/>
+
         <AD description="Output Schema" name="Output Schema" id="outputSchema" required="true" type="String" default="http://www.opengis.net/cat/csw/2.0.2" />
         
         <AD description="Force CQL Text" name="Force CQL Text as the Query Language" id="isCqlForced" required="true"

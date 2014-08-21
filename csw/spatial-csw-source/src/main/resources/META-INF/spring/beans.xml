@@ -85,6 +85,8 @@
             <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList"/>
             <beans:property name="isCqlForced" value="false"/>
             <beans:property name="forceSpatialFilter" value=""/>
+            <beans:property name="connectionTimeout" value=""/>
+            <beans:property name="receiveTimeout" value=""/>
         </beans:bean>
     </osgix:managed-service-factory>
 
@@ -133,6 +135,8 @@
             <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList"/>
             <beans:property name="isCqlForced" value="false"/>
             <beans:property name="forceSpatialFilter" value=""/>
+            <beans:property name="connectionTimeout" value=""/>
+            <beans:property name="receiveTimeout" value=""/>
         </beans:bean>
     </osgix:managed-service-factory>
 </beans:beans>

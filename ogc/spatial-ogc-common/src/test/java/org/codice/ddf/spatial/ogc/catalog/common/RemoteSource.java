@@ -14,12 +14,12 @@
  **/
 package org.codice.ddf.spatial.ogc.catalog.common;
 
+import org.apache.cxf.jaxrs.client.WebClient;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
-import org.apache.cxf.jaxrs.client.WebClient;
 
 /**
  * Generic implementation of TrustedRemoteSource to for unit testing.
@@ -36,9 +36,9 @@ public class RemoteSource extends TrustedRemoteSource implements GenericRemoteSo
     }
 
     public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
-            String trustStorePassword) {
+            String trustStorePassword, Integer connectionTimeout, Integer receiveTimeout) {
         this.configureKeystores(WebClient.client(grs), keyStorePath, keyStorePassword,
-                trustStorePath, trustStorePassword);
+                trustStorePath, trustStorePassword, connectionTimeout, receiveTimeout);
     }
 
     @GET

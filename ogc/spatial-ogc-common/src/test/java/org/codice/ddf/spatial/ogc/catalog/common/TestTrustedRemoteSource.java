@@ -96,7 +96,7 @@ public class TestTrustedRemoteSource {
     public void testGoodCertificates() {
 
         RemoteSource remoteSource = createSecuredSource(
-                "/clientKeystore.jks", "changeit", "/clientTruststore.jks", "changeit");
+                "/clientKeystore.jks", "changeit", "/clientTruststore.jks", "changeit", 30000, 60000);
         // hit server
         if (remoteSource.get() == null) {
             fail("Could not get capabilities from the test server. This means no connection was established.");
@@ -111,7 +111,7 @@ public class TestTrustedRemoteSource {
     public void testBadClientCertificate() {
 
         RemoteSource remoteSource = createSecuredSource("/client-bad.jks", "",
-                "/clientTruststore.jks", "changeit");
+                "/clientTruststore.jks", "changeit", 30000, 60000);
         // hit server
         try {
             if (remoteSource.get() != null) {
@@ -131,7 +131,7 @@ public class TestTrustedRemoteSource {
     public void testBadServerCertificate() {
 
         RemoteSource remoteSource = createSecuredSource("/clientKeystore.jks", "changeit",
-                "/client-bad.jks", "");
+                "/client-bad.jks", "", 30000, 60000);
         // hit server
         try {
             if (remoteSource.get() != null) {
@@ -144,10 +144,12 @@ public class TestTrustedRemoteSource {
     }
 
     private RemoteSource createSecuredSource(String keyStorePath, String keyStorePassword,
-            String trustStorePath, String trustStorePassword) {
+            String trustStorePath, String trustStorePassword, Integer connectionTimeout,
+            Integer receiveTimeout) {
         RemoteSource rs = new RemoteSource("https://localhost:" + serverPort + "/", true);
         rs.setKeystores(getClass().getResource(keyStorePath).getPath(), keyStorePassword,
-                getClass().getResource(trustStorePath).getPath(), trustStorePassword);
+                getClass().getResource(trustStorePath).getPath(), trustStorePassword,
+                connectionTimeout, receiveTimeout);
 
         return rs;
     }

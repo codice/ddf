@@ -860,7 +860,7 @@ public class TestWfsSource {
         source.configurationUpdateCallback(configurationMap);
 
         verify(mockWfs, atLeastOnce()).setKeystores(any(String.class), any(String.class),
-                any(String.class), any(String.class));
+                any(String.class), any(String.class), any(Integer.class), any(Integer.class));
     }
     
     @Test

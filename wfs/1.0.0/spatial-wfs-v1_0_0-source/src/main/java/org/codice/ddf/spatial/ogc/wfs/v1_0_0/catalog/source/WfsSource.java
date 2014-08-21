@@ -14,43 +14,37 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.math.BigInteger;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.ClientException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-
+import ddf.catalog.Constants;
+import ddf.catalog.data.ContentType;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.ContentTypeImpl;
+import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.ResourceResponseImpl;
+import ddf.catalog.operation.impl.SourceResponseImpl;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.impl.ResourceImpl;
+import ddf.catalog.source.ConnectedSource;
+import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.SourceMonitor;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.util.impl.MaskableImpl;
 import ogc.schema.opengis.filter.v_1_0_0.FilterType;
 import ogc.schema.opengis.wfs.v_1_0_0.GetFeatureType;
 import ogc.schema.opengis.wfs.v_1_0_0.ObjectFactory;
 import ogc.schema.opengis.wfs.v_1_0_0.QueryType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.FeatureTypeType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
@@ -78,31 +72,34 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.Constants;
-import ddf.catalog.data.ContentType;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.ContentTypeImpl;
-import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.ResourceResponseImpl;
-import ddf.catalog.operation.impl.SourceResponseImpl;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.impl.ResourceImpl;
-import ddf.catalog.source.ConnectedSource;
-import ddf.catalog.source.FederatedSource;
-import ddf.catalog.source.SourceMonitor;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.util.impl.MaskableImpl;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.ClientException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.math.BigInteger;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Provides a Federated and Connected source implementation for OGC WFS servers.
@@ -155,6 +152,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private static final String NO_FORCED_SPATIAL_FILTER = "NO_FILTER";
 
+    private static final String CONNECTION_TIMEOUT_PROPERTY = "connectionTimeout";
+
+    private static final String RECEIVE_TIMEOUT_PROPERTY = "receiveTimeout";
+
     private static final String WFS_ERROR_MESSAGE = "Error received from Wfs Server.";
 
     public static final int WFS_MAX_FEATURES_RETURNED = 1000;
@@ -181,6 +182,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private static final String POLL_INTERVAL_PROPERTY = "pollInterval";
 
     private Integer pollInterval;
+
+    private Integer connectionTimeout;
+
+    private Integer receiveTimeout;
 
     private String forceSpatialFilter = NO_FORCED_SPATIAL_FILTER;
 
@@ -248,6 +253,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 .get(TrustedRemoteSource.DISABLE_CN_CHECK_PROPERTY);
         String id = (String) configuration.get(ID_PROPERTY);
 
+        setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY));
+        setReceiveTimeout((Integer) configuration.get(RECEIVE_TIMEOUT_PROPERTY));
 
         String[] nonQueryableProperties = (String[]) configuration
                 .get(NON_QUERYABLE_PROPS_PROPERTY);
@@ -339,7 +346,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         try {
             remoteWfs = new RemoteWfs(wfsUrl, username, password, disableCnCheck);
             remoteWfs.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword);
+                    trustStorePassword, connectionTimeout, receiveTimeout);
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Unable to create RemoteWfs.", iae);
             remoteWfs = null;
@@ -847,6 +854,14 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         this.pollInterval = interval;
     }
 
+    public void setConnectionTimeout(Integer timeout) {
+        this.connectionTimeout = timeout;
+    }
+
+    public void setReceiveTimeout(Integer timeout) {
+        this.receiveTimeout = timeout;
+    }
+
     public void setFilterAdapter(FilterAdapter filterAdapter) {
         this.filterAdapter = filterAdapter;
     }
@@ -952,7 +967,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         trustStorePassword = configurationMap.get(ConfigurationManager.TRUST_STORE_PASSWORD);
         if (remoteWfs != null) {
             remoteWfs.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword);
+                    trustStorePassword, connectionTimeout, receiveTimeout);
         }
     }
 
