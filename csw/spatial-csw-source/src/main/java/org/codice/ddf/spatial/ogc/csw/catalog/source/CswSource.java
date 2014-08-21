@@ -14,39 +14,34 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.math.BigInteger;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.ClientException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-
+import ddf.catalog.Constants;
+import ddf.catalog.data.ContentType;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.ContentTypeImpl;
+import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.SourceResponseImpl;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.source.ConnectedSource;
+import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.SourceMonitor;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.util.impl.MaskableImpl;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
@@ -68,7 +63,6 @@ import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
 import net.opengis.ows.v_1_0_0.DomainType;
 import net.opengis.ows.v_1_0_0.Operation;
 import net.opengis.ows.v_1_0_0.OperationsMetadata;
-
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
@@ -98,34 +92,37 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.Constants;
-import ddf.catalog.data.ContentType;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.ContentTypeImpl;
-import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.FilterDelegate;
-import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.operation.impl.SourceResponseImpl;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.ResourceReader;
-import ddf.catalog.source.ConnectedSource;
-import ddf.catalog.source.FederatedSource;
-import ddf.catalog.source.SourceMonitor;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.util.impl.MaskableImpl;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.ClientException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.math.BigInteger;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * CswSource provides a DDF {@link FederatedSource} and {@link ConnectedSource} for CSW 2.0.2
@@ -335,9 +332,15 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             cswSourceConfiguration.setUsername(userProp);
         }
 
-        cswSourceConfiguration.setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY));
+        Integer newConnTimeout = (Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY);
+        if (newConnTimeout != null) {
+            cswSourceConfiguration.setConnectionTimeout(newConnTimeout);
+        }
 
-        cswSourceConfiguration.setReceiveTimeout((Integer) configuration.get(RECEIVE_TIMEOUT_PROPERTY));
+        Integer newRecTimeout = (Integer) configuration.get(RECEIVE_TIMEOUT_PROPERTY);
+        if (newRecTimeout != null) {
+            cswSourceConfiguration.setReceiveTimeout(newRecTimeout);
+        }
 
         String wcsUrlProp = (String) configuration.get(WCSURL_PROPERTY);
         if (StringUtils.isNotBlank(wcsUrlProp)) {
@@ -1565,7 +1568,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             boolean oldAvailability = CswSource.this.isAvailable();
             boolean newAvailability = false;
             // If the Remote object is null attempt to initialize it and
-            // configure3
+            // configure
             // all the capabilities.
             if (remoteCsw == null) {
                 connectToRemoteCsw();

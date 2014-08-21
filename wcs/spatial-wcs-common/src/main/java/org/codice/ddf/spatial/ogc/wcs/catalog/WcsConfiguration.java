@@ -74,6 +74,7 @@ public class WcsConfiguration {
 
     public boolean getDisableCnCheck() {
         return disableCnCheck;
+    }
 
     public Integer getConnectionTimeout() {
         return connectionTimeout;

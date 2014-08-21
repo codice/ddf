@@ -15,6 +15,8 @@
 
 package org.codice.ddf.spatial.ogc.catalog.common;
 
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.Base64Utility;
@@ -41,7 +43,7 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
+import javax.ws.rs.core.Cookie;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -53,10 +55,6 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.List;
-import javax.ws.rs.core.Cookie;
-
-import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
 
 public abstract class TrustedRemoteSource {
     
@@ -75,6 +73,10 @@ public abstract class TrustedRemoteSource {
     private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TrustedRemoteSource.class);
+
+    public static final Integer DEFAULT_CONNECTION_TIMEOUT = 30000;
+
+    public static final Integer DEFAULT_RECEIVE_TIMEOUT = 60000;
 
 
 
@@ -102,13 +104,23 @@ public abstract class TrustedRemoteSource {
             }
 
             HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
-            httpClientPolicy.setConnectionTimeout(connectionTimeout);
+
+            if(connectionTimeout != null) {
+                httpClientPolicy.setConnectionTimeout(connectionTimeout);
+            } else {
+                httpClientPolicy.setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
+            }
             if(httpClientPolicy.isSetConnectionTimeout()) {
                 LOGGER.info("Connection timeout has been set.");
             } else {
                 LOGGER.error("Connection timeout has NOT been set.");
             }
-            httpClientPolicy.setReceiveTimeout(receiveTimeout);
+
+            if(receiveTimeout != null) {
+                httpClientPolicy.setReceiveTimeout(receiveTimeout);
+            } else {
+                httpClientPolicy.setReceiveTimeout(DEFAULT_RECEIVE_TIMEOUT);
+            }
             if(httpClientPolicy.isSetReceiveTimeout()) {
                 LOGGER.info("Receive timeout has been set.");
             } else {
