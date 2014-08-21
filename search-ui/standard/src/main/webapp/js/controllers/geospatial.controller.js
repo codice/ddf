@@ -65,13 +65,21 @@ define(['underscore',
                     });
                 }
                 else {
-                    options.imageryProvider = new Cesium.BingMapsImageryProvider({
-                                                  url : 'https://dev.virtualearth.net',
-                                                  mapStyle : Cesium.BingMapsStyle.AERIAL_WITH_LABELS
-                                              });
+                    options.imageryProvider = new Cesium.OpenStreetMapImageryProvider({
+                        url: 'http://otile1.mqcdn.com/tiles/1.0.0/map',
+                        fileExtension: 'jpg'
+                    });
                 }
 
                 viewer = new Cesium.Viewer(mapDivId, options);
+
+                if(!properties.wmsServer) {
+                    var layer = viewer.scene.imageryLayers.addImageryProvider(new Cesium.OpenStreetMapImageryProvider({
+                        url: 'http://otile1.mqcdn.com/tiles/1.0.0/sat',
+                        fileExtension: 'jpg'
+                    }));
+                    layer.alpha = 0.5;
+                }
 
                 return viewer;
             },
