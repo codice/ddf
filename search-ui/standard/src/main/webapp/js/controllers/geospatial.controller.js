@@ -79,6 +79,10 @@ define(['underscore',
                         fileExtension: 'jpg'
                     }));
                     layer.alpha = 0.5;
+
+                    viewer.scene.terrainProvider = new Cesium.CesiumTerrainProvider({
+                        url: 'http://cesiumjs.org/stk-terrain/tilesets/world/tiles'
+                    });
                 }
 
                 return viewer;
