@@ -747,13 +747,19 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                         "Unable to build query. Page size has a negative value.");
             }
             int startIndex = query.getStartIndex();
-            if (startIndex < 0){
+            
+            //This resets the start index of 1 back to 0 because this is the starting index for 
+            //wfs 2.0 and the default index of 1 is hardcoded into QueryImpl and cannot be changed.
+            if (startIndex == 1){
+            	startIndex = 0;
+            }
+            else if (startIndex < 0){
                 LOGGER.error("Start index has a negative value");
                 throw new UnsupportedQueryException(
                         "Unable to build query. Start index has a negative value.");
             }
             getFeatureType.setCount(BigInteger.valueOf(query.getPageSize()));
-            getFeatureType.setStartIndex(BigInteger.valueOf(query.getStartIndex()));
+            getFeatureType.setStartIndex(BigInteger.valueOf(startIndex));
             List<JAXBElement<?>> incomingQueries = getFeatureType.getAbstractQueryExpression();
             for(QueryType queryType : queries){
                 incomingQueries.add(new net.opengis.wfs.v_2_0_0.ObjectFactory().createQuery(queryType));
