@@ -746,14 +746,11 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 throw new UnsupportedQueryException(
                         "Unable to build query. Page size has a negative value.");
             }
-            int startIndex = query.getStartIndex();
             
-            //This resets the start index of 1 back to 0 because this is the starting index for 
-            //wfs 2.0 and the default index of 1 is hardcoded into QueryImpl and cannot be changed.
-            if (startIndex == 1){
-            	startIndex = 0;
-            }
-            else if (startIndex < 0){
+            //Convert DDF index of 1 back to index of 0 for WFS 2.0
+            int startIndex = query.getStartIndex() - 1;
+
+            if (startIndex < 0){
                 LOGGER.error("Start index has a negative value");
                 throw new UnsupportedQueryException(
                         "Unable to build query. Start index has a negative value.");

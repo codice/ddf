@@ -437,7 +437,7 @@ public class TestWfsSource {
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
-    @Test
+    @Test(expected = UnsupportedQueryException.class)
     public void testPagingStartIndexZero() throws WfsException, TransformerConfigurationException,
         UnsupportedQueryException {
         
