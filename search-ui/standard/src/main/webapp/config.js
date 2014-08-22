@@ -129,7 +129,9 @@
 
             perfectscrollbar: ['jquery'],
 
-            purl: ['jquery']
+            purl: ['jquery'],
+
+            bootstrap: ['jquery']
 
         },
 
