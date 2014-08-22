@@ -41,20 +41,20 @@ public class ActivityListener implements EventHandler {
             results = persistentStore.get(PersistentStore.ACTIVITY_TYPE,
                     ActivityEvent.STATUS_KEY + " = '" + ActivityEvent.ActivityStatus.STARTED
                             .toString() + "'");
-        } catch (PersistenceException e) {
-            LOGGER.debug("PersistenceException trying to get {} activities", ActivityEvent.ActivityStatus.STARTED, e);
-        }
-        for (Map<String, Object> result : results) {
-            result.put(ActivityEvent.STATUS_KEY + "_txt",
-                    ActivityEvent.ActivityStatus.FAILED.toString());
-            result.put(ActivityEvent.MESSAGE_KEY + "_txt", "Resource retrieval failed");
-            result.put(ActivityEvent.PROGRESS_KEY + "_txt", "");
-            try {
+            for (Map<String, Object> result : results) {
+                result.put(ActivityEvent.STATUS_KEY + "_txt",
+                        ActivityEvent.ActivityStatus.FAILED.toString());
+                result.put(ActivityEvent.MESSAGE_KEY + "_txt", "Resource retrieval failed");
+                result.put(ActivityEvent.PROGRESS_KEY + "_txt", "");
+
                 persistentStore.add(PersistentStore.ACTIVITY_TYPE, result);
-            } catch (PersistenceException e) {
-                LOGGER.info("Caught PersistenceException {}", e);
             }
+        } catch (PersistenceException e) {
+            LOGGER.debug("PersistenceException while creating ActivityListener", e);
+        } catch (Exception e) {
+            LOGGER.debug("Exception while creating ActivityListener", e);
         }
+
     }
 
     @Override
