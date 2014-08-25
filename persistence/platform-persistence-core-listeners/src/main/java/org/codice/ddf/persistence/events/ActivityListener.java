@@ -24,7 +24,6 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public class ActivityListener implements EventHandler {
 
     public ActivityListener(PersistentStore persistentStore) {
         this.persistentStore = persistentStore;
-        List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> results = null;
         try {
             results = persistentStore.get(PersistentStore.ACTIVITY_TYPE,
                     ActivityEvent.STATUS_KEY + " = '" + ActivityEvent.ActivityStatus.STARTED
