@@ -27,7 +27,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>spatial-wfs-v2_0_0-schema-bindings</module>
-        <module>spatial-wfs-v2_0_0-schema-webapp</module>
         <module>spatial-wfs-v2_0_0-common</module>
         <module>spatial-wfs-v2_0_0-converter</module>
         <module>spatial-wfs-v2_0_0-source</module>

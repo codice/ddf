@@ -65,11 +65,11 @@
 						<configuration>
 							<extension>true</extension>
 							<forceRegenerate>true</forceRegenerate>
-							<schemaDirectory>../spatial-wfs-v2_0_0-schema-webapp/src/main/resources</schemaDirectory>
+							<schemaDirectory>src/main/resources</schemaDirectory>
 							<schemaIncludes>
 								<include>wfs/2.0.0/wfs.xsd</include>
 							</schemaIncludes>
-							<bindingDirectory>../spatial-wfs-v2_0_0-schema-webapp/src/main/bindings</bindingDirectory>
+							<bindingDirectory>src/main/bindings</bindingDirectory>
 							<bindingIncludes>
 								<include>binding.xjb</include>
 							</bindingIncludes>
