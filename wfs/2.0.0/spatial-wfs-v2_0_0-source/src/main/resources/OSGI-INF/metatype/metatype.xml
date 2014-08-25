@@ -14,28 +14,33 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="WFS 2.0.0 Federated Source" id="Wfs_v2_0_0_Federated_Source" description="WFS 2.0.0 Federated Source">
+    <OCD name="WFS 2.0.0 Federated Source" id="Wfs_v2_0_0_Federated_Source"
+         description="WFS 2.0.0 Federated Source">
 
         <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
             type="String" default="WFS_v2_0_0"/>
 
         <AD description="URL to the endpoint implementing the Web Feature Service (WFS) 2.0.0 spec"
-            name="WFS URL" id="wfsUrl" required="true" type="String" />
+            name="WFS URL" id="wfsUrl" required="true" type="String"/>
 
-        <AD description="Disable CN check for the server certificate. This should only be used when testing." name="Disable CN Check" id="disableCnCheck" required="true"
+        <AD description="Disable CN check for the server certificate. This should only be used when testing."
+            name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
-            
-        <AD description="Force Longitude/Latitude coordinate order" name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
-            type="Boolean" default="false" />
-            
-        <AD description="When selected, the system will not specify sort criteria with the query.  This should only be used if the remote source is unable to handle sorting even when the capabilites states 'ImplementsSorting' is supported." name="Disable Sorting" id="disableSorting" required="true"
-            type="Boolean" default="false" />
 
-        <AD description="Username for WFS Service (optional)" name="Username" id="username"
+        <AD description="Force Longitude/Latitude coordinate order"
+            name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
+            type="Boolean" default="false"/>
+
+        <AD description="When selected, the system will not specify sort criteria with the query.  This should only be used if the remote source is unable to handle sorting even when the capabilities states 'ImplementsSorting' is supported."
+            name="Disable Sorting" id="disableSorting" required="true"
+            type="Boolean" default="false"/>
+
+        <AD description="Username for tge WFS Service (optional)" name="Username" id="username"
             required="false" type="String"/>
-        <AD description="Password for WFS Service (optional)" name="Password" id="password"
+        <AD description="Password for the WFS Service (optional)" name="Password" id="password"
             required="false" type="String"/>
-        <AD name="Non Queryable Properties" id="nonQueryableProperties" required="false" type="String"
+        <AD name="Non Queryable Properties" id="nonQueryableProperties" required="false"
+            type="String"
             cardinality="100"
             description="Properties listed here will NOT be queryable and any attempt to filter on these properties
         	will result in an exception."/>
@@ -45,19 +50,19 @@
         <AD description="Force only the selected Spatial Filter Type as the only available Spatial Filter."
             name="Forced Spatial Filter Type" id="forceSpatialFilter"
             required="false" type="String" default="">
-            <Option label="None" value="NO_FILTER" />
-            <Option label="BBOX" value="BBOX" />
-            <Option label="Beyond" value="Beyond" />
-            <Option label="Contains" value="Contains" />
-            <Option label="Crosses" value="Crosses" />
-            <Option label="Disjoint" value="Disjoint" />
-            <Option label="DWithin" value="DWithin" />
-            <Option label="Intersects" value="Intersects" />
-            <Option label="Equals" value="Equals" />
-            <Option label="Overlaps" value="Overlaps" />
-            <Option label="Touches" value="Touches" />
-            <Option label="Within" value="Within" />
-		</AD>
+            <Option label="None" value="NO_FILTER"/>
+            <Option label="BBOX" value="BBOX"/>
+            <Option label="Beyond" value="Beyond"/>
+            <Option label="Contains" value="Contains"/>
+            <Option label="Crosses" value="Crosses"/>
+            <Option label="Disjoint" value="Disjoint"/>
+            <Option label="DWithin" value="DWithin"/>
+            <Option label="Intersects" value="Intersects"/>
+            <Option label="Equals" value="Equals"/>
+            <Option label="Overlaps" value="Overlaps"/>
+            <Option label="Touches" value="Touches"/>
+            <Option label="Within" value="Within"/>
+        </AD>
 
         <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
             name="Connection Timeout" id="connectionTimeout"
@@ -69,28 +74,34 @@
 
     </OCD>
 
-    <OCD description="WFS 2.0.0 Connected Source" name="WFS 2.0.0 Connected Source" id="Wfs_v2_0_0_Connected_Source">
+    <OCD description="WFS 2.0.0 Connected Source" name="WFS 2.0.0 Connected Source"
+         id="Wfs_v2_0_0_Connected_Source">
 
-        <AD description="The unique name of the Source" name="Source ID" id="id" required="true" type="String"
+        <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
+            type="String"
             default="WFS"/>
 
         <AD description="URL to the endpoint implementing the Web Feature Service (WFS) 2.0.0 spec"
-            name="WFS URL" id="wfsUrl" required="true" type="String" />
+            name="WFS URL" id="wfsUrl" required="true" type="String"/>
 
-        <AD description="Disable CN check for the server certificate. This should only be used when testing." name="Disable CN Check" id="disableCnCheck" required="true"
+        <AD description="Disable CN check for the server certificate. This should only be used when testing."
+            name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
-            
-        <AD description="Force Longitude/Latitude coordinate order" name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
-            type="Boolean" default="false" />
 
-        <AD description="When selected, the system will not specify sort criteria with the query.  This should only be used if the remote source is unable to handle sorting even when the capabilites states 'ImplementsSorting' is supported." name="Disable Sorting" id="disableSorting" required="true"
-            type="Boolean" default="false" />
+        <AD description="Force Longitude/Latitude coordinate order"
+            name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
+            type="Boolean" default="false"/>
 
-        <AD description="Username for WFS Service (optional)" name="Username" id="username"
+        <AD description="When selected, the system will not specify sort criteria with the query.  This should only be used if the remote source is unable to handle sorting even when the capabilities states 'ImplementsSorting' is supported."
+            name="Disable Sorting" id="disableSorting" required="true"
+            type="Boolean" default="false"/>
+
+        <AD description="Username for the WFS Service (optional)" name="Username" id="username"
             required="false" type="String"/>
-        <AD description="Password for WFS Service (optional)" name="Password" id="password"
+        <AD description="Password for the WFS Service (optional)" name="Password" id="password"
             required="false" type="String"/>
-        <AD name="Non Queryable Properties" id="nonQueryableProperties" required="false" type="String"
+        <AD name="Non Queryable Properties" id="nonQueryableProperties" required="false"
+            type="String"
             cardinality="100"
             description="Properties listed here will NOT be queryable and any attempt to filter on these properties
         	will result in an exception."/>
@@ -100,19 +111,19 @@
         <AD description="Force only the selected Spatial Filter Type as the only available Spatial Filter."
             name="Forced Spatial Filter Type" id="forceSpatialFilter"
             required="false" type="String" default="">
-            <Option label="None" value="NO_FILTER" />
-            <Option label="BBOX" value="BBOX" />
-            <Option label="Beyond" value="Beyond" />
-            <Option label="Contains" value="Contains" />
-            <Option label="Crosses" value="Crosses" />
-            <Option label="Disjoint" value="Disjoint" />
-            <Option label="DWithin" value="DWithin" />
-            <Option label="Intersect" value="Intersect" />
-            <Option label="Equals" value="Equals" />
-            <Option label="Overlaps" value="Overlaps" />
-            <Option label="Touches" value="Touches" />
-            <Option label="Within" value="Within" />
-		</AD>
+            <Option label="None" value="NO_FILTER"/>
+            <Option label="BBOX" value="BBOX"/>
+            <Option label="Beyond" value="Beyond"/>
+            <Option label="Contains" value="Contains"/>
+            <Option label="Crosses" value="Crosses"/>
+            <Option label="Disjoint" value="Disjoint"/>
+            <Option label="DWithin" value="DWithin"/>
+            <Option label="Intersect" value="Intersect"/>
+            <Option label="Equals" value="Equals"/>
+            <Option label="Overlaps" value="Overlaps"/>
+            <Option label="Touches" value="Touches"/>
+            <Option label="Within" value="Within"/>
+        </AD>
 
         <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
             name="Connection Timeout" id="connectionTimeout"
@@ -121,7 +132,7 @@
         <AD description="Amount of time to wait for a response before timing out, in milliseconds."
             name="Receive Timeout" id="receiveTimeout"
             required="true" type="Integer" default="60000"/>
-		
+
     </OCD>
 
     <Designate pid="Wfs_v2_0_0_Federated_Source" factoryPid="Wfs_v2_0_0_Federated_Source">
