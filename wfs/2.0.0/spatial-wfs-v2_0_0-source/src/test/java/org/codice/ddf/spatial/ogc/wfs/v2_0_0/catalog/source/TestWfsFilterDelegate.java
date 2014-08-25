@@ -22,10 +22,12 @@ import static org.hamcrest.text.pattern.PatternMatcher.matchesPattern;
 import static org.hamcrest.text.pattern.Patterns.anyCharacterIn;
 import static org.hamcrest.text.pattern.Patterns.oneOrMore;
 import static org.hamcrest.text.pattern.Patterns.sequence;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +35,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -742,6 +745,41 @@ public class TestWfsFilterDelegate {
         
         DistanceBufferType spatialOpsType2 = (DistanceBufferType) logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
         assertThat(Double.toString(spatialOpsType2.getDistance().getValue()), is(Double.valueOf(1500).toString()));
+    }
+
+    /**
+     * Verifies that a temporal criteria can be AND'ed to other criteria.
+     * @throws Exception
+     */
+    @Test
+    public void testLogicalAndOfSpatialTemporal() throws Exception {
+
+        String mockProperty = "myPropertyName";
+        String mockType = "myType";
+        WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
+
+
+        FilterType spatialFilter = delegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
+        FilterType temporalFilter = delegate.during(mockProperty, new DateTime().minusDays(365).toDate(), new DateTime().minusDays(10).toDate());
+
+        List<FilterType> filtersToBeAnded = new ArrayList<FilterType>(Arrays.asList(spatialFilter, temporalFilter));
+
+        //Perform Test
+        FilterType filter = delegate.and(filtersToBeAnded);
+
+        //Verify AND op used
+        if(filter.getLogicOps() == null) {
+            fail("No AND/OR element found in the generated FilterType.");
+        }
+        assertEquals(LOGICAL_AND_NAME, filter.getLogicOps().getName().toString());
+        BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
+
+        //Verify two items were AND'ed
+        assertEquals(2, logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().size());
+
+        //Verify first is spatial, second is temporal
+        assertTrue(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue() instanceof DistanceBufferType);
+        assertTrue(logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue() instanceof BinaryTemporalOpType);
     }
     
     @Test

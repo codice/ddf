@@ -444,6 +444,9 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             } else if (filterType.isSetSpatialOps()) {
             	andOrFilter.getValue().getComparisonOpsOrSpatialOpsOrTemporalOps()
         			.add(filterType.getSpatialOps());
+            } else if (filterType.isSetTemporalOps()) {
+                andOrFilter.getValue().getComparisonOpsOrSpatialOpsOrTemporalOps()
+                    .add(filterType.getTemporalOps());
             }
         }
         FilterType returnFilter = new FilterType();
@@ -479,7 +482,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private Boolean isFilterSet(FilterType filter) {
         return (filter.isSetComparisonOps() || filter.isSetLogicOps() || filter.isSetSpatialOps() ||
-        		filter.isSetId());
+        		filter.isSetId() || filter.isSetTemporalOps());
     }
 
     @Override
@@ -1821,7 +1824,6 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     
     private String mapMetacardAttribute(String metacardAttribute) {
         String featureProperty = null;
-
         if (this.metacardToFeatureMapper != null) {
             featureProperty = this.metacardToFeatureMapper
                     .getFeatureProperty(metacardAttribute);
