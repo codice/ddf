@@ -55,7 +55,7 @@
             <beans:property name="pollInterval" value=""/>
             <beans:property name="forceSpatialFilter" value="" />
             <beans:property name="metacardToFeatureMapper" ref="metacardToFeatureMappers" />
-            <beans:property name="isLonLatOrder" value="false" />
+            <beans:property name="coordinateOrder" value="LAT_LON" />
             <beans:property name="disableSorting" value="false" />
             <beans:property name="connectionTimeout" value=""/>
             <beans:property name="receiveTimeout" value=""/>
@@ -87,7 +87,7 @@
             <beans:property name="pollInterval" value=""/>
             <beans:property name="forceSpatialFilter" value="" />
             <beans:property name="metacardToFeatureMapper" ref="metacardToFeatureMappers" />
-            <beans:property name="isLonLatOrder" value="false" />
+            <beans:property name="coordinateOrder" value="LAT_LON" />
             <beans:property name="disableSorting" value="false" />
             <beans:property name="connectionTimeout" value=""/>
             <beans:property name="receiveTimeout" value=""/>

@@ -58,5 +58,13 @@ public interface FeatureConverter extends Converter {
      * @param wfsUrl
      */
     public void setWfsUrl(String wfsUrl);
+    
+    /**
+     * Set the coordinate order, LAT_LON or LON_LAT, on the converter.
+     * 
+     * @param coordinateOrder
+     */
+    public void setCoordinateOrder(String coordinateOrder);
+    
 
 }

@@ -66,6 +66,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     protected String prefix;
 
     protected MetacardType metacardType;
+    
+    protected String coordinateOrder;
 
     protected static final String FID = "fid";
 
@@ -97,6 +99,10 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
     public MetacardType getMetacardType() {
         return this.metacardType;
+    }
+    
+    public void setCoordinateOrder(String coordinateOrder) {
+        this.coordinateOrder = coordinateOrder;
     }
 
     protected HierarchicalStreamReader copyXml(HierarchicalStreamReader hreader, StringWriter writer) {

@@ -33,8 +33,14 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.AbstractFeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
@@ -43,6 +49,8 @@ import org.geotools.xml.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -53,10 +61,15 @@ import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 
 public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConverter implements FeatureConverter {
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFeatureConverterWfs20.class);
     private static final String XML_PARSE_FAILURE = "Failed to parse GML based XML into a Document.";
     private static final String CREATE_TRANSFORMER_FAILURE = "Failed to create Transformer.";
     private static final String GML_FAILURE = "Failed to transform GML.\n";
+    private static final String GML_POSLIST_XPATH = "//posList/text()";
+    
+    private static XPathExpression posListXpathExpr;
+    
     private String geometryXml = "";
 
     protected Serializable writeFeaturePropertyToMetacardAttribute(AttributeFormat attributeFormat,
@@ -95,6 +108,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             if (geo != null) {
                 WKTWriter wktWriter = new WKTWriter();
                 ser = wktWriter.write(geo);
+                LOGGER.info("wkt = {}", ser);
             }
             break;
         case BINARY:
@@ -115,6 +129,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
     }
 
     protected Object readGml(String xml) {
+        LOGGER.debug("readGml() input XML: {}", xml);
         //Add namespace into XML for processing
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = null;
@@ -134,7 +149,12 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         } catch (IOException e) {
             LOGGER.error(XML_PARSE_FAILURE);
         }
-      
+              
+        LOGGER.info("coordinateOrder = {}", coordinateOrder);
+        if (WfsConstants.LAT_LON_ORDER.equals(coordinateOrder)) {
+            swapCoordinates(doc);
+        }
+
         String[] namePrefix = doc.getDocumentElement().getNodeName().split(":");
         String prefix = "";
         if (namePrefix.length < 2) {
@@ -187,5 +207,44 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         }
         
         return gml;
+    }
+    
+    private void swapCoordinates(Document doc) {
+        LOGGER.debug("Swapping Lat/Lon Coords to Lon/Lat using XPath");
+        
+        // Compile XPath expression only once as optimization
+        if (posListXpathExpr == null) {
+            LOGGER.debug("Compiling {} XPath expression", GML_POSLIST_XPATH);
+            XPathFactory xpathfactory = XPathFactory.newInstance();
+            XPath xpath = xpathfactory.newXPath();
+            try {
+                posListXpathExpr = xpath.compile(GML_POSLIST_XPATH);
+            }  catch (XPathExpressionException e1) {
+                LOGGER.error("Exception", e1);
+            }
+        }
+ 
+        try {
+            Object result = posListXpathExpr.evaluate(doc, XPathConstants.NODESET);
+            NodeList nodes = (NodeList) result;
+            // All of the position coordinates are in one string, space separated
+            Node posListNode = nodes.item(0);
+            if (posListNode != null) {
+                String posList = posListNode.getNodeValue();
+                String[] coords = posList.split(" ");
+                StringBuffer sb = new StringBuffer("");
+                for (int i = 0; i < coords.length; i += 2) {
+                    sb.append(coords[i+1]);
+                    sb.append(" ");
+                    sb.append(coords[i]);
+                    sb.append(" ");
+                }
+                String reversedPosList = sb.toString().trim();
+                LOGGER.debug("reversedPosList = [{}]", reversedPosList);
+                posListNode.setNodeValue(reversedPosList);
+            }
+        } catch (XPathExpressionException e1) {
+            LOGGER.error("Exception", e1);
+        }
     }
 }

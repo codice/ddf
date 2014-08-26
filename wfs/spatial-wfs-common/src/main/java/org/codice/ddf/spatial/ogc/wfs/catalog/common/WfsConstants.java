@@ -54,4 +54,8 @@ public class WfsConstants {
 
     public static final double EARTH_MEAN_RADIUS_METERS = 6371008.7714;
 
+    public static final String LAT_LON_ORDER = "LAT_LON";
+    
+    public static final String LON_LAT_ORDER = "LON_LAT";
+
 }

@@ -70,6 +70,7 @@ import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
 import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
@@ -119,7 +120,7 @@ import ddf.catalog.util.impl.MaskableImpl;
  */
 public class WfsSource extends MaskableImpl implements FederatedSource, ConnectedSource,
         ConfigurationWatcher {
-
+    
     private String wfsUrl;
 
     protected Map<QName, WfsFilterDelegate> featureTypeFilters = new HashMap<QName, WfsFilterDelegate>();
@@ -130,7 +131,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private Boolean disableCnCheck = Boolean.FALSE;
 
-    private boolean isLonLatOrder = Boolean.FALSE;
+    private String coordinateOrder = WfsConstants.LAT_LON_ORDER;
 
     private FilterAdapter filterAdapter;
 
@@ -164,7 +165,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private static final String SPATIAL_FILTER_PROPERTY = "forceSpatialFilter";
 
-    private static final String IS_LON_LAT_ORDER = "isLonLatOrder";
+    private static final String COORDINATE_ORDER = "coordinateOrder";
     
     private static final String DISABLE_SORTING = "disableSorting";
 
@@ -277,7 +278,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         String username = (String) configuration.get(USERNAME_PROPERTY);
         Boolean disableCnCheckProp = (Boolean) configuration
                 .get(TrustedRemoteSource.DISABLE_CN_CHECK_PROPERTY);
-        boolean isLonLatOrder = (Boolean) configuration.get(IS_LON_LAT_ORDER);
+        String coordinateOrder = (String) configuration.get(COORDINATE_ORDER);
         boolean disableSorting = (Boolean) configuration.get(DISABLE_SORTING);
         String id = (String) configuration.get(ID_PROPERTY);
 
@@ -298,7 +299,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         this.password = password;
         this.username = username;
         this.disableCnCheck = disableCnCheckProp;
-        this.isLonLatOrder = isLonLatOrder;
+        this.coordinateOrder = coordinateOrder;
         this.disableSorting = disableSorting;
         this.forceSpatialFilter = (String) configuration.get(SPATIAL_FILTER_PROPERTY);
 
@@ -463,7 +464,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                     this.featureTypeFilters.put(featureMetacardType.getFeatureType(),
                             new WfsFilterDelegate(featureMetacardType, filterCapabilities,
                                     registration.getSrs(),
-                                    metacardAttributeToFeaturePropertyMapper, isLonLatOrder));
+                                    metacardAttributeToFeaturePropertyMapper, coordinateOrder));
                 }
             } catch (WfsException wfse) {
                 LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
@@ -540,6 +541,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         featureConverter.setSourceId(getId());
         featureConverter.setMetacardType(ftMetacard);
         featureConverter.setWfsUrl(wfsUrl);
+        featureConverter.setCoordinateOrder(coordinateOrder);
 
         // Add the Feature Type name as an alias for xstream
         remoteWfs.getFeatureCollectionReader().registerConverter(featureConverter);
@@ -1064,8 +1066,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         return this.metacardToFeatureMappers;
     }
 
-    public void setIsLonLatOrder(boolean isLonLatOrder) {
-        this.isLonLatOrder = isLonLatOrder;
+    public void setCoordinateOrder(String coordinateOrder) {
+        this.coordinateOrder = coordinateOrder;
     }
     
     public void setDisableSorting(boolean disableSorting) {

@@ -149,7 +149,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     
     private Set<SortOrder> allowedSortOrders;
 
-    private boolean isLonLatOrder;
+    private String coordinateOrder;
 
     private String srsName;
 
@@ -159,7 +159,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     public WfsFilterDelegate(FeatureMetacardType featureMetacardType,
             FilterCapabilities filterCapabilities, String srsName,
-            MetacardMapper metacardToFeatureMapper, boolean isLonLatOrder) {
+            MetacardMapper metacardToFeatureMapper, String coordinateOrder) {
 
         if (featureMetacardType == null) {
             throw new IllegalArgumentException("FeatureMetacardType can not be null");
@@ -175,7 +175,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     "Unable to convert geometry to {}. All geospatial queries for this featureType will be invalidated!",
                     srsName);
         }
-        this.isLonLatOrder = isLonLatOrder;
+        this.coordinateOrder = coordinateOrder;
         this.allowedSortOrders = new HashSet<SortOrder>();
         this.isSortingSupported = false;
         updateAllowedOperations(filterCapabilities);
@@ -1849,7 +1849,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
      */
     private String convertWktToLatLonOrdering(String wktInLonLat) {
 
-        if (!isLonLatOrder) {
+        if (WfsConstants.LAT_LON_ORDER.equals(coordinateOrder)) {
             LOGGER.debug("Converting WKT from LON/LAT coordinate ordering to LAT/LON coordinate ordering.");
 
             // Normalize all whitespace in WKT before processing.

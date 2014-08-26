@@ -27,9 +27,12 @@
             name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
 
-        <AD description="Force Longitude/Latitude coordinate order"
-            name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
-            type="Boolean" default="false"/>
+        <AD description="Coordinate order that remote source expects and returns spatial data in"
+            name="Coordinate Order" id="coordinateOrder" required="true"
+            type="String" default="false">
+            <Option label="Lat/Lon" value="LAT_LON"/>
+            <Option label="Lon/Lat" value="LON_LAT"/>
+        </AD>
 
         <AD description="When selected, the system will not specify sort criteria with the query.  This should only be used if the remote source is unable to handle sorting even when the capabilities states 'ImplementsSorting' is supported."
             name="Disable Sorting" id="disableSorting" required="true"
