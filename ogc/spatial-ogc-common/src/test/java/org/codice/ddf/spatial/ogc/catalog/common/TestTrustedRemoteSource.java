@@ -14,16 +14,6 @@
  **/
 package org.codice.ddf.spatial.ogc.catalog.common;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
-
-import java.net.SocketException;
-
-import javax.net.ssl.SSLHandshakeException;
-import javax.ws.rs.client.ClientException;
-
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;
@@ -35,6 +25,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.SSLHandshakeException;
+import javax.ws.rs.client.ClientException;
+import java.net.SocketException;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.fail;
 
 /**
  * Tests that the certificates are properly added to outgoing requests and allow for mutual
@@ -148,8 +147,8 @@ public class TestTrustedRemoteSource {
             Integer receiveTimeout) {
         RemoteSource rs = new RemoteSource("https://localhost:" + serverPort + "/", true);
         rs.setKeystores(getClass().getResource(keyStorePath).getPath(), keyStorePassword,
-                getClass().getResource(trustStorePath).getPath(), trustStorePassword,
-                connectionTimeout, receiveTimeout);
+                getClass().getResource(trustStorePath).getPath(), trustStorePassword);
+        rs.setTimeouts(connectionTimeout, receiveTimeout);
 
         return rs;
     }

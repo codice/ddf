@@ -95,9 +95,18 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
      * @param trustStorePassword Password for the truststore.
      */
     public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
-            String trustStorePassword, Integer connectionTimeout, Integer receiveTimeout) {
+            String trustStorePassword) {
         this.configureKeystores(WebClient.client(csw), keyStorePath, keyStorePassword,
-                trustStorePath, trustStorePassword, connectionTimeout, receiveTimeout);
+                trustStorePath, trustStorePassword);
+    }
+
+    /**
+     * Sets the timeouts to use for connection and receive requests.
+     * @param connectionTimeout Time in milliseconds to allow a connection.
+     * @param receiveTimeout Time in milliseconds to allow a receive.
+     */
+    public void setTimeouts(Integer connectionTimeout, Integer receiveTimeout) {
+        this.configureTimeouts(WebClient.client(csw), connectionTimeout, receiveTimeout);
     }
 
     public void setSubject(Subject subject) {

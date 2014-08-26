@@ -97,9 +97,21 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
      *            Password for the truststore.
      */
     public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
-            String trustStorePassword, Integer connectionTimeout, Integer receiveTimeout) {
+            String trustStorePassword) {
         this.configureKeystores(WebClient.client(wfs), keyStorePath, keyStorePassword,
-                trustStorePath, trustStorePassword, connectionTimeout, receiveTimeout);
+                trustStorePath, trustStorePassword);
+    }
+
+    /**
+     * Sets the timeouts to use for connection and receive requests.
+     *
+     * @param connectionTimeout
+     *            Time in milliseconds to allow a connection.
+     * @param receiveTimeout
+     *            Time in milliseconds to allow a receive.
+     */
+    public void setTimeouts(Integer connectionTimeout, Integer receiveTimeout) {
+        this.configureTimeouts(WebClient.client(wfs), connectionTimeout, receiveTimeout);
     }
 
     public FeatureCollectionMessageBodyReaderWfs10 getFeatureCollectionReader() {

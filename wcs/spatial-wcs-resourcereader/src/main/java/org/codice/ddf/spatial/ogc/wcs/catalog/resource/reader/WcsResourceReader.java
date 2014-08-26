@@ -135,8 +135,8 @@ public class WcsResourceReader {
 
         try {
             remoteWcs = new RemoteWcs(wcsConfiguration);
-            remoteWcs.setKeystores(keyStorePath, keyStorePassword, trustStorePath, trustStorePassword,
-                    wcsConfiguration.getConnectionTimeout(), wcsConfiguration.getReceiveTimeout());
+            remoteWcs.setKeystores(keyStorePath, keyStorePassword, trustStorePath, trustStorePassword);
+            remoteWcs.setTimeouts(wcsConfiguration.getConnectionTimeout(), wcsConfiguration.getReceiveTimeout());
             configureWcs();
         } catch (IllegalArgumentException iae) {
             LOGGER.error("Unable to create RemoteWcs.", iae);
@@ -172,10 +172,24 @@ public class WcsResourceReader {
 
         // if wcs is already set, update with new keystores
         if (remoteWcs != null) {
-            remoteWcs.setKeystores(keyStorePath, keyStorePassword, trustStorePath, trustStorePassword,
-                    wcsConfiguration.getConnectionTimeout(), wcsConfiguration.getReceiveTimeout());
+            remoteWcs.setKeystores(keyStorePath, keyStorePassword, trustStorePath, trustStorePassword);
         }
+    }
 
+    /**
+     * Sets the timeouts to use for connection and receive requests.
+     * @param connectionTimeout Time in milliseconds to allow a connection.
+     * @param receiveTimeout Time in milliseconds to allow a receive.
+     */
+    public void setTimeouts(Integer connectionTimeout, Integer receiveTimeout) {
+
+        wcsConfiguration.setConnectionTimeout(connectionTimeout);
+        wcsConfiguration.setReceiveTimeout(receiveTimeout);
+
+        // if wcs is already set, update with new keystores
+        if (remoteWcs != null) {
+            remoteWcs.setTimeouts(wcsConfiguration.getConnectionTimeout(), wcsConfiguration.getReceiveTimeout());
+        }
     }
 
     public String getWcsUrl() {

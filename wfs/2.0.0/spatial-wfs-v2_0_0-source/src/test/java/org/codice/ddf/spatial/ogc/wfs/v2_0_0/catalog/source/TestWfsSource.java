@@ -860,7 +860,22 @@ public class TestWfsSource {
         source.configurationUpdateCallback(configurationMap);
 
         verify(mockWfs, atLeastOnce()).setKeystores(any(String.class), any(String.class),
-                any(String.class), any(String.class), any(Integer.class), any(Integer.class));
+                any(String.class), any(String.class));
+    }
+
+    @Test
+    public void testTimeoutConfiguration() throws WfsException {
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,
+                false, 0);
+
+        source.setConnectionTimeout(10000);
+        source.setReceiveTimeout(10000);
+
+        // Perform test
+        source.updateTimeouts();
+
+        verify(mockWfs, atLeastOnce()).setTimeouts(any(Integer.class), any(Integer.class));
     }
     
     @Test

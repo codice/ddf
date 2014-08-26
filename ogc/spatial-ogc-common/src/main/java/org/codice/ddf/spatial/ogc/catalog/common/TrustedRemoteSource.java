@@ -78,6 +78,50 @@ public abstract class TrustedRemoteSource {
 
     public static final Integer DEFAULT_RECEIVE_TIMEOUT = 60000;
 
+    /**
+     * Configures the connection and receive timeouts. If any of the parameters are null, the timeouts
+     * will be set to the system default.
+     *
+     * @param client             Client used for outgoing requests.
+     * @param connectionTimeout  Connection timeout in milliseconds.
+     * @param receiveTimeout     Receive timeout in milliseconds.
+     */
+    protected void configureTimeouts(Client client, Integer connectionTimeout, Integer receiveTimeout) {
+        ClientConfiguration clientConfiguration = WebClient.getConfig(client);
+
+        HTTPConduit httpConduit = clientConfiguration.getHttpConduit();
+        HTTPClientPolicy httpClientPolicy = httpConduit.getClient();
+
+        if (httpClientPolicy == null) {
+            httpClientPolicy = new HTTPClientPolicy();
+        }
+
+        if (connectionTimeout != null) {
+            httpClientPolicy.setConnectionTimeout(connectionTimeout);
+        } else {
+            httpClientPolicy.setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
+        }
+
+        if (receiveTimeout != null) {
+            httpClientPolicy.setReceiveTimeout(receiveTimeout);
+        } else {
+            httpClientPolicy.setReceiveTimeout(DEFAULT_RECEIVE_TIMEOUT);
+        }
+
+        if (httpClientPolicy.isSetConnectionTimeout()) {
+            LOGGER.debug("Connection timeout has been set.");
+        } else {
+            LOGGER.error("Connection timeout has NOT been set.");
+        }
+        if (httpClientPolicy.isSetReceiveTimeout()) {
+            LOGGER.debug("Receive timeout has been set.");
+        } else {
+            LOGGER.error("Receive timeout has NOT been set.");
+        }
+
+        httpConduit.setClient(httpClientPolicy);
+    }
+
 
 
     /**
@@ -91,7 +135,7 @@ public abstract class TrustedRemoteSource {
      * @param trustStorePassword Password for the truststore.
      */
     protected void configureKeystores(Client client, String keyStorePath, String keyStorePassword,
-            String trustStorePath, String trustStorePassword, Integer connectionTimeout, Integer receiveTimeout) {
+            String trustStorePath, String trustStorePassword) {
         ClientConfiguration clientConfiguration = WebClient.getConfig(client);
 
         HTTPConduit httpConduit = clientConfiguration.getHttpConduit();
@@ -102,32 +146,6 @@ public abstract class TrustedRemoteSource {
                 tlsParams = new TLSClientParameters();
                 httpConduit.setTlsClientParameters(tlsParams);
             }
-
-            HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
-
-            if(connectionTimeout != null) {
-                httpClientPolicy.setConnectionTimeout(connectionTimeout);
-            } else {
-                httpClientPolicy.setConnectionTimeout(DEFAULT_CONNECTION_TIMEOUT);
-            }
-            if(httpClientPolicy.isSetConnectionTimeout()) {
-                LOGGER.info("Connection timeout has been set.");
-            } else {
-                LOGGER.error("Connection timeout has NOT been set.");
-            }
-
-            if(receiveTimeout != null) {
-                httpClientPolicy.setReceiveTimeout(receiveTimeout);
-            } else {
-                httpClientPolicy.setReceiveTimeout(DEFAULT_RECEIVE_TIMEOUT);
-            }
-            if(httpClientPolicy.isSetReceiveTimeout()) {
-                LOGGER.info("Receive timeout has been set.");
-            } else {
-                LOGGER.error("Receive timeout has NOT been set.");
-            }
-
-            httpConduit.setClient(httpClientPolicy);
 
             // the default type is JKS
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());

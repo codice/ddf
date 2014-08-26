@@ -256,6 +256,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_PROPERTY));
         setReceiveTimeout((Integer) configuration.get(RECEIVE_TIMEOUT_PROPERTY));
 
+        updateTimeouts();
+
         String[] nonQueryableProperties = (String[]) configuration
                 .get(NON_QUERYABLE_PROPS_PROPERTY);
 
@@ -301,7 +303,13 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             setupAvailabilityPoll();
         }
     }
-    
+
+    public void updateTimeouts() {
+        if (remoteWfs != null) {
+            remoteWfs.setTimeouts(connectionTimeout, receiveTimeout);
+        }
+    }
+
     private boolean hasWfsUrlChanged(String wfsUrl) {
         return !StringUtils.equals(this.wfsUrl, wfsUrl);
     }
@@ -346,7 +354,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         try {
             remoteWfs = new RemoteWfs(wfsUrl, username, password, disableCnCheck);
             remoteWfs.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword, connectionTimeout, receiveTimeout);
+                    trustStorePassword);
+            remoteWfs.setTimeouts(connectionTimeout, receiveTimeout);
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Unable to create RemoteWfs.", iae);
             remoteWfs = null;
@@ -967,7 +976,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         trustStorePassword = configurationMap.get(ConfigurationManager.TRUST_STORE_PASSWORD);
         if (remoteWfs != null) {
             remoteWfs.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword, connectionTimeout, receiveTimeout);
+                    trustStorePassword);
         }
     }
 

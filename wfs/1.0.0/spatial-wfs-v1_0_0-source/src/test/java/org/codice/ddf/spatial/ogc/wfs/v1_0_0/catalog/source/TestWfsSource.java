@@ -1059,11 +1059,24 @@ public class TestWfsSource {
         configurationMap.put(ConfigurationManager.TRUST_STORE, trustStorePath);
         configurationMap.put(ConfigurationManager.TRUST_STORE_PASSWORD, trustStorePassword);
 
+
         // Perform test
         source.configurationUpdateCallback(configurationMap);
 
         verify(mockWfs, atLeastOnce()).setKeystores(any(String.class), any(String.class),
-                any(String.class), any(String.class), any(Integer.class), any(Integer.class));
+                any(String.class), any(String.class));
+    }
+
+    @Test
+    public void testTimeoutConfiguration() throws WfsException {
+        setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
+
+        source.setConnectionTimeout(10000);
+        source.setReceiveTimeout(10000);
+        // Perform test
+        source.updateTimeouts();
+
+        verify(mockWfs, atLeastOnce()).setTimeouts(any(Integer.class), any(Integer.class));
     }
 
     private SourceResponse executeQuery(int startIndex, int pageSize)

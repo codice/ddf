@@ -342,6 +342,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             cswSourceConfiguration.setReceiveTimeout(newRecTimeout);
         }
 
+        updateTimeouts();
+
         String wcsUrlProp = (String) configuration.get(WCSURL_PROPERTY);
         if (StringUtils.isNotBlank(wcsUrlProp)) {
             cswSourceConfiguration.setWcsUrl(wcsUrlProp);
@@ -481,7 +483,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         try {
             remoteCsw = new RemoteCsw(recordConverterFactories, cswSourceConfiguration);
             remoteCsw.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword, cswSourceConfiguration.getConnectionTimeout(),
+                    trustStorePassword);
+            remoteCsw.setTimeouts(cswSourceConfiguration.getConnectionTimeout(),
                     cswSourceConfiguration.getReceiveTimeout());
             configureWcs();
         } catch (IllegalArgumentException iae) {
@@ -505,6 +508,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                     cswSourceConfiguration.getDisableCnCheck());
             wcsResourceReader.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
                     trustStorePassword);
+            wcsResourceReader.setTimeouts(cswSourceConfiguration.getConnectionTimeout(),
+                    cswSourceConfiguration.getReceiveTimeout());
             wcsResourceReader.init();
         } else {
             LOGGER.debug(
@@ -521,6 +526,17 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     public void setReceiveTimeout(Integer timeout) {
         this.cswSourceConfiguration.setReceiveTimeout(timeout);
+    }
+
+    public void updateTimeouts() {
+        if (remoteCsw != null) {
+            remoteCsw.setTimeouts(cswSourceConfiguration.getConnectionTimeout(),
+                    cswSourceConfiguration.getReceiveTimeout());
+        }
+        if (wcsResourceReader != null) {
+            wcsResourceReader.setTimeouts(cswSourceConfiguration.getConnectionTimeout(),
+                    cswSourceConfiguration.getReceiveTimeout());
+        }
     }
 
     public void setContext(BundleContext context) {
@@ -1542,8 +1558,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         trustStorePassword = configurationMap.get(ConfigurationManager.TRUST_STORE_PASSWORD);
         if (remoteCsw != null) {
             remoteCsw.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword, cswSourceConfiguration.getConnectionTimeout(),
-                    cswSourceConfiguration.getReceiveTimeout());
+                    trustStorePassword);
         }
         if (wcsResourceReader != null) {
             wcsResourceReader.setKeystores(keyStorePath, keyStorePassword, trustStorePath,

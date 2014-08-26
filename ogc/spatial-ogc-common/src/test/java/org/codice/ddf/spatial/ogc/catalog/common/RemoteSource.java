@@ -36,9 +36,13 @@ public class RemoteSource extends TrustedRemoteSource implements GenericRemoteSo
     }
 
     public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
-            String trustStorePassword, Integer connectionTimeout, Integer receiveTimeout) {
+            String trustStorePassword) {
         this.configureKeystores(WebClient.client(grs), keyStorePath, keyStorePassword,
-                trustStorePath, trustStorePassword, connectionTimeout, receiveTimeout);
+                trustStorePath, trustStorePassword);
+    }
+
+    public void setTimeouts(Integer connectionTimeout, Integer receiveTimeout) {
+        this.configureTimeouts(WebClient.client(grs), connectionTimeout, receiveTimeout);
     }
 
     @GET
