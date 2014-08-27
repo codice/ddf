@@ -377,7 +377,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                         cswSourceConfiguration.getId());
             }
         }
-        
+
         Boolean posListProp = (Boolean) configuration.get(USE_POS_LIST_PROPERTY);
         if (posListProp != null) {
             cswSourceConfiguration.setUsePosList(posListProp);
@@ -1026,7 +1026,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         return this.filterAdapter.adapt(query, cswFilterDelegate);
     }
 
-    private List<Result> createResults(CswRecordCollection cswRecordCollection) {
+    protected List<Result> createResults(CswRecordCollection cswRecordCollection) {
         List<Result> results = new ArrayList<Result>();
 
         LOGGER.debug("Found {} metacard(s) in the CswRecordCollection.", cswRecordCollection
