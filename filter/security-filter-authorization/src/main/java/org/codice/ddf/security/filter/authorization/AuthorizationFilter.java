@@ -65,29 +65,34 @@ public class AuthorizationFilter implements Filter {
 
         org.apache.shiro.subject.Subject subject = null;
 
-        try {
-            subject = SecurityUtils.getSubject();
-        } catch (Exception e) {
-            LOGGER.debug("Unable to retrieve user from request.", e);
-        }
-
-        ContextPolicy policy = contextPolicyManager.getContextPolicy(httpRequest.getContextPath());
-
-        Collection<CollectionPermission> permissions = policy.getAllowedAttributePermissions();
-
-        boolean permitted = true;
-        for (CollectionPermission permission : permissions) {
-            if (subject == null || !subject.isPermittedAll(permission.getPermissionList())) {
-                permitted = false;
-            }
-        }
-
-        if (!permitted) {
-            LOGGER.debug("Subject not authorized.");
-            returnNotAuthorized(httpResponse);
-        } else {
-            LOGGER.debug("Subject is authorized!");
+        if (request.getAttribute(ContextPolicy.NO_AUTH_POLICY) != null) {
+            LOGGER.debug("NO_AUTH_POLICY header was found, skipping authorization filter.");
             chain.doFilter(request, response);
+        } else {
+            try {
+                subject = SecurityUtils.getSubject();
+            } catch (Exception e) {
+                LOGGER.debug("Unable to retrieve user from request.", e);
+            }
+
+            ContextPolicy policy = contextPolicyManager.getContextPolicy(httpRequest.getContextPath());
+
+            Collection<CollectionPermission> permissions = policy.getAllowedAttributePermissions();
+
+            boolean permitted = true;
+            for (CollectionPermission permission : permissions) {
+                if (subject == null || !subject.isPermittedAll(permission.getPermissionList())) {
+                    permitted = false;
+                }
+            }
+
+            if (!permitted) {
+                LOGGER.debug("Subject not authorized.");
+                returnNotAuthorized(httpResponse);
+            } else {
+                LOGGER.debug("Subject is authorized!");
+                chain.doFilter(request, response);
+            }
         }
     }
 
