@@ -119,6 +119,9 @@ public class WebSSOFilter implements Filter {
             servletRequest.setAttribute(ContextPolicy.NO_AUTH_POLICY, true);
             filterChain.doFilter(httpRequest, httpResponse);
         } else {
+            // make sure request didn't come in with NO_AUTH_POLICY set
+            servletRequest.setAttribute(ContextPolicy.NO_AUTH_POLICY, null);
+
             // now handle the request and set the authentication token
             LOGGER.debug("Handling request for {} in security realm {}.", path, realm);
             handleRequest(httpRequest, httpResponse, filterChain, getHandlerList(path));
