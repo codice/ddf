@@ -41,7 +41,7 @@ public class InstallerModule implements AdminModule {
     @Override
     public URI getJSLocation() {
         try {
-            return new URI("/installer/js/modules/module.js");
+            return new URI("js/modules/Installer.module.js");
         } catch (URISyntaxException e) {
             logger.warn("Must set the JS location to a valid URI.", e);
         }
@@ -50,11 +50,6 @@ public class InstallerModule implements AdminModule {
 
     @Override
     public URI getCSSLocation() {
-        try {
-            return new URI("/installer/css/style.css");
-        } catch (URISyntaxException e) {
-            logger.warn("Must set the JS location to a valid URI.", e);
-        }
         return null;
     }
 

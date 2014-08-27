@@ -41,7 +41,7 @@ public class ConfigurationModule implements AdminModule {
     @Override
     public URI getJSLocation() {
         try {
-            return new URI("/configurations/js/module.js");
+            return new URI("js/modules/Configuration.module.js");
         } catch (URISyntaxException e) {
             logger.warn("Must set the JS location to a valid URI.", e);
         }
@@ -50,11 +50,6 @@ public class ConfigurationModule implements AdminModule {
 
     @Override
     public URI getCSSLocation() {
-        try {
-            return new URI("/configurations/css/style.css");
-        } catch (URISyntaxException e) {
-            logger.warn("Must set the CSS location to a valid URI.", e);
-        }
         return null;
     }
 
