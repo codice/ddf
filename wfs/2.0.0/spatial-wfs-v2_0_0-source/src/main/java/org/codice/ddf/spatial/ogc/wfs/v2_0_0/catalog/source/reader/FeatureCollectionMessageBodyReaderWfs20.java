@@ -110,7 +110,7 @@ public class FeatureCollectionMessageBodyReaderWfs20 implements MessageBodyReade
             wfsFeatureCollectionType = (JAXBElement<FeatureCollectionType>) unmarshaller
                     .unmarshal(reader);
         } catch (ClassCastException e1) {
-            LOGGER.warn("Exception unmarshalling {}, could be an error from server.", e1.getMessage());
+            LOGGER.warn("Exception unmarshalling {}, could be an OWS Exception Report from server.", e1.getMessage());
             
             // If an ExceptionReport is sent from the remote WFS site it will be sent with an
             // JAX-RS "OK" status, hence the ErrorResponse exception mapper will not fire.
@@ -126,7 +126,7 @@ public class FeatureCollectionMessageBodyReaderWfs20 implements MessageBodyReade
             ResponseBuilder responseBuilder = Response.ok(bis);
             responseBuilder.type("text/xml");
             Response response = responseBuilder.build();
-            throw new WebApplicationException(e1, response);
+            throw new WebApplicationException(response);
         }
         catch (JAXBException e1) {
             LOGGER.error("Error in retrieving feature collection.", e1);
