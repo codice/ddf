@@ -14,9 +14,11 @@
  **/
 package ddf.catalog.event.retrievestatus;
 
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.resource.download.ReliableResourceDownloadManager;
-import ddf.security.SubjectUtils;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.activities.ActivityEvent;
 import org.osgi.service.event.Event;
@@ -24,15 +26,13 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.download.ReliableResourceDownloader;
+import ddf.security.SubjectUtils;
 
 public class DownloadStatusInfoImpl implements DownloadStatusInfo {
 
-    private Map<String, ReliableResourceDownloadManager> downloadManagers = new HashMap<String, ReliableResourceDownloadManager>();
+    private Map<String, ReliableResourceDownloader> downloaders = new HashMap<String, ReliableResourceDownloader>();
 
     private Map<String, String> downloadUsers = new HashMap<String, String>();
 
@@ -46,9 +46,9 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
         this.eventAdmin = eventAdmin;
     }
 
-    public void addDownloadInfo(String downloadIdentifier,
-            ReliableResourceDownloadManager downloadManager, ResourceResponse resourceResponse) {
-        downloadManagers.put(downloadIdentifier, downloadManager);
+    public void addDownloadInfo(String downloadIdentifier, ReliableResourceDownloader downloader,
+            ResourceResponse resourceResponse) {
+        downloaders.put(downloadIdentifier, downloader);
         org.apache.shiro.subject.Subject shiroSubject = null;
         try {
             shiroSubject = SecurityUtils.getSubject();
@@ -66,14 +66,14 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
 
     public List<String> getAllDownloads(String userId) {
 
-        List<String> allDownloads = new ArrayList();
+        List<String> allDownloads = new ArrayList<String>();
         if (null == userId) {
-            for (Map.Entry<String, ReliableResourceDownloadManager> item : downloadManagers
+            for (Map.Entry<String, ReliableResourceDownloader> item : downloaders
                     .entrySet()) {
                 allDownloads.add(item.getKey());
             }
         } else {
-            for (Map.Entry<String, ReliableResourceDownloadManager> item : downloadManagers
+            for (Map.Entry<String, ReliableResourceDownloader> item : downloaders
                     .entrySet()) {
                 if (item.getKey().substring(0, userId.length()).equals(userId)) {
                     allDownloads.add(item.getKey());
@@ -86,29 +86,27 @@ public class DownloadStatusInfoImpl implements DownloadStatusInfo {
 
     public Map<String, String> getDownloadStatus(String downloadIdentifier) {
         Map<String, String> statusMap = new HashMap<String, String>();
-        ReliableResourceDownloadManager downloadManager = downloadManagers.get(downloadIdentifier);
-        if (downloadManager != null) {
-            Long downloadedBytes = downloadManager.getReliableResourceInputStreamBytesCached();
+        ReliableResourceDownloader downloader = downloaders.get(downloadIdentifier);
+        if (downloader != null) {
+            Long downloadedBytes = downloader.getReliableResourceInputStreamBytesCached();
             try {
-                Long totalBytes = Long.parseLong(downloadManager.getResourceSize());
+                Long totalBytes = Long.parseLong(downloader.getResourceSize());
                 statusMap.put("percent", Long.toString((downloadedBytes * 100) / totalBytes));
 
             } catch (Exception e) {
                 statusMap.put("percent", UNKNOWN);
             }
             statusMap.put("downloadId", downloadIdentifier);
-            statusMap.put("status",
-                    downloadManager.getReliableResourceInputStreamState());
+            statusMap.put("status", downloader.getReliableResourceInputStreamState());
             statusMap.put("bytesDownloaded", Long.toString(downloadedBytes));
-            statusMap
-                    .put("fileName", downloadManager.getResourceResponse().getResource().getName());
+            statusMap.put("fileName", downloader.getResourceResponse().getResource().getName());
             statusMap.put("user", downloadUsers.get(downloadIdentifier));
         }
         return statusMap;
     }
 
     public void removeDownloadInfo(String downloadIdentifier) {
-        downloadManagers.remove(downloadIdentifier);
+        downloaders.remove(downloadIdentifier);
         downloadUsers.remove(downloadIdentifier);
     }
 

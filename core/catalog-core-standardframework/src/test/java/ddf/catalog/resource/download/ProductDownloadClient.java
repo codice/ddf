@@ -15,7 +15,6 @@
 package ddf.catalog.resource.download;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
@@ -23,8 +22,6 @@ import java.util.concurrent.Callable;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.io.FileBackedOutputStream;
 
 public class ProductDownloadClient implements Callable<ByteArrayOutputStream> {
 
@@ -83,20 +80,22 @@ public class ProductDownloadClient implements Callable<ByteArrayOutputStream> {
                     LOGGER.info("Simulating client canceling product retrieval");
                     break;
                 } else if (simulateCacheFileExceptionChunkCount == chunkCount) {
-                    FileOutputStream cacheFileOutputStream = downloadMgr.getFileOutputStream();
-                    try {
-                        LOGGER.debug("Closing cacheFileOutputStream to simulate CACHED_FILE_OUTPUT_STREAM_EXCEPTION");
-                        cacheFileOutputStream.close();
-                    } catch (IOException e) {
-                    }
+                    LOGGER.debug("got 1");
+                    // FileOutputStream cacheFileOutputStream = downloadMgr.getFileOutputStream();
+                    // try {
+                    // LOGGER.debug("Closing cacheFileOutputStream to simulate CACHED_FILE_OUTPUT_STREAM_EXCEPTION");
+                    // cacheFileOutputStream.close();
+                    // } catch (IOException e) {
+                    // }
                 } else if (simulateFbosExceptionChunkCount == chunkCount) {
-                    FileBackedOutputStream fbos = downloadMgr.getFileBackedOutputStream();
-                    try {
-                        LOGGER.debug("Closing FileBackedOutputStream to simulate CLIENT_OUTPUT_STREAM_EXCEPTION");
-                        fbos.close();
-                    } catch (IOException e) {
-                        LOGGER.debug("Could not close FileBackedOutputStream");
-                    }
+                    LOGGER.debug("got 2");
+                    // FileBackedOutputStream fbos = downloadMgr.getFileBackedOutputStream();
+                    // try {
+                    // LOGGER.debug("Closing FileBackedOutputStream to simulate CLIENT_OUTPUT_STREAM_EXCEPTION");
+                    // fbos.close();
+                    // } catch (IOException e) {
+                    // LOGGER.debug("Could not close FileBackedOutputStream");
+                    // }
                 }
             }
             IOUtils.closeQuietly(is);

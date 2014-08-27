@@ -52,8 +52,8 @@ import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.federation.base.AbstractFederationStrategy;
 import ddf.catalog.federation.FederationException;
+import ddf.catalog.federation.base.AbstractFederationStrategy;
 import ddf.catalog.impl.CatalogFrameworkImpl;
 import ddf.catalog.impl.MockDelayProvider;
 import ddf.catalog.operation.CreateResponse;
@@ -124,7 +124,7 @@ public class FederationStrategyTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), fedStrategy, null, poller);
+                new ArrayList<ResourceReader>(), fedStrategy, null, poller, null, null, null);
         framework.bind(provider);
 
         List<Metacard> metacards = new ArrayList<Metacard>();

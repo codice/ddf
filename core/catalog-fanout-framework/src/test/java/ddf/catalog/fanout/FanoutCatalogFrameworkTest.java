@@ -72,7 +72,7 @@ public class FanoutCatalogFrameworkTest {
                 new ArrayList<PostQueryPlugin>(), new ArrayList<PreResourcePlugin>(),
                 new ArrayList<PostResourcePlugin>(), new ArrayList<ConnectedSource>(),
                 new ArrayList<FederatedSource>(), new ArrayList<ResourceReader>(),
-                new MockFederationStrategy(), null, poller);
+                new MockFederationStrategy(), null, poller, null, null, null);
         framework.setId(NEW_SOURCE_ID);
     }
 
@@ -225,7 +225,7 @@ public class FanoutCatalogFrameworkTest {
                 new ArrayList<PostQueryPlugin>(), new ArrayList<PreResourcePlugin>(),
                 new ArrayList<PostResourcePlugin>(), new ArrayList<ConnectedSource>(),
                 fedSources, new ArrayList<ResourceReader>(),
-                new MockFederationStrategy(), null, poller);
+                new MockFederationStrategy(), null, poller, null, null, null);
         framework.setId(NEW_SOURCE_ID);
 
         // Assert not null simply to prove that we returned an object.

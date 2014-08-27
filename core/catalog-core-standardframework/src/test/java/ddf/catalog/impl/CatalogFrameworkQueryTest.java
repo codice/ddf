@@ -44,7 +44,6 @@ import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.impl.CatalogFrameworkImpl;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
@@ -62,9 +61,9 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
+import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.source.Source;
 import ddf.catalog.util.impl.CachedSource;
 import ddf.catalog.util.impl.SourcePoller;
 
@@ -90,7 +89,8 @@ public class CatalogFrameworkQueryTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), new MockFederationStrategy(), null, mockPoller);
+                new ArrayList<ResourceReader>(), new MockFederationStrategy(), null, mockPoller,
+                null, null, null);
         framework.bind(provider);
     }
 

@@ -14,22 +14,33 @@
  **/
 package ddf.catalog.resource.download;
 
-import ddf.catalog.cache.MockInputStream;
-import ddf.catalog.cache.impl.CacheKey;
-import ddf.catalog.cache.impl.ResourceCache;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
-import ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl;
-import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
-import ddf.catalog.operation.ResourceRequest;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.data.ReliableResource;
-import ddf.catalog.resourceretriever.ResourceRetriever;
-import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -47,32 +58,22 @@ import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import ddf.catalog.cache.MockInputStream;
+import ddf.catalog.cache.impl.CacheKey;
+import ddf.catalog.cache.impl.ResourceCache;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
+import ddf.catalog.event.retrievestatus.DownloadStatusInfoImpl;
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.data.ReliableResource;
+import ddf.catalog.resourceretriever.ResourceRetriever;
 
 public class ReliableResourceDownloadManagerTest {
     
@@ -148,9 +149,8 @@ public class ReliableResourceDownloadManagerTest {
         eventListener = mock(DownloadsStatusEventListener.class);
         downloadStatusInfo = new DownloadStatusInfoImpl();
         
-        downloadMgr = new ReliableResourceDownloadManager(
-                maxRetryAttempts, delayBetweenAttempts, monitorPeriod, cacheEnabled,
-                resourceCache, cacheWhenCanceled, eventPublisher, eventListener, downloadStatusInfo);
+        downloadMgr = new ReliableResourceDownloadManager(resourceCache, eventPublisher,
+                eventListener, downloadStatusInfo);
 
     }
     
@@ -229,7 +229,7 @@ public class ReliableResourceDownloadManagerTest {
 
         int chunkSize = 50;
         downloadMgr.setChunkSize(chunkSize);
-        
+
         ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest, metacard, retriever);
         assertThat(newResourceResponse, is(notNullValue()));
         productInputStream = newResourceResponse.getResource().getInputStream();
@@ -601,9 +601,8 @@ public class ReliableResourceDownloadManagerTest {
         resourceResponse = getMockResourceResponse();
 
         cacheEnabled = true;
-        downloadMgr = new ReliableResourceDownloadManager(
-                maxRetryAttempts, delayBetweenAttempts, monitorPeriod, cacheEnabled,
-                resourceCache, cacheWhenCanceled, eventPublisher, eventListener, downloadStatusInfo);
+        downloadMgr = new ReliableResourceDownloadManager(resourceCache, eventPublisher,
+                eventListener, downloadStatusInfo);
         
         // Use small chunk size so download takes long enough for client
         // to have time to simulate FileBackedOutputStream exception
@@ -623,8 +622,9 @@ public class ReliableResourceDownloadManagerTest {
         // On second chunk read by client it will close the download manager's cache file output stream
         // to simulate a cache file exception that should be detected by the ReliableResourceCallable
         executor = Executors.newCachedThreadPool();
-        ProductDownloadClient productDownloadClient = new ProductDownloadClient(productInputStream, chunkSize);
-        productDownloadClient.setSimulateFbosException(2, downloadMgr);
+        ProductDownloadClient productDownloadClient = new ProductDownloadClient(productInputStream,
+                chunkSize);
+        productDownloadClient.setSimulateFbosException(chunkSize, downloadMgr);
         future = executor.submit(productDownloadClient);
         ByteArrayOutputStream clientBytesRead = future.get();
         
@@ -643,10 +643,11 @@ public class ReliableResourceDownloadManagerTest {
 
     private void startDownload(boolean cacheEnabled, int chunkSize, boolean cacheWhenCanceled,
             Metacard metacard, ResourceRetriever retriever) throws Exception {
-        downloadMgr = new ReliableResourceDownloadManager(
-                maxRetryAttempts, delayBetweenAttempts, monitorPeriod, cacheEnabled,
-                resourceCache, cacheWhenCanceled, eventPublisher, eventListener, downloadStatusInfo);
+        downloadMgr = new ReliableResourceDownloadManager(resourceCache, eventPublisher,
+                eventListener, downloadStatusInfo);
+        downloadMgr.setCacheEnabled(cacheEnabled);
         downloadMgr.setChunkSize(chunkSize);
+        downloadMgr.setCacheWhenCanceled(cacheWhenCanceled);
 
         ResourceResponse newResourceResponse = downloadMgr.download(resourceRequest, metacard, retriever);
         assertThat(newResourceResponse, is(notNullValue()));
@@ -671,7 +672,7 @@ public class ReliableResourceDownloadManagerTest {
 
         // Verifies client read same contents as product input file
         if (clientBytesRead != null) {
-            assertTrue(clientBytesRead.size() == expectedFileSize);
+            assertThat(clientBytesRead.size(), is(Long.valueOf(expectedFileSize).intValue()));
             assertEquals(expectedFileContents, new String(clientBytesRead.toByteArray()));
         }
     }

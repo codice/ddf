@@ -29,22 +29,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
-import ddf.catalog.operation.ResourceResponse;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Layout;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.apache.log4j.Level;
 import org.apache.log4j.SimpleLayout;
 import org.apache.log4j.WriterAppender;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.CountingOutputStream;
 import com.google.common.io.FileBackedOutputStream;
+
+import ddf.catalog.operation.ResourceResponse;
 
 public class ReliableResourceInputStreamTest {
 
@@ -78,6 +76,7 @@ public class ReliableResourceInputStreamTest {
         downloadFuture = mock(Future.class);
         downloadIdentifier = UUID.randomUUID().toString();
         resourceResponse = mock(ResourceResponse.class);
+
     }
 
     /**

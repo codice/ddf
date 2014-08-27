@@ -17,7 +17,12 @@ package ddf.catalog.fanout;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import org.osgi.framework.BundleContext;
@@ -27,11 +32,13 @@ import org.slf4j.ext.XLogger;
 import ddf.cache.CacheException;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.cache.impl.CacheKey;
+import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.impl.CatalogFrameworkImpl;
@@ -152,11 +159,12 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
             List<PreResourcePlugin> preResource, List<PostResourcePlugin> postResource,
             List<ConnectedSource> connectedSites, List<FederatedSource> federatedSites,
             List<ResourceReader> resourceReaders, FederationStrategy queryStrategy,
-            ExecutorService pool, SourcePoller poller) {
+            ExecutorService pool, SourcePoller poller, ResourceCache resourceCache,
+            DownloadsStatusEventPublisher eventPublisher, ReliableResourceDownloadManager rrdm) {
 
         super(Collections.singletonList(catalog), context, preIngest, postIngest, preQuery,
                 postQuery, preResource, postResource, connectedSites, federatedSites,
-                resourceReaders, queryStrategy, pool, poller);
+                resourceReaders, queryStrategy, pool, poller, resourceCache, eventPublisher, rrdm);
         logger.debug("\n\n Starting FanoutCatalogFramework\n\n");
     }
 
@@ -206,10 +214,12 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
             List<PreResourcePlugin> preResource, List<PostResourcePlugin> postResource,
             List<ConnectedSource> connectedSites, List<FederatedSource> federatedSites,
             List<ResourceReader> resourceReaders, FederationStrategy queryStrategy,
-            ExecutorService pool, SourcePoller poller) {
+            ExecutorService pool, SourcePoller poller, ResourceCache resourceCache,
+            DownloadsStatusEventPublisher eventPublisher, ReliableResourceDownloadManager rrdm) {
 
         this(context, null, preIngest, postIngest, preQuery, postQuery, preResource, postResource,
-                connectedSites, federatedSites, resourceReaders, queryStrategy, pool, poller);
+                connectedSites, federatedSites, resourceReaders, queryStrategy, pool, poller,
+                resourceCache, eventPublisher, rrdm);
     }
 
     @Override
@@ -618,12 +628,9 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
             if (resourceResponse == null) {
 	            for (FederatedSource currSource : federatedSources) {
 	                ResourceRetriever retriever = new RemoteResourceRetriever(currSource, resourceUri, requestProperties);
-                    ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(
-                            maxRetryAttempts, delayBetweenAttempts, monitorPeriod,
-                            cacheEnabled, productCache, cacheWhenCanceled,
-                            retrieveStatusEventPublisher, retrieveStatusEventListener, downloadStatusInfo);
                     try {
-                        resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
+                        resourceResponse = reliableResourceDownloadManager.download(
+                                resourceRequest, metacard, retriever);
                     } catch (DownloadException e) {
                         logger.info("source: " + currSource.getId() + " does not contain resource.");
                     }
@@ -639,10 +646,9 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                 // Check the connected sources
                 for (ConnectedSource currSource : connectedSources) {
                     ResourceRetriever retriever = new RemoteResourceRetriever(currSource, resourceUri, requestProperties);
-                    ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(maxRetryAttempts,
-                            delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache, cacheWhenCanceled, retrieveStatusEventPublisher, retrieveStatusEventListener, downloadStatusInfo);
                     try {
-                        resourceResponse = downloadManager.download(resourceRequest, metacard, retriever);
+                        resourceResponse = reliableResourceDownloadManager.download(
+                                resourceRequest, metacard, retriever);
                     } catch (DownloadException e) {
                         logger.info("source: " + currSource.getId() + " does not contain resource.");
                     }

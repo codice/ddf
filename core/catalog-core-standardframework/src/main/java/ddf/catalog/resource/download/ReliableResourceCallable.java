@@ -14,15 +14,16 @@
  **/
 package ddf.catalog.resource.download;
 
-import com.google.common.io.CountingOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.io.CountingOutputStream;
 
 
 /**
@@ -209,53 +210,51 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
                 break;
             }
 
-            // Synchronized to prevent being interrupted in the middle of writing to the
-            // OutputStreams
-            synchronized (this) {
-                
-                // If download was interrupted or canceled break now so that the bytesRead count does not
-                // get out of sync with the bytesWritten counts. If this count gets out of sync
-                // then potentially the output streams will be one chunk off from the input stream
-                // when a retry is attempted and the InputStream is skipped forward.
-                if (cancelDownload || interruptDownload || Thread.interrupted()) {
-                    LOGGER.debug("Breaking from download loop due to cancel or interrupt received");
-                    if (reliableResourceStatus != null) {
-                        reliableResourceStatus.setMessage("Breaking from download loop due to cancel or interrupt received");
-                    }
-                    return reliableResourceStatus;
-                }
-
-                bytesRead.addAndGet(n);
-
-                if (cacheFileOutputStream != null) {
-                    try {
-                        cacheFileOutputStream.write(buffer, 0, n);
-                    } catch (IOException e) {
-                        LOGGER.info("IOException during write to cached file's OutputStream", e);
-                        reliableResourceStatus = new ReliableResourceStatus(
-                                DownloadStatus.CACHED_FILE_OUTPUT_STREAM_EXCEPTION, bytesRead.get());
-                    }
-                }
-
-                if (countingFbos != null) {
-                    try {
-                        countingFbos.write(buffer, 0, n);
-                        countingFbos.flush();
-                    } catch (IOException e) {
-                        LOGGER.info("IOException during write to FileBackedOutputStream for client to read", e);
-                        reliableResourceStatus = new ReliableResourceStatus(
-                                DownloadStatus.CLIENT_OUTPUT_STREAM_EXCEPTION, bytesRead.get());
-                    }
-                }
-                
-                // Return status here so that each stream can be attempted to be updated regardless of
-                // which one might have had an exception
+            // If download was interrupted or canceled break now so that the bytesRead count does
+            // not
+            // get out of sync with the bytesWritten counts. If this count gets out of sync
+            // then potentially the output streams will be one chunk off from the input stream
+            // when a retry is attempted and the InputStream is skipped forward.
+            if (cancelDownload || interruptDownload || Thread.interrupted()) {
+                LOGGER.debug("Breaking from download loop due to cancel or interrupt received");
                 if (reliableResourceStatus != null) {
-                    return reliableResourceStatus;
+                    reliableResourceStatus
+                            .setMessage("Breaking from download loop due to cancel or interrupt received");
+                }
+                return reliableResourceStatus;
+            }
+
+            bytesRead.addAndGet(n);
+
+            if (cacheFileOutputStream != null) {
+                try {
+                    cacheFileOutputStream.write(buffer, 0, n);
+                } catch (IOException e) {
+                    LOGGER.info("IOException during write to cached file's OutputStream", e);
+                    reliableResourceStatus = new ReliableResourceStatus(
+                            DownloadStatus.CACHED_FILE_OUTPUT_STREAM_EXCEPTION, bytesRead.get());
                 }
             }
-            LOGGER.trace("chunkCount = {},  bytesRead = {}", 
-                    chunkCount, bytesRead.get());
+
+            if (countingFbos != null) {
+                try {
+                    countingFbos.write(buffer, 0, n);
+                    countingFbos.flush();
+                } catch (IOException e) {
+                    LOGGER.info(
+                            "IOException during write to FileBackedOutputStream for client to read",
+                            e);
+                    reliableResourceStatus = new ReliableResourceStatus(
+                            DownloadStatus.CLIENT_OUTPUT_STREAM_EXCEPTION, bytesRead.get());
+                }
+            }
+
+            // Return status here so that each stream can be attempted to be updated regardless of
+            // which one might have had an exception
+            if (reliableResourceStatus != null) {
+                return reliableResourceStatus;
+            }
+            LOGGER.trace("chunkCount = {},  bytesRead = {}", chunkCount, bytesRead.get());
         }
 
         if (!interruptDownload && !cancelDownload && !Thread.interrupted()) {

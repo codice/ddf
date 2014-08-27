@@ -14,12 +14,11 @@
  **/
 package ddf.catalog.event.retrievestatus;
 
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.resource.download.ReliableResourceDownloadManager;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.download.ReliableResourceDownloader;
 
 /**
  * This class is a backend information gathering and aggregation class. It holds information about all downloads and then returns this
@@ -38,8 +37,8 @@ public interface DownloadStatusInfo {
      * @param downloadManager    The Object that handles the download; {@link this} uses it to gather information about
      *                           the download.
      */
-    void addDownloadInfo(String downloadIdentifier,
-            ReliableResourceDownloadManager downloadManager, ResourceResponse resourceResponse);
+    void addDownloadInfo(String downloadIdentifier, ReliableResourceDownloader downloader,
+            ResourceResponse resourceResponse);
 
     /**
      * Function to get all downloads.

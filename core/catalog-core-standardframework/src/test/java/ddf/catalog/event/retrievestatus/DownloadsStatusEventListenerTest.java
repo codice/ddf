@@ -14,33 +14,35 @@
  **/
 package ddf.catalog.event.retrievestatus;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+
+import java.io.File;
+import java.io.Serializable;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+
 import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.resource.ResourceReader;
-import ddf.catalog.resource.download.DownloadManagerState;
-import ddf.catalog.resource.impl.URLResourceReader;
 import ddf.catalog.resource.download.DownloadException;
+import ddf.catalog.resource.download.DownloadManagerState;
 import ddf.catalog.resource.download.ReliableResourceDownloadManager;
+import ddf.catalog.resource.impl.URLResourceReader;
 import ddf.catalog.resourceretriever.LocalResourceRetriever;
-import org.junit.Test;
-import org.junit.BeforeClass;
-
-import static org.junit.Assert.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import static org.mockito.Mockito.mock;
 
 public class DownloadsStatusEventListenerTest {
 
@@ -96,9 +98,10 @@ public class DownloadsStatusEventListenerTest {
         DownloadsStatusEventPublisher testEventPublisher = mock(
                 DownloadsStatusEventPublisher.class);
         testEventListener = new DownloadsStatusEventListener();
-        testDownloadManager = new ReliableResourceDownloadManager(1, 0, 5000, true,
-                testResourceCache, false,
-                testEventPublisher, testEventListener, testDownloadStatusInfo);
+        testDownloadManager = new ReliableResourceDownloadManager(testResourceCache, testEventPublisher, testEventListener, testDownloadStatusInfo);
+        testDownloadManager.setMaxRetryAttempts(1);
+        testDownloadManager.setDelayBetweenAttempts(0);
+        testDownloadManager.setMonitorPeriod(5);
 
     }
 
@@ -117,6 +120,7 @@ public class DownloadsStatusEventListenerTest {
             LOGGER.debug(downloadInfo.get("bytesDownloaded"));
             assertTrue(
                     idToBytes.get(item) <= Integer.parseInt(downloadInfo.get("bytesDownloaded")));
+            System.out.println(downloadInfo.get("status"));
             assertTrue(status.equals(downloadInfo.get("status")));
             assertTrue(fileName.equals(downloadInfo.get("fileName")));
             idToBytes.put(item, Integer.parseInt(downloadInfo.get("bytesDownloaded")));

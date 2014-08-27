@@ -25,14 +25,12 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import ddf.catalog.event.retrievestatus.DownloadStatusInfo;
-import ddf.catalog.event.retrievestatus.DownloadsStatusEventListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.codice.ddf.configuration.ConfigurationManager;
@@ -236,31 +234,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
 
     protected ResourceCache productCache;
 
-    protected long monitorPeriod;
-
-    /**
-     * Maximum number of attempts to try and retrieve product
-     */
-    protected int maxRetryAttempts;
-
-    /**
-     * Delay, in ms, between attempts to cache resource to disk
-     */
-    protected int delayBetweenAttempts;
-
-    protected boolean cacheEnabled = false;
-
-    protected boolean cacheWhenCanceled = false;
-
     protected DownloadsStatusEventPublisher retrieveStatusEventPublisher;
-
-    protected DownloadsStatusEventListener retrieveStatusEventListener;
-
-    protected DownloadStatusInfo downloadStatusInfo;
 
     protected boolean notificationEnabled = true;
 
     protected boolean activityEnabled = true;
+
+    protected ReliableResourceDownloadManager reliableResourceDownloadManager;
 
     /**
      * Instantiates a new CatalogFrameworkImpl
@@ -296,10 +276,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             List<PreResourcePlugin> preResource, List<PostResourcePlugin> postResource,
             List<ConnectedSource> connectedSources, List<FederatedSource> federatedSources,
             List<ResourceReader> resourceReaders, FederationStrategy queryStrategy,
-            ExecutorService pool, SourcePoller poller) {
+            ExecutorService pool, SourcePoller poller, ResourceCache resourceCache,
+            DownloadsStatusEventPublisher eventPublisher, ReliableResourceDownloadManager rrdm) {
         this(Collections.singletonList(catalogProvider), context, preIngest, postIngest, preQuery,
                 postQuery, preResource, postResource, connectedSources, federatedSources,
-                resourceReaders, queryStrategy, pool, poller);
+                resourceReaders, queryStrategy, pool, poller, resourceCache, eventPublisher, rrdm);
     }
 
     /**
@@ -365,7 +346,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             List<PreResourcePlugin> preResource, List<PostResourcePlugin> postResource,
             List<ConnectedSource> connectedSources, List<FederatedSource> federatedSources,
             List<ResourceReader> resourceReaders, FederationStrategy queryStrategy,
-            ExecutorService pool, SourcePoller poller) {
+            ExecutorService pool, SourcePoller poller, ResourceCache resourceCache,
+            DownloadsStatusEventPublisher eventPublisher, ReliableResourceDownloadManager rrdm) {
         this.context = context;
         this.catalogProviders = catalogProvider;
         if (logger.isDebugEnabled()) {
@@ -387,9 +369,16 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         this.resourceReaders = resourceReaders;
         this.defaultFederationStrategy = queryStrategy;
         this.poller = poller;
+        this.productCache = resourceCache;
+        this.retrieveStatusEventPublisher = eventPublisher;
+        this.reliableResourceDownloadManager = rrdm;
         synchronized (this) {
             this.pool = pool;
         }
+    }
+
+    public void setReliableResourceDownloadManager(ReliableResourceDownloadManager rrdm) {
+        this.reliableResourceDownloadManager = rrdm;
     }
 
     public void setProductCache(ResourceCache productCache) {
@@ -409,7 +398,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
 
     public void setCacheEnabled(boolean cacheEnabled) {
         logger.debug("Setting cacheEnabled = {}", cacheEnabled);
-        this.cacheEnabled = cacheEnabled;
+        this.reliableResourceDownloadManager.setCacheEnabled(cacheEnabled);
     }
 
     public void setNotificationEnabled(boolean notificationEnabled) {
@@ -430,18 +419,16 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
      * @param delayBetweenAttempts
      */
     public void setDelayBetweenRetryAttempts(int delayBetweenAttempts) {
-        logger.debug("Setting delayBetweenRetryAttempts = {} ms",
-                delayBetweenAttempts * MS_PER_SECOND);
-        this.delayBetweenAttempts = delayBetweenAttempts * MS_PER_SECOND;
+        logger.debug("Setting delayBetweenRetryAttempts = {} s", delayBetweenAttempts);
+        this.reliableResourceDownloadManager.setDelayBetweenAttempts(delayBetweenAttempts);
     }
 
+    /**
+     * Maximum number of attempts to try and retrieve product
+     */
     public void setMaxRetryAttempts(int maxRetryAttempts) {
         logger.debug("Setting maxRetryAttempts = {}", maxRetryAttempts);
-        this.maxRetryAttempts = maxRetryAttempts;
-    }
-
-    public void setDownloadStatusInfo(DownloadStatusInfo downloadStatusInfo) {
-        this.downloadStatusInfo = downloadStatusInfo;
+        this.reliableResourceDownloadManager.setMaxRetryAttempts(maxRetryAttempts);
     }
 
     /**
@@ -452,24 +439,18 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
      * @param retrievalMonitorPeriod
      */
     public void setRetrievalMonitorPeriod(int retrievalMonitorPeriod) {
-        logger.debug("Setting retrievalMonitorPeriod = {} ms",
-                retrievalMonitorPeriod * MS_PER_SECOND);
-        this.monitorPeriod = retrievalMonitorPeriod * MS_PER_SECOND;
+        logger.debug("Setting retrievalMonitorPeriod = {} s", retrievalMonitorPeriod);
+        this.reliableResourceDownloadManager.setMonitorPeriod(retrievalMonitorPeriod);
     }
 
     public void setCacheWhenCanceled(boolean cacheWhenCanceled) {
         logger.debug("Setting cacheWhenCanceled = {}", cacheWhenCanceled);
-        this.cacheWhenCanceled = cacheWhenCanceled;
+        this.reliableResourceDownloadManager.setCacheWhenCanceled(cacheWhenCanceled);
     }
 
     public void setRetrieveStatusEventPublisher(
             DownloadsStatusEventPublisher retrieveStatusEventPublisher) {
         this.retrieveStatusEventPublisher = retrieveStatusEventPublisher;
-    }
-
-    public void setRetrieveStatusEventListener(
-            DownloadsStatusEventListener retrieveStatusEventListener) {
-        this.retrieveStatusEventListener = retrieveStatusEventListener;
     }
 
     /**
@@ -1385,57 +1366,42 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                 }
             }
 
-            // retrieve product from specified federated site if not in cache
-            if (resourceSourceName != null && !resourceSourceName.equals(getId())) {
-                logger.debug("Searching federatedSource {} for resource.", resourceSourceName);
-                logger.debug("metacard for product found on source: {}", resolvedSourceId);
-                FederatedSource source = null;
+            if (resourceResponse == null) {
+                // retrieve product from specified federated site if not in cache
+                if (resourceSourceName != null && !resourceSourceName.equals(getId())) {
+                    logger.debug("Searching federatedSource {} for resource.", resourceSourceName);
+                    logger.debug("metacard for product found on source: {}", resolvedSourceId);
+                    FederatedSource source = null;
 
-                for (FederatedSource fedSource : federatedSources) {
-                    if (resourceSourceName.equals(fedSource.getId())) {
-                        logger.debug("Adding federated site to federated query: {}",
-                                fedSource.getId());
-                        source = fedSource;
-                        break;
+                    for (FederatedSource fedSource : federatedSources) {
+                        if (resourceSourceName.equals(fedSource.getId())) {
+                            logger.debug("Adding federated site to federated query: {}",
+                                    fedSource.getId());
+                            source = fedSource;
+                            break;
+                        }
                     }
-                }
 
-                if (source != null) {
-                    // If no cached entry found for product being retrieved
-                    if (resourceResponse == null) {
+                    if (source != null) {
                         logger.debug("Retrieving product from remote source {}", source.getId());
                         ResourceRetriever retriever = new RemoteResourceRetriever(source,
                                 responseURI, requestProperties);
-                        ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(
-                                maxRetryAttempts,
-                                delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache,
-                                cacheWhenCanceled, retrieveStatusEventPublisher,
-                                retrieveStatusEventListener, downloadStatusInfo);
                         try {
-                            resourceResponse = downloadManager
-                                    .download(resourceRequest, metacard, retriever);
+                            resourceResponse = reliableResourceDownloadManager.download(
+                                    resourceRequest, metacard, retriever);
                         } catch (DownloadException e) {
                             logger.info("Unable to download resource", e);
                         }
+                    } else {
+                        logger.warn("Could not find federatedSource: {}", resourceSourceName);
                     }
-                } else {
-                    logger.warn("Could not find federatedSource: {}", resourceSourceName);
-                }
-            } else if (resourceSourceName != null) {
-
-                // If no cached entry found for product being retrieved
-                if (resourceResponse == null) {
+                } else if (resourceSourceName != null) {
                     logger.debug("Retrieving product from local source {}", resourceSourceName);
                     ResourceRetriever retriever = new LocalResourceRetriever(resourceReaders,
                             responseURI, requestProperties);
-                    ReliableResourceDownloadManager downloadManager = new ReliableResourceDownloadManager(
-                            maxRetryAttempts,
-                            delayBetweenAttempts, monitorPeriod, cacheEnabled, productCache,
-                            cacheWhenCanceled, retrieveStatusEventPublisher,
-                            retrieveStatusEventListener, downloadStatusInfo);
                     try {
-                        resourceResponse = downloadManager
-                                .download(resourceRequest, metacard, retriever);
+                        resourceResponse = reliableResourceDownloadManager.download(
+                                resourceRequest, metacard, retriever);
                     } catch (DownloadException e) {
                         logger.info("Unable to download resource", e);
                     }
