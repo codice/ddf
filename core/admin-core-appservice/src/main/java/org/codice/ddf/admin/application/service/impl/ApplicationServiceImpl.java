@@ -733,7 +733,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 features.add(getFeatureView(feature));
             }
         } catch (Exception ex) {
-            logger.warn("getAllFeatures Exception: " + ex.getMessage());
+            logger.warn("getAllFeatures Exception: " + ex.getMessage(), ex);
         }
         return features;
     }
@@ -747,7 +747,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
             }
         } catch (Exception ex) {
-            logger.warn("getFeature2Repo Exception: " + ex.getMessage());
+            logger.warn("getFeature2Repo Exception: " + ex.getMessage(), ex);
         }
         return feature2repo;
     }
@@ -769,7 +769,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
             }
         } catch (Exception ex) {
-            logger.warn("getRepositoryFeatures Exception: " + ex.getMessage());
+            logger.warn("getRepositoryFeatures Exception: " + ex.getMessage(), ex);
         }
         return features;
     }
@@ -787,7 +787,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     repoFeatures = Arrays.asList(repository.getFeatures());
                 } catch (Exception ex) {
                     logger.warn("getRepositoryFeatures Exception: "
-                            + ex.getMessage());
+ + ex.getMessage(), ex);
                 }
                 break;
             }
