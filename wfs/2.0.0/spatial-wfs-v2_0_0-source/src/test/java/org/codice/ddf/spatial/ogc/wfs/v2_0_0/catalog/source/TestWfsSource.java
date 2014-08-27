@@ -431,13 +431,13 @@ public class TestWfsSource {
     
     /**
      * Given 10 features (and metacards) exist that match search criteria, since page size=4 and
-     * startIndex=1, should get 4 results back - metacards 1 thru 4.
+     * startIndex=0, should get 4 results back - metacards 1 thru 4.
      * 
      * @throws WfsException
      * @throws TransformerConfigurationException
      * @throws UnsupportedQueryException
      */
-    @Test(expected = UnsupportedQueryException.class)
+    @Test
     public void testPagingStartIndexZero() throws WfsException, TransformerConfigurationException,
         UnsupportedQueryException {
         
