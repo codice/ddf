@@ -62,8 +62,8 @@ import net.opengis.filter.v_2_0_0.ResourceIdType;
 import net.opengis.filter.v_2_0_0.ScalarCapabilitiesType;
 import net.opengis.filter.v_2_0_0.SpatialOperatorType;
 import net.opengis.filter.v_2_0_0.UnaryLogicOpType;
-import net.opengis.gml.v_3_2_0.TimeInstantType;
-import net.opengis.gml.v_3_2_0.TimePeriodType;
+import net.opengis.gml.v_3_2_1.TimeInstantType;
+import net.opengis.gml.v_3_2_1.TimePeriodType;
 import net.opengis.ows.v_1_1_0.AllowedValues;
 import net.opengis.ows.v_1_1_0.DomainType;
 import net.opengis.ows.v_1_1_0.ValueType;
@@ -1332,12 +1332,13 @@ public class TestWfsFilterDelegate {
 
     @Test
     public void testDWithinFilterPolygon() throws SAXException, IOException, JAXBException {
-        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWithin.toString());
-
+        WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWithin.toString());    
+        
         FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POLYGON, DISTANCE);
         assertFalse(filter.isSetLogicOps());
         assertTrue(filter.isSetSpatialOps());
         assertTrue(filter.getSpatialOps().getValue() instanceof DistanceBufferType);
+        
         assertXMLEqual(MockWfsServer.getDWithinXmlFilter(), getXmlFromMarshaller(filter));
     }
 
@@ -1741,9 +1742,9 @@ public class TestWfsFilterDelegate {
     
     private static JAXBContext initJaxbContext() {
         JAXBContext localJaxbContext = null;
-
-        String contextPath = StringUtils.join(new String[] {Wfs20Constants.OGC_FILTER_PACKAGE,
-            Wfs20Constants.OGC_GML_PACKAGE, Wfs20Constants.OGC_OWS_PACKAGE}, ":");
+        
+        String contextPath = StringUtils.join(new String[] {Wfs20Constants.OGC_FILTER_PACKAGE, 
+        		Wfs20Constants.OGC_GML_PACKAGE, Wfs20Constants.OGC_OWS_PACKAGE}, ":");
 
         try {
             LOGGER.debug("Creating JAXB context with context path: {}", contextPath);

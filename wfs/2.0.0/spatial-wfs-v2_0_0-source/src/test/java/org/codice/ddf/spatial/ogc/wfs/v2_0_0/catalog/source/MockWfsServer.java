@@ -115,7 +115,7 @@ public class MockWfsServer {
 
     public static String getBeyondXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<Beyond>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Polygon srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -128,7 +128,7 @@ public class MockWfsServer {
 
     public static String getDWithinAsIntersectsXml() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns:ns5=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns=\"http://www.opengis.net/fes/2.0\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/gml/3.2\" xmlns:ns5=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns=\"http://www.opengis.net/fes/2.0\">"
                 + "<Intersects>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns2:Polygon srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -167,7 +167,7 @@ public class MockWfsServer {
 
     public static String getContainsXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<Contains>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Polygon srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -180,7 +180,7 @@ public class MockWfsServer {
 
     public static String getCrossesXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<Crosses>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:LineString srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -191,7 +191,7 @@ public class MockWfsServer {
 
     public static String getDisjointXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<Disjoint>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Polygon srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -204,7 +204,7 @@ public class MockWfsServer {
 
     public static String getDWithinXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<DWithin>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Polygon srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -218,7 +218,7 @@ public class MockWfsServer {
 
     public static String getDWithinPointXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<DWithin>" + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Point srsName=\"urn:ogc:def:crs:EPSG::4326\">"
                 + "<ns4:coordinates>-10.0,30.0</ns4:coordinates>" + "</ns4:Point>"
@@ -227,7 +227,7 @@ public class MockWfsServer {
 
     public static String getIntersectsXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<Intersects>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Polygon srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -240,7 +240,7 @@ public class MockWfsServer {
 
     public static String getIntersectsWithEnvelopeLonLatXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<Intersects>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Envelope srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -251,7 +251,7 @@ public class MockWfsServer {
 
     public static String getIntersectsLonLatXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<Intersects>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Polygon srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -264,7 +264,7 @@ public class MockWfsServer {
     
     public static String getIntersectsWithEnvelopeXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<Intersects>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Envelope srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -275,7 +275,7 @@ public class MockWfsServer {
 
     public static String getNotIntersectsXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<Not><Intersects>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Polygon srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -288,7 +288,7 @@ public class MockWfsServer {
 
     public static String getBboxXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<BBOX>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Envelope srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -299,7 +299,7 @@ public class MockWfsServer {
 
     public static String getNotBboxXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<Not><BBOX>" + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Envelope srsName=\"urn:ogc:def:crs:EPSG::4326\">"
                 + "<ns4:lowerCorner>10.0 -10.0</ns4:lowerCorner>"
@@ -310,7 +310,7 @@ public class MockWfsServer {
 
     public static String getOverlapsXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<Overlaps>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Polygon srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -323,7 +323,7 @@ public class MockWfsServer {
 
     public static String getTouchesXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<Touches>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Polygon srsName=\"urn:ogc:def:crs:EPSG::4326\">"
@@ -336,7 +336,7 @@ public class MockWfsServer {
 
     public static String getWithinXmlFilter() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
+                + "<ns5:Filter xmlns:ns2=\"http://www.opengis.net/ows/1.1\" xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ns4=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns5=\"http://www.opengis.net/ogc\">"
                 + "<Within>"
                 + "<ValueReference>geom</ValueReference>"
                 + "<ns4:Polygon srsName=\"urn:ogc:def:crs:EPSG::4326\">"

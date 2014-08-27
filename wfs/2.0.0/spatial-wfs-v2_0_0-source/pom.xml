@@ -126,7 +126,7 @@
         
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
-            <artifactId>gml-v_3_2_0-schema</artifactId>
+            <artifactId>gml-v_3_2_1-schema</artifactId>
             <version>1.1.0</version>
         </dependency>
         
@@ -160,7 +160,7 @@
                             spatial-wfs-v2_0_0-converter;scope=compile|runtime,
                             catalog-core-api-impl,
                             jaxb2-basics-runtime,
-                            gml-v_3_2_0-schema
+                            gml-v_3_2_1-schema
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

@@ -63,17 +63,17 @@ import net.opengis.filter.v_2_0_0.TemporalOperatorType;
 import net.opengis.filter.v_2_0_0.TemporalOperatorsType;
 import net.opengis.filter.v_2_0_0.UnaryLogicOpType;
 import net.opengis.filter.v_2_0_0.UpperBoundaryType;
-import net.opengis.gml.v_3_2_0.AbstractRingPropertyType;
-import net.opengis.gml.v_3_2_0.CoordinatesType;
-import net.opengis.gml.v_3_2_0.DirectPositionType;
-import net.opengis.gml.v_3_2_0.EnvelopeType;
-import net.opengis.gml.v_3_2_0.LineStringType;
-import net.opengis.gml.v_3_2_0.LinearRingType;
-import net.opengis.gml.v_3_2_0.PointType;
-import net.opengis.gml.v_3_2_0.PolygonType;
-import net.opengis.gml.v_3_2_0.TimeInstantType;
-import net.opengis.gml.v_3_2_0.TimePeriodType;
-import net.opengis.gml.v_3_2_0.TimePositionType;
+import net.opengis.gml.v_3_2_1.AbstractRingPropertyType;
+import net.opengis.gml.v_3_2_1.CoordinatesType;
+import net.opengis.gml.v_3_2_1.DirectPositionType;
+import net.opengis.gml.v_3_2_1.EnvelopeType;
+import net.opengis.gml.v_3_2_1.LineStringType;
+import net.opengis.gml.v_3_2_1.LinearRingType;
+import net.opengis.gml.v_3_2_1.PointType;
+import net.opengis.gml.v_3_2_1.PolygonType;
+import net.opengis.gml.v_3_2_1.TimeInstantType;
+import net.opengis.gml.v_3_2_1.TimePeriodType;
+import net.opengis.gml.v_3_2_1.TimePositionType;
 import net.opengis.ows.v_1_1_0.AllowedValues;
 import net.opengis.ows.v_1_1_0.DomainType;
 import net.opengis.ows.v_1_1_0.ValueType;
@@ -82,7 +82,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.COMPARISON_OPERATORS;
@@ -119,7 +118,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private ObjectFactory filterObjectFactory = new ObjectFactory();
 
-    private net.opengis.gml.v_3_2_0.ObjectFactory gml320ObjectFactory = new net.opengis.gml.v_3_2_0.ObjectFactory();
+    private net.opengis.gml.v_3_2_1.ObjectFactory gml320ObjectFactory = new net.opengis.gml.v_3_2_1.ObjectFactory();
     
     private static final Logger LOGGER = LoggerFactory.getLogger(WfsFilterDelegate.class);
 
@@ -1629,7 +1628,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private JAXBElement<PolygonType> createPolygon(Geometry geometry) {
         PolygonType polygonType = gml320ObjectFactory.createPolygonType();
-        polygonType.setSrsName(WfsConstants.EPSG_4326_URN);
+        polygonType.setSrsName(Wfs20Constants.EPSG_4326_URN);
         LinearRingType ring = gml320ObjectFactory.createLinearRingType();
         ring.setCoordinates(createCoordinates(geometry));
         AbstractRingPropertyType abstractRing = gml320ObjectFactory
@@ -1642,7 +1641,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private JAXBElement<EnvelopeType> createEnvelope(Geometry geometry) {
         EnvelopeType envelopeType = gml320ObjectFactory.createEnvelopeType();
-        envelopeType.setSrsName(WfsConstants.EPSG_4326_URN);
+        envelopeType.setSrsName(Wfs20Constants.EPSG_4326_URN);
         Envelope envelope = geometry.getEnvelopeInternal();
         DirectPositionType lowerCorner = gml320ObjectFactory.createDirectPositionType();
         lowerCorner.getValue().add(envelope.getMinX());
@@ -1657,7 +1656,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
     private JAXBElement<LineStringType> createLineString(Geometry geometry) {
         LineStringType lineStringType = gml320ObjectFactory.createLineStringType();
-        lineStringType.setSrsName(WfsConstants.EPSG_4326_URN);
+        lineStringType.setSrsName(Wfs20Constants.EPSG_4326_URN);
         lineStringType.setCoordinates(createCoordinates(geometry));
         return gml320ObjectFactory.createLineString(lineStringType);
     }
@@ -1849,7 +1848,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
      */
     private String convertWktToLatLonOrdering(String wktInLonLat) {
 
-        if (WfsConstants.LAT_LON_ORDER.equals(coordinateOrder)) {
+        if (Wfs20Constants.LAT_LON_ORDER.equals(coordinateOrder)) {
             LOGGER.debug("Converting WKT from LON/LAT coordinate ordering to LAT/LON coordinate ordering.");
 
             // Normalize all whitespace in WKT before processing.

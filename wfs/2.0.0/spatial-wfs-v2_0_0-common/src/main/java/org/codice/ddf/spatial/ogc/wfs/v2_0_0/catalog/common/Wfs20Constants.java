@@ -126,7 +126,7 @@ public class Wfs20Constants extends WfsConstants{
 
     public static final String OGC_FILTER_PACKAGE = "net.opengis.filter.v_2_0_0";
 
-    public static final String OGC_GML_PACKAGE = "net.opengis.gml.v_3_2_0";
+    public static final String OGC_GML_PACKAGE = "net.opengis.gml.v_3_2_1";
 
     public static final String OGC_OWS_PACKAGE = "net.opengis.ows.v_1_1_0";
     
