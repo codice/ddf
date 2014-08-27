@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.security.sts.claimsHandler;
 
@@ -27,7 +27,7 @@ import ddf.security.encryption.EncryptionService;
 
 /**
  * Creates and registers LDAP and Role claims handlers.
- * 
+ *
  */
 public class ClaimsHandlerManager {
 
@@ -43,7 +43,7 @@ public class ClaimsHandlerManager {
 
     /**
      * Creates a new instance of the ClaimsHandlerManager.
-     * 
+     *
      * @param encryptService
      *            Encryption service used to decrypt passwords from the
      *            configurations.
@@ -61,7 +61,7 @@ public class ClaimsHandlerManager {
 
     /**
      * Callback method that is called when configuration is updated.
-     * 
+     *
      * @param props
      *            Map of properties.
      */
@@ -71,13 +71,15 @@ public class ClaimsHandlerManager {
         String userDn = props.get("userDn");
         String password = props.get("password");
         String userBaseDn = props.get("userBaseDn");
+        String objectClass = props.get("objectClass");
+        String memberNameAttribute = props.get("memberNameAttribute");
         String groupBaseDn = props.get("groupBaseDn");
         String userNameAttribute = props.get("userNameAttribute");
         String propertyFileLocation = props.get("propertyFileLocation");
         try {
             LdapTemplate template = createLdapTemplate(url, userDn, password);
             registerRoleClaimsHandler(template, propertyFileLocation, userBaseDn,
-                    userNameAttribute, groupBaseDn);
+                    userNameAttribute, objectClass, memberNameAttribute, groupBaseDn);
             registerLdapClaimsHandler(template, propertyFileLocation, userBaseDn, userNameAttribute);
 
         } catch (Exception e) {
@@ -88,7 +90,7 @@ public class ClaimsHandlerManager {
 
     /**
      * Creates a new LdapTemplate from the incoming properties.
-     * 
+     *
      * @param url
      *            URL to LDAP.
      * @param userDn
@@ -120,7 +122,7 @@ public class ClaimsHandlerManager {
 
     /**
      * Registers a new Role-based ClaimsHandler.
-     * 
+     *
      * @param template
      *            LdapTemplate used to query ldap for the roles.
      * @param propertyFileLoc
@@ -133,12 +135,14 @@ public class ClaimsHandlerManager {
      *            Base DN of the group.
      */
     private void registerRoleClaimsHandler(LdapTemplate template, String propertyFileLoc,
-            String userBaseDn, String userNameAttr, String groupBaseDn) {
+            String userBaseDn, String userNameAttr, String objectClass, String memberNameAttribute, String groupBaseDn) {
         RoleClaimsHandler roleHandler = new RoleClaimsHandler();
         roleHandler.setLdapTemplate(template);
         roleHandler.setPropertyFileLocation(propertyFileLoc);
         roleHandler.setUserBaseDn(userBaseDn);
         roleHandler.setUserNameAttribute(userNameAttr);
+        roleHandler.setObjectClass(objectClass);
+        roleHandler.setMemberNameAttribute(memberNameAttribute);
         roleHandler.setGroupBaseDn(groupBaseDn);
         LOGGER.debug("Registering new role claims handler.");
         roleHandlerRegistration = registerClaimsHandler(roleHandler, roleHandlerRegistration);
@@ -146,7 +150,7 @@ public class ClaimsHandlerManager {
 
     /**
      * Registers a new Ldap-based Claims Handler.
-     * 
+     *
      * @param template
      *            LdapTemplate used to query ldap for the roles.
      * @param propertyFileLoc
@@ -170,7 +174,7 @@ public class ClaimsHandlerManager {
     /**
      * Utility method that registers a ClaimsHandler and returns the service
      * registration.
-     * 
+     *
      * @param handler
      *            Handler that should be registered.
      * @param registration
