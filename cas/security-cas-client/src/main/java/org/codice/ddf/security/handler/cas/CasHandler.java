@@ -14,6 +14,11 @@
  **/
 package org.codice.ddf.security.handler.cas;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalCause;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
@@ -30,8 +35,11 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Authentication Handler for CAS. Runs through CAS filter chain if no CAS ticket is present.
@@ -52,6 +60,11 @@ public class CasHandler implements AuthenticationHandler {
 
     private ProxyFilter proxyFilter;
 
+    // default session timeout is 5 minutes
+    private Cache<String, Assertion> cache = CacheBuilder.newBuilder()
+            .expireAfterWrite(5,
+                    TimeUnit.MINUTES).removalListener(new RemovalListenerLogger()).build();
+
     @Override
     public String getAuthenticationType() {
         return AUTH_TYPE;
@@ -71,12 +84,19 @@ public class CasHandler implements AuthenticationHandler {
         LOGGER.debug("Doing CAS authentication and authorization for path {}", path);
 
         // if the request contains the principal, return it
-        if (containsPrincipal(httpRequest)) {
+        Assertion assertion = getAssertion(httpRequest);
+        if (assertion != null) {
             LOGGER.debug("Found previous CAS attribute, using that same session.");
-            CASAuthenticationToken token = getAuthenticationToken(httpRequest);
+            CASAuthenticationToken token = getAuthenticationToken(assertion);
             if (token != null) {
                 handlerResult.setToken(token);
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+                //update cache with new information
+                LOGGER.debug("Adding new CAS assertion for session {}",
+                        httpRequest.getSession().getId());
+                cache.put(httpRequest.getSession().getId(), assertion);
+                httpRequest.getSession()
+                        .setAttribute(AbstractCasFilter.CONST_CAS_ASSERTION, assertion);
                 LOGGER.debug("Successfully set authentication token, returning result with token.");
             } else {
                 LOGGER.debug("Could not create authentication token, returning NO_ACTION result.");
@@ -112,21 +132,13 @@ public class CasHandler implements AuthenticationHandler {
     /**
      * Gets the CAS proxy ticket that will be used by the STS to get a SAML assertion.
      *
-     * @param request The Http servlet request.
+     * @param assertion The CAS assertion object.
      * @return Returns the CAS proxy ticket that will be used by the STS to get a SAML assertion.
      */
-    private CASAuthenticationToken getAuthenticationToken(HttpServletRequest request) {
+    private CASAuthenticationToken getAuthenticationToken(Assertion assertion) {
 
         CASAuthenticationToken token = null;
-        Assertion assertion;
-        AttributePrincipal attributePrincipal = null;
-
-        assertion = (Assertion) request.getSession()
-                .getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);
-
-        if (assertion != null) {
-            attributePrincipal = assertion.getPrincipal();
-        }
+        AttributePrincipal attributePrincipal = assertion.getPrincipal();
 
         LOGGER.debug("Got the following attributePrincipal: {}", attributePrincipal);
 
@@ -147,15 +159,35 @@ public class CasHandler implements AuthenticationHandler {
     }
 
     /**
-     * Checks if the incoming request contains a cas principal.
+     * Retreives the CAS assertion associated with an incoming request.
      *
      * @param request Incoming request that should be checked.
-     * @return true if a cas principal was found, false if not.
+     * @return The CAS assertion if there is one, or null if no assertion could be found.
      */
-    private boolean containsPrincipal(HttpServletRequest request) {
-        return (request.getSession() != null
-                && request.getSession().getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION)
-                != null);
+    private Assertion getAssertion(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            if (session.getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION) != null) {
+                LOGGER.debug("Found CAS assertion in session.");
+                return (Assertion) session.getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);
+            } else if (cache.getIfPresent(session.getId()) != null) {
+                LOGGER.debug("Found CAS assertion in cached session with id {}", session.getId());
+                // check to see if session was cached
+                return cache.getIfPresent(session.getId());
+            }
+        }
+        if (request.getCookies() != null) {
+            // check cookies to see if there is a previous session is in there
+            for (Cookie curCookie : request.getCookies()) {
+                if (cache.getIfPresent(curCookie.getValue()) != null) {
+                    LOGGER.debug(
+                            "Found CAS assertion in cookie-based cached session with name:value - {}:{}",
+                            curCookie.getName(), curCookie.getValue());
+                    return cache.getIfPresent(curCookie.getValue());
+                }
+            }
+        }
+        return null;
     }
 
     public STSClientConfiguration getClientConfiguration() {
@@ -180,5 +212,20 @@ public class CasHandler implements AuthenticationHandler {
 
     public String getRealm() {
         return realm;
+    }
+
+    /**
+     * Listens for removal notifications from the cache and logs each time a removal is performed.
+     */
+    private class RemovalListenerLogger implements RemovalListener<String, Assertion> {
+
+        @Override
+        public void onRemoval(RemovalNotification<String, Assertion> notification) {
+            if (notification.getCause().equals(RemovalCause.EXPIRED)) {
+                LOGGER.debug("Cached CAS assertion for session with id {} has expired.",
+                        notification.getKey(),
+                        notification.getValue());
+            }
+        }
     }
 }
