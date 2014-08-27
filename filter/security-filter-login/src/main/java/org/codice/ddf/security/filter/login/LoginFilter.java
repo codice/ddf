@@ -25,6 +25,7 @@ import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.components.crypto.Crypto;
 import org.apache.ws.security.components.crypto.CryptoFactory;
@@ -271,8 +272,10 @@ public class LoginFilter implements Filter {
 
             for (Object principal : subject.getPrincipals().asList()) {
                 if (principal instanceof SecurityAssertion) {
-                    Element samlToken = ((SecurityAssertion) principal).getSecurityToken()
-                      .getToken();
+                    Element samlToken = ((SecurityAssertion) principal).getSecurityToken().getToken();
+                    if (LOGGER.isTraceEnabled()) {
+                        LOGGER.trace("SAML assertion returned: {}", XMLUtils.toString(samlToken));
+                    }
                     SecurityToken securityToken = ((SecurityAssertion) principal).getSecurityToken();
                     AssertionWrapper assertion = new AssertionWrapper(securityToken.getToken());
                     DateTime before = assertion.getSaml2().getConditions().getNotBefore();
