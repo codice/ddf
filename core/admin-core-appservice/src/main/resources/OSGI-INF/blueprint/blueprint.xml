@@ -76,8 +76,9 @@
           init-method="init"
           destroy-method="destroy">
         <argument ref="appService" />
-        <property name="pluginList" ref="pluginList" />
         <argument ref="configurationAdminExt"></argument>
+    	<argument ref="blueprintBundleContext"></argument>
+        <property name="pluginList" ref="pluginList" />
     </bean>
     
     <bean id="configurationAdminExt" class="org.codice.ddf.ui.admin.api.ConfigurationAdminExt">
