@@ -55,6 +55,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateFilter;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
 
@@ -105,10 +107,15 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             Geometry geo = null;
             geo = (Geometry) readGml(geometryXml);
             
+            LOGGER.debug("coordinateOrder = {}", coordinateOrder);
+            if (WfsConstants.LAT_LON_ORDER.equals(coordinateOrder)) {
+                swapCoordinates(geo);
+            }
+            
             if (geo != null) {
                 WKTWriter wktWriter = new WKTWriter();
                 ser = wktWriter.write(geo);
-                LOGGER.info("wkt = {}", ser);
+                LOGGER.debug("wkt = {}", ser);
             }
             break;
         case BINARY:
@@ -148,11 +155,6 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             LOGGER.error(XML_PARSE_FAILURE);
         } catch (IOException e) {
             LOGGER.error(XML_PARSE_FAILURE);
-        }
-              
-        LOGGER.info("coordinateOrder = {}", coordinateOrder);
-        if (WfsConstants.LAT_LON_ORDER.equals(coordinateOrder)) {
-            swapCoordinates(doc);
         }
 
         String[] namePrefix = doc.getDocumentElement().getNodeName().split(":");
@@ -209,42 +211,22 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         return gml;
     }
     
-    private void swapCoordinates(Document doc) {
-        LOGGER.debug("Swapping Lat/Lon Coords to Lon/Lat using XPath");
+    private void swapCoordinates(Geometry geo) {
+        LOGGER.debug("Swapping Lat/Lon Coords to Lon/Lat using Geometry");
+
+        geo.apply(new CoordinateFilter() {
+
+            @Override
+            public void filter(Coordinate coordinate) {
+                double x = coordinate.x;
+                double y = coordinate.y;
+                coordinate.y = x;
+                coordinate.x = y;
+            }
+
+        });
         
-        // Compile XPath expression only once as optimization
-        if (posListXpathExpr == null) {
-            LOGGER.debug("Compiling {} XPath expression", GML_POSLIST_XPATH);
-            XPathFactory xpathfactory = XPathFactory.newInstance();
-            XPath xpath = xpathfactory.newXPath();
-            try {
-                posListXpathExpr = xpath.compile(GML_POSLIST_XPATH);
-            }  catch (XPathExpressionException e1) {
-                LOGGER.error("Exception", e1);
-            }
-        }
- 
-        try {
-            Object result = posListXpathExpr.evaluate(doc, XPathConstants.NODESET);
-            NodeList nodes = (NodeList) result;
-            // All of the position coordinates are in one string, space separated
-            Node posListNode = nodes.item(0);
-            if (posListNode != null) {
-                String posList = posListNode.getNodeValue();
-                String[] coords = posList.split(" ");
-                StringBuffer sb = new StringBuffer("");
-                for (int i = 0; i < coords.length; i += 2) {
-                    sb.append(coords[i+1]);
-                    sb.append(" ");
-                    sb.append(coords[i]);
-                    sb.append(" ");
-                }
-                String reversedPosList = sb.toString().trim();
-                LOGGER.debug("reversedPosList = [{}]", reversedPosList);
-                posListNode.setNodeValue(reversedPosList);
-            }
-        } catch (XPathExpressionException e1) {
-            LOGGER.error("Exception", e1);
-        }
+        geo.geometryChanged();
+        //return geo;
     }
 }

@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -187,8 +188,6 @@ public class TestGenericFeatureConverter {
         converter.setMetacardType(buildStatesMetacardType());
         converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
         xstream.registerConverter(converter);
-        xstream.registerConverter(new GmlGeometryConverter());
-        xstream.registerConverter(new GmlEnvelopeConverter());
         xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
         InputStream is = TestGenericFeatureConverter.class
                 .getResourceAsStream("/geoserver_sample.xml");
@@ -198,10 +197,13 @@ public class TestGenericFeatureConverter {
         
         assertEquals(mc.getId(), "states.10");
 
+        // Verifies that lat/lon was swapped to lon/lat order for the WKT conversion
+        // to set the metacard's location        
+        assertTrue(mc.getLocation().startsWith("MULTIPOLYGON (((-89.104965 36.953869, -89.129585 36.86644, -89.166496 36.843422000000004,"));
     }
     
     @Test
-    public void testGeoServerLatLonSwapping() {
+    public void testGeoServerLatLonSwappingForMultiPolygon() {
         XStream xstream = new XStream(new WstxDriver());
         FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
         Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
@@ -217,17 +219,49 @@ public class TestGenericFeatureConverter {
         converter.setMetacardType(buildStatesMetacardType());
         converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
         xstream.registerConverter(converter);
-//        xstream.registerConverter(new GmlGeometryConverter());
-//        xstream.registerConverter(new GmlEnvelopeConverter());
         xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
         InputStream is = TestGenericFeatureConverter.class
-                .getResourceAsStream("/geoserver_sample.xml");
+                .getResourceAsStream("/geoserver_sample_polygon.xml");
         Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) xstream.fromXML(is);
-        assertEquals(7, wfc.getMembers().size());
+        assertEquals(1, wfc.getMembers().size());
         Metacard mc = wfc.getMembers().get(0);
         
         assertEquals(mc.getId(), "states.10");
-        //TODO:  assert mc.getLocation() is swapped for WKT
+
+        // Verifies that lat/lon was swapped to lon/lat order for the WKT conversion
+        // to set the metacard's location
+        assertTrue(mc.getLocation().startsWith("MULTIPOLYGON (((-89.1 36.1, -89.1 37.1, -88.1 37.1, -88.1 36.1, -89.1 36.1"));
+    }
+    
+    @Test
+    public void testGeoServerLatLonSwappingForPoint() {
+        XStream xstream = new XStream(new WstxDriver());
+        FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
+        Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
+
+        GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20();
+
+        fcMap.put("states", converter);
+        fcMap.put("streams", converter);
+        fcConverter.setFeatureConverterMap(fcMap);
+
+        xstream.registerConverter(fcConverter);
+
+        converter.setMetacardType(buildStatesMetacardType());
+        converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
+        xstream.registerConverter(converter);
+        xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
+        InputStream is = TestGenericFeatureConverter.class
+                .getResourceAsStream("/geoserver_sample_point.xml");
+        Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) xstream.fromXML(is);
+        assertEquals(1, wfc.getMembers().size());
+        Metacard mc = wfc.getMembers().get(0);
+        
+        assertEquals(mc.getId(), "states.10");
+
+        // Verifies that lat/lon was swapped to lon/lat order for the WKT conversion
+        // to set the metacard's location
+        assertTrue(mc.getLocation().startsWith("POINT (-123.26 49.41)"));
     }
     
     @Test(expected = IllegalArgumentException.class)
@@ -378,13 +412,6 @@ public class TestGenericFeatureConverter {
     }
 
     private String getLocation() {
-//        return "POLYGON ((-30.92013931274414 117.6552810668945, -30.92383384704589 117.661361694336, -30.93005561828613 117.6666412353516, "
-//                + "-30.93280601501464 117.6663589477539, -30.93186187744141 117.6594467163086, -30.93780517578125 117.6541137695312, "
-//                + "-30.94397163391114 117.6519470214844, -30.94255638122559 117.6455535888672, -30.93402862548828 117.6336364746094, "
-//                + "-30.92874908447266 117.6355285644531, -30.92138862609864 117.6326370239258, -30.92236137390137 117.6395568847656, "
-//                + "-30.91708374023438 117.6433029174805, -30.91711044311523 117.6454467773437, -30.92061042785645 117.6484985351563, "
-//                + "-30.92061042785645 117.6504135131836, -30.91638946533203 117.6504440307617, -30.92013931274414 117.6552810668945))";
-        
         return "POLYGON ((117.6552810668945 -30.92013931274414, 117.661361694336 -30.92383384704589, 117.6666412353516 -30.93005561828613, "
                 + "117.6663589477539 -30.93280601501464, 117.6594467163086 -30.93186187744141, 117.6541137695312 -30.93780517578125, "
                 + "117.6519470214844 -30.94397163391114, 117.6455535888672 -30.94255638122559, 117.6336364746094 -30.93402862548828, "
