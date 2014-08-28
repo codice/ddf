@@ -163,6 +163,14 @@
         <property name="context" ref="blueprintBundleContext"/>
         <property name="xmlConfigFilename" value="reliableReousrce-hazelcast.xml"/>
     </bean>
+    
+    <bean id="reliableResourceDownloadManager" class="ddf.catalog.resource.download.ReliableResourceDownloadManager" 
+    	init-method="init" destroy-method="cleanUp">
+    	<argument ref="productCache" />
+    	<argument ref="retrieveStatusEventPublisher" />
+    	<argument ref="retrieveStatusEventListener"/>
+    	<argument ref="downloadStatusInfo" />
+    </bean>
 
 	<!-- create the ddf bean -->
 	<bean id="ddf-fanout" class="ddf.catalog.fanout.FanoutCatalogFramework">
@@ -181,20 +189,19 @@
 		<argument ref="sorted" />
 		<argument ref="pool" />
 		<argument ref="sourcePoller" />
+		<argument ref="productCache" />
+		<argument ref="retrieveStatusEventPublisher" />
+		<argument ref="reliableResourceDownloadManager" />
 		<property name="poolSize" value="0" />
 		<property name="id" value="ddf-fanout" />
 		<property name="version" value="DDF v2.0" />
 		<property name="organization" value="Codice" />
-		<property name="productCache" ref="productCache" />
 		<property name="cacheEnabled" value="false" />
         <property name="delayBetweenRetryAttempts" value="10" />
         <property name="maxRetryAttempts" value="3" />
         <property name="retrievalMonitorPeriod" value="5" />
         <property name="cacheWhenCanceled" value="false" />
-		<property name="retrieveStatusEventPublisher" ref="retrieveStatusEventPublisher" />
         <property name="notificationEnabled" value="true" />
-        <property name="retrieveStatusEventListener" ref="retrieveStatusEventListener" />
-        <property name="downloadStatusInfo" ref="downloadStatusInfo"/>
     </bean>
 
 	<bean id="sourcePoller" class="ddf.catalog.util.impl.SourcePoller">
