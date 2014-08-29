@@ -29,16 +29,12 @@
                               <i class="fa fa-circle fa-stack-2x"></i>
                               <i class="fa fa-upload fa-stack-1x fa-inverse"></i>
                             </span>
-                            <!--<i href="#{{appId}}-stopModal" data-toggle="modal" class="fa fa-stop fa-3x" title="Click to stop this application"></i>-->
-                            <!--<div class="divider"></div>-->
-                            <!--<i href="#{{appId}}-updateModal" data-toggle="modal" class="fa fa-upload fa-3x" title="Click to upgrade this application"></i>-->
                         {{/is}}
                         {{#is state 'INACTIVE'}}
                             <span class="fa-stack fa-2x pointer" href="#{{appId}}-startModal" data-toggle="modal" title="Click to start this application">
                               <i class="fa fa-circle fa-stack-2x"></i>
                               <i class="fa fa-play fa-stack-1x fa-inverse"></i>
                             </span>
-                            <!--<i href="#{{appId}}-startModal" data-toggle="modal" class="fa fa-play fa-3x in" title="Click to start this application"></i>-->
                         {{/is}}
                     </div>
                 </div>
@@ -77,21 +73,9 @@
                 {{/if}}
             </div>
         </div>
-        <!--<div class="badges">-->
-            <!--{{#if dependencies}}-->
-                <!--<div data-toggle="tooltip" data-placement="top" title="This application has {{dependencies.length}} sub applciations.">-->
-                    <!--<span class="badge badge-info">{{dependencies.length}}</span> <i class="fa fa-cubes"></i>-->
-                <!--</div>-->
-            <!--{{/if}}-->
-        <!--</div>-->
     </div>
 
     <!-- Modals -->
-    <!--<a href="#{{appId}}-descriptionModal" class="btn btn-primary btn-sm descriptionButton" data-toggle="modal">More</a>-->
-    <!--{{#is isDisabled false}}<a href="#{{appId}}-installModal" class="fa fa-download installApp installHide" data-toggle="modal"></a>{{/is}}-->
-    <!--{{#is isDisabled false}}<a href="#{{appId}}-removeModal" class="fa fa-times removeApp removeHide" data-toggle="modal"></a>{{/is}}-->
-    <!--{{#is isDisabled false}}<a href="#{{appId}}-stopModal" class="fa fa-times stopApp stopAppHide" data-toggle="modal"></a>{{/is}}-->
-    <!--<a href="#{{appId}}-startModal" class="fa fa-download startApp startAppHide" data-toggle="modal"></a>-->
     <div id="{{appId}}-stopModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">

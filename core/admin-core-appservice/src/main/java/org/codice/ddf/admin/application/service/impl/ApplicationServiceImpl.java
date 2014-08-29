@@ -33,7 +33,7 @@ import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.Repository;
-import org.codice.ddf.admin.application.rest.model.FeatureDto;
+import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
@@ -726,19 +726,19 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public List<FeatureDto> getAllFeatures() {
-        List<FeatureDto> features = new ArrayList<FeatureDto>();
+    public List<FeatureDetails> getAllFeatures() {
+        List<FeatureDetails> features = new ArrayList<FeatureDetails>();
         try {
             for (Feature feature : featuresService.listFeatures()) {
                 features.add(getFeatureView(feature));
             }
         } catch (Exception ex) {
-            logger.warn("getAllFeatures Exception: " + ex.getMessage(), ex);
+            logger.warn("Could not obtain all features.", ex);
         }
         return features;
     }
 
-    private Map<String, String> getFeature2Repo() {
+    private Map<String, String> getFeatureToRepository() {
         Map<String, String> feature2repo = new HashMap<String, String>();
         try {
             for (Repository repository : featuresService.listRepositories()) {
@@ -747,21 +747,21 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
             }
         } catch (Exception ex) {
-            logger.warn("getFeature2Repo Exception: " + ex.getMessage(), ex);
+            logger.warn("Could not map Features to their Repositories.", ex);
         }
         return feature2repo;
     }
     
-    private FeatureDto getFeatureView(Feature feature) {
+    private FeatureDetails getFeatureView(Feature feature) {
         String status = featuresService.isInstalled(feature) ? INSTALLED
                 : UNINSTALLED;
-        String repository = getFeature2Repo().get(feature.getId());
-        return new FeatureDto(feature, status, repository);
+        String repository = getFeatureToRepository().get(feature.getId());
+        return new FeatureDetails(feature, status, repository);
     }
 
     @Override
-    public List<FeatureDto> findApplicationFeatures(String applicationName) {
-        List<FeatureDto> features = new ArrayList<FeatureDto>();
+    public List<FeatureDetails> findApplicationFeatures(String applicationName) {
+        List<FeatureDetails> features = new ArrayList<FeatureDetails>();
         try {
             for (Feature feature : getRepositoryFeatures(applicationName)) {
                 if (!isAppInFeatureList(feature, applicationName)) {
@@ -769,7 +769,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
             }
         } catch (Exception ex) {
-            logger.warn("getRepositoryFeatures Exception: " + ex.getMessage(), ex);
+            logger.warn("Could not obtain Application Features.", ex);
         }
         return features;
     }
@@ -786,8 +786,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 try {
                     repoFeatures = Arrays.asList(repository.getFeatures());
                 } catch (Exception ex) {
-                    logger.warn("getRepositoryFeatures Exception: "
- + ex.getMessage(), ex);
+                    logger.warn("Could not get Repository Features", ex);
                 }
                 break;
             }

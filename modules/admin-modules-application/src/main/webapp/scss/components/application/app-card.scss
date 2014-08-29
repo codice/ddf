@@ -72,7 +72,6 @@
     }
 
     .fa-stack {
-      //@include fa-stack($bs-btn-primary-backbround-color, #FFFFFF, $bs-btn-primary-backbround-color, $overlay-icon-color-hover);
       @include fa-stack($gray, #FFFFFF, darken($gray, 10%), $overlay-icon-color-hover);
     }
 
@@ -130,15 +129,6 @@
   i {
     color: $overlay-icon-color-highlight;
   }
-
-//  &:hover {
-//
-//
-//    //background-color: transparent;
-//    i {
-//      color: $overlay-icon-color-highlight;
-//    }
-//  }
 }
 
 /////

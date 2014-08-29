@@ -34,7 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.codice.ddf.admin.application.plugin.ApplicationConfigurationPlugin;
-import org.codice.ddf.admin.application.rest.model.FeatureDto;
+import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
@@ -91,10 +91,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     private final ConfigurationAdminExt configAdminExt;
     
     /** the service pid string.*/
-    private static final String SERVICE_PID = Constants.SERVICE_PID;
 
     /** the service factor pid.*/
-    private static final String SERVICE_FACTORYPID = ConfigurationAdmin.SERVICE_FACTORYPID;
 
     /** has all the application configuration plugins.*/
     private List<ApplicationConfigurationPlugin> pluginList;
@@ -396,7 +394,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
             for (String fpid : filterList) {
                 ldapFilter.append("(");
-                ldapFilter.append(SERVICE_FACTORYPID);
+                ldapFilter.append(ConfigurationAdmin.SERVICE_FACTORYPID);
                 ldapFilter.append("=");
                 ldapFilter.append(fpid);
                 ldapFilter.append(")");
@@ -406,7 +404,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
             return ldapFilter.toString();
         }
-        return "(" + SERVICE_FACTORYPID + "=" + "*)";
+        return "(" + ConfigurationAdmin.SERVICE_FACTORYPID + "=" + "*)";
     }
 
     private String getDefaultLdapFilter() {
@@ -418,7 +416,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
             for (String fpid : filterList) {
                 ldapFilter.append("(");
-                ldapFilter.append(SERVICE_PID);
+                ldapFilter.append(Constants.SERVICE_PID);
                 ldapFilter.append("=");
                 ldapFilter.append(fpid);
                 ldapFilter.append("*");
@@ -429,7 +427,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
             return ldapFilter.toString();
         }
-        return "(" + SERVICE_PID + "=" + "*)";
+        return "(" + Constants.SERVICE_PID + "=" + "*)";
     }
 	@Override
 	public List<Map<String, Object>> getConfigurationPlugins(String appName) {
@@ -471,9 +469,9 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     }
 
     private List<Map<String, Object>> getFeatureMap(
-            List<FeatureDto> featureViews) {
+            List<FeatureDetails> featureViews) {
         List<Map<String, Object>> features = new ArrayList<Map<String, Object>>();
-        for (FeatureDto feature : featureViews) {
+        for (FeatureDetails feature : featureViews) {
             Map<String, Object> featureMap = new HashMap<String, Object>();
             featureMap.put(MAP_NAME, feature.getName());
             featureMap.put(MAP_VERSION, feature.getVersion());

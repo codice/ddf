@@ -26,7 +26,6 @@ define([
 
     // statics
     var BOX_LAYOUT = 0;
-    //var ROW_LAYOUT = 1;
     var ACTIVE_STATE = "ACTIVE";
     var INACTIVE_STATE = "INACTIVE";
     var STOP_STATE = "STOP";

@@ -22,7 +22,7 @@ import org.apache.karaf.features.Feature;
  * Wrapper class for Karaf Feature object.
  *
  */
-public class FeatureDto {
+public class FeatureDetails {
     
     private String status;
     private String repository;
@@ -34,7 +34,7 @@ public class FeatureDto {
     private String details;
     private String resolver;
     
-    public FeatureDto(Feature feature, String status, String repository){
+    public FeatureDetails(Feature feature, String status, String repository){
         this.name = feature.getName();
         this.id = feature.getId();
         this.version = feature.getVersion();

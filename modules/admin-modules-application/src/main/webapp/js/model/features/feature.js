@@ -13,7 +13,6 @@
 *
 **/
 /*global define*/
-//define(['backbone','underscore'], function (Backbone,_) {
 define(['backbone','jquery','underscore'], function (Backbone,$,_) {
 
     var Feature = {};
