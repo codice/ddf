@@ -1,27 +1,24 @@
-<h3>Features</h3>
-
-<div class="sort-container pull-right">
-    <div class="bt-icon bt-icon-tab"></div>
-    <div class="btn-group">
-        <span class="pull-left sort-label">Sort by:</span>
-        <button type="button" class="btn btn-dropdown dropdown-toggle" data-toggle="dropdown">
-            Loan Phase, Loan &uarr; <span class="glyphicon glyphicon-chevron-down"></span>
-        </button>
-        <ul class="dropdown-menu sort" role="menu">
-            <li><a data-id="ln_ph_asc">Loan Phase <span class="order">&uarr;</span></a></li>
-            <li><a data-id="ln_ph_desc">Loan Phase <span class="order">&darr;</span></a></li>
-            <li><a data-id="ln_asc">Loan <span class="order">&uarr;</span></a></li>
-            <li><a data-id="ln_desc">Loan <span class="order">&darr;</span></a></li>
-        </ul>
-    </div>
-</div>
+{{!--
+* Copyright (c) Codice Foundation
+*
+* This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+* General Public License as published by the Free Software Foundation, either version 3 of the
+* License, or any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+* even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+* Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+* is distributed along with this program and can be found at
+* <http://www.gnu.org/licenses/lgpl.html>.
+*
+--}}
 <div class="filter-container inactive pull-right">
     <div class="bt-icon bt-icon-binoculars"></div>
     <input type="text" id="filter-features" placeholder="Filter Features" />
 </div>
 
-<table id="features-table">
-    <caption>Features</caption>
+<table id="features-table" class="display compact">
+    <!--<caption>Features</caption>-->
     <thead>
         <tr>
             <th>Name</th>

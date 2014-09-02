@@ -79,5 +79,33 @@ public interface ApplicationServiceBeanMBean {
      * @return installation profile objects.
      */
     List<Map<String, Object>> getInstallationProfiles();
+    
+    /**
+     * TODO:
+     * @param applicationID
+     * @return
+     */
+    List<Map<String, Object>> getServices(String applicationID);
 
+    /**
+     * Returns all Features in DDF
+     * @return
+     */
+    List<Map<String, Object>> getAllFeatures();
+
+    /**
+     * Returns all Features in DDF by Application
+     * @return
+     */
+    List<Map<String, Object>> findApplicationFeatures(String applicationName);
+
+    /**
+     * Returns the the json for the plugins based on the app name.
+     * 
+     * @param appName
+     *            - what we want the plugins for.
+     * @return a mapping that will be converted to json.
+     */
+    List<Map<String, Object>> getConfigurationPlugins(String appName);
+    
 }

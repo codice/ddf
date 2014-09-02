@@ -255,6 +255,9 @@ define([
                     }
                 });
             }
+        },
+        getAppKey: function(){
+            return this.get('name') + '-' + this.get('version');
         }
     });
 

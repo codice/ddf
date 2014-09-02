@@ -12,3 +12,4 @@ target/
 bin/
 atlassian-ide-plugin.xml
 *.sonar-ide.properties
+modules/admin-modules-application/src/main/webapp/css/style.css

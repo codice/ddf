@@ -71,6 +71,14 @@
             if(window){
                 // make ddf object available on window.  Makes debugging in chrome console much easier
                 window.app = app;
+                if(!window.console){
+                    window.console = {
+                        log: function(string){
+                            window.logArray.push(string);
+                        },
+                        logArray: []
+                    };
+                }
             }
 
             // Actually start up the application.

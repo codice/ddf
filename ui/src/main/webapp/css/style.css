@@ -51,7 +51,7 @@ iframe {
 }
 
 .app-header {
-    padding: 8px 15px;
+    padding: 8px 30px;
     margin-bottom: 21px;
     list-style: none;
     background-color: #ecf0f1;
@@ -96,4 +96,8 @@ iframe {
         padding-left: 20px;
         height: 100%;
     }
+}
+
+main.container {
+    margin-top: 30px;
 }
