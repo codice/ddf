@@ -356,9 +356,9 @@ public class TestFeatureMetacardType {
 
         FeatureMetacardType featureMetacardType = new FeatureMetacardType(schema, FEATURE_TYPE,
                 NON_QUERYABLE_PROPS, Wfs20Constants.GML_3_2_NAMESPACE);
-        assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.INTEGER_TYPE);
+        assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.STRING_TYPE);
         assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_2, BasicTypes.INTEGER_TYPE);
-        assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_3, BasicTypes.INTEGER_TYPE);
+        assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_3, BasicTypes.STRING_TYPE);
 
     }
 

@@ -255,8 +255,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
         if (Constants.XSD_FLOAT.equals(qName)) {
             return BasicTypes.FLOAT_TYPE;
         }
-        if (Constants.XSD_INTEGER.equals(qName) || Constants.XSD_INT.equals(qName)
-                || Constants.XSD_POSITIVEINTEGER.equals(qName)) {
+        if (Constants.XSD_INT.equals(qName)) {
             return BasicTypes.INTEGER_TYPE;
         }
         if (Constants.XSD_LONG.equals(qName)) {
@@ -264,6 +263,15 @@ public class FeatureMetacardType extends MetacardTypeImpl {
         }
         if (Constants.XSD_SHORT.equals(qName)) {
             return BasicTypes.SHORT_TYPE;
+        }
+
+        // these types are unbounded and unsafe to map to any BasicTypes number values.
+        // Potentially the catalog should support a BigInteger type for these types to map to
+        if (Constants.XSD_INTEGER.equals(qName) || Constants.XSD_POSITIVEINTEGER.equals(qName)
+                || Constants.XSD_NEGATIVEINTEGER.equals(qName)
+                || Constants.XSD_NONPOSITIVEINTEGER.equals(qName)
+                || Constants.XSD_NONNEGATIVEINTEGER.equals(qName)) {
+            return BasicTypes.STRING_TYPE;
         }
         return null;
 
