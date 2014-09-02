@@ -159,7 +159,7 @@ public class CasHandler implements AuthenticationHandler {
     }
 
     /**
-     * Retreives the CAS assertion associated with an incoming request.
+     * Retrieves the CAS assertion associated with an incoming request.
      *
      * @param request Incoming request that should be checked.
      * @return The CAS assertion if there is one, or null if no assertion could be found.
