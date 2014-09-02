@@ -126,7 +126,7 @@ public class FeatureCollectionMessageBodyReaderWfs20 implements MessageBodyReade
             ResponseBuilder responseBuilder = Response.ok(bis);
             responseBuilder.type("text/xml");
             Response response = responseBuilder.build();
-            throw new WebApplicationException(response);
+            throw new WebApplicationException(e1, response);
         }
         catch (JAXBException e1) {
             LOGGER.error("Error in retrieving feature collection.", e1);
