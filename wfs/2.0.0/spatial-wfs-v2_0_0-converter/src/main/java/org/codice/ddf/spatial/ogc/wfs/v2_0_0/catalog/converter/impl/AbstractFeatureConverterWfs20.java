@@ -227,6 +227,5 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         });
         
         geo.geometryChanged();
-        //return geo;
     }
 }
