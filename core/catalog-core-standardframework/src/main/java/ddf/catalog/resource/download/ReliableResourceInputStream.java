@@ -96,7 +96,7 @@ public class ReliableResourceInputStream extends InputStream {
         // If product download not yet complete, set cancellation of download
         // (ReliableResourceDownloadManager will determine if caching should continue)
         if (!downloadFuture.isDone()) {
-            // Stop the caching thread synchronized so that Callable can finish any writing to
+            // Stop the caching thread. This is synchronized so that Callable can finish any writing to
             // OutputStreams before being canceled
             synchronized (reliableResourceCallable) {
                 LOGGER.debug("Setting cancelDownload on ReliableResourceCallable thread");
@@ -122,7 +122,7 @@ public class ReliableResourceInputStream extends InputStream {
     public boolean isClosed() {
         return streamClosed;
     }
-
+    
     @Override
     public int read() throws IOException {
         LOGGER.trace("ENTERING: read()");
@@ -174,6 +174,7 @@ public class ReliableResourceInputStream extends InputStream {
                     && downloadState.getDownloadState()
                     != DownloadManagerState.DownloadState.CANCELED && downloadState
                     .getDownloadState() != null)) {
+                                
                 numBytesRead = readFromFbosInputStream(b, off, len);
 
                 if (numBytesRead > 0) {
