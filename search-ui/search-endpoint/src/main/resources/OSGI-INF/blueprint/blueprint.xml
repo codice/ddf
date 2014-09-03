@@ -21,6 +21,8 @@
     <service ref="comet" id="defaultCometdServlet" interface="javax.servlet.Servlet">
         <service-properties>
             <entry key="alias" value="/cometd"/>
+            <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
+            <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
         </service-properties>
     </service>
 
