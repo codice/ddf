@@ -18,11 +18,8 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
-import org.codice.ddf.security.common.PropertiesLoader;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import org.apache.cxf.common.util.Base64Utility;
-import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.helpers.XMLUtils;
@@ -31,6 +28,7 @@ import org.apache.ws.security.components.crypto.Crypto;
 import org.apache.ws.security.components.crypto.CryptoFactory;
 import org.apache.ws.security.saml.ext.AssertionWrapper;
 import org.apache.ws.security.saml.ext.OpenSAMLUtil;
+import org.codice.ddf.security.common.PropertiesLoader;
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -58,15 +56,13 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -79,9 +75,9 @@ public class LoginFilter implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginFilter.class);
 
-    private static final String DDF_SECURITY_TOKEN = "ddf.security.securityToken";
-
     private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
+
+    private static final String SAML_EXPIRATION = "saml.expiration";
 
     private SecurityManager securityManager;
 
@@ -103,18 +99,12 @@ public class LoginFilter implements Filter {
 
     private DocumentBuilder docBuilder;
 
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
-    private SAMLCache samlCache;
+    private int expirationTime;
 
     public LoginFilter() {
         super();
-        samlCache = new SAMLCache();
-    }
-
-    public LoginFilter(SAMLCache samlCache) {
-        super();
-        this.samlCache = samlCache;
     }
 
     @Override
@@ -179,7 +169,6 @@ public class LoginFilter implements Filter {
 
         Subject subject = null;
 
-        //Object securityToken = httpRequest.getAttribute(DDF_SECURITY_TOKEN);
         Object ddfAuthToken = httpRequest.getAttribute(DDF_AUTHENTICATION_TOKEN);
 
         if (ddfAuthToken instanceof HandlerResult) {
@@ -191,24 +180,25 @@ public class LoginFilter implements Filter {
              * that here and create the subject from the token.
              */
             if (thisToken instanceof SAMLAuthenticationToken)
-                subject = handleAuthenticationToken(httpRequest, httpResponse, (SAMLAuthenticationToken) thisToken);
+                subject = handleAuthenticationToken(httpRequest, (SAMLAuthenticationToken) thisToken);
             else if (thisToken instanceof BSTAuthenticationToken)
-                subject = handleAuthenticationToken(httpRequest, httpResponse, (BSTAuthenticationToken) thisToken);
+                subject = handleAuthenticationToken(httpRequest, (BSTAuthenticationToken) thisToken);
         }
 
         return subject;
     }
 
-    private Subject handleAuthenticationToken(HttpServletRequest httpRequest, HttpServletResponse httpResponse, SAMLAuthenticationToken token) throws ServletException {
+    private Subject handleAuthenticationToken(HttpServletRequest httpRequest, SAMLAuthenticationToken token) throws ServletException {
         Subject subject;
         try {
             LOGGER.debug("Validating received SAML assertion.");
 
-            // if we received a reference to a SAML assertion, replace it with the real assertion
+            boolean wasReference = false;
             if (token.isReference()) {
+                wasReference = true;
                 LOGGER.trace("Converting SAML reference to assertion");
-                String realm = (String) httpRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
-                SecurityToken savedToken = samlCache.get(realm, (String)token.getCredentials());
+                SecurityToken savedToken = (SecurityToken) httpRequest.getSession().getAttribute(
+                        SecurityConstants.SAML_ASSERTION);
                 if (savedToken != null) {
                     token.replaceReferenece(savedToken);
                 }
@@ -219,30 +209,35 @@ public class LoginFilter implements Filter {
                 }
             }
 
-            // wrap the token
-            SecurityToken securityToken = (SecurityToken) token.getCredentials();
-            AssertionWrapper assertion = new AssertionWrapper(securityToken.getToken());
-
-            // get the crypto junk
-            Crypto crypto = getSignatureCrypto();
-            Response samlResponse = createSamlResponse(
-              httpRequest.getRequestURI(), assertion.getIssuerString(),
-              createStatus(SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null));
+            renewSecurityToken(httpRequest.getSession(), token);
 
             synchronized (lock) {
-                if (docBuilder == null) {
-                    throw new SecurityServiceException("Unable to validate SAML assertions.");
+                SecurityToken securityToken = (SecurityToken) token.getCredentials();
+                if(!wasReference) {
+                    // wrap the token
+                    AssertionWrapper assertion = new AssertionWrapper(securityToken.getToken());
+
+                    // get the crypto junk
+                    Crypto crypto = getSignatureCrypto();
+                    Response samlResponse = createSamlResponse(
+                            httpRequest.getRequestURI(), assertion.getIssuerString(),
+                            createStatus(SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS,
+                                    null));
+
+                    if (docBuilder == null) {
+                        throw new SecurityServiceException("Unable to validate SAML assertions.");
+                    }
+
+                    Document doc = docBuilder.newDocument();
+                    Element policyElement = OpenSAMLUtil.toDom(samlResponse, doc);
+                    doc.appendChild(policyElement);
+                    Response marshalledResponse = (Response) OpenSAMLUtil
+                            .fromDom(policyElement);
+                    SAMLProtocolResponseValidator validator = new SAMLProtocolResponseValidator();
+
+                    // validate the assertion
+                    validator.validateSamlResponse(marshalledResponse, crypto, null);
                 }
-
-                Document doc = docBuilder.newDocument();
-                Element policyElement = OpenSAMLUtil.toDom(samlResponse, doc);
-                doc.appendChild(policyElement);
-                Response marshalledResponse = (Response) OpenSAMLUtil
-                  .fromDom(policyElement);
-                SAMLProtocolResponseValidator validator = new SAMLProtocolResponseValidator();
-
-                // validate the assertion
-                validator.validateSamlResponse(marshalledResponse, crypto, null);
 
                 // if it is all good, then we'll create our subject
                 subject = securityManager.getSubject(securityToken);
@@ -257,7 +252,58 @@ public class LoginFilter implements Filter {
         return subject;
     }
 
-    private Subject handleAuthenticationToken(HttpServletRequest httpRequest, HttpServletResponse httpResponse, BSTAuthenticationToken token) throws ServletException {
+    private void renewSecurityToken(HttpSession session, SAMLAuthenticationToken savedToken) throws WSSecurityException {
+        synchronized (lock) {
+            Long afterMil = (Long) session.getAttribute(SAML_EXPIRATION);
+            if (afterMil == null) {
+                AssertionWrapper assertion = new AssertionWrapper(
+                        ((SecurityToken) savedToken.getCredentials()).getToken());
+                if (assertion.getSaml2() != null) {
+                    DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
+                    afterMil = after.getMillis();
+                }
+            }
+            long timeoutSeconds = -1;
+            if (afterMil != null) {
+                long beforeMil = System.currentTimeMillis();
+                timeoutSeconds = (afterMil - beforeMil) / 1000;
+            }
+            if (timeoutSeconds <= 60) {
+                try {
+                    LOGGER.debug("Attempting to refresh user's SAML assertion.");
+
+                    Subject subject = securityManager.getSubject(savedToken);
+                    LOGGER.debug("Refresh of user assertion successful");
+                    for (Object principal : subject.getPrincipals()) {
+                        if (principal instanceof SecurityAssertion) {
+                            savedToken.replaceReferenece(
+                                    ((SecurityAssertion) principal).getSecurityToken());
+                            session.setAttribute(SecurityConstants.SAML_ASSERTION,
+                                    ((SecurityAssertion) principal).getSecurityToken());
+
+                            AssertionWrapper assertion = new AssertionWrapper(
+                                    ((SecurityToken) savedToken.getCredentials()).getToken());
+                            if (assertion.getSaml2() != null) {
+                                DateTime after = assertion.getSaml2().getConditions()
+                                        .getNotOnOrAfter();
+                                afterMil = after.getMillis();
+                            }
+
+                            session.setAttribute(SAML_EXPIRATION, afterMil);
+                            LOGGER.debug("Saved new user assertion to session.");
+                        }
+                    }
+
+                } catch (SecurityServiceException e) {
+                    LOGGER.warn(
+                            "Unable to refresh user's SAML assertion. User will log out prematurely.",
+                            e);
+                }
+            }
+        }
+    }
+
+    private Subject handleAuthenticationToken(HttpServletRequest httpRequest, BSTAuthenticationToken token) throws ServletException {
         Subject subject;
 
         /*
@@ -277,23 +323,11 @@ public class LoginFilter implements Filter {
                         LOGGER.trace("SAML assertion returned: {}", XMLUtils.toString(samlToken));
                     }
                     SecurityToken securityToken = ((SecurityAssertion) principal).getSecurityToken();
-                    AssertionWrapper assertion = new AssertionWrapper(securityToken.getToken());
-                    DateTime before = assertion.getSaml2().getConditions().getNotBefore();
-                    DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
-                    long timeoutSeconds = -1;
-                    if (before != null && after != null) {
-                        long beforeMil = before.getMillis();
-                        long afterMil = after.getMillis();
-                        timeoutSeconds = (afterMil - beforeMil) / 1000;
-                    }
-                    createSamlCookie(httpRequest, httpResponse, securityToken, timeoutSeconds);
+                    createSamlCookie(httpRequest, securityToken);
                 }
             }
         } catch (SecurityServiceException e) {
             LOGGER.error("Unable to get subject from auth request.", e);
-            throw new ServletException(e);
-        } catch (WSSecurityException e) {
-            LOGGER.error("Unable to encode SAML cookie.", e);
             throw new ServletException(e);
         }
         return subject;
@@ -384,49 +418,30 @@ public class LoginFilter implements Filter {
      * object to be sent back to the caller.
      *
      * @param httpRequest the http request object for this request
-     * @param httpResponse the http response object for this request
      * @param securityToken the SecurityToken object representing the SAML assertion
-     * @param timeoutSeconds the timeout value to use for the cookie
      */
-    private void createSamlCookie(HttpServletRequest httpRequest, HttpServletResponse httpResponse,
-        SecurityToken securityToken, long timeoutSeconds) {
-        try {
-            String realm = (String) httpRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
-
-            // put this SecurityToken into the cache and get the key
-            String samlReference = samlCache.put(realm, securityToken);
-            LOGGER.debug("Cached SecurityToken and created cookie reference of {}.", samlReference);
-            Cookie cookie = new Cookie(SecurityConstants.SAML_COOKIE_REF, samlReference);
-            URL url = new URL(httpRequest.getRequestURL().toString());
-            cookie.setDomain(url.getHost());
-            cookie.setPath("/");
-            cookie.setSecure(true);
-            if (timeoutSeconds > Integer.MAX_VALUE || timeoutSeconds < Integer.MIN_VALUE) {
-                cookie.setMaxAge(-1);
-            } else {
-                cookie.setMaxAge((int) timeoutSeconds);
+    private void createSamlCookie(HttpServletRequest httpRequest, SecurityToken securityToken) {
+        synchronized (lock) {
+            HttpSession session = httpRequest.getSession(true);
+            session.setAttribute(SecurityConstants.SAML_ASSERTION, securityToken);
+            AssertionWrapper assertion = null;
+            DateTime after = null;
+            try {
+                assertion = new AssertionWrapper(securityToken.getToken());
+                after = assertion.getSaml2().getConditions().getNotOnOrAfter();
+                session.setAttribute(SAML_EXPIRATION, after.getMillis());
+            } catch (WSSecurityException e) {
+                LOGGER.warn("Unable to set expiration date.", e);
             }
 
-            httpResponse.addCookie(cookie);
-        } catch (MalformedURLException e) {
-            LOGGER.error("Unable to get URL from request.", e);
+            int minutes = getExpirationTime();
+            //we just want to set this to some non-zero value if the configuration is messed up
+            int seconds = 60;
+            if (minutes > 0) {
+                seconds = minutes * 60;
+            }
+            session.setMaxInactiveInterval(seconds);
         }
-    }
-
-    /**
-     * Encodes the SAML assertion as a deflated Base64 String so that it can be
-     * used as a Cookie.
-     *
-     * @param token
-     * @return String
-     * @throws WSSecurityException
-     */
-    private String encodeSaml(Element token) throws WSSecurityException {
-        AssertionWrapper assertion = new AssertionWrapper(token);
-        String samlStr = assertion.assertionToString();
-        DeflateEncoderDecoder deflateEncoderDecoder = new DeflateEncoderDecoder();
-        byte[] deflatedToken = deflateEncoderDecoder.deflateToken(samlStr.getBytes());
-        return Base64Utility.encode(deflatedToken);
     }
 
     /**
@@ -467,5 +482,13 @@ public class LoginFilter implements Filter {
 
     public void setSignaturePropertiesFile(String signaturePropertiesFile) {
         this.signaturePropertiesFile = signaturePropertiesFile;
+    }
+
+    public int getExpirationTime() {
+        return expirationTime;
+    }
+
+    public void setExpirationTime(int expirationTime) {
+        this.expirationTime = expirationTime;
     }
 }

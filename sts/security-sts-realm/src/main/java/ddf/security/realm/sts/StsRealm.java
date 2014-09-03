@@ -47,6 +47,7 @@ import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.slf4j.LoggerFactory;
@@ -206,9 +207,11 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         String method = "doGetAuthenticationInfo( AuthenticationToken token )";
         LOGGER.entry(method);
 
-        String credential;
+        Object credential;
 
-        if (token instanceof BaseAuthenticationToken) {
+        if (token instanceof SAMLAuthenticationToken) {
+            credential = token.getCredentials();
+        } else if (token instanceof BaseAuthenticationToken) {
             credential = ((BaseAuthenticationToken) token).getCredentialsAsXMLString();
         } else {
             credential = token.getCredentials().toString();
@@ -229,13 +232,20 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
             setClaimsOnStsClient(createClaimsElement());
         }
 
-        SecurityToken securityToken = requestSecurityToken(credential);
+        SecurityToken securityToken;
+        if (token instanceof SAMLAuthenticationToken && credential instanceof SecurityToken) {
+            securityToken = renewSecurityToken((SecurityToken) credential);
+        } else {
+            securityToken = requestSecurityToken(credential);
+        }
 
         LOGGER.debug("Creating token authentication information with SAML.");
         SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo();
         SimplePrincipalCollection principals = new SimplePrincipalCollection();
         Object principal = token.getPrincipal();
-        principals.add(principal, NAME);
+        if(principal != null) {
+            principals.add(principal, NAME);
+        }
         principals.add(securityToken, NAME);
         simpleAuthenticationInfo.setPrincipals(principals);
         simpleAuthenticationInfo.setCredentials(credential);
@@ -250,7 +260,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
      * @param authToken The subject the security token is being request for.
      * @return security token (SAML assertion)
      */
-    private SecurityToken requestSecurityToken(String authToken) {
+    private SecurityToken requestSecurityToken(Object authToken) {
         SecurityToken token = null;
         String stsAddress = stsClientConfig.getAddress();
 
@@ -278,6 +288,47 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
             }
         } catch (Exception e) {
             String msg = "Error requesting the security token from STS at: " + stsAddress + ".";
+            LOGGER.error(msg, e);
+            SecurityLogger.logError(msg);
+            throw new AuthenticationException(msg, e);
+        }
+
+        return token;
+    }
+
+    /**
+     * Renew a security token (SAML assertion) from the STS.
+     *
+     * @param securityToken The token being renewed.
+     * @return security token (SAML assertion)
+     */
+    private SecurityToken renewSecurityToken(SecurityToken securityToken) {
+        SecurityToken token = null;
+        String stsAddress = stsClientConfig.getAddress();
+
+        try {
+            LOGGER.debug("Renewing security token from STS at: " + stsAddress + ".");
+
+            if (securityToken != null) {
+                LOGGER.debug(
+                        "Telling the STS to renew a security token on behalf of the auth token"
+                );
+                SecurityLogger
+                        .logInfo(
+                                "Telling the STS to renew a security token on behalf of the auth token"
+                        );
+                stsClient.setWsdlLocation(stsAddress);
+                stsClient.setTokenType(stsClientConfig.getAssertionType());
+                stsClient.setKeyType(stsClientConfig.getKeyType());
+                stsClient.setKeySize(Integer.valueOf(stsClientConfig.getKeySize()));
+                token = stsClient.renewSecurityToken(securityToken);
+                LOGGER.debug("Finished renewing security token.");
+                SecurityLogger.logInfo("Finished renewing security token.");
+
+                SecurityLogger.logSecurityAssertionInfo(token);
+            }
+        } catch (Exception e) {
+            String msg = "Error renewing the security token from STS at: " + stsAddress + ".";
             LOGGER.error(msg, e);
             SecurityLogger.logError(msg);
             throw new AuthenticationException(msg, e);
@@ -751,7 +802,11 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
 
         @Override
         public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
-            if (token instanceof BaseAuthenticationToken) {
+            if (token instanceof SAMLAuthenticationToken) {
+                SecurityToken oldToken = (SecurityToken) token.getCredentials();
+                SecurityToken newToken = (SecurityToken) info.getCredentials();
+                return oldToken.getId().equals(newToken.getId());
+            } else if (token instanceof BaseAuthenticationToken) {
                 String xmlCreds = ((BaseAuthenticationToken) token).getCredentialsAsXMLString();
                 if (xmlCreds != null && info.getCredentials() != null) {
                     return xmlCreds.equals(info.getCredentials());

@@ -14,22 +14,21 @@
  **/
 package org.codice.ddf.security.handler.saml;
 
+import ddf.security.SecurityConstants;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.codice.ddf.security.common.HttpUtils;
+import org.codice.ddf.security.handler.api.AuthenticationHandler;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
-import ddf.security.SecurityConstants;
-import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-
-import org.codice.ddf.security.common.HttpUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -44,7 +43,6 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
@@ -108,14 +106,19 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
             return handlerResult;
         }
 
-        // Now try to find the reference to a SAML assertion
-        samlCookie = cookies.get(SecurityConstants.SAML_COOKIE_REF);
-        if (samlCookie != null) {
-            String cookieRef = samlCookie.getValue();
-            LOGGER.trace("Creating SAML authentication token with reference {}.", cookieRef);
-            SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, cookieRef, realm);
-            handlerResult.setToken(samlToken);
-            handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+        if(httpRequest.getSession() != null) {
+            SecurityToken savedToken = (SecurityToken) httpRequest.getSession().getAttribute(
+                    SecurityConstants.SAML_ASSERTION);
+            if (savedToken != null) {
+                LOGGER.trace("Creating SAML authentication token with session.");
+                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, httpRequest.getSession().getId(),
+                        realm);
+                handlerResult.setToken(samlToken);
+                handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+                return handlerResult;
+            } else {
+                LOGGER.trace("No SAML cookie located - returning with no results");
+            }
         } else {
             LOGGER.trace("No SAML cookie located - returning with no results");
         }

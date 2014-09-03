@@ -32,7 +32,7 @@
         <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
         <ddf.platform.app.version>2.5.0-SNAPSHOT</ddf.platform.app.version>
         <jasypt.version>1.9.0</jasypt.version>
-        <wss4j.version>1.6.13</wss4j.version>
+        <wss4j.version>1.6.16</wss4j.version>
         <cxf.version>2.7.8</cxf.version>
         <shiro.version>1.2.1</shiro.version>
         <karaf.version>2.3.3</karaf.version>

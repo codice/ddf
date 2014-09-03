@@ -33,7 +33,8 @@
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
     <bean id="filter" class="org.codice.ddf.security.filter.login.LoginFilter">
-        <argument ref="samlCache" />
+        <cm:managed-properties persistent-id="org.codice.ddf.security.filter.login.Session"
+                               update-strategy="container-managed" />
         <property name="securityManager" ref="securityManager"/>
         <property name="signaturePropertiesFile" value="$loginfilter{signatureProperties}"/>
     </bean>
@@ -45,10 +46,5 @@
             <entry key="urlPatterns" value="/*"/>
         </service-properties>
     </service>
-
-    <bean id="samlCache" class="org.codice.ddf.security.filter.login.SAMLCache">
-        <cm:managed-properties persistent-id="org.codice.ddf.security.filter.login.SAMLCache"
-                               update-strategy="container-managed" />
-    </bean>
 
 </blueprint>

@@ -81,6 +81,7 @@
           class="org.apache.cxf.ws.security.sts.provider.SecurityTokenServiceProvider">
         <property name="issueOperation" ref="issueDelegate"/>
         <property name="validateOperation" ref="validateDelegate"/>
+        <property name="renewOperation" ref="renewDelegate"/>
     </bean>
 
     <bean id="authnStatementProvider" class="ddf.security.sts.UnspecifiedAuthNStatementProvider" />
