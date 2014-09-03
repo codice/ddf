@@ -158,7 +158,7 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
         LOGGER.debug("Download interrupted - returning {} bytes read", bytesRead);
         reliableResourceStatus = new ReliableResourceStatus(DownloadStatus.RESOURCE_DOWNLOAD_INTERRUPTED,
                 bytesRead.get());
-        reliableResourceStatus.setMessage("Download interrupted - returning {}" + bytesRead + " bytes read");
+        reliableResourceStatus.setMessage("Download interrupted - returning " + bytesRead + " bytes read");
     }
 
     /**
@@ -191,6 +191,10 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
             chunkCount++;
             
             try {
+                // Note that this blocking read() cannot be interrupted - this is why the 
+                // ResourceRetrievalMonitor must cancel the Future that this Callable is running in.
+                // Otherwise, this read will block until the original resource request, usually by
+                // CXF, times out waiting for bytes to be written to the FBOS.
                 n = input.read(buffer);
             } catch (IOException e) {
                 if (interruptDownload || Thread.interrupted()) {
@@ -210,49 +214,55 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
                 break;
             }
 
-            // If download was interrupted or canceled break now so that the bytesRead count does
-            // not
-            // get out of sync with the bytesWritten counts. If this count gets out of sync
-            // then potentially the output streams will be one chunk off from the input stream
-            // when a retry is attempted and the InputStream is skipped forward.
-            if (cancelDownload || interruptDownload || Thread.interrupted()) {
-                LOGGER.debug("Breaking from download loop due to cancel or interrupt received");
+            // Synchronized to prevent being interrupted in the middle of writing to the
+            // OutputStreams
+            synchronized(this) {
+                
+                // If download was interrupted or canceled break now so that the bytesRead count does
+                // not
+                // get out of sync with the bytesWritten counts. If this count gets out of sync
+                // then potentially the output streams will be one chunk off from the input stream
+                // when a retry is attempted and the InputStream is skipped forward.
+                if (cancelDownload || interruptDownload || Thread.interrupted()) {
+                    LOGGER.debug("Breaking from download loop due to cancel or interrupt received");
+                    if (reliableResourceStatus != null) {
+                        reliableResourceStatus
+                                .setMessage("Breaking from download loop due to cancel or interrupt received");
+                    }
+                    return reliableResourceStatus;
+                }
+    
+                bytesRead.addAndGet(n);
+    
+                if (cacheFileOutputStream != null) {
+                    try {
+                        cacheFileOutputStream.write(buffer, 0, n);
+                    } catch (IOException e) {
+                        LOGGER.info("IOException during write to cached file's OutputStream", e);
+                        reliableResourceStatus = new ReliableResourceStatus(
+                                DownloadStatus.CACHED_FILE_OUTPUT_STREAM_EXCEPTION, bytesRead.get());
+                    }
+                }
+    
+                if (countingFbos != null) {
+                    try {
+                        countingFbos.write(buffer, 0, n);
+                        countingFbos.flush();
+                    } catch (IOException e) {
+                        LOGGER.info(
+                                "IOException during write to FileBackedOutputStream for client to read",
+                                e);
+                        reliableResourceStatus = new ReliableResourceStatus(
+                                DownloadStatus.CLIENT_OUTPUT_STREAM_EXCEPTION, bytesRead.get());
+                    }
+                }
+    
+    
+                // Return status here so that each stream can be attempted to be updated regardless of
+                // which one might have had an exception
                 if (reliableResourceStatus != null) {
-                    reliableResourceStatus
-                            .setMessage("Breaking from download loop due to cancel or interrupt received");
+                    return reliableResourceStatus;
                 }
-                return reliableResourceStatus;
-            }
-
-            bytesRead.addAndGet(n);
-
-            if (cacheFileOutputStream != null) {
-                try {
-                    cacheFileOutputStream.write(buffer, 0, n);
-                } catch (IOException e) {
-                    LOGGER.info("IOException during write to cached file's OutputStream", e);
-                    reliableResourceStatus = new ReliableResourceStatus(
-                            DownloadStatus.CACHED_FILE_OUTPUT_STREAM_EXCEPTION, bytesRead.get());
-                }
-            }
-
-            if (countingFbos != null) {
-                try {
-                    countingFbos.write(buffer, 0, n);
-                    countingFbos.flush();
-                } catch (IOException e) {
-                    LOGGER.info(
-                            "IOException during write to FileBackedOutputStream for client to read",
-                            e);
-                    reliableResourceStatus = new ReliableResourceStatus(
-                            DownloadStatus.CLIENT_OUTPUT_STREAM_EXCEPTION, bytesRead.get());
-                }
-            }
-
-            // Return status here so that each stream can be attempted to be updated regardless of
-            // which one might have had an exception
-            if (reliableResourceStatus != null) {
-                return reliableResourceStatus;
             }
             LOGGER.trace("chunkCount = {},  bytesRead = {}", chunkCount, bytesRead.get());
         }
