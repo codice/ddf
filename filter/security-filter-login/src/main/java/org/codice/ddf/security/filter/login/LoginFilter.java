@@ -298,6 +298,10 @@ public class LoginFilter implements Filter {
                     LOGGER.warn(
                             "Unable to refresh user's SAML assertion. User will log out prematurely.",
                             e);
+                    session.invalidate();
+                } catch (Exception e) {
+                    LOGGER.warn("Unhandled exception occurred.", e);
+                    session.invalidate();
                 }
             }
         }
