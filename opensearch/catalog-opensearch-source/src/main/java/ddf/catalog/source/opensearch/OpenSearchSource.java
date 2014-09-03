@@ -50,7 +50,10 @@ import org.apache.abdera.model.Feed;
 import org.apache.abdera.parser.Parser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.geotools.filter.FilterTransformer;
@@ -178,6 +181,8 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     private String keystorePath;
 
     private String truststorePath;
+    
+    private long receiveTimeout = 0;
 
     /**
      * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
@@ -815,7 +820,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
             if (restClient != null) {
                 Object binaryContent = null;
                 MimeType mimeType = null;
-
+                
                 WebClient webClient = openSearchConnection.getWebClientFromClient(restClient);
 
                 // If a bytesToSkip property is present add range header
@@ -830,7 +835,18 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                     webClient = openSearchConnection.setSubjectOnWebClient(webClient, subject);
                 }
 
-                Response clientResponse = webClient.get();
+                Response clientResponse = null;
+                try {
+                    clientResponse = webClient.get();
+                } catch (Exception e) {
+                    LOGGER.warn("Error while trying to retreiveResource from OpenSearch Source", e);
+                    throw new ResourceNotFoundException(COULD_NOT_RETRIEVE_RESOURCE_MESSAGE);
+                }
+                
+                if (clientResponse == null) {
+                    LOGGER.warn("Error while trying to retreiveResource from OpenSearch Source");
+                    throw new ResourceNotFoundException(COULD_NOT_RETRIEVE_RESOURCE_MESSAGE);
+                }
 
                 Object contentType = clientResponse.getHeaders().get(HttpHeaders.CONTENT_TYPE);
                 try {
@@ -997,5 +1013,24 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
     public void setPassword(String password) {
         this.password = password;
+    }
+    
+    /**
+     * Sets the receive timeout for messages sent from this provider.
+     *
+     * @param receiveTimeout timeout in milliseconds. 0 sets it to NOT timeout.
+     */
+    public void setReceiveTimeout(long receiveTimeout) {
+        LOGGER.debug("Setting timeout to {}", receiveTimeout);
+        this.receiveTimeout = receiveTimeout;
+    }
+
+    /**
+     * Gets the receive timeout that is being used for current messages.
+     *
+     * @return the timeout in milliseconds.
+     */
+    public long getReceiveTimeout() {
+        return this.receiveTimeout;
     }
 }
