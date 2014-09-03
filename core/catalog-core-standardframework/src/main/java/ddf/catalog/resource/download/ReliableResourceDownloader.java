@@ -229,6 +229,7 @@ public class ReliableResourceDownloader implements Runnable {
                 retryAttempts++;
                 LOGGER.debug("Download attempt {}", retryAttempts);
                 try {
+                    downloadExecutor = Executors.newSingleThreadExecutor();
                     downloadFuture = downloadExecutor.submit(reliableResourceCallable);
 
                     // Update callable and its Future in the ReliableResourceInputStream being read
@@ -252,7 +253,7 @@ public class ReliableResourceDownloader implements Runnable {
                             downloaderConfig.getMonitorInitialDelayMS(),
                             downloaderConfig.getMonitorPeriodMS());
                     downloadStarted.set(Boolean.TRUE);
-                    reliableResourceStatus = downloadFuture.get();
+                    reliableResourceStatus = downloadFuture.get();                 
                 } catch (InterruptedException e) {
                     LOGGER.error("InterruptedException - Unable to store product file {}",
                             filePath, e);
@@ -304,7 +305,22 @@ public class ReliableResourceDownloader implements Runnable {
                     if (fos != null) {
                         fos.flush();
                     }
-
+                    
+                    // Synchronized so that the Callable is not shutdown while in the middle of
+                    // writing to the
+                    // FileBackedOutputStream and cache file (need to keep both of these in sync
+                    // with number of bytes
+                    // written to each of them).
+                    synchronized (reliableResourceCallable) {
+                        
+                        // Simply doing Future.cancel(true) or a plain shutdown() is not enough.
+                        // The downloadExecutor (or its underlying Future/thread) is holding on
+                        // to a resource or is blocking on a read - undetermined at this point,
+                        // but shutdownNow() along with re-instantiating the executor at top of
+                        // while loop fixes this.
+                        downloadExecutor.shutdownNow();
+                    }
+                    
                     if (DownloadStatus.PRODUCT_INPUT_STREAM_EXCEPTION.equals(reliableResourceStatus
                             .getDownloadStatus())) {
 
