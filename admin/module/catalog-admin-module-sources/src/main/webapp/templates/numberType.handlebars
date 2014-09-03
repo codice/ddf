@@ -11,16 +11,14 @@
  *
  **/
  --}}
-<table class='table table-striped align-middle'>
-    <thead>
-        <th class="name">Name</th>
-        <th class="type">Type</th>
-        <th class="status">Status</th>
-        <th><a href="#" class="addSourceLink fa fa-plus"></a></th>
-        <th><a href="#" class="removeSourceLink fa fa-trash-o"></a></th>
-        <th><a href="#" class="refreshButton fa fa-refresh"></a></th>
-    </thead>
-    <tbody>
-
-    </tbody>
-</table>
+<div class='{{id}} metatype control-group'>
+    <label class='control-label' for='{{id}}'>{{name}}</label>
+    <div class='controls'>
+        <input type='number' class='{{id}} metatype form-control input-sm' name='{{id}}' id='{{id}}' value='{{#defaultValue}}{{.}}{{/defaultValue}}'>
+        {{#if description}}
+            <a href='#' class='description' data-title='{{id}}'>
+                <i class='glyphicon glyphicon-question-sign'></i>
+            </a>
+        {{/if}}
+    </div>
+</div>

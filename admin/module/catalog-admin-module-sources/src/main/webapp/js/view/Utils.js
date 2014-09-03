@@ -13,9 +13,7 @@
  *
  **/
 /*global define*/
-define(
-function () {
-
+define(function () {
     var Utils = {
             /**
              * Set up the popovers based on if the selector has a description.

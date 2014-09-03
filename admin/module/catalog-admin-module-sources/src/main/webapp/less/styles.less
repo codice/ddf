@@ -1,47 +1,101 @@
-@highlightColor : lighten(color("#18BC9C"), 35);
-.btn.status {
-  padding: 4px;
-  font-size: 8px;
-  float: right;
-}
-.table-striped tbody tr.highlight-on-hover:hover td {
-  background-color: @highlightColor;
-}
+@activeColor: #18BC9C;
+@highlightColor : lighten(@activeColor, 35);
 
+#sourcesRegion {
+  a {
+    text-decoration: none;
+  }
+  .table-striped > tbody {
+    tr.highlight-on-hover:hover td {
+      background-color: @highlightColor;
+    }
+
+    tr:nth-child(odd) > td{
+      .configurationSelect {
+        border: none;
+        background-color: #f9f9f9;
+      }
+    }
+
+    tr:nth-child(even) > td{
+      .configurationSelect {
+        border: none;
+        background-color: white;
+      }
+    }
+  }
+}
 #sources-modal {
-
+  a {
+    text-decoration: none;
+  }
+  .modal {
+    overflow-y: hidden;
+  }
+  .endpointUrl {
+    width: 100%;
+  }
   .error-text {
     display: none;
   }
   .control-group {
-    .control-label {
-      width: 100%;
-    }
-
     [class*='col-md-'] {
       padding-left: 10px;
       padding-right: 10px;
+    }
+
+    .btn-group.card-style-toggle {
+      .btn-xs {
+        padding: 1px 5px;
+        font-size: 10px;
+      }
+    }
+    .btn-group {
+      .btn.active {
+        background-color: @activeColor;
+        border-color: darken(@activeColor, 10);
+      }
     }
 
     .description > i {
       margin-top: 8px;
     }
   }
-
-  .modal-dialog {
-    width: 640px;
-    
-    .row {
-      margin-left: 0px;
-      margin-right: 0px;
-      width: 100%;
-      
-      .vpad {
-        padding: 2px;
-      }
-    }
-    .endpointUrl {
-      width: 100%;
+  .delete-source-name {
+    padding: 8px 0px 0px 0px;
+    color: @activeColor;
+    width: 100%;
+    font-weight: 700;
+  }
+  .delete-source-config {
+    padding: 4px 10px 4px 10px;
+    .label.label-danger {
+      margin-left: 16px;
     }
   }
+}
+
+.btn.status {
+  padding: 4px;
+  font-size: 8px;
+  float: right;
+}
+
+.newLink {
+  text-decoration: none!important;
+  width: 100%;
+  font-weight: 700;
+}
+
+.card-style-toggle .btn {
+  color: #fff;
+  background-color: #95a5a6;
+  border-color: #95a5a6;
+  padding: 7px 6px 4px;
+}
+
+.delete-modal-body {
+  min-height: 400px;
+  max-height: 400px;
+  overflow-y: auto;
 }

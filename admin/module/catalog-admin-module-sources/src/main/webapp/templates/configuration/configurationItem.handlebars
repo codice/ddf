@@ -14,23 +14,15 @@
  
 <div class="{{id}} metatype control-group">
     {{#is type 11}}
-        <div class="controls">
-            <label class="checkbox">
-                <input type="checkbox" name="{{id}}" id="{{id}}" {{#contains defaultValue "true"}}checked{{/contains}}>{{name}}
+        {{> configuration.checkboxTypeTemplate }}
     {{/is}}
     {{#isnt type 11}}
         <label class="control-label" for="{{id}}">{{name}}</label>
-    {{/isnt }}
-    {{#if description}}
-        <a href='#' class='description' data-title='{{id}}'>
-            <i class='glyphicon glyphicon-question-sign'></i>
-        </a>
-    {{/if}}
-    {{#is type 11}}
-            </label>
-        </div>
-    {{/is}}
-    {{#isnt type 11}}
+        {{#if description}}
+            <a href='#' class='description' data-title='{{id}}'>
+                <i class='glyphicon glyphicon-question-sign'></i>
+            </a>
+        {{/if}}
         <div class="controls">
         {{#if optionValues}}
             {{#is optionValues.length 0}}

@@ -30,6 +30,7 @@
             modelbinder: '../admin/lib/backbone.modelbinder/Backbone.ModelBinder.min',
             collectionbinder: '../admin/lib/backbone.modelbinder/Backbone.CollectionBinder.min',
             poller: '../admin/lib/backbone-poller/backbone.poller',
+            iframeresizer: '../admin/lib/iframe-resizer/js/iframeResizer.min',
 
             // ddf
             spinnerConfig : 'js/spinnerConfig',
