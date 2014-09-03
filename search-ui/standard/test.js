@@ -17,7 +17,9 @@ var app = express();
 // uncomment to get some debugging
 //app.use(express.logger());
 //enable the live reload
-app.use(require('connect-livereload')());
+//app.use(require('connect-livereload')());
+//enable body parsing to make it easy to get at http request data
+app.use(express.bodyParser());
 
 // our compiled css gets moved to /target/webapp/css so use it there
 app.use('/css',express.static(__dirname + '/target/webapp/css'));
@@ -32,6 +34,7 @@ app.all('/services/store/config', server.mockConfigStore);
 app.all('/services/user', server.mockUser);
 app.all('/cometd/connect', server.mockConnect);
 app.all('/cometd/handshake', server.mockHandshake);
+app.all('/cometd/', server.mockCometD);
 
 
 exports = module.exports = app;

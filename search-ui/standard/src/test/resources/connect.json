@@ -1,15 +1,5 @@
 [
     {
-        "id": "3",
-        "successful": true,
-        "advice": {
-            "interval": 0,
-            "reconnect": "retry",
-            "timeout": 30000
-        },
-        "channel": "/meta/connect"
-    },
-    {
         "data": {
             "guid": "e863f023-3b6f-4575-badf-a1f114e7b378",
             "hits": 11,
@@ -243,5 +233,15 @@
             ]
         },
         "channel":"/e863f023-3b6f-4575-badf-a1f114e7b378"
+    },  
+    {
+        "id": "3",
+        "successful": true,
+        "advice": {
+            "interval": 0,
+            "reconnect": "retry",
+            "timeout": 30000
+        },
+        "channel": "/meta/connect"
     }
 ]
