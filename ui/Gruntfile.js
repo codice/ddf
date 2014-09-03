@@ -76,6 +76,10 @@ module.exports = function (grunt) {
 //                    '<%= jshint.files %>'
                 ]
             },
+            lessFiles: {
+                files: ['src/main/webapp/less/*.less','src/main/webapp/less/**/*.less','src/main/webapp/less/***/*.less'],
+                tasks: ['less']
+            },
             cssFiles : {
                 files :['src/main/webapp/css/*.css'],
                 tasks : ['cssmin']

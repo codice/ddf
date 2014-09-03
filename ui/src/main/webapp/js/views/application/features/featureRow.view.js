@@ -18,9 +18,8 @@ define([
         'marionette',
         'underscore',
         'text!featureRowTemplate',
-        'icanhaz',
-        'spin'
-], function($,Marionette, _, FeatureRowTemplate, ich, Spinner){
+        'icanhaz'
+], function($,Marionette, _, FeatureRowTemplate, ich){
         "use strict";
 
         if(!ich.featureRowTemplate) {
@@ -31,21 +30,14 @@ define([
             template: 'featureRowTemplate',
             tagName: 'tr',
 
-            initialize: function(){
-                _.bindAll(this, 'onRender', 'onSelect');
+            events: {
+                'click .fa-stack': 'onSelect'
             },
 
-            onRender: function(){
-                this.$el.on('click', this.onSelect);
-            },
-
-            onSelect: function(event) {
-                event.stopPropagation();
-                var target = $(event.target).attr("id");
-                if(target !== undefined && target.indexOf('action') !== -1) {
-                    this.trigger('selected', this.model);
-                    new Spinner().spin(event.currentTarget.lastChild);
-                }
+            onSelect: function() {
+                var view = this;
+                view.trigger('selected', view.model);
+                view.$('.fa-stack').toggleClass('active', true);
             },
 
             onBeforeClose: function() {

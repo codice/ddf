@@ -57,8 +57,26 @@
     padding: 4px;
 }
 
+#servicesRegion {
+  table {
+    .column1 {
+      width: 50%;
+    }
+    .column2 {
+      width: 49%;
+    }
+    .column3 {
+      width: 1%;
+    }
+  }
+}
+
 .service-row-table > tbody > tr > td {
-    padding: 4px 0px 4px 30px;
+    padding: 4px 0px 4px 0px;
+
+  &.indent {
+    padding-left: 30px;
+  }
 }
 
 .minus-button, .plus-button {

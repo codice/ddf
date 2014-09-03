@@ -268,7 +268,11 @@ define([
     // elements can be recursive nodes.
     Applications.TreeNodeCollection = Backbone.Collection.extend({
         model: Applications.TreeNode,
-          url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/',
+        url: '/jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/Applications/',
+
+        comparator : function(model){
+            return  model.get('displayName');
+        },
 
         // Reading the collection can be performed using a normal fetch (through the
         // `Applications.Response` model - then pulling out the values.

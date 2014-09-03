@@ -18,10 +18,11 @@ define([
     'icanhaz',
     'js/wreqr',
     'jquery',
+    'underscore',
     './AppCardItem.view',
     'text!applicationGrid',
     'text!addApplicationCard'
-    ],function (Marionette, ich, wreqr, $, AppCardItemView, applicationGrid, addApplicationCard) {
+    ],function (Marionette, ich, wreqr, $, _, AppCardItemView, applicationGrid, addApplicationCard) {
     "use strict";
 
     // statics
@@ -64,14 +65,27 @@ define([
         },
 
         showCollection: function(){
+            var view = this;
             this.collection.each(function(item, index){
-                if(this.AppShowState === item.get('state')) {
+                var state = item.get('state');
+                if(view.isModelStateMatch(state)){
                     this.addItemView(item, AppCardItemView, index);
                 }
             }, this);
         },
+        isModelStateMatch: function(state){
+            if(_.isArray(this.AppShowState)){
+                if(_.contains(this.AppShowState, state)){
+                    return true;
+                }
+            } else if(this.AppShowState === state) {
+                return true;
+            }
+            return false;
+        },
         addChildView: function(item, collection, options){
-            if(this.AppShowState === item.get('state')) {
+            var state = item.get('state');
+            if(this.isModelStateMatch(state)){
                 this.closeEmptyView();
                 var ItemView = this.getItemView();
                 return this.addItemView(item, ItemView, options.index);

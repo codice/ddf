@@ -31,10 +31,30 @@
   border-color: #e74c3c;
 }
 
+.btn-primary() {
+  color: #ffffff;
+  background-color: #1e2a36;
+  border-color: #161f29;
+}
+
+.btn-default(){
+  color: #ffffff;
+  background-color: #95a5a6;
+  border-color: #95a5a6;
+}
 .btn-info() {
   color: #ffffff;
   background-color: #3498db;
   border-color: #3498db;
+}
+
+.disable(){
+  pointer-events: none;
+  cursor: not-allowed;
+  filter: alpha(opacity=30);
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  opacity: .3;
 }
 
 .fa-stack-inverse(@mainColor, @altColor) {
@@ -72,4 +92,12 @@
     margin-top: -.1em;
   }
 
+}
+
+.fa-button(@mainColor, @hoverColor) {
+  cursor: pointer;
+  color: @mainColor;
+  &:hover {
+    color: @hoverColor;
+  }
 }

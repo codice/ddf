@@ -16,8 +16,6 @@
     requirejs.config({
 
         paths: {
-
-
             // application module template
             applicationModuleTemplate: 'templates/application/applicationWrapper.handlebars',
             applicationTemplate: 'templates/application/application.handlebars',
@@ -40,15 +38,8 @@
             pluginTabContentCollectionView:'templates/application/application-detail/PluginTabContent.collection.view.handlebars',
             iframeView:'templates/application/iframeView.handlebars',
 
-
             // installer module templates
             applicationWrapperTemplate: 'templates/installer/application.handlebars',
-            //applicationTemplate: '/templates/application/application.handlebars',
-            //applicationNodeTemplate: '/templates/application/applicationNode.handlebars',
-            //detailsTemplate: '/templates/application/details.handlebars',
-            //applicationNew: '/templates/application/applicationNew.handlebars',
-            //mvnItemTemplate: '/templates/application/mvnUrlItem.handlebars',
-            //fileProgress: '/templates/application/fileProgress.handlebars'
         }
     });
 }());

@@ -15,31 +15,60 @@
 <div class="app-card panel">
     <div class="panel-body">
         <!-- card overlay buttons -->
-        {{#is isDisabled false}}
+
             <div class="card-overlay bottom show-in-edit-mode action-button-group">
                 <div class="block">
                     <div class="centered">
+                    {{#if isDisabled}}
+                        <span class="fa-stack disabled" data-toggle="modal" title="Cannot be Deactivated">
+                          <i class="fa fa-circle fa-stack-2x"></i>
+                          <i class="fa fa-pause fa-stack-1x"></i>
+                        </span>
+                        <div class="divider"></div>
+                        <span class="fa-stack pointer" href="#{{appId}}-updateModal" data-toggle="modal" title="Upgrade this application">
+                          <i class="fa fa-circle fa-stack-2x"></i>
+                          <i class="fa fa-upload fa-stack-1x fa-inverse"></i>
+                        </span>
+                    {{else}}
                         {{#is state 'ACTIVE'}}
-                            <span class="fa-stack fa-2x pointer" href="#{{appId}}-stopModal" data-toggle="modal" title="Click to stop this application">
+                            <span class="fa-stack pointer" href="#{{appId}}-stopModal" data-toggle="modal" title="Deactivate this application">
                               <i class="fa fa-circle fa-stack-2x"></i>
-                              <i class="fa fa-stop fa-stack-1x"></i>
+                              <i class="fa fa-pause fa-stack-1x"></i>
                             </span>
                             <div class="divider"></div>
-                            <span class="fa-stack fa-2x pointer" href="#{{appId}}-updateModal" data-toggle="modal" title="Click to upgrade this application">
+                            <span class="fa-stack pointer" href="#{{appId}}-updateModal" data-toggle="modal" title="Upgrade this application">
                               <i class="fa fa-circle fa-stack-2x"></i>
                               <i class="fa fa-upload fa-stack-1x fa-inverse"></i>
                             </span>
                         {{/is}}
                         {{#is state 'INACTIVE'}}
-                            <span class="fa-stack fa-2x pointer" href="#{{appId}}-startModal" data-toggle="modal" title="Click to start this application">
+                            <span class="fa-stack pointer" href="#{{appId}}-startModal" data-toggle="modal" title="Activate this application">
                               <i class="fa fa-circle fa-stack-2x"></i>
                               <i class="fa fa-play fa-stack-1x fa-inverse"></i>
                             </span>
+                            <div class="divider"></div>
+                            <span class="fa-stack pointer" href="#{{appId}}-updateModal" data-toggle="modal" title="Upgrade this application">
+                              <i class="fa fa-circle fa-stack-2x"></i>
+                              <i class="fa fa-upload fa-stack-1x fa-inverse"></i>
+                            </span>
                         {{/is}}
+                        {{#is state 'ERROR'}}
+                            <span class="fa-stack pointer" href="#{{appId}}-startModal" data-toggle="modal" title="Active this application">
+                              <i class="fa fa-circle fa-stack-2x"></i>
+                              <i class="fa fa-play fa-stack-1x fa-inverse"></i>
+                            </span>
+                            <div class="divider"></div>
+                            <span class="fa-stack pointer" href="#{{appId}}-updateModal" data-toggle="modal" title="Upgrade this application">
+                              <i class="fa fa-circle fa-stack-2x"></i>
+                              <i class="fa fa-upload fa-stack-1x fa-inverse"></i>
+                            </span>
+                        {{/is}}
+                    {{/if}}
                     </div>
                 </div>
             </div>
-        {{/is}}
+
+
         <div class="card-overlay select-button-group hide-in-edit-mode">
             <div class="block">
                 <div class="centered">

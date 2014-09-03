@@ -29,8 +29,6 @@
         <!-- filtered plugin properties -->
         <plugin-context>/${project.artifactId}</plugin-context>
         <plugin-name>${project.artifactId}</plugin-name>
-        <!--<plugin-scripts>app/js/underscore/underscore.js,app/js/backbone.js</plugin-scripts>-->
-
     </properties>
 
     <dependencies>
