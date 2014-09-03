@@ -10,26 +10,17 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/ -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-  <reference id="httpService" interface="org.osgi.service.http.HttpService" />
+    <bean id="jolokiaServlet" class="org.jolokia.osgi.servlet.JolokiaServlet">
+    </bean>
 
-  <reference id="securityProvider" interface="org.apache.felix.webconsole.WebConsoleSecurityProvider2" />
-
-  <bean id="jolokiaServlet" class="org.jolokia.osgi.servlet.JolokiaServlet">
-    <argument ref="blueprintBundleContext" />
-  </bean>
-  
-  <!-- HttpContext that uses Felix webconsole authentication -->
-  <bean id="securedHttpContext" class="org.codice.ddf.admin.jolokia.SecuredHttpContext">
-    <argument ref="securityProvider" />
-  </bean>
-
-  <bean id="jolokiaServer" class="org.codice.ddf.admin.jolokia.JolokiaServer">
-    <argument ref="jolokiaServlet" />
-    <argument ref="httpService" />
-    <argument ref="securedHttpContext" />
-    <argument ref="blueprintBundleContext" />
-  </bean>
+    <service ref="jolokiaServlet" id="jolokiaServletService" interface="javax.servlet.Servlet">
+        <service-properties>
+            <entry key="alias" value="/jolokia"/>
+            <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
+            <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
+        </service-properties>
+    </service>
 
 </blueprint>
