@@ -36,11 +36,7 @@
         <xerces.version>2.9.1</xerces.version>
     </properties>
 
-	<dependencies>
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api-impl</artifactId>
-		</dependency>
+    <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
@@ -52,10 +48,6 @@
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.action.core</groupId>

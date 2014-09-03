@@ -12,34 +12,30 @@
  **/
  --}}
 <td>
-    <a href='#{{id}}' class='editLink' data-toggle="modal">
-        {{#if sourceId}}
-            {{sourceId}}
-        {{else}}
-            {{#if properties.shortname}}
-                {{properties.shortname}}
-            {{else}}
-                {{id}}
-            {{/if}}
-        {{/if}}
+    <a href='#{{id}}' class='newLink editLink' data-toggle="modal">
+        {{name}}
     </a>
     <div class="modal-container">
 
     </div>
 </td>
 <td>
-    {{name}}
+    <div class="source-name">
+        <b>
+        {{#if enabled}}
+            {{name}}
+        {{else}}
+            {{service.name}}
+        {{/if}}
+        </b>
+    </div>
+    <div class="source-id">{{id}}</div>
 </td>
-<td>
+<td colspan="3">
     {{#if available}}
         <span class='label label-success'>Available</span>
     {{else}}
         <span class='label label-danger'>Not Available</span>
     {{/if}}
 
-</td>
-<td>
-    {{#if configuration}}
-        <a href='#' class='removeLink icon-remove'></a>
-    {{/if}}
 </td>

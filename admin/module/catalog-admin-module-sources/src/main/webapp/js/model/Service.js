@@ -16,7 +16,8 @@
 define(function (require) {
 
     var Backbone = require('backbone'),
-        $ = require('jquery');
+        $ = require('jquery'),
+        _ = require('underscore');
 
     require('backbonerelational');
 
@@ -33,6 +34,11 @@ define(function (require) {
     Service.Configuration = Backbone.RelationalModel.extend({
         configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
 
+        
+        defaults: {
+            properties: new Service.Properties()
+        },
+        
         relations: [
             {
                 type: Backbone.HasOne,
@@ -78,6 +84,64 @@ define(function (require) {
             });
         },
 
+        makeEnableCall: function(){
+            var model = this;
+            var deferred = $.Deferred();
+            var pid = model.getServicePid();
+            var url = [model.configUrl, "enableConfiguration", pid].join("/");
+            if(pid){
+                $.ajax({
+                    url: url,
+                    dataType: 'json'
+                }).then(function(){
+                        // massage some data to match the new backend pid.
+                        model.trigger('enabled');
+                        deferred.resolve();
+                    }).fail(function(){
+                        deferred.reject(new Error('Could not enable configuratoin ' + pid));
+                    });
+            } else {
+                deferred.fail(new Error("Cannot enable since this model has no pid."));
+            }
+
+            return deferred;
+
+        },
+
+        makeDisableCall: function(){
+            var model = this;
+            var deferred = $.Deferred();
+            var pid = model.getServicePid();
+            var url = [model.configUrl, "disableConfiguration", pid].join("/");
+            if(pid){
+                $.ajax({
+                    url: url,
+                    dataType: 'json'
+                }).then(function(){
+                        model.trigger('disabled');
+                        deferred.resolve();
+                    }).fail(function(){
+                        deferred.reject(new Error('Could not disable configuratoin ' + pid));
+                    });
+            } else {
+                deferred.reject(new Error("Cannot enable since this model has no pid."));
+            }
+
+            return deferred;
+        },
+
+        getServicePid: function(){
+            var model = this;
+            if(model.get('properties') && model.get('properties').get("service.pid")){
+                var pid = model.get('properties').get("service.pid");
+                if(pid){
+                    return pid;
+                }
+            }
+            return null;
+        },
+
+
         /**
          * When a model calls save the sync is called in Backbone.  I override it because this isn't a typical backbone
          * object
@@ -116,15 +180,37 @@ define(function (require) {
                         data: jData,
                         url: addUrl
                     }).done(function (result) {
-                            deferred.resolve(result);
-                        }).fail(function (error) {
-                            deferred.fail(error);
-                        });
-                }).fail(function (error) {
+                        deferred.resolve(result);
+                    }).fail(function (error) {
                         deferred.fail(error);
                     });
+                }).fail(function (error) {
+                    deferred.fail(error);
+                });
             }
             return deferred;
+        },
+        createNewFromServer: function(deferred) {
+            var model = this,
+                addUrl = [model.configUrl, "add"].join("/");
+
+            model.makeConfigCall(model).done(function (data) {
+                var collect = model.collectedData(JSON.parse(data).value);
+                var jData = JSON.stringify(collect);
+
+                return $.ajax({
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: jData,
+                    url: addUrl
+                }).done(function (result) {
+                    deferred.resolve(result);
+                }).fail(function (error) {
+                    deferred.fail(error);
+                });
+            }).fail(function (error) {
+                deferred.fail(error);
+            });
         },
         destroy: function() {
             var deferred = $.Deferred(),
@@ -139,6 +225,39 @@ define(function (require) {
                 }).fail(function (error) {
                     deferred.fail(error);
                 });
+        },
+        initializeFromMSF: function(msf) {
+            this.set({"fpid":msf.get("id")});
+            this.set({"name":msf.get("name")});
+            this.get('properties').set({"service.factoryPid": msf.get("id")});
+            this.initializeFromService(msf);
+        },
+        initializeFromService: function(service) {
+            var fpid = service.get('id');
+            var name = service.get('name');
+            this.initializeFromMetatype(service.get("metatype"));
+            this.set('service', service);
+            this.set('fpid', fpid);
+            this.set('name', name);
+            this.get('properties').set('service.factoryPid', fpid);
+        },
+        initializeFromMetatype: function(metatype) {
+            var model = this;
+
+            var idModel = _.find(metatype.models, function(item) {
+                return item.get('id') === 'id';
+            });
+            if (!_.isUndefined(idModel)) {
+                model.set('properties', 
+                        Service.Properties.findOrCreate(idModel.get('defaultValue')));
+            }
+            metatype.forEach(function(obj){
+                var id = obj.get('id');
+                var val = obj.get('defaultValue');
+                if (id !== 'id') {
+                    model.get('properties').set(id, (val) ? val.toString() : null);
+                }
+            });
         }
     });
 
@@ -147,7 +266,10 @@ define(function (require) {
     });
 
     Service.ConfigurationList = Backbone.Collection.extend({
-        model: Service.Configuration
+        model: Service.Configuration,
+        comparator: function(model){
+            return model.get('id');
+        }
     });
 
     Service.Model = Backbone.RelationalModel.extend({
@@ -169,10 +291,7 @@ define(function (require) {
                 key: 'metatype',
                 relatedModel: Service.Metatype,
                 collectionType: Service.MetatypeList,
-                includeInJSON: false,
-                reverseRelation: {
-                    key: 'service'
-                }
+                includeInJSON: false
             }
         ],
 

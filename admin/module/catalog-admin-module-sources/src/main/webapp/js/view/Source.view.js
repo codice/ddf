@@ -13,67 +13,111 @@
  *
  **/
 /*global define*/
-define(function (require) {
-
-    var ich = require('icanhaz'),
-        Marionette = require('marionette'),
-        SourceEdit = require('/sources/js/view/SourceEdit.view.js');
+define([
+    'icanhaz',
+    'marionette',
+    'underscore',
+    'jquery',
+    'js/view/ModalSource.view.js',
+    'js/model/Service.js',
+    'wreqr',
+    'text!templates/sourcePage.handlebars',
+    'text!templates/sourceList.handlebars',
+    'text!templates/sourceRow.handlebars'
+],
+function (ich,Marionette,_,$,ModalSource,Service,wreqr,sourcePage,sourceList,sourceRow) {
 
     var SourceView = {};
 
-    ich.addTemplate('sourcePage', require('text!/sources/templates/sourcePage.handlebars'));
-    ich.addTemplate('sourceList', require('text!/sources/templates/listSource.handlebars'));
-    ich.addTemplate('sourceRow', require('text!/sources/templates/sourceRow.handlebars'));
+	ich.addTemplate('sourcePage', sourcePage);
+	ich.addTemplate('sourceList', sourceList);
+	ich.addTemplate('sourceRow', sourceRow);
 
-    SourceView.SourceRow = Marionette.Layout.extend({
+	SourceView.SourceRow = Marionette.Layout.extend({
         template: "sourceRow",
         tagName: "tr",
-        events: {
-            'click .editLink': 'editSource'
-        },
+        className: "highlight-on-hover",
         regions: {
             editModal: '.modal-container'
+        },
+        initialize: function(){
+            _.bindAll(this);
+            this.listenTo(this.model, 'change', this.render);
+            this.$el.on('click', this.editSource);
         },
         serializeData: function(){
             var data = {};
 
-            if (this.model) {
+            if (this.model && this.model.has('currentConfiguration')) {
               data = this.model.get('currentConfiguration').toJSON();
             }
 
             return data;
         },
-        onRender: function() {
-            this.editModal.show(new SourceEdit.View({model: this.model, id: this.model.get('currentConfiguration').get('id')}));
+        onBeforeClose: function() {
+            this.$el.off('click');
         },
-        editSource: function() {
-            this.editModal.currentView.$el.modal();
+        editSource: function(evt) {
+            evt.stopPropagation();
+            var model = this.model;
+            wreqr.vent.trigger('editSource', model);
         }
     });
 
     SourceView.SourceTable = Marionette.CompositeView.extend({
         template: 'sourceList',
         itemView: SourceView.SourceRow,
-        itemViewContainer: 'tbody'
+        itemViewContainer: 'tbody',
     });
 
     SourceView.SourcePage = Marionette.Layout.extend({
         template: 'sourcePage',
         events: {
             'click .refreshButton' : 'refreshSources',
-            'click .addSourceLink' : 'addSource'
+            'click .addSourceLink' : 'addSource',
+            'click .editLink': 'editSource'
+        },
+        initialize: function(){
+            var view = this;
+            view.listenTo(wreqr.vent, 'editSource', view.editSource);
+            view.listenTo(wreqr.vent, 'refreshSources', view.refreshSources);
         },
         regions: {
-            collectionRegion: '#sourcesRegion'
+            collectionRegion: '#sourcesRegion',
+            sourcesModal: '#sources-modal'
         },
         onRender: function() {
-            this.collectionRegion.show(new SourceView.SourceTable({ collection: this.model.get("collection") }));
+            this.collectionRegion.show(new SourceView.SourceTable({ model: this.model, collection: this.model.get("collection") }));
         },
         refreshSources: function() {
-            this.model.fetch();
+            var view = this;
+            view.model.get('model').fetch({
+                success: function(){
+                    view.model.get('collection').sort();
+                    view.model.get('collection').trigger('reset');
+                    view.onRender();
+                }
+            });
+        }, 
+        editSource: function(model) {
+            var view = this;
+            this.sourcesModal.show(new ModalSource.View(
+                {
+                    model: model,
+                    parentModel: view.model
+                })
+            );
+            this.sourcesModal.currentView.$el.modal();
         },
         addSource: function() {
-
+            var view = this;
+            if(view.model) {
+                this.sourcesModal.show(new ModalSource.View({
+                    model: view.model.getSourceModelWithServices(),
+                    parentModel: view.model
+                }));
+                this.sourcesModal.currentView.$el.modal();
+            }
         }
     });
 

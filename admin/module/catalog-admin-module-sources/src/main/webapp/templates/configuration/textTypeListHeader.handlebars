@@ -1,4 +1,4 @@
-<!--
+{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,14 +10,20 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
--->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="
-  http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
-
-
-    <bean id="catalogPlugin" class="org.codice.ddf.catalog.admin.plugin.SourcesPlugin"></bean>
-
-    <service interface="org.codice.ddf.admin.application.plugin.ApplicationConfigurationPlugin" ref="catalogPlugin" />
-</blueprint>
+ --}}
+ <div class='{{id}} metatype control-group'>
+    <label class='control-label' for='{{id}}'>{{name}}</label>
+            <div class="btn-group">
+                <a href="#" class="fa fa-plus-square fa-lg plus-button"></a>
+        </div>
+        {{#if description}}
+            <a href='#' class='description' data-title='{{id}}'>
+                <i class='fa fa-question-circle fa-lg'></i>
+            </a>
+        {{/if}}
+        
+        <div id='listItems'>
+        
+        </div>
+        
+</div>

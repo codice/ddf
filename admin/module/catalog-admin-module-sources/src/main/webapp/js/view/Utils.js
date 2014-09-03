@@ -12,37 +12,24 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/*global define*/
+define(
+function () {
 
-.sourcesTable {
-    display: table;
-}
+    var Utils = {
+            /**
+             * Set up the popovers based on if the selector has a description.
+             */
+            setupPopOvers: function($popoverAnchor, id, title, description) {
+                var selector = ".description[data-title='" + id + "']",
+                    options = {
+                        title: title,
+                        content: description,
+                        trigger: 'hover'
+                    };
+                $popoverAnchor.find(selector).popover(options);
+            }
+    };
 
-.sourcesTable th {
-}
-
-.sourcesTable td {
-}
-
-.editLink {
-    text-decoration : none !important;
-}
-
-.addSourceLink {
-
-}
-
-.sourcesRow {
-    display: table-row;
-}
-
-.sourcesCell {
-    display: table-cell;
-}
-
-.sources {
-
-}
-
-.source-row-table {
-    margin: 0;
-}
+    return Utils;
+});
