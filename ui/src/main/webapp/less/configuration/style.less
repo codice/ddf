@@ -12,21 +12,56 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.ddf.admin.application.plugin;
+.endpointUrl {
+    width: 500px;
+}
 
-/**
- * Defines a plugin for details.
- *
- */
-public class DetailsPlugin extends AbstractApplicationConfigurationPlugin {
-	
-	/**
-	 * Constructor.
-	 */
-	public DetailsPlugin() {
-		this.displayName = "Details";
-        this.javascriptLocation = "js/views/application/plugins/details/Plugin.view.js";
-		this.order = 0;
-	}
+.controls {
+    white-space: nowrap;
+}
 
+.servicesTable {
+    display: table;
+
+}
+
+.editLink {
+    text-decoration : none !important;
+}
+
+.newLink {
+    text-decoration : none !important;
+    width: 100%;
+    font-weight: bold;
+}
+
+.service-divider {
+    border-bottom: solid 3px #eee;
+    margin: 0;
+}
+
+.removeLink {
+    text-decoration : none !important;
+}
+
+.servicesRow {
+    display: table-row;
+}
+
+.servicesCell {
+    display: table-cell;
+}
+
+.service-row-table {
+    margin: 0;
+    padding: 4px;
+}
+
+.service-row-table > tbody > tr > td {
+    padding: 4px 0px 4px 30px;
+}
+
+.minus-button, .plus-button {
+    padding: 5px;
+    text-decoration: none;
 }

@@ -118,6 +118,16 @@ module.exports = function (grunt) {
                 replacement: '@import url("../../lato/css/lato.min.css");',
                 recursive: true
             }
+        },
+        less: {
+            css: {
+                options: {
+                    cleancss: true
+                },
+                files: {
+                    "src/main/webapp/css/styles.css":"src/main/webapp/less/styles.less"
+                }
+            }
         }
     });
 
@@ -126,6 +136,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-express');
     grunt.loadNpmTasks('grunt-casperjs');
     grunt.loadNpmTasks('grunt-sed');
@@ -167,13 +178,13 @@ module.exports = function (grunt) {
             });
     });
 
-    var buildTasks = ['clean', 'bower-offline-install', 'sed:imports', 'cssmin', 'jshint'];
+    var buildTasks = ['clean', 'bower-offline-install', 'sed:imports', 'less','cssmin', 'jshint'];
     try {
         grunt.log.writeln('Checking for python');
         var pythonPath = which.sync('python');
         if(pythonPath) {
             grunt.log.writeln('Found python');
-            buildTasks = ['clean', 'bower-offline-install','sed:imports', 'cssmin', 'jshint', 'test'];
+            buildTasks = ['clean', 'bower-offline-install','sed:imports', 'less', 'cssmin', 'jshint', 'test'];
         }
     } catch (e) {
         grunt.log.writeln('Python is not installed. Please install Python and ensure that it is in your path to run tests.');

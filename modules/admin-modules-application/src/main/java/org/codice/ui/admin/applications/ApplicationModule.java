@@ -14,12 +14,12 @@
  **/
 package org.codice.ui.admin.applications;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.codice.ddf.ui.admin.api.module.AdminModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * Application module class
@@ -40,7 +40,7 @@ public class ApplicationModule implements AdminModule {
     @Override
     public URI getJSLocation() {
         try {
-            return new URI("/applications/js/module.js");
+            return new URI("js/modules/Application.module.js");
         } catch (URISyntaxException e) {
             logger.warn("Must set the JS location to a valid URI.", e);
         }
@@ -49,11 +49,6 @@ public class ApplicationModule implements AdminModule {
 
     @Override
     public URI getCSSLocation() {
-        try {
-            return new URI("/applications/css/style.css");
-        } catch (URISyntaxException e) {
-            logger.warn("Must set the JS location to a valid URI.", e);
-        }
         return null;
     }
 

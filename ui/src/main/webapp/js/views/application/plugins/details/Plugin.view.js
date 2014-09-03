@@ -12,21 +12,18 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.ddf.admin.application.plugin;
+/* global define */
+define([
+    'marionette',
+    'icanhaz',
+    'text!templates/application/plugins/details/pluginView.handlebars'
+], function (Marionette, ich, detailsPluginView) {
 
-/**
- * Defines a plugin for details.
- *
- */
-public class DetailsPlugin extends AbstractApplicationConfigurationPlugin {
-	
-	/**
-	 * Constructor.
-	 */
-	public DetailsPlugin() {
-		this.displayName = "Details";
-        this.javascriptLocation = "js/views/application/plugins/details/Plugin.view.js";
-		this.order = 0;
-	}
+    ich.addTemplate('detailsPluginView',detailsPluginView);
+    var PluginView = Marionette.ItemView.extend({
+        template: 'detailsPluginView'
+    });
 
-}
+    return PluginView;
+
+});

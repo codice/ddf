@@ -25,7 +25,8 @@
             'js/views/Module.view',
             'js/HandlebarsHelpers',
             'modelbinder',
-            'bootstrap'
+            'bootstrap',
+            'templateConfig'
 
         ], function ($, Backbone, Marionette, ich, Application, ModuleView) {
 

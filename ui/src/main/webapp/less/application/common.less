@@ -12,21 +12,27 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.ddf.admin.application.plugin;
+#applications {
+  .page-layout {
+    .header {
+      padding: 0px 10px 10px 10px;
+    }
+  }
+}
+.start-button {
+  font-size: 0.8em;
+}
+.stop-button {
+  font-size: 0.65em;
+}
 
-/**
- * Defines a plugin for details.
- *
- */
-public class DetailsPlugin extends AbstractApplicationConfigurationPlugin {
-	
-	/**
-	 * Constructor.
-	 */
-	public DetailsPlugin() {
-		this.displayName = "Details";
-        this.javascriptLocation = "js/views/application/plugins/details/Plugin.view.js";
-		this.order = 0;
-	}
 
+.application-status {
+  padding-top: 20px;
+}
+
+#features-table {
+  .fa-stack{
+    .fa-stack(@gray, #FFFFFF, @gray, @overlay-icon-color-hover);
+  }
 }

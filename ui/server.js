@@ -20,9 +20,6 @@ var app = express();
 app.use(require('connect-livereload')());
 
 // our compiled css gets moved to /target/webapp/css so use it there
-app.use('/installer',express.static(__dirname + '/../modules/admin-modules-installer/src/main/webapp'));
-app.use('/configuration',express.static(__dirname + '/../modules/admin-modules-configuration/src/main/webapp'));
-app.use('/applcations',express.static(__dirname + '/../modules/admin-modules-applications/src/main/webapp'));
 app.use('/css',express.static(__dirname + '/target/webapp/css'));
 app.use('/lib',express.static(__dirname + '/target/webapp/lib'));
 app.use(express.static(__dirname + '/src/main/webapp'));

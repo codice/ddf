@@ -1,0 +1,75 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+.border-radius(@radius) {
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  -ms-border-radius: @radius;
+  border-radius: @radius;
+}
+
+.btn-success() {
+  color: #ffffff;
+  background-color: #18bc9c;
+  border-color: #18bc9c;
+}
+
+.btn-danger() {
+  color: #ffffff;
+  background-color: #e74c3c;
+  border-color: #e74c3c;
+}
+
+.btn-info() {
+  color: #ffffff;
+  background-color: #3498db;
+  border-color: #3498db;
+}
+
+.fa-stack-inverse(@mainColor, @altColor) {
+  .fa-stack(@mainColor, @altColor, @altColor, @mainColor);
+}
+
+.fa-stack(@mainColor, @altColor, @hoverMainColor, @hoverAltColor) {
+
+  i {
+    transition: color 400ms ease;
+  }
+
+  i.fa-stack-2x {
+    color: @mainColor; // bottom
+  }
+  i.fa-stack-1x {
+    color: @altColor; // top
+  }
+
+  &:hover {
+    i.fa-stack-2x {
+      color: @hoverMainColor;
+    }
+    i.fa-stack-1x {
+      color: @hoverAltColor;
+    }
+  }
+
+  i.fa-play {
+    margin-left: .1em;
+  }
+
+  i.fa-upload {
+    margin-left: .03em;
+    margin-top: -.1em;
+  }
+
+}
