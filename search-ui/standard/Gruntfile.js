@@ -153,7 +153,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-sed');
     grunt.loadNpmTasks('grunt-express');
     grunt.loadNpmTasks('grunt-casperjs');
-    grunt.registerTask('test', ['express:test','casperjs']);
+    grunt.registerTask('test', ['express:test','casperjs','express-keepalive']);
 
     grunt.registerTask('bower-offline-install', 'Bower offline install work-around', function() {
         var bower = require('bower');

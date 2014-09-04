@@ -6,7 +6,7 @@ casper.options.logLevel = 'debug';
 casper.test.begin('simple contextual query', 1, function(test) {
     casper.start('http://localhost:8383/');
 
-    casper.options.waitTimeout = 1000000;
+//    casper.options.waitTimeout = 1000000;
     casper.waitFor(function() {
         return this.evaluate(function() {
             return document.querySelectorAll('form').length === 1;
