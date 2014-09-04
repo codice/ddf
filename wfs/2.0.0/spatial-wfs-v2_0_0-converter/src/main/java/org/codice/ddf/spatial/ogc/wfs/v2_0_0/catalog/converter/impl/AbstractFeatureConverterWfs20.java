@@ -68,11 +68,6 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
     private static final String XML_PARSE_FAILURE = "Failed to parse GML based XML into a Document.";
     private static final String CREATE_TRANSFORMER_FAILURE = "Failed to create Transformer.";
     private static final String GML_FAILURE = "Failed to transform GML.\n";
-    private static final String GML_POSLIST_XPATH = "//posList/text()";
-    
-    private static XPathExpression posListXpathExpr;
-    
-    private String geometryXml = "";
 
     protected Serializable writeFeaturePropertyToMetacardAttribute(AttributeFormat attributeFormat,
             HierarchicalStreamReader reader) {
@@ -103,7 +98,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             break;
         case GEOMETRY:
             XmlNode node = new XmlNode(reader);
-            geometryXml = node.toString();
+            String geometryXml = node.toString();
             Geometry geo = null;
             geo = (Geometry) readGml(geometryXml);
             
