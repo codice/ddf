@@ -19,6 +19,8 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.BinaryContentImpl;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
+import org.apache.commons.collections.Factory;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.webconsole.BrandingPlugin;
 import org.codice.proxy.http.HttpProxyService;
@@ -35,7 +37,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.ByteArrayInputStream;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Stores external configuration properties.
@@ -44,6 +51,7 @@ import java.util.Map;
  */
 @Path("/")
 public class ConfigurationStore {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationStore.class);
 
     public static final String SERVLET_PATH = "/proxy";
@@ -90,6 +98,14 @@ public class ConfigurationStore {
     
     private String bundleName = null;
 
+    private Map<String, Set<String>> typeNameMapping = new HashMap<String, Set<String>>();
+
+    public static final Factory NEW_SET_FACTORY = new Factory() {
+        public Object create() {
+            return new TreeSet();
+        }
+    };
+
     static {
         MimeType mime = null;
         try {
@@ -130,6 +146,7 @@ public class ConfigurationStore {
         configObj.put("timeout", timeout);
         configObj.put("targetUrl", targetUrl);
         configObj.put("resultCount", resultCount);
+        configObj.put("typeNameMapping", typeNameMapping);
 
         String configString = JSONValue.toJSONString(configObj);
         BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configString.getBytes()),
@@ -263,6 +280,7 @@ public class ConfigurationStore {
     		setResultCount((Integer) properties.get("resultCount"));
     		setSignIn((Boolean) properties.get("signIn"));
             setTask((Boolean) properties.get("task"));
+            setTypeNameMapping((String[]) properties.get("typeNameMapping"));
     		
     		//Fetch the DDF HTTP Proxy
             if(StringUtils.isNotBlank(wmsServer)) {
@@ -364,4 +382,31 @@ public class ConfigurationStore {
     public void setTask(Boolean isTask) {
         this.isTask = isTask;
     }
+
+    public void setTypeNameMapping(String[] mappings) {
+        if (mappings != null) {
+            typeNameMapping = MapUtils.lazyMap(new TreeMap(), NEW_SET_FACTORY);
+
+            for (String mappingValue : mappings) {
+                // workaround for KARAF-1701
+                for (String mapping : StringUtils.split(mappingValue, ",")) {
+                    String[] nameAndType = StringUtils.split(mapping, "=");
+                    if (nameAndType.length == 2) {
+                        String displayName = StringUtils.strip(nameAndType[0]);
+                        String type = StringUtils.strip(nameAndType[1]);
+                        if (StringUtils.isNotBlank(displayName) && StringUtils.isNotBlank(type)) {
+                            typeNameMapping.get(displayName).add(type);
+                        }
+                    } else {
+                        LOGGER.info("Invalid type display name mapping format {}", mapping);
+                    }
+                }
+            }
+        }
+    }
+
+    public Map<String, Set<String>> getTypeNameMapping() {
+        return typeNameMapping;
+    }
+
 }

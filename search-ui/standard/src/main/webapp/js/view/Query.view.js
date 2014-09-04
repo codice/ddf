@@ -81,9 +81,10 @@ define([
                 };
 
                 var typesBindings = {
-                    name: [ { selector: '',
-                        elAttribute: 'value'},
-                        { selector: ''} ]
+                    value: [ { selector: '',
+                        elAttribute: 'value'
+                        } ],
+                    name: [ { selector: ''} ]
                 };
 
                 this.sourcesCollectionBinder = new Backbone.CollectionBinder(

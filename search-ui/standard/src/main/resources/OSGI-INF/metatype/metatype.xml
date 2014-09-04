@@ -84,6 +84,11 @@
 
         <AD description="Show task menu area for long running actions." name="Show Tasks" id="task"
             required="false" type="Boolean" default="false" />
+
+        <AD name="Type Name Mapping" id="typeNameMapping"
+            required="false" type="String" cardinality="10000"
+            description="Mapping of display names to content types in the form name=type."
+        />
 	    </OCD>
 
 	<Designate 	pid="org.codice.ddf.ui.search.standard.properties">

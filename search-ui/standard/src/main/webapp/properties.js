@@ -45,6 +45,7 @@ define(function (require) {
                     props.format = data.format;
                     props.targetUrl = data.targetUrl;
                     props.resultCount = data.resultCount;
+                    props.typeNameMapping = data.typeNameMapping;
 
                     return props;
                 }).fail(function(jqXHR, status, errorThrown) {

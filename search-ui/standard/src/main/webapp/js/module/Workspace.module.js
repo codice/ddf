@@ -19,6 +19,7 @@ define(['application',
         'poller',
         'js/model/source',
         'underscore',
+        'properties',
         // Load non attached libs and plugins
         'datepicker',
         'datepickerOverride',
@@ -26,24 +27,41 @@ define(['application',
         'multiselect',
         'multiselectfilter'
     ],
-    function(Application, Cometd, Marionette, WorkspaceView, Workspace, wreqr, poller, Source, _) {
+    function(Application, Cometd, Marionette, WorkspaceView, Workspace, wreqr, poller, Source, _, properties) {
 
         Application.App.module('WorkspaceModule', function(WorkspaceModule) {
 
             var setTypes = function () {
-                var allTypes = _.chain(WorkspaceModule.sources.map(function (source) {
-                    return source.get('contentTypes');
-                })).flatten().value();
-                allTypes.sort(function compare(a, b) {
-                    if (a.name.toUpperCase() < b.name.toUpperCase())
-                        return -1;
-                    if (a.name.toUpperCase() > b.name.toUpperCase())
-                        return 1;
-                    return 0;
-                });
-                allTypes = _.uniq(allTypes, false, function (type) {
-                    return type.name + ':' + type.version;
-                });
+                var allTypes = [];
+                if (_.size(properties.typeNameMapping) > 0) {
+                    _.each(properties.typeNameMapping, function(value, key) {
+                        if (_.isArray(value)) {
+                            allTypes.push({
+                                name: key,
+                                value: value.join(',')
+                            });
+                        }
+                    });
+                } else {
+                    allTypes = _.chain(WorkspaceModule.sources.map(function (source) {
+                        return source.get('contentTypes');
+                    }))
+                    .flatten()
+                    .filter(function (element) {
+                        return element.name !== '';
+                    })
+                    .sortBy(function (element) {
+                        return element.name.toUpperCase();
+                    })
+                    .uniq(false, function (type) {
+                        return type.name;
+                    })
+                    .map(function (element) {
+                        element.value = element.name;
+                        return element;
+                    })
+                    .value();
+                }
                 WorkspaceModule.types.set(allTypes);
             };
 
