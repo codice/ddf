@@ -150,20 +150,6 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                 try {
                     sourceResponse = query.getTimeoutMillis() < 1 ? entry.getValue().get() : entry
                             .getValue().get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
-
-                    resultList.addAll(sourceResponse.getResults());
-                    totalHits += sourceResponse.getHits();
-
-                    // TODO: for now add all properties into outgoing response's
-                    // properties.
-                    // this is not the best idea because we could get properties
-                    // from records that
-                    // get eliminated by the max results enforcement done below.
-                    // See DDF-1183 for
-                    // a possible solution.
-                    Map<String, Serializable> properties = sourceResponse.getProperties();
-                    returnProperties.putAll(properties);
-
                 } catch (InterruptedException e) {
                     logger.warn(
                             "Couldn't get results from completed federated query on site with ShortName "
@@ -179,6 +165,20 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                 } catch (TimeoutException e) {
                     logger.warn("search timed out: " + new Date() + " on site " + site.getId());
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
+                }
+                if (sourceResponse != null) {
+                    resultList.addAll(sourceResponse.getResults());
+                    totalHits += sourceResponse.getHits();
+
+                    // TODO: for now add all properties into outgoing response's
+                    // properties.
+                    // this is not the best idea because we could get properties
+                    // from records that
+                    // get eliminated by the max results enforcement done below.
+                    // See DDF-1183 for
+                    // a possible solution.
+                    Map<String, Serializable> properties = sourceResponse.getProperties();
+                    returnProperties.putAll(properties);
                 }
             }
             logger.debug("all sites finished returning results: " + resultList.size());
