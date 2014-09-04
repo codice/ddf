@@ -822,7 +822,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         String mappedPropertyName = null;
 
         if (metacardToFeaturePropertyMapper != null) {
-            if (StringUtils.equals(Result.TEMPORAL, incomingPropertyName)) {
+            if (StringUtils.equals(Result.TEMPORAL, incomingPropertyName) ||
+                StringUtils.equals(Metacard.EFFECTIVE, incomingPropertyName)) {
                 mappedPropertyName = StringUtils.isNotBlank(metacardToFeaturePropertyMapper
                         .getSortByTemporalFeatureProperty()) ? metacardToFeaturePropertyMapper
                         .getSortByTemporalFeatureProperty() : null;
