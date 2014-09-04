@@ -26,6 +26,8 @@ public interface MetacardMapper {
      */
     String getFeatureProperty(String metacardAttribute);
     
+    String getMetacardProperty(String featureAttribute);
+    
     String getFeatureType();
     
     String getSortByTemporalFeatureProperty();

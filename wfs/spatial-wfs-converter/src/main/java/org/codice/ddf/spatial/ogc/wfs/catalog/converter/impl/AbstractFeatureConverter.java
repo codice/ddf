@@ -32,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -58,6 +59,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     private HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
 
     private NoNameCoder noNameCoder = new NoNameCoder();
+    
+    private MetacardMapper metacardMapper = null;
 
     protected String sourceId;
 
@@ -78,6 +81,14 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     protected static final String ERROR_PARSING_MESSAGE = "Error parsing Geometry from feature xml.";
 
     protected static final String UTF8_ENCODING = "UTF-8";
+    
+    public AbstractFeatureConverter(){
+    	
+    }
+    
+    public AbstractFeatureConverter(MetacardMapper metacardMapper){
+    	this.metacardMapper= metacardMapper;
+    }
 
     @Override
     public boolean canConvert(Class clazz) {
@@ -126,7 +137,15 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
             String name = propertyPrefix + reader.getNodeName();
             AttributeDescriptor attributeDescriptor = metacardType.getAttributeDescriptor(name);                      
             Serializable value = null;
-
+            
+            //Check MetacardMapper for mappings of incoming values
+            if (metacardMapper != null) {    
+	            String newName = metacardMapper.getMetacardProperty(name);
+	            if (newName != null){
+	            	name = newName;
+	            }
+            }
+            
             if (attributeDescriptor != null
                     && (StringUtils.isNotBlank(reader.getValue()) || BasicTypes.GEO_TYPE
                             .getAttributeFormat().equals(attributeDescriptor.getType()
@@ -136,7 +155,6 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
                 value = writeFeaturePropertyToMetacardAttribute(attributeDescriptor.getType()
                         .getAttributeFormat(), reader);
             }
-
             if (null != value) {
                 mc.setAttribute(name, value);
                 if (BasicTypes.GEO_TYPE.getAttributeFormat().equals(

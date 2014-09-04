@@ -529,7 +529,11 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
                 LOGGER.warn(
                         "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
                         getId(), ftSimpleName);
-                featureConverter = new GenericFeatureConverterWfs20();
+                
+                MetacardMapper metacardAttributeToFeaturePropertyMapper = 
+                        lookupMetacardAttributeToFeaturePropertyMapper(ftMetacard.getFeatureType());
+                
+                featureConverter = new GenericFeatureConverterWfs20(metacardAttributeToFeaturePropertyMapper);
             }
         } else {
             LOGGER.warn(

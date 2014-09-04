@@ -47,7 +47,11 @@ public class TestMetacardMapperImpl {
     
     private static final String[] exampleMetacardAttrToFeaturePropMapping = new String[]{"metacardattr1=feature.prop1", "metacardattr2=feature.prop2", "metacardattr3=feature.prop3", "metacardattr4=feature.prop4"};
     
+    private static final String[] exampleFeaturePropToMetacardAttrMapping = new String[]{"feature.prop1=metacardattr1", "feature.prop2=metacardattr2", "feature.prop3=metacardattr3", "feature.prop4=metacardattr4"};
+
     private static final String[] invalidExampleMetacardAttrToFeaturePropMapping = new String[]{"metacardattr1=feature.prop1", "metacardattr2->feature.prop2", "metacardattr3=feature.prop3", "metacardattr4=feature.prop4"};
+    
+    private static final String[] invalidExampleFeaturePropToMetacardAttrMapping = new String[]{"feature.prop1=metacardattr1", "feature.prop2->metacardattr2", "feature.prop3=metacardattr3", "feature.prop4=metacardattr4"};
     
     private static final String METACARD_ATTR_TO_FEATURE_PROP_MAPPING_REGEX = "([^=,]+)=([^=,]+)";
     
@@ -64,6 +68,8 @@ public class TestMetacardMapperImpl {
      * elements.
      */
     private static final String[] exampleMetacardAttrToFeaturePropMappingWithAdminConsoleBug = new String[]{"metacardattr1=feature.prop1,metacardattr2=feature.prop2,metacardattr3=feature.prop3", "metacardattr4=feature.prop4"};
+    
+    private static final String[] exampleFeaturePropToMetacardAttrMappingWithAdminConsoleBug = new String[]{"feature.prop1=metacardattr1,feature.prop2=metacardattr2,feature.prop3=metacardattr3", "feature.prop4=metacardattr4"};
     
     @Test
     public void testGetFeaturePropertyForMetacardAttribute_MappingExists() {
@@ -201,6 +207,135 @@ public class TestMetacardMapperImpl {
         
         // Verify
         verify(mockConfigurations[0], times(1)).delete();
+    }
+    
+    @Test
+    public void testGetMetacardAttributeForFeatureProperty_MappingExists() {
+        // setup
+        MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
+        metacardMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setFeaturePropToMetacardAttrMap(exampleFeaturePropToMetacardAttrMapping);
+        
+        // Test
+        String featureProperty = "feature.prop3";
+        String metacardAttrib = metacardMapper.getMetacardProperty(featureProperty);
+        
+        // Verify
+        String expectedMetacardAttrib = "metacardattr3";
+        assertThat(metacardAttrib, is(expectedMetacardAttrib));
+    }
+    
+    @Test
+    public void testGetMetacardAttributeForFeatureProperty_MappingDoesNotExist() {
+        // setup
+        MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
+        metacardMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setFeaturePropToMetacardAttrMap(exampleFeaturePropToMetacardAttrMapping);
+        
+        // Test
+        String featureProperty = "feature.prop200";
+        String metacardAttrib = metacardMapper.getMetacardProperty(featureProperty);
+        
+        // Verify
+        assertThat(metacardAttrib, is(nullValue()));
+    }
+    
+    /**
+     * There is a bug in the felix admin console that prevents metatypes with lists (cardinality) from displaying and working correctly.
+     * See https://issues.apache.org/jira/browse/KARAF-1701 for additional information.  This test verifies that metacard attribute to
+     * feature type mappings are mapped correctly even with the bug.
+     */
+    @Test
+    public void testGetMetacardAttributeForFeatureProperty_AdminConsoleBug_MappingExists() {
+        // setup
+        MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
+        metacardMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setFeaturePropToMetacardAttrMap(exampleFeaturePropToMetacardAttrMappingWithAdminConsoleBug);
+        
+        // Test
+        String featureProperty = "feature.prop3";
+        String metacardAttrib = metacardMapper.getMetacardProperty(featureProperty);
+        
+        // Verify
+        String expectedMetacardAttrib = "metacardattr3";
+        assertThat(metacardAttrib, is(expectedMetacardAttrib));
+    }
+    
+    @Test
+    public void testSetFeaturePropToMetacardAttrMap_InvalidMetacardAttributeToFeatureTypeMapping() {
+        // setup
+        MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
+        metacardMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setFeaturePropToMetacardAttrMap(invalidExampleFeaturePropToMetacardAttrMapping);
+        
+        // Test
+        metacardMapper.setFeatureType(exampleFeatureType);
+        // 4 mappings, but one is invalid
+        metacardMapper.setFeaturePropToMetacardAttrMap(invalidExampleFeaturePropToMetacardAttrMapping);
+        metacardMapper.init();
+        
+        // Verify
+        // Should only contain 3 mappings since one was invalid
+        assertThat(metacardMapper.getFeaturePropertyToMetacardAttributeMap().size(), is(3));
+        
+        Map<String, String> validMappings = removeInvalidMappings(invalidExampleFeaturePropToMetacardAttrMapping);
+        
+        for(String key : metacardMapper.getFeaturePropertyToMetacardAttributeMap().keySet()) {
+            assertThat(metacardMapper.getFeaturePropertyToMetacardAttributeMap().get(key), is(validMappings.get(key)));
+        }
+    }
+    
+    /**
+     * Verify that if invalid syntax is used for feature type when configuring a MetacardMapper, the configuration is deleted.
+     * 
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Test
+    public void testSetFeatureType_InvalidFeatureTypeAndInvalidFeatureTypeToMetacardAttributeMapping() throws Exception {
+        // setup
+        MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
+        BundleContext mockBundleContext = mock(BundleContext.class);
+        ServiceReference mockConfigurationAdminReference = mock(ServiceReference.class);
+        when(mockBundleContext.getServiceReference(ConfigurationAdmin.class.getName())).thenReturn(mockConfigurationAdminReference);
+        ConfigurationAdmin mockConfigurationAdmin = mock(ConfigurationAdmin.class);
+        when(mockBundleContext.getService(mockConfigurationAdminReference)).thenReturn(mockConfigurationAdmin);
+        Configuration[] mockConfigurations = new Configuration[1];
+        mockConfigurations[0] = mock(Configuration.class);
+        Dictionary<String, Object> mockDictionary = (Dictionary<String, Object>) mock(Dictionary.class);
+        when(mockDictionary.get("featureType")).thenReturn(invalidExampleFeatureType);
+        when(mockConfigurations[0].getProperties()).thenReturn(mockDictionary);
+        when(mockConfigurationAdmin.listConfigurations(CONFIG_FILTER)).thenReturn(mockConfigurations);
+        metacardMapper.setContext(mockBundleContext);
+        
+        // Test
+        metacardMapper.setFeatureType(invalidExampleFeatureType);
+        metacardMapper.setFeaturePropToMetacardAttrMap(invalidExampleFeaturePropToMetacardAttrMapping);
+        metacardMapper.init();
+        
+        // Verify
+        verify(mockConfigurations[0], times(1)).delete();
+    }
+    
+    @Test
+    public void testGetFeaturePropertyForMetacardAttributeAndGetMetacardAttributeForFeatureProperty_MappingExists() {
+        // setup
+        MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
+        metacardMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setMetacardAttrToFeaturePropMap(exampleMetacardAttrToFeaturePropMapping);
+        metacardMapper.setFeaturePropToMetacardAttrMap(exampleFeaturePropToMetacardAttrMapping);
+        
+        // Test
+        String metacardAttribute1 = "metacardattr3";
+        String featureProperty1 = metacardMapper.getFeatureProperty(metacardAttribute1);
+        String featureProperty = "feature.prop3";
+        String metacardAttrib = metacardMapper.getMetacardProperty(featureProperty);
+        
+        // Verify
+        String expectedFeatureProperty = "feature.prop3";
+        assertThat(featureProperty1, is(expectedFeatureProperty));
+        
+        String expectedMetacardAttrib = "metacardattr3";
+        assertThat(metacardAttrib, is(expectedMetacardAttrib));
     }
     
     private Map<String, String> removeInvalidMappings(String[] mappings) {

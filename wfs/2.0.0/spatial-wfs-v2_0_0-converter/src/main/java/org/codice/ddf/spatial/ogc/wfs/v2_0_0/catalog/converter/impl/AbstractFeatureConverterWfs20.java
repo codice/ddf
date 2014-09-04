@@ -33,24 +33,19 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.AbstractFeatureConverter;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -68,6 +63,14 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
     private static final String XML_PARSE_FAILURE = "Failed to parse GML based XML into a Document.";
     private static final String CREATE_TRANSFORMER_FAILURE = "Failed to create Transformer.";
     private static final String GML_FAILURE = "Failed to transform GML.\n";
+    
+    public AbstractFeatureConverterWfs20() {
+        
+    }
+    
+    public AbstractFeatureConverterWfs20(MetacardMapper metacardMapper) {
+        super(metacardMapper);
+    }
 
     protected Serializable writeFeaturePropertyToMetacardAttribute(AttributeFormat attributeFormat,
             HierarchicalStreamReader reader) {

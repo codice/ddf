@@ -17,6 +17,8 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -36,14 +38,13 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.EnhancedStaxDriver;
-import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlEnvelopeConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.junit.Test;
 
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.QNameMap;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
 
 import ddf.catalog.data.AttributeDescriptor;
@@ -327,6 +328,45 @@ public class TestGenericFeatureConverter {
         String results = (String) xstream.fromXML(xml);
 
         assertEquals(contents, results);
+    }
+    
+    /*
+     * This test will check is the MetacardMapper maps the feature value of 'states.STATE_NAME' to the metacard property 'title'.
+     */
+    @Test
+    public void testUnmarshalMultiQueryFeatureCollectionXmlToObjectWithMetacardMapper() {
+    	//Create Metacard Mapper
+    	String featureAttr = "states.STATE_NAME";
+    	String metacardProp = "title";
+    	MetacardMapper metacardMapper = mock(MetacardMapper.class);
+    	when(metacardMapper.getMetacardProperty(featureAttr)).thenReturn(metacardProp);
+    	
+        XStream xstream = new XStream(new WstxDriver());
+        FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
+        Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
+
+        GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20(metacardMapper);
+
+        fcMap.put("states", converter);
+        fcMap.put("streams", converter);
+        fcConverter.setFeatureConverterMap(fcMap);
+
+        xstream.registerConverter(fcConverter);
+
+        converter.setMetacardType(buildStatesMetacardType());
+        converter.setCoordinateOrder(WfsConstants.LAT_LON_ORDER);
+        xstream.registerConverter(converter);
+        xstream.alias("FeatureCollection", Wfs20FeatureCollection.class);
+        InputStream is = TestGenericFeatureConverter.class
+                .getResourceAsStream("/geoserver_sample.xml");
+        Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) xstream.fromXML(is);
+        assertEquals(7, wfc.getMembers().size());
+        Metacard mc = wfc.getMembers().get(0);
+        assertEquals(mc.getTitle(), "Missouri");
+
+        // Verifies that lat/lon was swapped to lon/lat order for the WKT conversion
+        // to set the metacard's location        
+        assertTrue(mc.getLocation().startsWith("MULTIPOLYGON (((-89.104965 36.953869, -89.129585 36.86644, -89.166496 36.843422000000004,"));
     }
 
     private MetacardType buildMetacardType() {

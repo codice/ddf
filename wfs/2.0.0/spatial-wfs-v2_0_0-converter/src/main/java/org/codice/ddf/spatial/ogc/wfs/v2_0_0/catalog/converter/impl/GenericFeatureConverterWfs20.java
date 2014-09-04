@@ -19,7 +19,6 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -33,6 +32,7 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.common.AttributeDescriptorComparat
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsQnameBuilder;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.EnhancedStaxWriter;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +60,14 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
     private String sourceId = null;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GenericFeatureConverterWfs20.class);
+    
+    public GenericFeatureConverterWfs20(){
+    	
+    }
+    
+    public GenericFeatureConverterWfs20(MetacardMapper metacardMapper){
+    	super(metacardMapper);
+    }
 
     /**
      * Method to determine if this converter knows how to convert the specified Class.

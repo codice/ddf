@@ -31,6 +31,7 @@ import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.AttributeDescriptorComparator;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsQnameBuilder;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +59,15 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
     private String sourceId = null;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GenericFeatureConverter.class);
+    
+    public GenericFeatureConverter(){
+    	
+    }
+    
+    public GenericFeatureConverter(MetacardMapper metacardMapper){
+    	super(metacardMapper);
+    }
+
 
     /**
      * Method to determine if this converter knows how to convert the specified Class.
