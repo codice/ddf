@@ -12,8 +12,9 @@
  **/ -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="
-  http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs">
 
     <bean id="handler" class="org.codice.ddf.security.handler.anonymous.AnonymousHandler">
 
@@ -23,5 +24,25 @@
              ranking="0">
 
     </service>
+
+
+    <reference id="webBranding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
+
+    <bean id="configurationStore" class="org.codice.ddf.security.handler.anonymous.configuration.Configuration"
+          factory-method="getInstance">
+        <cm:managed-properties persistent-id="org.codice.ddf.security.handler.anonymous.configuration"
+                               update-strategy="container-managed"/>
+        <property name="branding" ref="webBranding"/>
+    </bean>
+
+    <jaxrs:server id="restService" address="/login">
+        <jaxrs:serviceBeans>
+            <ref component-id="configurationStore"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:outInterceptors>
+            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>
+            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
+        </jaxrs:outInterceptors>
+    </jaxrs:server>
 
 </blueprint>
