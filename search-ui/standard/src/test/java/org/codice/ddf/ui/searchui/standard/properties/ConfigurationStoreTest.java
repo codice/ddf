@@ -14,6 +14,19 @@
  **/
 package org.codice.ddf.ui.searchui.standard.properties;
 
+import org.codice.proxy.http.HttpProxyService;
+import org.junit.Test;
+import org.mockito.internal.util.collections.Sets;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -23,14 +36,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.codice.proxy.http.HttpProxyService;
-import org.junit.Test;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 public class ConfigurationStoreTest {
     
@@ -176,6 +181,25 @@ public class ConfigurationStoreTest {
         assertEquals("", configurationStore.getTargetUrl());
         assertEquals("", configurationStore.getWmsServer());
        
+    }
+
+    @Test
+    public void testContentTypeMappings() throws Exception {
+        // Setup
+        ConfigurationStore configurationStore = ConfigurationStore.getInstance();
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put("typeNameMapping", Arrays.asList("foo=bar,foo=baz", "foo=qux",
+                "alpha=beta, alpha = omega ", "=,=,", "bad,input", "name=,=type").toArray());
+
+        // Perform Test
+        configurationStore.update(properties);
+
+        // Verify
+        assertThat(configurationStore.getTypeNameMapping().size(), is(2));
+        assertThat(configurationStore.getTypeNameMapping(), hasEntry("foo", Sets.newSet("bar",
+                "baz", "qux")));
+        assertThat(configurationStore.getTypeNameMapping(), hasEntry("alpha", Sets.newSet("beta",
+                "omega")));
     }
     
 }

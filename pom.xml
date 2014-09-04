@@ -110,6 +110,12 @@
                 <artifactId>org.apache.karaf.webconsole.console</artifactId>
                 <version>${karaf.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-all</artifactId>
+                <version>1.3</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     
