@@ -336,8 +336,11 @@ define([
             this.$('#loginError').hide();
         },
         deleteCookie: function() {
-            document.cookie = 'org.codice.websso.saml.token=; Path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-            document.cookie = 'org.codice.websso.saml.ref=; Path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            $.ajax({
+                type: "GET",
+                url: '/logout',
+                async: false
+            });
         }
     });
 
@@ -347,24 +350,31 @@ define([
             'click .btn-logout': 'logOutUser'
         },
         logOutUser: function() {
-            this.deleteCookie();
+            //this function is only here to handle clearing basic auth credentials
+            //if you aren't using basic auth, this shouldn't do anything
+            var logoutBasic = function() {
+                $.ajax({
+                    type: "GET",
+                    url: document.URL,
+                    async: false,
+                    username: Menu.UserModel.guestUser,
+                    password: Menu.UserModel.guestPass,
+                    error: function() {
+                        document.location.reload();
+                    },
+                    success: function() {
+                        document.location.reload();
+                    }
+                });
+            };
+
             $.ajax({
                 type: "GET",
-                url: document.URL,
+                url: '/logout',
                 async: false,
-                username: Menu.UserModel.guestUser,
-                password: Menu.UserModel.guestPass,
-                error: function() {
-                    document.location.reload();
-                },
-                success: function() {
-                    document.location.reload();
-                }
+                error: logoutBasic,
+                success: logoutBasic
             });
-        },
-        deleteCookie: function() {
-            document.cookie = 'org.codice.websso.saml.token=; Path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-            document.cookie = 'org.codice.websso.saml.ref=; Path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         }
     });
 
