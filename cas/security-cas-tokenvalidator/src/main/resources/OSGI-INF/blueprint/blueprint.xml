@@ -14,16 +14,12 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <cm:property-placeholder persistent-id="ddf.security.cas.webSSOTokenValidator" placeholder-prefix="$sts{" update-strategy="reload">
-        <cm:default-properties>
-            <cm:property name="casServerUrl" value="https://cas:8443/cas/"/>
-        </cm:default-properties>
-    </cm:property-placeholder>
-
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
 
     <bean id="webSsoTokenValidator" class="ddf.security.cas.WebSSOTokenValidator">
-        <property name="casServerUrl" value="$sts{casServerUrl}" />
+        <cm:managed-properties persistent-id="ddf.security.cas.webSSOTokenValidator"
+                               update-strategy="container-managed" />
+        <property name="casServerUrl" value="https://cas:8443/cas/" />
         <property name="encryptionService" ref="encryptionService" />
     </bean>
     

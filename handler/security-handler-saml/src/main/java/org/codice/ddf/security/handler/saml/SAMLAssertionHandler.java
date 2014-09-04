@@ -37,6 +37,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -106,12 +107,13 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
             return handlerResult;
         }
 
-        if(httpRequest.getSession() != null) {
-            SecurityToken savedToken = (SecurityToken) httpRequest.getSession().getAttribute(
+        HttpSession session = httpRequest.getSession(false);
+        if(session != null) {
+            SecurityToken savedToken = (SecurityToken) session.getAttribute(
                     SecurityConstants.SAML_ASSERTION);
             if (savedToken != null) {
                 LOGGER.trace("Creating SAML authentication token with session.");
-                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, httpRequest.getSession().getId(),
+                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, session.getId(),
                         realm);
                 handlerResult.setToken(samlToken);
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
@@ -120,7 +122,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 LOGGER.trace("No SAML cookie located - returning with no results");
             }
         } else {
-            LOGGER.trace("No SAML cookie located - returning with no results");
+            LOGGER.trace("No HTTP Session - returning with no results");
         }
 
         return handlerResult;

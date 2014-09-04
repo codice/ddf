@@ -25,8 +25,8 @@
           description="URL to the CAS server (generally ends in /cas)">
         </AD>
 	    
-	    <AD name="CAS Server Login URL:" id="casServerLoginSuffix" required="true" type="String"
-	      default="/login" 
+	    <AD name="CAS Server Login URL:" id="casServerLoginUrl" required="true" type="String"
+	      default="https://cas:8443/cas/login"
 	      description="Suffix to the login page of CAS, appended to the server URL.">
 	    </AD>
 	    

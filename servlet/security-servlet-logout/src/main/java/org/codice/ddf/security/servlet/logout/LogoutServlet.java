@@ -18,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 public class LogoutServlet extends HttpServlet {
@@ -28,12 +29,16 @@ public class LogoutServlet extends HttpServlet {
         response.setHeader("Pragma", "no-cache");
         response.setContentType("text/html");
 
-        request.getSession().invalidate();
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
 
         //This is just here to avoid a blank screen
         //A user would most likely never see this as they will be redirected to some other
         //login page by a filter or just returned back to the same screen they were already viewing
-        response.getWriter().print("You have successfully logged out. Please close your browser or tab.");
+        response.getWriter().print(
+                "You have successfully logged out. Please close your browser or tab.");
 
         response.getWriter().close();
     }

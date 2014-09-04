@@ -488,10 +488,18 @@ public class LoginFilter implements Filter {
         this.signaturePropertiesFile = signaturePropertiesFile;
     }
 
+    /**
+     * Returns session expiration time in minutes.
+     * @return minutes for session expiration
+     */
     public int getExpirationTime() {
         return expirationTime;
     }
 
+    /**
+     * Sets session expiration time in minutes
+     * @param expirationTime - time in minutes
+     */
     public void setExpirationTime(int expirationTime) {
         this.expirationTime = expirationTime;
     }
