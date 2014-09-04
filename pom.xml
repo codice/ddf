@@ -155,6 +155,7 @@
         <module>pep</module>
         <module>handler</module>
         <module>filter</module>
+        <module>servlet</module>
         <module>security-services-app</module>
     </modules>
 

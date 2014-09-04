@@ -141,6 +141,7 @@
         <feature>security-sts-upbstvalidator</feature>
         <feature>security-filter-authz</feature>
         <feature>security-pdp-java</feature>
+        <feature>security-servlet-logout</feature>
     </feature>
 
     <feature name="security-handler-basic" install="manual" version="${project.version}"
@@ -189,6 +190,11 @@
     <feature name="security-sts-upbstvalidator" install="manual" version="${project.version}"
              description="Validates username/password binary security tokens.">
         <bundle>mvn:ddf.security.sts/security-sts-upbstvalidator/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-servlet-logout" install="manual" version="${project.version}"
+             description="Logout servlet.">
+        <bundle>mvn:ddf.security.servlet/security-servlet-logout/${project.version}</bundle>
     </feature>
 
 </features>
