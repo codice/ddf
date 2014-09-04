@@ -127,32 +127,25 @@ server.mockHandshake = function (req, res) {
 }
 
 server.mockConnect = function (req, res) {
-    //this makes development easier, can remove timeout when done
-    //setTimeout(function() {
-        var resource = getTestResource('connect.json');
-//        console.log(server.clientChannel);
-        resource = resource.replace('/e863f023-3b6f-4575-badf-a1f114e7b378', server.clientChannel);
-        sendJson(resource, res);
-    //}, 30000);
+    var resource = getTestResource('connect.json');
+    resource = resource.replace('/e863f023-3b6f-4575-badf-a1f114e7b378', server.clientChannel);
+    sendJson(resource, res);
 }
 
 server.mockCometD = function (req, res) {
 	//parse req body to figure out how to respond
         var dat = req.body[0];
-//	console.log(dat);
         var json = [{'id':dat.id, 'successful':true, 'channel':dat.channel}];
         if (dat.subscription) {
             json[0].subscription = dat.subscription;
             if (dat.subscription.match(/[a-f0-9]*-/)) {
                 server.clientChannel = dat.subscription;
-//                console.log(server.clientChannel);
             }
         } else if (dat.channel === '/service/user') {
             json.unshift({'data':{'successful':'false'}, 'channel':'/service/user'});
         } else if (dat.channel === '/service/query') {
             json.unshift({'successful':'true'});
         }
-//        console.log(json);
         sendJson(json, res);
 }
 

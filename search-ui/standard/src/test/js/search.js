@@ -1,12 +1,11 @@
 /*jshint strict:false*/
 /*global CasperError, console, phantom, require, casper*/
 // NOTE: to enable debug uncomment the following 2 lines.
-casper.options.verbose = true;
-casper.options.logLevel = 'debug';
+//casper.options.verbose = true;
+//casper.options.logLevel = 'debug';
 casper.test.begin('simple contextual query', 3, function(test) {
     casper.start('http://localhost:8383/');
 
-//    casper.options.waitTimeout = 1000000;
     casper.waitFor(function() {
         return this.evaluate(function() {
             return document.querySelectorAll('form').length === 1;
