@@ -575,6 +575,9 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                         metacard = result.getMetacard();
                         if (metacard != null) {
                             resourceUri = metacard.getResourceURI();
+                            if (!requestProperties.containsKey(Metacard.ID)) {
+                                requestProperties.put(Metacard.ID, metacardId);
+                            }
                         }
                     }
                 }
@@ -593,6 +596,9 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                     QueryResponse queryResponse = query(queryRequest);
                     if (queryResponse.getResults().size() > 0) {
                         metacard = queryResponse.getResults().get(0).getMetacard();
+                        if (!requestProperties.containsKey(Metacard.ID) && metacard != null) {
+                            requestProperties.put(Metacard.ID, metacard.getId());
+                        }
                     }
                 }
             }
