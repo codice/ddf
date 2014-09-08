@@ -46,14 +46,7 @@ define([
             'click .fa.fa-download.installApp': 'installMessage',
             'click .removeConfirm': 'removePrompt',
             'click .installConfirm': 'installPrompt',
-            'click .select-application': 'selectApplication'
-        },
-
-        onRender: function () {
-            this.$('*[data-toggle="tooltip"]').tooltip();
-        },
-        onBeforeClose: function(){
-            this.$('*[data-toggle="tooltip"]').tooltip('destroy');
+            'click': 'selectApplication'
         },
 
         // Will disable functionality for certain applications
@@ -117,7 +110,7 @@ define([
             this.model.toggleChosenApp();
         },
         selectApplication: function(){
-            wreqr.vent.trigger('application:selected',this.model);
+            wreqr.vent.trigger('application:reqestSelection',this.model);
         }
     });
 

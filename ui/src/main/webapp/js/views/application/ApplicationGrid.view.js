@@ -160,6 +160,12 @@ define([
                 isEditMode: false,
                 displayMode: 'card'
             });
+            this.listenTo(wreqr.vent, 'application:reqestSelection', this.requestSelection);
+        },
+        requestSelection: function(applicationModel){
+            if(!this.model.get('isEditMode')){
+                wreqr.vent.trigger('application:selected', applicationModel);
+            }
         },
         onRender: function() {
             var view = this;
@@ -242,10 +248,10 @@ define([
         },
         editToggleClicked: function(evt){
             this.model.set({isEditMode: !this.model.get('isEditMode')});
-            this.$(evt.currentTarget).toggleClass('active');
+            this.$(evt.currentTarget).toggleClass('edit-mode');
         },
         modelChanged: function(evt){
-            this.$(evt.currentTarget).toggleClass('active', this.model.get('isEditMode'));
+            this.$(evt.currentTarget).toggleClass('edit-mode', this.model.get('isEditMode'));
             wreqr.vent.trigger('app-grid:edit-mode-toggled', this.model.get('isEditMode'));
         },
         toggleDisplayOptions: function(){
@@ -261,6 +267,7 @@ define([
     var ACTIVE_STATE = "ACTIVE";
     var INACTIVE_STATE = "INACTIVE";
     var STOP_STATE = "STOP";
+    var FAILED_STATE = "FAILED";
 
     // Main layout view for all the applications
     var ApplicationView = Marionette.Layout.extend({
@@ -302,11 +309,10 @@ define([
                 this.model = Model.Collection;
                 this.response.fetch({
                     success: function(model) {
-                        self.model.set(model.get("value"));
+                        self.model.reset(model.get("value"));
                     }
                 });
             }
-
             this.listenTo(wreqr.vent, 'app-grid:edit-mode-toggled', this.toggleEditMode);
         },
         onRender: function () {
@@ -314,7 +320,7 @@ define([
 
             _.defer(function() {
                 view.appsgridInstalled.show(new AppCardCollectionView({collection: view.model, AppShowState: ACTIVE_STATE}));
-                view.appsgridNotInstalled.show(new AppCardCollectionView({collection: view.model, AppShowState: INACTIVE_STATE}));
+                view.appsgridNotInstalled.show(new AppCardCollectionView({collection: view.model, AppShowState: [INACTIVE_STATE,FAILED_STATE]}));
                 view.applicationGridButtons.show(new NewApplicationView({response: view.response}));
                 view.$('#application-grid-layout').perfectScrollbar();
             });

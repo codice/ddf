@@ -18,9 +18,7 @@
 }
 
 .apps-grids{
-  height: 600px;
   overflow: auto;
-
   hr {
     margin: 6px 6px 0px 6px;
   }
@@ -48,7 +46,6 @@
   &[list-type="list"] {
     margin-top: 10px;
     .grid-cell {
-      padding: 0px;
       float: none;
       width: 100%;
       margin: 0px auto;
@@ -59,9 +56,14 @@
 
 .card-style-toggle {
   .btn {
+    .btn-default();
     padding: 7px 6px 4px 6px;
     i {
       font-size: 30px;
+    }
+
+    &.active {
+      .btn-primary();
     }
   }
 }
@@ -80,7 +82,7 @@
     display: none;
   }
 
-  &.active {
+  &.edit-mode {
 
     .btn-success();
 
@@ -92,12 +94,6 @@
       display: none;
     }
   }
-}
-
-.breadcrumb {
-  font-size: 2em;
-  padding: 0px 15px;
-  margin: 0px;
 }
 
 

@@ -13,6 +13,7 @@
  *
  **/
 .app-card {
+  cursor: pointer;
   padding: 6px;
   border: 1px solid;
   border-color: @card-border-color;
@@ -69,7 +70,7 @@
     }
 
     .fa-stack {
-      .fa-stack(@gray, #FFFFFF, @gray, @overlay-icon-color-hover);
+      .fa-stack(@bs-btn-primary-backbround-color, #FFFFFF, @bs-btn-success-background-color, #FFFFFF);
     }
 
     .divider {
@@ -79,11 +80,12 @@
 
     i.select-application {
       margin-left: 10px;
+      .fa-button(@bs-btn-primary-backbround-color,@bs-btn-success-background-color);
     }
+
   }
 
   &:hover {
-    background-color: @card-background-color-hover;
     transition: background-color 400ms ease, opacity 400ms ease;
     border-color: @card-border-color-hover;
     .card-overlay {
@@ -93,10 +95,11 @@
 
       transition: background-color 400ms ease, opacity 400ms ease;
       i {
-        color: @overlay-icon-color-highlight;
-        &:hover {
-          color: @overlay-icon-color-hover !important;
-        }
+        color: @bs-btn-success-background-color;
+      }
+
+      &.select-button-group {
+        background-color: transparent;
       }
     }
   }
@@ -106,7 +109,8 @@
     cursor: pointer;
     text-align: center;
     i {
-      font-size: 50px;
+      display: block;
+      margin-top: 10px
     }
 
     .panel-body {
@@ -115,16 +119,22 @@
   }
 }
 
-.edit-mode .card-overlay{
-  visibility: visible;
-  opacity: 1;
+.edit-mode {
+  .app-card {
+    cursor: auto;
+  }
 
-  visibility: visible;
-  opacity: 1;
-  background-color: @card-overlay-background-color-hover;
+  .card-overlay{
+    visibility: visible;
+    opacity: 1;
 
-  i {
-    color: @overlay-icon-color-highlight;
+    visibility: visible;
+    opacity: 1;
+    background-color: @card-overlay-background-color-hover;
+
+    .fa-stack {
+      font-size: 1.7em; // middle ground for fa-stacked fa-lg and fa-2x.
+    }
   }
 }
 
@@ -135,16 +145,6 @@
 
   .app-card {
     height: 100px;
-    border-top-width: 0px;
-    border-radius: 0px;
-
-    .card-overlay {
-      border-radius: 0px;
-    }
-
-    &.panel {
-      margin-bottom: 0px;
-    }
 
     &:hover {
       border-top-width: 1px;
@@ -170,8 +170,9 @@
   }
   .description {
     display: inline-block;
-    width: 70%;
     height: 87px;
+    width: 70%;
+    padding-right: 60px;
   }
 
   .app-card.new-or-update-app {
@@ -184,35 +185,10 @@
       margin: 0;
     }
     i {
+      display: inline-block;
+      padding-left: 10px;
       vertical-align: middle;
     }
   }
-}
-
-.installed .apps-grid[list-type="list"] .app-card.new-or-update-app {
-  border-top-width: 1px;
-  border-top-right-radius: 6px;
-  border-top-left-radius: 6px;
-}
-.installed .apps-grid[list-type="list"] .grid-cell:nth-child(2) .app-card {
-  border-top-width: 1px;
-  border-top-right-radius: 6px;
-  border-top-left-radius: 6px;
-}
-.not-installed .apps-grid[list-type="list"] .grid-cell:nth-child(1) .app-card {
-  border-top-width: 1px;
-  border-top-right-radius: 6px;
-  border-top-left-radius: 6px;
-}
-.apps-grid[list-type="list"] .grid-cell:last-child .app-card {
-  border-top-width: 1px;
-  border-bottom-right-radius: 6px;
-  border-bottom-left-radius: 6px;
-}
-
-.edit-mode .installed .apps-grid[list-type="list"] .grid-cell:nth-child(2) .app-card {
-  border-top-width: 0px;
-  border-top-right-radius: 0px;
-  border-top-left-radius: 0px;
 }
 

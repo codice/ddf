@@ -15,7 +15,21 @@
 #applications {
   .page-layout {
     .header {
-      padding: 0px 10px 10px 10px;
+      padding: 0px 0px 10px 0px;
+      position: relative;
+      .header-text {
+        margin: 0;
+        text-align: center;
+        color: @bs-btn-primary-backbround-color;
+      }
+
+      .nav-to-applications {
+        position: absolute;
+        top: 5px;
+        i {
+          .fa-button(@bs-btn-primary-backbround-color, @bs-btn-success-background-color);
+        }
+      }
     }
   }
 }
@@ -33,6 +47,48 @@
 
 #features-table {
   .fa-stack{
-    .fa-stack(@gray, #FFFFFF, @gray, @overlay-icon-color-hover);
+    .fa-stack(@bs-btn-primary-backbround-color, #FFFFFF, @bs-btn-success-background-color, #FFFFFF);
+  }
+
+  tbody>tr:first-child {
+    td {
+      border-top: 0px;
+    }
+  }
+  td {
+    padding: 2px;
+    vertical-align: middle;
+    border-top: 1px solid #ddd;
+
+  }
+
+  thead>tr>th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #ddd;
+    padding: 8px;
+  }
+
+  .fa-stack {
+    .loading {
+      display: none;
+    }
+
+    &.active {
+      .loading {
+        display: inline-block;
+      }
+      .not-loading {
+        display: none;
+      }
+    }
   }
 }
+
+.fa-stack.disabled {
+  .disable();
+}
+
+
+
+
+
