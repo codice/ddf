@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -147,22 +146,18 @@ public class MetacardMapperImpl implements MetacardMapper {
     }
     
     public void setFeaturePropToMetacardAttrMap(String[] featurePropToMetacardAttrList) {
-        Map<String, String> featurePropertyToMetacardAttributeMap = new HashMap<String, String>();
-
         for (String singleMapping : featurePropToMetacardAttrList) {
             // workaround for admin console bug (https://issues.apache.org/jira/browse/KARAF-1701)
             if (StringUtils.contains(singleMapping, ",")) {
-            	featurePropertyToMetacardAttributeMap.putAll(workaround(singleMapping));
+                featurePropertyToMetacardAttributeMap.putAll(workaround(singleMapping));
                 continue;
             }
             addMetacardAttributeToFeaturePropertyMap(featurePropertyToMetacardAttributeMap,
                     singleMapping);
         }
 
-        this.featurePropertyToMetacardAttributeMap = featurePropertyToMetacardAttributeMap;
-
         LOGGER.debug("Feature attribute to metacard property mapping is {}.",
-                this.featurePropertyToMetacardAttributeMap);        	
+                featurePropertyToMetacardAttributeMap);         
     }
     
     public Map<String, String> getFeaturePropertyToMetacardAttributeMap() {

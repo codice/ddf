@@ -57,6 +57,8 @@ public class TestMetacardMapperImpl {
     
     private static final Pattern METACARD_ATTR_TO_FEATURE_PROP_MAPPING_PATTERN = Pattern.compile(METACARD_ATTR_TO_FEATURE_PROP_MAPPING_REGEX);
     
+    private static final String EXPECTED_FEATURE_PROPERTY = "feature.prop3";
+    
     /**
      * There is a bug in the felix admin console that prevents metatypes with lists (cardinality) from displaying and working correctly.
      * See https://issues.apache.org/jira/browse/KARAF-1701 for additional information.  When a configuration is persisted for the first
@@ -83,8 +85,7 @@ public class TestMetacardMapperImpl {
         String featureProperty = metacardMapper.getFeatureProperty(metacardAttribute);
         
         // Verify
-        String expectedFeatureProperty = "feature.prop3";
-        assertThat(featureProperty, is(expectedFeatureProperty));
+        assertThat(featureProperty, is(EXPECTED_FEATURE_PROPERTY));
     }
     
     @Test
@@ -119,8 +120,7 @@ public class TestMetacardMapperImpl {
         String featureProperty = metacardMapper.getFeatureProperty(metacardAttribute);
         
         // Verify
-        String expectedFeatureProperty = "feature.prop3";
-        assertThat(featureProperty, is(expectedFeatureProperty));
+        assertThat(featureProperty, is(EXPECTED_FEATURE_PROPERTY));
     }
     
     /**
@@ -217,8 +217,7 @@ public class TestMetacardMapperImpl {
         metacardMapper.setFeaturePropToMetacardAttrMap(exampleFeaturePropToMetacardAttrMapping);
         
         // Test
-        String featureProperty = "feature.prop3";
-        String metacardAttrib = metacardMapper.getMetacardProperty(featureProperty);
+        String metacardAttrib = metacardMapper.getMetacardProperty(EXPECTED_FEATURE_PROPERTY);
         
         // Verify
         String expectedMetacardAttrib = "metacardattr3";
@@ -253,8 +252,7 @@ public class TestMetacardMapperImpl {
         metacardMapper.setFeaturePropToMetacardAttrMap(exampleFeaturePropToMetacardAttrMappingWithAdminConsoleBug);
         
         // Test
-        String featureProperty = "feature.prop3";
-        String metacardAttrib = metacardMapper.getMetacardProperty(featureProperty);
+        String metacardAttrib = metacardMapper.getMetacardProperty(EXPECTED_FEATURE_PROPERTY);
         
         // Verify
         String expectedMetacardAttrib = "metacardattr3";
@@ -327,12 +325,10 @@ public class TestMetacardMapperImpl {
         // Test
         String metacardAttribute1 = "metacardattr3";
         String featureProperty1 = metacardMapper.getFeatureProperty(metacardAttribute1);
-        String featureProperty = "feature.prop3";
-        String metacardAttrib = metacardMapper.getMetacardProperty(featureProperty);
+        String metacardAttrib = metacardMapper.getMetacardProperty(EXPECTED_FEATURE_PROPERTY);
         
         // Verify
-        String expectedFeatureProperty = "feature.prop3";
-        assertThat(featureProperty1, is(expectedFeatureProperty));
+        assertThat(featureProperty1, is(EXPECTED_FEATURE_PROPERTY));
         
         String expectedMetacardAttrib = "metacardattr3";
         assertThat(metacardAttrib, is(expectedMetacardAttrib));
