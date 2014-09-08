@@ -621,11 +621,15 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             if (featureCollection == null) {
                 throw new UnsupportedQueryException("Invalid results returned from server");
             }
-            if (featureCollection.getNumberReturned() == null){
-                //Number Returned attribute was not added to the response per specification so executing alternative
-                numResults = featureCollection.getMembers().size();
-            } else {
-                numResults = featureCollection.getNumberReturned().intValue();
+
+            numResults = featureCollection.getMembers().size();
+
+            if (featureCollection.getNumberReturned() == null) {
+                LOGGER.warn("Number Returned Attribute was not added to the response");
+            } else if (!featureCollection.getNumberReturned().equals(numResults)) {
+                LOGGER.warn(
+                        "Number Returned Attribute ({}) did not match actual number returned ({})",
+                        featureCollection.getNumberReturned(), numResults);
             }
 
             if (numResults > -1){

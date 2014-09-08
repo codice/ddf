@@ -511,7 +511,7 @@ public class TestWfsSource {
         GetFeatureType featureType = source.buildGetFeatureRequest(query);
     }
     
-    @Test(expected = UnsupportedQueryException.class)
+    @Test
     public void testResultNumReturnedNegative() throws WfsException,
         TransformerConfigurationException, UnsupportedQueryException {
       //Setup
@@ -570,6 +570,40 @@ public class TestWfsSource {
         
     }
     
+    /**
+     * If numberReturned is null, then query should return back size equivalent to the number of members in the
+     * feature collection.
+     * 
+     * @throws WfsException
+     * @throws TransformerConfigurationException
+     * @throws UnsupportedQueryException
+     */
+    @Test
+    public void testResultNumReturnedIsWrong() throws WfsException,
+        TransformerConfigurationException, UnsupportedQueryException {
+      //Setup
+        final String TITLE = "title";
+        final String searchPhrase = "*";
+        final int pageSize = 1;
+        
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 3, false, true, 5);
+        
+        
+        QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
+                .like().text(searchPhrase));
+        query.setPageSize(pageSize);
+        SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
+        query.setSortBy(sortBy);
+        QueryRequestImpl queryReq = new QueryRequestImpl(query);
+                
+        // Perform test
+        SourceResponse resp = source.query(queryReq);
+        assertEquals(3, resp.getResults().size());
+        
+    }
+    
     @Test
     public void testResultNumReturnedIsZero() throws WfsException,
         TransformerConfigurationException, UnsupportedQueryException {
@@ -592,7 +626,7 @@ public class TestWfsSource {
                 
         // Perform test
         SourceResponse resp = source.query(queryReq);
-        assertEquals(0, resp.getResults().size());
+        assertEquals(3, resp.getResults().size());
         
     }
     
