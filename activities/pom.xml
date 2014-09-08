@@ -28,8 +28,29 @@
     <version>0.2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>DDF :: Activities</name>
-
-
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <!--
+                         Reverted back to Maven Release Plugin 2.4.1 to release activities. Using
+                         2.4.1 requires the use of a git version prior to 1.8.4.
+                         At some point this should be upgraded to 2.5. The issue that occurred
+                         was the maven release plugin was not committing during the release.
+                     -->
+                    <version>2.4.1</version>
+                    <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <preparationGoals>clean verify install</preparationGoals>
+                        <arguments>-Pgenerate_uml_javadoc</arguments>
+                        <pushChanges>false</pushChanges>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
     <dependencies>
 
         <dependency>
@@ -51,5 +72,4 @@
             <url>http://artifacts.codice.org/content/groups/public/</url>
         </repository>
     </repositories>
-
 </project>
