@@ -59,7 +59,6 @@
              description="Web Feature Service (WFS) v2.0.0 Source.">
         <feature>spatial-wfs</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v2_0_0-source/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v2_0_0-schema-webapp/${project.version}</bundle>
     </feature>
 
     <feature name="spatial-csw" install="manual" version="${project.version}"
