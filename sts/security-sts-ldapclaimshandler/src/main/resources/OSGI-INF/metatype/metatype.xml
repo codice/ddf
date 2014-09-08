@@ -46,7 +46,7 @@
 
         <AD name="LDAP Group ObjectClass:" id="objectClass" required="true" type="String"
             default="groupOfNames"
-            description="ObjectClass that defines structure for group membership in LDAP. Usually this is gropuOfNames or groupOfUniqueNames.">
+            description="ObjectClass that defines structure for group membership in LDAP. Usually this is groupOfNames or groupOfUniqueNames.">
         </AD>
 
         <AD name="LDAP Membership Attribute:" id="memberNameAttribute" required="true" type="String"
