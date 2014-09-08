@@ -3,7 +3,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -11,9 +11,9 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" 
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
     xmlns:jaas="http://karaf.apache.org/xmlns/jaas/v1.1.0"
-    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" 
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
     xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
     xmlns:enc="http://karaf.apache.org/xmlns/jasypt/v1.0.0">
 
@@ -23,21 +23,17 @@
 
     <ext:property-placeholder />
 
-    <bean id="LdapConfig" class="ddf.ldap.ldaplogin.LdapLoginConfig">
+    <bean id="LdapConfig" class="ddf.ldap.ldaplogin.LdapLoginConfig" init-method="configure">
         <cm:managed-properties persistent-id="ddf.security.sts.ldap" update-strategy="component-managed"
             update-method="update" />
         <argument ref="blueprintBundleContext" />
         <!-- Default properties -->
-        <argument>
-            <map key-type="java.lang.String" value-type="java.lang.String">
-                <entry key="ldapBindUserDn" value="cn=admin" />
-                <entry key="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)" />
-                <entry key="ldapUrl" value="ldaps://ldap:1636" />
-                <entry key="userBaseDn" value="ou=users,dc=example,dc=com" />
-                <entry key="groupBaseDn" value="ou=groups,dc=example,dc=com" />
-                <entry key="keyAlias" value="server" />
-            </map>
-        </argument>
+        <property name="ldapBindUserDn" value="cn=admin" />
+        <property name="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)" />
+        <property name="ldapUrl" value="ldaps://ldap:1636" />
+        <property name="userBaseDn" value="ou=users,dc=example,dc=com" />
+        <property name="groupBaseDn" value="ou=groups,dc=example,dc=com" />
+        <property name="keyAlias" value="server" />
     </bean>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />

@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.security.sts.claimsHandler;
 
@@ -37,7 +37,7 @@ import ddf.security.encryption.EncryptionService;
 
 /**
  * Tests out the ClaimsHandlerManager.
- * 
+ *
  */
 public class ClaimsHandlerManagerTest {
 
@@ -67,26 +67,29 @@ public class ClaimsHandlerManagerTest {
      */
     @Test
     public void registerHandlers() {
-        Map<String, String> managerConfig = new HashMap<String, String>();
-        managerConfig.put("ldapBindUserDn", "cn=admin");
-        managerConfig.put("userBaseDn", "ou=users,dc=example,dc=com");
-        managerConfig.put("groupBaseDn", "ou=groups,dc=example,dc=com");
-        managerConfig.put("userNameAttribute", "uid");
-        managerConfig.put("url", "ldap://ldap:1389");
-        managerConfig.put("userDn", "cn=admin");
-        managerConfig.put("password", "ENC(c+GitDfYAMTDRESXSDDsMw==)");
-        managerConfig.put("propertyFileLocation", "etc/ws-security/attributeMap.properties");
+        ClaimsHandlerManager manager = new ClaimsHandlerManager(encryptService, context);
 
-        ClaimsHandlerManager manager = new ClaimsHandlerManager(encryptService, context,
-                managerConfig);
+        manager.setLdapBindUserDn("cn=admin");
+        manager.setUserBaseDn("ou=users,dc=example,dc=com");
+        manager.setGroupBaseDn("ou=groups,dc=example,dc=com");
+        manager.setUserNameAttribute("uid");
+        manager.setUrl("ldap://ldap:1389");
+        manager.setUserDn("cn=admin");
+        manager.setObjectClass("ou=users,dc=example,dc=com");
+        manager.setMemberNameAttribute("member");
+        manager.setPassword("ENC(c+GitDfYAMTDRESXSDDsMw==)");
+        manager.setPropertyFileLocation("etc/ws-security/attributeMap.properties");
+        manager.configure();
+
         // verify initial registration
         verify(context, times(2)).registerService(eq(ClaimsHandler.class),
                 any(ClaimsHandler.class), Matchers.<Dictionary<String, Object>> any());
         verify(handlerReg, never()).unregister();
 
+        Map<String, String> updates = new HashMap<String, String>();
         // new role and ldap should be unregistered and then registered
-        managerConfig.put("url", "ldap://test-ldap:1389");
-        manager.update(managerConfig);
+        updates.put("url", "ldap://test-ldap:1389");
+        manager.update(updates);
         verify(context, times(4)).registerService(eq(ClaimsHandler.class),
                 any(ClaimsHandler.class), Matchers.<Dictionary<String, Object>> any());
         verify(handlerReg, times(2)).unregister();

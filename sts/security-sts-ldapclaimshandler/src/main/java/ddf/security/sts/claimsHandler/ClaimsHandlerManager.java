@@ -14,6 +14,7 @@
  **/
 package ddf.security.sts.claimsHandler;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.cxf.sts.claims.ClaimsHandler;
@@ -31,6 +32,17 @@ import ddf.security.encryption.EncryptionService;
  */
 public class ClaimsHandlerManager {
 
+    public static final String URL = "url";
+    public static final String LDAP_BIND_USER_DN = "ldapBindUserDn";
+    public static final String PASSWORD = "password";
+    public static final String USER_NAME_ATTRIBUTE = "userNameAttribute";
+    public static final String USER_BASE_DN = "userBaseDn";
+    public static final String OBJECT_CLASS = "objectClass";
+    public static final String MEMBER_NAME_ATTRIBUTE = "memberNameAttribute";
+    public static final String GROUP_BASE_DN = "groupBaseDn";
+    public static final String USER_DN = "userDn";
+    public static final String PROPERTY_FILE_LOCATION = "propertyFileLocation";
+
     private EncryptionService encryptService;
 
     private BundleContext context;
@@ -41,41 +53,36 @@ public class ClaimsHandlerManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClaimsHandlerManager.class);
 
+    private Map<String, String> ldapProperties = new HashMap<String, String>();
+
     /**
      * Creates a new instance of the ClaimsHandlerManager.
      *
-     * @param encryptService
-     *            Encryption service used to decrypt passwords from the
-     *            configurations.
-     * @param context
-     *            BundleContext that should be used to register services.
-     * @param defaults
-     *            Default properties to use on initial registration.
+     * @param encryptService Encryption service used to decrypt passwords from the configurations.
+     * @param context BundleContext that should be used to register services.
      */
-    public ClaimsHandlerManager(EncryptionService encryptService, BundleContext context,
-            Map<String, String> defaults) {
+    public ClaimsHandlerManager(EncryptionService encryptService, BundleContext context) {
         this.encryptService = encryptService;
         this.context = context;
-        update(defaults);
     }
 
     /**
-     * Callback method that is called when configuration is updated.
+     * Callback method that is called when configuration is updated. Also called by the
+     * blueprint init-method when all properties have been set.
      *
-     * @param props
-     *            Map of properties.
+     * @param props Map of properties.
      */
     public void update(Map<String, String> props) {
         LOGGER.debug("Received an updated set of configurations for the LDAP/Role Claims Handlers.");
-        String url = props.get("url");
-        String userDn = props.get("userDn");
-        String password = props.get("password");
-        String userBaseDn = props.get("userBaseDn");
-        String objectClass = props.get("objectClass");
-        String memberNameAttribute = props.get("memberNameAttribute");
-        String groupBaseDn = props.get("groupBaseDn");
-        String userNameAttribute = props.get("userNameAttribute");
-        String propertyFileLocation = props.get("propertyFileLocation");
+        String url = props.get(ClaimsHandlerManager.URL);
+        String userDn = props.get(ClaimsHandlerManager.USER_DN);
+        String password = props.get(ClaimsHandlerManager.PASSWORD);
+        String userBaseDn = props.get(ClaimsHandlerManager.USER_BASE_DN);
+        String objectClass = props.get(ClaimsHandlerManager.OBJECT_CLASS);
+        String memberNameAttribute = props.get(ClaimsHandlerManager.MEMBER_NAME_ATTRIBUTE);
+        String groupBaseDn = props.get(ClaimsHandlerManager.GROUP_BASE_DN);
+        String userNameAttribute = props.get(ClaimsHandlerManager.USER_NAME_ATTRIBUTE);
+        String propertyFileLocation = props.get(ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
         try {
             LdapTemplate template = createLdapTemplate(url, userDn, password);
             registerRoleClaimsHandler(template, propertyFileLocation, userBaseDn,
@@ -187,6 +194,61 @@ public class ClaimsHandlerManager {
             registration.unregister();
         }
         return context.registerService(ClaimsHandler.class, handler, null);
+    }
+
+    public void setUrl(String url) {
+        LOGGER.trace("Setting url: {}", url);
+        ldapProperties.put(URL, url);
+    }
+
+    public void setLdapBindUserDn(String bindUserDn) {
+        LOGGER.trace("Setting bindUserDn: {}", bindUserDn);
+        ldapProperties.put(LDAP_BIND_USER_DN, bindUserDn);
+    }
+
+    public void setPassword(String password) {
+        LOGGER.trace("Setting password: {}", password);
+        ldapProperties.put(PASSWORD, password);
+    }
+
+    public void setUserNameAttribute(String userNameAttribute) {
+        LOGGER.trace("Setting userNameAttribute: {}", userNameAttribute);
+        ldapProperties.put(USER_NAME_ATTRIBUTE, userNameAttribute);
+    }
+
+    public void setUserBaseDn(String userBaseDn) {
+        LOGGER.trace("Setting userBaseDn: {}", userBaseDn);
+        ldapProperties.put(USER_BASE_DN, userBaseDn);
+    }
+
+    public void setObjectClass(String objectClass) {
+        LOGGER.trace("Setting objectClass: {}", objectClass);
+        ldapProperties.put(OBJECT_CLASS, objectClass);
+    }
+
+    public void setMemberNameAttribute(String memberNameAttribute) {
+        LOGGER.trace("Setting memberNameAttribute: {}", memberNameAttribute);
+        ldapProperties.put(MEMBER_NAME_ATTRIBUTE, memberNameAttribute);
+    }
+
+    public void setGroupBaseDn(String groupBaseDn) {
+        LOGGER.trace("Setting groupBaseDn: {}", groupBaseDn);
+        ldapProperties.put(GROUP_BASE_DN, groupBaseDn);
+    }
+
+    public void setUserDn(String userDn) {
+        LOGGER.trace("Setting userDn: {}", userDn);
+        ldapProperties.put(USER_DN, userDn);
+    }
+
+    public void setPropertyFileLocation(String propertyFileLocation) {
+        LOGGER.trace("Setting propertyFileLocation: {}", propertyFileLocation);
+        ldapProperties.put(PROPERTY_FILE_LOCATION, propertyFileLocation);
+    }
+
+    public void configure() {
+        LOGGER.trace("configure method called - calling update");
+        update(ldapProperties);
     }
 
 }

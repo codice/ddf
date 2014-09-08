@@ -19,6 +19,8 @@ import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
 import org.codice.ddf.security.policy.context.attributes.DefaultContextAttributeMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +34,8 @@ import java.util.Map;
  * at the "/" context and accepts new policies as a Map&lt;String, String&gt; orMap&lt;String, String[]&gt;
  */
 public class PolicyManager implements ContextPolicyManager {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PolicyManager.class);
 
     private static final String REALMS = "realms";
 
@@ -51,7 +55,7 @@ public class PolicyManager implements ContextPolicyManager {
 
     private ContextPolicy defaultPolicy = new Policy("/", DEFAULT_REALM, new ArrayList<String>(), new ArrayList<ContextAttributeMapping>());
 
-    private Map<String, Object> restartProperties = new HashMap<String, Object>();
+    private Map<String, Object> policyProperties = new HashMap<String, Object>();
 
     public PolicyManager() {
         policyStore.put("/", defaultPolicy);
@@ -100,6 +104,7 @@ public class PolicyManager implements ContextPolicyManager {
     }
 
     public void setPolicies(Map<String, Object> properties) {
+        LOGGER.debug("setPolicies called: {}", properties);
         policyStore.clear();
         policyStore.put("/", defaultPolicy);
 
@@ -220,48 +225,49 @@ public class PolicyManager implements ContextPolicyManager {
     }
 
     public void setAuthenticationTypes(List<String> authenticationTypes) {
+        LOGGER.debug("setAuthenticationTypes(List<String>) called with {}", authenticationTypes);
         if (authenticationTypes != null) {
-            restartProperties.put(AUTH_TYPES, authenticationTypes.toArray(new String[authenticationTypes.size()]));
+            policyProperties.put(AUTH_TYPES, authenticationTypes.toArray(new String[authenticationTypes.size()]));
         } else {
-            restartProperties.put(AUTH_TYPES, null);
+            policyProperties.put(AUTH_TYPES, null);
         }
-        setPolicies(restartProperties);
     }
 
     public void setAuthenticationTypes(String authenticationTypes) {
-        restartProperties.put(AUTH_TYPES, authenticationTypes);
-        setPolicies(restartProperties);
+        LOGGER.debug("setAuthenticationTypes(String) called with {}", authenticationTypes);
+        policyProperties.put(AUTH_TYPES, authenticationTypes);
     }
 
     public void setRequiredAttributes(List<String> requiredAttributes) {
+        LOGGER.debug("setRequiredAttributes(List<String>) called with {}", requiredAttributes);
         if (requiredAttributes != null) {
-            restartProperties.put(REQ_ATTRS, requiredAttributes.toArray(new String[requiredAttributes.size()]));
+            policyProperties.put(REQ_ATTRS, requiredAttributes.toArray(new String[requiredAttributes.size()]));
         } else {
-            restartProperties.put(REQ_ATTRS, null);
+            policyProperties.put(REQ_ATTRS, null);
         }
-        setPolicies(restartProperties);
     }
 
     public void setRequiredAttributes(String requiredAttributes) {
-        restartProperties.put(REQ_ATTRS, requiredAttributes);
-        setPolicies(restartProperties);
+        LOGGER.debug("setRequiredAttributes(String) called with {}", requiredAttributes);
+        policyProperties.put(AUTH_TYPES, requiredAttributes);
     }
 
     public void setRealms(List<String> realms) {
+        LOGGER.debug("setRealms(List<String>) called with {}", realms);
         if (realms != null) {
-            restartProperties.put(REALMS, realms.toArray(new String[realms.size()]));
+            policyProperties.put(REALMS, realms.toArray(new String[realms.size()]));
         } else {
-            restartProperties.put(REALMS, null);
+            policyProperties.put(REALMS, null);
         }
-        setPolicies(restartProperties);
     }
 
     public void setRealms(String realms) {
-        restartProperties.put(REALMS, realms);
-        setPolicies(restartProperties);
+        LOGGER.debug("setRealms(String) called with {}", realms);
+        policyProperties.put(REALMS, realms);
     }
 
     public void setWhiteListContexts(List<String> contexts) {
+        LOGGER.debug("setWhiteListContexts(List<String>) called with {}", contexts);
         if (contexts != null && !contexts.isEmpty()) {
             whiteListContexts.clear();
             whiteListContexts.addAll(expandStrings(contexts));
@@ -269,6 +275,7 @@ public class PolicyManager implements ContextPolicyManager {
     }
 
     public void setWhiteListContexts(String contexts) {
+        LOGGER.debug("setWhiteListContexts(String) called with {}", contexts);
         if (StringUtils.isNotEmpty(contexts)) {
             String[] contextsArr = contexts.split(",");
             whiteListContexts.clear();
@@ -281,5 +288,14 @@ public class PolicyManager implements ContextPolicyManager {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Called by blueprint once all properties have been initialized. This isn't called by configuration manager - it
+     * calls the specified update-method (in this case setPolicies).
+     */
+    public void configure() {
+        LOGGER.debug("configure called.");
+        setPolicies(policyProperties);
     }
 }

@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.ldap.ldaplogin;
 
@@ -34,7 +34,7 @@ import org.osgi.framework.ServiceRegistration;
 
 /**
  * Tests out LdapLoginConfig functionality.
- * 
+ *
  */
 public class LdapLoginConfigTest {
 
@@ -61,18 +61,25 @@ public class LdapLoginConfigTest {
     @Test
     public void testRegisterLdapModule() {
         Map<String, String> ldapProps = new HashMap<String, String>();
-        ldapProps.put("ldapBindUserDn", "cn=admin");
-        ldapProps.put("ldapBindUserPass", "ENC(c+GitDfYAMTDRESXSDDsMw==)");
-        ldapProps.put("ldapUrl", "ldaps://ldap:1636");
-        ldapProps.put("userBaseDn", "ou=users,dc=example,dc=com");
-        ldapProps.put("groupBaseDn", "ou=groups,dc=example,dc=com");
-        ldapProps.put("keyAlias", "server");
 
-        LdapLoginConfig ldapConfig = new LdapLoginConfig(context, ldapProps);
+        LdapLoginConfig ldapConfig = new LdapLoginConfig(context);
+        ldapConfig.setLdapBindUserDn("cn=admin");
+        ldapConfig.setLdapBindUserPass("ENC(c+GitDfYAMTDRESXSDDsMw==)");
+        ldapConfig.setLdapUrl("ldaps://ldap:1636");
+        ldapConfig.setUserBaseDn("ou=users,dc=example,dc=com");
+        ldapConfig.setGroupBaseDn("ou=groups,dc=example,dc=com");
+        ldapConfig.setKeyAlias("server");
+        ldapConfig.configure();
+
         verify(context).registerService(eq(JaasRealm.class), any(JaasRealm.class),
                 Matchers.<Dictionary<String, Object>> any());
 
-        ldapProps.put("ldapUrl", "ldaps://test-ldap:1636");
+        ldapProps.put(LdapLoginConfig.LDAP_BIND_USER_DN, "cn=admin");
+        ldapProps.put(LdapLoginConfig.LDAP_BIND_USER_PASS, "ENC(c+GitDfYAMTDRESXSDDsMw==)");
+        ldapProps.put(LdapLoginConfig.USER_BASE_DN, "ou=users,dc=example,dc=com");
+        ldapProps.put(LdapLoginConfig.GROUP_BASE_DN, "ou=groups,dc=example,dc=com");
+        ldapProps.put(LdapLoginConfig.KEY_ALIAS, "server");
+        ldapProps.put(LdapLoginConfig.LDAP_URL, "ldaps://test-ldap:1636");
         ldapConfig.update(ldapProps);
         // verify previous service was unregistered
         verify(jaasRealm).unregister();

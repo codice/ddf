@@ -14,6 +14,7 @@
  **/
 package ddf.ldap.ldaplogin;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -31,6 +32,13 @@ import org.slf4j.LoggerFactory;
  */
 public class LdapLoginConfig {
 
+    public static final String LDAP_BIND_USER_DN = "ldapBindUserDn";
+    public static final String LDAP_BIND_USER_PASS = "ldapBindUserPass";
+    public static final String LDAP_URL = "ldapUrl";
+    public static final String USER_BASE_DN = "userBaseDn";
+    public static final String GROUP_BASE_DN = "groupBaseDn";
+    public static final String KEY_ALIAS = "keyAlias";
+
     private static String LDAP_MODULE = ddf.ldap.ldaplogin.SslLdapLoginModule.class.getName();
 
     private static String PROPS_MODULE = org.apache.karaf.jaas.modules.properties.PropertiesLoginModule.class.getName();
@@ -46,18 +54,16 @@ public class LdapLoginConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapLoginConfig.class);
 
+    private Map<String, String> ldapProperties = new HashMap<String, String>();
+
     /**
      * Create new LDAP Login configuration.
      *
      * @param context
      *            BundleContext to register services under.
-     * @param defaults
-     *            Default values to use for initial registration.
      */
-    public LdapLoginConfig(BundleContext context, Map<String, String> defaults) {
+    public LdapLoginConfig(BundleContext context) {
         this.context = context;
-        LOGGER.debug("Configuring with default values.");
-        update(defaults);
     }
 
     /**
@@ -112,21 +118,21 @@ public class LdapLoginConfig {
         ldapModule.setName("ldapModule");
         Properties props = new Properties();
         props.put("initial.context.factory", "com.sun.jndi.ldap.LdapCtxFactory");
-        props.put("connection.username", properties.get("ldapBindUserDn"));
-        props.put("connection.password", properties.get("ldapBindUserPass"));
-        props.put("connection.url", properties.get("ldapUrl"));
-        props.put("user.base.dn", properties.get("userBaseDn"));
+        props.put("connection.username", properties.get(LDAP_BIND_USER_DN));
+        props.put("connection.password", properties.get(LDAP_BIND_USER_PASS));
+        props.put("connection.url", properties.get(LDAP_URL));
+        props.put("user.base.dn", properties.get(USER_BASE_DN));
         props.put("user.filter", "(uid=%u)");
         props.put("user.search.subtree", "true");
-        props.put("role.base.dn", properties.get("groupBaseDn"));
-        props.put("role.filter", "(member=uid=%u," + properties.get("userBaseDn") + ")");
+        props.put("role.base.dn", properties.get(GROUP_BASE_DN));
+        props.put("role.filter", "(member=uid=%u," + properties.get(USER_BASE_DN) + ")");
         props.put("role.name.attribute", "cn");
         props.put("role.search.subtree", "true");
         props.put("authentication", "simple");
         props.put("ssl.protocol", "SSL");
         props.put("ssl.truststore", "ts");
         props.put("ssl.keystore", "ks");
-        props.put("ssl.keyalias", properties.get("keyAlias"));
+        props.put("ssl.keyalias", properties.get(KEY_ALIAS));
         props.put("ssl.algorithm", "SunX509");
         ldapModule.setOptions(props);
 
@@ -142,5 +148,40 @@ public class LdapLoginConfig {
         props.put("users", System.getProperty("ddf.home") + "/etc/users.properties");
         propsModule.setOptions(props);
         return propsModule;
+    }
+
+    public void setLdapBindUserDn(String ldapBindUserDn) {
+        LOGGER.trace("setLdapBindUserDn called: {}", ldapBindUserDn);
+        ldapProperties.put(LDAP_BIND_USER_DN, ldapBindUserDn);
+    }
+
+    public void setLdapBindUserPass(String bindUserPass) {
+        LOGGER.trace("setLdapBindUserPass called: {}", bindUserPass);
+        ldapProperties.put(LDAP_BIND_USER_PASS, bindUserPass);
+    }
+
+    public void setLdapUrl(String ldapUrl) {
+        LOGGER.trace("setLdapUrl called: {}", ldapUrl);
+        ldapProperties.put(LDAP_URL, ldapUrl);
+    }
+
+    public void setUserBaseDn(String userBaseDn) {
+        LOGGER.trace("setUserBaseDn called: {}", userBaseDn);
+        ldapProperties.put(USER_BASE_DN, userBaseDn);
+    }
+
+    public void setGroupBaseDn(String groupBaseDn) {
+        LOGGER.trace("setGroupBaseDn called: {}", groupBaseDn);
+        ldapProperties.put(GROUP_BASE_DN, groupBaseDn);
+    }
+
+    public void setKeyAlias(String keyAlias) {
+        LOGGER.trace("setKeyAlias called: {}", keyAlias);
+        ldapProperties.put(KEY_ALIAS, keyAlias);
+    }
+
+    public void configure() {
+        LOGGER.trace("configure called - calling update");
+        update(ldapProperties);
     }
 }
