@@ -22,163 +22,243 @@
      automatically installed when dropped inside the deploy folder. Note: This attribute doesn't
      affect feature descriptors that are installed from the command line or as part of the
      org.apache.karaf.features.cfg."
---> 
+-->
 <features name="${project.artifactId}-${project.version}">
 
-  <!--
-  Begin Camel Features 2.12.1; All feature definitions come from 3rd party feature file
-      (org.apache.camel.karaf/apache-camel/2.12.1/xml/features)
-
-  DO NOT EDIT
-  -->
-  <feature name='xml-specs-api' install='manual' version='2.2.0' resolver='(obr)' start-level='10'>
-    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/2.2.0</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/2.2.0</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxb-api-2.2/2.2.0</bundle>
-    <bundle dependency='true'>mvn:org.codehaus.woodstox/stax2-api/3.1.1</bundle>
-    <bundle dependency='true'>mvn:org.codehaus.woodstox/woodstox-core-asl/4.2.0</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/2.2.1.1_2</bundle>
-  </feature>
-  <feature name='camel' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
-    <feature version='2.12.1'>camel-core</feature>
-    <feature version='2.12.1'>camel-spring</feature>
-    <feature version='2.12.1'>camel-blueprint</feature>
-  </feature>
-  <feature name='camel-core' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
-    <feature version='2.2.0'>xml-specs-api</feature>
-    <bundle>mvn:org.apache.camel/camel-core/2.12.1</bundle>
-    <bundle>mvn:org.apache.camel.karaf/camel-karaf-commands/2.12.1</bundle>
-  </feature>
-  <feature name='camel-spring' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
-    <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
-    <feature version='[3.1,3.3)'>spring</feature>
-    <feature version='[1.2,2)'>spring-dm</feature>
-    <feature version='[3.1,3.3)'>spring-tx</feature>
-    <feature version='2.12.1'>camel-core</feature>
-    <bundle>mvn:org.apache.camel/camel-spring/2.12.1</bundle>
-  </feature>
-
-  <!-- the following features are sorted A..Z -->
-  <feature name='camel-blueprint' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
-     <feature version='2.12.1'>camel-core</feature>
-     <bundle>mvn:org.apache.camel/camel-blueprint/2.12.1</bundle>
-  </feature>
-  <feature name='camel-freemarker' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
-    <feature version='2.12.1'>camel-core</feature>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.freemarker/2.3.20_1</bundle>
-    <bundle>mvn:org.apache.camel/camel-freemarker/2.12.1</bundle>
-  </feature>
-  <feature name='camel-http' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
-    <feature version='2.12.1'>camel-core</feature>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-httpclient/3.1_7</bundle>
-    <bundle dependency='true'>mvn:commons-codec/commons-codec/1.8</bundle>
-    <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-servlet_2.5_spec/1.2</bundle>
-    <bundle>mvn:org.apache.camel/camel-http/2.12.1</bundle>
-  </feature>
-  <feature name='camel-jetty' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
-    <feature>jetty</feature>
-    <feature version='2.12.1'>camel-core</feature>
-    <feature version='2.12.1'>camel-http</feature>
-    <bundle>mvn:org.apache.camel/camel-jetty/2.12.1</bundle>
-  </feature>
-  <feature name='camel-jms' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
-    <feature version='[3.1,3.3)'>spring</feature>
-    <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
-    <bundle dependency='true'>mvn:commons-pool/commons-pool/1.6</bundle>
-    <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
-    <feature version='[3.1,3.3)'>spring-jms</feature>
-    <feature version='2.12.1'>camel-core</feature>
-    <bundle>mvn:org.apache.camel/camel-jms/2.12.1</bundle>
-  </feature>
-  <feature name='camel-test' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
-    <feature version='2.12.1'>camel-core</feature>
-    <feature version='2.12.1'>camel-spring</feature>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.junit/4.11_1</bundle>
-    <bundle>mvn:org.apache.camel/camel-test/2.12.1</bundle>
-  </feature>
-
-   <!-- End Camel Features -->
-
-   <!-- DO NOT EDIT
-        CXF 2.7.8 Features; All feature definitions come from 3rd party feature file:
-        apache-cxf-2.7.8-src/osgi/karaf/features/src/main/resources/features.xml
-
-        DDF Changes made:
-        cxf-transports-udp, cxf-ws-discovery-api, cxf-wsn, and cxf-ws-discovery
-        features removed due to dependency on activemq and mina
-
-        added install="manual" to all features
-
-        removed cxf-rs-security-oauth and cxf-rs-security-oauth2 due to incompatibility
-        with other implementations
-
-        changed project.version to cxf.version
-
-        removed feature references http-whiteboard (from cxf-http) and jetty (from cxf-http-jetty)
-        to make it easier to directly use the pax features file to upgrade jetty versions.
+    <!--
+    Begin Camel Features 2.12.1; All feature definitions come from 3rd party feature file
+        (org.apache.camel.karaf/apache-camel/2.12.1/xml/features)
 
     DO NOT EDIT
     -->
+    <feature name='xml-specs-api' install='manual' version='2.2.0' resolver='(obr)'
+             start-level='10'>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/2.2.0
+        </bundle>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/2.2.0
+        </bundle>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxb-api-2.2/2.2.0
+        </bundle>
+        <bundle dependency='true'>mvn:org.codehaus.woodstox/stax2-api/3.1.1</bundle>
+        <bundle dependency='true'>mvn:org.codehaus.woodstox/woodstox-core-asl/4.2.0</bundle>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/2.2.1.1_2
+        </bundle>
+    </feature>
+    <feature name='camel' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
+        <feature version='2.12.1'>camel-core</feature>
+        <feature version='2.12.1'>camel-spring</feature>
+        <feature version='2.12.1'>camel-blueprint</feature>
+    </feature>
+    <feature name='camel-core' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
+        <feature version='2.2.0'>xml-specs-api</feature>
+        <bundle>mvn:org.apache.camel/camel-core/2.12.1</bundle>
+        <bundle>mvn:org.apache.camel.karaf/camel-karaf-commands/2.12.1</bundle>
+    </feature>
+    <feature name='camel-spring' install='manual' version='2.12.1' resolver='(obr)'
+             start-level='50'>
+        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
+        <feature version='[3.1,3.3)'>spring</feature>
+        <feature version='[1.2,2)'>spring-dm</feature>
+        <feature version='[3.1,3.3)'>spring-tx</feature>
+        <feature version='2.12.1'>camel-core</feature>
+        <bundle>mvn:org.apache.camel/camel-spring/2.12.1</bundle>
+    </feature>
+
+    <!-- the following features are sorted A..Z -->
+    <feature name='camel-blueprint' install='manual' version='2.12.1' resolver='(obr)'
+             start-level='50'>
+        <feature version='2.12.1'>camel-core</feature>
+        <bundle>mvn:org.apache.camel/camel-blueprint/2.12.1</bundle>
+    </feature>
+    <feature name='camel-freemarker' install='manual' version='2.12.1' resolver='(obr)'
+             start-level='50'>
+        <feature version='2.12.1'>camel-core</feature>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.freemarker/2.3.20_1
+        </bundle>
+        <bundle>mvn:org.apache.camel/camel-freemarker/2.12.1</bundle>
+    </feature>
+    <feature name='camel-http' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
+        <feature version='2.12.1'>camel-core</feature>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-httpclient/3.1_7
+        </bundle>
+        <bundle dependency='true'>mvn:commons-codec/commons-codec/1.8</bundle>
+        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-servlet_2.5_spec/1.2
+        </bundle>
+        <bundle>mvn:org.apache.camel/camel-http/2.12.1</bundle>
+    </feature>
+    <feature name='camel-jetty' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
+        <feature>jetty</feature>
+        <feature version='2.12.1'>camel-core</feature>
+        <feature version='2.12.1'>camel-http</feature>
+        <bundle>mvn:org.apache.camel/camel-jetty/2.12.1</bundle>
+    </feature>
+    <feature name='camel-jms' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
+        <feature version='[3.1,3.3)'>spring</feature>
+        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
+        <bundle dependency='true'>mvn:commons-pool/commons-pool/1.6</bundle>
+        <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
+        <feature version='[3.1,3.3)'>spring-jms</feature>
+        <feature version='2.12.1'>camel-core</feature>
+        <bundle>mvn:org.apache.camel/camel-jms/2.12.1</bundle>
+    </feature>
+    <feature name='camel-test' install='manual' version='2.12.1' resolver='(obr)' start-level='50'>
+        <feature version='2.12.1'>camel-core</feature>
+        <feature version='2.12.1'>camel-spring</feature>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.junit/4.11_1
+        </bundle>
+        <bundle>mvn:org.apache.camel/camel-test/2.12.1</bundle>
+    </feature>
+
+    <!-- End Camel Features -->
+
+    <!-- DO NOT EDIT
+         CXF 2.7.8 Features; All feature definitions come from 3rd party feature file:
+         apache-cxf-2.7.8-src/osgi/karaf/features/src/main/resources/features.xml
+
+         DDF Changes made:
+         cxf-transports-udp, cxf-ws-discovery-api, cxf-wsn, and cxf-ws-discovery
+         features removed due to dependency on activemq and mina
+
+         added install="manual" to all features
+
+         removed cxf-rs-security-oauth and cxf-rs-security-oauth2 due to incompatibility
+         with other implementations
+
+         changed project.version to cxf.version
+
+         removed feature references http-whiteboard (from cxf-http) and jetty (from cxf-http-jetty)
+         to make it easier to directly use the pax features file to upgrade jetty versions.
+
+     DO NOT EDIT
+     -->
     <feature name="cxf-specs" install="manual" version="${cxf.version}" resolver='(obr)'>
         <bundle start-level='9'>mvn:org.apache.geronimo.specs/geronimo-osgi-registry/1.1</bundle>
-        <bundle start-level='10' dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${cxf.servicemix.specs.version}</bundle>
-        <bundle start-level='10'>mvn:org.apache.geronimo.specs/geronimo-annotation_1.0_spec/${cxf.geronimo.annotation.version}</bundle>
-        <bundle start-level='10' dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${cxf.servicemix.specs.version}</bundle>
-        <bundle start-level='10' dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxb-api-2.2/${cxf.servicemix.specs.version}</bundle>
-        <bundle start-level='10' dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxws-api-2.2/${cxf.servicemix.specs.version}</bundle>
-        <bundle start-level='10' dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.saaj-api-1.3/${cxf.servicemix.specs.version}</bundle>
-        <bundle start-level='10'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-m10/${cxf.servicemix.specs.version}</bundle>
-        <bundle start-level='10' dependency="true">mvn:javax.mail/mail/${cxf.javax.mail.version}</bundle>
+        <bundle start-level='10' dependency="true">
+            mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${cxf.servicemix.specs.version}
+        </bundle>
+        <bundle start-level='10'>
+            mvn:org.apache.geronimo.specs/geronimo-annotation_1.0_spec/${cxf.geronimo.annotation.version}
+        </bundle>
+        <bundle start-level='10' dependency="true">
+            mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${cxf.servicemix.specs.version}
+        </bundle>
+        <bundle start-level='10' dependency="true">
+            mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxb-api-2.2/${cxf.servicemix.specs.version}
+        </bundle>
+        <bundle start-level='10' dependency="true">
+            mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxws-api-2.2/${cxf.servicemix.specs.version}
+        </bundle>
+        <bundle start-level='10' dependency="true">
+            mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.saaj-api-1.3/${cxf.servicemix.specs.version}
+        </bundle>
+        <bundle start-level='10'>
+            mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-m10/${cxf.servicemix.specs.version}
+        </bundle>
+        <bundle start-level='10' dependency="true">mvn:javax.mail/mail/${cxf.javax.mail.version}
+        </bundle>
 
-        <bundle start-level='20'>mvn:org.codehaus.woodstox/stax2-api/${cxf.woodstox.stax2-api.version}</bundle>
-        <bundle start-level='20'>mvn:org.codehaus.woodstox/woodstox-core-asl/${cxf.woodstox.core.version}</bundle>
+        <bundle start-level='20'>
+            mvn:org.codehaus.woodstox/stax2-api/${cxf.woodstox.stax2-api.version}
+        </bundle>
+        <bundle start-level='20'>
+            mvn:org.codehaus.woodstox/woodstox-core-asl/${cxf.woodstox.core.version}
+        </bundle>
 
-        <bundle start-level='20'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/${cxf.jaxb.bundle.version}</bundle>
-        <bundle start-level='20'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-xjc/${cxf.jaxb.bundle.version}</bundle>
+        <bundle start-level='20'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/${cxf.jaxb.bundle.version}
+        </bundle>
+        <bundle start-level='20'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-xjc/${cxf.jaxb.bundle.version}
+        </bundle>
     </feature>
 
     <feature name='cxf-jaxb' install="manual" version='${cxf.version}' resolver='(obr)'>
         <feature version="${cxf.version}">cxf-specs</feature>
-        <bundle start-level='20'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/${cxf.jaxb.bundle.version}</bundle>
-        <bundle start-level='20'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-xjc/${cxf.jaxb.bundle.version}</bundle>
+        <bundle start-level='20'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/${cxf.jaxb.bundle.version}
+        </bundle>
+        <bundle start-level='20'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-xjc/${cxf.jaxb.bundle.version}
+        </bundle>
     </feature>
 
     <!-- Current the abdera bundle is not working as we expect -->
     <feature name='cxf-abdera' install="manual" version='${cxf.version}' resolver='(obr)'>
         <feature version='${cxf.version}'>cxf-specs</feature>
-        <bundle start-level='35' dependency="true">mvn:commons-codec/commons-codec/${cxf.commons-codec.version}</bundle>
+        <bundle start-level='35' dependency="true">
+            mvn:commons-codec/commons-codec/${cxf.commons-codec.version}
+        </bundle>
 
         <bundle start-level='35'>mvn:org.apache.abdera/abdera-core/${cxf.abdera.version}</bundle>
-        <bundle start-level='35'>mvn:org.apache.abdera/abdera-extensions-main/${cxf.abdera.version}</bundle>
+        <bundle start-level='35'>
+            mvn:org.apache.abdera/abdera-extensions-main/${cxf.abdera.version}
+        </bundle>
         <bundle start-level='35'>mvn:org.apache.abdera/abdera-i18n/${cxf.abdera.version}</bundle>
-        <bundle start-level='35'>mvn:org.apache.james/apache-mime4j-core/${cxf.james.mim4j.version}</bundle>
+        <bundle start-level='35'>
+            mvn:org.apache.james/apache-mime4j-core/${cxf.james.mim4j.version}
+        </bundle>
         <bundle start-level='35'>mvn:org.apache.abdera/abdera-parser/${cxf.abdera.version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/${cxf.jdom.bundle.version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/${cxf.dom4j.bundle.version}</bundle>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/${cxf.jdom.bundle.version}
+        </bundle>
+        <bundle dependency='true'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/${cxf.dom4j.bundle.version}
+        </bundle>
         <!--bundle start-level='35'>mvn:org.apache.abdera/abdera-extensions-html/${cxf.abdera.version}</bundle>
 <bundle start-level='35'>mvn:org.apache.abdera/abdera-extensions-json/${cxf.abdera.version}</bundle>-->
     </feature>
 
     <feature name="wss4j" install="manual" version="${cxf.wss4j.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-specs</feature>
-        <bundle start-level='25' dependency="true">mvn:joda-time/joda-time/${cxf.joda.time.version}</bundle>
-                <bundle start-level='25' dependency="true">mvn:org.apache.santuario/xmlsec/${cxf.xmlsec.bundle.version}</bundle>
-        <bundle start-level='25' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${cxf.opensaml.osgi.version}</bundle>
-        <bundle start-level='25'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saaj-impl/${cxf.saaj-impl.bundle.version}</bundle>
-        <bundle start-level='25'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${cxf.xmlresolver.bundle.version}</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/${cxf.xerces.bundle.version}</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcel/${cxf.bcel.bundle.version}</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan/${cxf.xalan.bundle.version}</bundle>
+        <bundle start-level='25' dependency="true">
+            mvn:joda-time/joda-time/${cxf.joda.time.version}
+        </bundle>
+        <bundle start-level='25' dependency="true">
+            mvn:org.apache.santuario/xmlsec/${cxf.xmlsec.bundle.version}
+        </bundle>
+        <bundle start-level='25' dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${cxf.opensaml.osgi.version}
+        </bundle>
+        <bundle start-level='25'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saaj-impl/${cxf.saaj-impl.bundle.version}
+        </bundle>
+        <bundle start-level='25'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${cxf.xmlresolver.bundle.version}
+        </bundle>
+        <bundle start-level='30' dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/${cxf.xerces.bundle.version}
+        </bundle>
+        <bundle start-level='30' dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcel/${cxf.bcel.bundle.version}
+        </bundle>
+        <bundle start-level='30' dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan/${cxf.xalan.bundle.version}
+        </bundle>
         <bundle start-level='30'>mvn:org.apache.ws.security/wss4j/${cxf.wss4j.version}</bundle>
     </feature>
 
     <feature name="cxf-core" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version='${cxf.version}'>cxf-specs</feature>
 
-        <bundle start-level='30' dependency="true">mvn:org.apache.ws.xmlschema/xmlschema-core/${cxf.xmlschema.version}</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.wsdl4j/${cxf.wsdl4j.bundle.version}</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${cxf.xmlresolver.bundle.version}</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.fastinfoset/${cxf.fastinfoset.bundle.version}</bundle>
+        <bundle start-level='30' dependency="true">
+            mvn:org.apache.ws.xmlschema/xmlschema-core/${cxf.xmlschema.version}
+        </bundle>
+        <bundle start-level='30' dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.wsdl4j/${cxf.wsdl4j.bundle.version}
+        </bundle>
+        <bundle start-level='30' dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${cxf.xmlresolver.bundle.version}
+        </bundle>
+        <bundle start-level='30' dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.fastinfoset/${cxf.fastinfoset.bundle.version}
+        </bundle>
 
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-api/${cxf.version}</bundle>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-core/${cxf.version}</bundle>
@@ -187,7 +267,9 @@
     </feature>
     <feature name="cxf-ws-policy" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
-        <bundle start-level='30' dependency="true">mvn:org.apache.neethi/neethi/${cxf.neethi.version}</bundle>
+        <bundle start-level='30' dependency="true">
+            mvn:org.apache.neethi/neethi/${cxf.neethi.version}
+        </bundle>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-ws-policy/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-ws-addr" install="manual" version="${cxf.version}" resolver='(obr)'>
@@ -212,7 +294,9 @@
         <feature version="${cxf.version}">cxf-ws-policy</feature>
         <feature version="${cxf.wss4j.version}">wss4j</feature>
         <feature version="${cxf.version}">cxf-ws-addr</feature>
-        <bundle start-level='40' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.ehcache/${cxf.ehcache.bundle.version}</bundle>
+        <bundle start-level='40' dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.ehcache/${cxf.ehcache.bundle.version}
+        </bundle>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-ws-security/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-rt-security" install="manual" version="${cxf.version}" resolver='(obr)'>
@@ -226,14 +310,22 @@
     </feature>
     <feature name="cxf-http-jetty" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="[2,3)">cxf-http</feature>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-transports-http-jetty/${cxf.version}</bundle>
+        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-transports-http-jetty/${cxf.version}
+        </bundle>
     </feature>
     <feature name="cxf-http-async" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="[2,3)">cxf-http</feature>
-        <bundle start-level='40'>mvn:org.apache.httpcomponents/httpcore-osgi/${cxf.httpcomponents.core.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.httpcomponents/httpclient-osgi/${cxf.httpcomponents.client.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.httpcomponents/httpasyncclient-osgi/${cxf.httpcomponents.asyncclient.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-transports-http-hc/${cxf.version}</bundle>
+        <bundle start-level='40'>
+            mvn:org.apache.httpcomponents/httpcore-osgi/${cxf.httpcomponents.core.version}
+        </bundle>
+        <bundle start-level='40'>
+            mvn:org.apache.httpcomponents/httpclient-osgi/${cxf.httpcomponents.client.version}
+        </bundle>
+        <bundle start-level='40'>
+            mvn:org.apache.httpcomponents/httpasyncclient-osgi/${cxf.httpcomponents.asyncclient.version}
+        </bundle>
+        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-transports-http-hc/${cxf.version}
+        </bundle>
     </feature>
     <feature name="cxf-bindings-soap" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
@@ -253,11 +345,15 @@
         <feature version="${cxf.version}">cxf-core</feature>
         <feature version="${cxf.version}">cxf-http</feature>
 
-        <bundle start-level="30" dependency="true">mvn:org.codehaus.jettison/jettison/${cxf.jettison.version}</bundle>
+        <bundle start-level="30" dependency="true">
+            mvn:org.codehaus.jettison/jettison/${cxf.jettison.version}
+        </bundle>
 
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-bindings-xml/${cxf.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-rs-extension-providers/${cxf.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-rs-extension-search/${cxf.version}</bundle>
+        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-rs-extension-providers/${cxf.version}
+        </bundle>
+        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-rs-extension-search/${cxf.version}
+        </bundle>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-frontend-jaxrs/${cxf.version}</bundle>
     </feature>
 
@@ -267,9 +363,11 @@
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-rs-security-xml/${cxf.version}</bundle>
     </feature>
 
-    <feature name="cxf-rs-security-sso-saml" install="manual" version="${cxf.version}" resolver='(obr)'>
+    <feature name="cxf-rs-security-sso-saml" install="manual" version="${cxf.version}"
+             resolver='(obr)'>
         <feature version="${cxf.version}">cxf-rs-security-xml</feature>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-rs-security-sso-saml/${cxf.version}</bundle>
+        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-rs-security-sso-saml/${cxf.version}
+        </bundle>
     </feature>
 
     <feature name="cxf-rs-security-cors" install="manual" version="${cxf.version}" resolver='(obr)'>
@@ -277,7 +375,8 @@
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-rs-security-cors/${cxf.version}</bundle>
     </feature>
 
-    <feature name="cxf-databinding-aegis" install="manual" version="${cxf.version}" resolver='(obr)'>
+    <feature name="cxf-databinding-aegis" install="manual" version="${cxf.version}"
+             resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
         <feature version="${cxf.version}">cxf-bindings-soap</feature>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-databinding-aegis/${cxf.version}</bundle>
@@ -285,12 +384,20 @@
     <feature name="cxf-databinding-jibx" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
         <feature version="${cxf.version}">cxf-tools</feature>
-        <bundle start-level='25' dependency="true">mvn:joda-time/joda-time/${cxf.joda.time.version}</bundle>
-        <bundle start-level='40' dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${cxf.xpp3.bundle.version}</bundle>
-        <bundle start-level='40' dependency='true'>mvn:org.jibx/jibx-run/${cxf.jibx.version}</bundle>
-        <bundle start-level='40' dependency='true'>mvn:org.jibx/jibx-bind/${cxf.jibx.version}</bundle>
-        <bundle start-level='40' dependency='true'>mvn:org.jibx/jibx-schema/${cxf.jibx.version}</bundle>
-        <bundle start-level='40' dependency='true'>mvn:org.jibx/jibx-tools/${cxf.jibx.version}</bundle>
+        <bundle start-level='25' dependency="true">
+            mvn:joda-time/joda-time/${cxf.joda.time.version}
+        </bundle>
+        <bundle start-level='40' dependency='true'>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/${cxf.xpp3.bundle.version}
+        </bundle>
+        <bundle start-level='40' dependency='true'>mvn:org.jibx/jibx-run/${cxf.jibx.version}
+        </bundle>
+        <bundle start-level='40' dependency='true'>mvn:org.jibx/jibx-bind/${cxf.jibx.version}
+        </bundle>
+        <bundle start-level='40' dependency='true'>mvn:org.jibx/jibx-schema/${cxf.jibx.version}
+        </bundle>
+        <bundle start-level='40' dependency='true'>mvn:org.jibx/jibx-tools/${cxf.jibx.version}
+        </bundle>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-databinding-jibx/${cxf.version}</bundle>
     </feature>
 
@@ -299,14 +406,20 @@
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-databinding-jaxb/${cxf.version}</bundle>
     </feature>
 
-    <feature name="cxf-databinding-xmlbeans" install="manual" version="${cxf.version}" resolver='(obr)'>
+    <feature name="cxf-databinding-xmlbeans" install="manual" version="${cxf.version}"
+             resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlbeans/${cxf.xmlbeans.bundle.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-databinding-xmlbeans/${cxf.version}</bundle>
+        <bundle start-level='30' dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlbeans/${cxf.xmlbeans.bundle.version}
+        </bundle>
+        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-databinding-xmlbeans/${cxf.version}
+        </bundle>
     </feature>
-    <feature name="cxf-features-clustering" install="manual" version="${cxf.version}" resolver='(obr)'>
+    <feature name="cxf-features-clustering" install="manual" version="${cxf.version}"
+             resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-features-clustering/${cxf.version}</bundle>
+        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-features-clustering/${cxf.version}
+        </bundle>
     </feature>
 
     <feature name="cxf-bindings-corba" install="manual" version="${cxf.version}" resolver='(obr)'>
@@ -341,16 +454,23 @@
         <feature version="${cxf.version}">cxf-bindings-soap</feature>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-javascript/${cxf.version}</bundle>
     </feature>
-    <feature name="cxf-frontend-javascript" install="manual" version="${cxf.version}" resolver='(obr)'>
+    <feature name="cxf-frontend-javascript" install="manual" version="${cxf.version}"
+             resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
         <feature version="${cxf.version}">cxf-jaxws</feature>
-        <bundle start-level='40' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.rhino/${cxf.rhino.bundle.version}</bundle>
+        <bundle start-level='40' dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.rhino/${cxf.rhino.bundle.version}
+        </bundle>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-frontend-js/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-xjc-runtime" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-jaxb</feature>
-        <bundle start-level='40' dependency="true">mvn:commons-lang/commons-lang/${cxf.commons-lang.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf.xjc-utils/cxf-xjc-runtime/${cxf.xjc-utils.version}</bundle>
+        <bundle start-level='40' dependency="true">
+            mvn:commons-lang/commons-lang/${cxf.commons-lang.version}
+        </bundle>
+        <bundle start-level='40'>
+            mvn:org.apache.cxf.xjc-utils/cxf-xjc-runtime/${cxf.xjc-utils.version}
+        </bundle>
     </feature>
     <feature name="cxf-tools" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
@@ -364,7 +484,8 @@
 
         <bundle>mvn:commons-lang/commons-lang/${cxf.commons-lang.version}</bundle>
         <bundle>mvn:org.apache.velocity/velocity/${cxf.velocity.version}</bundle>
-        <bundle>mvn:commons-collections/commons-collections/${cxf.commons-collections.version}</bundle>
+        <bundle>mvn:commons-collections/commons-collections/${cxf.commons-collections.version}
+        </bundle>
 
 
         <bundle>mvn:org.apache.cxf/cxf-tools-common/${cxf.version}</bundle>
@@ -421,8 +542,12 @@
     </feature>
 
     <feature name="cxf-sts" install="manual" version="${cxf.version}" resolver='(obr)'>
-        <bundle start-level='40' dependency="true">mvn:com.hazelcast/hazelcast/${cxf.hazelcast.version}</bundle>
-        <bundle start-level='40' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.ehcache/${cxf.ehcache.bundle.version}</bundle>
+        <bundle start-level='40' dependency="true">
+            mvn:com.hazelcast/hazelcast/${cxf.hazelcast.version}
+        </bundle>
+        <bundle start-level='40' dependency="true">
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.ehcache/${cxf.ehcache.bundle.version}
+        </bundle>
         <feature version="${cxf.version}">cxf-core</feature>
         <feature version="${cxf.version}">cxf-ws-security</feature>
         <bundle>mvn:org.apache.cxf.services.sts/cxf-services-sts-core/${cxf.version}</bundle>
@@ -435,61 +560,82 @@
     </feature>
     <!-- End CXF Features -->
 
-	<!--
-	    Cellar 2.3.0 Features; All feature definitions come from 3rd party feature file.
+    <!--
+        Cellar 2.3.0 Features; All feature definitions come from 3rd party feature file.
 
-	    DO NOT EDIT
-	-->
-    <feature name="cellar-core" install="manual" description="Karaf clustering core" version="2.3.0" resolver="(obr)">
+        DO NOT EDIT
+    -->
+    <feature name="cellar-core" install="manual" description="Karaf clustering core" version="2.3.0"
+             resolver="(obr)">
         <configfile finalname="/etc/org.apache.karaf.cellar.groups.cfg">
             mvn:org.apache.karaf.cellar/apache-karaf-cellar/2.3.0/cfg/groups
         </configfile>
         <configfile finalname="/etc/org.apache.karaf.cellar.node.cfg">
             mvn:org.apache.karaf.cellar/apache-karaf-cellar/2.3.0/cfg/node
         </configfile>
-        <bundle start-level="30">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.core/2.3.0</bundle>
-        <bundle start-level="31">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.utils/2.3.0</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.core/2.3.0
+        </bundle>
+        <bundle start-level="31">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.utils/2.3.0
+        </bundle>
     </feature>
 
-    <feature name="hazelcast" install="manual" description="In memory data grid" version="2.5" resolver="(obr)">
+    <feature name="hazelcast" install="manual" description="In memory data grid" version="2.5"
+             resolver="(obr)">
         <configfile finalname="/etc/hazelcast.xml">
             mvn:org.apache.karaf.cellar/apache-karaf-cellar/2.3.0/xml/hazelcast
         </configfile>
         <bundle start-level="32" dependency="true">mvn:com.hazelcast/hazelcast/2.5</bundle>
     </feature>
 
-    <feature name="cellar-hazelcast" install="manual" description="Cellar implementation based on Hazelcast" version="2.3.0" resolver="(obr)">
+    <feature name="cellar-hazelcast" install="manual"
+             description="Cellar implementation based on Hazelcast" version="2.3.0"
+             resolver="(obr)">
         <feature version="2.5">hazelcast</feature>
         <feature version="2.3.0">cellar-core</feature>
-        <bundle start-level="33">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.hazelcast/2.3.0</bundle>
+        <bundle start-level="33">
+            mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.hazelcast/2.3.0
+        </bundle>
     </feature>
 
-    <feature name="cellar-config" install="manual" description="ConfigAdmin cluster support" version="2.3.0" resolver="(obr)">
+    <feature name="cellar-config" install="manual" description="ConfigAdmin cluster support"
+             version="2.3.0" resolver="(obr)">
         <feature version="2.3.0">cellar-core</feature>
-        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.config/2.3.0</bundle>
+        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.config/2.3.0
+        </bundle>
     </feature>
 
-    <feature name="cellar-features" install="manual" description="Karaf features cluster support" version="2.3.0" resolver="(obr)">
+    <feature name="cellar-features" install="manual" description="Karaf features cluster support"
+             version="2.3.0" resolver="(obr)">
         <feature version="2.3.0">cellar-core</feature>
-        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.features/2.3.0</bundle>
+        <bundle start-level="40">
+            mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.features/2.3.0
+        </bundle>
     </feature>
 
-    <feature name="cellar-bundle" install="manual" description="Bundle cluster support" version="2.3.0" resolver="(obr)">
+    <feature name="cellar-bundle" install="manual" description="Bundle cluster support"
+             version="2.3.0" resolver="(obr)">
         <feature version="2.3.0">cellar-core</feature>
-        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.bundle/2.3.0</bundle>
+        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.bundle/2.3.0
+        </bundle>
     </feature>
 
-    <feature name="cellar-shell" install="manual" description="Cellar shell commands" version="2.3.0" resolver="(obr)">
+    <feature name="cellar-shell" install="manual" description="Cellar shell commands"
+             version="2.3.0" resolver="(obr)">
         <feature version="2.3.0">cellar-core</feature>
-        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.shell/2.3.0</bundle>
+        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.shell/2.3.0
+        </bundle>
     </feature>
 
-    <feature name="cellar-management" install="manual" description="Cellar management" version="2.3.0" resolver="(obr)">
+    <feature name="cellar-management" install="manual" description="Cellar management"
+             version="2.3.0" resolver="(obr)">
         <feature version="2.3.0">cellar-core</feature>
-        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.management/2.3.0</bundle>
+        <bundle start-level="40">
+            mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.management/2.3.0
+        </bundle>
     </feature>
 
-    <feature name="cellar" install="manual" description="Karaf clustering" version="2.3.0" resolver="(obr)">
+    <feature name="cellar" install="manual" description="Karaf clustering" version="2.3.0"
+             resolver="(obr)">
         <feature version="2.3.0">cellar-hazelcast</feature>
         <feature version="2.3.0">cellar-shell</feature>
         <feature version="2.3.0">cellar-config</feature>
@@ -498,89 +644,106 @@
         <feature version="2.3.0">cellar-management</feature>
     </feature>
 
-    <feature name="cellar-dosgi" install="manual" description="DOSGi support" version="2.3.0" resolver="(obr)">
+    <feature name="cellar-dosgi" install="manual" description="DOSGi support" version="2.3.0"
+             resolver="(obr)">
         <feature version="2.3.0">cellar-core</feature>
-        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.dosgi/2.3.0</bundle>
+        <bundle start-level="40">mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.dosgi/2.3.0
+        </bundle>
     </feature>
 
-    <feature name="cellar-obr" install="manual" description="OBR cluster support" version="2.3.0" resolver="(obr)">
+    <feature name="cellar-obr" install="manual" description="OBR cluster support" version="2.3.0"
+             resolver="(obr)">
         <feature>obr</feature>
         <feature version="2.3.0">cellar-core</feature>
         <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.obr/2.3.0</bundle>
     </feature>
 
-    <feature name="cellar-event" install="manual" description="OSGi events broadcasting in clusters" version="2.3.0" resolver="(obr)">
+    <feature name="cellar-event" install="manual" description="OSGi events broadcasting in clusters"
+             version="2.3.0" resolver="(obr)">
         <feature>eventadmin</feature>
         <feature version="2.3.0">cellar-core</feature>
         <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.event/2.3.0</bundle>
     </feature>
-<!--
-    <feature name="cellar-cloud" description="Cloud blobstore support in clusters" version="2.3.0" resolver="(obr)">
-        <feature version="2.3.0">cellar-core</feature>
-        <feature version="1.4.0">jclouds</feature>
-        <feature version="1.4.0">jclouds-aws-s3</feature>
-        <bundle dependency="true">mvn:joda-time/joda-time/${joda-time.version}</bundle>
-        <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.cloud/2.3.0</bundle>
-    </feature>
--->
-    <feature name="cellar-webconsole" install="manual" description="Cellar plugin for Karaf WebConsole" version="2.3.0" resolver="(obr)">
+    <!--
+        <feature name="cellar-cloud" description="Cloud blobstore support in clusters" version="2.3.0" resolver="(obr)">
+            <feature version="2.3.0">cellar-core</feature>
+            <feature version="1.4.0">jclouds</feature>
+            <feature version="1.4.0">jclouds-aws-s3</feature>
+            <bundle dependency="true">mvn:joda-time/joda-time/${joda-time.version}</bundle>
+            <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.cloud/2.3.0</bundle>
+        </feature>
+    -->
+    <feature name="cellar-webconsole" install="manual"
+             description="Cellar plugin for Karaf WebConsole" version="2.3.0" resolver="(obr)">
         <feature version="2.3.0">cellar</feature>
         <feature>webconsole</feature>
         <bundle>mvn:org.apache.karaf.cellar/org.apache.karaf.cellar.webconsole/2.3.0</bundle>
     </feature>
     <!-- End Cellar Features -->
 
-	<feature name="platform-scheduler" install="manual" version="${project.version}" description="Schedules tasks">
-		<bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
-	</feature>
-
-    <feature name="platform-commands" install="manual" version="${project.version}" description="Platform Command line tools">
-            <bundle>mvn:ddf.platform/platform-commands/${project.version}</bundle>
+    <feature name="platform-scheduler" install="manual" version="${project.version}"
+             description="Schedules tasks">
+        <bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
     </feature>
 
-    <feature name="platform-configuration" install="manual" version="${project.version}" description="Shared platform configuration">
-      <bundle>mvn:ddf.platform/platform-configuration/${project.version}</bundle>
+    <feature name="platform-commands" install="manual" version="${project.version}"
+             description="Platform Command line tools">
+        <bundle>mvn:ddf.platform/platform-commands/${project.version}</bundle>
     </feature>
 
-    <feature name="action-core-api" install="manual" version="${project.version}" description="DDF Action API">
+    <feature name="platform-configuration" install="manual" version="${project.version}"
+             description="Shared platform configuration">
+        <bundle>mvn:ddf.platform/platform-configuration/${project.version}</bundle>
+    </feature>
+
+    <feature name="action-core-api" install="manual" version="${project.version}"
+             description="DDF Action API">
         <bundle>mvn:ddf.action.core/action-core-api/${project.version}</bundle>
     </feature>
 
-    <feature name="action-core-impl" install="manual" version="${project.version}" description="DDF Action Core">
+    <feature name="action-core-impl" install="manual" version="${project.version}"
+             description="DDF Action Core">
         <feature>action-core-api</feature>
         <bundle>mvn:ddf.action.core/action-core-impl/${project.version}</bundle>
     </feature>
+    <!--
+        <feature name="cache-core-api" install="manual" version="${project.version}" description="DDF Cache API">
+            <bundle>mvn:ddf.cache.core/cache-core-api/${project.version}</bundle>
+        </feature>
 
-    <feature name="cache-core-api" install="manual" version="${project.version}" description="DDF Cache API">
-        <bundle>mvn:ddf.cache.core/cache-core-api/${project.version}</bundle>
+        <feature name="cache-core" install="manual" version="${project.version}" description="DDF Cache Core">
+            <feature>cache-core-api</feature>
+            <bundle>mvn:ddf.cache.core/cache-core-impl/${project.version}</bundle>
+        </feature>
+    -->
+    <feature name="notifications-core-api" install="manual" version="${project.version}"
+             description="DDF Notifications API">
+        <bundle>mvn:ddf.notifications.core/platform-notifications-core-api/${project.version}
+        </bundle>
     </feature>
 
-    <feature name="cache-core" install="manual" version="${project.version}" description="DDF Cache Core">
-        <feature>cache-core-api</feature>
-        <bundle>mvn:ddf.cache.core/cache-core-impl/${project.version}</bundle>
-    </feature>
-
-    <feature name="notifications-core-api" install="manual" version="${project.version}" description="DDF Notifications API">
-        <bundle>mvn:ddf.notifications.core/platform-notifications-core-api/${project.version}</bundle>
-    </feature>
-
-    <feature name="notifications-core" install="manual" version="${project.version}" description="DDF Notifications Core">
+    <feature name="notifications-core" install="manual" version="${project.version}"
+             description="DDF Notifications Core">
         <feature>notifications-core-api</feature>
         <feature>persistence-core-api</feature>
         <bundle>mvn:ddf.notifications.core/platform-core-notifications/${project.version}</bundle>
     </feature>
 
-    <feature name="notifications-commands" install="manual" version="${project.version}" description="DDF Notifications Console Commands">
+    <feature name="notifications-commands" install="manual" version="${project.version}"
+             description="DDF Notifications Console Commands">
         <feature>notifications-core-api</feature>
         <feature>persistence-core-api</feature>
-        <bundle>mvn:ddf.notifications.core/platform-core-notificationcommands/${project.version}</bundle>
+        <bundle>mvn:ddf.notifications.core/platform-core-notificationcommands/${project.version}
+        </bundle>
     </feature>
 
-    <feature name="mime-core-api" install="manual" version="${project.version}" description="DDF MIME API">
+    <feature name="mime-core-api" install="manual" version="${project.version}"
+             description="DDF MIME API">
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
     </feature>
 
-    <feature name="mime-core" install="manual" version="${project.version}" description="DDF MIME Core">
+    <feature name="mime-core" install="manual" version="${project.version}"
+             description="DDF MIME Core">
         <feature>mime-core-api</feature>
         <bundle>mvn:ddf.mime.core/mime-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
@@ -596,96 +759,176 @@
         </config>
     </feature>
 
-    <feature name="mime-tika-resolver" install="manual" version="${project.version}" description="DDF Tika MIME Resolver.">
+    <feature name="mime-tika-resolver" install="manual" version="${project.version}"
+             description="DDF Tika MIME Resolver.">
         <bundle>mvn:ddf.mime.tika/mime-tika-resolver/${project.version}</bundle>
     </feature>
 
-    <feature name="security-core-api" install="manual" version="${project.version}" description="DDF Security Core">
+    <feature name="security-core-api" install="manual" version="${project.version}"
+             description="DDF Security Core">
         <feature>cxf-rt-security</feature>
         <bundle>mvn:org.apache.shiro/shiro-core/${shiro.version}</bundle>
         <bundle>mvn:ddf.security.core/security-core-api/${project.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxen/${org.apache.servicemix.bundles.jaxen.version}</bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxen/${org.apache.servicemix.bundles.jaxen.version}
+        </bundle>
     </feature>
 
-    <feature name="security-encryption" install="manual" version="${project.version}" description="DDF Security Encryption">
+    <feature name="security-encryption" install="manual" version="${project.version}"
+             description="DDF Security Encryption">
         <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-commands/${project.version}</bundle>
     </feature>
 
     <feature name="metrics-reporting" install="manual" version="${project.version}"
-        description="Metrics reporting for DDF.">
+             description="Metrics reporting for DDF.">
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/3.9_2</bundle>
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:ddf.metrics.reporting/metrics-reporting/${project.version}</bundle>
-        <bundle>mvn:ddf.metrics.webconsoleplugin/metrics-webconsole-plugin/${project.version}</bundle>
+        <bundle>mvn:ddf.metrics.webconsoleplugin/metrics-webconsole-plugin/${project.version}
+        </bundle>
     </feature>
 
     <feature name="metrics-services" install="manual" version="${project.version}"
-        description="cxf interceptors to capture metrics.">
+             description="cxf interceptors to capture metrics.">
         <bundle>mvn:ddf.metrics.interceptor/metrics-interceptor/${project.version}</bundle>
     </feature>
 
     <feature name="platform-delegate-filter" install="manual" version="${project.version}"
-        description="Adds a filter delegate to every incoming servlet context.">
-        <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
+             description="Adds a filter delegate to every incoming servlet context.">
+        <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}
+        </bundle>
     </feature>
 
-    <feature name="solr" install="manual" version="${project.version}" description="DDF Standalone Solr Server">
+    <feature name="solr" install="manual" version="${project.version}"
+             description="DDF Standalone Solr Server">
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
-        <bundle>mvn:org.codice.thirdparty/vecmath/1.3.2_1</bundle> <!-- for GeoTools -->
+        <bundle>mvn:org.codice.thirdparty/vecmath/1.3.2_1</bundle>
+        <!-- for GeoTools -->
         <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
-        <bundle>mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/war</bundle>
+        <bundle>mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/war
+        </bundle>
 
-        <configfile finalname="/solr/collection1/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
-        <configfile finalname="/solr/collection1/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
-        <configfile finalname="/solr/collection1/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
-        <configfile finalname="/solr/collection1/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
-        <configfile finalname="/solr/collection1/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
-        <configfile finalname="/solr/collection1/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+        <configfile finalname="/solr/collection1/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/solr/collection1/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/solr/collection1/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/solr/collection1/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/solr/collection1/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/solr/collection1/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
 
-        <configfile finalname="/data/solr/metacard/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
-        <configfile finalname="/data/solr/metacard/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
-        <configfile finalname="/data/solr/metacard/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
-        <configfile finalname="/data/solr/metacard/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
-        <configfile finalname="/data/solr/metacard/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
-        <configfile finalname="/data/solr/metacard/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
-        <configfile finalname="/data/solr/metacard/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+        <configfile finalname="/data/solr/metacard/conf/solr.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
+        </configfile>
+        <configfile finalname="/data/solr/metacard/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/data/solr/metacard/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/data/solr/metacard/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/data/solr/metacard/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/data/solr/metacard/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/data/solr/metacard/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
 
-        <configfile finalname="/data/solr/workspace/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
-        <configfile finalname="/data/solr/workspace/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
-        <configfile finalname="/data/solr/workspace/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
-        <configfile finalname="/data/solr/workspace/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
-        <configfile finalname="/data/solr/workspace/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
-        <configfile finalname="/data/solr/workspace/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
-        <configfile finalname="/data/solr/workspace/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+        <configfile finalname="/data/solr/workspace/conf/solr.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
+        </configfile>
+        <configfile finalname="/data/solr/workspace/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/data/solr/workspace/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/data/solr/workspace/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/data/solr/workspace/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/data/solr/workspace/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/data/solr/workspace/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
 
-        <configfile finalname="/data/solr/notification/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
-        <configfile finalname="/data/solr/notification/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
-        <configfile finalname="/data/solr/notification/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
-        <configfile finalname="/data/solr/notification/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
-        <configfile finalname="/data/solr/notification/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
-        <configfile finalname="/data/solr/notification/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
-        <configfile finalname="/data/solr/notification/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+        <configfile finalname="/data/solr/notification/conf/solr.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
+        </configfile>
+        <configfile finalname="/data/solr/notification/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/data/solr/notification/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/data/solr/notification/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/data/solr/notification/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/data/solr/notification/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/data/solr/notification/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
 
 
-        <configfile finalname="/data/solr/activity/conf/solr.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr</configfile>
-        <configfile finalname="/data/solr/activity/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig</configfile>
-        <configfile finalname="/data/solr/activity/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
-        <configfile finalname="/data/solr/activity/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
-        <configfile finalname="/data/solr/activity/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
-        <configfile finalname="/data/solr/activity/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>
-        <configfile finalname="/data/solr/activity/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms</configfile>
+        <configfile finalname="/data/solr/activity/conf/solr.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solr
+        </configfile>
+        <configfile finalname="/data/solr/activity/conf/solrconfig.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig
+        </configfile>
+        <configfile finalname="/data/solr/activity/conf/schema.xml">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+        </configfile>
+        <configfile finalname="/data/solr/activity/conf/protwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
+        </configfile>
+        <configfile finalname="/data/solr/activity/conf/stopwords_en.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en
+        </configfile>
+        <configfile finalname="/data/solr/activity/conf/stopwords.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords
+        </configfile>
+        <configfile finalname="/data/solr/activity/conf/synonyms.txt">
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/synonyms
+        </configfile>
 
     </feature>
 
-    <feature name="persistence-core-api" install="manual" version="${project.version}" description="DDF Internal Persistence Core API">
+    <feature name="persistence-core-api" install="manual" version="${project.version}"
+             description="DDF Internal Persistence Core API">
         <bundle>mvn:ddf.persistence.core/persistence-core-api/${project.version}</bundle>
     </feature>
 
-    <feature name="persistence-core" install="manual" version="${project.version}" description="DDF Internal Persistence Core Implementation">
+    <feature name="persistence-core" install="manual" version="${project.version}"
+             description="DDF Internal Persistence Core Implementation">
         <feature>persistence-core-api</feature>
         <bundle>mvn:ddf.persistence.core/persistence-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.persistence.core/persistence-core-commands/${project.version}</bundle>
@@ -694,20 +937,20 @@
     </feature>
 
     <feature name="platform-util" install="manual" version="${project.version}"
-        description="Utility class at the platform level.">
+             description="Utility class at the platform level.">
         <bundle>mvn:ddf.platform/platform-util/${project.version}</bundle>
     </feature>
 
-	<feature name="platform-app" install="auto" version="${project.version}"
-	  description="Installs the DDF platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::DDF Platform">
-		<feature>cxf</feature>
-		<feature>camel</feature>
-		<feature>camel-http</feature>
+    <feature name="platform-app" install="auto" version="${project.version}"
+             description="Installs the DDF platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::DDF Platform">
+        <feature>cxf</feature>
+        <feature>camel</feature>
+        <feature>camel-http</feature>
         <feature>platform-util</feature>
-		<feature>platform-scheduler</feature>
+        <feature>platform-scheduler</feature>
         <feature>platform-commands</feature>
         <feature>platform-configuration</feature>
-		<feature>action-core-api</feature>
+        <feature>action-core-api</feature>
         <feature>action-core-impl</feature>
         <feature>cache-core</feature>
         <feature>notifications-core</feature>
@@ -720,16 +963,24 @@
         <feature>solr</feature>
         <feature>persistence-core</feature>
 
-		<bundle>mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle> <!-- for slf4j-ext -->
-		<bundle>mvn:org.slf4j/slf4j-ext/${org.slf4j.version}</bundle>
-		<bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
-		<bundle>mvn:commons-lang/commons-lang/2.6</bundle>
-		<bundle>mvn:org.ops4j.base/ops4j-base-lang/${org.ops4j-base-lang}</bundle>
-		<bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-lifecycle/${org.ops4j.pax.swissbox.version}</bundle>
-		<bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-optional-jcl/${org.ops4j.pax.swissbox.version}</bundle>
-		<bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-extender/${org.ops4j.pax.swissbox.version}</bundle>
-		<bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/${saxon.bundle.plugin}</bundle>
+        <bundle>mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle>
+        <!-- for slf4j-ext -->
+        <bundle>mvn:org.slf4j/slf4j-ext/${org.slf4j.version}</bundle>
+        <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
+        <bundle>mvn:commons-lang/commons-lang/2.6</bundle>
+        <bundle>mvn:org.ops4j.base/ops4j-base-lang/${org.ops4j-base-lang}</bundle>
+        <bundle>
+            mvn:org.ops4j.pax.swissbox/pax-swissbox-lifecycle/${org.ops4j.pax.swissbox.version}
+        </bundle>
+        <bundle>
+            mvn:org.ops4j.pax.swissbox/pax-swissbox-optional-jcl/${org.ops4j.pax.swissbox.version}
+        </bundle>
+        <bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-extender/${org.ops4j.pax.swissbox.version}
+        </bundle>
+        <bundle>
+            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/${saxon.bundle.plugin}
+        </bundle>
         <bundle>mvn:joda-time/joda-time/${joda-time.version}</bundle>
-	</feature>
+    </feature>
 
 </features>
