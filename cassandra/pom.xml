@@ -13,20 +13,20 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  
+
   <parent>
     <groupId>ddf.platform</groupId>
     <artifactId>platform</artifactId>
     <version>2.5.0-SNAPSHOT</version>
   </parent>
-  
+
   <groupId>ddf.cassandra</groupId>
   <artifactId>cassandra</artifactId>
   <packaging>pom</packaging>
   <name>DDF Cassandra</name>
-  
+
   <modules>
       <module>platform-cassandra-embedded-server</module>
   </modules>
-    
+
 </project>

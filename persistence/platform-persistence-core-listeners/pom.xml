@@ -1,4 +1,3 @@
-
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -54,12 +53,12 @@
         <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>notifications</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>activities</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>0.2.0</version>
         </dependency>
     </dependencies>
 
@@ -79,7 +78,6 @@
             </plugin>
         </plugins>
     </build>
-
 
 
 </project>
