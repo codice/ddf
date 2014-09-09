@@ -12,163 +12,192 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <artifactId>kernel</artifactId>
-    <groupId>ddf.distribution</groupId>
-    <version>2.5.0-SNAPSHOT</version>
-    <relativePath>../kernel/pom.xml</relativePath>
-  </parent>
+    <parent>
+        <artifactId>kernel</artifactId>
+        <groupId>ddf.distribution</groupId>
+        <version>2.5.0-SNAPSHOT</version>
+        <relativePath>../kernel/pom.xml</relativePath>
+    </parent>
 
-  <!--
-  Packages the DDF Standard distribution, which consists of the DDF Core distribution.
+    <!--
+    Packages the DDF Standard distribution, which consists of the DDF Core distribution.
 
-  Note that this distribution has the DDF Kernel distribution as its parent, hence
-  all of the maven goals in the DDF Kernel distribution pom will execute unless they are overridden
-  in this pom.
+    Note that this distribution has the DDF Kernel distribution as its parent, hence
+    all of the maven goals in the DDF Kernel distribution pom will execute unless they are overridden
+    in this pom.
 
-  -->
-  <artifactId>ddf</artifactId>
-  <name>DDF :: Distribution :: DDF</name>
-  <packaging>pom</packaging>
+    -->
+    <artifactId>ddf</artifactId>
+    <name>DDF :: Distribution :: DDF</name>
+    <packaging>pom</packaging>
 
-  <properties>
-    <distribution.file.name>ddf-${project.version}</distribution.file.name>
-    <opendj-embedded.app.version>1.1.0-SNAPSHOT</opendj-embedded.app.version>
-    <ddf.security.app.version>2.4.0-SNAPSHOT</ddf.security.app.version>
-    <ddf.platform.app.version>2.5.0-SNAPSHOT</ddf.platform.app.version>
-    <ddf.content.app.version>2.4.0</ddf.content.app.version>
-    <ddf.catalog.app.version>2.5.0-SNAPSHOT</ddf.catalog.app.version>
-    <ddf.solr.catalog.app.version>2.4.2</ddf.solr.catalog.app.version>
-    <ddf.searchui.app.version>2.5.0-SNAPSHOT</ddf.searchui.app.version>
-    <ddf.spatial.app.version>2.5.0</ddf.spatial.app.version>
-    <ddf.admin.app.version>1.1.0-SNAPSHOT</ddf.admin.app.version>
-    <sitename.default>ddf.distribution</sitename.default>
-  </properties>
+    <properties>
+        <distribution.file.name>ddf-${project.version}</distribution.file.name>
+        <opendj-embedded.app.version>1.1.0</opendj-embedded.app.version>
+        <ddf.security.app.version>2.4.0</ddf.security.app.version>
+        <ddf.platform.app.version>2.5.0</ddf.platform.app.version>
+        <ddf.content.app.version>2.4.0</ddf.content.app.version>
+        <ddf.catalog.app.version>2.5.0</ddf.catalog.app.version>
+        <ddf.solr.catalog.app.version>2.4.2</ddf.solr.catalog.app.version>
+        <ddf.searchui.app.version>2.5.0</ddf.searchui.app.version>
+        <ddf.spatial.app.version>2.5.0</ddf.spatial.app.version>
+        <ddf.admin.app.version>1.0.1</ddf.admin.app.version>
+        <sitename.default>ddf.distribution</sitename.default>
+    </properties>
 
-  <build>
-    <resources>
-      <!--
-      Resources for this distribution include its features XML file and the Apache Karaf
-      .cfg file that defines the feature repositories and list of features to install at startup.
-      -->
-      <resource>
-        <directory>src/main/filtered-resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>**/*</include>
-        </includes>
-      </resource>
-    </resources>
+    <build>
+        <resources>
+            <!--
+            Resources for this distribution include its features XML file and the Apache Karaf
+            .cfg file that defines the feature repositories and list of features to install at startup.
+            -->
+            <resource>
+                <directory>src/main/filtered-resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
 
-    <plugins>
-
-      <!--
-      Adds all of the feature repositories from DDF Kernel distribution, and this DDF Standard distribution
-      to the Karaf system folder, which is the repo for Karaf at runtime.
-      -->
-      <plugin>
-        <groupId>org.apache.karaf.tooling</groupId>
-        <artifactId>features-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>add-features-to-repo</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>add-features-to-repo</goal>
-            </goals>
-            <configuration>
-              <inherited>false</inherited>
-              <descriptors>
-                <descriptor>mvn:ddf.distribution/kernel/${project.version}/xml/features</descriptor>
-                <descriptor>mvn:ddf.platform/platform-app/${ddf.platform.app.version}/xml/features</descriptor>
-                <descriptor>mvn:ddf.security/security-services-app/${ddf.security.app.version}/xml/features</descriptor>
-                <descriptor>mvn:ddf.catalog/catalog-app/${ddf.catalog.app.version}/xml/features</descriptor>
-                <descriptor>mvn:ddf.content/content-app/${ddf.content.app.version}/xml/features</descriptor>
-                <descriptor>mvn:ddf.catalog.solr/catalog-solr-app/${ddf.solr.catalog.app.version}/xml/features</descriptor>
-                <descriptor>mvn:org.codice.opendj.embedded/opendj-embedded-app/${opendj-embedded.app.version}/xml/features</descriptor>
-                <descriptor>mvn:org.codice.ddf.spatial/spatial-app/${ddf.spatial.app.version}/xml/features</descriptor>
-                <descriptor>mvn:ddf.ui.search/search-app/${ddf.searchui.app.version}/xml/features</descriptor>
-                <descriptor>mvn:ddf.admin/admin-app/${ddf.admin.app.version}/xml/features</descriptor>
-              </descriptors>
-              <repository>${setup.folder}/${karaf.folder}/system</repository>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-    </plugins>
-  </build>
-
-  <profiles>
-    <profile>
-      <id>generate_uml_javadoc</id>
-      <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>unpack-javadoc</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>unpack</goal>
-                </goals>
-                <configuration>
-                  <artifactItems>
-                    <artifactItem>
-                      <groupId>ddf.catalog.core</groupId>
-                      <artifactId>catalog-core-api</artifactId>
-                      <version>${ddf.catalog.app.version}</version>
-                      <type>javadoc</type>
-                      <outputDirectory>${setup.folder}/catalog_api_javadoc</outputDirectory>
-                    </artifactItem>
-                    <artifactItem>
-                      <groupId>ddf.mime.core</groupId>
-                      <artifactId>mime-core-api</artifactId>
-                      <version>${ddf.platform.app.version}</version>
-                      <type>javadoc</type>
-                      <outputDirectory>${setup.folder}/mime_api_javadoc</outputDirectory>
-                    </artifactItem>
-                    <artifactItem>
-                      <groupId>ddf.action.core</groupId>
-                      <artifactId>action-core-api</artifactId>
-                      <version>${ddf.platform.app.version}</version>
-                      <type>javadoc</type>
-                      <outputDirectory>${setup.folder}/action_api_javadoc</outputDirectory>
-                    </artifactItem>
-                    <artifactItem>
-                      <groupId>ddf.content.core</groupId>
-                      <artifactId>content-core-api</artifactId>
-                      <version>${ddf.content.app.version}</version>
-                      <type>javadoc</type>
-                      <outputDirectory>${setup.folder}/content_api_javadoc</outputDirectory>
-                    </artifactItem>
-                    <artifactItem>
-                      <groupId>ddf.security.core</groupId>
-                      <artifactId>security-core-api</artifactId>
-                      <version>${ddf.platform.app.version}</version>
-                      <type>javadoc</type>
-                      <outputDirectory>${setup.folder}/security_api_javadoc</outputDirectory>
-                    </artifactItem>
-                    <artifactItem>
-                      <groupId>ddf.security.encryption</groupId>
-                      <artifactId>security-encryption-api</artifactId>
-                      <version>${ddf.platform.app.version}</version>
-                      <type>javadoc</type>
-                      <outputDirectory>${setup.folder}/encryption_api_javadoc</outputDirectory>
-                    </artifactItem>
-                  </artifactItems>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
+
+            <!--
+            Adds all of the feature repositories from DDF Kernel distribution, and this DDF Standard distribution
+            to the Karaf system folder, which is the repo for Karaf at runtime.
+            -->
+            <plugin>
+                <groupId>org.apache.karaf.tooling</groupId>
+                <artifactId>features-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-features-to-repo</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>add-features-to-repo</goal>
+                        </goals>
+                        <configuration>
+                            <inherited>false</inherited>
+                            <descriptors>
+                                <descriptor>
+                                    mvn:ddf.distribution/kernel/${project.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:ddf.platform/platform-app/${ddf.platform.app.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:ddf.security/security-services-app/${ddf.security.app.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:ddf.catalog/catalog-app/${ddf.catalog.app.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:ddf.content/content-app/${ddf.content.app.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:ddf.catalog.solr/catalog-solr-app/${ddf.solr.catalog.app.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:org.codice.opendj.embedded/opendj-embedded-app/${opendj-embedded.app.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:org.codice.ddf.spatial/spatial-app/${ddf.spatial.app.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:ddf.ui.search/search-app/${ddf.searchui.app.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:ddf.admin/admin-app/${ddf.admin.app.version}/xml/features
+                                </descriptor>
+                            </descriptors>
+                            <repository>${setup.folder}/${karaf.folder}/system</repository>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
-      </build>
-    </profile>
-  </profiles>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>generate_uml_javadoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-javadoc</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>ddf.catalog.core</groupId>
+                                            <artifactId>catalog-core-api</artifactId>
+                                            <version>${ddf.catalog.app.version}</version>
+                                            <type>javadoc</type>
+                                            <outputDirectory>${setup.folder}/catalog_api_javadoc
+                                            </outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.mime.core</groupId>
+                                            <artifactId>mime-core-api</artifactId>
+                                            <version>${ddf.platform.app.version}</version>
+                                            <type>javadoc</type>
+                                            <outputDirectory>${setup.folder}/mime_api_javadoc
+                                            </outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.action.core</groupId>
+                                            <artifactId>action-core-api</artifactId>
+                                            <version>${ddf.platform.app.version}</version>
+                                            <type>javadoc</type>
+                                            <outputDirectory>${setup.folder}/action_api_javadoc
+                                            </outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.content.core</groupId>
+                                            <artifactId>content-core-api</artifactId>
+                                            <version>${ddf.content.app.version}</version>
+                                            <type>javadoc</type>
+                                            <outputDirectory>${setup.folder}/content_api_javadoc
+                                            </outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.security.core</groupId>
+                                            <artifactId>security-core-api</artifactId>
+                                            <version>${ddf.platform.app.version}</version>
+                                            <type>javadoc</type>
+                                            <outputDirectory>${setup.folder}/security_api_javadoc
+                                            </outputDirectory>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>ddf.security.encryption</groupId>
+                                            <artifactId>security-encryption-api</artifactId>
+                                            <version>${ddf.platform.app.version}</version>
+                                            <type>javadoc</type>
+                                            <outputDirectory>
+                                                ${setup.folder}/encryption_api_javadoc
+                                            </outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
