@@ -1,33 +1,23 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.notifications.impl;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.isOneOf;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.net.URL;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MapConfig.EvictionPolicy;
+import com.hazelcast.config.MapStoreConfig;
+import com.hazelcast.core.HazelcastInstance;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
@@ -35,12 +25,20 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.MapConfig.EvictionPolicy;
-import com.hazelcast.config.MapStoreConfig;
-import com.hazelcast.core.HazelcastInstance;
+import java.io.File;
+import java.net.URL;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
-import ddf.cache.CacheManager;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 
 public class HazelcastNotificationStoreTest {
 
@@ -51,7 +49,6 @@ public class HazelcastNotificationStoreTest {
 
     private static final String PERSISTENT_CACHE_NAME = "persistentNotifications";
 
-    private CacheManager cacheMgt;
 
     @Test
     public void testCreateCacheWithXmlConfigFile() throws Exception {

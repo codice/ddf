@@ -33,10 +33,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.cache.core</groupId>
-            <artifactId>cache-core-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.notifications.core</groupId>
             <artifactId>platform-notifications-core-api</artifactId>
             <version>${project.version}</version>
