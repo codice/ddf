@@ -35,13 +35,6 @@
             <artifactId>persistence-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Currently cassandra is not being used
-       <dependency>
-           <groupId>ddf.platform.cassandra</groupId>
-           <artifactId>platform-cassandra-embedded-server</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       -->
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
