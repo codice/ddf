@@ -16,47 +16,29 @@
 /*global define*/
 define([
     'js/application',
-    'poller',
-    'js/views/configuration/Service.view',
-    'js/models/Service'
-],function(Application,poller,ServiceView,Service) {
+    'require'
+],function(Application, require) {
 
     Application.App.module('Configurations', function(ServiceModule, App, Backbone, Marionette, $, _) {
 
-            var serviceModel = new Service.Response();
-            serviceModel.fetch();
-            var options = {
-                delay: 10000
-            };
-            var servicePoller = poller.get(serviceModel, options);
-            servicePoller.start();
-
-            var servicePage = new ServiceView.ServicePage({model: serviceModel, poller: servicePoller});
-
-            // Define a controller to run this module
-            // --------------------------------------
-
-            var Controller = Marionette.Controller.extend({
-
-                initialize: function(options){
-                    this.region = options.region;
-                },
-
-                show: function(){
-                    this.region.show(servicePage);
-                }
-
-            });
-
-            // Initialize this module when the app starts
-            // ------------------------------------------
+        require([
+            'js/controllers/App.controller',
+            'js/controllers/ModuleDetail.controller'
+        ], function(AppController, ModuleDetailController) {
 
             ServiceModule.addInitializer(function(){
-                ServiceModule.contentController = new Controller({
-                    region: App.configurations
+
+                ServiceModule.controllers = {};
+                ServiceModule.controllers.appDetailController = new ModuleDetailController({
+                    regions: {
+                        applications: App.configurations
+                    }
                 });
-                ServiceModule.contentController.show();
+
+                // display main app home.
+                ServiceModule.controllers.appDetailController.show();
             });
+        });
 
 
     });
