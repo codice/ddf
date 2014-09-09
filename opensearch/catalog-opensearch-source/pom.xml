@@ -12,103 +12,105 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>catalog-opensearch-pom</artifactId>
-		<groupId>ddf.catalog.opensearch</groupId>
-		<version>2.5.0-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <artifactId>catalog-opensearch-pom</artifactId>
+        <groupId>ddf.catalog.opensearch</groupId>
+        <version>2.5.0-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>catalog-opensearch-source</artifactId>
-	<name>DDF :: Catalog :: OpenSearch :: Source</name>
-	<packaging>bundle</packaging>
+    <artifactId>catalog-opensearch-source</artifactId>
+    <name>DDF :: Catalog :: OpenSearch :: Source</name>
+    <packaging>bundle</packaging>
 
-	<dependencies>
+    <dependencies>
 
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api-impl</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>filter-proxy</artifactId>
-		</dependency>
-
-
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-commons</artifactId>
-
-			<!-- There is a conflict between geotools (specifically gt-xsd-filter) 
-				and jscience. Since there is no direct dependency on jscience, rather 
-				it calls methods in commons-ddf that use jscience, we can add an exclusion 
-				stanza here to omit the transitive jscience dependency from the commons-ddf 
-				dependency and resolve its conflict with geotools. -->
-			<exclusions>
-				<exclusion>
-					<groupId>org.jscience</groupId>
-					<artifactId>jscience</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>filter-proxy</artifactId>
+        </dependency>
 
 
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-commons</artifactId>
 
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.core</artifactId>
-		</dependency>
+            <!-- There is a conflict between geotools (specifically gt-xsd-filter)
+                and jscience. Since there is no direct dependency on jscience, rather
+                it calls methods in commons-ddf that use jscience, we can add an exclusion
+                stanza here to omit the transitive jscience dependency from the commons-ddf
+                dependency and resolve its conflict with geotools. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jscience</groupId>
+                    <artifactId>jscience</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
-		</dependency>
 
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>net.sf.saxon</groupId>
-			<artifactId>saxon</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-ext</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>0.9.24</version>
-		</dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.apache.abdera</groupId>
-			<artifactId>abdera-extensions-opensearch</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>saxon</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-		</dependency>
-		<!-- TEST DEPENDENCIES -->		
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>net.sf.saxon</groupId>
-			<artifactId>saxon-dom</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>0.9.24</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.abdera</groupId>
+            <artifactId>abdera-extensions-opensearch</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <!-- TEST DEPENDENCIES -->
+
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>saxon-dom</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -118,7 +120,7 @@
         <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
-            <version>2.3.2-SNAPSHOT</version>
+            <version>${ddf.platform.app.version}</version>
         </dependency>
 
         <dependency>
@@ -148,42 +150,42 @@
             <version>${project.version}</version>
         </dependency>
 
-	</dependencies>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Import-Package>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Import-Package>
                             <!-- To avoid ClassNotFoundException for FOMFactory -->
-							org.apache.axiom.om,
-							org.apache.axiom.om.impl.llom.factory,
-							org.apache.abdera.parser.stax;version="[${abdera.version}, 2.0)",
-							org.apache.abdera.parser.stax.util;version="[${abdera.version}, 2.0)",
-							org.apache.abdera.util,
-							org.apache.abdera.writer,
-							org.apache.abdera.factory,
-							org.apache.abdera.i18n.text.io, <!-- needed by AbstractWriter -->
-							org.apache.abdera.i18n.iri, <!-- Element -->
-							org.apache.abdera.i18n.rfc4646, <!-- Element -->
-							com.ctc.wstx.stax, <!-- needed by FOMWriter -->
-							*
-						</Import-Package>
-						<Private-Package>
-                            ddf.catalog.source.opensearch,						
-                            ddf.catalog.data.impl,						
-			                ddf.catalog.operation.impl,
-			                ddf.catalog.util.impl
-			            </Private-Package>		            
-						<Export-Package />
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+                            org.apache.axiom.om,
+                            org.apache.axiom.om.impl.llom.factory,
+                            org.apache.abdera.parser.stax;version="[${abdera.version}, 2.0)",
+                            org.apache.abdera.parser.stax.util;version="[${abdera.version}, 2.0)",
+                            org.apache.abdera.util,
+                            org.apache.abdera.writer,
+                            org.apache.abdera.factory,
+                            org.apache.abdera.i18n.text.io, <!-- needed by AbstractWriter -->
+                            org.apache.abdera.i18n.iri, <!-- Element -->
+                            org.apache.abdera.i18n.rfc4646, <!-- Element -->
+                            com.ctc.wstx.stax, <!-- needed by FOMWriter -->
+                            *
+                        </Import-Package>
+                        <Private-Package>
+                            ddf.catalog.source.opensearch,
+                            ddf.catalog.data.impl,
+                            ddf.catalog.operation.impl,
+                            ddf.catalog.util.impl
+                        </Private-Package>
+                        <Export-Package/>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
