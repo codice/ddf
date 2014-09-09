@@ -205,11 +205,6 @@
             </dependency>
 
             <dependency>
-                <groupId>ddf.cache.core</groupId>
-                <artifactId>cache-core-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.shiro</groupId>
                 <artifactId>shiro-core</artifactId>
                 <version>${shiro.version}</version>

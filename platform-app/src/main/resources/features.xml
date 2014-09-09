@@ -706,16 +706,6 @@
         <feature>action-core-api</feature>
         <bundle>mvn:ddf.action.core/action-core-impl/${project.version}</bundle>
     </feature>
-    <!--
-        <feature name="cache-core-api" install="manual" version="${project.version}" description="DDF Cache API">
-            <bundle>mvn:ddf.cache.core/cache-core-api/${project.version}</bundle>
-        </feature>
-
-        <feature name="cache-core" install="manual" version="${project.version}" description="DDF Cache Core">
-            <feature>cache-core-api</feature>
-            <bundle>mvn:ddf.cache.core/cache-core-impl/${project.version}</bundle>
-        </feature>
-    -->
     <feature name="notifications-core-api" install="manual" version="${project.version}"
              description="DDF Notifications API">
         <bundle>mvn:ddf.notifications.core/platform-notifications-core-api/${project.version}
@@ -952,7 +942,6 @@
         <feature>platform-configuration</feature>
         <feature>action-core-api</feature>
         <feature>action-core-impl</feature>
-        <feature>cache-core</feature>
         <feature>notifications-core</feature>
         <feature>mime-core</feature>
         <feature>mime-tika-resolver</feature>
