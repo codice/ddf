@@ -47,7 +47,7 @@
         <argument ref="encryptionService" />
         <argument ref="blueprintBundleContext" />
         <!-- Default properties -->
-        <property name="url" value="ldap://ldap:1389" />
+        <property name="url" value="ldaps://localhost:1636" />
         <property name="ldapBindUserDn" value="cn=admin" />
         <property name="password" value="ENC(c+GitDfYAMTDRESXSDDsMw==)" />
         <property name="userNameAttribute" value="uid" />

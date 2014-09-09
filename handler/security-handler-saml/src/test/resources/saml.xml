@@ -89,7 +89,7 @@
     </saml2:Subject>
     <saml2:Conditions NotBefore="2013-04-23T23:39:54.788Z" NotOnOrAfter="2013-04-24T00:09:54.788Z">
         <saml2:AudienceRestriction>
-            <saml2:Audience>https://server:8993/services</saml2:Audience>
+            <saml2:Audience>https://localhost:8993/services</saml2:Audience>
         </saml2:AudienceRestriction>
     </saml2:Conditions>
     <saml2:AuthnStatement AuthnInstant="2013-04-23T23:39:54.777Z">

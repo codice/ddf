@@ -19,7 +19,7 @@
   <bean id="stsClientConfig" class="ddf.security.sts.client.configuration.impl.STSClientConfigurationImpl">
     <cm:managed-properties persistent-id="ddf.security.sts.client.configuration"
       update-strategy="container-managed" />
-      <property name="address" value="https://server:8993/services/SecurityTokenService?wsdl" />
+      <property name="address" value="https://localhost:8993/services/SecurityTokenService?wsdl" />
       <property name="endpointName" value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port" />
       <property name="serviceName" value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService" />
       <property name="signatureProperties" value="etc/ws-security/server/signature.properties" />

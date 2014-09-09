@@ -17,7 +17,7 @@
 	<OCD description="STS Ldap Login Configuration" name="Security STS LDAP Login" id="ddf.security.sts.ldap">
 	    
 	    <AD name="LDAP URL:" id="ldapUrl" required="true" type="String"
-	      default="ldaps://ldap:1636"
+	      default="ldaps://localhost:1636"
 	      description="LDAP or LDAPS server and port">
 	    </AD>
 	    
@@ -47,7 +47,7 @@
 	    </AD>
 
         <AD name="SSL Keystore Alias:" id="keyAlias" required="true" type="String"
-            default="server"
+            default="localhost"
             description="Alias of the private key to use for SSL connections.">
         </AD>
 	    

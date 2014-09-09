@@ -55,7 +55,7 @@ http://cxf.apache.org/configuration/security http://cxf.apache.org/schemas/confi
 				<bean id="stsClient" class="org.apache.cxf.ws.security.trust.STSClient">
                 <constructor-arg ref="cxf" />
                 <property name="wsdlLocation"
-                        value="http://tokenissuer:8993/services/SecurityTokenService/UT?wsdl" />
+                        value="http://localhost:8993/services/SecurityTokenService/UT?wsdl" />
                 <property name="serviceName"
                         value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService" />
                 <property name="endpointName"
@@ -67,7 +67,7 @@ http://cxf.apache.org/configuration/security http://cxf.apache.org/schemas/confi
                 <property name="properties">
                         <map>
                                 <entry key="ws-security.callback-handler" value="ddf.security.common.callback.CommonCallbackHandler" />
-                                <entry key="ws-security.sts.token.username" value="tokenissuer" />
+                                <entry key="ws-security.sts.token.username" value="localhost" />
                                 <entry key="ws-security.sts.token.properties"
                                         value="clientKeystore.properties" />
                                 <entry key="ws-security.sts.token.usecert" value="true" />

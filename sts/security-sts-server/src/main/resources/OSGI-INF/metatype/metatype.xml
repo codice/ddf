@@ -27,17 +27,17 @@
 	    </AD>
 	    
 	    <AD name="Token Issuer:" id="issuer" required="true" type="String"
-	      default="tokenissuer" 
+	      default="localhost"
 	      description="The name of the server issuing tokens. Generally this is the cn or hostname of this machine on the network.">
 	    </AD>
 	    
 	    <AD name="Signature Username:" id="signatureUsername" required="true" type="String"
-	      default="tokenissuer" 
+	      default="localhost"
 	      description="Username of the key used to sign messages.">
 	    </AD>
 
         <AD name="Encryption Username:" id="encryptionUsername" required="true" type="String"
-            default="server"
+            default="localhost"
             description="Username of the key used to encrypt messages.">
         </AD>
         

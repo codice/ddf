@@ -51,10 +51,10 @@
     <cm:property-placeholder persistent-id="ddf.security.sts" placeholder-prefix="$sts{" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="signatureProperties" value="file:${ddf.home}/etc/ws-security/issuer/signature.properties"/>
-            <cm:property name="signatureUsername" value="tokenissuer"/>
+            <cm:property name="signatureUsername" value="localhost"/>
             <cm:property name="encryptionProperties" value="file:${ddf.home}/etc/ws-security/issuer/encryption.properties"/>
-            <cm:property name="encryptionUsername" value="server"/>
-            <cm:property name="issuer" value="tokenissuer"/>
+            <cm:property name="encryptionUsername" value="localhost"/>
+            <cm:property name="issuer" value="localhost"/>
             <cm:property name="securityAttributeClaimType" value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"/>
             <cm:property name="lifetime" value="1800" />
         </cm:default-properties>

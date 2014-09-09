@@ -20,7 +20,7 @@
 	 	name="Security STS LDAP and Roles Claims Handler" id="ddf.security.sts.claimsHandler">
 
 	    <AD name="LDAP URL:" id="url" required="true" type="String"
-	      default="ldap://ldap:1389"
+	      default="ldaps://localhost:1636"
 	      description="LDAP or LDAPS server and port">
 	    </AD>
 

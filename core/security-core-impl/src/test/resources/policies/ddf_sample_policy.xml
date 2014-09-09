@@ -13,11 +13,14 @@
 -->
 <!-- NOTE: THIS IS A SAMPLE DDF POLCIY AND SHOULD NOT BE USED FOR PRODUCTION -->
 <wsp:Policy wsu:Id="TransportSAML2Policy"
-  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
-  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp="http://www.w3.org/ns/ws-policy"
-  xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata"
-  xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702" xmlns:t="http://docs.oasis-open.org/ws-sx/ws-trust/200512"
-  xmlns:wsaw="http://www.w3.org/2005/08/addressing" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+            xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+            xmlns:wsp="http://www.w3.org/ns/ws-policy"
+            xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+            xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata"
+            xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702"
+            xmlns:t="http://docs.oasis-open.org/ws-sx/ws-trust/200512"
+            xmlns:wsaw="http://www.w3.org/2005/08/addressing"
+            xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
   <wsp:ExactlyOne>
     <wsp:All>
       <wsam:Addressing wsp:Optional="false">
@@ -75,12 +78,12 @@
               <sp:RequireInternalReference />
             </wsp:Policy>
             <sp:Issuer>
-              <wsaw:Address>https://tokenissuer:8993/services/SecurityTokenService/X509</wsaw:Address>
+              <wsaw:Address>https://localhost:8993/services/SecurityTokenService/X509</wsaw:Address>
               <wsaw:Metadata>
                 <wsx:Metadata>
                   <wsx:MetadataSection>
                     <wsx:MetadataReference>
-                      <wsaw:Address>https://tokenissuer:8993/services/SecurityTokenService/X509/mex</wsaw:Address>
+                      <wsaw:Address>https://localhost:8993/services/SecurityTokenService/X509/mex</wsaw:Address>
                     </wsx:MetadataReference>
                   </wsx:MetadataSection>
                 </wsx:Metadata>

@@ -12,10 +12,9 @@
  **/
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-    xmlns:jaas="http://karaf.apache.org/xmlns/jaas/v1.1.0"
-    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-    xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
-    xmlns:enc="http://karaf.apache.org/xmlns/jasypt/v1.0.0">
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+        >
 
     <type-converters>
         <bean class="org.apache.karaf.jaas.modules.properties.PropertiesConverter" />
@@ -30,10 +29,10 @@
         <!-- Default properties -->
         <property name="ldapBindUserDn" value="cn=admin" />
         <property name="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)" />
-        <property name="ldapUrl" value="ldaps://ldap:1636" />
+        <property name="ldapUrl" value="ldaps://localhost:1636" />
         <property name="userBaseDn" value="ou=users,dc=example,dc=com" />
         <property name="groupBaseDn" value="ou=groups,dc=example,dc=com" />
-        <property name="keyAlias" value="server" />
+        <property name="keyAlias" value="localhost" />
     </bean>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
