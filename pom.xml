@@ -12,40 +12,42 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>ddf</groupId>
-		<artifactId>ddf-parent</artifactId>
-		<version>2.0.0</version>
-	</parent>
-	<groupId>ddf.catalog</groupId>
-	<artifactId>catalog</artifactId>
-	<version>2.5.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
-	<name>DDF Catalog</name>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ddf</groupId>
+        <artifactId>ddf-parent</artifactId>
+        <version>2.0.0</version>
+    </parent>
+    <groupId>ddf.catalog</groupId>
+    <artifactId>catalog</artifactId>
+    <version>2.5.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>DDF Catalog</name>
 
-	<properties>
-		<ddf.admin.app.version>1.0.0</ddf.admin.app.version>
-		<ddf.platform.app.version>2.5.0-SNAPSHOT</ddf.platform.app.version>
-		<org.codice.ddf.notifications.version>1.0.1-SNAPSHOT</org.codice.ddf.notifications.version>
-        <org.codice.ddf.activities.version>0.2.0-SNAPSHOT</org.codice.ddf.activities.version>
-		<abdera.version>1.1.3</abdera.version>
-		<jts.version>1.12</jts.version>
-		<org.geotools.version>8.4</org.geotools.version>
-		<org.geotools.bundle.version>${org.geotools.version}_1</org.geotools.bundle.version>
-		<opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>
-		<tika.version>1.2</tika.version>
+    <properties>
+        <ddf.admin.app.version>1.0.0</ddf.admin.app.version>
+        <ddf.platform.app.version>2.5.0</ddf.platform.app.version>
+        <org.codice.ddf.notifications.version>1.0.1</org.codice.ddf.notifications.version>
+        <org.codice.ddf.activities.version>0.2.0</org.codice.ddf.activities.version>
+        <abdera.version>1.1.3</abdera.version>
+        <jts.version>1.12</jts.version>
+        <org.geotools.version>8.4</org.geotools.version>
+        <org.geotools.bundle.version>${org.geotools.version}_1</org.geotools.bundle.version>
+        <opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>
+        <tika.version>1.2</tika.version>
         <xalan.version>2.7.1</xalan.version>
         <xerces.version>2.9.1</xerces.version>
         <saxon.version>9.1.0.8</saxon.version>
-        
+
         <karaf.version>2.3.3</karaf.version>
         <camel.version>2.12.1</camel.version>
-	</properties>
+    </properties>
 
-	<dependencyManagement>
-		<dependencies>
+    <dependencyManagement>
+        <dependencies>
             <dependency>
                 <artifactId>karaf</artifactId>
                 <groupId>org.apache.karaf</groupId>
@@ -65,109 +67,109 @@
                 <artifactId>spring-osgi-mock</artifactId>
                 <version>1.2.1</version>
             </dependency>
-			<dependency>
-				<groupId>ddf.admin.core</groupId>
-				<artifactId>admin-core-api</artifactId>
-				<version>${ddf.admin.app.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.platform</groupId>
-				<artifactId>platform</artifactId>
-				<version>${ddf.platform.app.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>ddf.catalog.core</groupId>
-				<artifactId>catalog-core-api</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.catalog.core</groupId>
-				<artifactId>catalog-core-api-impl</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.catalog.common</groupId>
-				<artifactId>geo-formatter</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.action.core</groupId>
-				<artifactId>action-core-api</artifactId>
-				<version>${ddf.platform.app.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.platform</groupId>
-				<artifactId>platform-configuration</artifactId>
-				<version>${ddf.platform.app.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.catalog.transformer</groupId>
-				<artifactId>catalog-transformer-xml-binding</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.codice.ddf</groupId>
-				<artifactId>notifications</artifactId>
-				<version>${org.codice.ddf.notifications.version}</version>
-			</dependency>
             <dependency>
-              <groupId>org.codice.ddf</groupId>
-              <artifactId>activities</artifactId>
-              <version>${org.codice.ddf.activities.version}</version>
+                <groupId>ddf.admin.core</groupId>
+                <artifactId>admin-core-api</artifactId>
+                <version>${ddf.admin.app.version}</version>
             </dependency>
-			<dependency>
-				<groupId>org.apache.abdera</groupId>
-				<artifactId>abdera-extensions-opensearch</artifactId>
-				<version>${abdera.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.abdera</groupId>
-				<artifactId>abdera-extensions-geo</artifactId>
-				<version>${abdera.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.mime.core</groupId>
-				<artifactId>mime-core-api</artifactId>
-				<version>${ddf.platform.app.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.mime.core</groupId>
-				<artifactId>mime-core-impl</artifactId>
-				<version>${ddf.platform.app.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.measure</groupId>
-				<artifactId>measure-api</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.security.core</groupId>
-				<artifactId>security-core-api</artifactId>
-				<version>${ddf.platform.app.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.action.core</groupId>
-				<artifactId>action-core-impl</artifactId>
-				<version>${ddf.platform.app.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.catalog.core</groupId>
-				<artifactId>catalog-core-commons</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.catalog.core</groupId>
-				<artifactId>filter-proxy</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ddf.mime.tika</groupId>
-				<artifactId>mime-tika-resolver</artifactId>
-				<version>${ddf.platform.app.version}</version>
-			</dependency>
-			<dependency>
+            <dependency>
+                <groupId>ddf.platform</groupId>
+                <artifactId>platform</artifactId>
+                <version>${ddf.platform.app.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.core</groupId>
+                <artifactId>catalog-core-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.core</groupId>
+                <artifactId>catalog-core-api-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.common</groupId>
+                <artifactId>geo-formatter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.action.core</groupId>
+                <artifactId>action-core-api</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.platform</groupId>
+                <artifactId>platform-configuration</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.transformer</groupId>
+                <artifactId>catalog-transformer-xml-binding</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf</groupId>
+                <artifactId>notifications</artifactId>
+                <version>${org.codice.ddf.notifications.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.ddf</groupId>
+                <artifactId>activities</artifactId>
+                <version>${org.codice.ddf.activities.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.abdera</groupId>
+                <artifactId>abdera-extensions-opensearch</artifactId>
+                <version>${abdera.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.abdera</groupId>
+                <artifactId>abdera-extensions-geo</artifactId>
+                <version>${abdera.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.mime.core</groupId>
+                <artifactId>mime-core-api</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.mime.core</groupId>
+                <artifactId>mime-core-impl</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.measure</groupId>
+                <artifactId>measure-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security.core</groupId>
+                <artifactId>security-core-api</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.action.core</groupId>
+                <artifactId>action-core-impl</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.core</groupId>
+                <artifactId>catalog-core-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.core</groupId>
+                <artifactId>filter-proxy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.mime.tika</groupId>
+                <artifactId>mime-tika-resolver</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.vividsolutions</groupId>
                 <artifactId>jts</artifactId>
                 <version>1.12</version>
@@ -237,40 +239,40 @@
                 <artifactId>commons-io</artifactId>
                 <version>2.1</version>
             </dependency>
-	        <dependency>
-	            <groupId>com.hazelcast</groupId>
-	            <artifactId>hazelcast</artifactId>
-	            <version>3.2.1</version>        
-	        </dependency> 
-	        <dependency>
-	            <groupId>com.hazelcast</groupId>
-	            <artifactId>hazelcast</artifactId>
-	            <version>3.2.1</version>
-	            <type>test-jar</type>
-	            <scope>test</scope>        
-	        </dependency>
-		</dependencies>
-	</dependencyManagement>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>3.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>3.2.1</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-	<modules>
-		<module>measure</module>
-		<module>common</module>
-		<module>core</module>
-		<module>schematron</module>
-		<module>transformer</module>
-		<module>plugin</module>
-		<module>opensearch</module>
-		<module>rest</module>
-		<module>security</module>
-		<module>catalog-app</module>
-		<module>admin</module>
-	</modules>
+    <modules>
+        <module>measure</module>
+        <module>common</module>
+        <module>core</module>
+        <module>schematron</module>
+        <module>transformer</module>
+        <module>plugin</module>
+        <module>opensearch</module>
+        <module>rest</module>
+        <module>security</module>
+        <module>catalog-app</module>
+        <module>admin</module>
+    </modules>
 
-	<repositories>
-		<repository>
-			<id>codice</id>
-			<name>Codice Repository</name>
-			<url>http://artifacts.codice.org/content/groups/public/</url>
-		</repository>
-	</repositories>
+    <repositories>
+        <repository>
+            <id>codice</id>
+            <name>Codice Repository</name>
+            <url>http://artifacts.codice.org/content/groups/public/</url>
+        </repository>
+    </repositories>
 </project>
