@@ -144,6 +144,7 @@ public class UPBSTValidator implements TokenValidator {
      */
     public boolean canHandleToken(ReceivedToken validateTarget, String realm) {
         Object token = validateTarget.getToken();
+        boolean canHandle = false;
         if ((token instanceof BinarySecurityTokenType)
             && UPBST_VALUE_TYPE.equals(((BinarySecurityTokenType) token).getValueType())) {
             // Now look inside to see what realm this is for
@@ -154,19 +155,22 @@ public class UPBSTValidator implements TokenValidator {
             // currently realm is not being passed through (no RealmParser that determines the realm
             // based on the web context. So this just looks at the realm passed in the credentials.
             // This generic instance just looks for the default realms (DDF and Karaf)
-            if (usernameToken.getRealm() == null) {
-                LOGGER.trace("No realm specified in request, canHandletoken = true");
-                return true;
-            } else {
-                if (supportedRealm.equalsIgnoreCase(usernameToken.getRealm())) {
-                    LOGGER.trace("Realm '{}' recognized - canHandleToken = true", usernameToken.getRealm());
-                    return true;
+            if (usernameToken != null) {
+                if (usernameToken.getRealm() == null) {
+                    LOGGER.trace("No realm specified in request, canHandletoken = true");
+                    canHandle = true;
                 } else {
-                    LOGGER.trace("Realm '{}' unrecognized - canHandleToken = false", usernameToken.getRealm());
+                    if (supportedRealm.equalsIgnoreCase(usernameToken.getRealm())) {
+                        LOGGER.trace("Realm '{}' recognized - canHandleToken = true", usernameToken.getRealm());
+                        canHandle = true;
+                    } else {
+                        LOGGER.trace("Realm '{}' unrecognized - canHandleToken = false", usernameToken.getRealm());
+                    }
                 }
             }
         }
-        return false;
+        LOGGER.debug("Returning canHandle: {}", canHandle);
+        return canHandle;
     }
 
     /**
