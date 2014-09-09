@@ -303,13 +303,8 @@ public class ResourceCache implements ResourceCacheInterface {
         // product cache directory. This check handles the case if the product
         // cache directory has had files deleted from it.
         if (cachedResource != null) {
-            try {
-                if (!validateCacheEntry(cachedResource, latestMetacard)) {
-                    throw new IllegalArgumentException("Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: " + key);
-                }
-            } catch (IllegalArgumentException e) {
-                // This should never happen.  If cachedResource is null we don't get into this block.  If latestMetacard is null, we shouldn't get into this class.
-                LOGGER.warn("Unable to validate cached resource against latest metacard from Catalog.  Resource returned from cache may be out-of-date.", e);
+            if (!validateCacheEntry(cachedResource, latestMetacard)) {
+                throw new IllegalArgumentException("Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: " + key);
             }
 
             if (cachedResource.hasProduct()) {
