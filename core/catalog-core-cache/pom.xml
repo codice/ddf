@@ -23,8 +23,8 @@
         <version>2.5.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>catalog-core-standardframework</artifactId>
-    <name>DDF :: Catalog :: Core :: Standard Framework</name>
+    <artifactId>catalog-core-cache</artifactId>
+    <name>DDF :: Catalog :: Core :: Cache</name>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -43,6 +43,10 @@
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.cache.core</groupId>
+            <artifactId>cache-core-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.action.core</groupId>
@@ -93,9 +97,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.1</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>0.9.24</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -110,16 +114,6 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!-- <dependency>
-        	<groupId>ch.qos.logback</groupId>
-        	<artifactId>logback-classic</artifactId>
-        	<version>0.9.24</version>
-        </dependency> -->
     </dependencies>
 
     <build>
@@ -135,23 +129,30 @@
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>
-                            ddf.catalog.cache.impl,
-                            ddf.catalog.event.retrievestatus,
-                            ddf.catalog.impl,
                             ddf.catalog.data.impl,
                             ddf.catalog.operation.impl,
+                            ddf.catalog.resource.data,
                             ddf.catalog.util.impl,
-                            ddf.catalog.filter.impl,
-                            ddf.catalog.source.impl,
-                            ddf.catalog.resource.download,
+                            ddf.catalog.cache.impl,
+                            ddf.catalog.event.retrievestatus,
+                            ddf.catalog.resource.downloadmanager,
                             ddf.catalog.resource.impl,
-                            ddf.catalog.resourceretriever
+                            ddf.catalog.resourceretriever,
                         </Private-Package>
                         <Export-Package>
-                            ddf.catalog.resourceretriever,
+                            ddf.catalog.resource.download,
                             ddf.catalog.cache,
-                            ddf.catalog.resource.data
+                            ddf.catalog.event.retrievestatus,
+                            ddf.catalog.resource.data,
+                            ddf.catalog.resourceretriever
                         </Export-Package>
+
+                        <!--       ddf.catalog.resourceretriever,
+                               ddf.catalog.cache,
+                               ddf.catalog.resource.data,
+
+                        ddf.catalog.resource.download
+                    </Export-Package>-->
                     </instructions>
                 </configuration>
             </plugin>

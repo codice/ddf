@@ -1,35 +1,19 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.fanout;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-
-import org.osgi.framework.BundleContext;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
-import ddf.cache.CacheException;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.cache.impl.ResourceCache;
@@ -88,6 +72,20 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.util.impl.SourcePoller;
+import org.osgi.framework.BundleContext;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 /**
  * {@link FanoutCatalogFramework} evaluates all {@link Operation}s as enterprise-wide federated
@@ -104,7 +102,6 @@ import ddf.catalog.util.impl.SourcePoller;
  * <li>Backwards compatibility (e.g., federating with older versions)</li>
  * </ol>
  * </p>
- * 
  */
 @SuppressWarnings("deprecation")
 public class FanoutCatalogFramework extends CatalogFrameworkImpl {
@@ -115,43 +112,28 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
 
     /**
      * Instantiates a new FanoutCatalogFramework, ignoring the provided {@link CatalogProvider}
-     * 
-     * @param context
-     *            - The BundleContext that will be utilized by this instance.
-     * @param catalog
-     *            - The {@link CatalogProvider} used for query operations.
-     * @param preIngest
-     *            - A {@link List} of {@link PreIngestPlugin}(s) that will be invoked prior to the
-     *            ingest operation.
-     * @param postIngest
-     *            - A list of {@link PostIngestPlugin}(s) that will be invoked after the ingest
-     *            operation.
-     * @param preQuery
-     *            - A {@link List} of {@link PreQueryPlugin}(s) that will be invoked prior to the
-     *            query operation.
-     * @param postQuery
-     *            - A {@link List} of {@link PostQueryPlugin}(s) that will be invoked after the
-     *            query operation.
-     * @param preResource
-     *            - A {@link List} of {@link PreResourcePlugin}(s) that will be invoked prior to the
-     *            getResource operation.
-     * @param postResource
-     *            - A {@link List} of {@link PreResourcePlugin}(s) that will be invoked after the
-     *            getResource operation.
-     * @param connectedSites
-     *            - {@link List} of {@link ConnectedSource}(s) that will be searched on all queries
-     * 
-     * @param federatedSites
-     *            - A {@link List} of {@link FederatedSource}(s) that will be searched on an
-     *            enterprise query.
-     * @param resourceReaders
-     *            - set of {@link ResourceReader}(s) that will be get a {@link Resource}
-     * @param queryStrategy
-     *            - The default federation strategy (e.g. Sorted).
-     * @param pool
-     *            - An ExecutorService used to manage threaded operations.
-     * @param poller
-     *            - An {@link SourcePoller} used to poll source availability.
+     *
+     * @param context         - The BundleContext that will be utilized by this instance.
+     * @param catalog         - The {@link CatalogProvider} used for query operations.
+     * @param preIngest       - A {@link List} of {@link PreIngestPlugin}(s) that will be invoked prior to the
+     *                        ingest operation.
+     * @param postIngest      - A list of {@link PostIngestPlugin}(s) that will be invoked after the ingest
+     *                        operation.
+     * @param preQuery        - A {@link List} of {@link PreQueryPlugin}(s) that will be invoked prior to the
+     *                        query operation.
+     * @param postQuery       - A {@link List} of {@link PostQueryPlugin}(s) that will be invoked after the
+     *                        query operation.
+     * @param preResource     - A {@link List} of {@link PreResourcePlugin}(s) that will be invoked prior to the
+     *                        getResource operation.
+     * @param postResource    - A {@link List} of {@link PreResourcePlugin}(s) that will be invoked after the
+     *                        getResource operation.
+     * @param connectedSites  - {@link List} of {@link ConnectedSource}(s) that will be searched on all queries
+     * @param federatedSites  - A {@link List} of {@link FederatedSource}(s) that will be searched on an
+     *                        enterprise query.
+     * @param resourceReaders - set of {@link ResourceReader}(s) that will be get a {@link Resource}
+     * @param queryStrategy   - The default federation strategy (e.g. Sorted).
+     * @param pool            - An ExecutorService used to manage threaded operations.
+     * @param poller          - An {@link SourcePoller} used to poll source availability.
      */
     public FanoutCatalogFramework(BundleContext context, CatalogProvider catalog,
             List<PreIngestPlugin> preIngest, List<PostIngestPlugin> postIngest,
@@ -170,47 +152,33 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
 
     /**
      * Instantiates a new FanoutCatalogFramework without a {@link CatalogProvider}.
-     * 
-     * @param context
-     *            - The BundleContext that will be utilized by this instance.
-     * @param preIngest
-     *            - A {@link List} of {@link PreIngestPlugin}(s) that will be invoked prior to the
-     *            ingest operation.
-     * @param postIngest
-     *            - A list of {@link PostIngestPlugin}(s) that will be invoked after the ingest
-     *            operation.
-     * @param preQuery
-     *            - A {@link List} of {@link PreQueryPlugin}(s) that will be invoked prior to the
-     *            query operation.
-     * @param postQuery
-     *            - A {@link List} of {@link PostQueryPlugin}(s) that will be invoked after the
-     *            query operation.
-     * @param preResource
-     *            - A {@link List} of {@link PreResourcePlugin}(s) that will be invoked prior to the
-     *            getResource operation.
-     * @param postResource
-     *            - A {@link List} of {@link PostResourcePlugin}(s) that will be invoked after the
-     *            getResource operation.
-     * @param connectedSites
-     *            - {@link List} of {@link ConnectedSource}(s) that will be searched on all queries
-     * 
-     * @param federatedSites
-     *            - A {@link List} of {@link FederatedSource}(s) that will be searched on an
-     *            enterprise query.
-     * @param resourceReaders
-     *            - set of {@link ResourceReader}(s) that will be get a {@link Resource}
-     * @param queryStrategy
-     *            - The default federation strategy (e.g. Sorted).
-     * @param pool
-     *            - An ExecutorService used to manage threaded operations.
-     * @param poller
-     *            - An {@link SourcePoller} used to poll source availability.
+     *
+     * @param context         - The BundleContext that will be utilized by this instance.
+     * @param preIngest       - A {@link List} of {@link PreIngestPlugin}(s) that will be invoked prior to the
+     *                        ingest operation.
+     * @param postIngest      - A list of {@link PostIngestPlugin}(s) that will be invoked after the ingest
+     *                        operation.
+     * @param preQuery        - A {@link List} of {@link PreQueryPlugin}(s) that will be invoked prior to the
+     *                        query operation.
+     * @param postQuery       - A {@link List} of {@link PostQueryPlugin}(s) that will be invoked after the
+     *                        query operation.
+     * @param preResource     - A {@link List} of {@link PreResourcePlugin}(s) that will be invoked prior to the
+     *                        getResource operation.
+     * @param postResource    - A {@link List} of {@link PostResourcePlugin}(s) that will be invoked after the
+     *                        getResource operation.
+     * @param connectedSites  - {@link List} of {@link ConnectedSource}(s) that will be searched on all queries
+     * @param federatedSites  - A {@link List} of {@link FederatedSource}(s) that will be searched on an
+     *                        enterprise query.
+     * @param resourceReaders - set of {@link ResourceReader}(s) that will be get a {@link Resource}
+     * @param queryStrategy   - The default federation strategy (e.g. Sorted).
+     * @param pool            - An ExecutorService used to manage threaded operations.
+     * @param poller          - An {@link SourcePoller} used to poll source availability.
      */
     public FanoutCatalogFramework(BundleContext context, List<PreIngestPlugin> preIngest,
 
-    List<PostIngestPlugin> postIngest,
+            List<PostIngestPlugin> postIngest,
 
-    List<PreQueryPlugin> preQuery, List<PostQueryPlugin> postQuery,
+            List<PreQueryPlugin> preQuery, List<PostQueryPlugin> postQuery,
             List<PreResourcePlugin> preResource, List<PostResourcePlugin> postResource,
             List<ConnectedSource> connectedSites, List<FederatedSource> federatedSites,
             List<ResourceReader> resourceReaders, FederationStrategy queryStrategy,
@@ -224,7 +192,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
 
     @Override
     public QueryResponse query(QueryRequest queryRequest) throws UnsupportedQueryException,
-        FederationException {
+            FederationException {
         return query(queryRequest, null);
     }
 
@@ -232,20 +200,16 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
      * Always executes an enterprise {@link Query}, replacing the {@link Source} ID in the
      * {@link QueryResponse} with this {@link CatalogFramework}'s id so that the ids of all
      * {@link FederatedSource}s remain hidden from the external client.
-     * 
-     * @param queryRequest
-     *            the {@link QueryRequest}
-     * @param strategy
-     *            the {@link FederationStrategy}
+     *
+     * @param queryRequest the {@link QueryRequest}
+     * @param strategy     the {@link FederationStrategy}
      * @return the {@QueryResponse}
-     * @throws UnsupportedQueryException
-     *             {@inheritDoc}
-     * @throws FederationException
-     *             {@inheritDoc}
+     * @throws UnsupportedQueryException {@inheritDoc}
+     * @throws FederationException       {@inheritDoc}
      */
     @Override
     public QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy)
-        throws UnsupportedQueryException, FederationException {
+            throws UnsupportedQueryException, FederationException {
         // TODO make this private/static/final
         String methodName = "query";
         logger.entry(methodName);
@@ -259,13 +223,13 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
         logger.exit(methodName);
         return queryResponse;
     }
-    
+
     @Override
     protected SourceResponse validateFixQueryResponse(SourceResponse sourceResponse,
             QueryRequest queryRequest) throws UnsupportedQueryException {
-        
+
         logger.debug("ENTERING: validateFixQueryResponse()");
-        
+
         // Must replace source ID with fanout site ID before the PostQuery plugins
         // run - otherwise, the MetacardResourceSize post-query plugin will use
         // the non-fanout source ID to search the cache for a match and should
@@ -276,7 +240,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
 
     /**
      * Always returns {@code false} for fanout configuration.
-     * 
+     *
      * @return {@code false}
      */
     @Override
@@ -287,12 +251,10 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
     /**
      * Always throws an {@link IngestException} since create/ingest operations are not supported in
      * fanout configuration.
-     * 
-     * @param create
-     *            the {@link CreateRequest}
+     *
+     * @param create the {@link CreateRequest}
      * @return the {@link CreateResponse}, which never happens in fanout
-     * @throws IngestException
-     *             always thrown in fanout configuration
+     * @throws IngestException always thrown in fanout configuration
      */
     @Override
     public CreateResponse create(CreateRequest create) throws IngestException {
@@ -302,12 +264,10 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
     /**
      * Always throws an {@link IngestException} since delete operations are not supported in fanout
      * configuration.
-     * 
-     * @param delete
-     *            the {@link DeleteRequest}
+     *
+     * @param delete the {@link DeleteRequest}
      * @return the {@link DeleteResponse}, which never happens in fanout
-     * @throws IngestException
-     *             always thrown in fanout configuration
+     * @throws IngestException always thrown in fanout configuration
      */
     @Override
     public DeleteResponse delete(DeleteRequest delete) throws IngestException {
@@ -317,12 +277,10 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
     /**
      * Always throws an {@link IngestException} since update operations are not supported in fanout
      * configuration.
-     * 
-     * @param update
-     *            the {@link UpdateRequest}
+     *
+     * @param update the {@link UpdateRequest}
      * @return the {@link UpdateResponse}, which never happens
-     * @throws IngestException
-     *             always thrown
+     * @throws IngestException always thrown
      */
     @Override
     public UpdateResponse update(UpdateRequest update) throws IngestException {
@@ -331,40 +289,32 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
 
     /**
      * Always searches the entire enterprise for the resource to retrieve in fanout configuration.
-     * 
-     * @param resourceRequest
-     *            the {@link ResourceRequest}
+     *
+     * @param resourceRequest the {@link ResourceRequest}
      * @return the {@link ResourceResponse}
-     * @throws IOException
-     *             {@inheritDoc}
-     * @throws ResourceNotFoundException
-     *             {@inheritDoc}
-     * @throws ResourceNotSupportedException
-     *             {@inheritDoc}
+     * @throws IOException                   {@inheritDoc}
+     * @throws ResourceNotFoundException     {@inheritDoc}
+     * @throws ResourceNotSupportedException {@inheritDoc}
      */
     @Override
     public ResourceResponse getLocalResource(ResourceRequest resourceRequest) throws IOException,
-        ResourceNotFoundException, ResourceNotSupportedException {
+            ResourceNotFoundException, ResourceNotSupportedException {
         logger.debug("getLocalResource call received, fanning it out to all sites.");
         return super.getEnterpriseResource(resourceRequest);
     }
 
     /**
      * Always searches the entire enterprise for the resource to retrieve in fanout configuration.
-     * 
-     * @param resourceRequest
-     *            the {@link ResourceRequest}
+     *
+     * @param resourceRequest the {@link ResourceRequest}
      * @return the {@link ResourceResponse}
-     * @throws IOException
-     *             {@inheritDoc}
-     * @throws ResourceNotFoundException
-     *             {@inheritDoc}
-     * @throws ResourceNotSupportedException
-     *             {@inheritDoc}
+     * @throws IOException                   {@inheritDoc}
+     * @throws ResourceNotFoundException     {@inheritDoc}
+     * @throws ResourceNotSupportedException {@inheritDoc}
      */
     @Override
     public ResourceResponse getResource(ResourceRequest resourceRequest, String resourceSiteName)
-        throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         logger.debug("getResource call received, fanning it out to all sites.");
         return super.getEnterpriseResource(resourceRequest);
     }
@@ -373,14 +323,14 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
      * Retrieves the {@link SourceDescriptor} info for all {@link FederatedSource}s in the fanout
      * configuration, but the all of the source info, e.g., content types, for all of the available
      * {@link FederatedSource}s is packed into one {@SourceDescriptor
-     * 
+     * <p/>
      * } for the
      * fanout configuration with the fanout's site name in it. This keeps the individual
      * {@link FederatedSource}s' source info hidden from the external client.
      */
     @Override
     public SourceInfoResponse getSourceInfo(SourceInfoRequest sourceInfoRequest)
-        throws SourceUnavailableException {
+            throws SourceUnavailableException {
 
         final String methodName = "getSourceInfo";
         SourceInfoResponse response = null;
@@ -441,11 +391,10 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
      * Replaces the site name(s) of {@link FederatedSource}s in the {@link QueryResponse} with the
      * fanout's site name to keep info about the {@link FederatedSource}s hidden from the external
      * client.
-     * 
-     * @param queryResponse
-     *            the original {@link QueryResponse} from the query request
+     *
+     * @param queryResponse the original {@link QueryResponse} from the query request
      * @return the updated {@link QueryResponse} with all site names replaced with fanout's site
-     *         name
+     * name
      */
     protected QueryResponse replaceSourceId(QueryResponse queryResponse) {
         logger.debug("ENTERING: replaceSourceId()");
@@ -470,7 +419,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
     /**
      * Always returns only the fanout's source ID, e.g., ddf-fanout. The source IDs for all
      * federated sources in the fanout are hidden from external clients.
-     * 
+     *
      * @return a {@link Set} of one that includes only the fanout's source ID
      */
     @Override
@@ -485,11 +434,9 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
      * Validate that the {@link QueryRequest} is non-null and that if the request includes source
      * ID(s), that the ID(s) are only for the fanout's source ID, not IDs for specific federated
      * source(s) which are hidden in a fanout configuration.
-     * 
-     * @param queryRequest
-     *            the {@link QueryRequest}
-     * @throws UnsupportedQueryException
-     *             if request is null or a non-fanout source ID is specified in the request
+     *
+     * @param queryRequest the {@link QueryRequest}
+     * @throws UnsupportedQueryException if request is null or a non-fanout source ID is specified in the request
      */
     @Override
     protected void validateQueryRequest(QueryRequest queryRequest) throws UnsupportedQueryException {
@@ -512,7 +459,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
 
     /**
      * Retrieve a resource from the enterprise or specified {@link RemoteSource} .
-     * 
+     * <p/>
      * First perform an entry query on all the {@link FederatedSource}s and {@link ConnectedSource}
      * s. This is done to locate which source the {@link Metacard} resides on. Next, get the
      * resource URI from the {@link Metacard}. Finally, do a
@@ -532,7 +479,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
     @Override
     public ResourceResponse getResource(ResourceRequest resourceRequest, boolean isEnterprise,
             String resourceSiteName) throws IOException, ResourceNotFoundException,
-        ResourceNotSupportedException {
+            ResourceNotSupportedException {
         String methodName = "getResource";
         logger.entry(methodName);
         ResourceResponse resourceResponse = null;
@@ -584,7 +531,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
             } else if (ResourceRequest.GET_RESOURCE_BY_PRODUCT_URI.equals(attributeName)) {
                 if (attributeValue instanceof URI) {
                     resourceUri = (URI) attributeValue;
-                    
+
                     Query propertyEqualToUriQuery = createPropertyIsEqualToQuery(
                             Metacard.RESOURCE_URI, resourceUri.toString());
 
@@ -607,11 +554,11 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                 throw new ResourceNotSupportedException(
                         "Error finding resource URI.  Cannot get product without it.");
             }
-            
+
             String key;
             try {
                 key = new CacheKey(metacard, resourceRequest).generateKey();
-            } catch (CacheException e1) {
+            } catch (Exception e1) {
                 throw new ResourceNotFoundException(e1);
             }
 
@@ -623,7 +570,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                     logger.info(
                             "Successfully retrieved product from cache for metacard ID = {}",
                             metacard.getId());
-                } catch (CacheException ce) {
+                } catch (Exception ce) {
                     logger.info(
                             "Unable to get resource from cache. Have to retrieve it from the Source");
                 }
@@ -632,19 +579,19 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
             // If resource not retrieved from cache, then invoke retrieveResource on 
             // all federated sources
             if (resourceResponse == null) {
-	            for (FederatedSource currSource : federatedSources) {
-	                ResourceRetriever retriever = new RemoteResourceRetriever(currSource, resourceUri, requestProperties);
+                for (FederatedSource currSource : federatedSources) {
+                    ResourceRetriever retriever = new RemoteResourceRetriever(currSource, resourceUri, requestProperties);
                     try {
                         resourceResponse = reliableResourceDownloadManager.download(
                                 resourceRequest, metacard, retriever);
                     } catch (DownloadException e) {
                         logger.info("source: " + currSource.getId() + " does not contain resource.");
                     }
-                    
+
                     if (resourceResponse != null) {
                         break;
                     }
-	            }
+                }
             }
 
             if (resourceResponse == null) {
@@ -658,7 +605,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
                     } catch (DownloadException e) {
                         logger.info("source: " + currSource.getId() + " does not contain resource.");
                     }
-                    
+
                     if (resourceResponse != null) {
                         break;
                     }

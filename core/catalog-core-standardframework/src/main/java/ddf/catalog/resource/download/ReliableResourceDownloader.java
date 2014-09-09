@@ -1,45 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.resource.download;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.Timer;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.activation.MimeType;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.CountingOutputStream;
 import com.google.common.io.FileBackedOutputStream;
-
-import ddf.cache.CacheException;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.Metacard;
@@ -56,9 +33,28 @@ import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resource.download.DownloadManagerState.DownloadState;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.resourceretriever.ResourceRetriever;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.activation.MimeType;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.Timer;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ReliableResourceDownloader implements Runnable {
-    
+
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ReliableResourceDownloader.class);
 
@@ -67,13 +63,13 @@ public class ReliableResourceDownloader implements Runnable {
     public static final String BYTES_SKIPPED = "BytesSkipped";
 
     private ReliableResourceCallable reliableResourceCallable;
-    
+
     private Future<ReliableResourceStatus> downloadFuture;
-    
+
     private ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
 
     private AtomicBoolean downloadStarted;
-    
+
     private InputStream resourceInputStream;
 
     private ReliableResourceInputStream streamReadByClient;
@@ -133,7 +129,7 @@ public class ReliableResourceDownloader implements Runnable {
         this.resourceCache = downloaderConfig.getResourceCache();
         this.downloadState.setContinueCaching(this.downloaderConfig.isCacheWhenCanceled());
     }
-    
+
     public ResourceResponse setupDownload(Metacard metacard, DownloadStatusInfo downloadStatusInfo) {
         Resource resource = resourceResponse.getResource();
         MimeType mimeType = resource.getMimeType();
@@ -164,7 +160,7 @@ public class ReliableResourceDownloader implements Runnable {
             String key = null;
             try {
                 key = keyMaker.generateKey();
-            } catch (CacheException e) {
+            } catch (Exception e) {
                 LOGGER.info("Cannot create cache key for resource with metacard ID = {}",
                         metacard.getId());
             }
@@ -253,7 +249,7 @@ public class ReliableResourceDownloader implements Runnable {
                             downloaderConfig.getMonitorInitialDelayMS(),
                             downloaderConfig.getMonitorPeriodMS());
                     downloadStarted.set(Boolean.TRUE);
-                    reliableResourceStatus = downloadFuture.get();                 
+                    reliableResourceStatus = downloadFuture.get();
                 } catch (InterruptedException e) {
                     LOGGER.error("InterruptedException - Unable to store product file {}",
                             filePath, e);
@@ -293,7 +289,7 @@ public class ReliableResourceDownloader implements Runnable {
                             LOGGER.debug("Adding caching key = {} to cache map",
                                     reliableResource.getKey());
                             resourceCache.put(reliableResource);
-                        } catch (CacheException e) {
+                        } catch (Exception e) {
                             LOGGER.info("Unable to add cached resource to cache with key = {}",
                                     reliableResource.getKey(), e);
                         }
@@ -305,14 +301,14 @@ public class ReliableResourceDownloader implements Runnable {
                     if (fos != null) {
                         fos.flush();
                     }
-                    
+
                     // Synchronized so that the Callable is not shutdown while in the middle of
                     // writing to the
                     // FileBackedOutputStream and cache file (need to keep both of these in sync
                     // with number of bytes
                     // written to each of them).
                     synchronized (reliableResourceCallable) {
-                        
+
                         // Simply doing Future.cancel(true) or a plain shutdown() is not enough.
                         // The downloadExecutor (or its underlying Future/thread) is holding on
                         // to a resource or is blocking on a read - undetermined at this point,
@@ -320,7 +316,7 @@ public class ReliableResourceDownloader implements Runnable {
                         // while loop fixes this.
                         downloadExecutor.shutdownNow();
                     }
-                    
+
                     if (DownloadStatus.PRODUCT_INPUT_STREAM_EXCEPTION.equals(reliableResourceStatus
                             .getDownloadStatus())) {
 
@@ -330,9 +326,9 @@ public class ReliableResourceDownloader implements Runnable {
                         eventPublisher
                                 .postRetrievalStatus(resourceResponse,
                                         ProductRetrievalStatus.RETRYING, metacard, String.format(
-                                                "Attempt %d of %d.", retryAttempts,
+                                        "Attempt %d of %d.", retryAttempts,
                                         downloaderConfig.getMaxRetryAttempts()),
-                                reliableResourceStatus.getBytesRead(), downloadIdentifier);
+                                        reliableResourceStatus.getBytesRead(), downloadIdentifier);
                         IOUtils.closeQuietly(resourceInputStream);
                         resourceInputStream = null;
                         delay();
@@ -348,9 +344,9 @@ public class ReliableResourceDownloader implements Runnable {
                         eventPublisher
                                 .postRetrievalStatus(resourceResponse,
                                         ProductRetrievalStatus.RETRYING, metacard, String.format(
-                                                "Attempt %d of %d.", retryAttempts,
+                                        "Attempt %d of %d.", retryAttempts,
                                         downloaderConfig.getMaxRetryAttempts()),
-                                reliableResourceStatus
+                                        reliableResourceStatus
                                                 .getBytesRead(), downloadIdentifier);
                         if (doCaching) {
                             deleteCacheFile(fos);
@@ -422,9 +418,9 @@ public class ReliableResourceDownloader implements Runnable {
                         eventPublisher
                                 .postRetrievalStatus(resourceResponse,
                                         ProductRetrievalStatus.RETRYING, metacard, String.format(
-                                                "Attempt %d of %d.", retryAttempts,
+                                        "Attempt %d of %d.", retryAttempts,
                                         downloaderConfig.getMaxRetryAttempts()),
-                                reliableResourceStatus
+                                        reliableResourceStatus
                                                 .getBytesRead(), downloadIdentifier);
                         delay();
                         reliableResourceCallable = retrieveResource(bytesRead);
@@ -456,7 +452,7 @@ public class ReliableResourceDownloader implements Runnable {
             downloadExecutor.shutdown();
         }
     }
-    
+
     private ReliableResourceCallable retrieveResource(long bytesRead) {
 
         ReliableResourceCallable reliableResourceCallable = null;

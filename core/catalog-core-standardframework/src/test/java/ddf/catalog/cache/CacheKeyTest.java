@@ -1,18 +1,28 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.cache;
+
+import ddf.catalog.cache.impl.CacheKey;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.operation.ResourceRequest;
+import org.junit.Test;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
@@ -22,26 +32,14 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.Test;
-
-import ddf.cache.CacheException;
-import ddf.catalog.cache.impl.CacheKey;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.ResourceRequest;
-
 /**
  * Tests that keys are unique and proper for use with a Cache implementation
  */
 public class CacheKeyTest {
     //dummy comment
 
-    @Test(expected = CacheException.class)
-    public void testNullMetacard() throws CacheException {
+    @Test(expected = Exception.class)
+    public void testNullMetacard() throws Exception {
 
         // given
         CacheKey cacheKey = new CacheKey(null, mock(ResourceRequest.class));
@@ -53,8 +51,8 @@ public class CacheKeyTest {
         // throws an exception
     }
 
-    @Test(expected = CacheException.class)
-    public void testNullResourceRequest() throws CacheException {
+    @Test(expected = Exception.class)
+    public void testNullResourceRequest() throws Exception {
 
         // given
         CacheKey cacheKey = new CacheKey(mock(Metacard.class), null);
@@ -67,7 +65,7 @@ public class CacheKeyTest {
     }
 
     @Test()
-    public void testKeyGeneration() throws CacheException {
+    public void testKeyGeneration() throws Exception {
 
         // given
         CacheKey cacheKey = new CacheKey(getMetacardStub("sampleId"), getResourceRequestStub());
@@ -82,7 +80,7 @@ public class CacheKeyTest {
     }
 
     @Test()
-    public void testKeyUniquenessMetacardId() throws CacheException {
+    public void testKeyUniquenessMetacardId() throws Exception {
 
         // given
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId"), getResourceRequestStub());
@@ -98,7 +96,7 @@ public class CacheKeyTest {
     }
 
     @Test()
-    public void testKeyUniquenessFromSources() throws CacheException {
+    public void testKeyUniquenessFromSources() throws Exception {
 
         // given
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId", "source1"),
@@ -116,7 +114,7 @@ public class CacheKeyTest {
     }
 
     @Test()
-    public void testKeyUniquenessFromSourcesAndIds() throws CacheException {
+    public void testKeyUniquenessFromSourcesAndIds() throws Exception {
 
         // given
         CacheKey cacheKey1 = new CacheKey(getMetacardStub("sampleId1", "source1"),
@@ -135,11 +133,9 @@ public class CacheKeyTest {
 
     /**
      * Tests the key will be unique if given a different property in the ResourceRequest.
-     * 
-     * @throws CacheException
      */
     @Test()
-    public void testKeyUniquenessProperty() throws CacheException {
+    public void testKeyUniquenessProperty() throws Exception {
 
         // given
         Map<String, Serializable> propertyMap = new HashMap<String, Serializable>();
@@ -160,11 +156,9 @@ public class CacheKeyTest {
 
     /**
      * Tests keys will be unique if given different properties in the ResourceRequest.
-     * 
-     * @throws CacheException
      */
     @Test()
-    public void testKeyUniquenessProperties() throws CacheException {
+    public void testKeyUniquenessProperties() throws Exception {
 
         // given
         Map<String, Serializable> propertyMap1 = new HashMap<String, Serializable>();
@@ -186,7 +180,7 @@ public class CacheKeyTest {
     }
 
     @Test()
-    public void testKeyConsistency() throws CacheException {
+    public void testKeyConsistency() throws Exception {
 
         // given
         Map<String, Serializable> propertyMap = new HashMap<String, Serializable>();

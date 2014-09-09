@@ -21,7 +21,6 @@ import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import ddf.cache.CacheException;
 import ddf.catalog.cache.ResourceCacheInterface;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -49,8 +48,9 @@ public class ResourceCache implements ResourceCacheInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceCache.class);
 
     private static final String PRODUCT_CACHE_NAME = "Product_Cache";
-    
+
     private static final long BYTES_IN_MEGABYTES = FileUtils.ONE_MB;
+
     private static final long DEFAULT_MAX_CACHE_DIR_SIZE_BYTES = 10737418240L;  //10 GB
 
     /**
@@ -61,13 +61,19 @@ public class ResourceCache implements ResourceCacheInterface {
 
     private List<String> pendingCache = new ArrayList<String>();
 
-    /** Directory for products cached to file system */
+    /**
+     * Directory for products cached to file system
+     */
     private String productCacheDirectory;
 
     private HazelcastInstance instance;
+
     private IMap<Object, Object> cache;
+
     private ProductCacheDirListener<Object, Object> cacheListener = new ProductCacheDirListener<Object, Object>(DEFAULT_MAX_CACHE_DIR_SIZE_BYTES);
+
     private BundleContext context;
+
     private String xmlConfigFilename;
 
     //called after all parameters are set
@@ -138,24 +144,23 @@ public class ResourceCache implements ResourceCacheInterface {
         return cfg;
     }
 
-    public void teardownCache(){
+    public void teardownCache() {
         instance.shutdown();
     }
-    
+
     public void setCacheDirMaxSizeMegabytes(long cacheDirMaxSizeMegabytes) {
         LOGGER.debug("Setting max size for cache directory: {}", cacheDirMaxSizeMegabytes);
         cacheListener.setMaxDirSizeBytes(cacheDirMaxSizeMegabytes * BYTES_IN_MEGABYTES);
     }
-    
+
     public long getCacheDirMaxSizeMegabytes() {
         LOGGER.debug("Getting max size for cache directory.");
         return cacheListener.getMaxDirSizeBytes() / BYTES_IN_MEGABYTES;
     }
-    
+
     public void setProductCacheDirectory(final String productCacheDirectory) {
         String newProductCacheDirectoryDir = "";
 
-        
         if (!StringUtils.isEmpty(productCacheDirectory)) {
             String path = FilenameUtils.normalize(productCacheDirectory);
             File directory = new File(path);
@@ -231,7 +236,7 @@ public class ResourceCache implements ResourceCacheInterface {
      * Returns true if resource with specified cache key is already in the process of
      * being cached. This check helps clients prevent attempting to cache the same resource
      * multiple times.
-     * 
+     *
      * @param key
      * @return
      */
@@ -241,14 +246,13 @@ public class ResourceCache implements ResourceCacheInterface {
     }
 
     /**
-     * Called by ReliableResourceDownloadManager when resource has completed being 
+     * Called by ReliableResourceDownloadManager when resource has completed being
      * cached to disk and is ready to be added to the cache map.
      *
      * @param reliableResource the resource to add to the cache map
-     * @throws CacheException
      */
     @Override
-    public void put(ReliableResource reliableResource) throws CacheException {
+    public void put(ReliableResource reliableResource) {
         LOGGER.trace("ENTERING: put(ReliableResource)");
         reliableResource.setLastTouchedMillis(System.currentTimeMillis());
         cache.put(reliableResource.getKey(), reliableResource);
@@ -279,51 +283,46 @@ public class ResourceCache implements ResourceCacheInterface {
     }
 
     /**
-     *
      * @param key
      * @return Resource, {@code null} if not found.
-     * @throws CacheException if no Resource found with given key.
      */
     @Override
-    public Resource getValid(String key, Metacard latestMetacard) throws CacheException {
+    public Resource getValid(String key, Metacard latestMetacard) {
         LOGGER.debug("ENTERING: get()");
         if (key == null) {
-            throw new CacheException("Must specify non-null key");
+            throw new IllegalArgumentException("Must specify non-null key");
         }
-        if (latestMetacard == null){
-            throw new CacheException("Must specify non-null metacard");
+        if (latestMetacard == null) {
+            throw new IllegalArgumentException("Must specify non-null metacard");
         }
         LOGGER.debug("key {}", key);
 
         ReliableResource cachedResource = (ReliableResource) cache.get(key);
 
-
-        
         // Check that ReliableResource actually maps to a file (product) in the
         // product cache directory. This check handles the case if the product
         // cache directory has had files deleted from it.
         if (cachedResource != null) {
-            try{
-                if(!validateCacheEntry(cachedResource, latestMetacard)){
-                    throw new CacheException("Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: " + key);
+            try {
+                if (!validateCacheEntry(cachedResource, latestMetacard)) {
+                    throw new IllegalArgumentException("Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: " + key);
                 }
-            }
-            catch (IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
                 // This should never happen.  If cachedResource is null we don't get into this block.  If latestMetacard is null, we shouldn't get into this class.
                 LOGGER.warn("Unable to validate cached resource against latest metacard from Catalog.  Resource returned from cache may be out-of-date.", e);
             }
-            
+
             if (cachedResource.hasProduct()) {
                 LOGGER.debug("EXITING: get() for key {}", key);
                 return cachedResource;
             } else {
                 LOGGER.debug("Entry found in the cache, but no product found in cache directory for key = {}", key);
                 cache.remove(key);
-                throw new CacheException("Entry found in the cache, but no product found in cache directory for key = " + key);
+                throw new IllegalArgumentException("Entry found in the cache, but no product found in cache directory for key = " + key);
             }
         } else {
             LOGGER.debug("No product found in cache for key = {}", key);
-            throw new CacheException("No product found in cache for key = " + key);
+            throw new IllegalArgumentException("No product found in cache for key = " + key);
         }
 
     }
@@ -340,16 +339,15 @@ public class ResourceCache implements ResourceCacheInterface {
             return false;
         }
         ReliableResource cachedResource = (ReliableResource) cache.get(key);
-        
+
         boolean result;
-        try{
+        try {
             result = cachedResource != null ? (validateCacheEntry(cachedResource, latestMetacard)) : false;
-        }
-        catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             LOGGER.debug(e.getMessage());
             return false;
         }
-         
+
         return result;
     }
 
@@ -357,10 +355,10 @@ public class ResourceCache implements ResourceCacheInterface {
      * Compares the {@link Metacard} in a {@link ReliableResource} pulled from cache with a Metacard obtained directly
      * from the Catalog to ensure they are the same. Typically used to determine if the cache entry is out-of-date based
      * on the Catalog having an updated Metacard.
-     * 
+     *
      * @param cachedResource
      * @param latestMetacard
-     * @return true if the cached ReliableResource still matches the most recent Metacard from the Catalog, false otherwise 
+     * @return true if the cached ReliableResource still matches the most recent Metacard from the Catalog, false otherwise
      * @throws IllegalArgumentException if parameters are null
      */
     protected boolean validateCacheEntry(ReliableResource cachedResource, Metacard latestMetacard)

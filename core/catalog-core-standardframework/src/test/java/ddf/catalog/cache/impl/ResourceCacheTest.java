@@ -16,11 +16,11 @@ package ddf.catalog.cache.impl;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import ddf.cache.CacheException;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
 import org.apache.commons.io.FileUtils;
+import org.apache.shiro.cache.CacheException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class ResourceCacheTest {
                 + xmlConfigFilename;
 
         // Simulates how DDF script starts up setting KARAF_HOME
-//        workingDir = System.getProperty("user.dir") + File.separator + "target";
+        //        workingDir = System.getProperty("user.dir") + File.separator + "target";
         workingDir = System.getProperty("user.dir");
         System.setProperty("karaf.home", workingDir);
 
@@ -78,9 +78,9 @@ public class ResourceCacheTest {
                 + ResourceCache.DEFAULT_PRODUCT_CACHE_DIRECTORY;
 
         // Simulates how blueprint creates the ResourceCache instance
-//        instance = mock(HazelcastInstance.class);
-//        cache = mock(IMap.class);
-//        when(instance.getMap(anyString())).thenReturn(cache);
+        //        instance = mock(HazelcastInstance.class);
+        //        cache = mock(IMap.class);
+        //        when(instance.getMap(anyString())).thenReturn(cache);
 
         Bundle bundle = mock(Bundle.class);
         URL url = new URL("file:///" + new File(xmlConfigLocation).getAbsolutePath());
@@ -148,7 +148,7 @@ public class ResourceCacheTest {
                 new MimeType(), fileName, metacard);
 
         // Return null when adding as pending entry; return resource when doing get(key)
-//        when(cache.get(key)).thenReturn(null).thenReturn(reliableResource);
+        //        when(cache.get(key)).thenReturn(null).thenReturn(reliableResource);
 
         resourceCache.addPendingCacheEntry(reliableResource);
         assertTrue(resourceCache.isPending(key));
@@ -180,13 +180,13 @@ public class ResourceCacheTest {
         assertTrue(assertReliableResourceEquals(reliableResource, resourceCache.getValid(key, metacard)));
     }
 
-    @Test(expected = CacheException.class)
-    public void testGetWhenNullKey() throws CacheException, MimeTypeParseException, IOException {
+    @Test(expected = Exception.class)
+    public void testGetWhenNullKey() throws Exception, MimeTypeParseException, IOException {
         resourceCache.getValid(null, new MetacardImpl());
     }
 
-    @Test(expected = CacheException.class)
-    public void testGetWhenNoProductInCache() throws CacheException, MimeTypeParseException, IOException {
+    @Test(expected = Exception.class)
+    public void testGetWhenNoProductInCache() throws Exception, MimeTypeParseException, IOException {
         String key = "ddf-1-abc123";
         resourceCache.getValid(key, new MetacardImpl());
     }
@@ -196,12 +196,11 @@ public class ResourceCacheTest {
      * when a get() is done on that cached entry that the missing product is detected, the cache entry is removed,
      * and a CacheException is thrown.
      *
-     * @throws CacheException
      * @throws MimeTypeParseException
      * @throws IOException
      */
-    @Test(expected = CacheException.class)
-    public void testGetWhenNoProductInCacheDirectory() throws CacheException, MimeTypeParseException, IOException {
+    @Test(expected = Exception.class)
+    public void testGetWhenNoProductInCacheDirectory() throws Exception, MimeTypeParseException, IOException {
         ReliableResource reliableResource = mock(ReliableResource.class);
         String key = "ddf-1-abc123";
         MetacardImpl metacard = new MetacardImpl();
@@ -255,7 +254,7 @@ public class ResourceCacheTest {
     }
 
     @Test
-    public void testContainsTrueValid() throws URISyntaxException, CacheException {
+    public void testContainsTrueValid() throws URISyntaxException, Exception {
         MetacardImpl cachedMetacard = generateMetacard();
         MetacardImpl latestMetacard = generateMetacard();
 
@@ -273,7 +272,7 @@ public class ResourceCacheTest {
     }
 
     @Test
-    public void testContainsNullLatestMetacard() throws URISyntaxException, CacheException {
+    public void testContainsNullLatestMetacard() throws URISyntaxException, Exception {
         MetacardImpl cachedMetacard = generateMetacard();
 
         String cacheKey = "cacheKey1";
@@ -282,7 +281,7 @@ public class ResourceCacheTest {
     }
 
     @Test
-    public void testContainsTrueInvalid() throws URISyntaxException, IOException, CacheException {
+    public void testContainsTrueInvalid() throws URISyntaxException, IOException, Exception {
         MetacardImpl cachedMetacard = generateMetacard();
         MetacardImpl latestMetacard = generateMetacard();
         latestMetacard.setId("different-id");
@@ -300,7 +299,7 @@ public class ResourceCacheTest {
     }
 
     @Test
-    public void testContainsTrueInvalid2_CantFindFile() throws URISyntaxException, CacheException {
+    public void testContainsTrueInvalid2_CantFindFile() throws URISyntaxException, Exception {
         MetacardImpl cachedMetacard = generateMetacard();
         cachedMetacard.setId("different-id");
         MetacardImpl latestMetacard = generateMetacard();

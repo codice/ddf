@@ -1,24 +1,23 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.cache.impl;
 
-import java.util.Set;
-
-import ddf.cache.CacheException;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
+
+import java.util.Set;
 
 public class CacheKey {
 
@@ -36,17 +35,17 @@ public class CacheKey {
      * found. <br/>
      * Sample: <br/>
      * {@code <sourceId>-<metacardId>[-<RESOURCE_OPTION>]}
-     * 
+     *
      * @return key
      */
-    public String generateKey() throws CacheException {
+    public String generateKey() {
 
         if (metacard == null) {
-            throw new CacheException("Metacard must not be null.");
+            throw new IllegalArgumentException("Metacard must not be null.");
         }
-        
+
         if (resourceRequest == null) {
-            throw new CacheException("ResourceRequest must not be null.");
+            throw new IllegalArgumentException("ResourceRequest must not be null.");
         }
 
         Set<String> names = resourceRequest.getPropertyNames();
