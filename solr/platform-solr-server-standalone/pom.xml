@@ -11,14 +11,16 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
-	    <groupId>ddf.solr</groupId>
-	    <artifactId>solr</artifactId>
-	    <version>2.5.0-SNAPSHOT</version>
-	</parent>
+        <groupId>ddf.solr</groupId>
+        <artifactId>solr</artifactId>
+        <version>2.5.0</version>
+    </parent>
 
     <groupId>ddf.platform.solr</groupId>
     <artifactId>platform-solr-server-standalone</artifactId>
@@ -37,14 +39,14 @@
     <build>
         <plugins>
 
-            <!-- 
+            <!--
                 We only need to add one jar for extra spatial capabilities.
                 If we use the mvn bundle plugin, it will unnecessarily add extra
                 jars within the war. If we exclude the jars to be added, it will
                 add extra imports (packages) that we do not want either.
                 This is a workaround to add jars to the war without the bnd tool
-                mistakenly bringing in 7 or 8 extra jars. This helps to keep the classpath 
-                cleaner and the war smaller. 
+                mistakenly bringing in 7 or 8 extra jars. This helps to keep the classpath
+                cleaner and the war smaller.
              -->
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -65,58 +67,72 @@
                                     <version>1.0.0-SNAPSHOT</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
-						            <groupId>com.datastax.cassandra</groupId>
-						            <artifactId>cassandra-driver-core</artifactId>
-						            <version>2.0.2</version>
-						            <type>jar</type>
+                                    <groupId>com.datastax.cassandra</groupId>
+                                    <artifactId>cassandra-driver-core</artifactId>
+                                    <version>2.0.2</version>
+                                    <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
-						            <groupId>com.google.guava</groupId>
-						            <artifactId>guava</artifactId>
-						            <version>15.0</version>
-						            <type>jar</type>
+                                    <groupId>com.google.guava</groupId>
+                                    <artifactId>guava</artifactId>
+                                    <version>15.0</version>
+                                    <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>                              
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>com.codahale.metrics</groupId>
-						            <artifactId>metrics-core</artifactId>
-						            <version>3.0.1</version>
+                                    <artifactId>metrics-core</artifactId>
+                                    <version>3.0.1</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>net.jpountz.lz4</groupId>
-						            <artifactId>lz4</artifactId>
-						            <version>1.2.0</version>
+                                    <artifactId>lz4</artifactId>
+                                    <version>1.2.0</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>io.netty</groupId>
-						            <artifactId>netty</artifactId>
-						            <version>3.6.6.Final</version>
+                                    <artifactId>netty</artifactId>
+                                    <version>3.6.6.Final</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.xerial.snappy</groupId>
-						            <artifactId>snappy-java</artifactId>
-						            <version>1.1.0.1</version>
+                                    <artifactId>snappy-java</artifactId>
+                                    <version>1.1.0.1</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
                                 </artifactItem>
                                 <!--  END CassandraClient -->
-                                <!-- CassandraUpdateRequestProcessor/Factory for Solr update.chain -->
+                                <!-- CassandraUpdateRequestProcessor/Factory for Solr update.chain
                                 <artifactItem>
                                     <groupId>ddf.platform.solr</groupId>
                                     <artifactId>solr-cassandra</artifactId>
@@ -125,6 +141,7 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>
                                 </artifactItem>
+                                 -->
                                 <!-- Needed for XPath query parser and filter -->
                                 <artifactItem>
                                     <groupId>ddf.platform.solr</groupId>
@@ -132,7 +149,9 @@
                                     <version>${project.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
                                 </artifactItem>
                                 <!-- Next 3 needed for LuxDB -->
                                 <artifactItem>
@@ -141,7 +160,9 @@
                                     <version>${lux.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>net.sf.saxon</groupId>
@@ -149,7 +170,9 @@
                                     <version>${saxon.version}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.codehaus.woodstox</groupId>
@@ -157,7 +180,9 @@
                                     <version>3.1.1</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib</outputDirectory>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -169,7 +194,8 @@
                 <version>2.2</version>
                 <configuration>
                     <archive>
-                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF
+                        </manifestFile>
                     </archive>
                 </configuration>
             </plugin>
@@ -193,7 +219,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Web-ContextPath>solr</Web-ContextPath>
-                        <Export-Package />
+                        <Export-Package/>
                         <Bundle-ClassPath>
                             WEB-INF/classes,
                             <!--
@@ -311,7 +337,7 @@
                     </instructions>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -335,7 +361,7 @@
                                     <type>xml</type>
                                     <classifier>schema</classifier>
                                 </artifact>
-                                 <artifact>
+                                <artifact>
                                     <file>target/classes/solr/conf/solr.xml</file>
                                     <type>xml</type>
                                     <classifier>solr</classifier>
@@ -361,9 +387,10 @@
                                     <classifier>synonyms</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>target/classes/solr/conf/cassandra_connection.properties</file>
+                                    <file>target/classes/solr/conf/cassandra_connection.properties
+                                    </file>
                                     <type>properties</type>
-                                  <classifier>cassandra_connection</classifier>
+                                    <classifier>cassandra_connection</classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>
