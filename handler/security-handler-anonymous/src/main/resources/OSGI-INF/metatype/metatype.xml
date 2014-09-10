@@ -58,8 +58,8 @@
         </AD>
     </OCD>
 
-    <Designate pid="org.codice.admin.ui.configuration">
-        <Object ocdref="org.codice.admin.ui.configuration"/>
+    <Designate pid="org.codice.ddf.security.handler.anonymous.configuration">
+        <Object ocdref="org.codice.ddf.security.handler.anonymous.configuration"/>
     </Designate>
 
 </metatype:MetaData>

@@ -52,25 +52,9 @@ public class Configuration {
 
     private BrandingPlugin branding;
 
-    private static String JSON_MIME_TYPE_STRING = "application/json";
-
-    private static MimeType JSON_MIME_TYPE = null;
-
-    static {
-        MimeType mime = null;
-        try {
-            mime = new MimeType(JSON_MIME_TYPE_STRING);
-        } catch (MimeTypeParseException e) {
-            LOGGER.warn("Failed to create json mimetype.");
-        }
-        JSON_MIME_TYPE = mime;
-    }
+    private static MimeType mimeType = null;
 
     private Configuration() {
-        header = "";
-        footer = "";
-        style = "";
-        textColor = "";
     }
 
     @GET
@@ -85,7 +69,7 @@ public class Configuration {
         configObj.put("branding", getProductName());
 
         String configString = JSONValue.toJSONString(configObj);
-        response = Response.ok(new ByteArrayInputStream(configString.getBytes()), JSON_MIME_TYPE.toString()).build();
+        response = Response.ok(new ByteArrayInputStream(configString.getBytes()), mimeType.toString()).build();
 
         return response;
     }
@@ -149,6 +133,18 @@ public class Configuration {
 
     public void setBranding(BrandingPlugin branding) {
         this.branding = branding;
+    }
+
+    public void setMimeType(String mimeType) {
+        MimeType mime = null;
+
+        try {
+            mime = new MimeType(mimeType);
+        } catch (MimeTypeParseException e) {
+            LOGGER.warn("Failed to create mimetype: {}.", mimeType);
+        }
+
+        this.mimeType = mime;
     }
 
 }

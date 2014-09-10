@@ -12,10 +12,9 @@
 /*global define*/
 
 // #Main Application
-define(['jquery',
-        'marionette',
+define(['marionette',
         'js/view/Login.view'
-    ], function ($, Marionette, Login) {
+    ], function (Marionette, Login) {
     'use strict';
 
     var Application = {};

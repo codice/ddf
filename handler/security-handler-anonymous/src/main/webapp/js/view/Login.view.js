@@ -82,9 +82,6 @@ define([
             this.$('#username').val('');
             this.$('#password').val('');
             this.$('#loginError').hide();
-        },
-        deleteCookie: function() {
-            document.cookie = 'org.codice.websso.saml.token=; Path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         }
     });
 

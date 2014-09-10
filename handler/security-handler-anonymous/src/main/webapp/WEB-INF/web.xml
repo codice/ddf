@@ -16,8 +16,8 @@
 	      http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
          version="2.4">
 
-    <description>DDF Login Page</description>
-    <display-name>DDF Login Page</display-name>
+    <description>Login Page</description>
+    <display-name>Login Page</display-name>
 
     <!-- Default page to serve -->
     <welcome-file-list>

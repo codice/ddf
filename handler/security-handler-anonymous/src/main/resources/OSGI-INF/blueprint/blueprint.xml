@@ -34,15 +34,4 @@
                                update-strategy="container-managed"/>
         <property name="branding" ref="webBranding"/>
     </bean>
-
-    <jaxrs:server id="restService" address="/login">
-        <jaxrs:serviceBeans>
-            <ref component-id="configurationStore"/>
-        </jaxrs:serviceBeans>
-        <jaxrs:outInterceptors>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>
-            <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
-        </jaxrs:outInterceptors>
-    </jaxrs:server>
-
 </blueprint>

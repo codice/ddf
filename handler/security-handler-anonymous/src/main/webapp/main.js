@@ -17,14 +17,13 @@
 
     require(['config'], function () {
         require([
-            'jquery',
             'backbone',
             'marionette',
             'icanhaz',
             'js/application',
             'bootstrap'
 
-        ], function ($, Backbone, Marionette, ich, Application) {
+        ], function (Backbone, Marionette, ich, Application) {
 
             var app = Application.App;
 
