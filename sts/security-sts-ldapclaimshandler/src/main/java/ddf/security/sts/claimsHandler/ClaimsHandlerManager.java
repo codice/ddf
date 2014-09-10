@@ -137,7 +137,11 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
         LdapConnectionConfig config = new LdapConnectionConfig();
         config.setUseSsl(url.startsWith("ldaps"));
         config.setLdapHost(url.substring(url.indexOf("://")+3, url.lastIndexOf(":")));
-        config.setLdapPort(Integer.valueOf(url.substring(url.lastIndexOf(":")+1)));
+        try {
+            config.setLdapPort(Integer.valueOf(url.substring(url.lastIndexOf(":") + 1)));
+        } catch (NumberFormatException e) {
+            LOGGER.warn("No lDAP port specified, default port will be used.", e);
+        }
         if(config.isUseSsl()) {
             config.setSslProtocol(CommonSSLFactory.PROTOCOL);
             try {
