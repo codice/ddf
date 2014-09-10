@@ -149,7 +149,7 @@
                             WEB-INF/lib/solr-xpath-${project.version}.jar,
                             WEB-INF/lib/stax2-api-3.1.1.jar,
                             WEB-INF/lib/woodstox-core-asl-${woodstox.version}.jar,
-                            WEB-INF/lib/guava-15.0.jar,
+                            WEB-INF/lib/guava-14.0.1.jar,
                             WEB-INF/lib/metrics-core-3.0.1.jar,
                             WEB-INF/lib/lz4-1.2.0.jar,
                             WEB-INF/lib/netty-3.6.6.Final.jar,
