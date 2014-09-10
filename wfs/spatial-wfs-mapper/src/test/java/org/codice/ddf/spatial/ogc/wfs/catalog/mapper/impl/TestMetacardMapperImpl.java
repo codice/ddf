@@ -217,7 +217,7 @@ public class TestMetacardMapperImpl {
         metacardMapper.setFeaturePropToMetacardAttrMap(exampleFeaturePropToMetacardAttrMapping);
         
         // Test
-        String metacardAttrib = metacardMapper.getMetacardProperty(EXPECTED_FEATURE_PROPERTY);
+        String metacardAttrib = metacardMapper.getMetacardAttribute(EXPECTED_FEATURE_PROPERTY);
         
         // Verify
         String expectedMetacardAttrib = "metacardattr3";
@@ -233,7 +233,7 @@ public class TestMetacardMapperImpl {
         
         // Test
         String featureProperty = "feature.prop200";
-        String metacardAttrib = metacardMapper.getMetacardProperty(featureProperty);
+        String metacardAttrib = metacardMapper.getMetacardAttribute(featureProperty);
         
         // Verify
         assertThat(metacardAttrib, is(nullValue()));
@@ -252,7 +252,7 @@ public class TestMetacardMapperImpl {
         metacardMapper.setFeaturePropToMetacardAttrMap(exampleFeaturePropToMetacardAttrMappingWithAdminConsoleBug);
         
         // Test
-        String metacardAttrib = metacardMapper.getMetacardProperty(EXPECTED_FEATURE_PROPERTY);
+        String metacardAttrib = metacardMapper.getMetacardAttribute(EXPECTED_FEATURE_PROPERTY);
         
         // Verify
         String expectedMetacardAttrib = "metacardattr3";
@@ -325,7 +325,7 @@ public class TestMetacardMapperImpl {
         // Test
         String metacardAttribute1 = "metacardattr3";
         String featureProperty1 = metacardMapper.getFeatureProperty(metacardAttribute1);
-        String metacardAttrib = metacardMapper.getMetacardProperty(EXPECTED_FEATURE_PROPERTY);
+        String metacardAttrib = metacardMapper.getMetacardAttribute(EXPECTED_FEATURE_PROPERTY);
         
         // Verify
         assertThat(featureProperty1, is(EXPECTED_FEATURE_PROPERTY));

@@ -336,10 +336,10 @@ public class TestGenericFeatureConverter {
     @Test
     public void testUnmarshalMultiQueryFeatureCollectionXmlToObjectWithMetacardMapper() {
     	//Create Metacard Mapper
-    	String featureAttr = "states.STATE_NAME";
-    	String metacardProp = "title";
+    	String featureProp= "states.STATE_NAME";
+    	String metacardAttr = "title";
     	MetacardMapper metacardMapper = mock(MetacardMapper.class);
-    	when(metacardMapper.getMetacardProperty(featureAttr)).thenReturn(metacardProp);
+    	when(metacardMapper.getMetacardAttribute(featureProp)).thenReturn(metacardAttr);
     	
         XStream xstream = new XStream(new WstxDriver());
         FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();

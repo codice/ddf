@@ -140,7 +140,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
             
             //Check MetacardMapper for mappings of incoming values
             if (metacardMapper != null) {    
-	            String newName = metacardMapper.getMetacardProperty(name);
+	            String newName = metacardMapper.getMetacardAttribute(name);
 	            if (newName != null){
 	            	name = newName;
 	            }

@@ -101,8 +101,8 @@ public class MetacardMapperImpl implements MetacardMapper {
     }
     
     @Override
-    public String getMetacardProperty(String featureAttribute) {
-        return featurePropertyToMetacardAttributeMap.get(featureAttribute);
+    public String getMetacardAttribute(String featureProperty) {
+        return featurePropertyToMetacardAttributeMap.get(featureProperty);
     }
     
     public void setContext(BundleContext context) {
