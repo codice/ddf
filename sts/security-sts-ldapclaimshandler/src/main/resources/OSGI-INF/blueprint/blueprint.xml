@@ -52,7 +52,7 @@
         <property name="password" value="ENC(c+GitDfYAMTDRESXSDDsMw==)" />
         <property name="userNameAttribute" value="uid" />
         <property name="userBaseDn" value="ou=users,dc=example,dc=com" />
-        <property name="objectClass" value="ou=users,dc=example,dc=com" />
+        <property name="objectClass" value="groupOfNames" />
         <property name="memberNameAttribute" value="member" />
         <property name="groupBaseDn" value="ou=groups,dc=example,dc=com" />
         <property name="userDn" value="cn=admin" />

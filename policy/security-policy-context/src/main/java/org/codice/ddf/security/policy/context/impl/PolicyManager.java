@@ -249,7 +249,7 @@ public class PolicyManager implements ContextPolicyManager {
 
     public void setRequiredAttributes(String requiredAttributes) {
         LOGGER.debug("setRequiredAttributes(String) called with {}", requiredAttributes);
-        policyProperties.put(AUTH_TYPES, requiredAttributes);
+        policyProperties.put(REQ_ATTRS, requiredAttributes);
     }
 
     public void setRealms(List<String> realms) {

@@ -41,6 +41,7 @@
         <cm:managed-properties persistent-id="ddf.security.sts.ldap" update-strategy="container-managed" />
         <argument ref="blueprintBundleContext" />
         <argument ref="encryptionService" />
+        <property name="keyAlias" value="localhost" />
     </bean>
 
     <service ref="keystoreManager" interface="org.codice.ddf.configuration.ConfigurationWatcher" />

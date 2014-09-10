@@ -14,9 +14,7 @@
  **/
 package ddf.ldap.ldaplogin;
 
-import java.io.File;
-import java.util.Map;
-
+import ddf.security.encryption.EncryptionService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.jaas.config.KeystoreInstance;
 import org.apache.karaf.jaas.config.impl.ResourceKeystoreInstance;
@@ -27,7 +25,8 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.encryption.EncryptionService;
+import java.io.File;
+import java.util.Map;
 
 /**
  * Registers keystores based on the platform configuration.
@@ -45,7 +44,7 @@ public class KeystoreManager implements ConfigurationWatcher {
 
     private String truststoreLoc, truststorePass;
 
-    private String keyAlias = "server";
+    private String keyAlias;
 
     private static final String HOME_LOCATION = System.getProperty("ddf.home");
 
