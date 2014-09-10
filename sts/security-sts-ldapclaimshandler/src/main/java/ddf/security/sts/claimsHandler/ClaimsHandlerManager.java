@@ -101,9 +101,6 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
         String propertyFileLocation = props.get(ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
         if((keystoreLoc != null && truststoreLoc != null) || !url.startsWith("ldaps")) {
             try {
-                if (connection != null) {
-                    connection.unBind();
-                }
                 if (encryptService != null) {
                     password = encryptService.decryptValue(password);
                 }
@@ -123,13 +120,7 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
     }
 
     public void destroy() {
-        if(connection != null) {
-            try {
-                connection.unBind();
-            } catch (LdapException e) {
-                LOGGER.warn("Unable to close the LDAP connection. May not have been open.", e);
-            }
-        }
+
     }
 
     protected LdapConnection createLdapConnection(String url, String userDn, String password)
@@ -137,6 +128,8 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
         LdapConnectionConfig config = new LdapConnectionConfig();
         config.setUseSsl(url.startsWith("ldaps"));
         config.setLdapHost(url.substring(url.indexOf("://")+3, url.lastIndexOf(":")));
+        config.setName(userDn);
+        config.setCredentials(password);
         try {
             config.setLdapPort(Integer.valueOf(url.substring(url.lastIndexOf(":") + 1)));
         } catch (NumberFormatException e) {
@@ -152,7 +145,6 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
             }
         }
         LdapConnection connection = new LdapNetworkConnection(config);
-        connection.bind(userDn, password);
 
         return connection;
     }

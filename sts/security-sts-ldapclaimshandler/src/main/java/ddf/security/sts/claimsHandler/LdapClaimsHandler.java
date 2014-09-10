@@ -23,6 +23,7 @@ import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.slf4j.Logger;
@@ -112,6 +113,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
             searchAttributes = searchAttributeList.toArray(new String[searchAttributeList.size()]);
 
             LOGGER.trace("Executing ldap search with base dn of {} and filter of {}", this.userBaseDn, filter.toString());
+            connection.bind();
             EntryCursor entryCursor = connection.search((this.userBaseDn == null) ? "" : this.userBaseDn,
                     filter.toString(),
                     SearchScope.SUBTREE, searchAttributes);
@@ -163,6 +165,11 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
             }
         } catch (Exception e) {
             LOGGER.error("Unable to set role claims.", e);
+        } finally {
+            try {
+                connection.unBind();
+            } catch (LdapException ignore) {
+            }
         }
         return claimsColl;
     }
