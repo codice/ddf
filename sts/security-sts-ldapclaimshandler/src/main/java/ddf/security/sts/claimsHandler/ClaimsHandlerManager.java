@@ -104,6 +104,9 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
                 if (connection != null) {
                     connection.unBind();
                 }
+                if (encryptService != null) {
+                    password = encryptService.decryptValue(password);
+                }
                 connection = createLdapConnection(url, userDn, password);
                 registerRoleClaimsHandler(connection, propertyFileLocation, userBaseDn,
                         userNameAttribute, objectClass, memberNameAttribute, groupBaseDn);
