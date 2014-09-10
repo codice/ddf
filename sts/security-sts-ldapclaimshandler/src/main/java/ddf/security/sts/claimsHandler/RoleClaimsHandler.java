@@ -195,7 +195,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
                             + "," + getUserBaseDn()));
 
             String filterString = filter.toString();
-            logger.trace("Executing ldap search with base dn of {} and filter of {}", this.userBaseDn, filterString);
+            logger.trace("Executing ldap search with base dn of {} and filter of {}", this.groupBaseDn, filterString);
 
             EntryCursor entryCursor = connection.search(groupBaseDn, filterString,
                     SearchScope.SUBTREE, attributes);
