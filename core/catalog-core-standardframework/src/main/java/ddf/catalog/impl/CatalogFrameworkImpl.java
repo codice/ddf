@@ -14,6 +14,35 @@
  **/
 package ddf.catalog.impl;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.blueprint.container.ServiceUnavailableException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.FanoutCatalogFramework;
@@ -89,34 +118,6 @@ import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.Masker;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
 import ddf.catalog.util.impl.SourcePoller;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.blueprint.container.ServiceUnavailableException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * CatalogFrameworkImpl is the core class of DDF. It is used for query, create, update, delete, and
@@ -1715,6 +1716,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                         if (!requestProperties.containsKey(Metacard.ID)) {
                             requestProperties.put(Metacard.ID, result.getId());
                         }
+                        if (!requestProperties.containsKey(Metacard.RESOURCE_URI)) {
+                            requestProperties.put(Metacard.RESOURCE_URI, result.getResourceURI());
+                        }
                     } else {
                         throw new ResourceNotFoundException(
                                 "Could not resolve source id for URI by doing a URI based query: "
@@ -1755,7 +1759,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                     if (!requestProperties.containsKey(Metacard.ID)) {
                         requestProperties.put(Metacard.ID, metacardId);
                     }
-
+                    if (!requestProperties.containsKey(Metacard.RESOURCE_URI)) {
+                        requestProperties.put(Metacard.RESOURCE_URI, resourceUri);
+                    }
                 } else {
                     throw new ResourceNotSupportedException(
                             "The GetResourceRequest with attribute value of class '"
@@ -1840,6 +1846,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                         if (!requestProperties.containsKey(Metacard.ID)) {
                             requestProperties.put(Metacard.ID, metacard.getId());
                         }
+                        if (!requestProperties.containsKey(Metacard.RESOURCE_URI)) {
+                            requestProperties.put(Metacard.RESOURCE_URI, metacard.getResourceURI());
+                        }
                     } else {
                         throw new ResourceNotFoundException(
                                 "Could not resolve source id for URI by doing a URI based query: "
@@ -1880,7 +1889,9 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                     if (!requestProperties.containsKey(Metacard.ID)) {
                         requestProperties.put(Metacard.ID, metacardId);
                     }
-
+                    if (!requestProperties.containsKey(Metacard.RESOURCE_URI)) {
+                        requestProperties.put(Metacard.RESOURCE_URI, resourceUri);
+                    }
                 } else {
                     throw new ResourceNotSupportedException(
                             "The GetResourceRequest with attribute value of class '"
