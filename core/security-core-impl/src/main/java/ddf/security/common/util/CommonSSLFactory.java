@@ -14,6 +14,15 @@
  **/
 package ddf.security.common.util;
 
+import ddf.security.SecurityConstants;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -22,18 +31,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
-
-import org.apache.commons.io.IOUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ddf.security.SecurityConstants;
 
 /**
  * Creates a new SSLSocketFactory
@@ -44,6 +41,8 @@ public final class CommonSSLFactory {
 
     private static String ENTERING = "ENTERING: {}";
     private static String EXITING = "EXITING: {}";
+
+    public static final String PROTOCOL = "TLS";
 
     private CommonSSLFactory() {
 
@@ -70,46 +69,12 @@ public final class CommonSSLFactory {
         LOGGER.debug(ENTERING, methodName);
 
         try {
-            LOGGER.debug("trustStoreLoc = {}", trustStoreLoc);
-            FileInputStream trustFIS = new FileInputStream(trustStoreLoc);
-            LOGGER.debug("keyStoreLoc = {}", keyStoreLoc);
-            FileInputStream keyFIS = new FileInputStream(keyStoreLoc);
+            TrustManagerFactory tmf = createTrustManagerFactory(trustStoreLoc, trustStorePass);
 
-            // truststore stuff
-            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            try {
-                LOGGER.debug("Loading trustStore");
-                trustStore.load(trustFIS, trustStorePass.toCharArray());
-            } catch (CertificateException e) {
-                throw new IOException("Unable to load certificates from truststore. "
-                        + trustStoreLoc, e);
-            } finally {
-                IOUtils.closeQuietly(trustFIS);
-            }
-
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory
-                    .getDefaultAlgorithm());
-            tmf.init(trustStore);
-            LOGGER.debug("trust manager factory initialized");
-
-            // keystore stuff
-            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            try {
-                LOGGER.debug("Loading keyStore");
-                keyStore.load(keyFIS, keyStorePass.toCharArray());
-            } catch (CertificateException e) {
-                throw new IOException("Unable to load certificates from keystore. " + keyStoreLoc,
-                        e);
-            } finally {
-                IOUtils.closeQuietly(keyFIS);
-            }
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory
-                    .getDefaultAlgorithm());
-            kmf.init(keyStore, keyStorePass.toCharArray());
-            LOGGER.debug("key manager factory initialized");
+            KeyManagerFactory kmf = createKeyManagerFactory(keyStoreLoc, keyStorePass);
 
             // ssl context
-            SSLContext sslCtx = SSLContext.getInstance("TLS");
+            SSLContext sslCtx = SSLContext.getInstance(PROTOCOL);
             sslCtx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
             sslCtx.getDefaultSSLParameters().setNeedClientAuth(true);
             sslCtx.getDefaultSSLParameters().setWantClientAuth(true);
@@ -125,12 +90,72 @@ public final class CommonSSLFactory {
                     "Problems creating SSL socket. Usually this is "
                             + "referring to the certificate sent by the server not being trusted by the client.",
                     e);
+        }
+    }
+
+    public static KeyManagerFactory createKeyManagerFactory(String keyStoreLoc, String keyStorePass) throws IOException{
+        KeyManagerFactory kmf;
+        try {
+            // keystore stuff
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            LOGGER.debug("keyStoreLoc = {}", keyStoreLoc);
+            FileInputStream keyFIS = new FileInputStream(keyStoreLoc);
+            try {
+                LOGGER.debug("Loading keyStore");
+                keyStore.load(keyFIS, keyStorePass.toCharArray());
+            } catch (CertificateException e) {
+                throw new IOException("Unable to load certificates from keystore. " + keyStoreLoc,
+                        e);
+            } finally {
+                IOUtils.closeQuietly(keyFIS);
+            }
+            kmf = KeyManagerFactory.getInstance(KeyManagerFactory
+                    .getDefaultAlgorithm());
+            kmf.init(keyStore, keyStorePass.toCharArray());
+            LOGGER.debug("key manager factory initialized");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IOException(
+                    "Problems creating SSL socket. Usually this is "
+                            + "referring to the certificate sent by the server not being trusted by the client.",
+                    e);
         } catch (UnrecoverableKeyException e) {
-            LOGGER.debug(EXITING, methodName);
             throw new IOException("Unable to load keystore. " + keyStoreLoc, e);
         } catch (KeyStoreException e) {
-            LOGGER.debug(EXITING, methodName);
             throw new IOException("Unable to read keystore. " + keyStoreLoc, e);
         }
+
+        return kmf;
+    }
+
+    public static TrustManagerFactory createTrustManagerFactory(String trustStoreLoc, String trustStorePass) throws IOException {
+        TrustManagerFactory tmf;
+        try {
+            // truststore stuff
+            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            LOGGER.debug("trustStoreLoc = {}", trustStoreLoc);
+            FileInputStream trustFIS = new FileInputStream(trustStoreLoc);
+            try {
+                LOGGER.debug("Loading trustStore");
+                trustStore.load(trustFIS, trustStorePass.toCharArray());
+            } catch (CertificateException e) {
+                throw new IOException("Unable to load certificates from truststore. "
+                        + trustStoreLoc, e);
+            } finally {
+                IOUtils.closeQuietly(trustFIS);
+            }
+
+            tmf = TrustManagerFactory.getInstance(TrustManagerFactory
+                    .getDefaultAlgorithm());
+            tmf.init(trustStore);
+            LOGGER.debug("trust manager factory initialized");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IOException(
+                    "Problems creating SSL socket. Usually this is "
+                            + "referring to the certificate sent by the server not being trusted by the client.",
+                    e);
+        } catch (KeyStoreException e) {
+            throw new IOException("Unable to read keystore. " + trustStoreLoc, e);
+        }
+        return tmf;
     }
 }

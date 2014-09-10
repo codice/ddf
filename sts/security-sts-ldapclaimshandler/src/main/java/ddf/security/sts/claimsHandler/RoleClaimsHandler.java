@@ -14,32 +14,29 @@
  **/
 package ddf.security.sts.claimsHandler;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.sts.claims.Claim;
 import org.apache.cxf.sts.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.apache.cxf.sts.claims.ClaimsParameters;
 import org.apache.cxf.sts.claims.RequestClaimCollection;
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class RoleClaimsHandler implements ClaimsHandler {
 
@@ -47,7 +44,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
     private Map<String, String> claimsLdapAttributeMapping;
 
-    private LdapTemplate ldapTemplate;
+    private LdapConnection connection;
 
     private String delimiter = ";";
 
@@ -122,12 +119,12 @@ public class RoleClaimsHandler implements ClaimsHandler {
         this.groupBaseDn = groupBaseDn;
     }
 
-    public LdapTemplate getLdapTemplate() {
-        return ldapTemplate;
+    public LdapConnection getLdapConnection() {
+        return connection;
     }
 
-    public void setLdapTemplate(LdapTemplate ldapTemplate) {
-        this.ldapTemplate = ldapTemplate;
+    public void setLdapConnection(LdapConnection connection) {
+        this.connection = connection;
     }
 
     public String getUserNameAttribute() {
@@ -197,28 +194,17 @@ public class RoleClaimsHandler implements ClaimsHandler {
                     new EqualsFilter(getMemberNameAttribute(), getUserNameAttribute() + "=" + user
                             + "," + getUserBaseDn()));
 
-            AttributesMapper mapper = new AttributesMapper() {
-                public Object mapFromAttributes(Attributes attrs) throws NamingException {
-                    Map<String, Attribute> map = new HashMap<String, Attribute>();
-                    NamingEnumeration<? extends Attribute> attrEnum = attrs.getAll();
-                    while (attrEnum.hasMore()) {
-                        Attribute att = attrEnum.next();
-                        map.put(att.getID(), att);
-                    }
-                    return map;
-                }
-            };
-
             String filterString = filter.toString();
             logger.trace("Executing ldap search with base dn of {} and filter of {}", this.userBaseDn, filterString);
-            List<?> results = ldapTemplate.search(groupBaseDn, filterString,
-                    SearchControls.SUBTREE_SCOPE, attributes, mapper);
 
-            for (Object result : results) {
-                Map<String, Attribute> ldapAttributes = null;
-                ldapAttributes = CastUtils.cast((Map<?, ?>) result);
+            EntryCursor entryCursor = connection.search(groupBaseDn, filterString,
+                    SearchScope.SUBTREE, attributes);
 
-                Attribute attr = ldapAttributes.get(groupNameAttribute);
+            Entry entry;
+            while(entryCursor.next()) {
+                entry = entryCursor.get();
+
+                Attribute attr = entry.get(groupNameAttribute);
                 if (attr == null) {
                     logger.trace("Claim '{}' is null", roleClaimType);
                 } else {
@@ -226,31 +212,19 @@ public class RoleClaimsHandler implements ClaimsHandler {
                     c.setClaimType(getRoleURI());
                     c.setPrincipal(principal);
 
-                    StringBuilder claimValue = new StringBuilder();
-                    try {
-                        NamingEnumeration<?> list = (NamingEnumeration<?>) attr.getAll();
-                        while (list.hasMore()) {
-                            Object obj = list.next();
-                            if (!(obj instanceof String)) {
-                                logger.warn(
-                                        "LDAP attribute '{}' has got an unsupported value type",
-                                        groupNameAttribute);
-                                break;
-                            }
-                            claimValue.append((String) obj);
-                            if (list.hasMore()) {
-                                claimValue.append(getDelimiter());
-                            }
-                        }
-                    } catch (NamingException ex) {
-                        logger.warn("Failed to read value of LDAP attribute '{}'",
-                                groupNameAttribute);
-                    }
+                    Iterator<Value<?>> valueIterator = attr.iterator();
+                    while(valueIterator.hasNext()) {
+                        Value<?> value = valueIterator.next();
 
-                    c.setValue(claimValue.toString());
-                    // c.setIssuer(issuer);
-                    // c.setOriginalIssuer(originalIssuer);
-                    // c.setNamespace(namespace);
+                        Object objValue = value.getValue();
+                        if (!(objValue instanceof String)) {
+                            logger.warn("LDAP attribute '{}' has got an unsupported value type",
+                                    groupNameAttribute);
+                            break;
+                        }
+                        String itemValue = (String) objValue;
+                        c.addValue(itemValue);
+                    }
                     claimsColl.add(c);
                 }
             }

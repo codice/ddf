@@ -14,39 +14,35 @@
  **/
 package ddf.security.sts.claimsHandler;
 
-import java.net.URI;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.security.auth.x500.X500Principal;
-
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.sts.claims.Claim;
 import org.apache.cxf.sts.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsParameters;
 import org.apache.cxf.sts.claims.RequestClaim;
 import org.apache.cxf.sts.claims.RequestClaimCollection;
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.entry.Value;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.ldap.client.api.LdapConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
+
+import javax.security.auth.x500.X500Principal;
+import java.net.URI;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapClaimsHandler.class);
 
     private String propertyFileLocation;
 
-    private LdapTemplate ldap;
+    private LdapConnection connection;
 
     private String userBaseDn;
 
@@ -54,12 +50,12 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
         super();
     }
 
-    public void setLdapTemplate(LdapTemplate ldapTemplate) {
-        this.ldap = ldapTemplate;
+    public void setLdapConnection(LdapConnection connection) {
+        this.connection = connection;
     }
 
-    public LdapTemplate getLdapTemplate() {
-        return ldap;
+    public LdapConnection getLdapConnection() {
+        return connection;
     }
 
     public void setUserBaseDn(String userBaseDN) {
@@ -115,54 +111,36 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
             String[] searchAttributes = null;
             searchAttributes = searchAttributeList.toArray(new String[searchAttributeList.size()]);
 
-            AttributesMapper mapper = new AttributesMapper() {
-                public Object mapFromAttributes(Attributes attrs) throws NamingException {
-                    Map<String, Attribute> map = new HashMap<String, Attribute>();
-                    NamingEnumeration<? extends Attribute> attrEnum = attrs.getAll();
-                    while (attrEnum.hasMore()) {
-                        Attribute att = attrEnum.next();
-                        map.put(att.getID(), att);
-                    }
-                    return map;
-                }
-            };
-
             LOGGER.trace("Executing ldap search with base dn of {} and filter of {}", this.userBaseDn, filter.toString());
-            List<?> result = ldap.search((this.userBaseDn == null) ? "" : this.userBaseDn,
-                    filter.toString(), SearchControls.SUBTREE_SCOPE, searchAttributes, mapper);
+            EntryCursor entryCursor = connection.search((this.userBaseDn == null) ? "" : this.userBaseDn,
+                    filter.toString(),
+                    SearchScope.SUBTREE, searchAttributes);
 
-            Map<String, Attribute> ldapAttributes = null;
-            if (result != null && result.size() > 0) {
-                ldapAttributes = CastUtils.cast((Map<?, ?>) result.get(0));
-            } else {
-                LOGGER.debug(
-                        "No results returned from LDAP search for user [{}].  Returning empty claims collection.",
-                        user);
-                return new ClaimCollection();
-            }
+            Entry entry;
+            while(entryCursor.next()) {
+                entry = entryCursor.get();
+                for (RequestClaim claim : claims) {
+                    URI claimType = claim.getClaimType();
+                    String ldapAttribute = getClaimsLdapAttributeMapping().get(claimType.toString());
+                    Attribute attr = entry.get(ldapAttribute);
+                    if (attr == null) {
+                        LOGGER.trace("Claim '{}' is null", claim.getClaimType());
+                    } else {
+                        Claim c = new Claim();
+                        c.setClaimType(claimType);
+                        c.setPrincipal(principal);
 
+                        Iterator<Value<?>> valueIterator = attr.iterator();
+                        while(valueIterator.hasNext()) {
+                            Value<?> value = valueIterator.next();
 
-            for (RequestClaim claim : claims) {
-                URI claimType = claim.getClaimType();
-                String ldapAttribute = getClaimsLdapAttributeMapping().get(claimType.toString());
-                Attribute attr = ldapAttributes.get(ldapAttribute);
-                if (attr == null) {
-                    LOGGER.trace("Claim '{}' is null", claim.getClaimType());
-                } else {
-                    Claim c = new Claim();
-                    c.setClaimType(claimType);
-                    c.setPrincipal(principal);
-
-                    try {
-                        NamingEnumeration<?> list = (NamingEnumeration<?>) attr.getAll();
-                        while (list.hasMore()) {
-                            Object obj = list.next();
-                            if (!(obj instanceof String)) {
+                            Object objValue = value.getValue();
+                            if (!(objValue instanceof String)) {
                                 LOGGER.warn("LDAP attribute '{}' has got an unsupported value type",
                                         ldapAttribute);
                                 break;
                             }
-                            String itemValue = (String) obj;
+                            String itemValue = (String) objValue;
                             if (this.isX500FilterEnabled()) {
                                 try {
                                     X500Principal x500p = new X500Principal(itemValue);
@@ -177,15 +155,11 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
                             }
                             c.addValue(itemValue);
                         }
-                    } catch (NamingException ex) {
-                        LOGGER.warn("Failed to read value of LDAP attribute '{}'", ldapAttribute);
-                    }
 
-                    // c.setIssuer(issuer);
-                    // c.setOriginalIssuer(originalIssuer);
-                    // c.setNamespace(namespace);
-                    claimsColl.add(c);
+                        claimsColl.add(c);
+                    }
                 }
+
             }
         } catch (Exception e) {
             LOGGER.error("Unable to set role claims.", e);

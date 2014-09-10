@@ -41,7 +41,7 @@
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
 
-    <bean id="claimsHandlerManager" class="ddf.security.sts.claimsHandler.ClaimsHandlerManager" init-method="configure">
+    <bean id="claimsHandlerManager" class="ddf.security.sts.claimsHandler.ClaimsHandlerManager" init-method="configure" destroy-method="destroy">
         <cm:managed-properties persistent-id="ddf.security.sts.claimsHandler"
             update-strategy="component-managed" update-method="update" />
         <argument ref="encryptionService" />
@@ -58,6 +58,8 @@
         <property name="userDn" value="cn=admin" />
         <property name="propertyFileLocation" value="etc/ws-security/attributeMap.properties" />
     </bean>
+
+    <service ref="claimsHandlerManager" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
 
 </blueprint>
 

@@ -14,6 +14,20 @@
  **/
 package ddf.security.sts.claimsHandler;
 
+import ddf.security.encryption.EncryptionService;
+import org.apache.cxf.sts.claims.ClaimsHandler;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapConnectionConfig;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+
+import java.util.Dictionary;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -21,19 +35,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.cxf.sts.claims.ClaimsHandler;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-
-import ddf.security.encryption.EncryptionService;
 
 /**
  * Tests out the ClaimsHandlerManager.
@@ -57,8 +58,7 @@ public class ClaimsHandlerManagerTest {
         context = mock(BundleContext.class);
         encryptService = mock(EncryptionService.class);
         handlerReg = mock(ServiceRegistration.class);
-        when(
-                context.registerService(eq(ClaimsHandler.class), any(ClaimsHandler.class),
+        when(context.registerService(eq(ClaimsHandler.class), any(ClaimsHandler.class),
                         Matchers.<Dictionary<String, Object>> any())).thenReturn(handlerReg);
     }
 
@@ -67,7 +67,13 @@ public class ClaimsHandlerManagerTest {
      */
     @Test
     public void registerHandlers() {
-        ClaimsHandlerManager manager = new ClaimsHandlerManager(encryptService, context);
+        ClaimsHandlerManager manager = new ClaimsHandlerManager(encryptService, context) {
+            protected LdapConnection createLdapConnection(String url, String userDn, String password)
+                    throws LdapException {
+                LdapConnectionConfig config = new LdapConnectionConfig();
+                return new LdapNetworkConnection(config);
+            }
+        };
 
         manager.setLdapBindUserDn("cn=admin");
         manager.setUserBaseDn("ou=users,dc=example,dc=com");
@@ -85,14 +91,6 @@ public class ClaimsHandlerManagerTest {
         verify(context, times(2)).registerService(eq(ClaimsHandler.class),
                 any(ClaimsHandler.class), Matchers.<Dictionary<String, Object>> any());
         verify(handlerReg, never()).unregister();
-
-        Map<String, String> updates = new HashMap<String, String>();
-        // new role and ldap should be unregistered and then registered
-        updates.put("url", "ldap://test-ldap:1389");
-        manager.update(updates);
-        verify(context, times(4)).registerService(eq(ClaimsHandler.class),
-                any(ClaimsHandler.class), Matchers.<Dictionary<String, Object>> any());
-        verify(handlerReg, times(2)).unregister();
     }
 
 }
