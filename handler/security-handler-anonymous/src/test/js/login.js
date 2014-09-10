@@ -18,17 +18,6 @@ casper.test.begin('Login test', 1, function(test) {
             test.fail('Failed finding login form');
         });
 
-//        casper.waitFor( function() {
-//            this.fillSelectors('form[id="loginForm"]', {
-//                'input[name="username"]': 'srogers',
-//                'input[name="password"]': 'password1'});
-//        });
-
-//        casper.then(function() {
-//            this.click(".btn-signin");
-//        });
-//    });
-
         casper.run(function() {
             test.done();
         });
