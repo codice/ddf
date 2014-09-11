@@ -30,7 +30,7 @@ public class InstallerModule implements AdminModule {
 
     @Override
     public String getName() {
-        return "Installation";
+        return "Setup";
     }
 
     @Override
