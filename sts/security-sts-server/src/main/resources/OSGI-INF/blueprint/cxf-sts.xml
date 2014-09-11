@@ -65,7 +65,7 @@
         <property name="claimHandlers" ref="claimsHandler" />
     </bean>
 
-    <reference-list id="claimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
+    <reference-list id="claimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler" availability="optional"/>
 
     <!-- AUDIT LOGGER -->
     <bean id="stsEventListener" class="ddf.security.sts.STSEventListener" />

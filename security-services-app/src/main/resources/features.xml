@@ -86,6 +86,7 @@
         <feature>cxf-ws-security</feature>
         <feature>spring-tx</feature>
         <feature>security-sts-ldaplogin</feature>
+        <feature>security-sts-ldapclaimshandler</feature>
         <bundle>mvn:ddf.security.sts/security-sts-server/${project.version}</bundle>
         <bundle dependency="true">
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcprov-jdk15/1.46_3
@@ -102,7 +103,6 @@
         <bundle>mvn:ddf.security.sts/security-sts-samlvalidator/${project.version}</bundle>
         <bundle>mvn:ddf.security.sts/security-sts-x509validator/${project.version}</bundle>
         <bundle>mvn:ddf.security.sts/security-sts-usernametokenvalidator/${project.version}</bundle>
-        <bundle>mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}</bundle>
         <bundle>mvn:ddf.security.sts/security-sts-upbstvalidator/${project.version}</bundle>
     </feature>
 
