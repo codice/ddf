@@ -54,6 +54,11 @@
     	    <groupId>ddf.security.encryption</groupId>
     	    <artifactId>security-encryption-api</artifactId>
     	</dependency>
+    	
+    	<dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>ddf.security.core</groupId>
