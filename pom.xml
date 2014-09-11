@@ -41,6 +41,14 @@
 
     <dependencyManagement>
         <dependencies>
+		    <dependency>
+                <artifactId>karaf</artifactId>
+                <groupId>org.apache.karaf</groupId>
+                <version>${karaf.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+			
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
