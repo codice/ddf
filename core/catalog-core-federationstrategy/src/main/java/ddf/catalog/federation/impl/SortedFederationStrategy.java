@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,8 +39,10 @@ import org.slf4j.ext.XLogger;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.federation.base.AbstractFederationStrategy;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
@@ -49,7 +52,6 @@ import ddf.catalog.source.Source;
 import ddf.catalog.util.impl.DistanceResultComparator;
 import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.TemporalResultComparator;
-import ddf.catalog.federation.base.AbstractFederationStrategy;
 
 /**
  * This class represents a {@link FederationStrategy} based on sorting {@link Metacard}s. The
@@ -110,6 +112,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
             this.futures = futuress;
         }
 
+        @SuppressWarnings({"rawtypes", "unchecked"})
         @Override
         public void run() {
             String methodName = "run";
@@ -167,18 +170,48 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 }
                 if (sourceResponse != null) {
-                    resultList.addAll(sourceResponse.getResults());
-                    totalHits += sourceResponse.getHits();
+                    List<Result> sourceResults = sourceResponse.getResults();
+                    resultList.addAll(sourceResults);
+                    long sourceHits = sourceResponse.getHits();
 
-                    // TODO: for now add all properties into outgoing response's
-                    // properties.
-                    // this is not the best idea because we could get properties
-                    // from records that
-                    // get eliminated by the max results enforcement done below.
-                    // See DDF-1183 for
-                    // a possible solution.
-                    Map<String, Serializable> properties = sourceResponse.getProperties();
-                    returnProperties.putAll(properties);
+                    totalHits += sourceHits;
+                    Map<String, Serializable> newSourceProperties = new HashMap<String, Serializable>();
+                    newSourceProperties.put(QueryResponse.TOTAL_HITS, sourceHits);
+                    newSourceProperties
+                            .put(QueryResponse.TOTAL_RESULTS_RETURNED, sourceResults.size());
+
+                    Map<String, Serializable> originalSourceProperties = sourceResponse.getProperties();
+                    if (originalSourceProperties != null) {
+                        Serializable object = originalSourceProperties
+                                .get(QueryResponse.ELAPSED_TIME);
+                        if (object != null && object instanceof Long) {
+                            newSourceProperties.put(QueryResponse.ELAPSED_TIME, (Long) object);
+                            originalSourceProperties.remove(QueryResponse.ELAPSED_TIME);
+                            logger.debug(
+                                    "Setting the ellapsedTime responseProperty to {} for source {}",
+                                    object, site.getId());
+                        }
+
+                        // TODO: for now add all properties into outgoing response's properties.
+                        // this is not the best idea because we could get properties from records
+                        // that get eliminated by the max results enforcement done below.
+                        // See DDF-1183 for a possible solution.
+                        returnProperties.putAll(originalSourceProperties);
+                    }
+                    returnProperties.put(site.getId(), (Serializable) newSourceProperties);
+                    logger.debug("Setting the query responseProperties for site {}", site.getId());
+
+                    // Add a List of siteIds so endpoints know what sites got queried
+                    Serializable siteListObject = returnProperties.get(QueryResponse.SITE_LIST);
+                    if (siteListObject != null && siteListObject instanceof List<?>) {
+                        ((List) siteListObject).add(site.getId());
+                    } else {
+                        siteListObject = new ArrayList<String>();
+                        ((List)siteListObject).add(site.getId());
+                        returnProperties
+                                .put(QueryResponse.SITE_LIST, (Serializable) siteListObject);
+                    }
+
                 }
             }
             logger.debug("all sites finished returning results: " + resultList.size());

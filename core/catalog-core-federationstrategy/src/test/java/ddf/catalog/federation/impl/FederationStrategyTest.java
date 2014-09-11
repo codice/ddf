@@ -18,6 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -227,8 +228,7 @@ public class FederationStrategyTest {
          * NOT used. So, the results returned by each source start at index 1 and end at (offset +
          * pageSize - 1).
          * 
-         * Number of results returned by each source = offset + pageSize - 1 
-         * 4 = 2 + 3 - 1
+         * Number of results returned by each source = offset + pageSize - 1 4 = 2 + 3 - 1
          */
         Result mockSource1Result1 = mock(Result.class);
         Result mockSource1Result2 = mock(Result.class);
@@ -330,7 +330,7 @@ public class FederationStrategyTest {
         LOGGER.debug("mockSortedResult2: " + mockSortedResult2);
         LOGGER.debug("mockSortedResult3: " + mockSortedResult3);
         LOGGER.debug("mockSortedResult4: " + mockSortedResult4);
-        
+
         assertEquals(3, federatedResponse.getResults().size());
         assertEquals(mockSortedResult2, federatedResponse.getResults().get(0));
         assertEquals(mockSortedResult3, federatedResponse.getResults().get(1));
@@ -506,6 +506,23 @@ public class FederationStrategyTest {
         for (Result result : federatedResponse.getResults()) {
             LOGGER.debug("federated response result: " + result);
         }
+
+        // Check the responseProperties
+        List<String> siteList = (List) federatedResponse.getPropertyValue(QueryResponse.SITE_LIST);
+
+        assertTrue(siteList.contains("####### MOCK SOURCE 2.4 #######"));
+
+        Map<String, Serializable> siteProperties = (Map) federatedResponse
+                .getPropertyValue("####### MOCK SOURCE 2.4 #######");
+        assertNotNull(siteProperties.get(QueryResponse.TOTAL_HITS));
+        assertNotNull(siteProperties.get(QueryResponse.TOTAL_RESULTS_RETURNED));
+
+        assertTrue(siteList.contains("####### MOCK SOURCE 2.4 #######"));
+
+        siteProperties = (Map) federatedResponse
+                .getPropertyValue("####### MOCK SOURCE 1.4 #######");
+        assertNotNull(siteProperties.get(QueryResponse.TOTAL_HITS));
+        assertNotNull(siteProperties.get(QueryResponse.TOTAL_RESULTS_RETURNED));
     }
 
     /**
@@ -573,6 +590,15 @@ public class FederationStrategyTest {
         for (Result result : federatedResponse.getResults()) {
             LOGGER.debug("result: " + result);
         }
+
+        // Check the responseProperties
+        assertEquals("####### MOCK SOURCE 1.2 #######",
+                ((List) federatedResponse.getPropertyValue(QueryResponse.SITE_LIST)).get(0));
+
+        Map<String, Serializable> siteProperties = (Map) federatedResponse
+                .getPropertyValue("####### MOCK SOURCE 1.2 #######");
+        assertNotNull(siteProperties.get(QueryResponse.TOTAL_HITS));
+        assertNotNull(siteProperties.get(QueryResponse.TOTAL_RESULTS_RETURNED));
     }
 
 }

@@ -21,6 +21,14 @@ import ddf.catalog.data.Result;
 
 public interface QueryResponse extends SourceResponse {
 
+    public static final String TOTAL_HITS = "total-hits";
+
+    public static final String SITE_LIST = "site-list";
+
+    public static final String TOTAL_RESULTS_RETURNED = "total-results-returned";
+
+    public static final String ELAPSED_TIME = "elapsed-time";
+
     @Override
     public Set<ProcessingDetails> getProcessingDetails();
 

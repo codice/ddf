@@ -274,7 +274,13 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
 
         @Override
         public SourceResponse call() throws Exception {
-            return source.query(new QueryRequestImpl(query, properties));
+            long startTime = System.currentTimeMillis();
+            SourceResponse sourceResponse = source.query(new QueryRequestImpl(query, properties));
+            long ellapsedTime = System.currentTimeMillis() - startTime;
+            logger.debug("The source {} responded to the query in {} milliseconds", source.getId(),
+                    ellapsedTime);
+            sourceResponse.getProperties().put(QueryResponse.ELAPSED_TIME, ellapsedTime);
+            return sourceResponse;
         };
     }
 
