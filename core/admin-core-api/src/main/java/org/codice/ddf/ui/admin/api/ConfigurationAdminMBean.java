@@ -241,19 +241,20 @@ public interface ConfigurationAdminMBean {
      * 
      * @param servicePid
      *            that uniquely identifies the source to enable.
+     * @return the new generated pid of the enabled config
      * @throws IOException
      *             if the Source to be enabled cannot be located via the provided service PID.
      */
-    void enableConfiguration(String servicePid) throws IOException;
+    Map<String, Object> enableConfiguration(String servicePid) throws IOException;
 
     /**
-     * Disables a configuration
-     * but preserves the configuration to be enabled at a later time.
+     * Disables a configuration but preserves the configuration to be enabled at a later time.
      * 
      * @param servicePid
      *            that uniquely identifies the source to disable.
+     * @return the new generated pid of the disabled config
      * @throws IOException
      *             if the Source to be disabled cannot be located via the provided service PID.
      */
-    void disableConfiguration(String servicePid) throws IOException;
+    Map<String, Object> disableConfiguration(String servicePid) throws IOException;
 }

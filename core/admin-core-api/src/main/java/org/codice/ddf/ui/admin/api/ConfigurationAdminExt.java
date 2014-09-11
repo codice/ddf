@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 public class ConfigurationAdminExt {
+
     static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
 
     private final XLogger logger = new XLogger(LoggerFactory.getLogger(ConfigurationAdminExt.class));
@@ -59,6 +60,7 @@ public class ConfigurationAdminExt {
 
     private List<ConfigurationAdminPlugin> configurationAdminPluginList;
     
+    private static final String ENABLED = "enabled";
     private static final String ENABLED_CONFIGURATION    = "configurations";
     private static final String DISABLED_CONFIGURATION   = "disabledConfigurations";
     private static final String DISABLED_SERVICE_ID      = "_disabled";
@@ -266,10 +268,11 @@ public class ConfigurationAdminExt {
 
             configurations.add(configData);
             if (((String)configData.get(MAP_ENTRY_ID)).contains(DISABLED_SERVICE_ID)) {
-            	service.put(DISABLED_CONFIGURATION, configurations);
+                configData.put(ENABLED, false);
             } else {
-            	service.put(ENABLED_CONFIGURATION, configurations);
+                configData.put(ENABLED, true);
             }
+            service.put(ENABLED_CONFIGURATION, configurations);
         }
     }
 
