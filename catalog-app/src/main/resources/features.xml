@@ -174,7 +174,7 @@
         <bundle>mvn:ddf.catalog.security/catalog-security-filter/${project.version}</bundle>
     </feature>     
 
-    <feature name="catalog-security-plugin" install="manual" vrsion="${project.version}" description="DDF Security Plugins">
+    <feature name="catalog-security-plugin" install="manual" version="${project.version}" description="DDF Security Plugins">
         <bundle>mvn:ddf.catalog.security/catalog-security-plugin/${project.version}</bundle>
     </feature>
     

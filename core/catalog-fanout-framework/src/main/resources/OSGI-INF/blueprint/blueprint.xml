@@ -155,8 +155,6 @@
     </bean>
     <service ref="downloadStatusInfo" interface="ddf.catalog.event.retrievestatus.DownloadStatusInfo"/>
 
-    <reference id="cacheManager" interface="ddf.cache.CacheManager" />
-
     <bean id="productCache" class="ddf.catalog.cache.impl.ResourceCache" init-method="setupCache" destroy-method="teardownCache" >
         <property name="productCacheDirectory" value="" />
         <property name="cacheDirMaxSizeMegabytes" value="10240" />
