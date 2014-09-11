@@ -26,8 +26,13 @@
   <packaging>bundle</packaging>
   
     <dependencies>
-
-    <dependency>
+        <!-- DDF-733 -->
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+        </dependency>
+        <!-- END DDF-733 -->
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>3.1.0</version>
@@ -116,6 +121,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
                             org.codice.ddf.spatial.ogc.catalog,
+                            ddf.security.sts.client.configuration,
                             *
                         </Import-Package>
                         <!-- Don't Export Anything -->

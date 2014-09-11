@@ -30,7 +30,10 @@
 
     <properties>
         <ddf.catalog.app.version>2.4.0</ddf.catalog.app.version>
-        <ddf.platform.app.version>2.3.1</ddf.platform.app.version>
+        <ddf.platform.app.version>2.6.0-SNAPSHOT</ddf.platform.app.version>
+		<!--
+        <ddf.security.app.version>2.5.0-SNAPSHOT</ddf.security.app.version>
+		-->
         <org.geotools.version>8.4</org.geotools.version>     
         <handlebars.version>1.1.2</handlebars.version>
         <jaxb.annotate.plugin.version>0.6.0</jaxb.annotate.plugin.version>
@@ -38,6 +41,7 @@
         <xpp3.bundle.version>1.1.4c_5</xpp3.bundle.version>
         <xmlpull.bundle.version>1.1.3.1_2</xmlpull.bundle.version>
         <xstream.bundle.version>1.4.3_1</xstream.bundle.version>
+		<camel.version>2.12.1</camel.version>
     </properties>
 
     <dependencyManagement>
@@ -69,6 +73,51 @@
                 <artifactId>catalog-core-commons</artifactId>
                 <version>${ddf.catalog.app.version}</version>
             </dependency>
+			<!-- DDF-733 -->
+			<dependency>
+				<groupId>ddf.security.core</groupId>
+				<artifactId>security-core-api</artifactId>
+				<version>${ddf.platform.app.version}</version>
+			</dependency>
+			<dependency>
+			  <groupId>org.apache.servicemix.specs</groupId>
+			  <artifactId>org.apache.servicemix.specs.jsr311-api-1.1</artifactId>
+			  <version>2.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.camel</groupId>
+				<artifactId>camel-context</artifactId>
+				<version>${camel.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.camel</groupId>
+				<artifactId>camel-saxon</artifactId>
+				<version>${camel.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vividsolutions</groupId>
+				<artifactId>jts</artifactId>
+				<version>1.12</version>
+			</dependency>
+			<dependency>
+				<groupId>com.thoughtworks.xstream</groupId>
+				<artifactId>xstream</artifactId>
+				<version>1.4.4</version>
+			</dependency>
+			<!-- END DDF-733 -->
+			<!--
+			<dependency>
+				<groupId>ddf.security.sts</groupId>
+				<artifactId>security-sts-clientconfig</artifactId>
+				<version>${ddf.security.app.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>ddf.security.core</groupId>
+				<artifactId>security-core-impl</artifactId>
+				<version>${ddf.security.app.version}</version>
+			</dependency>
+			-->
             <dependency>
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars</artifactId>
@@ -223,6 +272,7 @@
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
             <scope>test</scope>
+			<version>1.4</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

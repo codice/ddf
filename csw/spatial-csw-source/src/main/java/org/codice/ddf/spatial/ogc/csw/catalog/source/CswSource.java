@@ -14,6 +14,91 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.math.BigInteger;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.ClientException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+
+import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
+import net.opengis.cat.csw.v_2_0_2.ElementSetType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
+import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
+import net.opengis.cat.csw.v_2_0_2.QueryType;
+import net.opengis.cat.csw.v_2_0_2.ResultType;
+import net.opengis.filter.v_1_1_0.FilterCapabilities;
+import net.opengis.filter.v_1_1_0.FilterType;
+import net.opengis.filter.v_1_1_0.PropertyNameType;
+import net.opengis.filter.v_1_1_0.SortByType;
+import net.opengis.filter.v_1_1_0.SortOrderType;
+import net.opengis.filter.v_1_1_0.SortPropertyType;
+import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
+import net.opengis.ows.v_1_0_0.DomainType;
+import net.opengis.ows.v_1_0_0.Operation;
+import net.opengis.ows.v_1_0_0.OperationsMetadata;
+
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
+import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
+import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
+import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
+import org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortOrder;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ddf.catalog.Constants;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -42,87 +127,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
-import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
-import net.opengis.cat.csw.v_2_0_2.ElementSetType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
-import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
-import net.opengis.cat.csw.v_2_0_2.QueryType;
-import net.opengis.cat.csw.v_2_0_2.ResultType;
-import net.opengis.filter.v_1_1_0.FilterCapabilities;
-import net.opengis.filter.v_1_1_0.FilterType;
-import net.opengis.filter.v_1_1_0.PropertyNameType;
-import net.opengis.filter.v_1_1_0.SortByType;
-import net.opengis.filter.v_1_1_0.SortOrderType;
-import net.opengis.filter.v_1_1_0.SortPropertyType;
-import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
-import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
-import net.opengis.filter.v_1_1_0.SpatialOperatorType;
-import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
-import net.opengis.ows.v_1_0_0.DomainType;
-import net.opengis.ows.v_1_0_0.Operation;
-import net.opengis.ows.v_1_0_0.OperationsMetadata;
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
-import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
-import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
-import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
-import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
-import org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortOrder;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.ClientException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.math.BigInteger;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 /**
  * CswSource provides a DDF {@link FederatedSource} and {@link ConnectedSource} for CSW 2.0.2
@@ -166,6 +171,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     protected boolean contentTypeMappingUpdated;
 
     protected List<RecordConverterFactory> recordConverterFactories;
+    
+    private STSClientConfiguration stsClientConfig;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswSource.class);
 
@@ -900,6 +907,12 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     public List<RecordConverterFactory> getRecordConverterFactoryList() {
         return this.recordConverterFactories;
     }
+    
+    //DDF-733
+    public void setStsClientConfig(STSClientConfiguration stsClientConfig) {
+        LOGGER.debug("Setting stsClientConfig");
+        this.stsClientConfig = stsClientConfig;
+    }
 
     public String getForceSpatialFilter() {
         return forceSpatialFilter;
@@ -1121,9 +1134,11 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         CapabilitiesType caps = null;
         try {
             if (remoteCsw != null) {
+                LOGGER.debug("Doing getCapabilities() call for CSW");
                 GetCapabilitiesRequest request = new GetCapabilitiesRequest(CswConstants.CSW);
                 request.setAcceptVersions(CswConstants.VERSION_2_0_2 + ","
                         + CswConstants.VERSION_2_0_1);
+                remoteCsw.setSAMLAssertion(stsClientConfig); //DDF-733
                 caps = remoteCsw.getCapabilities(request);
             }
         } catch (CswException cswe) {

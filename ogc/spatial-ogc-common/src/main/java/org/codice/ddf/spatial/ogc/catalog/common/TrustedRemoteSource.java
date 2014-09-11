@@ -15,14 +15,39 @@
 
 package org.codice.ddf.spatial.ogc.catalog.common;
 
-import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.ws.rs.core.Cookie;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.FiltersType;
+import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -33,28 +58,21 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transport.https.HttpsURLConnectionFactory;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.apache.cxf.ws.security.SecurityConstants;
+import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.saml.ext.AssertionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.ws.rs.core.Cookie;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Arrays;
-import java.util.List;
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.common.callback.CommonCallbackHandler;
+import ddf.security.common.util.PropertiesLoader;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public abstract class TrustedRemoteSource {
     
@@ -70,13 +88,37 @@ public abstract class TrustedRemoteSource {
                     ".*_WITH_NULL_.*", ".*_DH_anon_.*"
             };
 
-    private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
+    //DDF-733  private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
+    protected static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TrustedRemoteSource.class);
 
     public static final Integer DEFAULT_CONNECTION_TIMEOUT = 30000;
 
     public static final Integer DEFAULT_RECEIVE_TIMEOUT = 60000;
+    
+    //DDF-733
+    protected static final String ADDRESSING_NAMESPACE = "http://www.w3.org/2005/08/addressing";
+    
+    protected static final int HTTP_STATUS_CODE_OK = 200;
+
+    protected static final int CONNECTION_TIMEOUT_INTERVAL = 3000;
+
+    protected static final String QUESTION_MARK_WSDL = "?wsdl";
+
+    protected static final String DOT_WSDL = ".wsdl";
+    
+    protected HashMap<String, String> wsdlSuffixMap = new HashMap<String, String>();
+
+    // SSL keystores and passwords
+    protected String trustStorePath;
+
+    protected String keyStorePath;
+
+    protected String trustStorePassword;
+
+    protected String keyStorePassword;
+    //END DDF-733
 
     /**
      * Configures the connection and receive timeouts. If any of the parameters are null, the timeouts
@@ -139,13 +181,33 @@ public abstract class TrustedRemoteSource {
         ClientConfiguration clientConfiguration = WebClient.getConfig(client);
 
         HTTPConduit httpConduit = clientConfiguration.getHttpConduit();
+        configureKeystores(httpConduit, keyStorePath, keyStorePassword, trustStorePath, trustStorePassword);
+    }
+    
+    private void configureKeystores(HTTPConduit httpConduit, String keyStorePath, String keyStorePassword,
+            String trustStorePath, String trustStorePassword) {
+        //DDF-733
+        LOGGER.debug("Setting keyStore/trustStore paths/passwords");
+        this.keyStorePath = keyStorePath;
+        this.keyStorePassword = keyStorePassword;
+        this.trustStorePath = trustStorePath;
+        this.trustStorePassword = trustStorePassword;
+
+        /*DDF-733
+        ClientConfiguration clientConfiguration = WebClient.getConfig(client);
+
+        HTTPConduit httpConduit = clientConfiguration.getHttpConduit();
+        */
+        //END DDF-733
         TLSClientParameters tlsParams = httpConduit.getTlsClientParameters();
 
         try {
             if (tlsParams == null) {
                 tlsParams = new TLSClientParameters();
-                httpConduit.setTlsClientParameters(tlsParams);
+                //DDF-733 httpConduit.setTlsClientParameters(tlsParams);
             }
+            
+            tlsParams.setDisableCNCheck(true); //DDF-733
 
             // the default type is JKS
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -236,6 +298,8 @@ public abstract class TrustedRemoteSource {
             filter.getInclude().addAll(Arrays.asList(SSL_ALLOWED_ALGORITHMS));
             filter.getExclude().addAll(Arrays.asList(SSL_DISALLOWED_ALGORITHMS));
             tlsParams.setCipherSuitesFilter(filter);
+            
+            httpConduit.setTlsClientParameters(tlsParams);  //DDF-733
 
         } catch (KeyStoreException e) {
             LOGGER.error("Unable to read keystore: ", e);
@@ -410,11 +474,181 @@ public abstract class TrustedRemoteSource {
      * @return String
      * @throws WSSecurityException
      */
-    private String encodeSaml(org.w3c.dom.Element token) throws WSSecurityException {
+    //DDF-733  private String encodeSaml(org.w3c.dom.Element token) throws WSSecurityException {
+    protected  String encodeSaml(org.w3c.dom.Element token) throws WSSecurityException {
         AssertionWrapper assertion = new AssertionWrapper(token);
         String samlStr = assertion.assertionToString();
         DeflateEncoderDecoder deflateEncoderDecoder = new DeflateEncoderDecoder();
         byte[] deflatedToken = deflateEncoderDecoder.deflateToken(samlStr.getBytes());
         return Base64Utility.encode(deflatedToken);
     }
+    
+    //DDF-733
+    public void setSAMLAssertion(Client client, STSClientConfiguration stsClientConfig) {
+        LOGGER.debug("ENTERING: setSAMLAssertion()");
+        if (stsClientConfig == null || StringUtils.isBlank(stsClientConfig.getAddress())) {
+            LOGGER.debug("STSClientConfiguration is either null or its address is blank - assuming no STS Client is configured, so no SAML assertion will get generated.");
+            return;
+        }
+        ClientConfiguration clientConfig = WebClient.getConfig(client);
+        Bus bus = clientConfig.getBus();
+        STSClient stsClient = configureSTSClient(bus, stsClientConfig);
+        stsClient.setTokenType(stsClientConfig.getAssertionType());
+        stsClient.setKeyType(stsClientConfig.getKeyType());
+        stsClient.setKeySize(Integer.valueOf(stsClientConfig.getKeySize()));
+        try {
+            SecurityToken securityToken = stsClient.requestSecurityToken(stsClientConfig.getAddress());
+            org.w3c.dom.Element samlToken = securityToken.getToken();
+            if (samlToken != null) {
+                Cookie cookie = new Cookie(SAML_COOKIE_NAME, encodeSaml(samlToken));
+                client.reset();
+                client.cookie(cookie);
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Exception trying to get SAML assertion", e);
+        }
+        LOGGER.debug("EXITING: setSAMLAssertion()");
+    }
+    
+    /**
+     * Returns a new STSClient object configured with the properties that have
+     * been set.
+     *
+     * @param bus - CXF bus to initialize STSClient with
+     * @return STSClient
+     */
+    protected STSClient configureSTSClient(Bus bus, STSClientConfiguration stsClientConfig) {
+        final String methodName = "configureSTSClient";
+        LOGGER.debug("ENTERING: {}", methodName);
+
+        String stsAddress = stsClientConfig.getAddress();
+        String stsServiceName = stsClientConfig.getServiceName();
+        String stsEndpointName = stsClientConfig.getEndpointName();
+        String signaturePropertiesPath = stsClientConfig.getSignatureProperties();
+        String encryptionPropertiesPath = stsClientConfig.getEncryptionProperties();
+        String stsPropertiesPath = stsClientConfig.getTokenProperties();
+
+        STSClient stsClient = new STSClient(bus);
+        if (StringUtils.isBlank(stsAddress)) {
+            LOGGER.debug("STS address is null, unable to create STS Client");
+            LOGGER.debug("EXITING: {}", methodName);
+            return stsClient;
+        }
+        String wsdlExt = retrieveWsdlSuffix(stsAddress);
+        LOGGER.debug("Setting WSDL location on STSClient: " + stsAddress + wsdlExt);
+        stsClient.setWsdlLocation(stsAddress + wsdlExt);
+        LOGGER.debug("Setting service name on STSClient: " + stsServiceName);
+        stsClient.setServiceName(stsServiceName);
+        LOGGER.debug("Setting endpoint name on STSClient: " + stsEndpointName);
+        stsClient.setEndpointName(stsEndpointName);
+        LOGGER.debug("Setting addressing namespace on STSClient: " + ADDRESSING_NAMESPACE);
+        stsClient.setAddressingNamespace(ADDRESSING_NAMESPACE);
+
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        // Properties loader should be able to find the properties file no
+        // matter where it is
+        if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
+            LOGGER.debug(
+                    "Setting signature properties on STSClient: " + signaturePropertiesPath);
+            Properties signatureProperties = PropertiesLoader
+                    .loadProperties(signaturePropertiesPath);
+            map.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
+        }
+        if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
+            LOGGER.debug(
+                    "Setting encryption properties on STSClient: " + encryptionPropertiesPath);
+            Properties encryptionProperties = PropertiesLoader
+                    .loadProperties(encryptionPropertiesPath);
+            map.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
+        }
+        if (stsPropertiesPath != null && !stsPropertiesPath.isEmpty()) {
+            LOGGER.debug("Setting sts properties on STSClient: " + stsPropertiesPath);
+            Properties stsProperties = PropertiesLoader.loadProperties(stsPropertiesPath);
+            map.put(SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties);
+        }
+
+        LOGGER.debug("Setting callback handler on STSClient");
+        map.put(SecurityConstants.CALLBACK_HANDLER, new CommonCallbackHandler());
+        LOGGER.debug("Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"");
+        map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, Boolean.TRUE.toString());
+        stsClient.setProperties(map);
+
+        if (stsClient.getWsdlLocation()
+                .startsWith(HttpsURLConnectionFactory.HTTPS_URL_PROTOCOL_ID)) {
+            try {
+                LOGGER.debug("Setting up SSL on the STSClient HTTP Conduit");
+                HTTPConduit httpConduit = (HTTPConduit) stsClient.getClient().getConduit();
+                this.configureKeystores(httpConduit, keyStorePath, keyStorePassword,
+                        trustStorePath, trustStorePassword);
+            } catch (BusException e) {
+                LOGGER.error("Unable to create sts client.", e);
+            } catch (EndpointException e) {
+                LOGGER.error("Unable to create sts client endpoint.", e);
+            }
+        }
+        
+        LOGGER.debug("EXITING: {}", methodName);
+        return stsClient;
+    }
+
+    /**
+     * This method attempts to figure out which wsdl suffix should be appended to the addresses.
+     * If it can find the right address using a simulated "ping," then it uses that.
+     * Otherwise, it uses .wsdl  by default.
+     *
+     * @param address
+     * @return
+     */
+    protected String retrieveWsdlSuffix(String address) {
+        if (address != null && !address.isEmpty()) {
+            if (!wsdlSuffixMap.containsKey(address)) {
+                String url = address + DOT_WSDL;
+                try {
+                    final HttpURLConnection connection = (HttpURLConnection) new URL(url)
+                            .openConnection();
+                    connection.setConnectTimeout(CONNECTION_TIMEOUT_INTERVAL);
+                    connection.connect();
+
+                    if (connection.getResponseCode() == HTTP_STATUS_CODE_OK) {
+                        wsdlSuffixMap.put(address, DOT_WSDL);
+                        return DOT_WSDL;
+                    }
+                } catch (final MalformedURLException e) {
+                    LOGGER.info("Bad URL: " + url, e);
+                } catch (final IOException e) {
+                    LOGGER.info("Service " + url + " is not available.", e);
+                }
+
+                url = address + QUESTION_MARK_WSDL;
+                try {
+                    final HttpURLConnection connection = (HttpURLConnection) new URL(url)
+                            .openConnection();
+                    connection.setConnectTimeout(CONNECTION_TIMEOUT_INTERVAL);
+                    connection.connect();
+
+                    if (connection.getResponseCode() == HTTP_STATUS_CODE_OK) {
+                        wsdlSuffixMap.put(address, QUESTION_MARK_WSDL);
+                        return QUESTION_MARK_WSDL;
+                    }
+                } catch (final MalformedURLException e) {
+                    LOGGER.info("Bad URL: " + url, e);
+                } catch (final IOException e) {
+                    LOGGER.info("Service " + url + " is not available.", e);
+                }
+
+                // if we can recognize that this is a DDF address, then we know it uses ?wsdl
+                if (url.contains("/services")) {
+                    wsdlSuffixMap.put(address, QUESTION_MARK_WSDL);
+                    return QUESTION_MARK_WSDL;
+                }
+            } else {
+                return wsdlSuffixMap.get(address);
+            }
+        }
+        return QUESTION_MARK_WSDL;
+    }
+
+    //END DDF-733
+
 }

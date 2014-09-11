@@ -27,6 +27,12 @@
   <packaging>bundle</packaging>
   
   <dependencies>
+      <!-- DDF-733 -->
+      <dependency>
+          <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+      </dependency>
+      <!-- END DDF-733 --> 
       <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
@@ -66,6 +72,10 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package /> 
+                        <Import-Package>
+                            ddf.security.sts.client.configuration,
+                            *
+                        </Import-Package>
                         <Embed-Dependency>
                             spatial-csw-schema-bindings,
                             gml-v_3_1_1-schema,

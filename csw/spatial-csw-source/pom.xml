@@ -22,9 +22,20 @@
     <artifactId>spatial-csw-source</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: Spatial :: CSW :: Source</name>
-
-    <dependencies>
     
+    <dependencies>
+        <!-- DDF-733 -->
+        <!-- 
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-clientconfig</artifactId>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+        </dependency>
+        <!-- END DDF-733 -->
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
@@ -103,6 +114,12 @@
         <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>xercesImpl</artifactId>
+                    <groupId>xerces</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -167,6 +184,7 @@
                             spatial-ogc-common,
                             spatial-csw-converter,
                             spatial-csw-schema-bindings,
+                            security-core-api,
                             gml-v_3_1_1-schema,
                             ows-v_1_0_0-schema,
                             ogc-filter-v_1_1_0-schema,
