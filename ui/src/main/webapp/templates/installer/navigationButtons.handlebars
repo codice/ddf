@@ -14,9 +14,9 @@
 {{#if hasPrevious}}
     <li>
         {{#if busy}}
-            <a id="previousStep" class="disabled-previous" href="#" >&larr; Previous</a>
+            <a id="previousStep" class="disabled-previous" href="#" > <i class="fa fa-arrow-left"></i> Previous</a>
         {{else}}
-            <a id="previousStep" class="previous" href="#" >&larr; Previous</a>
+            <a id="previousStep" class="previous" href="#" > <i class="fa fa-arrow-left"></i> Previous</a>
         {{/if}}
     </li>
 {{/if}}
@@ -24,17 +24,17 @@
     {{#ifNotAnd hasPrevious}}
         <li>
             {{#if busy}}
-                <a id="startStep" class="disabled-next" href="#">Start &rarr;</a>
+                <a id="startStep" class="disabled-next" href="#">Start <i class="fa fa-arrow-right"></i></a>
             {{else}}
-                <a id="startStep" class="next" href="#">Start &rarr;</a>
+                <a id="startStep" class="next" href="#">Start  <i class="fa fa-arrow-right"></i></a>
             {{/if}}
         </li>
     {{else}}
         <li>
             {{#if busy}}
-                <a id="nextStep" class="disabled-next" href="#">Next &rarr;</a>
+                <a id="nextStep" class="disabled-next" href="#">Next  <i class="fa fa-arrow-right"></i></a>
             {{else}}
-                <a id="nextStep" class="next" href="#">Next &rarr;</a>
+                <a id="nextStep" class="next" href="#">Next  <i class="fa fa-arrow-right"></i></a>
             {{/if}}
         </li>
     {{/ifNotAnd}}

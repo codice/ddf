@@ -53,6 +53,7 @@ define([
                         self.listenToOnce(appView, 'collection:loaded', function(){
                             if(!self.navigationModel.get('isCustomProfile')){
                                 //if a profile is selected and the customized is not used, we automatically install the apps.
+                                self.showLoading();
                                 self.navigationModel.trigger('next'); // force next step... which will trigger the apps to be installed.
                             }
                         });
@@ -65,15 +66,25 @@ define([
                 });
 
             },
+            showLoading: function(){
+                this.$('.main-content').toggleClass('visibility-hidden', true);
+                this.$('.loading-overlay').toggleClass('active', true);
+            },
+            showContent: function(){
+                this.$('.main-content').toggleClass('visibility-hidden', false);
+                this.$('.loading-overlay').toggleClass('active', false);
+            },
             onClose: function () {
                 this.stopListening(this.navigationModel);
             },
             next: function () {
                 var that = this;
-                this.navigationModel.trigger('block');
-                if(this.applications) {
-                    this.applications.currentView.installApp(this.navigationModel.nextStep).done(function() {
+                that.navigationModel.trigger('block');
+                that.$('input').attr('disabled', true);
+                if(that.applications) {
+                    that.applications.currentView.installApp(that.navigationModel.nextStep).done(function() {
                         that.navigationModel.trigger('unblock');
+                        that.showContent();
                     });
                 }
             },

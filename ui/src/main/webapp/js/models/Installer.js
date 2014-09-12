@@ -28,7 +28,11 @@ define(['backbone', 'underscore', 'jquery'], function (Backbone, _, $) {
         }
 
         if(changeObj.stepNumber > 0) {
-            changeObj.hasPrevious = true;
+            if(changeObj.stepNumber < this.get('totalSteps')){
+                changeObj.hasPrevious = true;
+            } else {
+                changeObj.hasPrevious = false;
+            }
         } else {
             changeObj.stepNumber = 0;
             changeObj.hasPrevious = false;
