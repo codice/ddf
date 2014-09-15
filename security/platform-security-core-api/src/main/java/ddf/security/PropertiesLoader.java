@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package ddf.security.common.util;
+package ddf.security;
 
 import java.io.File;
 import java.io.FileNotFoundException;
