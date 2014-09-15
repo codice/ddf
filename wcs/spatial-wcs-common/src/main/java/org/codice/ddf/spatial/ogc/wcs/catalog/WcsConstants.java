@@ -25,4 +25,6 @@ public interface WcsConstants {
     String DESCRIBE_COVERAGE = "DescribeCoverage";
 
     String GET_COVERAGE = "GetCoverage";
+
+    String SRS_NAME = "EPSG:4326";
 }

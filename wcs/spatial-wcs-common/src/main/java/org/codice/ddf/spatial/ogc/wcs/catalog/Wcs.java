@@ -23,6 +23,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+
 import net.opengis.wcs.v_1_0_0.CoverageDescription;
 import net.opengis.wcs.v_1_0_0.DescribeCoverage;
 import net.opengis.wcs.v_1_0_0.GetCapabilities;
@@ -102,5 +104,17 @@ public interface Wcs {
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     GetCoverageResponse getCoverage(GetCoverage request) throws WcsException;
+    
+
+    /**
+     * GetRecords - HTTP POST
+     * 
+     * @param request
+     * @return
+     */
+    @POST
+    @Produces("multipart/mixed")
+    @Consumes("text/xml")
+    public MultipartBody getCoverageMultiPart(GetCoverage request) throws WcsException;
 
 }

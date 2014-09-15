@@ -31,6 +31,7 @@ import net.opengis.wcs.v_1_0_0.WCSCapabilitiesType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
 import org.codice.ddf.spatial.ogc.wcs.catalog.DescribeCoverageRequest;
 import org.codice.ddf.spatial.ogc.wcs.catalog.GetCapabilitiesRequest;
@@ -144,6 +145,14 @@ public class RemoteWcs extends TrustedRemoteSource implements Wcs {
     public GetCoverageResponse getCoverage(GetCoverage request) throws WcsException {
 
         return wcs.getCoverage(request);
+    }
+    
+    @POST
+    @Produces("multipart/mixed")
+    @Consumes("text/xml")
+    public MultipartBody getCoverageMultiPart(GetCoverage request) throws WcsException {
+        
+        return wcs.getCoverageMultiPart(request);
     }
 
 }
