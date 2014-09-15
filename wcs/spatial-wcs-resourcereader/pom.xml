@@ -27,12 +27,10 @@
   <packaging>bundle</packaging>
   
   <dependencies>
-      <!-- DDF-733 -->
       <dependency>
           <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
       </dependency>
-      <!-- END DDF-733 --> 
       <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>

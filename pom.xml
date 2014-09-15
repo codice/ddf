@@ -73,7 +73,6 @@
                 <artifactId>catalog-core-commons</artifactId>
                 <version>${ddf.catalog.app.version}</version>
             </dependency>
-			<!-- DDF-733 -->
 			<dependency>
 				<groupId>ddf.security.core</groupId>
 				<artifactId>security-core-api</artifactId>
@@ -104,20 +103,6 @@
 				<artifactId>xstream</artifactId>
 				<version>1.4.4</version>
 			</dependency>
-			<!-- END DDF-733 -->
-			<!--
-			<dependency>
-				<groupId>ddf.security.sts</groupId>
-				<artifactId>security-sts-clientconfig</artifactId>
-				<version>${ddf.security.app.version}</version>
-			</dependency>
-			
-			<dependency>
-				<groupId>ddf.security.core</groupId>
-				<artifactId>security-core-impl</artifactId>
-				<version>${ddf.security.app.version}</version>
-			</dependency>
-			-->
             <dependency>
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars</artifactId>

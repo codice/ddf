@@ -25,22 +25,6 @@
     <name>DDF :: Spatial :: OGC :: Common</name>
     
     <dependencies>
-        <!-- DDF-733 -->
-        <!--        
-        <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-clientconfig</artifactId>
-        </dependency>
-
-        Needed for CommonCallbackHandler and PropertiesLoader in TrustedRemoteSource 
-
-        <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
-        </dependency>
-        -->
-        <!-- END DDF-733 -->
-        
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>

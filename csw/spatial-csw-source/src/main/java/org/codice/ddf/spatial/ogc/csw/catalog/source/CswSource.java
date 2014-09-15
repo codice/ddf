@@ -908,7 +908,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         return this.recordConverterFactories;
     }
     
-    //DDF-733
     public void setStsClientConfig(STSClientConfiguration stsClientConfig) {
         LOGGER.debug("Setting stsClientConfig");
         this.stsClientConfig = stsClientConfig;
@@ -1138,7 +1137,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                 GetCapabilitiesRequest request = new GetCapabilitiesRequest(CswConstants.CSW);
                 request.setAcceptVersions(CswConstants.VERSION_2_0_2 + ","
                         + CswConstants.VERSION_2_0_1);
-                remoteCsw.setSAMLAssertion(stsClientConfig); //DDF-733
+                remoteCsw.setSAMLAssertion(stsClientConfig);
                 caps = remoteCsw.getCapabilities(request);
             }
         } catch (CswException cswe) {

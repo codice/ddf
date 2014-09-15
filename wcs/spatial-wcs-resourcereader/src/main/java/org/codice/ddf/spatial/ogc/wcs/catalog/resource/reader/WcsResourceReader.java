@@ -154,7 +154,7 @@ public class WcsResourceReader {
         try {
             if (remoteWcs != null) {
                 GetCapabilities request = new GetCapabilities();
-                remoteWcs.setSAMLAssertion(stsClientConfig); //DDF-733
+                remoteWcs.setSAMLAssertion(stsClientConfig);
                 this.capabilities = remoteWcs.getCapabilities(request);
             }
         } catch (WcsException e) {
@@ -591,7 +591,6 @@ public class WcsResourceReader {
         this.mimeTypeMapper = mimeTypeMapper;
     }
     
-    //DDF-733
     public void setStsClientConfig(STSClientConfiguration stsClientConfig) {
         LOGGER.debug("Setting stsClientConfig");
         this.stsClientConfig = stsClientConfig;

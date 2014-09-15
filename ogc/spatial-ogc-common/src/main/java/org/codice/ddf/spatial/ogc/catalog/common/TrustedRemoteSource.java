@@ -68,10 +68,10 @@ import org.apache.ws.security.saml.ext.AssertionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.PropertiesLoader;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.callback.CommonCallbackHandler;
-import ddf.security.common.util.PropertiesLoader;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public abstract class TrustedRemoteSource {
@@ -88,7 +88,6 @@ public abstract class TrustedRemoteSource {
                     ".*_WITH_NULL_.*", ".*_DH_anon_.*"
             };
 
-    //DDF-733  private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
     protected static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TrustedRemoteSource.class);
@@ -97,7 +96,6 @@ public abstract class TrustedRemoteSource {
 
     public static final Integer DEFAULT_RECEIVE_TIMEOUT = 60000;
     
-    //DDF-733
     protected static final String ADDRESSING_NAMESPACE = "http://www.w3.org/2005/08/addressing";
     
     protected static final int HTTP_STATUS_CODE_OK = 200;
@@ -118,7 +116,6 @@ public abstract class TrustedRemoteSource {
     protected String trustStorePassword;
 
     protected String keyStorePassword;
-    //END DDF-733
 
     /**
      * Configures the connection and receive timeouts. If any of the parameters are null, the timeouts
@@ -186,28 +183,21 @@ public abstract class TrustedRemoteSource {
     
     private void configureKeystores(HTTPConduit httpConduit, String keyStorePath, String keyStorePassword,
             String trustStorePath, String trustStorePassword) {
-        //DDF-733
+
         LOGGER.debug("Setting keyStore/trustStore paths/passwords");
         this.keyStorePath = keyStorePath;
         this.keyStorePassword = keyStorePassword;
         this.trustStorePath = trustStorePath;
         this.trustStorePassword = trustStorePassword;
 
-        /*DDF-733
-        ClientConfiguration clientConfiguration = WebClient.getConfig(client);
-
-        HTTPConduit httpConduit = clientConfiguration.getHttpConduit();
-        */
-        //END DDF-733
         TLSClientParameters tlsParams = httpConduit.getTlsClientParameters();
 
         try {
             if (tlsParams == null) {
                 tlsParams = new TLSClientParameters();
-                //DDF-733 httpConduit.setTlsClientParameters(tlsParams);
             }
             
-            tlsParams.setDisableCNCheck(true); //DDF-733
+            tlsParams.setDisableCNCheck(true);
 
             // the default type is JKS
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -299,7 +289,7 @@ public abstract class TrustedRemoteSource {
             filter.getExclude().addAll(Arrays.asList(SSL_DISALLOWED_ALGORITHMS));
             tlsParams.setCipherSuitesFilter(filter);
             
-            httpConduit.setTlsClientParameters(tlsParams);  //DDF-733
+            httpConduit.setTlsClientParameters(tlsParams);
 
         } catch (KeyStoreException e) {
             LOGGER.error("Unable to read keystore: ", e);
@@ -474,7 +464,6 @@ public abstract class TrustedRemoteSource {
      * @return String
      * @throws WSSecurityException
      */
-    //DDF-733  private String encodeSaml(org.w3c.dom.Element token) throws WSSecurityException {
     protected  String encodeSaml(org.w3c.dom.Element token) throws WSSecurityException {
         AssertionWrapper assertion = new AssertionWrapper(token);
         String samlStr = assertion.assertionToString();
@@ -483,7 +472,6 @@ public abstract class TrustedRemoteSource {
         return Base64Utility.encode(deflatedToken);
     }
     
-    //DDF-733
     public void setSAMLAssertion(Client client, STSClientConfiguration stsClientConfig) {
         LOGGER.debug("ENTERING: setSAMLAssertion()");
         if (stsClientConfig == null || StringUtils.isBlank(stsClientConfig.getAddress())) {
@@ -648,7 +636,5 @@ public abstract class TrustedRemoteSource {
         }
         return QUESTION_MARK_WSDL;
     }
-
-    //END DDF-733
 
 }

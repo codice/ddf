@@ -85,7 +85,6 @@ public class RemoteWcs extends TrustedRemoteSource implements Wcs {
                 trustStorePath, trustStorePassword);
     }
     
-    //DDF-733
     public void setSAMLAssertion(STSClientConfiguration stsClientConfig) {
         this.setSAMLAssertion(WebClient.client(wcs), stsClientConfig);
     }    

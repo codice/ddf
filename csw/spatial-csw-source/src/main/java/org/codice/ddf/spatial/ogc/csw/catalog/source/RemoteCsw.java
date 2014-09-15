@@ -115,7 +115,6 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
         this.setSubjectOnRequest(WebClient.client(csw), subject);
     }
     
-    //DDF-733
     public void setSAMLAssertion(STSClientConfiguration stsClientConfig) {
         this.setSAMLAssertion(WebClient.client(csw), stsClientConfig);
     }    
