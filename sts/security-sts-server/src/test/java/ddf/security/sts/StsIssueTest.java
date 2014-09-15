@@ -40,7 +40,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -64,6 +63,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import ddf.security.common.callback.CommonCallbackHandler;
 
 /**
  * Some unit tests for the CXF STSClient Issue Binding.
@@ -392,7 +393,7 @@ public class StsIssueTest {
         WSSConfig wssConfig = WSSConfig.getNewInstance();
         wssConfig.setWsiBSPCompliant(false);
         requestData.setWssConfig(wssConfig);
-        CallbackHandler callbackHandler = new ddf.security.sts.CommonCallbackHandler();
+        CallbackHandler callbackHandler = new CommonCallbackHandler();
         requestData.setCallbackHandler(callbackHandler);
         Crypto crypto = CryptoFactory.getInstance("serverKeystore.properties");
         requestData.setDecCrypto(crypto);

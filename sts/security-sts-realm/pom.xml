@@ -42,10 +42,6 @@
       <artifactId>cxf-rt-transports-http</artifactId>
     </dependency>
     <dependency>
-      <groupId>ddf.security.sts</groupId>
-      <artifactId>security-sts-clientconfig</artifactId>
-    </dependency>
-    <dependency>
       <groupId>ddf.security.core</groupId>
       <artifactId>security-core-api</artifactId>
     </dependency>
@@ -88,9 +84,6 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Embed-Dependency>
-                ddf-security-common
-            </Embed-Dependency>
             <Import-Package>
                 org.apache.commons.io;version="1.4.0",
                 ddf.security.sts.client.configuration,

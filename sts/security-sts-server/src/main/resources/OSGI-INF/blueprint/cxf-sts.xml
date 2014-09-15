@@ -186,7 +186,7 @@
                   value="$sts{signatureProperties}" />
         <property name="signatureUsername" value="$sts{signatureUsername}" />
         <property name="callbackHandlerClass"
-                  value="ddf.security.sts.CommonCallbackHandler" />
+                  value="ddf.security.common.callback.CommonCallbackHandler" />
         <property name="issuer" value="$sts{issuer}" />
         <property name="encryptionPropertiesFile" value="$sts{encryptionProperties}" />
         <property name="encryptionUsername" value="$sts{encryptionUsername}" />
@@ -212,7 +212,7 @@
         </jaxws:inInterceptors>
         <jaxws:properties>
             <entry key="ws-security.callback-handler"
-                   value="ddf.security.sts.CommonCallbackHandler"/>
+                   value="ddf.security.common.callback.CommonCallbackHandler"/>
             <entry key="ws-security.signature.properties" value="$sts{signatureProperties}"/>
             <entry key="ws-security.encryption.properties" value="$sts{encryptionProperties}"/>
             <entry key="ws-security.signature.username" value="$sts{signatureUsername}"/>

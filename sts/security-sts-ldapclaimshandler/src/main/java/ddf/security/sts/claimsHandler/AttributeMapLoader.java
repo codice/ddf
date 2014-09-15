@@ -24,7 +24,7 @@ import javax.security.auth.x500.X500Principal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.common.util.PropertiesLoader;
+import ddf.security.PropertiesLoader;
 
 /**
  * Logic that handles loading attribute maps from an incoming format and returning it as a Map.

@@ -14,11 +14,11 @@
  **/
 package ddf.security.realm.sts;
 
+import ddf.security.PropertiesLoader;
 import ddf.security.common.audit.SecurityLogger;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import ddf.security.common.callback.CommonCallbackHandler;
 import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.common.util.PropertiesLoader;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 import org.apache.commons.io.IOUtils;

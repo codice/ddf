@@ -60,12 +60,6 @@
             <groupId>org.jasig.cas</groupId>
             <artifactId>cas-client-core</artifactId>
         </dependency>
-
-    	<dependency>
-      		<groupId>ddf.security.sts</groupId>
-      		<artifactId>security-sts-clientconfig</artifactId>
-    	</dependency>
-
         <dependency>
             <groupId>ddf.security.sts</groupId>
             <artifactId>security-sts-x509delegationhandler</artifactId>
@@ -114,6 +108,7 @@
                         </Embed-Dependency>
                         <Import-Package>
                             javax.net.ssl,
+                            ddf.security.common.callback,
                             org.springframework.ldap.core;resolution:=optional,
                         	org.springframework.ldap.core.support;resolution:=optional,
                         	org.springframework.ldap.filter;resolution:=optional,

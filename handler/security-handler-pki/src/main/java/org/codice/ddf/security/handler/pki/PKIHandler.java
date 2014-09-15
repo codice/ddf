@@ -14,13 +14,15 @@
  **/
 package org.codice.ddf.security.handler.pki;
 
-import ddf.security.common.util.PropertiesLoader;
-import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.components.crypto.CredentialException;
-import org.apache.ws.security.components.crypto.Merlin;
-import org.apache.ws.security.util.Base64;
+
+import java.security.cert.X509Certificate;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -28,21 +30,6 @@ import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.security.cert.X509Certificate;
 
 /**
  * Handler for PKI based authentication. X509 chain will be extracted from the HTTP request and
