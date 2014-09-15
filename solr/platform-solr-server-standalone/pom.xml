@@ -100,6 +100,16 @@
                                         ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
                                     </outputDirectory>
                                 </artifactItem>
+                                <artifactItem>
+-                                    <groupId>com.google.guava</groupId>
+-                                    <artifactId>guava</artifactId>
+-                                    <version>14.0.1</version>
+-                                    <type>jar</type>
+-                                    <overWrite>true</overWrite>
+-                                    <outputDirectory>
+-                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+-                                    </outputDirectory>
+-                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
