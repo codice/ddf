@@ -71,8 +71,7 @@ server.mockQueryServer = function (req, res) {
             var fileIdx = _.indexOf(files, keyword+".json");
             if (fileIdx !== -1) {
                 var resourcePath = path.resolve(resourceDir, files[fileIdx]);
-                res.contentType('application/json');
-                res.status(200).send(fs.readFileSync(resourcePath));
+                sendJson(fs.readFileSync(resourcePath), res);
             } else {
                 var message = stringFormat('The specified query does not map to a cached file: \'{0}\'', keyword);
                 res.status(404).send(message);
@@ -90,7 +89,7 @@ function getTestResource(name) {
     var resourceDir = path.resolve('.', 'src/test/resources');
     if (fs.existsSync(resourceDir)) {
         var resourcePath = path.resolve(resourceDir, name);
-        return fs.readFileSync(resourcePath);
+        return fs.readFileSync(resourcePath, {'encoding':'utf8'});
     }
     return undefined;
 }
@@ -98,13 +97,17 @@ function getTestResource(name) {
 function mockTestResource (name, res) {
     var resource = getTestResource(name);
     if (resource) {
-        res.contentType('application/json');
-        res.status(200).send(resource);
+        sendJson(resource, res);
     } else {
         var message = stringFormat('The specified resource does not exist.');
         res.status(404).send(message);
         res.end();
     }
+}
+
+function sendJson (data, res) {
+    res.contentType('application/json');
+    res.status(200).send(data);
 }
 
 server.mockConfigStore = function (req, res) {
@@ -124,7 +127,26 @@ server.mockHandshake = function (req, res) {
 }
 
 server.mockConnect = function (req, res) {
-    mockTestResource('connect.json', res);
+    var resource = getTestResource('connect.json');
+    resource = resource.replace('/e863f023-3b6f-4575-badf-a1f114e7b378', server.clientChannel);
+    sendJson(resource, res);
+}
+
+server.mockCometD = function (req, res) {
+	//parse req body to figure out how to respond
+        var dat = req.body[0];
+        var json = [{'id':dat.id, 'successful':true, 'channel':dat.channel}];
+        if (dat.subscription) {
+            json[0].subscription = dat.subscription;
+            if (dat.subscription.match(/[a-f0-9]*-/)) {
+                server.clientChannel = dat.subscription;
+            }
+        } else if (dat.channel === '/service/user') {
+            json.unshift({'data':{'successful':'false'}, 'channel':'/service/user'});
+        } else if (dat.channel === '/service/query') {
+            json.unshift({'successful':'true'});
+        }
+        sendJson(json, res);
 }
 
 module.exports = server;
