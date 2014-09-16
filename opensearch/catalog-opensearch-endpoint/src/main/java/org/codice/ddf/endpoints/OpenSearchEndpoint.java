@@ -239,7 +239,17 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
                 query.addTypeFilter(type, versions);
             }
 
-            response = executeQuery(queryFormat, query, ui);
+            Map<String, Serializable> properties = new HashMap<String, Serializable>();
+            for (Object key : request.getParameterMap().keySet()) {
+                if (key instanceof String) {
+                    Object value = request.getParameterMap().get(key);
+                    if (value instanceof Serializable) {
+                        properties.put((String) key, ((String[]) value)[0]);
+                    }
+                }
+            }
+
+            response = executeQuery(queryFormat, query, ui, properties);
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Bad input found while executing a query", iae);
             response = Response.status(Response.Status.BAD_REQUEST)
@@ -298,16 +308,18 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
      * 
      * @param format
      *            - of the results in the response
-     * 
+     *
      * @param query
      *            - the query to execute
-     * 
+     *
      * @param ui
      *            -the ui information to use to format the results
-     * 
+     *
+     * @param properties
      * @return the response on the query
      */
-    private Response executeQuery(String format, OpenSearchQuery query, UriInfo ui) {
+    private Response executeQuery(String format, OpenSearchQuery query, UriInfo ui,
+            Map<String, Serializable> properties) {
         Response response;
         String queryFormat = format;
 
@@ -344,7 +356,7 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
 
             if (query.getFilter() != null) {
                 QueryRequest queryRequest = new QueryRequestImpl(query, query.isEnterprise(),
-                        query.getSiteIds(), null);
+                        query.getSiteIds(), properties);
                 QueryResponse queryResponse;
 
                 LOGGER.debug("Sending query");

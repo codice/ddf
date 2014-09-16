@@ -12,7 +12,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-/**
- * Provides the Fanout Catalog Framework reference implementation.
- */
-package ddf.catalog.fanout;
+package ddf.catalog.cache.solr.impl;
+
+public interface SolrFilterDelegateFactory {
+
+    public SolrFilterDelegate newInstance(DynamicSchemaResolver resolver);
+
+}

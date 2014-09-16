@@ -12,15 +12,17 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.fanout;
+package ddf.catalog.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import ddf.catalog.source.CatalogProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -58,7 +60,7 @@ public class FanoutCatalogFrameworkTest {
 
     private static final Double DISTANCE_SCORE = 3.0;
 
-    private FanoutCatalogFramework framework;
+    private CatalogFrameworkImpl framework;
 
     @Before
     public void initFramework() {
@@ -67,13 +69,15 @@ public class FanoutCatalogFrameworkTest {
         SourcePollerRunner runner = new SourcePollerRunner();
         SourcePoller poller = new SourcePoller(runner);
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
-        framework = new FanoutCatalogFramework(null, new ArrayList<PreIngestPlugin>(),
-                postIngestPlugins, new ArrayList<PreQueryPlugin>(),
-                new ArrayList<PostQueryPlugin>(), new ArrayList<PreResourcePlugin>(),
-                new ArrayList<PostResourcePlugin>(), new ArrayList<ConnectedSource>(),
-                new ArrayList<FederatedSource>(), new ArrayList<ResourceReader>(),
-                new MockFederationStrategy(), null, poller, null, null, null);
+        framework = new CatalogFrameworkImpl(new ArrayList<CatalogProvider>(),
+                null, new ArrayList<PreIngestPlugin>(), postIngestPlugins,
+                new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
+                new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
+                new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
+                new ArrayList<ResourceReader>(), new MockFederationStrategy(), null, poller,
+                null, null, null);
         framework.setId(NEW_SOURCE_ID);
+        framework.setFanoutEnabled(true);
     }
 
     @Test
@@ -219,14 +223,15 @@ public class FanoutCatalogFrameworkTest {
         Mockito.when(mockFederatedSource.getContentTypes()).thenReturn(null);
 
         fedSources.add(mockFederatedSource);
-        
-        FanoutCatalogFramework framework = new FanoutCatalogFramework(null, new ArrayList<PreIngestPlugin>(),
-                postIngestPlugins, new ArrayList<PreQueryPlugin>(),
-                new ArrayList<PostQueryPlugin>(), new ArrayList<PreResourcePlugin>(),
-                new ArrayList<PostResourcePlugin>(), new ArrayList<ConnectedSource>(),
-                fedSources, new ArrayList<ResourceReader>(),
+
+        CatalogFrameworkImpl framework = new CatalogFrameworkImpl(new ArrayList<CatalogProvider>(),
+                null, new ArrayList<PreIngestPlugin>(), postIngestPlugins,
+                new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
+                new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
+                new ArrayList<ConnectedSource>(), fedSources, new ArrayList<ResourceReader>(),
                 new MockFederationStrategy(), null, poller, null, null, null);
         framework.setId(NEW_SOURCE_ID);
+        framework.setFanoutEnabled(true);
 
         // Assert not null simply to prove that we returned an object.
         assertNotNull(framework.getSourceInfo(request));

@@ -17,7 +17,9 @@
 
    <OCD description="DDF Local site"
         name="Catalog Standard Framework"
-        id="ddf.catalog.CatalogFrameworkImpl">         
+        id="ddf.catalog.CatalogFrameworkImpl">
+      <AD name="Enable Fanout Proxy" id="fanoutEnabled" required="true" type="Boolean"
+          default="false"/>
       <AD name="Federation Thread Pool Size (0 for unlimited)" id="poolSize" required="true"
           type="Integer" default="0"/>
       <AD name="Product Cache Directory" id="productCacheDirectory" required="false"

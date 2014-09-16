@@ -143,13 +143,26 @@
 	<bean id="pool" class="java.util.concurrent.Executors"
 		factory-method="newCachedThreadPool" />
 
-	<bean id="sorted" class="ddf.catalog.federation.impl.SortedFederationStrategy">
+    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter" />
+
+    <!-- Create the SolrCache -->
+    <bean id="solrCatalogCache" class="ddf.catalog.cache.solr.impl.SolrCache"
+          destroy-method="shutdown">
+        <argument ref="filterAdapter" />
+        <argument>
+            <bean class="ddf.catalog.cache.solr.impl.SolrFilterDelegateFactoryImpl"/>
+        </argument>
+    </bean>
+
+	<bean id="sorted" class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
+          destroy-method="shutdown">
 		<cm:managed-properties
 			persistent-id="ddf.catalog.federation.impl.SortedFederationStrategy"
 			update-strategy="container-managed" />
 		<argument ref="pool" />
 		<argument ref="preFederatedQuerySortedList" />
 		<argument ref="postFederatedQuerySortedList" />
+        <argument ref="solrCatalogCache" />
 		<property name="maxStartIndex" value="50000" />
 	</bean>
 

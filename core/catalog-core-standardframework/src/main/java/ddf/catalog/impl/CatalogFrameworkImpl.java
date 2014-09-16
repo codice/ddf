@@ -23,6 +23,8 @@ import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
@@ -49,6 +51,7 @@ import ddf.catalog.operation.impl.DeleteResponseImpl;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.operation.impl.SourceInfoResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
@@ -136,7 +139,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
 
     protected static final String FAILED_BY_GET_RESOURCE_PLUGIN = "Error during Pre/PostResourcePlugin.";
 
-    private static final int MS_PER_SECOND = 1000;
+    private static final String FANOUT_MESSAGE = "Fanout proxy does not support " +
+            "create, update, and delete operations";
 
     // The local catalog provider, which is set to the first item in the {@link List} of
     // {@link CatalogProvider}s.
@@ -239,6 +243,8 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     protected boolean activityEnabled = true;
 
     protected ReliableResourceDownloadManager reliableResourceDownloadManager;
+
+    private boolean fanoutEnabled = false;
 
     /**
      * Instantiates a new CatalogFrameworkImpl
@@ -373,6 +379,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         synchronized (this) {
             this.pool = pool;
         }
+    }
+
+    public void setFanoutEnabled(boolean fanoutEnabled) {
+        this.fanoutEnabled = fanoutEnabled;
     }
 
     public void setReliableResourceDownloadManager(ReliableResourceDownloadManager rrdm) {
@@ -539,6 +549,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         SourceInfoResponse response = null;
         Set<SourceDescriptor> sourceDescriptors = null;
         logger.entry(methodName);
+
+        if (fanoutEnabled) {
+            return getFanoutSourceInfo(sourceInfoRequest);
+        }
+
         boolean addCatalogProviderDescriptor = false;
         try {
             validateSourceInfoRequest(sourceInfoRequest);
@@ -601,8 +616,76 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                     "Exception during runtime while performing getSourceInfo");
 
         }
+
         logger.exit(methodName);
         return response;
+    }
+
+    /**
+     * Retrieves the {@link SourceDescriptor} info for all {@link FederatedSource}s in the fanout
+     * configuration, but the all of the source info, e.g., content types, for all of the available
+     * {@link FederatedSource}s is packed into one {@SourceDescriptor
+     * <p/>
+     * } for the
+     * fanout configuration with the fanout's site name in it. This keeps the individual
+     * {@link FederatedSource}s' source info hidden from the external client.
+     */
+    public SourceInfoResponse getFanoutSourceInfo(SourceInfoRequest sourceInfoRequest)
+            throws SourceUnavailableException {
+
+        final String methodName = "getSourceInfo";
+        SourceInfoResponse response = null;
+        SourceDescriptorImpl sourceDescriptor = null;
+        logger.entry(methodName);
+        try {
+
+            // request
+            if (sourceInfoRequest == null) {
+                logger.error("Received null sourceInfoRequest");
+                throw new IllegalArgumentException("SourceInfoRequest was null");
+            }
+
+            Set<SourceDescriptor> sourceDescriptors = new LinkedHashSet<SourceDescriptor>();
+            Set<String> ids = sourceInfoRequest.getSourceIds();
+
+            // Only return source descriptor information if this sourceId is
+            // specified
+            if (ids != null && !ids.isEmpty()) {
+                for (String id : ids) {
+                    if (!id.equals(this.getId())) {
+                        logger.warn("Throwing SourceUnavilableExcption for unknown source: " + id);
+                        throw new SourceUnavailableException("Unknown source: " + id);
+
+                    }
+                }
+
+            }
+            // Fanout will only add one source descriptor with all the contents
+            Set<ContentType> contentTypes = new HashSet<ContentType>();
+
+            // Add a set of all contentTypes from the federated sources
+            for (FederatedSource source : federatedSources) {
+                if (source != null && source.isAvailable() && source.getContentTypes() != null) {
+                    contentTypes.addAll(source.getContentTypes());
+                }
+            }
+
+            // only reveal this sourceDescriptor, not the federated sources
+            sourceDescriptor = new SourceDescriptorImpl(this.getId(), contentTypes);
+            sourceDescriptor.setVersion(this.getVersion());
+            sourceDescriptors.add(sourceDescriptor);
+
+            response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
+
+        } catch (RuntimeException re) {
+            logger.warn("Exception during runtime while performing create", re);
+            throw new SourceUnavailableException(
+                    "Exception during runtime while performing getSourceInfo", re);
+
+        }
+        logger.exit(methodName);
+        return response;
+
     }
 
     /**
@@ -687,6 +770,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             SourceUnavailableException {
         final String methodName = "create";
         logger.entry(methodName);
+
+        if (fanoutEnabled) {
+            throw new IngestException(FANOUT_MESSAGE);
+        }
+
         CreateRequest createReq = createRequest;
 
         validateCreateRequest(createReq);
@@ -774,6 +862,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             SourceUnavailableException {
         final String methodName = "update";
         logger.entry(methodName);
+
+        if (fanoutEnabled) {
+            throw new IngestException(FANOUT_MESSAGE);
+        }
+
         if (!sourceIsAvailable(catalog)) {
             throw new SourceUnavailableException(
                     "Local provider is not available, cannot perform update operation.");
@@ -827,6 +920,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             SourceUnavailableException {
         final String methodName = "delete";
         logger.entry(methodName);
+
+        if (fanoutEnabled) {
+            throw new IngestException(FANOUT_MESSAGE);
+        }
+
         if (!sourceIsAvailable(catalog)) {
             throw new SourceUnavailableException(
                     "Local provider is not available, cannot perform delete operation.");
@@ -915,12 +1013,25 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     @Override
     public QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy)
             throws UnsupportedQueryException, FederationException {
+        return query(queryRequest, strategy, false);
+    }
+
+    public QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy,
+            boolean overrideFanoutRename)
+            throws UnsupportedQueryException, FederationException {
 
         String methodName = "query";
         logger.entry(methodName);
         FederationStrategy fedStrategy = strategy;
         QueryResponse queryResponse = null;
         QueryRequest queryReq = queryRequest;
+
+        if (fanoutEnabled) {
+            // Force an enterprise query
+            queryReq = new QueryRequestImpl(queryRequest.getQuery(), true, null,
+                    queryRequest.getProperties());
+        }
+
         try {
             validateQueryRequest(queryReq);
 
@@ -949,7 +1060,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
 
             queryResponse = doQuery(queryReq, fedStrategy);
 
-            validateFixQueryResponse(queryResponse, queryReq);
+            validateFixQueryResponse(queryResponse, queryReq, overrideFanoutRename);
 
             for (PostQueryPlugin service : postQuery) {
                 try {
@@ -1237,7 +1348,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             ResourceNotFoundException, ResourceNotSupportedException {
         String methodName = "getLocalResource";
         logger.debug("ENTERING: " + methodName);
-        ResourceResponse resourceResponse = getResource(resourceRequest, false, getId());
+        ResourceResponse resourceResponse;
+        if (fanoutEnabled) {
+            logger.debug("getLocalResource call received, fanning it out to all sites.");
+            resourceResponse = getEnterpriseResource(resourceRequest);
+        } else {
+            resourceResponse = getResource(resourceRequest, false, getId());
+        }
         logger.debug("EXITING: " + methodName);
         return resourceResponse;
     }
@@ -1247,7 +1364,14 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         String methodName = "getResource";
         logger.debug("ENTERING: " + methodName);
-        ResourceResponse resourceResponse = getResource(resourceRequest, false, resourceSiteName);
+        ResourceResponse resourceResponse;
+        if (fanoutEnabled) {
+            logger.debug("getResource call received, fanning it out to all sites.");
+            resourceResponse = getEnterpriseResource(resourceRequest);
+        } else {
+            resourceResponse = getResource(resourceRequest, false,
+                    resourceSiteName);
+        }
         logger.debug("EXITING: " + methodName);
         return resourceResponse;
     }
@@ -1266,8 +1390,10 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     public Set<String> getSourceIds() {
         Set<String> sources = new HashSet<String>(federatedSources.size() + 1);
         sources.add(getId());
-        for (FederatedSource source : federatedSources) {
-            sources.add(source.getId());
+        if (!fanoutEnabled) {
+            for (FederatedSource source : federatedSources) {
+                sources.add(source.getId());
+            }
         }
         return new TreeSet<String>(sources);
     }
@@ -1281,6 +1407,11 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         ResourceResponse resourceResponse = null;
         ResourceRequest resourceReq = resourceRequest;
         String resourceSourceName = resourceSiteName;
+
+        if (fanoutEnabled) {
+            isEnterprise = true;
+        }
+
         if (resourceSourceName == null && !isEnterprise) {
             throw new ResourceNotFoundException(
                     "resourceSiteName cannot be null when obtaining resource.");
@@ -1319,8 +1450,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             StringBuilder resolvedSourceIdHolder = new StringBuilder();
 
             ResourceInfo resourceInfo = getResourceInfo(resourceReq, resourceSourceName,
-                    isEnterprise,
-                    resolvedSourceIdHolder, requestProperties);
+                    isEnterprise, resolvedSourceIdHolder, requestProperties);
             if (resourceInfo == null) {
                 throw new ResourceNotFoundException(
                         "Resource could not be found for the given attribute value: "
@@ -1334,7 +1464,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             logger.debug("ID = {}", getId());
 
             if (isEnterprise) {
-
                 // since resolvedSourceId specifies what source the product
                 // metacard resides on, we can just
                 // change resourceSiteName to be that value, and then the
@@ -1701,7 +1830,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                             isEnterprise, Collections.singletonList(site == null ? this.getId()
                             : site), resourceRequest.getProperties());
 
-                    QueryResponse queryResponse = query(queryRequest);
+                    QueryResponse queryResponse = query(queryRequest, null, true);
                     if (queryResponse.getResults().size() > 0) {
                         metacard = queryResponse.getResults().get(0).getMetacard();
                         federatedSite.append(metacard.getSourceId());
@@ -1735,7 +1864,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                             Collections.singletonList(site == null ? this.getId() : site),
                             resourceRequest.getProperties());
 
-                    QueryResponse queryResponse = query(queryRequest);
+                    QueryResponse queryResponse = query(queryRequest, null, true);
                     if (queryResponse.getResults().size() > 0) {
                         metacard = queryResponse.getResults().get(0).getMetacard();
                         resourceUri = metacard.getResourceURI();
@@ -1945,14 +2074,18 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
      * Validates that the {@link QueryResponse} has a non-null list of {@link Result}s in it, and
      * that the original {@link QueryRequest} is included in the response.
      *
-     * @param sourceResponse the original {@link SourceResponse} returned from the source
-     * @param queryRequest   the original {@link QueryRequest} sent to the source
+     * @param sourceResponse the original {@link ddf.catalog.operation.SourceResponse} returned from the source
+     * @param queryRequest   the original {@link ddf.catalog.operation.QueryRequest} sent to the source
+     * @param overrideFanoutRename
      * @return the updated {@link QueryResponse}
      * @throws UnsupportedQueryException if the original {@link QueryResponse} is null or the results list is null
      */
     protected SourceResponse validateFixQueryResponse(SourceResponse sourceResponse,
-            QueryRequest queryRequest) throws UnsupportedQueryException {
+            QueryRequest queryRequest, boolean overrideFanoutRename) throws UnsupportedQueryException {
         SourceResponse sourceResp = sourceResponse;
+        if (fanoutEnabled && !overrideFanoutRename) {
+            sourceResp = replaceSourceId((QueryResponse) sourceResponse);
+        }
         if (sourceResp != null) {
             if (sourceResp.getResults() == null) {
                 throw new UnsupportedQueryException(
@@ -1967,6 +2100,35 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
                     "CatalogProvider returned null QueryResponse Object.");
         }
         return sourceResp;
+    }
+
+    /**
+     * Replaces the site name(s) of {@link FederatedSource}s in the {@link QueryResponse} with the
+     * fanout's site name to keep info about the {@link FederatedSource}s hidden from the external
+     * client.
+     *
+     * @param queryResponse the original {@link QueryResponse} from the query request
+     * @return the updated {@link QueryResponse} with all site names replaced with fanout's site
+     * name
+     */
+    protected QueryResponse replaceSourceId(QueryResponse queryResponse) {
+        logger.debug("ENTERING: replaceSourceId()");
+        List<Result> results = queryResponse.getResults();
+        QueryResponseImpl newResponse = new QueryResponseImpl(queryResponse.getRequest(),
+                queryResponse.getProperties());
+        for (Result result : results) {
+            MetacardImpl newMetacard = new MetacardImpl(result.getMetacard());
+            newMetacard.setSourceId(this.getId());
+            ResultImpl newResult = new ResultImpl(newMetacard);
+            // Copy over scores
+            newResult.setDistanceInMeters(result.getDistanceInMeters());
+            newResult.setRelevanceScore(result.getRelevanceScore());
+            newResponse.addResult(newResult, false);
+        }
+        newResponse.setHits(queryResponse.getHits());
+        newResponse.closeResultQueue();
+        logger.debug("EXITING: replaceSourceId()");
+        return newResponse;
     }
 
     /**
@@ -2068,6 +2230,20 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         if (queryRequest.getQuery() == null) {
             throw new UnsupportedQueryException(
                     "Cannot perform query with null query, either passed in from endpoint, or as output from a PreQuery Plugin");
+        }
+
+        if (fanoutEnabled) {
+            Set<String> sources = queryRequest.getSourceIds();
+            if (sources != null) {
+                for (String querySourceId : sources) {
+                    logger.debug("validating requested sourceId {}", querySourceId);
+                    if (!querySourceId.equals(this.getId())) {
+                        logger.debug("Throwing unsupportedQueryException due to unknown sourceId: "
+                                + querySourceId);
+                        throw new UnsupportedQueryException("Unknown source: " + querySourceId);
+                    }
+                }
+            }
         }
     }
 

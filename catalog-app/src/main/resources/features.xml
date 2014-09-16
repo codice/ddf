@@ -53,17 +53,15 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-commands/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardgroomerplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/metacard-type-registry/${project.version}</bundle>
-    </feature>
-    
-    <feature name="catalog-core-standardframework" install="manual" version="${project.version}"
-        description="DDF Catalog Framework: the reference implementation of the DDF Catalog specification.">
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-resourcesizeplugin/${project.version}</bundle>
-    </feature>
-    
-    <feature name="catalog-core-fanoutframework" install="manual" version="${project.version}"
-        description="Fanout Catalog Framework: fanout implementation of the DDF Catalog specification.">
-        <bundle>mvn:ddf.catalog.core/fanout-catalogframework/${project.version}</bundle>
+
+        <configfile finalname="/data/solr/metacard_cache/conf/solrconfig.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.platform.app.version}/xml/solrconfig</configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.platform.app.version}/xml/schema</configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.platform.app.version}/txt/protwords</configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.platform.app.version}/txt/stopwords_en</configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.platform.app.version}/txt/stopwords</configfile>
+        <configfile finalname="/data/solr/metacard_cache/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.platform.app.version}/txt/synonyms</configfile>
     </feature>
 
     <feature name="catalog-core-metricsplugin" install="manual" version="${project.version}"
@@ -186,7 +184,6 @@
         description="The DDF Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.::DDF Catalog">
         <feature>platform-app</feature>
         <feature>catalog-core</feature>
-        <feature>catalog-core-standardframework</feature>
         <feature>catalog-core-metricsplugin</feature>
         <feature>catalog-core-sourcemetricsplugin</feature>
         <feature>catalog-transformer-thumbnail</feature>    
