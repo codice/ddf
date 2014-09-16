@@ -421,6 +421,10 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
         descriptors.add(new AttributeDescriptorImpl(Metacard.CONTENT_TYPE, QUERYABLE /* indexed */,
                 false /* stored */, false /* tokenized */, false /* multivalued */,
                 BasicTypes.STRING_TYPE));
+        
+        descriptors.add(new AttributeDescriptorImpl(Metacard.THUMBNAIL, NON_QUERYABLE /* indexed */,
+                false /* stored */, false /* tokenized */, false /* multivalued */,
+                BasicTypes.BINARY_TYPE));
     }
 
     private void addCswBriefRecordAttributes() {
