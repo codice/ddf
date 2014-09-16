@@ -108,18 +108,4 @@
     
 	<reference-list id="applicationPluginList" interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin" availability="optional" />
 	
-	<!--  application plugins. -->
-	<service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin">
-		<bean class="org.codice.ddf.admin.application.plugin.ConfigurationPlugin"></bean>
-	</service>
-	
-	<service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin">
-		<bean class="org.codice.ddf.admin.application.plugin.FeaturesPlugin"></bean>
-	</service>
-	
-	<service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin">
-		<bean class="org.codice.ddf.admin.application.plugin.DetailsPlugin"></bean>
-	</service>
-	
-
 </blueprint>
