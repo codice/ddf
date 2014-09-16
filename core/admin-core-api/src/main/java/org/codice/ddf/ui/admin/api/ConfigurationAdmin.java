@@ -45,6 +45,14 @@ import org.slf4j.ext.XLogger;
  * @author Scott Tustison
  */
 public class ConfigurationAdmin implements ConfigurationAdminMBean {
+    private static final String NEW_FACTORY_PID = "newFactoryPid";
+
+    private static final String NEW_PID = "newPid";
+
+    private static final String ORIGINAL_PID = "originalPid";
+
+    private static final String ORIGINAL_FACTORY_PID = "originalFactoryPid";
+
     private static final String DISABLED = "_disabled";
 
     private final XLogger logger = new XLogger(LoggerFactory.getLogger(ConfigurationAdmin.class));
@@ -430,7 +438,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         this.filterList = filterList;
     }
 
-    public void disableConfiguration(String servicePid) throws IOException {
+    public Map<String, Object> disableConfiguration(String servicePid) throws IOException {
         if (StringUtils.isEmpty(servicePid)) {
             throw new IOException(
                     "Service PID of Source to be disabled must be specified.  Service PID provided: "
@@ -461,9 +469,16 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
         // remove original configuration
         originalConfig.delete();
+
+        Map<String, Object> rval = new HashMap<String, Object>();
+        rval.put(ORIGINAL_PID, servicePid);
+        rval.put(ORIGINAL_FACTORY_PID, originalFactoryPid);
+        rval.put(NEW_PID, disabledConfig.getPid());
+        rval.put(NEW_FACTORY_PID, disabledServiceFactoryPid);
+        return rval;
     }
 
-    public void enableConfiguration(String servicePid) throws IOException {
+    public Map<String, Object> enableConfiguration(String servicePid) throws IOException {
         if (StringUtils.isEmpty(servicePid)) {
             throw new IOException(
                     "Service PID of Source to be disabled must be specified.  Service PID provided: "
@@ -491,5 +506,12 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         enabledConfiguration.update(properties);
 
         disabledConfig.delete();
+
+        Map<String, Object> rval = new HashMap<String, Object>();
+        rval.put(ORIGINAL_PID, servicePid);
+        rval.put(ORIGINAL_FACTORY_PID, disabledFactoryPid);
+        rval.put(NEW_PID, enabledConfiguration.getPid());
+        rval.put(NEW_FACTORY_PID, enabledFactoryPid);
+        return rval;
     }
 }
