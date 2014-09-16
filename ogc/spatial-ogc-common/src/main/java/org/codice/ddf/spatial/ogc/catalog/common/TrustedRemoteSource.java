@@ -522,9 +522,9 @@ public abstract class TrustedRemoteSource {
             LOGGER.debug("EXITING: {}", methodName);
             return stsClient;
         }
-        String wsdlExt = retrieveWsdlSuffix(stsAddress);
-        LOGGER.debug("Setting WSDL location on STSClient: " + stsAddress + wsdlExt);
-        stsClient.setWsdlLocation(stsAddress + wsdlExt);
+        //DDF-733 String wsdlExt = retrieveWsdlSuffix(stsAddress);
+        LOGGER.debug("Setting WSDL location (stsAddress) on STSClient: " + stsAddress);
+        stsClient.setWsdlLocation(stsAddress);
         LOGGER.debug("Setting service name on STSClient: " + stsServiceName);
         stsClient.setServiceName(stsServiceName);
         LOGGER.debug("Setting endpoint name on STSClient: " + stsEndpointName);
