@@ -14,14 +14,13 @@
  **/
 /*global define*/
 define([
+    'backbone',
     'marionette',
-    'js/wreqr.js',
     'js/views/module/ModuleDetail.layout',
     'js/models/module/ModulePlugin',
     'js/views/application/application-detail/PluginTabContent.view',
-    'js/views/application/application-detail/PluginTab.view',
-    'q'
-],function (Marionette, wreqr, ModuleDetailLayout, ModulePlugin, PluginTabContentView, PluginTabView, Q) {
+    'js/views/application/application-detail/PluginTab.view'
+],function (Backbone, Marionette, ModuleDetailLayout, ModulePlugin, PluginTabContentView, PluginTabView) {
 
     var ModuleDetailController = Marionette.Controller.extend({
 
@@ -32,27 +31,25 @@ define([
             var layoutView = new ModuleDetailLayout();
             this.regions.applications.show(layoutView);
 
-            this.fetchModulePlugins(this.name).then(function(appConfigPlugins){
-                layoutView.tabs.show(new PluginTabView({collection: appConfigPlugins}));
-                layoutView.tabContent.show(new PluginTabContentView({collection: appConfigPlugins}));
-                layoutView.selectFirstTab();
-            }).fail(function(error){
-                console.log(error.stack);
-                throw error;
-            });
-        },
-        fetchModulePlugins: function(moduleName){
+            var staticModulePlugins = [
+                 new Backbone.Model({
+                    'id': 'systemInformationModuleTabID',
+                    'displayName': 'System Information',
+                    'javascriptLocation': 'js/views/module/plugins/systeminformation/Plugin.view.js'
+                }),
+                new Backbone.Model({
+                    'id': 'configurationModuleTabID',
+                    'displayName': 'Configuration',
+                    'javascriptLocation': 'js/views/module/plugins/configuration/Plugin.view.js'
+                 })
+            ];
+
             var collection = new ModulePlugin.Collection();
-            var defer = Q.defer();
-            collection.fetchByModuleName(moduleName, {
-                success: function(){
-                    defer.resolve(collection);
-                },
-                failure: function(){
-                    defer.reject(new Error("Error fetching app config plugins for {0}".format(this.name)));
-                }
-            });
-            return defer.promise;
+            collection.add(staticModulePlugins);
+
+            layoutView.tabs.show(new PluginTabView({collection: collection}));
+            layoutView.tabContent.show(new PluginTabContentView({collection: collection}));
+            layoutView.selectFirstTab();
         }
     });
 
