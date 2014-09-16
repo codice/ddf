@@ -12,31 +12,36 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* global define */
+/*global define*/
 define([
+    'backbone',
     'marionette',
     'icanhaz',
-    'js/controllers/FilteredConfiguration.controller',
-    'text!templates/application/plugins/config/pluginView.handlebars'
-    ], function (Marionette, ich, ConfigurationController, configPluginViewTemplate) {
+    'js/wreqr',
+    'text!moduleDetailLayout'
+], function(Backbone, Marionette, ich, wreqr, moduleDetailLayout) {
+    "use strict";
 
-    ich.addTemplate('configPluginViewTemplate',configPluginViewTemplate);
-    var PluginView = Marionette.Layout.extend({
-        template: 'configPluginViewTemplate',
+    ich.addTemplate('moduleDetailLayout', moduleDetailLayout);
 
+
+    var ModuleDetailLayout = Marionette.Layout.extend({
+        template: 'moduleDetailLayout',
         regions: {
-            configurationRegion: '.region'
+            content: '.content',
+            tabs: '.tab-container',
+            tabContent: '.tab-content-container'
         },
-        initialize: function(){
-            this.controller = new ConfigurationController({
-                region : this.configurationRegion
-            });
+        events: {
+            'click .nav-to-applications': 'navToApplications',
+            'click #featureTab': 'getFeatures'
         },
-        onRender: function(){
-            this.controller.show(this.model.get('appId'));
+
+        selectFirstTab: function(){
+            this.$('.tab-container a:first').tab('show');
         }
     });
 
-    return PluginView;
+    return ModuleDetailLayout;
 
 });

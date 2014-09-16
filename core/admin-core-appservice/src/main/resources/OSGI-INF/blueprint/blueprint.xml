@@ -78,7 +78,8 @@
         <argument ref="appService" />
         <argument ref="configurationAdminExt"></argument>
     	<argument ref="blueprintBundleContext"></argument>
-        <property name="pluginList" ref="pluginList" />
+        <property name="applicationPlugins" ref="applicationPluginList" />
+        <property name="modulePlugins" ref="modulePluginList" />
     </bean>
     
     <bean id="configurationAdminExt" class="org.codice.ddf.ui.admin.api.ConfigurationAdminExt">
@@ -106,18 +107,28 @@
       <argument ref="appService" />
     </bean>
     
-	<reference-list id="pluginList" interface="org.codice.ddf.admin.application.plugin.ApplicationConfigurationPlugin" availability="optional" />
+	<reference-list id="applicationPluginList" interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin" availability="optional" />
+	<reference-list id="modulePluginList" interface="org.codice.ddf.admin.module.plugin.ModulePlugin" availability="optional" />
 	
-	<service interface="org.codice.ddf.admin.application.plugin.ApplicationConfigurationPlugin">
+	<!--  application plugins. -->
+	<service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin">
 		<bean class="org.codice.ddf.admin.application.plugin.ConfigurationPlugin"></bean>
 	</service>
 	
-	<service interface="org.codice.ddf.admin.application.plugin.ApplicationConfigurationPlugin">
+	<service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin">
 		<bean class="org.codice.ddf.admin.application.plugin.FeaturesPlugin"></bean>
 	</service>
 	
-	<service interface="org.codice.ddf.admin.application.plugin.ApplicationConfigurationPlugin">
+	<service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin">
 		<bean class="org.codice.ddf.admin.application.plugin.DetailsPlugin"></bean>
 	</service>
+	
+	<!-- module plugins -->
+	<service interface="org.codice.ddf.admin.module.plugin.ModulePlugin">
+		<bean class="org.codice.ddf.admin.module.plugin.ConfigurationModulePlugin"></bean>
+	</service>
 
+	<service interface="org.codice.ddf.admin.module.plugin.ModulePlugin">
+		<bean class="org.codice.ddf.admin.module.plugin.SystemInformationModulePlugin"></bean>
+	</service>
 </blueprint>

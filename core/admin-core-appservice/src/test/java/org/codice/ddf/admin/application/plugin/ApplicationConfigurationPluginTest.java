@@ -17,6 +17,8 @@ package org.codice.ddf.admin.application.plugin;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -52,15 +54,15 @@ public class ApplicationConfigurationPluginTest {
 	 * @author Jeren
 	 *
 	 */
-	private class TestPlugin extends AbstractApplicationConfigurationPlugin {
+	private class TestPlugin extends AbstractApplicationPlugin {
 		/**
 		 * Constructor.
 		 */
 		public TestPlugin() {
 			this.displayName = DISPLAY_NAME_TEST;
-			this.iframeLocation = IFRAME_LOCATION_TEST;
+			this.iframeLocation = URI.create(IFRAME_LOCATION_TEST);
 			this.order = ORDER_TEST;
-			setApplicationAssociations(ORIGINAL_APP_ASSOCIATIONS);
+			setAssociations(ORIGINAL_APP_ASSOCIATIONS);
 		}
 		
 	}
@@ -77,16 +79,16 @@ public class ApplicationConfigurationPluginTest {
 		assertEquals(plugin.getDisplayName(), DISPLAY_NAME_TEST);
 		assertFalse(0 == plugin.getID().compareTo(plugin2.getID()));
 		assertEquals(plugin.getIframeLocation().toString(), IFRAME_LOCATION_TEST);
-		assertEquals(plugin.getAssociatedApplications(), ORIGINAL_APP_ASSOCIATIONS);
+		assertEquals(plugin.getAssocations(), ORIGINAL_APP_ASSOCIATIONS);
 		assertEquals(plugin.getOrder(), ORDER_TEST);
 		
 		Map<String, Object> constructedJSON = new HashMap<String, Object>();
-		constructedJSON.put(ApplicationConfigurationPlugin.DISPLAY_NAME_KEY, plugin.getDisplayName());
-		constructedJSON.put(ApplicationConfigurationPlugin.ID_KEY, plugin.getID().toString());
-		constructedJSON.put(ApplicationConfigurationPlugin.IFRAME_LOCATION_KEY, plugin.getIframeLocation().toString());
-		constructedJSON.put(ApplicationConfigurationPlugin.JAVASCRIPT_LOCATION_KEY, plugin.getJavascriptLocation());
-		constructedJSON.put(ApplicationConfigurationPlugin.APPLICATION_ASSOCIATION_KEY, plugin.getAssociatedApplications());
-		constructedJSON.put(ApplicationConfigurationPlugin.ORDER_KEY, plugin.getOrder());
+		constructedJSON.put(ApplicationPlugin.DISPLAY_NAME_KEY, plugin.getDisplayName());
+		constructedJSON.put(ApplicationPlugin.ID_KEY, plugin.getID().toString());
+		constructedJSON.put(ApplicationPlugin.IFRAME_LOCATION_KEY, plugin.getIframeLocation());
+		constructedJSON.put(ApplicationPlugin.JAVASCRIPT_LOCATION_KEY, plugin.getJavascriptLocation());
+		constructedJSON.put(ApplicationPlugin.APPLICATION_ASSOCIATION_KEY, plugin.getAssocations());
+		constructedJSON.put(ApplicationPlugin.ORDER_KEY, plugin.getOrder());
 		
 		//compare the maps.
 		Map<String, Object> pluginMap = plugin.toJSON();
@@ -95,21 +97,21 @@ public class ApplicationConfigurationPluginTest {
 		String newAppAssocation = "NewGuy";
 		List<String> modifiedCopy = new ArrayList<String>(ORIGINAL_APP_ASSOCIATIONS);
 		modifiedCopy.add(newAppAssocation);
-		plugin.addApplicationAssociations(newAppAssocation);
+		plugin.addAssociations(newAppAssocation);
 		
-		assertEquals(plugin.getAssociatedApplications(), modifiedCopy);
+		assertEquals(plugin.getAssocations(), modifiedCopy);
 		
-		assertTrue(plugin.matchesApplicationName(TEST_ASSOCATION_1));
-		assertFalse(plugin.matchesApplicationName("Fail"));
-		assertTrue(plugin.matchesApplicationName(TEST_ASSOCATION_2));
-		assertFalse(plugin.matchesApplicationName(ApplicationConfigurationPlugin.ALL_APPLICATION_KEY));
+		assertTrue(plugin.matchesAssocationName(TEST_ASSOCATION_1));
+		assertFalse(plugin.matchesAssocationName("Fail"));
+		assertTrue(plugin.matchesAssocationName(TEST_ASSOCATION_2));
+		assertFalse(plugin.matchesAssocationName(ApplicationPlugin.ALL_ASSOCATION_KEY));
 		
-		plugin.addApplicationAssociations(ApplicationConfigurationPlugin.ALL_APPLICATION_KEY);
+		plugin.addAssociations(ApplicationPlugin.ALL_ASSOCATION_KEY);
 		
-		assertTrue(plugin.matchesApplicationName(TEST_ASSOCATION_1));
-		assertTrue(plugin.matchesApplicationName("Fail"));
-		assertTrue(plugin.matchesApplicationName(TEST_ASSOCATION_2));
-		assertTrue(plugin.matchesApplicationName(ApplicationConfigurationPlugin.ALL_APPLICATION_KEY));
+		assertTrue(plugin.matchesAssocationName(TEST_ASSOCATION_1));
+		assertTrue(plugin.matchesAssocationName("Fail"));
+		assertTrue(plugin.matchesAssocationName(TEST_ASSOCATION_2));
+		assertTrue(plugin.matchesAssocationName(ApplicationPlugin.ALL_ASSOCATION_KEY));
 	}
 	
 	/**

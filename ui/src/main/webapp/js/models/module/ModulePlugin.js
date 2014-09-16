@@ -16,21 +16,21 @@
 define([
     'backbone',
     'underscore'
-    ],function (Backbone, _) {
+],function (Backbone, _) {
 
 
-    var AppConfigPlugin = {};
+    var ModulePlugin = {};
 
-    AppConfigPlugin.Model = Backbone.Model.extend({});
+    ModulePlugin.Model = Backbone.Model.extend({});
 
-    AppConfigPlugin.Collection = Backbone.Collection.extend({
-        model: AppConfigPlugin.Model,
-        url: '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getPluginsForApplication(java.lang.String)/',
-        fetchByAppName: function(appName, options){
+    ModulePlugin.Collection = Backbone.Collection.extend({
+        model: ModulePlugin.Model,
+        url: '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getPluginsForModule(java.lang.String)/',
+        fetchByModuleName: function(moduleName, options) {
             var collection = this;
 
             var newOptions = _.extend({
-                url: collection.url + appName
+                url: collection.url + moduleName
             }, options);
             return this.fetch(newOptions);
         },
@@ -38,21 +38,10 @@ define([
             return resp.value;
         },
         comparator: function(model){
-            var secondary = null;
-            var displayName = model.get("displayName");
-            if(displayName === 'Details'){
-                secondary = 0;
-            } else if(displayName === 'Features'){
-                secondary = 1;
-            } else if(displayName === 'Configurations'){
-                secondary = 2;
-            } else {
-                secondary = 4;
-            }
-            return [model.get("order"), secondary];
+            return model.get("order");
         }
     });
 
-    return AppConfigPlugin;
+    return ModulePlugin;
 
 });

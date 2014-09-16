@@ -30,7 +30,7 @@ public class ConfigurationModule implements AdminModule {
 
     @Override
     public String getName() {
-        return "Configurations";
+        return "System";
     }
 
     @Override

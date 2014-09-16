@@ -14,7 +14,6 @@
  **/
 package org.codice.ddf.admin.application.plugin;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,9 +22,10 @@ import java.util.UUID;
  * Defines an application configuration plugin. 
  *
  */
-public interface ApplicationConfigurationPlugin {
+//FIXME: remove all references to applications.
+public interface ApplicationPlugin {
 	/** key to mark that a plugin should be used for ALL applications.*/
-	public static final String ALL_APPLICATION_KEY = "ALL";
+	public static final String ALL_ASSOCATION_KEY = "ALL";
 	/** key for the display name. Used for creating json.*/
 	public static final String DISPLAY_NAME_KEY = "displayName";
 	/** key for the application name. Used for creating json.*/
@@ -43,7 +43,7 @@ public interface ApplicationConfigurationPlugin {
 	 * Returns a list of applications that this plugin should be associated with.
 	 * @return a list of applications that this plugin should be associated with.
 	 */
-	public List<String> getAssociatedApplications();
+	public List<String> getAssocations();
 	
 	/**
 	 * Returns the display name. This is the value that will be display to the user.
@@ -61,13 +61,13 @@ public interface ApplicationConfigurationPlugin {
 	 * Returns the location of the javascript. Can be null.
 	 * @return the location of the javascript.
 	 */
-	public URI getJavascriptLocation();
+	public String getJavascriptLocation();
 	
 	/**
 	 * Returns the iframe location. Can be null.
 	 * @return the iframe location.
 	 */
-    public URI getIframeLocation();
+    public String getIframeLocation();
     
     /**
      * Returns the prefered order. This value can be duplicated between plugins, at which
@@ -90,27 +90,27 @@ public interface ApplicationConfigurationPlugin {
      * @param appName - the name of the application we are going to test.
      * @return yes if the application matches, or should be applied to all applications, false if it doesn't.
      */
-    public boolean matchesApplicationName(String appName);
-    
+    public boolean matchesAssocationName(String assocationName);
+        
     /**
      * Sets the application assocations to the inputted values. This will overwrite all previous
      * values.
      * @param appName - the string name of an application.
      */
-    public void setApplicationAssociations(List<String> applicationAssociations);
+    public void setAssociations(List<String> assocations);
     
     /**
      * Adds an application assocation list to the existing list. This does not overwrite the
      * previous values, and if there is an existing value it wont add it.
      * @param applicationAssociations
      */
-    public void addApplicationAssocations(List<String> applicationAssociations);
+    public void addAssocations(List<String> assocations);
     
     /**
      * Adds a single application association to this plugin. If the application is already
      * there, then nothing will happen.
      * @param applicationAssocation - the string name of the application.
      */
-    public void addApplicationAssociations(String applicationAssocation);
+    public void addAssociations(String assocations);
 
 }

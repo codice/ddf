@@ -36,7 +36,7 @@ define([
             this.applicationModel = options.applicationModel;
         },
         onBeforeRender: function(){
-            this.$el.attr('id', this.model.get('displayName'));
+            this.$el.attr('id', this.model.get('id'));
         },
         onRender: function(){
             var view = this;

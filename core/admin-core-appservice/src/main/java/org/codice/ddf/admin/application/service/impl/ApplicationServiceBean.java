@@ -33,12 +33,13 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
-import org.codice.ddf.admin.application.plugin.ApplicationConfigurationPlugin;
+import org.codice.ddf.admin.application.plugin.ApplicationPlugin;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.codice.ddf.admin.module.plugin.ModulePlugin;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -99,8 +100,11 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
     /** the service factor pid.*/
 
-    /** has all the application configuration plugins.*/
-    private List<ApplicationConfigurationPlugin> pluginList;
+    /** has all the application plugins.*/
+    private List<ApplicationPlugin> applicationPlugins;
+    
+    /** has all the module plugins.*/
+    private List<ModulePlugin> modulePlugins;
     
     /** the name of the metatype service to be looked up.*/
     private static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
@@ -487,33 +491,37 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         }
         return "(" + Constants.SERVICE_PID + "=" + "*)";
     }
-	@Override
-	public List<Map<String, Object>> getConfigurationPlugins(String appName) {
-		List<Map<String, Object>> returnValues = new ArrayList<Map<String, Object>>();
-
-		for (ApplicationConfigurationPlugin plugin : pluginList) {
-			if (plugin.matchesApplicationName(appName)) {
-				returnValues.add(plugin.toJSON());
-			}
-		}
-		
-		return returnValues;
-	}
 	
 	/**
 	 * Getter method for the plugin list.
 	 * @return the plugin list.
 	 */
-	public List<ApplicationConfigurationPlugin> getPluginList() {
-		return pluginList;
+	public List<ApplicationPlugin> getApplicationPlugins() {
+		return applicationPlugins;
 	}
 
 	/**
 	 * Setter method for the plugin list.
 	 * @param pluginList the plugin list.
 	 */
-	public void setPluginList(List<ApplicationConfigurationPlugin> pluginList) {
-		this.pluginList = pluginList;
+	public void setApplicationPlugins(List<ApplicationPlugin> applicationPlugins) {
+		this.applicationPlugins = applicationPlugins;
+	}
+	
+	/**
+	 * Getter method for the module plugins.
+	 * @return a list of module plugins.
+	 */
+	public List<ModulePlugin> getModulePlugins() {
+	    return this.modulePlugins;
+	}
+	
+	/**
+	 * Setter method for the module plugins.
+	 * @param modulePlugins - what we are going to set the moduleplugins to.
+	 */
+	public void setModulePlugins(List<ModulePlugin> modulePlugins) {
+	    this.modulePlugins = modulePlugins;
 	}
 
     @Override
@@ -556,4 +564,31 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         return (MetaTypeService) serviceTracker.getService();
     }
 
+    /** {@inheritDoc}.*/
+    @Override
+    public List<Map<String, Object>> getPluginsForApplication(String appName) {
+        List<Map<String, Object>> returnValues = new ArrayList<Map<String, Object>>();
+
+        for (ApplicationPlugin plugin : applicationPlugins) {
+            if (plugin.matchesAssocationName(appName)) {
+                returnValues.add(plugin.toJSON());
+            }
+        }
+        
+        return returnValues;
+    }
+
+    /** {@inheritDoc}.*/
+    @Override
+    public List<Map<String, Object>> getPluginsForModule(String moduleName) {
+        List<Map<String, Object>> returnValues = new ArrayList<Map<String, Object>>();
+        
+        for (ModulePlugin plugin : modulePlugins) {
+            if (plugin.matchesAssocationName(moduleName)) {
+                returnValues.add(plugin.toJSON());
+            }
+        }
+        
+        return returnValues;
+    }    
 }

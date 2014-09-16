@@ -14,19 +14,21 @@
  **/
 package org.codice.ddf.admin.application.plugin;
 
+import java.net.URI;
+
+
 /**
  * Configuration implementation of the ApplicationConfiguratoinPlugin.
  *
  */
-public class ConfigurationPlugin extends AbstractApplicationConfigurationPlugin {
+public class ConfigurationPlugin extends AbstractApplicationPlugin {
 	
 	/**
 	 * Constructor.
 	 */
 	public ConfigurationPlugin() {
 		this.displayName = "Configuration";
-		this.iframeLocation = "";
-        this.javascriptLocation = "js/views/application/plugins/config/Plugin.view.js";
+        this.javascriptLocation = URI.create("js/views/application/plugins/config/Plugin.view.js");
 		this.order = 2;
 	}	
 

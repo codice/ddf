@@ -106,6 +106,15 @@ public interface ApplicationServiceBeanMBean {
      *            - what we want the plugins for.
      * @return a mapping that will be converted to json.
      */
-    List<Map<String, Object>> getConfigurationPlugins(String appName);
+    List<Map<String, Object>> getPluginsForApplication(String appName);
+    
+    /**
+     * Returns the the json for the plugins based on the module name.
+     * 
+     * @param module
+     *            - what we want the plugins for.
+     * @return a mapping that will be converted to json.
+     */
+    List<Map<String, Object>> getPluginsForModule(String moduleName);
     
 }

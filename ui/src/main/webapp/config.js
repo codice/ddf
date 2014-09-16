@@ -55,7 +55,10 @@
             app: 'js/application',
 
             // datatables
-            datatables: 'lib/datatables/media/js/jquery.dataTables'
+            datatables: 'lib/datatables/media/js/jquery.dataTables',
+
+            //moment
+            moment: 'lib/moment/moment'
         },
 
 
@@ -88,7 +91,8 @@
             multiselect: ['jquery'],
 
             jqueryui: ['jquery'],
-            bootstrap: ['jqueryui']
+            bootstrap: ['jqueryui'],
+            moment: {exports: 'moment'}
 
         },
 

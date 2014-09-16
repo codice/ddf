@@ -12,23 +12,23 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.ddf.admin.application.plugin;
+package org.codice.ddf.admin.module.plugin;
 
 import java.net.URI;
 
-
 /**
- * Features implementation of the ApplicationConfigurationPlugin.
+ * Implmentation of the abstractmoduleplugin for configuration.
  *
  */
-public class FeaturesPlugin extends AbstractApplicationPlugin {
-	
-	/**
-	 * Constructor.
-	 */
-	public FeaturesPlugin() {
-		this.displayName = "Features";
-        this.javascriptLocation = URI.create("js/views/application/plugins/features/Plugin.view.js");
-		this.order = 1;
-	}
+public class ConfigurationModulePlugin extends AbstractModulePlugin {
+    
+    /**
+     * Constructor.
+     */
+    public ConfigurationModulePlugin() {
+        this.displayName = "Configuration";
+        this.javascriptLocation = URI.create("js/views/module/plugins/configuration/Plugin.view.js");
+        this.order = 2;
+    }   
+
 }

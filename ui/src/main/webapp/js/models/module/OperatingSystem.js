@@ -12,23 +12,21 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.ddf.admin.application.plugin;
+/*global define*/
+define([
+    'backbone'
+],function (Backbone) {
 
-import java.net.URI;
 
+    var OperatingSystem = {};
 
-/**
- * Features implementation of the ApplicationConfigurationPlugin.
- *
- */
-public class FeaturesPlugin extends AbstractApplicationPlugin {
-	
-	/**
-	 * Constructor.
-	 */
-	public FeaturesPlugin() {
-		this.displayName = "Features";
-        this.javascriptLocation = URI.create("js/views/application/plugins/features/Plugin.view.js");
-		this.order = 1;
-	}
-}
+    OperatingSystem.Model = Backbone.Model.extend({
+        url: '/jolokia/read/java.lang:type=OperatingSystem/',
+        parse: function(resp){
+            return resp.value;
+        }
+    });
+
+    return OperatingSystem;
+
+});

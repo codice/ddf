@@ -22,34 +22,34 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Handles the basic work for an ApplicationConfigurationPlugin. 
+ * Handles the basic work for an AbstractApplicationPlugin. 
  *
  */
-public class AbstractApplicationConfigurationPlugin implements ApplicationConfigurationPlugin {
+public class AbstractApplicationPlugin implements ApplicationPlugin {
 	/** the display name. Protected so implementers can set this.*/
 	protected String displayName = null;
 	/** the location of the iframe. Protected so implementers can set this.*/
-	protected String iframeLocation = null;
+	protected URI iframeLocation = null;
 	/** the location of the javascript. Protected so implements can set this.*/
-	protected String javascriptLocation = null;
+	protected URI javascriptLocation = null;
 	/** The id of this plugin.*/
 	private UUID id = UUID.randomUUID();
 	/** the application name. Protected so implementers can set this.*/
-	private List<String> applicationNames = new ArrayList<String>();
+	private List<String> assocations = new ArrayList<String>();
 	/** the order of this plugin. Protected so implements can set this.*/
 	protected Integer order = Integer.MAX_VALUE;
 	
 	/**
 	 * Constructor.
 	 */
-	public AbstractApplicationConfigurationPlugin() {
-		this.applicationNames.add(ApplicationConfigurationPlugin.ALL_APPLICATION_KEY);
+	public AbstractApplicationPlugin() {
+		this.assocations.add(ApplicationPlugin.ALL_ASSOCATION_KEY);
 	}
 
 	/** {@inheritDoc}.*/
 	@Override
-	public List<String> getAssociatedApplications() {
-		return this.applicationNames;
+	public List<String> getAssocations() {
+		return this.assocations;
 	}
 
 	/** {@inheritDoc}.*/
@@ -60,20 +60,20 @@ public class AbstractApplicationConfigurationPlugin implements ApplicationConfig
 	
 	/** {@inheritDoc}.*/
 	@Override
-	public URI getJavascriptLocation() {
+	public String getJavascriptLocation() {
 		if (this.javascriptLocation == null) {
 			return null;
 		}
-		return URI.create(this.javascriptLocation);
+		return this.javascriptLocation.toString();
 	}
 
 	/** {@inheritDoc}.*/
 	@Override
-	public URI getIframeLocation() {
+	public String getIframeLocation() {
 		if (this.iframeLocation == null) {
 			return null;
 		}
-		return URI.create(this.iframeLocation);
+		return this.iframeLocation.toString();
 	}
 	
 	/** {@inheritDoc}.*/
@@ -87,20 +87,20 @@ public class AbstractApplicationConfigurationPlugin implements ApplicationConfig
 	public Map<String, Object> toJSON() {
 		Map<String, Object> jsonMapping = new HashMap<String, Object>();
 		
-		jsonMapping.put(ApplicationConfigurationPlugin.APPLICATION_ASSOCIATION_KEY, this.applicationNames);
-		jsonMapping.put(ApplicationConfigurationPlugin.ID_KEY, this.id.toString());
-		jsonMapping.put(ApplicationConfigurationPlugin.DISPLAY_NAME_KEY, this.displayName);
-		jsonMapping.put(ApplicationConfigurationPlugin.IFRAME_LOCATION_KEY, this.iframeLocation);
-		jsonMapping.put(ApplicationConfigurationPlugin.JAVASCRIPT_LOCATION_KEY, this.javascriptLocation);
-		jsonMapping.put(ApplicationConfigurationPlugin.ORDER_KEY, this.order);
+		jsonMapping.put(ApplicationPlugin.APPLICATION_ASSOCIATION_KEY, this.assocations);
+		jsonMapping.put(ApplicationPlugin.ID_KEY, this.id.toString());
+		jsonMapping.put(ApplicationPlugin.DISPLAY_NAME_KEY, this.displayName);
+		jsonMapping.put(ApplicationPlugin.IFRAME_LOCATION_KEY, (this.iframeLocation == null) ? null : this.iframeLocation.toString());
+		jsonMapping.put(ApplicationPlugin.JAVASCRIPT_LOCATION_KEY, (this.javascriptLocation == null) ? null : this.javascriptLocation.toString());
+		jsonMapping.put(ApplicationPlugin.ORDER_KEY, this.order);
 		
 		return jsonMapping;
 	}
 
 	/** {@inheritDoc}.*/
 	@Override
-	public boolean matchesApplicationName(String appName) {
-		return (this.applicationNames.contains(ApplicationConfigurationPlugin.ALL_APPLICATION_KEY) || this.applicationNames.contains(appName));
+	public boolean matchesAssocationName(String appName) {
+		return (this.assocations.contains(ApplicationPlugin.ALL_ASSOCATION_KEY) || this.assocations.contains(appName));
 	}
 
 	/** {@inheritDoc}.*/
@@ -111,24 +111,23 @@ public class AbstractApplicationConfigurationPlugin implements ApplicationConfig
 
 	/** {@inheritDoc}.*/
 	@Override
-	public void setApplicationAssociations(List<String> applicationAssociations) {
-		this.applicationNames = applicationAssociations;
+	public void setAssociations(List<String> applicationAssociations) {
+		this.assocations = applicationAssociations;
 	}
 
 	/** {@inheritDoc}.*/
 	@Override
-	public void addApplicationAssociations(String applicationAssocation) {
-		if (!this.applicationNames.contains(applicationAssocation)) {
-			this.applicationNames.add(applicationAssocation);
+	public void addAssociations(String applicationAssocation) {
+		if (!this.assocations.contains(applicationAssocation)) {
+			this.assocations.add(applicationAssocation);
 		}
 	}
 
 	/** {@inheritDoc}.*/
 	@Override
-	public void addApplicationAssocations(List<String> applicationAssociations) {
+	public void addAssocations(List<String> applicationAssociations) {
 		for (String appAssocation : applicationAssociations) {
-			this.addApplicationAssociations(appAssocation);
+			this.addAssociations(appAssocation);
 		}
 	}
-
 }
