@@ -126,9 +126,7 @@ define([
                 this.searchControlRegion.show(new SearchControl.SearchControlView());
             },
             setupProgress: function (queryModel, progressObj) {
-                if (queryModel.get('src') && queryModel.get('src').split(',').length > 1) {
-                    this.progressRegion.show(new Progress.ProgressView({ resultList: queryModel.get('result'), queryModel: queryModel, model: progressObj}));
-                }
+                this.progressRegion.show(new Progress.ProgressView({ resultList: queryModel.get('result'), queryModel: queryModel, model: progressObj}));
             },
             onQueryClear: function () {
                 if (this.progressRegion.currentView) {
@@ -148,7 +146,7 @@ define([
             showResults: function (direction, result) {
                 if (result) {
                     this.result = result;
-                    this.searchRegion.show(new MetacardList.MetacardListView({model: result}), direction);
+                    this.searchRegion.show(new MetacardList.MetacardListView({model: this.result}), direction);
                 } else {
                     if(!this.result) {
                         this.result = new MetacardModel.SearchResult();

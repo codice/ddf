@@ -44,9 +44,11 @@ import org.cometd.server.ServerMessageImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -106,7 +108,7 @@ public class SearchController {
         bayeuxServer.createChannelIfAbsent(channelName, new ConfigurableServerChannel.Initializer()
         {
             public void configureChannel(ConfigurableServerChannel channel) {
-                channel.setPersistent(true);
+            channel.setPersistent(true);
             }
         });
 
@@ -131,17 +133,48 @@ public class SearchController {
 
         final SearchController controller = this;
 
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, Serializable> properties = new HashMap<String, Serializable>();
+                // check if there are any currently cached results
+                properties.put("mode", "cache");
+                // search cache for all sources
+                QueryResponse response = executeQuery(null, request,
+                        subject, properties);
+
+                try {
+                    Search search = addQueryResponseToSearch(request, response);
+                    pushResults(request.getGuid(),
+                            controller.transform(search, request),
+                            session);
+                } catch (InterruptedException e) {
+                    LOGGER.error("Failed adding cached search results.", e);
+                } catch (CatalogTransformerException e) {
+                    LOGGER.error("Failed to transform cached search results.", e);
+                }
+            }
+        });
+
         for (final String sourceId : request.getSourceIds()) {
             LOGGER.debug("Executing async query on: {}", sourceId);
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    QueryResponse fedResponse = executeQuery(sourceId, request.getQuery(),
-                            subject);
+                    Map<String, Serializable> properties = new HashMap<String, Serializable>();
+                    // update index from federated sources
+                    properties.put("mode", "index");
+                    QueryResponse indexResponse = executeQuery(sourceId, request,
+                            subject, properties);
+
+                    // query updated cache
+                    properties.put("mode", "cache");
+                    QueryResponse cachedResponse = executeQuery(null, request,
+                            subject, properties);
+
                     try {
-                        addQueryResponseToSearch(sourceId, request, fedResponse);
-                        //send full response if it changed, otherwise send empty one
-                        Search search = searchMap.get(request.getGuid());
+                        Search search = addQueryResponseToSearch(request, cachedResponse);
+                        search.updateStatus(sourceId, indexResponse);
                         pushResults(request.getGuid(),
                                     controller.transform(search, request),
                                     session);
@@ -158,42 +191,50 @@ public class SearchController {
         }
     }
 
-    private void addQueryResponseToSearch(String sourceId, SearchRequest searchRequest,
+    private Search addQueryResponseToSearch(SearchRequest searchRequest,
             QueryResponse queryResponse) throws InterruptedException {
+        Search search = null;
         if (searchMap.containsKey(searchRequest.getGuid())) {
             LOGGER.debug("Using previously created Search object for cache: {}",
                     searchRequest.getGuid());
-            Search search = searchMap.get(searchRequest.getGuid());
-            search.addQueryResponse(sourceId, queryResponse);
+            search = searchMap.get(searchRequest.getGuid());
+            search.addQueryResponse(queryResponse);
         } else {
             LOGGER.debug("Creating new Search object to cache async query results: {}",
                     searchRequest.getGuid());
-            Search search = new Search();
+            search = new Search();
             search.setSearchRequest(searchRequest);
-            search.addQueryResponse(sourceId, queryResponse);
+            search.addQueryResponse(queryResponse);
             searchMap.put(searchRequest.getGuid(), search);
         }
+        return search;
     }
 
     /**
      * Executes the OpenSearchQuery and formulates the response
-     * 
-     * @param query
-     *            - the query to execute
      * 
      * @param subject
      *            -the user subject
      * 
      * @return the response on the query
      */
-    private QueryResponse executeQuery(String sourceId, Query query, Subject subject) {
+    private QueryResponse executeQuery(String sourceId, SearchRequest searchRequest,
+            Subject subject,
+            Map<String,
+            Serializable> properties) {
+        Query query = searchRequest.getQuery();
         QueryResponse response = getEmptyResponse(sourceId);
         long startTime = System.currentTimeMillis();
 
         try {
             if (query != null) {
-                QueryRequest request = new QueryRequestImpl(query, false,
-                        Arrays.asList(sourceId), null);
+                List<String> sourceIds;
+                if (sourceId == null) {
+                    sourceIds = new ArrayList(searchRequest.getSourceIds());
+                } else {
+                    sourceIds = Arrays.asList(sourceId);
+                }
+                QueryRequest request = new QueryRequestImpl(query, false, sourceIds, properties);
 
                 if (subject != null) {
                     LOGGER.debug("Adding {} property with value {} to request.",
@@ -247,7 +288,7 @@ public class SearchController {
 
         JSONObject rootObject = new JSONObject();
 
-        addObject(rootObject, Search.HITS, upstreamResponse.getHits());
+        addObject(rootObject, Search.HITS, search.getHits());
         addObject(rootObject, Search.GUID, searchRequest.getGuid().toString());
         addObject(rootObject, Search.RESULTS, getResultList(upstreamResponse.getResults()));
         addObject(rootObject, Search.SOURCES, getQueryStatus(search.getQueryStatus()));

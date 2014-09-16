@@ -193,7 +193,7 @@ define([
                 'click #refresh-icon': 'refreshResults'
             },
             initialize: function() {
-                if(this.collection) {
+                if (this.collection) {
                     this.listenTo(this.collection, 'change', this.setRefreshIcon);
                 }
             },
@@ -202,7 +202,7 @@ define([
                 this.$('#status-icon').toggleClass('fa-caret-down fa-caret-right');
             },
             refreshResults: function() {
-                if(!this.isSearchRunning()) {
+                if (!this.isSearchRunning()) {
                     this.collection.parents[0].parents[0].startSearch();
                 }
             },
@@ -210,7 +210,7 @@ define([
                 this.setRefreshIcon();
             },
             setRefreshIcon: function() {
-                if(this.isSearchRunning()) {
+                if (this.isSearchRunning()) {
                     this.$('#refresh-icon').removeClass('fa-refresh');
                     this.$('#refresh-icon').addClass('fa-circle-o-notch fa-spin');
                 } else {
@@ -220,8 +220,8 @@ define([
             },
             isSearchRunning: function() {
                 var working = false;
-                this.collection.forEach(function(source) {
-                    if(!source.get('done')) {
+                this.collection.forEach(function (source) {
+                    if (!source.get('done')) {
                         working = true;
                     }
                 });
@@ -234,7 +234,11 @@ define([
                 "change": "render"
             },
             serializeData: function() {
-                return _.extend(this.model.toJSON(), {count: properties.resultCount});
+                var count = 0;
+                if (this.model.has('results')) {
+                    count = this.model.get('results').length;
+                }
+                return _.extend(this.model.toJSON(), {resultCount: properties.resultCount, count: count});
             },
             getTemplate: function() {
                 if (!_.isUndefined(this.model.get('hits'))) {

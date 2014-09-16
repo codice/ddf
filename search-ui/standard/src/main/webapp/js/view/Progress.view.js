@@ -35,18 +35,25 @@ define([
             defaults: {
                 current: 0,
                 total: 0,
-                hits: 0
+                hits: 0,
+                lastMergeHits: 0
             },
-            increment: function(obj) {
+            update: function(obj) {
                 var setObj = {};
-                if(obj.model.lastResponse && obj.model.lastResponse.data) {
-                    if(_.isUndefined(this.lastMergeHits)) {
-                        this.lastMergeHits = obj.model.lastResponse.data.hits;
-                    } else {
-                        setObj.hits = obj.model.lastResponse.data.hits - this.lastMergeHits;
+                var hits = 0;
+                var done = 0;
+                _.each(obj.model.lastResponse.data.sources, function(src) {
+                    if (!_.isUndefined(src.hits)) {
+                        hits += src.hits;
                     }
-                }
-                setObj.current = this.get('current') + obj.value;
+                    if (src.done === true) {
+                        done++;
+                    }
+                });
+
+                setObj.hits = hits;
+                setObj.current = done;
+
                 //we need to only call set once, because every call will fire the listeners
                 //need to be very careful about calling set multiple times on a backbone model within a single method
                 //it is much much safer to call set a single time at the end of your method
@@ -81,17 +88,17 @@ define([
             },
             updateProgress: function() {
                 var view = this;
-                if((this.model.get("total") === 1 || this.model.get("hits") <= 0 ) && this.model.isComplete()) {
+                if ((this.model.get("total") === 1 || this.model.get("hits") <= 0 ) && this.model.isComplete()) {
                     this.merge();
                     this.close();
                 }
-                if(this.model.get('current') > 0) {
+                if (this.model.get('current') > 0) {
                     this.$el.find('#progressbar').show();
                 }
-                if(this.model.get('hits') > 0) {
-                    if(this.model.lastMergeHits <= 0) {
+                if (this.model.get('hits') > 0) {
+                    if (this.model.get('lastMergeHits') === 0) {
                         this.merge();
-                    } else {
+                    } else if (this.model.get('hits') !== this.model.get('lastMergeHits')) {
                         this.$el.find('#searching-text').hide();
                         this.$el.find('#progress-text').show();
                     }
@@ -121,8 +128,8 @@ define([
                 wreqr.vent.trigger('search:beginMerge');
                 var view = this;
                 //merge the models somehow
+                this.model.set('lastMergeHits', this.model.get('hits'));
                 var page = $.find('#searchPages').pop();
-                this.model.lastMergeHits = this.model.get('hits') + this.model.lastMergeHits;
                 this.$el.find('#progress-text').hide();
                 this.$el.find('#searching-text').show();
                 var spinner = new Spinner(spinnerConfig).spin(page);

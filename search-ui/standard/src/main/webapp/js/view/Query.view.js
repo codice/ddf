@@ -383,7 +383,7 @@ define([
                 var progress = new Progress.ProgressModel();
 
                 var progressFunction = function(val, model) {
-                                            progress.increment.call(progress, {value: val, model: model});
+                                            progress.update.call(progress, {value: val, model: model});
                                         };
 
                 if (_.isUndefined(this.model.get('src'))) {
