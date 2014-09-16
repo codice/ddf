@@ -20,11 +20,6 @@
             default="1800"
             description="Set the number of seconds that an issued SAML assertion will be good for.">
         </AD>
-
-	    <AD name="JAAS Context:" id="jaasContext" required="true" type="String"
-	      default="ddf"
-	      description="The JAAS context to be used with this service.">
-	    </AD>
 	    
 	    <AD name="Token Issuer:" id="issuer" required="true" type="String"
 	      default="localhost"

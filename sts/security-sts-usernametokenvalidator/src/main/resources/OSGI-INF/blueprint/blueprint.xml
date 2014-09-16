@@ -46,14 +46,9 @@
 
     <ext:property-placeholder />
 
-    <cm:property-placeholder persistent-id="ddf.security.sts.usernametokenvalidator" placeholder-prefix="$sts_utv{" update-strategy="reload">
-        <cm:default-properties>
-            <cm:property name="jaasContext" value="ddf"/>
-        </cm:default-properties>
-    </cm:property-placeholder>
-
     <bean class="org.apache.ws.security.validate.JAASUsernameTokenValidator" id="JAASValidator">
-        <property name="contextName" value="$sts_utv{jaasContext}" />
+        <cm:managed-properties persistent-id="ddf.security.sts.usernametokenvalidator" update-strategy="container-managed" />
+        <property name="contextName" value="ddf"/>
     </bean>
 
     <bean class="org.apache.cxf.sts.token.validator.UsernameTokenValidator" id="utValidator">

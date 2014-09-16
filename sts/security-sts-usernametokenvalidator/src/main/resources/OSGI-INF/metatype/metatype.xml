@@ -15,7 +15,7 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
 	<OCD description="STS Username Token Validator Configuration" name="Security STS Username Token Validator" id="ddf.security.sts.usernametokenvalidator">
-	    <AD name="JAAS Context:" id="jaasContext" required="true" type="String"
+	    <AD name="JAAS Context:" id="contextName" required="true" type="String"
 	      default="ddf"
 	      description="The JAAS context to be used with this service.">
 	    </AD>
