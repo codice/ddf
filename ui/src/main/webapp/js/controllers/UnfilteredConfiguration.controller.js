@@ -34,7 +34,7 @@ define([
                 configurations.fetch({
                     url: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices",
                     success: function() {
-                        var servicePage = new ServiceView.ServicePage({model: configurations});
+                        var servicePage = new ServiceView.ServicePage({model: configurations, showWarnings: true});
                         self.region.show(servicePage);
                     }
                 });
