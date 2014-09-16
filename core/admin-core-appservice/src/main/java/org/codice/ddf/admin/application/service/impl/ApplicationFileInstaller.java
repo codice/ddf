@@ -14,11 +14,6 @@
  **/
 package org.codice.ddf.admin.application.service.impl;
 
-import org.apache.aries.util.io.IOUtils;
-import org.codice.ddf.admin.application.service.ApplicationServiceException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +23,11 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+
+import org.apache.aries.util.io.IOUtils;
+import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ApplicationFileInstaller {
 
@@ -56,8 +56,13 @@ public class ApplicationFileInstaller {
                 logger.debug("Installing {} to the system repository.",
                         application.getAbsolutePath());
                 String featureLocation = installToRepo(appZip);
-                return new URI(URI_PROTOCOL + new File("").getAbsolutePath() + File.separator
-                        + REPO_LOCATION + featureLocation);
+                String uri = URI_PROTOCOL + new File("").getAbsolutePath() + File.separator
+                        + REPO_LOCATION + featureLocation;
+
+                // lets standardize the file separators in this uri.
+                // It fails on windows if we do not use.
+                uri = uri.replace("\\", "/");
+                return new URI(uri);
             }
 
         } catch (ZipException ze) {
