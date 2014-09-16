@@ -27,8 +27,9 @@
 	<packaging>pom</packaging>
 
 	<modules>
-        <module>catalog-security-filter</module>
-        <module>catalog-security-plugin</module>
+            <module>catalog-security-filter</module>
+            <module>catalog-security-plugin</module>
+            <module>catalog-security-logging</module>
 	</modules>
 	
 </project>
