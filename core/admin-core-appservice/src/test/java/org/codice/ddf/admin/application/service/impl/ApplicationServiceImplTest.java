@@ -929,7 +929,7 @@ public class ApplicationServiceImplTest {
         Set<ApplicationNode> rootApps = appService.getApplicationTree();
 
         assertNotNull(rootApps);
-        assertEquals(2, rootApps.size());
+        assertEquals(1, rootApps.size());
     }
     
     /**

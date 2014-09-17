@@ -242,11 +242,19 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public Set<ApplicationNode> getApplicationTree() {
         Set<ApplicationNode> applicationTree = new TreeSet<ApplicationNode>();
-        Set<Application> applicationSet = getApplications();
+        Set<Application> unfilteredApplications = getApplications();
+        Set<Application> filteredApplications = new HashSet<Application>();
+
+        for (Application application : unfilteredApplications) {
+            if (!ignoredApplicationNames.contains(application.getName())) {
+                filteredApplications.add(application);
+            }
+        }
+
         Map<Application, ApplicationNodeImpl> appMap = new HashMap<Application, ApplicationNodeImpl>(
-                applicationSet.size());
+                filteredApplications.size());
         // add all values into a map
-        for (Application curApp : applicationSet) {
+        for (Application curApp : filteredApplications) {
             appMap.put(curApp, new ApplicationNodeImpl(curApp, getApplicationStatus(curApp)));
         }
 
@@ -271,7 +279,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 Set<Application> depAppSet = new HashSet<Application>();
                 for (Feature curDepFeature : dependencies) {
                     Application dependencyApp = findFeature(
-                            featuresService.getFeature(curDepFeature.getName()), applicationSet);
+                            featuresService.getFeature(curDepFeature.getName()), filteredApplications);
                     if (dependencyApp != null) {
                         if (dependencyApp.equals(curAppNode.getKey())) {
                             logger.debug("Self-dependency");
