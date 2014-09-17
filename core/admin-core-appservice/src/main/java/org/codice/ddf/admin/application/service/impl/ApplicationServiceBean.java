@@ -39,7 +39,6 @@ import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationNode;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
-import org.codice.ddf.admin.module.plugin.ModulePlugin;
 import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -102,9 +101,6 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
     /** has all the application plugins.*/
     private List<ApplicationPlugin> applicationPlugins;
-    
-    /** has all the module plugins.*/
-    private List<ModulePlugin> modulePlugins;
     
     /** the name of the metatype service to be looked up.*/
     private static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
@@ -508,22 +504,6 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 		this.applicationPlugins = applicationPlugins;
 	}
 	
-	/**
-	 * Getter method for the module plugins.
-	 * @return a list of module plugins.
-	 */
-	public List<ModulePlugin> getModulePlugins() {
-	    return this.modulePlugins;
-	}
-	
-	/**
-	 * Setter method for the module plugins.
-	 * @param modulePlugins - what we are going to set the moduleplugins to.
-	 */
-	public void setModulePlugins(List<ModulePlugin> modulePlugins) {
-	    this.modulePlugins = modulePlugins;
-	}
-
     @Override
     public List<Map<String, Object>> getAllFeatures() {
         return getFeatureMap(appService.getAllFeatures());
@@ -571,20 +551,6 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
         for (ApplicationPlugin plugin : applicationPlugins) {
             if (plugin.matchesAssocationName(appName)) {
-                returnValues.add(plugin.toJSON());
-            }
-        }
-        
-        return returnValues;
-    }
-
-    /** {@inheritDoc}.*/
-    @Override
-    public List<Map<String, Object>> getPluginsForModule(String moduleName) {
-        List<Map<String, Object>> returnValues = new ArrayList<Map<String, Object>>();
-        
-        for (ModulePlugin plugin : modulePlugins) {
-            if (plugin.matchesAssocationName(moduleName)) {
                 returnValues.add(plugin.toJSON());
             }
         }
