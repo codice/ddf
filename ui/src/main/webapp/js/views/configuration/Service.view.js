@@ -99,7 +99,19 @@ define([
     ServiceView.ServiceTable = Marionette.CompositeView.extend({
         template: 'serviceList',
         itemView: ServiceView.ServiceRow,
-        itemViewContainer: 'tbody'
+        itemViewContainer: 'tbody',
+
+        initialize: function(options) {
+            this.showWarnings = options.showWarnings;
+        },
+
+         serializeData: function() {
+             var returnValue = {
+                 showWarnings: this.showWarnings
+             };
+
+             return returnValue;
+        }
     });
 
     ServiceView.ServicePage = Marionette.Layout.extend({
@@ -117,6 +129,8 @@ define([
                 this.listenTo(wreqr.vent, 'poller:start', this.startPoller);
                 this.listenTo(this.model, 'sync', this.triggerSync);
             }
+
+            this.showWarnings = options.showWarnings;
         },
         triggerSync: function() {
             wreqr.vent.trigger('sync');
@@ -128,7 +142,7 @@ define([
             this.poller.start();
         },
         onRender: function() {
-            this.collectionRegion.show(new ServiceView.ServiceTable({ collection: this.model.get("value") }));
+            this.collectionRegion.show(new ServiceView.ServiceTable({ collection: this.model.get("value"), showWarnings: this.showWarnings }));
         },
         refreshServices: function() {
             this.model.fetch();
