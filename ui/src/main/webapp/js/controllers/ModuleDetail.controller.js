@@ -38,6 +38,11 @@ define([
                     'javascriptLocation': 'js/views/module/plugins/systeminformation/Plugin.view.js'
                 }),
                 new Backbone.Model({
+                    'id': 'featureModuleTabID',
+                    'displayName': 'Features',
+                    'javascriptLocation': 'js/views/module/plugins/feature/Plugin.view.js'
+                }),
+                new Backbone.Model({
                     'id': 'configurationModuleTabID',
                     'displayName': 'Configuration',
                     'javascriptLocation': 'js/views/module/plugins/configuration/Plugin.view.js'

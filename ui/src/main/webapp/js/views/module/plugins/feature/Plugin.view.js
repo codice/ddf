@@ -34,7 +34,7 @@ define([
             });
         },
         onRender: function(){
-            this.controller.show(this.model.getAppKey());
+            this.controller.showAll();
         }
     });
 
