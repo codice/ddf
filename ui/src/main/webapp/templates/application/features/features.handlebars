@@ -12,6 +12,22 @@
 * <http://www.gnu.org/licenses/lgpl.html>.
 *
 --}}
+{{#is showWarnings true}}
+    <div class="warningArea">
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <div class="text-align-center">
+                <strong>Danger!</strong>
+                <br>
+                In general, features should be managed via the applications tab.
+                <br>
+                Configuration via this page could result in an unstable system.
+                <br>
+                Proceed with caution!
+            </div>
+        </div>
+    </div>
+{{/is}}
 <table id="features-table" class="table table-striped">
     <thead>
         <tr>
