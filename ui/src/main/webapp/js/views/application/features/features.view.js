@@ -34,6 +34,18 @@ define([
             itemViewContainer: 'tbody',
             itemView: FeatureRowView,
 
+            initialize: function(options) {
+              this.showWarnings = options.showWarnings;
+            },
+
+            serializeData: function() {
+                var returnValue = {
+                    showWarnings: this.showWarnings
+                };
+
+                return returnValue;
+            },
+
             onCompositeCollectionRendered: function () {
                 this.$('#features-table').dataTable({
                     sDom: 't<"table-footer"ip>', // not sure why but this get rid the search box up top.
