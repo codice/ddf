@@ -23,6 +23,9 @@
         <!-- Remove bundles below this comment after upgrade to Karaf 2.3.4 or newer -->
         <bundle>mvn:org.codice/org.apache.karaf.shell.log/${karaf.version}.1</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/1.8.0</bundle>
+        <!-- Remove bundles below this comment after upgrade to Karaf 2.3.6 or newer -->
+        <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.cm/1.0.3</bundle>
+        <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.core/1.4.0</bundle>
 	</feature>
 	
 
