@@ -15,13 +15,11 @@
 
 package ddf.services.schematron;
 
-import java.io.Serializable;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -45,13 +43,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.CreateRequest;
-import ddf.catalog.operation.DeleteRequest;
-import ddf.catalog.operation.UpdateRequest;
-import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.validation.ValidationException;
 import ddf.catalog.validation.MetacardValidator;
+import ddf.catalog.validation.ValidationException;
 
 /**
  * This pre-ingest service provides validation of an ingested XML document against a Schematron
@@ -80,7 +74,7 @@ import ddf.catalog.validation.MetacardValidator;
  * @author rodgersh
  * 
  */
-public class SchematronValidationService implements PreIngestPlugin, MetacardValidator {
+public class SchematronValidationService implements MetacardValidator {
     /** The original Schematron .sch file */
     private String schematronSchemaFilename;
 
@@ -331,63 +325,6 @@ public class SchematronValidationService implements PreIngestPlugin, MetacardVal
         LOGGER.debug("EXITING: " + CLASS_NAME + "." + methodName);
 
         return domResult;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ddf.catalog.plugin.PreIngestPlugin#process(ddf.catalog.operation.CreateRequest)
-     */
-    @Override
-    public CreateRequest process(CreateRequest create) throws StopProcessingException {
-        String methodName = "processCreate";
-        LOGGER.debug("ENTERING: " + CLASS_NAME + "." + methodName);
-
-        if (create == null) {
-            throw new StopProcessingException("Null createRequest");
-        }
-        validateEntryList(create.getMetacards());
-
-        LOGGER.debug("EXITING: " + CLASS_NAME + "." + methodName);
-
-        return create;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ddf.catalog.plugin.PreIngestPlugin#process(ddf.catalog.operation.UpdateRequest)
-     */
-    @Override
-    public UpdateRequest process(UpdateRequest update) throws StopProcessingException {
-        String methodName = "processUpdate";
-        LOGGER.debug("ENTERING: " + CLASS_NAME + "." + methodName);
-        if (update == null) {
-            throw new StopProcessingException("Null updateRequest");
-        }
-
-        List<Entry<Serializable, Metacard>> list = update.getUpdates();
-        if (list != null) {
-            List<Metacard> requestMetacards = new ArrayList<Metacard>();
-            for (Entry<Serializable, Metacard> updateEntry : list) {
-                requestMetacards.add(updateEntry.getValue());
-            }
-            validateEntryList(requestMetacards);
-        }
-        LOGGER.debug("EXITING: " + CLASS_NAME + "." + methodName);
-
-        return update;
-    }
-
-    /*
-     */
-    @Override
-    public DeleteRequest process(DeleteRequest delete) {
-        String methodName = "processDelete";
-        LOGGER.debug("ENTERING: " + CLASS_NAME + "." + methodName);
-
-        // no validation to perform
-        return delete;
     }
 
     /**
