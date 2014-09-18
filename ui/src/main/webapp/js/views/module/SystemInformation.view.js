@@ -21,8 +21,7 @@ define([
         'text!systemInformationTemplate',
         'js/util/TimeUtil',
         'js/util/UnitsUtil',
-        'icanhaz',
-        'datatables'
+        'icanhaz'
     ],
     function(Marionette, _, $, moment, SystemInformationTemplate, TimeUtil, UnitsUtil, ich){
         'use strict';

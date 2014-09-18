@@ -347,6 +347,9 @@ define([
             this.modelBinder.bind(this.model, this.el, bindings);
         },
 
+        onBeforeClose: function(){
+            this.modelBinder.unbind();
+        },
         appendHtml: function (collectionView, itemView) {
             // ensure we nest the child list inside of
             // the current list item
@@ -464,6 +467,7 @@ define([
                 });
             });
         },
+
         setErrorStates: function() {
             var that = this;
             this.model.each(function(child) {

@@ -26,7 +26,6 @@
         "bootswatch": "=v3.1.1",
         "jquery-file-upload": "9.5.7",
         "lato": "0.2.0",
-        "datatables": "1.10.2",
         "moment": "2.5.1"
     },
     "resolutions": {

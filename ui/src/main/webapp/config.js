@@ -54,9 +54,6 @@
             // default admin ui
             app: 'js/application',
 
-            // datatables
-            datatables: 'lib/datatables/media/js/jquery.dataTables',
-
             //moment
             moment: 'lib/moment/moment'
         },

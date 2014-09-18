@@ -19,8 +19,7 @@ define([
         'jquery',
         './featureRow.view',
         'text!featureTemplate',
-        'icanhaz',
-        'datatables'
+        'icanhaz'
 ],
     function(Marionette, _, $, FeatureRowView, FeaturesTemplate, ich){
         'use strict';
@@ -45,23 +44,6 @@ define([
 
                 return returnValue;
             },
-
-            onCompositeCollectionRendered: function () {
-                this.$('#features-table').dataTable({
-                    sDom: 't<"table-footer"ip>', // not sure why but this get rid the search box up top.
-                    bSort: true,
-                    bPaginate: false,
-                    aoColumnDefs: [
-                        {
-                            bSortable: false,
-                            aTargets: [ 2 ]
-                        }
-                    ]
-                }).fnSort([[0, 'asc'], [1, 'asc']]);
-            }
-
-
-
         });
 
         return FeaturesView;
