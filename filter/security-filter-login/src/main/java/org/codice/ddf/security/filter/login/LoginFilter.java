@@ -310,29 +310,43 @@ public class LoginFilter implements Filter {
     private Subject handleAuthenticationToken(HttpServletRequest httpRequest, BSTAuthenticationToken token) throws ServletException {
         Subject subject;
 
-        /*
-         * The user didn't have a SAML token from a previous authentication, but they do have the
-         * credentials to log in - perform that action here.
-         */
-        try {
-            synchronized (lock) {
-                // login with the specified authentication credentials (AuthenticationToken)
-                subject = securityManager.getSubject(token);
-            }
+        HttpSession session = httpRequest.getSession(true);
+        //if we already have an assertion inside the session, then use that instead
+        if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
 
-            for (Object principal : subject.getPrincipals().asList()) {
-                if (principal instanceof SecurityAssertion) {
-                    Element samlToken = ((SecurityAssertion) principal).getSecurityToken().getToken();
-                    if (LOGGER.isTraceEnabled()) {
-                        LOGGER.trace("SAML assertion returned: {}", XMLUtils.toString(samlToken));
-                    }
-                    SecurityToken securityToken = ((SecurityAssertion) principal).getSecurityToken();
-                    createSamlCookie(httpRequest, securityToken);
+            /*
+             * The user didn't have a SAML token from a previous authentication, but they do have the
+             * credentials to log in - perform that action here.
+             */
+            try {
+                synchronized (lock) {
+                    // login with the specified authentication credentials (AuthenticationToken)
+                    subject = securityManager.getSubject(token);
                 }
+
+                for (Object principal : subject.getPrincipals().asList()) {
+                    if (principal instanceof SecurityAssertion) {
+                        Element samlToken = ((SecurityAssertion) principal).getSecurityToken()
+                                .getToken();
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("SAML assertion returned: {}",
+                                    XMLUtils.toString(samlToken));
+                        }
+                        SecurityToken securityToken = ((SecurityAssertion) principal)
+                                .getSecurityToken();
+                        createSamlCookie(httpRequest, securityToken);
+                    }
+                }
+            } catch (SecurityServiceException e) {
+                LOGGER.error("Unable to get subject from auth request.", e);
+                throw new ServletException(e);
             }
-        } catch (SecurityServiceException e) {
-            LOGGER.error("Unable to get subject from auth request.", e);
-            throw new ServletException(e);
+        } else {
+            LOGGER.trace("Creating SAML authentication token with session.");
+            SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, session.getId(),
+                    token.getRealm());
+            return handleAuthenticationToken(httpRequest, samlToken);
+
         }
         return subject;
     }
@@ -427,17 +441,18 @@ public class LoginFilter implements Filter {
     private void createSamlCookie(HttpServletRequest httpRequest, SecurityToken securityToken) {
         synchronized (lock) {
             HttpSession session = httpRequest.getSession(true);
-            session.setAttribute(SecurityConstants.SAML_ASSERTION, securityToken);
-            AssertionWrapper assertion = null;
-            DateTime after = null;
-            try {
-                assertion = new AssertionWrapper(securityToken.getToken());
-                after = assertion.getSaml2().getConditions().getNotOnOrAfter();
-                session.setAttribute(SAML_EXPIRATION, after.getMillis());
-            } catch (WSSecurityException e) {
-                LOGGER.warn("Unable to set expiration date.", e);
+            if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
+                session.setAttribute(SecurityConstants.SAML_ASSERTION, securityToken);
+                AssertionWrapper assertion = null;
+                DateTime after = null;
+                try {
+                    assertion = new AssertionWrapper(securityToken.getToken());
+                    after = assertion.getSaml2().getConditions().getNotOnOrAfter();
+                    session.setAttribute(SAML_EXPIRATION, after.getMillis());
+                } catch (WSSecurityException e) {
+                    LOGGER.warn("Unable to set expiration date.", e);
+                }
             }
-
             int minutes = getExpirationTime();
             //we just want to set this to some non-zero value if the configuration is messed up
             int seconds = 60;

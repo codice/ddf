@@ -39,6 +39,8 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
 
     public static final String DDF_BST_USERNAME_LN = "DDFUsername";
 
+    public static final String DDF_BST_ANONYMOUS_LN = "DDFAnonymous";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BSTAuthenticationToken.class);
 
     // values to be included in the binary security token - specific to each subclass
@@ -88,7 +90,7 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         binarySecurityTokenType.setValueType(tokenValueType);
         binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
         binarySecurityTokenType.setId(tokenId);
-        binarySecurityTokenType.setValue(getEncodedCredentials());
+        binarySecurityTokenType.setValue(credential);
         JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement = new JAXBElement<BinarySecurityTokenType>(
           new QName(
             "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",

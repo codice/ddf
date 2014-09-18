@@ -38,6 +38,8 @@
         <module>security-sts-bstdelegationhandler</module>
         <module>security-sts-x509delegationhandler</module>
         <module>security-sts-upbstvalidator</module>
+        <module>security-sts-anonymousvalidator</module>
+        <module>security-sts-anonymousclaimshandler</module>
     </modules>
 
 </project>

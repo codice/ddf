@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+	<OCD description="Anonymous Claims Handler Configuration" name="Security STS Anonymous Claims Handler" id="ddf.security.sts.anonymousclaims">
+	    <AD name="Attributes" id="attributes" required="true" type="String"
+	      default="uid=Anonymous"
+          cardinality="1000"
+	      description="The attributes to be returned for any Anonymous user.">
+	    </AD>
+	</OCD>
+	
+	<Designate pid="ddf.security.sts.anonymousclaims">
+	    <Object ocdref="ddf.security.sts.anonymousclaims" />
+  	</Designate>
+
+</metatype:MetaData>

@@ -14,12 +14,13 @@
  **/
 package org.codice.ddf.security.handler.anonymous;
 
-import org.apache.cxf.common.util.StringUtils;
+import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.UPAuthenticationToken;
-import org.jasypt.contrib.org.apache.commons.codec_1_3.binary.Base64;
+import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
+import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
+import org.codice.ddf.security.handler.pki.PKIHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +45,11 @@ public class AnonymousHandler implements AuthenticationHandler {
      */
     public static final String AUTH_TYPE = "ANON";
 
-    protected static final String GUEST_USER = "guest";
-
-    protected static final String GUEST_PW = "guest";
-
     public static final String INVALID_MESSAGE = "Username/Password is invalid.";
+
+    private String realm;
+
+    private PKIAuthenticationTokenFactory tokenFactory;
 
     @Override
     public String getAuthenticationType() {
@@ -71,51 +72,53 @@ public class AnonymousHandler implements AuthenticationHandler {
         HandlerResult result = new HandlerResult();
 
         // For anonymous - if credentials were provided, return them, if not, then return guest credentials
-        UPAuthenticationToken usernameToken = getUsernameToken((HttpServletRequest) request);
+        BaseAuthenticationToken authToken = getAuthToken((HttpServletRequest) request,
+                (HttpServletResponse) response, chain);
 
-        result.setSource(BaseAuthenticationToken.DEFAULT_REALM + "-AnonymousHandler");
+        result.setSource(realm + "-AnonymousHandler");
         result.setStatus(HandlerResult.Status.COMPLETED);
-        result.setToken(usernameToken);
+        result.setToken(authToken);
         return result;
     }
 
     /**
-     * This method uses the data passed in the HttpServletRequest to generate
-     * and return UsernameTokenType.
+     * Returns BSTAuthenticationToken for the HttpServletRequest
      *
      * @param request http request to obtain attributes from and to pass into any local filter chains required
-     * @return UsernameTokenType
+     * @return BSTAuthenticationToken
      */
-    private UPAuthenticationToken getUsernameToken(HttpServletRequest request) {
-        String username = GUEST_USER;
-        String password = GUEST_PW;
-
-        /**
-         * Parse the header data and extract the username and password.
-         *
-         * Change the username and password if request contains values.
-         */
-        String header = request.getHeader("Authorization");
-        if (!StringUtils.isEmpty(header)) {
-            String headerData[] = header.split(" ");
-            if (headerData.length == 2) {
-                String decodedHeader = new String(Base64.decodeBase64(headerData[1].getBytes()));
-                String decodedHeaderData[] = decodedHeader.split(":");
-                if (decodedHeaderData.length == 2) {
-                    username = decodedHeaderData[0];
-                    password = decodedHeaderData[1];
-                }
+    private BaseAuthenticationToken getAuthToken(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
+        //check for basic auth first
+        BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
+        basicAuthenticationHandler.setRealm(realm);
+        HandlerResult handlerResult = basicAuthenticationHandler.getNormalizedToken(request, response, chain, false);
+        if(handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
+            return handlerResult.getToken();
+        }
+        //if basic fails, check for PKI
+        PKIHandler pkiHandler = new PKIHandler();
+        pkiHandler.setRealm(realm);
+        pkiHandler.setTokenFactory(tokenFactory);
+        try {
+            handlerResult = pkiHandler.getNormalizedToken(request, response, chain, false);
+            if(handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
+                return handlerResult.getToken();
             }
+        } catch (ServletException e) {
+            logger.warn("Encountered an exception while checking for PKI auth info.", e);
         }
 
-        UPAuthenticationToken token = new UPAuthenticationToken(username, password);
+        //if everything fails, the user is anonymous, log in as such
+        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(realm);
+
+
         return token;
     }
 
     @Override
     public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException {
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-        httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         try {
             httpResponse.getWriter().write(INVALID_MESSAGE);
             httpResponse.flushBuffer();
@@ -124,9 +127,25 @@ public class AnonymousHandler implements AuthenticationHandler {
         }
 
         HandlerResult result = new HandlerResult();
-        result.setSource(BaseAuthenticationToken.DEFAULT_REALM + "-AnonymousHandler");
+        result.setSource(realm + "-AnonymousHandler");
         logger.debug("In error handler for anonymous - returning action completed.");
-        result.setStatus(HandlerResult.Status.COMPLETED);  // we handled the error
+        result.setStatus(HandlerResult.Status.REDIRECTED);
         return result;
+    }
+
+    public String getRealm() {
+        return realm;
+    }
+
+    public void setRealm(String realm) {
+        this.realm = realm;
+    }
+
+    public PKIAuthenticationTokenFactory getTokenFactory() {
+        return tokenFactory;
+    }
+
+    public void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
+        this.tokenFactory = tokenFactory;
     }
 }

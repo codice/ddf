@@ -14,6 +14,7 @@
  **/
 package ddf.security.impl;
 
+import ddf.security.principal.AnonymousPrincipal;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -40,4 +41,17 @@ public class SubjectImpl extends DelegatingSubject implements Subject {
         this(principals, authenticated, null, session, securityManager);
     }
 
+    @Override
+    public boolean isAnonymous() {
+        AnonymousPrincipal anonymousPrincipal = new AnonymousPrincipal();
+        PrincipalCollection collection = getPrincipals();
+        for (Object principal : collection.asList()) {
+            if(principal instanceof AnonymousPrincipal) {
+                return true;
+            } else if(anonymousPrincipal.getName().equals(principal)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

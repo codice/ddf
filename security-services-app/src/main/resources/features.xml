@@ -192,6 +192,23 @@
         <bundle>mvn:ddf.security.sts/security-sts-upbstvalidator/${project.version}</bundle>
     </feature>
 
+    <feature name="security-sts-anonymousvalidator" install="manual" version="${project.version}"
+             description="Validates anonymous tokens.">
+        <bundle>mvn:ddf.security.sts/security-sts-anonymousvalidator/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-sts-anonymousclaimshandler" install="manual" version="${project.version}"
+             description="Retrieves the anonymous user claims.">
+        <bundle>mvn:ddf.security.sts/security-sts-anonymousclaimshandler/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-anonymous" install="manual" version="${project.version}"
+             description="Contains all of the anonymous security features.">
+        <feature>security-handler-anonymous</feature>
+        <feature>security-sts-anonymousvalidator</feature>
+        <feature>security-sts-anonymousclaimshandler</feature>
+    </feature>
+
     <feature name="security-servlet-logout" install="manual" version="${project.version}"
              description="Logout servlet.">
         <bundle>mvn:ddf.security.servlet/security-servlet-logout/${project.version}</bundle>

@@ -58,8 +58,34 @@
         </AD>
     </OCD>
 
+    <OCD name="Anonymous Handler" id="org.codice.ddf.security.handler.anonymous.AnonymousHandler">
+        <AD description="Set the Realm that is applicable to the Anonymous Handler"
+            name="Realm" id="realm" required="true" type="String"
+            default="DDF"
+            />
+    </OCD>
+
+    <OCD name="Anonymous Handler PKI Token Factory" id="org.codice.ddf.security.handler.anonymous.PKIAuthenticationTokenFactory">
+        <AD description="Set the Realm that is applicable to the Anonymous Handler"
+            name="Realm" id="realm" required="true" type="String"
+            default="DDF"
+                />
+        <AD description="Set the path to the signature properties file."
+            name="Signature Properties Path" id="signaturePropertiesPath" required="true" type="String"
+            default="etc/ws-security/server/signature.properties"
+                />
+    </OCD>
+
     <Designate pid="org.codice.ddf.security.handler.anonymous.configuration">
         <Object ocdref="org.codice.ddf.security.handler.anonymous.configuration"/>
+    </Designate>
+
+    <Designate pid="org.codice.ddf.security.handler.anonymous.AnonymousHandler">
+        <Object ocdref="org.codice.ddf.security.handler.anonymous.AnonymousHandler"/>
+    </Designate>
+
+    <Designate pid="org.codice.ddf.security.handler.anonymous.PKIAuthenticationTokenFactory">
+        <Object ocdref="org.codice.ddf.security.handler.anonymous.PKIAuthenticationTokenFactory"/>
     </Designate>
 
 </metatype:MetaData>

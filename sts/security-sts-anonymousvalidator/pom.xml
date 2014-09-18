@@ -12,44 +12,41 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>handler</artifactId>
-        <groupId>ddf.security.handler</groupId>
+        <artifactId>security-sts-pom</artifactId>
+        <groupId>ddf.security.sts</groupId>
         <version>2.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>DDF :: Security :: Handler :: API</name>
-    <artifactId>security-handler-api</artifactId>
+    <artifactId>security-sts-anonymousvalidator</artifactId>
+    <name>DDF :: Security :: STS :: Anonymous Validator</name>
     <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
+            <groupId>org.apache.cxf.services.sts</groupId>
+            <artifactId>cxf-services-sts-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-security-xml</artifactId>
+            <artifactId>cxf-rt-ws-security</artifactId>
             <version>${cxf.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-api</artifactId>
+            <artifactId>security-core-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.handler</groupId>
+            <artifactId>security-handler-api</artifactId>
         </dependency>
     </dependencies>
 
@@ -61,22 +58,11 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            ddf-security-common
-
-                        </Embed-Dependency>
-                        <Export-Package>
-                            org.codice.ddf.security.handler.api
-                        </Export-Package>
-                        <Import-Package>
-                            javax.ws.rs,
-                            *
-                        </Import-Package>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 
 </project>
