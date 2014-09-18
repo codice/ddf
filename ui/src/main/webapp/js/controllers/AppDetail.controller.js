@@ -14,6 +14,7 @@
  **/
 /*global define*/
 define([
+    'backbone',
     'marionette',
     'js/wreqr.js',
     'js/views/application/application-detail/ApplicationDetail.layout',
@@ -21,7 +22,7 @@ define([
     'js/views/application/application-detail/PluginTabContent.view',
     'js/views/application/application-detail/PluginTab.view',
     'q'
-    ],function (Marionette, wreqr, ApplicationDetailLayout, AppConfigPlugin,PluginTabContentView,PluginTabView,  Q) {
+    ],function (Backbone, Marionette, wreqr, ApplicationDetailLayout, AppConfigPlugin,PluginTabContentView,PluginTabView,  Q) {
 
     var AppDetailController = Marionette.Controller.extend({
 
@@ -34,11 +35,32 @@ define([
             this.regions.applications.show(layoutView);
 
             this.fetchAppConfigPlugins(applicationModel.get('name')).then(function(appConfigPlugins){
+                //load the static ones
+                var staticApplicationPlugins = [
+                    new Backbone.Model({
+                        'id': 'detailsApplicationTabID',
+                        'displayName': 'Details',
+                        'javascriptLocation': 'js/views/application/plugins/details/Plugin.view.js',
+                        'order': 0
+                    }),
+                    new Backbone.Model({
+                        'id': 'featuresApplicationTabID',
+                        'displayName': 'Features',
+                        'javascriptLocation': 'js/views/application/plugins/features/Plugin.view.js',
+                        'order': 1
+                    }),
+                    new Backbone.Model({
+                        'id': 'configurationApplicationTabID',
+                        'displayName': 'Configuration',
+                        'javascriptLocation': 'js/views/application/plugins/config/Plugin.view.js',
+                        'order': 2
+                    })
+                ];
+                appConfigPlugins.add(staticApplicationPlugins);
                 layoutView.tabs.show(new PluginTabView({collection: appConfigPlugins, model: applicationModel}));
                 layoutView.tabContent.show(new PluginTabContentView({collection: appConfigPlugins, model: applicationModel}));
                 layoutView.selectFirstTab();
             }).fail(function(error){
-                console.log(error.stack);
                 throw error;
             });
         },

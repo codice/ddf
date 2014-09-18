@@ -22,7 +22,6 @@ import java.util.UUID;
  * Defines an application configuration plugin. 
  *
  */
-//FIXME: remove all references to applications.
 public interface ApplicationPlugin {
 	/** key to mark that a plugin should be used for ALL applications.*/
 	public static final String ALL_ASSOCATION_KEY = "ALL";
