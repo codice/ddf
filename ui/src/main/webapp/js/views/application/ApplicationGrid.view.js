@@ -291,6 +291,7 @@ define([
             'click .btn.btn-info.cancel': 'refreshView',
             'click button.stopAppConfirm': 'confirmStop',
             'click button.startAppConfirm': 'confirmStart',
+            'click button.removeAppConfirm': 'confirmRemove',
             'click button.stopAppCancel': 'stopAppView',
             'click button.startAppCancel': 'startAppView'
         },
@@ -388,6 +389,9 @@ define([
         confirmStart: function() {
             this.updateProgress("start");
         },
+        confirmRemove: function() {
+            this.updateProgress("remove");
+        },
         updateProgress: function(action) {
             var that = this;
             if(action === "start") {
@@ -395,8 +399,13 @@ define([
                     that.$('.application-status').html(message);
                     that.$(".progress-bar").animate({width: percentage+'%'}, 0, 'swing');
                 });
-            } else {
+            } else if(action === 'stop') {
                 this.progressBarStopApp(function(message, percentage) {
+                    that.$('.application-status').html(message);
+                    that.$(".progress-bar").animate({width: percentage+'%'}, 0, 'swing');
+                });
+            } else if(action === 'remove'){
+                this.progressBarRemoveApp(function(message, percentage) {
                     that.$('.application-status').html(message);
                     that.$(".progress-bar").animate({width: percentage+'%'}, 0, 'swing');
                 });
@@ -425,6 +434,20 @@ define([
             return this.model.update('stop', this.response, message).then(function() {
                 that.model.update('read', that.response, message).then(function() {
                     that.model.validateUpdate(jsonModel, numNodes, message, "stop");
+                    that.setErrorStates();
+                    that.toggleView(that.gridLayout);
+                });
+            });
+        },
+        progressBarRemoveApp: function (message) {
+            var that = this;
+
+            var jsonModel = this.model.toJSON();
+            var numNodes = this.model.length;
+
+            return this.model.update('remove', this.response, message).then(function() {
+                that.model.update('read', that.response, message).then(function() {
+                    that.model.validateUpdate(jsonModel, numNodes, message, "remove");
                     that.setErrorStates();
                     that.toggleView(that.gridLayout);
                 });

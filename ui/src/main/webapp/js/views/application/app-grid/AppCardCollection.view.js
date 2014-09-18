@@ -14,6 +14,7 @@
  **/
 /*global define*/
 define([
+    'backbone',
     'marionette',
     'icanhaz',
     'js/wreqr',
@@ -22,7 +23,7 @@ define([
     './AppCardItem.view',
     'text!applicationGrid',
     'text!addApplicationCard'
-    ],function (Marionette, ich, wreqr, $, _, AppCardItemView, applicationGrid, addApplicationCard) {
+    ],function (Backbone, Marionette, ich, wreqr, $, _, AppCardItemView, applicationGrid, addApplicationCard) {
     "use strict";
 
     // statics
@@ -38,6 +39,11 @@ define([
     if(!ich.addApplicationCard) {
         ich.addTemplate('addApplicationCard', addApplicationCard);
     }
+
+
+    var addAppCardItemView = Marionette.ItemView.extend({
+        template: 'addApplicationCard'
+    });
 
     // Collection of all the applications
     var AppCardCollectionView = Marionette.CollectionView.extend({
@@ -56,22 +62,18 @@ define([
             this.listenTo(wreqr.vent, 'toggle:layout', this.toggleLayout);
             this.listenTo(wreqr.vent, 'toggle:state', this.toggleState);
         },
-        // Shows the applications in the proper state upon a re-render
-
-        onRender: function(){
-            if(this.AppShowState === ACTIVE_STATE && this.$('.new-or-update-app').length === 0){
-                this.$el.prepend(ich.addApplicationCard());
-            }
-        },
 
         showCollection: function(){
             var view = this;
-            this.collection.each(function(item, index){
+            view.collection.each(function(item, index){
                 var state = item.get('state');
                 if(view.isModelStateMatch(state)){
-                    this.addItemView(item, AppCardItemView, index);
+                    view.addItemView(item, AppCardItemView, index);
                 }
-            }, this);
+            });
+            if(this.AppShowState === 'ACTIVE' && this.$('.new-or-update-app').length === 0){
+                view.addItemView(new Backbone.Model({}), addAppCardItemView);
+            }
         },
         isModelStateMatch: function(state){
             if(_.isArray(this.AppShowState)){
