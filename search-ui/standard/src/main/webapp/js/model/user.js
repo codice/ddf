@@ -17,11 +17,11 @@ define([
     ], function (Backbone) {
     'use strict';
 
-    var guestUser = 'guest', guestPass = 'guest', User = {};
+    var User = {};
 
     User.Model = Backbone.AssociatedModel.extend({
         isGuestUser: function() {
-            return this.get('username') === guestUser;
+            return this.get('isAnonymous') === 'true' || this.get('isAnonymous') === true;
         }
     });
 
@@ -36,8 +36,6 @@ define([
         url: '/service/user',
         syncUrl: "/search/standard/user",
         useAjaxSync: false,
-        guestUser: guestUser,
-        guestPass: guestPass,
         parse: function (resp) {
             if (resp.data) {
                 return resp.data;

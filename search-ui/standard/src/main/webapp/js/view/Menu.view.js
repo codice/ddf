@@ -357,8 +357,8 @@ define([
                     type: "GET",
                     url: document.URL,
                     async: false,
-                    username: Menu.UserModel.guestUser,
-                    password: Menu.UserModel.guestPass,
+                    username: "",
+                    password: "",
                     error: function() {
                         document.location.reload();
                     },

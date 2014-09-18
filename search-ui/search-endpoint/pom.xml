@@ -139,6 +139,7 @@
                             joda-time,
                             json-smart
                         </Embed-Dependency>
+                        <Web-ContextPath>/search/cometd</Web-ContextPath>
                         <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
                         <!-- Package uses conflict if we do not embed this -->
                         <Private-Package>

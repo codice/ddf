@@ -37,7 +37,7 @@
         <org.codice.ddf.notifications.version>1.0.1</org.codice.ddf.notifications.version>
         <org.codice.ddf.activities.version>0.2.0</org.codice.ddf.activities.version>
         <ddf.catalog.app.version>2.5.0</ddf.catalog.app.version>
-        <ddf.platform.app.version>2.5.0</ddf.platform.app.version>
+        <ddf.platform.app.version>2.6.0-SNAPSHOT</ddf.platform.app.version>
         <karaf.version>2.3.3</karaf.version>
     	<javax.inject.version>1</javax.inject.version>
     	

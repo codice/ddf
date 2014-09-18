@@ -56,6 +56,9 @@ public class UserService {
         if(subject != null) {
             Map<String, String> userMap = new HashMap<String, String>();
             userMap.put("username", SubjectUtils.getName(subject));
+            if(subject instanceof ddf.security.Subject) {
+                userMap.put("isAnonymous", String.valueOf(((ddf.security.Subject) subject).isAnonymous()));
+            }
             reply.put("user", userMap);
             reply.put(Search.SUCCESSFUL, true);
             remote.deliver(serverSession, "/service/user", reply, null);
