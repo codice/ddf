@@ -49,6 +49,8 @@ define([
                 };
             },
             onRender: function(){
+                // reset back to uncheck.  this is reset every time a user hits this step (through either next button or previous buttons)
+                this.model.set({'isCustomProfile': false});
                 this.modelBinder.bind(this.model, this.el);
                 this.modelChanged(); // trigger ui population from model.
                 this.$('.profile-options').perfectScrollbar({useKeyboard: false});
@@ -79,8 +81,9 @@ define([
                 this.$('.customize').attr('data-is-customized', this.model.get('isCustomProfile'));
             },
             doCustomProfileToggle: function(){
-                var newValue = !(this.model.get('isCustomProfile'));
-                this.model.set('isCustomProfile',newValue);
+                // set the isCustom flag and trigger next immediatly to push the user to the next step.
+                this.model.set('isCustomProfile',true);
+                this.navigationModel.trigger('next');
             }
         });
 
