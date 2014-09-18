@@ -41,6 +41,9 @@
     </feature>
     
     <feature name="content-core-directorymonitor" install="manual" version="${project.version}" description="Monitors directories to process content files.">
+	<feature>content-core</feature>
+	<feature>content-catalogerplugin</feature>
+	<feature>content-core-filesystemstorageprovider</feature>
         <bundle>mvn:ddf.content.core/content-core-directorymonitor/${project.version}</bundle>
     </feature>
 
