@@ -951,6 +951,7 @@
         <feature>metrics-services</feature>
         <feature>solr</feature>
         <feature>persistence-core</feature>
+        <feature>platform-security-session</feature>
 
         <bundle>mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle>
         <!-- for slf4j-ext -->
@@ -970,6 +971,11 @@
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/${saxon.bundle.plugin}
         </bundle>
         <bundle>mvn:joda-time/joda-time/${joda-time.version}</bundle>
+    </feature>
+
+    <feature name="platform-security-session" install="auto" version="${project.version}" description="Custom Session Manager">
+        <feature>pax-jetty</feature>
+        <bundle>mvn:ddf.platform.security/platform-security-session/${project.version}</bundle>
     </feature>
 
 </features>

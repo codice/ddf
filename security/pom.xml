@@ -100,6 +100,7 @@
 	<modules>
 		<module>platform-security-core-api</module>
 		<module>encryption</module>
-	</modules>
+        <module>platform-security-session</module>
+    </modules>
 
 </project>
