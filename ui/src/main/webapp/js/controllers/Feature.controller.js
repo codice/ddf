@@ -71,7 +71,8 @@ define([
                 features.fetch({
                     success: function(collection) {
                         var featureView = new FeaturesView({
-                            collection: collection
+                            collection: collection,
+                            showWarnings: true
                         });
                         view.region.show(featureView);
                     }
