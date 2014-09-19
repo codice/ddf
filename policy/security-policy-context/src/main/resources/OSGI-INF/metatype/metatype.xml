@@ -25,7 +25,7 @@
 
         <AD description="List of authentication types required for each context. List of default valid authentication types are: SAML, BASIC, PKI, ANON. Example: /context=AUTH1|AUTH2|AUTH3"
             name="Authentication Types" id="authenticationTypes" required="true" cardinality="100"
-            type="String" default="/=SAML|basic,/admin=SAML|basic,/system=basic"/>
+            type="String" default="/=SAML|ANON,/admin=SAML|basic,/jolokia=SAML|basic,/system=basic"/>
 
         <AD description="List of attributes required for each Web Context. Example: /context={role=role1|role2;type=type1}"
             name="Required Attributes" id="requiredAttributes" required="true" cardinality="100"
