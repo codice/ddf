@@ -933,6 +933,7 @@
 
     <feature name="platform-app" install="auto" version="${project.version}"
              description="Installs the DDF platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::DDF Platform">
+        <feature>platform-security-session</feature>
         <feature>cxf</feature>
         <feature>camel</feature>
         <feature>camel-http</feature>
@@ -951,7 +952,6 @@
         <feature>metrics-services</feature>
         <feature>solr</feature>
         <feature>persistence-core</feature>
-        <feature>platform-security-session</feature>
 
         <bundle>mvn:ch.qos.cal10n/cal10n-api/0.7.4</bundle>
         <!-- for slf4j-ext -->
