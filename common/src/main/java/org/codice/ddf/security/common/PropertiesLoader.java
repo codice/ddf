@@ -32,8 +32,6 @@ import java.util.Set;
  * Utility class that attempts several different methods for loading in properties files from the
  * classpath or file system.
  *
- * @author tustisos
- *
  */
 public final class PropertiesLoader {
     private static final Logger logger = LoggerFactory.getLogger(PropertiesLoader.class);
