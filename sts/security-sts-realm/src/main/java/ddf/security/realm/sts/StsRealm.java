@@ -14,13 +14,33 @@
  **/
 package ddf.security.realm.sts;
 
-import ddf.security.PropertiesLoader;
-import ddf.security.common.audit.SecurityLogger;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import ddf.security.common.callback.CommonCallbackHandler;
-import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
@@ -47,6 +67,7 @@ import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
@@ -59,31 +80,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import ddf.security.PropertiesLoader;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.util.CommonSSLFactory;
+import ddf.security.encryption.EncryptionService;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 /**
  * The STS Realm is the main piece of the security framework responsible for exchanging a binary
@@ -601,7 +602,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         }
 
         LOGGER.debug("Setting callback handler on STSClient");
-        map.put(SecurityConstants.CALLBACK_HANDLER, new CommonCallbackHandler());
+        //DDF-733 map.put(SecurityConstants.CALLBACK_HANDLER, new CommonCallbackHandler());
 
         LOGGER.debug("Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"");
         map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, String.valueOf(stsClientConfig.getUseKey()));

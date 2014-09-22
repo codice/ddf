@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.security.auth.callback.CallbackHandler;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -63,8 +62,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import ddf.security.common.callback.CommonCallbackHandler;
 
 /**
  * Some unit tests for the CXF STSClient Issue Binding.
@@ -352,8 +349,6 @@ public class StsIssueTest {
         // XXX - Not sure how this is used - doesn't show up in the payload. -
         // Should this be "client"?
         // properties.put(SecurityConstants.USERNAME, "kcwire");
-        // properties.put(SecurityConstants.CALLBACK_HANDLER,
-        // "ddf.security.sts.CommonCallbackHandler");
         // properties
         // .put(SecurityConstants.CALLBACK_HANDLER,
         // "org.apache.cxf.ws.security.trust.delegation.WSSUsernameCallbackHandler");
@@ -393,8 +388,10 @@ public class StsIssueTest {
         WSSConfig wssConfig = WSSConfig.getNewInstance();
         wssConfig.setWsiBSPCompliant(false);
         requestData.setWssConfig(wssConfig);
+        /*DDF-733
         CallbackHandler callbackHandler = new CommonCallbackHandler();
         requestData.setCallbackHandler(callbackHandler);
+        */
         Crypto crypto = CryptoFactory.getInstance("serverKeystore.properties");
         requestData.setDecCrypto(crypto);
         requestData.setSigCrypto(crypto);
