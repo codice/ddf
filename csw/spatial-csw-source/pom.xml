@@ -22,9 +22,14 @@
     <artifactId>spatial-csw-source</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: Spatial :: CSW :: Source</name>
-
-    <dependencies>
     
+    <dependencies>
+
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
@@ -103,6 +108,12 @@
         <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>xercesImpl</artifactId>
+                    <groupId>xerces</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -158,7 +169,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
                            !org.jvnet.staxex,
-                           org.codice.ddf.spatial.ogc.catalog,*
+                           org.codice.ddf.spatial.ogc.catalog,
+                           *
                         </Import-Package>
                         <!-- Don't Export Anything -->
                         <Export-Package />

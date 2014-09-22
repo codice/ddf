@@ -27,7 +27,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
 
-import ddf.security.Subject;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
@@ -55,6 +54,9 @@ import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.source.reader.GetRecordsMessageBodyReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ddf.security.Subject;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 /**
  * A client to a CSW 2.0.2 Service. This class uses the {@link Csw} interface to create a client
@@ -112,6 +114,10 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     public void setSubject(Subject subject) {
         this.setSubjectOnRequest(WebClient.client(csw), subject);
     }
+    
+    public void setSAMLAssertion(STSClientConfiguration stsClientConfig) {
+        this.setSAMLAssertion(WebClient.client(csw), stsClientConfig);
+    }    
 
     protected List<? extends Object> initProviders(
             List<RecordConverterFactory> recordConverterFactories,

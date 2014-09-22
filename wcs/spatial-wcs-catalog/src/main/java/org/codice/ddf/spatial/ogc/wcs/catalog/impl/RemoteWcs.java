@@ -44,6 +44,8 @@ import org.codice.ddf.spatial.ogc.wcs.catalog.reader.GetCoverageMessageBodyReade
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.security.sts.client.configuration.STSClientConfiguration;
+
 /**
  * A client to a WCS 1.0.0 Service. This class uses the {@link Wcs} interface to create a client
  * proxy from the {@link JAXRSClientFactoryBean}.
@@ -82,6 +84,10 @@ public class RemoteWcs extends TrustedRemoteSource implements Wcs {
         this.configureKeystores(WebClient.client(wcs), keyStorePath, keyStorePassword,
                 trustStorePath, trustStorePassword);
     }
+    
+    public void setSAMLAssertion(STSClientConfiguration stsClientConfig) {
+        this.setSAMLAssertion(WebClient.client(wcs), stsClientConfig);
+    }    
 
     /**
      * Sets the timeouts to use for connection and receive requests.

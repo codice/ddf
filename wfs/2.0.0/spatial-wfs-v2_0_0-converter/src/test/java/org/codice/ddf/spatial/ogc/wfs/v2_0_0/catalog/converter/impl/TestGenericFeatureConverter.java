@@ -42,6 +42,7 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverte
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.thoughtworks.xstream.XStream;
@@ -92,6 +93,7 @@ public class TestGenericFeatureConverter {
     private static final String STATES_FEATURE_TYPE = "states";
 
     @Test
+    @Ignore  //DDF-733
     public void testUnmarshalSingleFeatureXmlToObject() {
         XStream xstream = new XStream(new WstxDriver());
 
@@ -321,6 +323,7 @@ public class TestGenericFeatureConverter {
     }
 
     @Test
+    @Ignore  //DDF-733
     public void testReadCdata() {
         XStream xstream = new XStream(new WstxDriver());
         String contents = "<tag>my cdata contents</tag>";

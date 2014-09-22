@@ -38,6 +38,9 @@
     <list id="recordConverterFactoryList"
           interface="org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory"/>
 
+    <reference id="stsClientConfig"
+        interface="ddf.security.sts.client.configuration.STSClientConfiguration" />
+        
     <osgix:managed-service-factory
             id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.id"
             factory-pid="Csw_Federated_Source"
@@ -69,6 +72,7 @@
                 <beans:bean id="wcsResourceReader"
                             class="org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader">
                     <beans:property name="mimeTypeMapper" ref="mimeTypeMapper"/>
+                    <beans:property name="stsClientConfig" ref="stsClientConfig"/>
                 </beans:bean>
             </beans:property>
             <beans:property name="effectiveDateMapping" value=""/>
@@ -83,6 +87,7 @@
             <beans:property name="resourceReaders" ref="resourceReaders"/>
             <beans:property name="outputSchema" value=""/>
             <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList"/>
+            <beans:property name="stsClientConfig" ref="stsClientConfig"/>
             <beans:property name="isCqlForced" value="false"/>
             <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>
@@ -119,6 +124,7 @@
                 <beans:bean id="connectedWcsResourceReader"
                             class="org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader">
                     <beans:property name="mimeTypeMapper" ref="mimeTypeMapper"/>
+                    <beans:property name="stsClientConfig" ref="stsClientConfig"/>
                 </beans:bean>
             </beans:property>
             <beans:property name="effectiveDateMapping" value=""/>
@@ -133,6 +139,7 @@
             <beans:property name="resourceReaders" ref="resourceReaders"/>
             <beans:property name="outputSchema" value=""/>
             <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList"/>
+            <beans:property name="stsClientConfig" ref="stsClientConfig"/>
             <beans:property name="isCqlForced" value="false"/>
             <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>

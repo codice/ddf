@@ -14,15 +14,24 @@
  **/
 package org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader;
 
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.impl.ResourceResponseImpl;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.ResourceReader;
-import ddf.catalog.resource.impl.ResourceImpl;
-import ddf.mime.MimeTypeMapper;
-import ddf.mime.MimeTypeResolutionException;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+
 import net.opengis.gml.profiles.gml4wcs.v_1_0_0.CodeListType;
 import net.opengis.gml.profiles.gml4wcs.v_1_0_0.CodeType;
 import net.opengis.gml.profiles.gml4wcs.v_1_0_0.DirectPositionType;
@@ -39,6 +48,7 @@ import net.opengis.wcs.v_1_0_0.SpatialDomainType;
 import net.opengis.wcs.v_1_0_0.SpatialSubsetType;
 import net.opengis.wcs.v_1_0_0.TimeSequenceType;
 import net.opengis.wcs.v_1_0_0.WCSCapabilitiesType;
+
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.wcs.catalog.GetCoverageResponse;
 import org.codice.ddf.spatial.ogc.wcs.catalog.WcsConfiguration;
@@ -49,22 +59,16 @@ import org.opengis.geometry.DirectPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.impl.ResourceResponseImpl;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.resource.impl.ResourceImpl;
+import ddf.mime.MimeTypeMapper;
+import ddf.mime.MimeTypeResolutionException;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public class WcsResourceReader {
 
@@ -81,6 +85,8 @@ public class WcsResourceReader {
     private static final String FILENAME_STR = "filename=";
 
     protected WcsConfiguration wcsConfiguration;
+    
+    private STSClientConfiguration stsClientConfig;
 
     protected String keyStorePath, keyStorePassword = null;
 
@@ -148,6 +154,7 @@ public class WcsResourceReader {
         try {
             if (remoteWcs != null) {
                 GetCapabilities request = new GetCapabilities();
+                remoteWcs.setSAMLAssertion(stsClientConfig);
                 this.capabilities = remoteWcs.getCapabilities(request);
             }
         } catch (WcsException e) {
@@ -583,7 +590,12 @@ public class WcsResourceReader {
     public void setMimeTypeMapper(MimeTypeMapper mimeTypeMapper) {
         this.mimeTypeMapper = mimeTypeMapper;
     }
-
+    
+    public void setStsClientConfig(STSClientConfiguration stsClientConfig) {
+        LOGGER.debug("Setting stsClientConfig");
+        this.stsClientConfig = stsClientConfig;
+    }
+    
     private static JAXBContext initJaxbContext() {
 
         JAXBContext jaxbContext = null;

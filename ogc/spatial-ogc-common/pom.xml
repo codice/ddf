@@ -14,13 +14,16 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
         <artifactId>ogc</artifactId>
         <version>2.6.0-SNAPSHOT</version>
     </parent>
+    
     <artifactId>spatial-ogc-common</artifactId>
     <name>DDF :: Spatial :: OGC :: Common</name>
+    
     <dependencies>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -49,7 +52,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
             <scope>test</scope>
         </dependency>
         
@@ -68,7 +70,6 @@
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
-            <version>${ddf.platform.app.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
