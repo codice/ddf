@@ -328,34 +328,6 @@ public class SchematronValidationService implements MetacardValidator {
     }
 
     /**
-     * Extract the XML metadata from each CatalogEntry in the provided list and perform Schematron
-     * validation on it.
-     * 
-     * @param entries
-     *            list of CatalogEntry objects to validate
-     * 
-     * @throws StopProcessingException
-     */
-    private void validateEntryList(List<Metacard> entries) throws StopProcessingException {
-        String methodName = "validateEntryList";
-        LOGGER.debug("ENTERING: " + CLASS_NAME + "." + methodName);
-
-        Iterator<Metacard> iter = entries.iterator();
-        Metacard curEntry;
-
-        // Count of number of catalog entries we validate. This will be used to identify which
-        // catalog entry number has validation issues, if any.
-        int catalogEntryNum = 0;
-        while (iter.hasNext()) {
-            curEntry = iter.next();
-            catalogEntryNum++;
-            performSchematronValidation(catalogEntryNum, curEntry);
-        }
-
-        LOGGER.debug("EXITING: " + CLASS_NAME + "." + methodName);
-    }
-
-    /**
      * Perform Schematron validation on specified catalog entry.
      * 
      * @param number
