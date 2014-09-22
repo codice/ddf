@@ -38,8 +38,13 @@
     <list id="recordConverterFactoryList"
           interface="org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory"/>
 
+    <!-- 
+    availability=optional (cardinality=0..1) because STS Client Configuration 
+    only needed if running in a secured configuration.
+    -->
     <reference id="stsClientConfig"
-        interface="ddf.security.sts.client.configuration.STSClientConfiguration" />
+        interface="ddf.security.sts.client.configuration.STSClientConfiguration"
+        cardinality="0..1" />
         
     <osgix:managed-service-factory
             id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.id"
