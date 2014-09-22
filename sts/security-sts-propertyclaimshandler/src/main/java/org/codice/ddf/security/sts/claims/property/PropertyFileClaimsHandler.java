@@ -14,7 +14,17 @@
  **/
 package org.codice.ddf.security.sts.claims.property;
 
-import ddf.security.common.util.PropertiesLoader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
+
 import org.apache.cxf.sts.claims.Claim;
 import org.apache.cxf.sts.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsHandler;
@@ -25,15 +35,7 @@ import org.apache.cxf.sts.token.realm.RealmSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.x500.X500Principal;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import ddf.security.PropertiesLoader;
 
 public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
 
