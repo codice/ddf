@@ -908,6 +908,11 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         return this.recordConverterFactories;
     }
     
+    /**
+     * Set the STS Client Configuration for this CSW Source.
+     * 
+     * @param stsClientConfig
+     */
     public void setStsClientConfig(STSClientConfiguration stsClientConfig) {
         LOGGER.debug("Setting stsClientConfig");
         this.stsClientConfig = stsClientConfig;
