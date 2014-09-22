@@ -15,6 +15,9 @@
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+           
+	<camelContext xmlns="http://camel.apache.org/schema/blueprint" id="proxyCamelContext" />
+           
 
     <bean id="camelServletCreator" class="org.codice.proxy.http.CamelServletCreator" init-method="registerServlet">
     	<argument ref="blueprintBundleContext"/>
@@ -22,6 +25,7 @@
 	
     <bean id="httpProxyService" class="org.codice.proxy.http.HttpProxyServiceImpl" destroy-method="destroy">
     	<argument ref="blueprintBundleContext"/>
+    	<argument ref="proxyCamelContext" />
     </bean>
     <service ref="httpProxyService" interface="org.codice.proxy.http.HttpProxyService"/>
 
