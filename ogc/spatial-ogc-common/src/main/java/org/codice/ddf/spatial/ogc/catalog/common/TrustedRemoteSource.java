@@ -71,7 +71,6 @@ import org.slf4j.LoggerFactory;
 import ddf.security.PropertiesLoader;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.callback.CommonCallbackHandler;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public abstract class TrustedRemoteSource {
@@ -491,6 +490,8 @@ public abstract class TrustedRemoteSource {
                 Cookie cookie = new Cookie(SAML_COOKIE_NAME, encodeSaml(samlToken));
                 client.reset();
                 client.cookie(cookie);
+            } else {
+                LOGGER.debug("Attempt to retrieve SAML token resulted in null token - could not add token to request");
             }
         } catch (Exception e) {
             LOGGER.warn("Exception trying to get SAML assertion", e);
@@ -522,7 +523,6 @@ public abstract class TrustedRemoteSource {
             LOGGER.debug("EXITING: {}", methodName);
             return stsClient;
         }
-        //DDF-733 String wsdlExt = retrieveWsdlSuffix(stsAddress);
         LOGGER.debug("Setting WSDL location (stsAddress) on STSClient: " + stsAddress);
         stsClient.setWsdlLocation(stsAddress);
         LOGGER.debug("Setting service name on STSClient: " + stsServiceName);
@@ -556,8 +556,8 @@ public abstract class TrustedRemoteSource {
             map.put(SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties);
         }
 
-        LOGGER.debug("Setting callback handler on STSClient");
-        map.put(SecurityConstants.CALLBACK_HANDLER, new CommonCallbackHandler());
+        //DDF-733 LOGGER.debug("Setting callback handler on STSClient");
+        //DDF-733 map.put(SecurityConstants.CALLBACK_HANDLER, new CommonCallbackHandler());
         LOGGER.debug("Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"");
         map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, Boolean.TRUE.toString());
         stsClient.setProperties(map);
