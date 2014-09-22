@@ -31,7 +31,6 @@ import org.junit.Test;
 
 /**
  * Handles testing the different aspects of the applicationconfiguraitonplugin.
- * @author Jeren
  *
  */
 public class ApplicationConfigurationPluginTest {
@@ -45,13 +44,9 @@ public class ApplicationConfigurationPluginTest {
 	private static final String TEST_ASSOCATION_2 = "Test2";
 	/** static for the assocations test.*/
 	private static final List<String> ORIGINAL_APP_ASSOCIATIONS = new LinkedList<String>(Arrays.asList(TEST_ASSOCATION_1, TEST_ASSOCATION_2));
-	
-	private static final Integer ORDER_TEST = 1337;
-	
 
 	/**
 	 * Test class we will utilize for the tests.
-	 * @author Jeren
 	 *
 	 */
 	private class TestPlugin extends AbstractApplicationPlugin {
@@ -61,7 +56,6 @@ public class ApplicationConfigurationPluginTest {
 		public TestPlugin() {
 			this.displayName = DISPLAY_NAME_TEST;
 			this.iframeLocation = URI.create(IFRAME_LOCATION_TEST);
-			this.order = ORDER_TEST;
 			setAssociations(ORIGINAL_APP_ASSOCIATIONS);
 		}
 		
@@ -80,15 +74,12 @@ public class ApplicationConfigurationPluginTest {
 		assertFalse(0 == plugin.getID().compareTo(plugin2.getID()));
 		assertEquals(plugin.getIframeLocation().toString(), IFRAME_LOCATION_TEST);
 		assertEquals(plugin.getAssocations(), ORIGINAL_APP_ASSOCIATIONS);
-		assertEquals(plugin.getOrder(), ORDER_TEST);
 		
 		Map<String, Object> constructedJSON = new HashMap<String, Object>();
 		constructedJSON.put(ApplicationPlugin.DISPLAY_NAME_KEY, plugin.getDisplayName());
 		constructedJSON.put(ApplicationPlugin.ID_KEY, plugin.getID().toString());
 		constructedJSON.put(ApplicationPlugin.IFRAME_LOCATION_KEY, plugin.getIframeLocation());
-		constructedJSON.put(ApplicationPlugin.JAVASCRIPT_LOCATION_KEY, plugin.getJavascriptLocation());
 		constructedJSON.put(ApplicationPlugin.APPLICATION_ASSOCIATION_KEY, plugin.getAssocations());
-		constructedJSON.put(ApplicationPlugin.ORDER_KEY, plugin.getOrder());
 		
 		//compare the maps.
 		Map<String, Object> pluginMap = plugin.toJSON();

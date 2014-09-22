@@ -30,14 +30,10 @@ public class AbstractApplicationPlugin implements ApplicationPlugin {
 	protected String displayName = null;
 	/** the location of the iframe. Protected so implementers can set this.*/
 	protected URI iframeLocation = null;
-	/** the location of the javascript. Protected so implements can set this.*/
-	protected URI javascriptLocation = null;
 	/** The id of this plugin.*/
 	private UUID id = UUID.randomUUID();
 	/** the application name. Protected so implementers can set this.*/
 	private List<String> assocations = new ArrayList<String>();
-	/** the order of this plugin. Protected so implements can set this.*/
-	protected Integer order = Integer.MAX_VALUE;
 	
 	/**
 	 * Constructor.
@@ -57,15 +53,6 @@ public class AbstractApplicationPlugin implements ApplicationPlugin {
 	public String getDisplayName() {
 		return this.displayName;
 	}
-	
-	/** {@inheritDoc}.*/
-	@Override
-	public String getJavascriptLocation() {
-		if (this.javascriptLocation == null) {
-			return null;
-		}
-		return this.javascriptLocation.toString();
-	}
 
 	/** {@inheritDoc}.*/
 	@Override
@@ -78,12 +65,6 @@ public class AbstractApplicationPlugin implements ApplicationPlugin {
 	
 	/** {@inheritDoc}.*/
 	@Override
-	public Integer getOrder() {
-		return this.order;
-	}
-	
-	/** {@inheritDoc}.*/
-	@Override
 	public Map<String, Object> toJSON() {
 		Map<String, Object> jsonMapping = new HashMap<String, Object>();
 		
@@ -91,8 +72,6 @@ public class AbstractApplicationPlugin implements ApplicationPlugin {
 		jsonMapping.put(ApplicationPlugin.ID_KEY, this.id.toString());
 		jsonMapping.put(ApplicationPlugin.DISPLAY_NAME_KEY, this.displayName);
 		jsonMapping.put(ApplicationPlugin.IFRAME_LOCATION_KEY, (this.iframeLocation == null) ? null : this.iframeLocation.toString());
-		jsonMapping.put(ApplicationPlugin.JAVASCRIPT_LOCATION_KEY, (this.javascriptLocation == null) ? null : this.javascriptLocation.toString());
-		jsonMapping.put(ApplicationPlugin.ORDER_KEY, this.order);
 		
 		return jsonMapping;
 	}
