@@ -32,8 +32,6 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
  * Utility class that attempts several different methods for loading in properties files from the
  * classpath or file system.
  * 
- * @author tustisos
- * 
  */
 public final class PropertiesLoader {
     private static Logger LOGGER = LoggerFactory.getLogger(PropertiesLoader.class);
@@ -126,8 +124,11 @@ public final class PropertiesLoader {
                     LOGGER.debug("Attempting to load properties from file system: "
                             + propertiesFile);
                 }
-                File propFile = null;
-                if (propertiesFile.startsWith("/")) {
+                File propFile = new File(propertiesFile);
+                // If properties file has fully-qualified absolute path (which
+                // the blueprint file specifies) then can load it directly.
+                if (propFile.isAbsolute()) {
+                    LOGGER.debug("propertiesFile {} is absolute", propertiesFile);
                     propFile = new File(propertiesFile);
                 } else {
                     String karafHome = System.getProperty("karaf.home");
