@@ -20,9 +20,9 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Dictionary;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.servlet.ServletComponent;
-import org.apache.camel.core.osgi.OsgiDefaultCamelContext;
 import org.apache.commons.httpclient.contrib.ssl.AuthSSLProtocolSocketFactory;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.lang.StringUtils;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author ddf
  * 
  */
-public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements HttpProxyService {
+public class HttpProxyServiceImpl implements HttpProxyService {
     BundleContext bundleContext = null;
 
     RouteBuilder routeBuilder = null;
@@ -92,15 +92,18 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 
     private String trustStorePassword = null;
 
-    public HttpProxyServiceImpl(final BundleContext bundleContext) throws Exception {
-        super(bundleContext);
+    private CamelContext camelContext = null;
+
+    public HttpProxyServiceImpl(final BundleContext bundleContext, CamelContext camelContext)
+        throws Exception {
         this.bundleContext = bundleContext;
+        this.camelContext = camelContext;
 
         // Add servlet to the Camel Context
         ServletComponent servlet = new ServletComponent();
-        servlet.setCamelContext(this);
+        servlet.setCamelContext(camelContext);
         servlet.setServletName(SERVLET_NAME);
-        this.addComponent(SERVLET_COMPONENT, servlet);
+        this.camelContext.addComponent(SERVLET_COMPONENT, servlet);
     }
 
     public synchronized String start(String targetUri, Integer timeout) throws Exception {
@@ -150,8 +153,8 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
                         .routeId(endpointName);
             }
         };
-        this.addRoutes(routeBuilder);
-        this.start();
+        camelContext.addRoutes(routeBuilder);
+        camelContext.start();
         LOGGER.debug("Started proxy route at servlet endpoint: {}, routing to: {}", endpointName,
                 targetUri);
         return endpointName;
@@ -185,7 +188,7 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
             prop = System.getProperty(sysProxyConfigs.get(i));
             if (StringUtils.isNotBlank(prop)) {
                 LOGGER.debug("Property: {} = {}", sysProxyConfigs.get(i), prop);
-                this.getProperties().put(sysProxyConfigs.get(i), prop);
+                camelContext.getProperties().put(sysProxyConfigs.get(i), prop);
             }
         }
     }
@@ -231,16 +234,16 @@ public class HttpProxyServiceImpl extends OsgiDefaultCamelContext implements Htt
 
     public void stop(String endpointName) throws Exception {
         LOGGER.debug("Stopping proxy route at endpoint: {}", endpointName);
-        this.removeRoute(endpointName);
+        camelContext.removeRoute(endpointName);
     }
 
     public void destroy() {
         try {
-            this.stop();
+            camelContext.stop();
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
-        this.removeComponent(SERVLET_COMPONENT);
+        camelContext.removeComponent(SERVLET_COMPONENT);
     }
 
 }
