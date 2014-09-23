@@ -108,7 +108,6 @@
                         </Embed-Dependency>
                         <Import-Package>
                             javax.net.ssl,
-                            ddf.security.common.callback,
                             org.springframework.ldap.core;resolution:=optional,
                         	org.springframework.ldap.core.support;resolution:=optional,
                         	org.springframework.ldap.filter;resolution:=optional,

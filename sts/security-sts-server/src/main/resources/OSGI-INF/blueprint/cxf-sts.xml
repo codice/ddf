@@ -181,12 +181,17 @@
     </bean>
 
     <!-- PROPERTY CONFIGURATION -->
+    <bean id="propertyCallbackHandler" class="ddf.security.sts.PropertyCallbackHandler">
+        <property name="signatureProperties" value="$sts{signatureProperties}" />
+        <property name="encryptionProperties" value="$sts{encryptionProperties}" />
+    </bean>
+
     <bean id="STSProperties" class="org.apache.cxf.sts.StaticSTSProperties">
         <property name="signaturePropertiesFile"
                   value="$sts{signatureProperties}" />
         <property name="signatureUsername" value="$sts{signatureUsername}" />
-        <property name="callbackHandlerClass"
-                  value="ddf.security.common.callback.CommonCallbackHandler" />
+        <property name="callbackHandler"
+                  ref="propertyCallbackHandler" />
         <property name="issuer" value="$sts{issuer}" />
         <property name="encryptionPropertiesFile" value="$sts{encryptionProperties}" />
         <property name="encryptionUsername" value="$sts{encryptionUsername}" />
@@ -211,8 +216,6 @@
             <ref component-id="crlInterceptor" />
         </jaxws:inInterceptors>
         <jaxws:properties>
-            <entry key="ws-security.callback-handler"
-                   value="ddf.security.common.callback.CommonCallbackHandler"/>
             <entry key="ws-security.signature.properties" value="$sts{signatureProperties}"/>
             <entry key="ws-security.encryption.properties" value="$sts{encryptionProperties}"/>
             <entry key="ws-security.signature.username" value="$sts{signatureUsername}"/>
