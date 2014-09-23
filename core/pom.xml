@@ -31,6 +31,7 @@
     <module>content-core-impl</module>
     <module>content-core-standardframework</module>
     <module>content-core-camelcomponent</module>
+    <module>content-core-camelcontext</module>
     <module>content-core-directorymonitor</module>
     <module>content-core-filestorageprovider</module>
     <module>content-core-catalogerplugin</module>

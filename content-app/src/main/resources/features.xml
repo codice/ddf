@@ -44,6 +44,7 @@
 	<feature>content-core</feature>
 	<feature>content-catalogerplugin</feature>
 	<feature>content-core-filesystemstorageprovider</feature>
+        <bundle>mvn:ddf.content.core/content-core-camelcontext/${project.version}</bundle>
         <bundle>mvn:ddf.content.core/content-core-directorymonitor/${project.version}</bundle>
     </feature>
 

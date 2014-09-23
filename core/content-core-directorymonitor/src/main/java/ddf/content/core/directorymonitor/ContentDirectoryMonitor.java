@@ -21,7 +21,6 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.FromDefinition;
-import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -40,7 +39,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
     private boolean copyIngestedFiles = false;
 
-    private ModelCamelContext camelContext;
+    private CamelContext camelContext;
 
     private List<RouteDefinition> routeCollection;
 
@@ -56,7 +55,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      * is no guarantee that whatever DM is being used (Spring in this case) will be
      * updated accordingly.
      */
-    public ContentDirectoryMonitor(final ModelCamelContext camelContext) {
+    public ContentDirectoryMonitor(CamelContext camelContext) {
+        LOGGER.trace("ContentDirectoryMonitor(CamelContext) constructor: {}", camelContext);
         this.camelContext = camelContext;
         LOGGER.trace("ContentDirectoryMonitor(CamelContext) constructor done");
     }

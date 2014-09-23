@@ -25,9 +25,7 @@ http://www.springframework.org/schema/osgi-compendium http://www.springframework
 http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   
  
-  <camel:camelContext id="camelContext">
-  </camel:camelContext>
-  
+  <reference id="camelContext" interface="org.apache.camel.CamelContext" filter="(camel.context.name=contentCamelContext)" />
   
   <osgix:managed-service-factory id="contentDirectoryMonitor_MSF" factory-pid="ddf.content.core.directorymonitor.ContentDirectoryMonitor"
     update-strategy="bean-managed" update-method="updateCallback">
