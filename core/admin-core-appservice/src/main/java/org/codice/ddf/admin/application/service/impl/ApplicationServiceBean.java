@@ -342,17 +342,13 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     }
     
     @Override
-    public void removeApplication(String applicationURL) {
-        if (!StringUtils.isEmpty(applicationURL)) {
+    public void removeApplication(String appName) {
+        if (!StringUtils.isEmpty(appName)) {
             try {
-                logger.debug("Removing application with URL: {}", applicationURL);
-                appService.removeApplication(new URI((String) applicationURL));
-            } catch (URISyntaxException use) {
-                logger.warn("Could not remove application with url {}, not a valid URL.", 
-                        applicationURL);
+                logger.debug("Removing application with name: {}", appName);
+                appService.removeApplication(appName);
             } catch (ApplicationServiceException ase) {
-                logger.warn("Could not remove application with url {} due to error.", 
-                        applicationURL, ase);
+                logger.warn("Could not remove application with nae {} due to error.", appName, ase);
             }
         }
     }

@@ -26,7 +26,7 @@ define([
 
     var startUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/';
     var stopUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/';
-//    var removeUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/removeApplication/';
+    var removeUrl = '/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/removeApplication/';
 
     var versionRegex = /([^0-9]*)([0-9]+.*$)/;
 
@@ -171,6 +171,12 @@ define([
             return promise;
         },
 
+        removeAction: function(statusUpdate) {
+            var promise;
+            promise = this.removeCall(statusUpdate);
+            return promise;
+        },
+
         // Checks to see if the given application is in the INACTIVE state which is used
         // prior to starting an application
         startInactive: function() {
@@ -228,6 +234,25 @@ define([
 
                 return $.ajax(ajaxArgs);
             }
+        },
+
+        removeCall: function(statusUpdate){
+            var name = this.get('name');
+            var type = 'GET';
+            var url = '';
+
+            var ajaxArgs = {};
+
+            statusUpdate('Removing ' + name);
+            url = removeUrl + name;
+
+            url = url + '/';
+
+            ajaxArgs.type = type;
+            ajaxArgs.url = url;
+            ajaxArgs.dataType = 'JSON';
+
+            return $.ajax(ajaxArgs);
         },
 
         // Verifies that the applications that needed to be started or stopped
@@ -289,9 +314,60 @@ define([
                 });
             } else if (method === 'start'){ // this is a save of the model (CUD)
                 return this.updateAction(statusUpdate, "start");
-            } else {
+            } else if (method === 'stop'){
                 return this.updateAction(statusUpdate, "stop");
+            } else if(method === 'remove'){
+                return this.removeAction(statusUpdate, 'remove');
             }
+        },
+
+        removeAction: function(statusUpdate){
+            var that = this;
+            var promiseArr = [];
+
+            var appDependents;
+            var theChosenApp;
+            var finalList = [];
+
+
+            this.each(function(child) {
+                if(child.get('chosenApp') === true) {
+                    appDependents = child.get('dependencies');
+                    theChosenApp = child.get('appId');
+                }
+            });
+
+            if(appDependents.length > 0) {
+                this.each(function(child) {
+                    if(appDependents.indexOf(child.get('appId')) !== -1) {
+                        finalList.push(child.get('appId'));
+                    }
+                });
+            }
+            finalList.push(theChosenApp);
+
+
+            // Determine the total number of actions to be performed so that we can provide
+            // a percent complete in the `statusUpdate` method.
+            var count = 0;
+            var totalCount = finalList.length;
+            var internalStatusUpdate = function(message) {
+                if (typeof statusUpdate !== 'undefined') {
+                    statusUpdate(message, count/totalCount*100);
+                }
+                count++;
+            };
+
+            finalList.forEach(function(finalApps) {
+                that.each(function(app) {
+                    if(app.get('appId') === finalApps) {
+                        promiseArr.push(app.removeAction(internalStatusUpdate));
+                    }
+                });
+            });
+
+            return Q.all(promiseArr);
+
         },
 
         // Performs the application of the user-selected changes to the application dependency
@@ -392,8 +468,10 @@ define([
                 if (typeof statusUpdate !== 'undefined') {
                     if(action === 'start') {
                         statusUpdate('Start complete.', 100);
-                    } else {
+                    } else if(action === 'stop'){
                         statusUpdate('Stop complete.', 100);
+                    } else if(action === 'remove'){
+                        statusUpdate('Remove complete.', 100);
                     }
                 }
             }

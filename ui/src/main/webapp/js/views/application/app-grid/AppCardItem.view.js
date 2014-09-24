@@ -42,6 +42,7 @@ define([
             'click .fa.fa-download.startApp': 'startMessage',
             'click .stopAppConfirm': 'stopPrompt',
             'click .startAppConfirm': 'startPrompt',
+            'click .removeAppConfirm': 'removePrompt',
             'click .fa.fa-times.removeApp': 'removeMessage',
             'click .fa.fa-download.installApp': 'installMessage',
             'click .removeConfirm': 'removePrompt',
@@ -80,6 +81,7 @@ define([
                 this.model.set({stopMessage: stopMessage});
             }
         },
+
         // Creates a message that gets displayed on the start prompt displaying
         // any parent applications that will also be started in the process
         startMessage: function() {
@@ -107,6 +109,9 @@ define([
         // Only toggle the flag if the start action is confirmed
         startPrompt: function() {
             this.startMessage();
+            this.model.toggleChosenApp();
+        },
+        removePrompt: function() {
             this.model.toggleChosenApp();
         },
         selectApplication: function(){
