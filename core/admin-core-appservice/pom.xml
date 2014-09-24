@@ -24,6 +24,11 @@
   <description>Exposes and application service that allows operations on DDF applications.</description>
   <packaging>bundle</packaging>
 
+  <properties>
+    <!-- UPDATE VERSION EACH TIME INTERFACE CHANGES -->
+    <admin.core.appservice.api.version>1.0.0</admin.core.appservice.api.version>
+  </properties>
+
   <dependencies>
     <dependency>
         <groupId>org.apache.servicemix.specs</groupId>
@@ -88,8 +93,8 @@
               *
             </Import-Package>
             <Export-Package>
-            	org.codice.ddf.admin.application.service;version=${project.version},
-            	org.codice.ddf.admin.application.plugin;version=${project.version}
+            	org.codice.ddf.admin.application.service;version=${admin.core.appservice.api.version},
+            	org.codice.ddf.admin.application.plugin;version=${admin.core.appservice.api.version}
             </Export-Package>
           </instructions>
         </configuration>
