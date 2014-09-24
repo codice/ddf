@@ -126,7 +126,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     private static final double DEFAULT_ERROR_IN_DEGREES = metersToDegrees(DEFAULT_ERROR_IN_METERS);
 
     private static TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
-    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     static {
         Map<String, String> tempMap = new HashMap<String, String>();
