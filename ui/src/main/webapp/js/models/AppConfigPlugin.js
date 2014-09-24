@@ -36,20 +36,6 @@ define([
         },
         parse: function(resp){
             return resp.value;
-        },
-        comparator: function(model){
-            var secondary = null;
-            var displayName = model.get("displayName");
-            if(displayName === 'Details'){
-                secondary = 0;
-            } else if(displayName === 'Features'){
-                secondary = 1;
-            } else if(displayName === 'Configurations'){
-                secondary = 2;
-            } else {
-                secondary = 4;
-            }
-            return [model.get("order"), secondary];
         }
     });
 

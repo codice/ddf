@@ -40,25 +40,40 @@ define([
                     new Backbone.Model({
                         'id': 'detailsApplicationTabID',
                         'displayName': 'Details',
-                        'javascriptLocation': 'js/views/application/plugins/details/Plugin.view.js',
-                        'order': 0
+                        'javascriptLocation': 'js/views/application/plugins/details/Plugin.view.js'
                     }),
                     new Backbone.Model({
                         'id': 'featuresApplicationTabID',
                         'displayName': 'Features',
-                        'javascriptLocation': 'js/views/application/plugins/features/Plugin.view.js',
-                        'order': 1
+                        'javascriptLocation': 'js/views/application/plugins/features/Plugin.view.js'
                     }),
                     new Backbone.Model({
                         'id': 'configurationApplicationTabID',
                         'displayName': 'Configuration',
-                        'javascriptLocation': 'js/views/application/plugins/config/Plugin.view.js',
-                        'order': 2
+                        'javascriptLocation': 'js/views/application/plugins/config/Plugin.view.js'
                     })
                 ];
-                appConfigPlugins.add(staticApplicationPlugins);
-                layoutView.tabs.show(new PluginTabView({collection: appConfigPlugins, model: applicationModel}));
-                layoutView.tabContent.show(new PluginTabContentView({collection: appConfigPlugins, model: applicationModel}));
+
+                var staticList = new Backbone.Collection();
+                staticList.comparator = function(model) {
+                    return model.get('displayName');
+                };
+                staticList.add(staticApplicationPlugins);
+                staticList.sort();
+
+                var dynamicList = new Backbone.Collection();
+                dynamicList.comparator = function(model) {
+                    return model.get('displayName');
+                };
+                dynamicList.add(appConfigPlugins.models);
+                dynamicList.sort();
+
+                var completeList = new Backbone.Collection();
+                completeList.add(dynamicList.models);
+                completeList.add(staticList.models);
+
+                layoutView.tabs.show(new PluginTabView({collection: completeList, model: applicationModel}));
+                layoutView.tabContent.show(new PluginTabContentView({collection: completeList, model: applicationModel}));
                 layoutView.selectFirstTab();
             }).fail(function(error){
                 throw error;

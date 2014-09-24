@@ -31,13 +31,9 @@ public interface ApplicationPlugin {
 	public static final String APPLICATION_ASSOCIATION_KEY = "applicationAssociation";
 	/** key for the iframe location. Used for creating json.*/
 	public static final String IFRAME_LOCATION_KEY = "iframeLocation";
-	/** key for the javascript location. Used for creating json.*/
-	public static final String JAVASCRIPT_LOCATION_KEY = "javascriptLocation";
 	/** key for the id location. Used for creating json.*/
 	public static final String ID_KEY = "id";
-	/** key for the order. Used for creating json.*/
-	public static final String ORDER_KEY = "order";
-	
+
 	/**
 	 * Returns a list of applications that this plugin should be associated with.
 	 * @return a list of applications that this plugin should be associated with.
@@ -57,24 +53,10 @@ public interface ApplicationPlugin {
 	public UUID getID();
 	
 	/**
-	 * Returns the location of the javascript. Can be null.
-	 * @return the location of the javascript.
-	 */
-	public String getJavascriptLocation();
-	
-	/**
 	 * Returns the iframe location. Can be null.
 	 * @return the iframe location.
 	 */
     public String getIframeLocation();
-    
-    /**
-     * Returns the prefered order. This value can be duplicated between plugins, at which
-     * point the front end will use the name of the plugin to sort those of the same order
-     * number.
-     * @return the order of how this plugin should be displayed.
-     */
-    public Integer getOrder();
     
     /**
      * Utility method that will handle the conversion of this object to something

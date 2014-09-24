@@ -50,7 +50,11 @@ define([
             ];
 
             var collection = new ModulePlugin.Collection();
+            collection.comparator = function(model) {
+                return model.get('displayName');
+            };
             collection.add(staticModulePlugins);
+            collection.sort();
 
             layoutView.tabs.show(new PluginTabView({collection: collection}));
             layoutView.tabContent.show(new PluginTabContentView({collection: collection}));
