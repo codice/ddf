@@ -47,6 +47,7 @@ define([
                 'click button[name=noFederationButton]' : 'setNoFederation',
                 'click button[name=selectedFederationButton]': 'setSelectedFederation',
                 'click button[name=enterpriseFederationButton]': 'setEnterpriseFederation',
+                'click button[name=createdTimeButton]': 'swapTimeTypeCreated',
                 'click button[name=modifiedTimeButton]': 'swapTimeTypeModified',
                 'click button[name=effectiveTimeButton]': 'swapTimeTypeEffective',
                 'keypress input[name=q]': 'filterOnEnter',
@@ -164,6 +165,10 @@ define([
                     type: undefined
                 }, {unset: true});
                 this.updateScrollbar();
+            },
+
+            swapTimeTypeCreated: function() {
+                this.model.set("timeType", "created");
             },
 
             swapTimeTypeModified: function() {

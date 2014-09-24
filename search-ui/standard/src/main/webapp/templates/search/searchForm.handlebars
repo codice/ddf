@@ -28,6 +28,8 @@
         <li class="nav-header">Time</li>
         <li>
             <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
+                <button type="button" class="btn btn-mini {{#is timeType 'created'}}active{{/is}}" name="createdTimeButton" value="created">Created
+                </button>
                 <button type="button" class="btn btn-mini {{#is timeType 'modified'}}active{{/is}}" name="modifiedTimeButton" value="modified">Modified
                 </button>
                 <button type="button" class="btn btn-mini {{#is timeType 'effective'}}active{{/is}}" name="effectiveTimeButton" value="effective">Effective
