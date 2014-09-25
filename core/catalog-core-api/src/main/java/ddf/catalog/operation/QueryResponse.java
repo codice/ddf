@@ -23,7 +23,7 @@ public interface QueryResponse extends SourceResponse {
 
     public static final String TOTAL_HITS = "total-hits";
 
-    public static final String SITE_LIST = "site-list";
+    public static final String SOURCE_LIST = "source-list";
 
     public static final String TOTAL_RESULTS_RETURNED = "total-results-returned";
 

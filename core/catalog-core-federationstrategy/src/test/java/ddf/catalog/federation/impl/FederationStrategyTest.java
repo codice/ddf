@@ -508,7 +508,7 @@ public class FederationStrategyTest {
         }
 
         // Check the responseProperties
-        List<String> siteList = (List) federatedResponse.getPropertyValue(QueryResponse.SITE_LIST);
+        List<String> siteList = (List) federatedResponse.getPropertyValue(QueryResponse.SOURCE_LIST);
 
         assertTrue(siteList.contains("####### MOCK SOURCE 2.4 #######"));
 
@@ -593,7 +593,7 @@ public class FederationStrategyTest {
 
         // Check the responseProperties
         assertEquals("####### MOCK SOURCE 1.2 #######",
-                ((List) federatedResponse.getPropertyValue(QueryResponse.SITE_LIST)).get(0));
+                ((List) federatedResponse.getPropertyValue(QueryResponse.SOURCE_LIST)).get(0));
 
         Map<String, Serializable> siteProperties = (Map) federatedResponse
                 .getPropertyValue("####### MOCK SOURCE 1.2 #######");
