@@ -154,6 +154,7 @@
         <module>handler</module>
         <module>filter</module>
         <module>servlet</module>
+        <module>interceptor</module>
         <module>security-services-app</module>
     </modules>
 
