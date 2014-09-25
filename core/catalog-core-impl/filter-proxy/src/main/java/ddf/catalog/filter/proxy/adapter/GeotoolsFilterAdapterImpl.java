@@ -93,6 +93,16 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
     private static final FilterFactory FF = new FilterFactoryImpl();
 
+    public static final String CQL_FEET = "feet";
+
+    public static final String CQL_METERS = "meters";
+
+    public static final String CQL_STATUTE_MILES = "statute miles";
+
+    public static final String CQL_NAUTICAL_MILES = "nautical miles";
+
+    public static final String CQL_KILOMETERS = "kilometers";
+
     public <T> T adapt(Filter filter, FilterDelegate<T> filterDelegate)
         throws UnsupportedQueryException {
         if (filter == null) {
@@ -710,16 +720,20 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
 
     private double normalizeDistance(double distance, String distanceUnits) {
-        if (UomOgcMapping.FOOT.name().equals(distanceUnits)) {
-            // normalize feet to meters
-
+        if (UomOgcMapping.FOOT.name().equals(distanceUnits) || CQL_FEET.equals(distanceUnits)) {
             return new Distance(distance, LinearUnit.FOOT_U_S).getAs(LinearUnit.METER);
-
-        } else if (UomOgcMapping.METRE.name().equals(distanceUnits)) {
+        } else if (UomOgcMapping.METRE.name().equals(distanceUnits) || CQL_METERS.equals(
+                distanceUnits)) {
             return distance;
+        } else if (CQL_STATUTE_MILES.equals(distanceUnits)) {
+            return new Distance(distance, LinearUnit.MILE).getAs(LinearUnit.METER);
+        } else if (CQL_NAUTICAL_MILES.equals(distanceUnits)) {
+            return new Distance(distance, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER);
+        } else if (CQL_KILOMETERS.equals(distanceUnits)) {
+            return new Distance(distance, LinearUnit.KILOMETER).getAs(LinearUnit.METER);
         } else {
             throw new UnsupportedOperationException(
-                    "Units must be in feet or meters for spatial filters.");
+                    "Unknown units used in spatial filter");
         }
     }
 
