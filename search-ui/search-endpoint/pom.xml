@@ -109,6 +109,11 @@
             <artifactId>persistence-core-api</artifactId>
             <version>${ddf.platform.app.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-cql</artifactId>
+            <version>8.4</version>
+        </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
@@ -127,6 +132,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
+                            gt-cql,
                             bayeux-api,
                             catalog-core-api-impl,
                             cometd-java-annotations,
