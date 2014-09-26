@@ -19,23 +19,28 @@
     </ul>
 </div>
 <div class="file-finish-area">
-    {{#if fail}}
-        <span class="file-fail-text">
-            {{error}}
-        </span>
-    {{else}}
-        {{#is progress 100}}
-            <span class="file-finish-text">
-                Done!
-            </span>
-        {{/is}}
-    {{/if}}
+
+    {{#is state 'start'}}
+        <div class="btn btn-primary btn-sm start-upload">
+            <i class="fa fa-upload"></i>
+            Start Upload
+        </div>
+    {{/is}}
+    {{#is state 'failed'}}
+        <span class="text-danger">An error ocurred!</span>
+        <br/>
+        <span class="text-danger">Application did not update!</span>
+    {{/is}}
+    {{#is state 'uploading'}}
+        <span class="progress-percent-text">{{progress}}%</span> <i class="fa fa-spinner fa-spin"></i>
+    {{/is}}
+    {{#is state 'done'}}
+        <span class="text-success">Application Updated!</span>
+    {{/is}}
 </div>
 <div class="file-progress-area">
     <div class="progress">
-        <div class="progress-bar" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"
-                style="width: {{progress}}%">
-
+        <div class="progress-bar" role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress}}%;">
         </div>
     </div>
 </div>

@@ -725,12 +725,16 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public void removeApplication(Application application) throws ApplicationServiceException {
-        removeApplication(application.getURI());
+        if (application != null) {
+            removeApplication(application.getURI());
+        }
     }
 
     @Override
     public void removeApplication(String applicationName) throws ApplicationServiceException {
-        removeApplication(getApplication(applicationName));
+        if (applicationName != null) {
+            removeApplication(getApplication(applicationName));
+        }
     }
 
     @Override
