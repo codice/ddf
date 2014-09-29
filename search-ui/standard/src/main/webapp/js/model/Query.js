@@ -122,7 +122,12 @@ define([
                     filters.push(this.logicalCql(typeFilters, 'OR'));
                 }
 
-                return this.logicalCql(filters, 'AND');
+                var cql = this.logicalCql(filters, 'AND');
+                if (!cql) {
+                    cql = "anyText LIKE '*'";
+                }
+
+                return cql;
             },
 
             logicalCql: function (filters, operator) {
