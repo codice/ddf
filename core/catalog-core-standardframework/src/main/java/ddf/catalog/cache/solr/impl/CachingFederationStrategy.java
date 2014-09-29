@@ -518,7 +518,7 @@ public class CachingFederationStrategy implements FederationStrategy {
                 returnResults.setHits(totalHits);
                 int maxResults = Integer.MAX_VALUE;
                 if (query.getPageSize() > 0) {
-                    query.getPageSize();
+                    maxResults = query.getPageSize();
                 }
 
                 returnResults
