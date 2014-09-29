@@ -203,6 +203,11 @@
         <bundle>mvn:ddf.security.sts/security-sts-propertyclaimshandler/${project.version}</bundle>
     </feature>
 
+    <feature name="security-interceptor-anonymous" install="manual" version="${project.version}"
+             description="Injects anonymous user information into incoming SOAP messages.">
+        <bundle>mvn:ddf.security.interceptor/security-interceptor-anonymous/${project.version}</bundle>
+    </feature>
+
     <feature name="security-anonymous" install="manual" version="${project.version}"
              description="Contains all of the anonymous security features.">
         <feature>security-handler-anonymous</feature>

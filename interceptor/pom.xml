@@ -23,6 +23,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>ddf.security.interceptor</groupId>
     <artifactId>interceptor</artifactId>
     <name>DDF Security Interceptor</name>
     <packaging>pom</packaging>
