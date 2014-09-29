@@ -38,15 +38,7 @@
     <list id="recordConverterFactoryList"
           interface="org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory"/>
 
-    <!-- 
-    availability=optional (cardinality=0..1) because STS Client Configuration 
-    only needed if running in a secured configuration.
-    -->
-    <reference id="stsClientConfig"
-        interface="ddf.security.sts.client.configuration.STSClientConfiguration"
-        cardinality="0..1" />
-        
-    <osgix:managed-service-factory
+     <osgix:managed-service-factory
             id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.id"
             factory-pid="Csw_Federated_Source"
             update-strategy="bean-managed" update-method="refresh">
@@ -77,7 +69,6 @@
                 <beans:bean id="wcsResourceReader"
                             class="org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader">
                     <beans:property name="mimeTypeMapper" ref="mimeTypeMapper"/>
-                    <beans:property name="stsClientConfig" ref="stsClientConfig"/>
                 </beans:bean>
             </beans:property>
             <beans:property name="effectiveDateMapping" value=""/>
@@ -92,7 +83,6 @@
             <beans:property name="resourceReaders" ref="resourceReaders"/>
             <beans:property name="outputSchema" value=""/>
             <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList"/>
-            <beans:property name="stsClientConfig" ref="stsClientConfig"/>
             <beans:property name="isCqlForced" value="false"/>
             <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>
@@ -129,7 +119,6 @@
                 <beans:bean id="connectedWcsResourceReader"
                             class="org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader">
                     <beans:property name="mimeTypeMapper" ref="mimeTypeMapper"/>
-                    <beans:property name="stsClientConfig" ref="stsClientConfig"/>
                 </beans:bean>
             </beans:property>
             <beans:property name="effectiveDateMapping" value=""/>
@@ -144,7 +133,6 @@
             <beans:property name="resourceReaders" ref="resourceReaders"/>
             <beans:property name="outputSchema" value=""/>
             <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList"/>
-            <beans:property name="stsClientConfig" ref="stsClientConfig"/>
             <beans:property name="isCqlForced" value="false"/>
             <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>

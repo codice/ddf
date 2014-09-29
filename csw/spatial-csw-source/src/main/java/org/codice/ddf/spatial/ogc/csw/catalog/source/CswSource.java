@@ -171,8 +171,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     protected boolean contentTypeMappingUpdated;
 
     protected List<RecordConverterFactory> recordConverterFactories;
-    
-    private STSClientConfiguration stsClientConfig;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswSource.class);
 
@@ -907,17 +905,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     public List<RecordConverterFactory> getRecordConverterFactoryList() {
         return this.recordConverterFactories;
     }
-    
-    /**
-     * Set the STS Client Configuration for this CSW Source.
-     * 
-     * @param stsClientConfig
-     */
-    public void setStsClientConfig(STSClientConfiguration stsClientConfig) {
-        LOGGER.debug("Setting stsClientConfig");
-        this.stsClientConfig = stsClientConfig;
-    }
-
+   
     public String getForceSpatialFilter() {
         return forceSpatialFilter;
     }
@@ -1142,7 +1130,23 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                 GetCapabilitiesRequest request = new GetCapabilitiesRequest(CswConstants.CSW);
                 request.setAcceptVersions(CswConstants.VERSION_2_0_2 + ","
                         + CswConstants.VERSION_2_0_1);
-                remoteCsw.setSAMLAssertion(stsClientConfig);
+
+                if (context != null) {
+                    LOGGER.debug("Checking if STSClientConfiguration is in OSGi registry");
+                    ServiceReference ref = context.getServiceReference(STSClientConfiguration.class
+                            .getName());
+
+                    if (ref != null) {
+                        STSClientConfiguration stsClientConfig = (STSClientConfiguration) context.getService(ref);
+                        if (stsClientConfig != null) {
+                            LOGGER.debug("stsClientConfig is not null - setting SAML assertion");
+                            remoteCsw.setSAMLAssertion(stsClientConfig);
+                        } else {
+                            LOGGER.debug("stsClientConfig = null, so no security configured");
+                        }
+                    }
+                }
+                
                 caps = remoteCsw.getCapabilities(request);
             }
         } catch (CswException cswe) {
