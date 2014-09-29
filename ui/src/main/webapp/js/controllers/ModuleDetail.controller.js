@@ -34,7 +34,7 @@ define([
             var staticModulePlugins = [
                  new Backbone.Model({
                     'id': 'systemInformationModuleTabID',
-                    'displayName': 'System Information',
+                    'displayName': 'Information',
                     'javascriptLocation': 'js/views/module/plugins/systeminformation/Plugin.view.js'
                 }),
                 new Backbone.Model({
