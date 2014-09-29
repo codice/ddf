@@ -39,7 +39,6 @@ define([
             //as soon as the model contains more than 5 items, we assume
             //that we have enough values to search
             defaults: {
-                federation: 'enterprise',
                 offsetTimeUnits: 'hours',
                 scheduleUnits: 'minutes',
                 timeType: 'modified',

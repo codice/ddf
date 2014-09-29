@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public class SearchRequest {
 
-    private final String guid;
+    private final String id;
 
     private final Set<String> sourceIds;
 
@@ -38,19 +38,19 @@ public class SearchRequest {
      *            - Source IDs to query
      * @param query
      *            - Query requests
-     * @param guid
-     *            - Unique ID for this query
+     * @param id
+     *            - ID for this query
      */
-    public SearchRequest(Set<String> sourceIds, Query query, String guid) {
-        Validate.notEmpty(guid, "Valid GUID required.");
+    public SearchRequest(Set<String> sourceIds, Query query, String id) {
+        Validate.notEmpty(id, "Valid ID required.");
 
         this.sourceIds = Collections.unmodifiableSet(sourceIds);
         this.query = query;
-        this.guid = guid;
+        this.id = id;
     }
 
-    public String getGuid() {
-        return guid;
+    public String getId() {
+        return id;
     }
 
     public Query getQuery() {
@@ -62,6 +62,6 @@ public class SearchRequest {
     }
 
     public String toString() {
-        return getGuid();
+        return getId();
     }
 }

@@ -115,7 +115,7 @@ public class SearchController {
         ServerMessage.Mutable reply = new ServerMessageImpl();
         reply.put(Search.SUCCESSFUL, true);
         reply.putAll(jsonData);
-
+        
         LOGGER.debug("Sending results to subscribers on: {}", channelName);
 
         bayeuxServer.getChannel(channelName).publish(serverSession, reply, null);
@@ -145,7 +145,7 @@ public class SearchController {
 
                 try {
                     Search search = addQueryResponseToSearch(request, response);
-                    pushResults(request.getGuid(),
+                    pushResults(request.getId(),
                             controller.transform(search, request),
                             session);
                 } catch (InterruptedException e) {
@@ -175,11 +175,11 @@ public class SearchController {
                     try {
                         Search search = addQueryResponseToSearch(request, cachedResponse);
                         search.updateStatus(sourceId, indexResponse);
-                        pushResults(request.getGuid(),
+                        pushResults(request.getId(),
                                     controller.transform(search, request),
                                     session);
                         if (search.isFinished()) {
-                            searchMap.remove(request.getGuid());
+                            searchMap.remove(request.getId());
                         }
                     } catch (InterruptedException e) {
                         LOGGER.error("Failed adding federated search results.", e);
@@ -194,18 +194,18 @@ public class SearchController {
     private Search addQueryResponseToSearch(SearchRequest searchRequest,
             QueryResponse queryResponse) throws InterruptedException {
         Search search = null;
-        if (searchMap.containsKey(searchRequest.getGuid())) {
+        if (searchMap.containsKey(searchRequest.getId())) {
             LOGGER.debug("Using previously created Search object for cache: {}",
-                    searchRequest.getGuid());
-            search = searchMap.get(searchRequest.getGuid());
+                    searchRequest.getId());
+            search = searchMap.get(searchRequest.getId());
             search.addQueryResponse(queryResponse);
         } else {
             LOGGER.debug("Creating new Search object to cache async query results: {}",
-                    searchRequest.getGuid());
+                    searchRequest.getId());
             search = new Search();
             search.setSearchRequest(searchRequest);
             search.addQueryResponse(queryResponse);
-            searchMap.put(searchRequest.getGuid(), search);
+            searchMap.put(searchRequest.getId(), search);
         }
         return search;
     }
@@ -289,9 +289,9 @@ public class SearchController {
         JSONObject rootObject = new JSONObject();
 
         addObject(rootObject, Search.HITS, search.getHits());
-        addObject(rootObject, Search.GUID, searchRequest.getGuid().toString());
+        addObject(rootObject, Search.ID, searchRequest.getId().toString());
         addObject(rootObject, Search.RESULTS, getResultList(upstreamResponse.getResults()));
-        addObject(rootObject, Search.SOURCES, getQueryStatus(search.getQueryStatus()));
+        addObject(rootObject, Search.STATUS, getQueryStatus(search.getQueryStatus()));
 
         return rootObject;
     }
@@ -308,10 +308,9 @@ public class SearchController {
             if (status.isDone()) {
                 addObject(statusObject, Search.RESULTS, status.getResultCount());
                 addObject(statusObject, Search.HITS, status.getHits());
-                addObject(statusObject, Search.SUCCESSFUL, status.isSuccessful());
                 addObject(statusObject, Search.ELAPSED, status.getElapsed());
             }
-            addObject(statusObject, Search.DONE, status.isDone());
+            addObject(statusObject, Search.STATE, status.getState());
 
             statuses.add(statusObject);
         }

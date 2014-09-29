@@ -1,7 +1,7 @@
 [
     {
         "data": {
-            "guid": "e863f023-3b6f-4575-badf-a1f114e7b378",
+            "id": "e863f023-3b6f-4575-badf-a1f114e7b378",
             "hits": 11,
             "results": [
                 {
@@ -218,17 +218,16 @@
                 }
             ],
             "successful":true,
-            "sources":[
+            "status":[
                 {
-                    "id":"DDF-OS","done":false
+                    "id":"DDF-OS","state":"ACTIVE"
                 },
                 {
                     "elapsed":43,
                     "id":"ddf.distribution",
                     "hits":11,
                     "results":11,
-                    "done":true,
-                    "successful":true
+                    "state":"SUCCEEDED"
                 }
             ]
         },
@@ -236,7 +235,6 @@
     },
     {
         "id": "3",
-        "successful": true,
         "advice": {
             "interval": 0,
             "reconnect": "retry",

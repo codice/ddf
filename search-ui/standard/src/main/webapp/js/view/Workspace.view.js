@@ -127,16 +127,16 @@ define([
             serializeData: function() {
                 var working = false, result = this.model.get('result'), hits, initiated;
                 if(result) {
-                    var sources = result.get('sources');
+                    var statuses = result.get('status');
                     if(result.get('hits')) {
                         hits = result.get('hits');
                     }
                     if(result.get('initiated')) {
                         initiated = moment(result.get('initiated')).fromNow();
                     }
-                    if(sources) {
-                        sources.forEach(function(source) {
-                            if(!source.get('done')) {
+                    if(statuses) {
+                        statuses.forEach(function(status) {
+                            if(status.get('state') === "ACTIVE") {
                                 working = true;
                             }
                         });
@@ -259,10 +259,10 @@ define([
                                 if(!hits) hits = 0;
                                 hits += result.get('hits');
                             }
-                            var sources = result.get('sources');
-                            if(sources) {
-                                sources.forEach(function(source) {
-                                    if(!source.get('done')) {
+                            var statuses = result.get('status');
+                            if(statuses) {
+                                statuses.forEach(function(status) {
+                                    if(status.get('state') === "ACTIVE") {
                                         working = true;
                                     }
                                 });

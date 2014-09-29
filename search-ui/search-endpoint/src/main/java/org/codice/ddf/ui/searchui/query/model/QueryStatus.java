@@ -29,7 +29,9 @@ public class QueryStatus {
 
     private long hits;
 
-    private boolean isDone = false;
+    enum State { ACTIVE, SUCCEEDED, FAILED };
+    
+    private State state = State.ACTIVE;
 
     public long getElapsed() {
         return elapsedMilliseconds;
@@ -47,19 +49,20 @@ public class QueryStatus {
     }
 
     public QueryStatus(String source, Set<ProcessingDetails> processingDetails, int totalHits,
-            boolean done) {
+            State state) {
         sourceId = source;
         details = processingDetails;
         hits = totalHits;
-        isDone = done;
+        this.state = state;
     }
 
-    public boolean isDone() {
-        return isDone;
+    public State getState() {
+        return state;
     }
 
-    public void setDone(boolean done) {
-        isDone = done;
+    public void setState(State state) {
+        
+        this.state = state;
     }
 
     public long getResultCount() {
@@ -93,14 +96,10 @@ public class QueryStatus {
     public void setSourceId(String sourceId) {
         this.sourceId = sourceId;
     }
-
-    public boolean isSuccessful() {
-        for (ProcessingDetails detail : details) {
-            if (detail.hasException()) {
-                return false;
-            }
-        }
-
-        return true;
+    
+    public boolean isDone() {
+        return !(state == State.ACTIVE);
     }
+
+
 }

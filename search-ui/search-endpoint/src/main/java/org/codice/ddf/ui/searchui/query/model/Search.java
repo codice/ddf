@@ -14,28 +14,20 @@
  **/
 package org.codice.ddf.ui.searchui.query.model;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.util.impl.DistanceResultComparator;
-import ddf.catalog.util.impl.RelevanceResultComparator;
-import ddf.catalog.util.impl.TemporalResultComparator;
-import org.apache.commons.collections.Bag;
-import org.apache.commons.collections.bag.HashBag;
-import org.apache.commons.lang.StringUtils;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.collections.Bag;
+import org.apache.commons.collections.bag.HashBag;
+import org.codice.ddf.ui.searchui.query.model.QueryStatus.State;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.data.Result;
+import ddf.catalog.operation.ProcessingDetails;
+import ddf.catalog.operation.QueryResponse;
 
 /**
  * This class represents the cached asynchronous query response from all sources.
@@ -45,8 +37,6 @@ public class Search {
     private static final Logger LOGGER = LoggerFactory.getLogger(Search.class);
 
     public static final String HITS = "hits";
-
-    public static final String GUID = "guid";
 
     public static final String DISTANCE = "distance";
 
@@ -58,7 +48,9 @@ public class Search {
 
     public static final String SUCCESSFUL = "successful";
 
-    public static final String SOURCES = "sources";
+    public static final String STATUS = "status";
+    
+    public static final String STATE = "state";
 
     public static final String ID = "id";
 
@@ -100,10 +92,19 @@ public class Search {
         status.setHits(queryResponse.getHits());
         hits += queryResponse.getHits();
         status.setElapsed((Long) queryResponse.getProperties().get("elapsed"));
-        status.setDone(true);
+        status.setState((isSuccessful(queryResponse.getProcessingDetails()) ? State.SUCCEEDED : State.FAILED));
         responseNum++;
     }
 
+    private boolean isSuccessful(final Set<ProcessingDetails> details) {
+        for (ProcessingDetails detail : details) {
+            if (detail.hasException()) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     private void updateResultStatus(List<Result> results) {
         Bag hitSourceCount = new HashBag();
 

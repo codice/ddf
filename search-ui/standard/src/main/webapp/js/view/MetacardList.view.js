@@ -221,7 +221,7 @@ define([
             isSearchRunning: function() {
                 var working = false;
                 this.collection.forEach(function (source) {
-                    if (!source.get('done')) {
+                    if (source.get('state') === "ACTIVE") {
                         working = true;
                     }
                 });
@@ -270,9 +270,9 @@ define([
                 this.listRegion.show(new List.MetacardTable({
                     collection: this.model.get("results")
                 }));
-                if(this.model.get("sources")) {
+                if(this.model.get("status")) {
                     this.statusRegion.show(new List.StatusTable({
-                        collection: this.model.get("sources")
+                        collection: this.model.get("status")
                     }));
                 }
                 this.countRegion.show(new List.CountView({

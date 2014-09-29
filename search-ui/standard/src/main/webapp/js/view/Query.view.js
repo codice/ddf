@@ -116,19 +116,16 @@ define([
             },
 
             setNoFederation : function () {
-                this.model.set('federation', 'local');
                 this.model.set('src','local');
                 this.updateScrollbar();
             },
 
             setEnterpriseFederation : function () {
-                this.model.set('federation', 'enterprise');
                 this.model.unset('src');
                 this.updateScrollbar();
             },
 
             setSelectedFederation : function () {
-                this.model.set('federation', 'selected');
                 this.model.unset('src');
                 this.updateScrollbar();
             },

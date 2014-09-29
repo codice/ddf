@@ -276,7 +276,7 @@ define([
             ]
         });
 
-        MetaCard.SourceResult = Backbone.AssociatedModel.extend({
+        MetaCard.SourceStatus = Backbone.AssociatedModel.extend({
 
         });
 
@@ -289,8 +289,8 @@ define([
                 },
                 {
                     type: Backbone.Many,
-                    key: 'sources',
-                    relatedModel: MetaCard.SourceResult
+                    key: 'status',
+                    relatedModel: MetaCard.SourceStatus
                 }
             ],
             url: "/service/query",
@@ -304,10 +304,10 @@ define([
             },
             cancel: function() {
                 this.unsubscribe();
-                var sources = this.get('sources');
-                sources.forEach(function(source) {
-                    if(!source.get('done')) {
-                        source.set({'canceled': true});
+                var statuses = this.get('status');
+                statuses.forEach(function(status) {
+                    if(status.get('state') === "ACTIVE") {
+                        status.set({'canceled': true});
                     }
                 });
             }

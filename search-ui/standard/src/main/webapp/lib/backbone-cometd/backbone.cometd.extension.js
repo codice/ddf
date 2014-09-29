@@ -38,14 +38,14 @@
 
     var origSync = Backbone.sync;
 
-    Backbone.generateGuid = function (model) {
-        var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    Backbone.generateId = function (model) {
+        var id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
             var r = Math.random() * 16 | 0,
                 v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
-        model.guid = guid;
-        return guid;
+        model.id = id;
+        return id;
     };
 
     Backbone.Model.prototype.mergeLatest = function () {
@@ -60,7 +60,7 @@
         } else {
             var deferred = $.Deferred();
             //create a primary key for this object if we don't have one already
-            var guid = model.guid || Backbone.generateGuid(model);
+            var id = model.id || Backbone.generateId(model);
 
             if(method === 'read') {
                 if (model.subscription) {
@@ -87,8 +87,8 @@
                 //if we have passed in data, we are assuming that we want to setup a channel to listen
                 //this means we don't want to listen to a response from the service endpoint
                 if (options.data) {
-                    model.subscription = Cometd.Comet.subscribe('/' + guid, options.success);
-                    options.data.guid = guid;
+                    model.subscription = Cometd.Comet.subscribe('/' + id, options.success);
+                    options.data.id = id;
                 } else { //just listen for a response from the service endpoint
                     model.subscription = Cometd.Comet.subscribe(model.url, options.success);
                 }

@@ -42,11 +42,12 @@ define([
                 var setObj = {};
                 var hits = 0;
                 var done = 0;
-                _.each(obj.model.lastResponse.data.sources, function(src) {
-                    if (!_.isUndefined(src.hits)) {
-                        hits += src.hits;
+                _.each(obj.model.lastResponse.data.status, function(srcStatus) {
+                    if (!_.isUndefined(srcStatus.hits)) {
+                        hits += srcStatus.hits;
                     }
-                    if (src.done === true) {
+
+                    if (!_.isUndefined(srcStatus.state) && srcStatus.state !== "ACTIVE") {
                         done++;
                     }
                 });
