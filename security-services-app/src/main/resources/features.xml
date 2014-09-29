@@ -81,7 +81,6 @@
         <configfile finalname="/etc/ws-security/attributeMap.properties">
             mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}/properties/attributeMap
         </configfile>
-        <feature>hazelcast</feature>
         <feature>cxf-core</feature>
         <feature>cxf-ws-security</feature>
         <feature>spring-tx</feature>
