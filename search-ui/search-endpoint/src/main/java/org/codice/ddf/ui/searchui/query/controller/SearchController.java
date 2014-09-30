@@ -115,7 +115,7 @@ public class SearchController {
         ServerMessage.Mutable reply = new ServerMessageImpl();
         reply.put(Search.SUCCESSFUL, true);
         reply.putAll(jsonData);
-        
+
         LOGGER.debug("Sending results to subscribers on: {}", channelName);
 
         bayeuxServer.getChannel(channelName).publish(serverSession, reply, null);

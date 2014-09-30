@@ -49,7 +49,7 @@ public class Search {
     public static final String SUCCESSFUL = "successful";
 
     public static final String STATUS = "status";
-    
+
     public static final String STATE = "state";
 
     public static final String ID = "id";
