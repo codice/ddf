@@ -121,13 +121,15 @@ public class BoundingBoxReader {
      */
     private String createWkt(String[] lowerCornerPosition, String[] upperCornerPosition) {
         LOGGER.debug("Creating WKT in LON/LAT coordinate order.");
-        String lonLatWkt = "POLYGON((" + lowerCornerPosition[0] + SPACE + lowerCornerPosition[1]
+        if (upperCornerPosition[0].equals(lowerCornerPosition[0]) &&
+                upperCornerPosition[1].equals(lowerCornerPosition[1])) {
+            return "POINT(" + lowerCornerPosition[0] + SPACE + lowerCornerPosition[1] +")";
+        }
+        return "POLYGON((" + lowerCornerPosition[0] + SPACE + lowerCornerPosition[1]
                 + ", " + upperCornerPosition[0] + SPACE + lowerCornerPosition[1] + ", "
                 + upperCornerPosition[0] + SPACE + upperCornerPosition[1] + ", "
                 + lowerCornerPosition[0] + SPACE + upperCornerPosition[1] + ", "
                 + lowerCornerPosition[0] + SPACE + lowerCornerPosition[1] + "))";
-
-        return lonLatWkt;
     }
 
     /**

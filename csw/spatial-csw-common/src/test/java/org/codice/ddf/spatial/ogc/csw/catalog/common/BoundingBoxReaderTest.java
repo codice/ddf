@@ -37,7 +37,9 @@ public class BoundingBoxReaderTest {
     private static final transient Logger LOGGER = LoggerFactory
             .getLogger(BoundingBoxReaderTest.class);
 
-    private static final String CONTROL_WKT_IN_LON_LAT = "POLYGON((65.6272038662182 33.305863417212, 65.7733371981862 33.305863417212, 65.7733371981862 33.6653407061501, 65.6272038662182 33.6653407061501, 65.6272038662182 33.305863417212))";
+    private static final String POLYGON_CONTROL_WKT_IN_LON_LAT = "POLYGON((65.6272038662182 33.305863417212, 65.7733371981862 33.305863417212, 65.7733371981862 33.6653407061501, 65.6272038662182 33.6653407061501, 65.6272038662182 33.305863417212))";
+
+    private static final String POINT_CONTROL_WKT_IN_LON_LAT = "POINT(65.6272038662182 33.305863417212)";
 
     /**
      * Verify that if given a BoundingBox with coords in LON/LAT that the resulting WKT is in
@@ -59,12 +61,12 @@ public class BoundingBoxReaderTest {
         LOGGER.debug("WKT: {}", wktInLonLat);
 
         // Verify
-        assertThat(wktInLonLat, is(CONTROL_WKT_IN_LON_LAT));
+        assertThat(wktInLonLat, is(POLYGON_CONTROL_WKT_IN_LON_LAT));
     }
 
     /**
      * Verify that if given a BoundingBox with coords in LAT/LON that the resulting WKT is in
-     * LON/LAT (ie. the coords are reversed).
+     * LON/LAT (i.e., the coords are reversed).
      */
     @Test
     public void testGetWkt_BoundingBoxInLatLon() throws ParserConfigurationException, SAXException,
@@ -82,6 +84,30 @@ public class BoundingBoxReaderTest {
         LOGGER.debug("WKT: {}", wktInLonLat);
 
         // Verify
-        assertThat(wktInLonLat, is(CONTROL_WKT_IN_LON_LAT));
+        assertThat(wktInLonLat, is(POLYGON_CONTROL_WKT_IN_LON_LAT));
     }
+
+    /**
+     * Verify that if given a BoundingBox with coords in LON/LAT for a Point, i.e., both corners
+     * have same exact Lon/Lat, that the resulting WKT is a POINT in LON/LAT.
+     */
+    @Test
+    public void testGetWkt_BoundingBoxInLonLatForPoint() throws ParserConfigurationException, SAXException,
+        IOException {
+        // Setup
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse("src/test/resources/BoundingBoxInLonLatForPoint.xml");
+        HierarchicalStreamReader hReader = new DomReader(doc);
+        BoundingBoxReader boundingBoxReader = new BoundingBoxReader(hReader,
+                true);
+
+        // Perform Test
+        String wktInLonLat = boundingBoxReader.getWkt();
+        LOGGER.debug("WKT: {}", wktInLonLat);
+
+        // Verify
+        assertThat(wktInLonLat, is(POINT_CONTROL_WKT_IN_LON_LAT));
+    }
+
 }
