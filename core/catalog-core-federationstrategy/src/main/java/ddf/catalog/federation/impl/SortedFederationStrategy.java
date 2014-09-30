@@ -202,14 +202,14 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                     logger.debug("Setting the query responseProperties for site {}", site.getId());
 
                     // Add a List of siteIds so endpoints know what sites got queried
-                    Serializable siteListObject = returnProperties.get(QueryResponse.SOURCE_LIST);
+                    Serializable siteListObject = returnProperties.get(QueryResponse.SITE_LIST);
                     if (siteListObject != null && siteListObject instanceof List<?>) {
                         ((List) siteListObject).add(site.getId());
                     } else {
                         siteListObject = new ArrayList<String>();
                         ((List)siteListObject).add(site.getId());
                         returnProperties
-                                .put(QueryResponse.SOURCE_LIST, (Serializable) siteListObject);
+                                .put(QueryResponse.SITE_LIST, (Serializable) siteListObject);
                     }
 
                 }
