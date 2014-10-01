@@ -212,7 +212,7 @@ public class SearchService {
         }
 
         Query query = createQuery(filter, startIndex, localCount, sort, maxTimeout);
-        SearchRequest searchRequest = new SearchRequest(sourceIds, query, ID);
+        SearchRequest searchRequest = new SearchRequest(sourceIds, query, id);
 
         try {
             // Hand off to the search controller for the actual query
