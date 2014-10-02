@@ -303,14 +303,15 @@ public class FifoFederationStrategy implements FederationStrategy {
                 Set<ProcessingDetails> processingDetails = returnResults.getProcessingDetails();
                 try {
                     sourceResponse = query.getTimeoutMillis() < 1 ? curFuture.get() : curFuture
-                            .get( getTimeRemaining( System.currentTimeMillis() + query.getTimeoutMillis() ), TimeUnit.MILLISECONDS );
+                            .get(getTimeRemaining(System.currentTimeMillis()
+                                    + query.getTimeoutMillis()), TimeUnit.MILLISECONDS);
                     sourceResponse = curFuture.get();
                 } catch (Exception e) {
-                    LOGGER.warn( "Federated query returned exception " + e.getMessage() );
-                    processingDetails.add( new ProcessingDetailsImpl( site.getId(), e ) );
+                    LOGGER.warn("Federated query returned exception " + e.getMessage());
+                    processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 }
                 long sourceHits = 0;
-                if ( sourceResponse != null ) {
+                if (sourceResponse != null) {
 
                     sourceHits = sourceResponse.getHits();
 
@@ -323,15 +324,15 @@ public class FifoFederationStrategy implements FederationStrategy {
                     newSourceProperties.put(QueryResponse.TOTAL_HITS, sourceHits);
                     newSourceProperties.put(QueryResponse.TOTAL_RESULTS_RETURNED, resultsReturned);
 
-                    synchronized ( returnResults ) {
+                    synchronized (returnResults) {
                         long sentTotal = returnResults.getHits();
-                        returnResults.setHits( sourceHits + sentTotal );
-                        for ( Result result : results ) {
-                            if ( sentTotal >= maxResults ) {
-                                LOGGER.debug( "Received max number of results so ending polling" );
+                        returnResults.setHits(sourceHits + sentTotal);
+                        for (Result result : results) {
+                            if (sentTotal >= maxResults) {
+                                LOGGER.debug("Received max number of results so ending polling");
                                 break;
-                            } else if ( resultsToSkip.get() == 0 ) {
-                                returnResults.addResult( result, false );
+                            } else if (resultsToSkip.get() == 0) {
+                                returnResults.addResult(result, false);
                                 sentTotal++;
                             } else {
                                 resultsToSkip.decrementAndGet();
@@ -339,29 +340,33 @@ public class FifoFederationStrategy implements FederationStrategy {
                             }
                         }
 
-                        if ( sentTotal >= maxResults ) {
+                        if (sentTotal >= maxResults) {
                             returnResults.closeResultQueue();
-                            LOGGER.debug( "sending terminator for fifo federation strategy." );
+                            LOGGER.debug("sending terminator for fifo federation strategy.");
                         }
                     }
 
-                    returnResults.getProperties().put( site.getId(), (Serializable) newSourceProperties );
-                    Map<String, Serializable> originalSourceProperties = sourceResponse.getProperties();
-                    if ( originalSourceProperties != null ) {
+                    returnResults.getProperties().put(site.getId(),
+                            (Serializable) newSourceProperties);
+                    Map<String, Serializable> originalSourceProperties = sourceResponse
+                            .getProperties();
+                    if (originalSourceProperties != null) {
                         Serializable object = originalSourceProperties
                                 .get(QueryResponse.ELAPSED_TIME);
-                        if ( object != null && object instanceof Long ) {
+                        if (object != null && object instanceof Long) {
                             newSourceProperties.put(QueryResponse.ELAPSED_TIME, (Long) object);
                             originalSourceProperties.remove(QueryResponse.ELAPSED_TIME);
-                            LOGGER.debug( "Setting the elapsedTime responseProperty to {} for source {}", object, site.getId() );
+                            LOGGER.debug(
+                                    "Setting the elapsedTime responseProperty to {} for source {}",
+                                    object, site.getId());
                         }
 
-                        returnResults.getProperties().putAll( originalSourceProperties );
+                        returnResults.getProperties().putAll(originalSourceProperties);
                     }
                 }
 
-                if ( updateSites( -1 ) == 0 ) {
-                    LOGGER.debug( "sending terminator for fifo federation strategy." );
+                if (updateSites(-1) == 0) {
+                    LOGGER.debug("sending terminator for fifo federation strategy.");
                     returnResults.closeResultQueue();
                 }
 
