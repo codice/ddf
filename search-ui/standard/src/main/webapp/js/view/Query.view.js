@@ -200,15 +200,19 @@ define([
 
                 var radiusConverter = function (direction, value) {
                         var radiusUnitVal = view.model.get("radiusUnits");
-                        var distanceFromMeters = view.getDistanceFromMeters(parseFloat(value, 10), radiusUnitVal);
+                        var distanceFromMeters = view.getDistanceFromMeters(parseFloat(view.model.get('radius'), 10), radiusUnitVal);
+                        var distanceInMeters = view.getDistanceInMeters(parseFloat(value, 10), radiusUnitVal);
 
-                        if (direction === 'ModelToView') {
+                        if (direction === 'ViewToModel') {
                             //radius value is bound to radius since radiusValue is converted, so we just need to set
                             //the value so that it shows up in the view
-                            view.model.set("radiusValue", distanceFromMeters);
+                            view.model.set("radius", distanceInMeters);
+                            return distanceInMeters;
+                        } else if (direction === 'ModelToView') {
+                            return distanceFromMeters;
                         }
 
-                        return distanceFromMeters;
+                        return value;
                     },
 
                     offsetConverter = function (direction, value) {
@@ -427,6 +431,7 @@ define([
                 // to the model
                 $('#typeList').multiselect("refresh");
                 $('#federationSources').multiselect("refresh");
+                $('#radiusUnits').multiselect("refresh");
 
                 wreqr.vent.trigger('search:clear');
                 wreqr.vent.trigger('map:clear');
