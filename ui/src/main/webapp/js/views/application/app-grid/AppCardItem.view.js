@@ -18,8 +18,9 @@ define([
     'icanhaz',
     'underscore',
     'js/wreqr.js',
+    'js/views/application/modals/UpdateApplicationModal.view',
     'text!applicationInfo'
-    ],function (Marionette, ich, _, wreqr, applicationInfo) {
+    ],function (Marionette, ich, _, wreqr, UpdateApplicationModal, applicationInfo) {
     "use strict";
 
     if(!ich.applicationInfo) {
@@ -34,9 +35,12 @@ define([
     ];
 
     // Itemview for each individual application
-    var AppInfoView = Marionette.ItemView.extend({
+    var AppInfoView = Marionette.Layout.extend({
         template: 'applicationInfo',
         className: 'grid-cell',
+        regions: {
+            modalRegion: '.modal-region'
+        },
         events: {
             'click .fa.fa-times.stopApp': 'stopMessage',
             'click .fa.fa-download.startApp': 'startMessage',
@@ -47,7 +51,8 @@ define([
             'click .fa.fa-download.installApp': 'installMessage',
             'click .removeConfirm': 'removePrompt',
             'click .installConfirm': 'installPrompt',
-            'click': 'selectApplication'
+            'click': 'selectApplication',
+            'click .update-application-button':'updateApplication'
         },
 
         // Will disable functionality for certain applications
@@ -116,6 +121,11 @@ define([
         },
         selectApplication: function(){
             wreqr.vent.trigger('application:reqestSelection',this.model);
+        },
+        updateApplication: function(){
+            var modal = new UpdateApplicationModal({model: this.model});
+            this.modalRegion.show(modal);
+            modal.show();
         }
     });
 
