@@ -55,7 +55,7 @@ public class DefaultCswRecordMap {
         localNameMap.put(CswRecordMetacardType.CSW_TYPE, Metacard.CONTENT_TYPE);
         localNameMap.put(CswRecordMetacardType.CSW_IDENTIFIER, Metacard.ID);
         localNameMap.put(CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION, Metacard.ID);
-        localNameMap.put(CswRecordMetacardType.CSW_SOURCE, Metacard.RESOURCE_URI);  //HUGH
+        localNameMap.put(CswRecordMetacardType.CSW_SOURCE, Metacard.RESOURCE_URI);
         localNameMap.put(CswConstants.CSW_CREATED, Metacard.CREATED);
         localNameMap.put(CswConstants.CSW_MODIFIED, Metacard.MODIFIED);
         localNameMap.put(CswRecordMetacardType.CSW_CREATED, Metacard.CREATED);
@@ -73,7 +73,7 @@ public class DefaultCswRecordMap {
         
         qNameMap.put(CswRecordMetacardType.CSW_IDENTIFIER_QNAME, Metacard.ID);
         qNameMap.put(CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION_QNAME, Metacard.ID);
-        qNameMap.put(CswRecordMetacardType.CSW_SOURCE_QNAME, Metacard.RESOURCE_URI);  //HUGH
+        qNameMap.put(CswRecordMetacardType.CSW_SOURCE_QNAME, Metacard.RESOURCE_URI);
         qNameMap.put(CswRecordMetacardType.CSW_TITLE_QNAME, Metacard.TITLE);
         qNameMap.put(CswRecordMetacardType.CSW_ALTERNATIVE_QNAME, Metacard.TITLE);
         qNameMap.put(CswRecordMetacardType.CSW_TYPE_QNAME, Metacard.CONTENT_TYPE);
