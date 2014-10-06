@@ -20,13 +20,14 @@
     
     <reference id="httpProxyService" interface="org.codice.proxy.http.HttpProxyService" />
 
-	<bean id="configurationStore" class="org.codice.ddf.ui.searchui.standard.properties.ConfigurationStore"
-		factory-method="getInstance" init-method="init">
+	<bean id="configurationStore" class="org.codice.ddf.ui.searchui.standard.properties.ConfigurationStore" destroy-method="destroy">
 		<cm:managed-properties persistent-id="org.codice.ddf.ui.search.standard.properties"
-			update-strategy="component-managed" update-method="update" />
+			update-strategy="container-managed" />
         <property name="branding" ref="webBranding" />
         <property name="httpProxy" ref="httpProxyService" />
         <property name="bundleContext" ref="blueprintBundleContext" />
+        <property name="imageryProviders" value="OSM={url=http://otile1.mqcdn.com/tiles/1.0.0/map;fileExtension=jpg;alpha=1},OSM={url=http://otile1.mqcdn.com/tiles/1.0.0/sat;fileExtension=jpg;alpha=0.5}" />
+        <property name="terrainProvider" value="CT={url=http://cesiumjs.org/stk-terrain/tilesets/world/tiles}" />
 	</bean>
   
     <jaxrs:server id="restService" address="/store">

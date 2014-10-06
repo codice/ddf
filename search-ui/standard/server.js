@@ -29,6 +29,7 @@ console.log('setting up proxy only');
 app.all('/services/*', server.requestProxy);
 app.all('/cometd/*', server.requestProxy);
 app.all('/search/*', server.requestProxy);
+app.all('/proxy/*', server.requestProxy);
 
 exports = module.exports = app;
 

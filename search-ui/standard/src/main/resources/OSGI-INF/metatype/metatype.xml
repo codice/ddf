@@ -61,21 +61,19 @@
         	name="Result Count" id="resultCount" required="true" type="Integer"
         	default="250">
         </AD>
-        <AD
-            description="Specify the base URL for a WMS server."
-            name="WMS Server" id="wmsServer" required="false" type="String"
-            default=""
-        />
-        <AD
-            description="Specifies the WMS layers to be used."
-            name="WMS Layers" id="layers" required="false" type="String"
-            default=""
-        />
-        <AD
-            description="Specifies the WMS layer format (image/png, etc.)."
-            name="WMS Format" id="format" required="false" type="String"
-            default=""
-        />
+
+        <AD name="Imagery Providers" id="imageryProviders"
+            required="false" type="String" cardinality="10000"
+            description="List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). Example: TYPE={url=http://url;layers=layer1|layer2;alpha=0.5}"
+            default="OSM={url=http://otile1.mqcdn.com/tiles/1.0.0/map;fileExtension=jpg;alpha=1},OSM={url=http://otile1.mqcdn.com/tiles/1.0.0/sat;fileExtension=jpg;alpha=0.5}"
+                />
+
+        <AD name="Terrain Provider" id="terrainProvider"
+            required="false" type="String"
+            description="Terrain provider to use for height data. Valid types are: CT (CesiumTerrain), AGS (ArcGisImageServer), VRW (VRTheWorld). Example: TYPE={url=http://url}"
+            default="CT={url=http://cesiumjs.org/stk-terrain/tilesets/world/tiles}"
+                />
+
         <AD description="Specifies the connection timeout in milliseconds to use when connecting to WMS services." name="Connection Timeout" id="timeout"
             required="false" type="Integer" default="5000" />
 

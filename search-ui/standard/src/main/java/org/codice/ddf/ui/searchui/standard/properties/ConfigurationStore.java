@@ -37,8 +37,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -55,48 +57,52 @@ public class ConfigurationStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationStore.class);
 
     public static final String SERVLET_PATH = "/proxy";
-    
-    private static ConfigurationStore uniqueInstance;
 
-    private String header = "";
+    public static final String URL = "url";
 
-    private String footer = "";
+    public static final String QUOTE = "\"";
 
-    private String style = "";
+    private String header;
 
-    private String textColor = "";
+    private String footer;
 
-    private String wmsServer = "";
-    
-    private String targetUrl = "";
+    private String style;
 
-    private String layers = "";
+    private String textColor;
 
-    private String format = "";
+    private String format;
 
-    private Boolean isSignIn = false;
+    private List<String> imageryProviders = new ArrayList<String>();
 
-    private Boolean isTask = false;
+    private List<String> proxiedImageryProviders = new ArrayList<String>();
+
+    private String terrainProvider;
+
+    private String proxiedTerrainProvider;
+
+    private List<String> imageryEndpoints = new ArrayList<String>();
+
+    private String terrainEndpoint;
+
+    private Boolean isSignIn;
+
+    private Boolean isTask;
 
     private BrandingPlugin branding;
 
-    private static String JSON_MIME_TYPE_STRING = "application/json";
-
-    private static MimeType JSON_MIME_TYPE = null;
+    private static MimeType JSON_MIME_TYPE;
     
     private Integer timeout = 5000;
     
-    private HttpProxyService httpProxy = null;
-    
-    private String endpointName = null;
-    
-    private BundleContext bundleContext = null;
+    private HttpProxyService httpProxy;
+
+    private BundleContext bundleContext;
     
     private int incrementer=0;
 
     private Integer resultCount = 250;
     
-    private String bundleName = null;
+    private String bundleName;
 
     private Map<String, Set<String>> typeNameMapping = new HashMap<String, Set<String>>();
 
@@ -109,6 +115,7 @@ public class ConfigurationStore {
     static {
         MimeType mime = null;
         try {
+            String JSON_MIME_TYPE_STRING = "application/json";
             mime = new MimeType(JSON_MIME_TYPE_STRING);
         } catch (MimeTypeParseException e) {
             LOGGER.warn("Failed to create json mimetype.");
@@ -116,14 +123,27 @@ public class ConfigurationStore {
         JSON_MIME_TYPE = mime;
     }
 
-    private ConfigurationStore() {
-        header = "";
-        footer = "";
-        style = "";
-        textColor = "";
-        layers = "";
-        format = "";
-        timeout = 5000;
+    public ConfigurationStore() {
+
+    }
+
+    public void destroy() {
+        if (imageryEndpoints.size() > 0) {
+            for(String endpoint : imageryEndpoints) {
+                try {
+                    httpProxy.stop(endpoint);
+                } catch (Exception e) {
+                    LOGGER.error("Unable to stop proxy endpoint.", e);
+                }
+            }
+        }
+        if (terrainEndpoint != null) {
+            try {
+                httpProxy.stop(terrainEndpoint);
+            } catch (Exception e) {
+                LOGGER.error("Unable to stop proxy endpoint.", e);
+            }
+        }
     }
 
     @GET
@@ -140,13 +160,12 @@ public class ConfigurationStore {
         configObj.put("version", getProductVersion());
         configObj.put("showWelcome", isSignIn);
         configObj.put("showTask", isTask);
-        configObj.put("wmsServer", wmsServer);
-        configObj.put("layers", layers);
         configObj.put("format", format);
         configObj.put("timeout", timeout);
-        configObj.put("targetUrl", targetUrl);
         configObj.put("resultCount", resultCount);
         configObj.put("typeNameMapping", typeNameMapping);
+        configObj.put("terrainProvider", proxiedTerrainProvider);
+        configObj.put("imageryProviders", proxiedImageryProviders);
 
         String configString = JSONValue.toJSONString(configObj);
         BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configString.getBytes()),
@@ -154,17 +173,6 @@ public class ConfigurationStore {
         response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
 
         return response;
-    }
-
-    /**
-     * @return a unique instance of {@link ConfigurationStore}
-     */
-    public static synchronized ConfigurationStore getInstance() {
-        if (uniqueInstance == null) {
-            uniqueInstance = new ConfigurationStore();
-        }
-
-        return uniqueInstance;
     }
 
     public String getHeader() {
@@ -225,20 +233,6 @@ public class ConfigurationStore {
         this.branding = branding;
     }
 
-    public String getWmsServer() {
-        return this.wmsServer;
-    }
-
-    public void setWmsServer(String wmsServer) {
-        this.wmsServer = wmsServer;
-    }
-    
-    public String getLayers() { return layers; }
-
-    public void setLayers(String layers) {
-        this.layers = layers;
-    }
-
     public String getFormat() {
         return format;
     }
@@ -255,92 +249,114 @@ public class ConfigurationStore {
         this.timeout = timeout;
     }
 
-    public String getTargetUrl() {
-		return targetUrl;
-	}
-
-	public void setTargetUrl(String targetUrl) {
-		this.targetUrl = targetUrl;
-	}
-
-	public Object clone() throws CloneNotSupportedException {
-        throw new CloneNotSupportedException();
+    public List<String> getProxiedImageryProviders() {
+        return proxiedImageryProviders;
     }
-    
-    public void update(Map<String, Object> properties) {
-    	if (properties != null) {
-    		setHeader((String) properties.get("header"));
-    		setFooter((String) properties.get("footer"));
-    		setStyle((String) properties.get("style"));
-    		setTextColor((String) properties.get("textColor"));
-    		setWmsServer((String) properties.get("wmsServer"));
-    		setLayers((String) properties.get("layers"));
-    		setFormat((String) properties.get("format"));
-    		setTimeout((Integer) properties.get("timeout"));
-    		setResultCount((Integer) properties.get("resultCount"));
-    		setSignIn((Boolean) properties.get("signIn"));
-            setTask((Boolean) properties.get("task"));
-            setTypeNameMapping((String[]) properties.get("typeNameMapping"));
-    		
-    		//Fetch the DDF HTTP Proxy
-            if(StringUtils.isNotBlank(wmsServer)) {
-                startProxy();
-            } else {
-                LOGGER.debug("No WMS Server was provided in the Standard UI configuration. " +
-                		"If you are attempting to connect to a WMS Server, please provide " +
-                		"the location of the WMS Server in the Standard UI configuration.");
-                
-                //WMS Server not specified; stop proxy and switch back to default map server
-                stopProxy();
-                targetUrl = "";
+
+    public List<String> getImageryProviders() {
+        return imageryProviders;
+    }
+
+    public void setImageryProviders(String imageryProviders) {
+        setImageryProviders(Arrays.asList(imageryProviders.split(",")));
+    }
+
+    public void setImageryProviders(List<String> imageryProviders) {
+        this.imageryProviders = imageryProviders;
+        setProxiesForImagery(imageryProviders);
+    }
+
+    public String getProxiedTerrainProvider() {
+        return proxiedTerrainProvider;
+    }
+
+    public String getTerrainProvider() {
+        return terrainProvider;
+    }
+
+    public void setTerrainProvider(String terrainProvider) {
+        this.terrainProvider = terrainProvider;
+        setProxyForTerrain(terrainProvider);
+    }
+
+    private void setProxiesForImagery(List<String> imageryProviders) {
+        if (imageryEndpoints.size() > 0) {
+            for(String endpoint : imageryEndpoints) {
+                try {
+                    httpProxy.stop(endpoint);
+                } catch (Exception e) {
+                    LOGGER.error("Unable to stop proxy endpoint.", e);
+                }
             }
-    		
-            LOGGER.debug(
-                    "Updated properties: header={}, footer={}, style={}, textColor={},"
-                            + "wmsServer={}, layers={}, format={}, timeout={}, resultCount{}",
-                    header, footer, style, textColor, wmsServer, layers, format, timeout, resultCount);
-  
-    	} else{
-    		LOGGER.debug("Properties are empty");
-    		targetUrl = "";
-    		wmsServer = "";
-    		//Stop proxy
-			stopProxy();
-    	}
+        }
+        proxiedImageryProviders.clear();
+
+        for(String provider : imageryProviders) {
+            String proxiedProvider = getProxiedProvider(provider, true);
+            proxiedImageryProviders.add(proxiedProvider);
+        }
     }
-    
-    public void init(){
-    	if ((StringUtils.isNotBlank(wmsServer))){
-    		startProxy();
-    	} else {
-    		LOGGER.debug("Cannot instantiate proxy connection.");
-    	}
+
+    private void setProxyForTerrain(String terrainProvider) {
+        if (terrainEndpoint != null) {
+            try {
+                httpProxy.stop(terrainEndpoint);
+            } catch (Exception e) {
+                LOGGER.error("Unable to stop proxy endpoint.", e);
+            }
+        }
+
+        String proxiedProvider = getProxiedProvider(terrainProvider, false);
+        proxiedTerrainProvider = proxiedProvider;
     }
-    
-    private void startProxy(){		
-		if (httpProxy != null){
-			try {
-				bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
-				incrementer++;
-				endpointName = httpProxy.start(bundleName, wmsServer, timeout);
-				targetUrl = SERVLET_PATH + "/" + endpointName;
-				LOGGER.debug("Target URL: " + targetUrl);
-			} catch (Exception e) {
-				LOGGER.error(e.getMessage());
-			}
-		}
-    }
-    
-    private void stopProxy(){	
-		if (httpProxy != null){
-			try {
-				if (StringUtils.isNotBlank(bundleName)){
-					httpProxy.stop(bundleName);
-				}
-			} catch (Exception e) {
-				LOGGER.error(e.getMessage());
-			}
-		}
+
+    private String getProxiedProvider(String provider, boolean imagery) {
+        int firstPartIdx = provider.indexOf("{");
+        int lastPartIdx = provider.indexOf("}");
+        String innerPart = provider.substring(firstPartIdx, lastPartIdx);
+        String[] providerParts = innerPart.split(";");
+        StringBuilder proxiedProviderParts = new StringBuilder();
+        for (String part : providerParts) {
+            if (part.contains(URL)) {
+                String url = part.substring(part.indexOf("=")+1);
+
+                try {
+                    bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
+                    incrementer++;
+                    String endpointName = httpProxy.start(bundleName, url, timeout);
+                    if (imagery) {
+                        imageryEndpoints.add(SERVLET_PATH + "/" + endpointName);
+                    } else {
+                        terrainEndpoint = SERVLET_PATH + "/" + endpointName;
+                    }
+                    proxiedProviderParts.append(QUOTE + URL + QUOTE + ":" + QUOTE + SERVLET_PATH + "/" + endpointName + QUOTE + ",");
+                } catch (Exception e) {
+                    LOGGER.error("Unable to configure proxy for: {}", url, e);
+                }
+            } else {
+                String[] parts = part.split("=");
+                if(parts.length == 2) {
+                    StringBuilder valuePart = new StringBuilder();
+                    if (parts[1].contains("|")) {
+                        String[] valueParts = parts[1].split("|");
+                        valuePart.append("[");
+                        for (String value : valueParts) {
+                            valuePart.append(value + ",");
+                        }
+                        valuePart.deleteCharAt(valuePart.length() - 1);
+                        valuePart.append("]");
+                    } else {
+                        valuePart.append(parts[1]);
+                    }
+                    proxiedProviderParts.append(QUOTE + parts[0] + QUOTE + ":" + QUOTE + valuePart + QUOTE + ",");
+                } else {
+                    proxiedProviderParts.append(part + ",");
+                }
+            }
+        }
+
+        String cleanProxiedProviders = proxiedProviderParts.deleteCharAt(proxiedProviderParts.lastIndexOf(",")).toString();
+        return "{" + QUOTE + provider.substring(0, firstPartIdx-1).replace("=", "") + QUOTE + ":{" + cleanProxiedProviders + "}}";
     }
 
 	public HttpProxyService getHttpProxy() {

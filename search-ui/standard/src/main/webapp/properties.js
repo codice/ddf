@@ -15,6 +15,7 @@ define(function (require) {
     'use strict';
     require('purl');
     var $ = require('jquery');
+    var _ = require('underscore');
 
     var properties = {
         canvasThumbnailScaleFactor : 10,
@@ -31,22 +32,7 @@ define(function (require) {
                 dataType: 'json',
                 url: "/services/store/config"
             }).success(function(data) {
-                    props.footer = data.footer;
-                    props.style = data.style;
-                    props.textColor = data.textColor;
-                    props.background = data.background;
-                    props.header = data.header;
-                    props.branding = data.branding;
-                    props.version = data.version;
-                    props.showWelcome = data.showWelcome;
-                    props.showTask = data.showTask;
-                    props.layers = data.layers;
-                    props.wmsServer = data.wmsServer;
-                    props.format = data.format;
-                    props.targetUrl = data.targetUrl;
-                    props.resultCount = data.resultCount;
-                    props.typeNameMapping = data.typeNameMapping;
-
+                    props = _.extend(props, data);
                     return props;
                 }).fail(function(jqXHR, status, errorThrown) {
                     throw new Error('Configuration could not be loaded: (status: ' + status + ', message: ' + errorThrown.message + ')');

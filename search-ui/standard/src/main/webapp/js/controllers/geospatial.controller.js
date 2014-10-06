@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, parseFloat*/
 /*jshint newcap:false */
 
 define(['underscore',
@@ -18,9 +18,23 @@ define(['underscore',
         'q',
         'wreqr',
         'properties',
-        'js/view/cesium.metacard'
-    ], function (_, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard) {
+        'js/view/cesium.metacard',
+        'jquery'
+    ], function (_, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard, $) {
         "use strict";
+
+        var imageryProviderTypes = {
+            OSM: Cesium.OpenStreetMapImageryProvider,
+            AGM: Cesium.ArcGisMapServerImageryProvider,
+            BM: Cesium.BingMapsImageryProvider,
+            WMS: Cesium.WebMapServiceImageryProvider,
+            WMT: Cesium.WebMapTileServiceImageryProvider,
+            TMS: Cesium.TileMapServiceImageryProvider,
+            GE: Cesium.GoogleEarthImageryProvider,
+            CT: Cesium.CesiumTerrainProvider,
+            AGS: Cesium.ArcGisImageServerTerrainProvider,
+            VRW: Cesium.VRTheWorldTerrainProvider
+        };
 
         var Controller = Marionette.Controller.extend({
             initialize: function () {
@@ -55,34 +69,33 @@ define(['underscore',
                     baseLayerPicker: false
                 };
 
-                if(properties.wmsServer) {
-                    options.imageryProvider = new Cesium.WebMapServiceImageryProvider({
-                        url: properties.targetUrl,
-                        layers : properties.layers,
-                        parameters : {
-                            format : properties.format
+                if(properties.imageryProviders) {
+                    _.each(properties.imageryProviders, function(item) {
+                        var imageryProvider = $.parseJSON(item);
+                        var key = Object.keys(imageryProvider)[0];
+                        var type = imageryProviderTypes[key];
+                        var initObj = imageryProvider[key];
+                        if (!options.imageryProvider) {
+                            options.imageryProvider = new type(initObj);
+                            viewer = new Cesium.Viewer(mapDivId, options);
+                        } else {
+                            var layer = viewer.scene.imageryLayers.addImageryProvider(new type(initObj));
+                            if(initObj.alpha) {
+                                layer.alpha = parseFloat(initObj.alpha, 10);
+                            } else {
+                                layer.alpha = 0.5;
+                            }
+
                         }
                     });
-                }
-                else {
-                    options.imageryProvider = new Cesium.OpenStreetMapImageryProvider({
-                        url: 'http://otile1.mqcdn.com/tiles/1.0.0/map',
-                        fileExtension: 'jpg'
-                    });
-                }
 
-                viewer = new Cesium.Viewer(mapDivId, options);
-
-                if(!properties.wmsServer) {
-                    var layer = viewer.scene.imageryLayers.addImageryProvider(new Cesium.OpenStreetMapImageryProvider({
-                        url: 'http://otile1.mqcdn.com/tiles/1.0.0/sat',
-                        fileExtension: 'jpg'
-                    }));
-                    layer.alpha = 0.5;
-
-                    viewer.scene.terrainProvider = new Cesium.CesiumTerrainProvider({
-                        url: 'http://cesiumjs.org/stk-terrain/tilesets/world/tiles'
-                    });
+                    var terrainProvider = $.parseJSON(properties.terrainProvider);
+                    var key = Object.keys(terrainProvider)[0];
+                    var type = imageryProviderTypes[key];
+                    var initObj = terrainProvider[key];
+                    if (viewer) {
+                        viewer.scene.terrainProvider = new type(initObj);
+                    }
                 }
 
                 return viewer;
