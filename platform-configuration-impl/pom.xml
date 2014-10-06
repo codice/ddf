@@ -24,7 +24,7 @@
     <name>DDF :: Platform Configuration Impl</name>
     <description>Implementation of ConfigurationWatcher Interface for use by bundles.</description>
     <packaging>bundle</packaging>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -86,9 +86,4 @@
             <url>http://artifacts.codice.org/content/groups/public/</url>
         </repository>
     </repositories>
-
-
-  <scm>
-    <tag>platform-configuration-impl-1.0.0</tag>
-  </scm>
 </project>
