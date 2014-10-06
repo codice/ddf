@@ -505,6 +505,7 @@ public class TestCswRecordConverter {
                 "resourceUriMapping",
                 "thumbnailMapping",
                 true);
+        cswRecordConverter.setFieldsToWrite(CswRecordMetacardType.FULL_CSW_RECORD_FIELDS);
         return cswRecordConverter;
     }
 
@@ -523,6 +524,11 @@ public class TestCswRecordConverter {
         metacard.setResourceSize("123 is the size");
         metacard.setSourceId("sourceID");
         metacard.setTitle("This is my title");
+        try {
+            metacard.setResourceURI(new URI("http://host:port/my/product.pdf"));
+        } catch (URISyntaxException e) {
+            LOGGER.debug("URISyntaxException", e);
+        }
 
         Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
         descriptors.add(new AttributeDescriptorImpl("id", false, false, false, false,

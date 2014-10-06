@@ -55,6 +55,7 @@ public class DefaultCswRecordMap {
         localNameMap.put(CswRecordMetacardType.CSW_TYPE, Metacard.CONTENT_TYPE);
         localNameMap.put(CswRecordMetacardType.CSW_IDENTIFIER, Metacard.ID);
         localNameMap.put(CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION, Metacard.ID);
+        localNameMap.put(CswRecordMetacardType.CSW_SOURCE, Metacard.RESOURCE_URI);  //HUGH
         localNameMap.put(CswConstants.CSW_CREATED, Metacard.CREATED);
         localNameMap.put(CswConstants.CSW_MODIFIED, Metacard.MODIFIED);
         localNameMap.put(CswRecordMetacardType.CSW_CREATED, Metacard.CREATED);
@@ -64,7 +65,7 @@ public class DefaultCswRecordMap {
         localNameMap.put(CswRecordMetacardType.CSW_ISSUED, Metacard.MODIFIED);
         localNameMap.put(CswRecordMetacardType.CSW_DATE_ACCEPTED, Metacard.EFFECTIVE);
         localNameMap.put(CswRecordMetacardType.CSW_DATE_COPYRIGHTED, Metacard.EFFECTIVE);
-        localNameMap.put(CswRecordMetacardType.CSW_VALID, Metacard.EXPIRATION);
+        localNameMap.put(CswRecordMetacardType.CSW_VALID, Metacard.EXPIRATION); 
 
         cswRecordLocalNameMapping = Collections.unmodifiableMap(localNameMap);
         
@@ -72,6 +73,7 @@ public class DefaultCswRecordMap {
         
         qNameMap.put(CswRecordMetacardType.CSW_IDENTIFIER_QNAME, Metacard.ID);
         qNameMap.put(CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION_QNAME, Metacard.ID);
+        qNameMap.put(CswRecordMetacardType.CSW_SOURCE_QNAME, Metacard.RESOURCE_URI);  //HUGH
         qNameMap.put(CswRecordMetacardType.CSW_TITLE_QNAME, Metacard.TITLE);
         qNameMap.put(CswRecordMetacardType.CSW_ALTERNATIVE_QNAME, Metacard.TITLE);
         qNameMap.put(CswRecordMetacardType.CSW_TYPE_QNAME, Metacard.CONTENT_TYPE);
@@ -82,7 +84,7 @@ public class DefaultCswRecordMap {
         qNameMap.put(CswRecordMetacardType.CSW_DATE_COPYRIGHTED_QNAME, Metacard.EFFECTIVE);
         qNameMap.put(CswRecordMetacardType.CSW_DATE_SUBMITTED_QNAME, Metacard.MODIFIED);
         qNameMap.put(CswRecordMetacardType.CSW_ISSUED_QNAME, Metacard.MODIFIED);
-        qNameMap.put(CswRecordMetacardType.CSW_VALID_QNAME, Metacard.EXPIRATION);
+        qNameMap.put(CswRecordMetacardType.CSW_VALID_QNAME, Metacard.EXPIRATION);        
 
         cswRecordQNameMapping = Collections.unmodifiableMap(qNameMap);
 
@@ -96,6 +98,7 @@ public class DefaultCswRecordMap {
         metacardMap.put(Metacard.CREATED,  Arrays.asList(CswRecordMetacardType.CSW_CREATED_QNAME));
         metacardMap.put(Metacard.EFFECTIVE, Arrays.asList(CswRecordMetacardType.CSW_DATE_ACCEPTED_QNAME, CswRecordMetacardType.CSW_DATE_COPYRIGHTED_QNAME));
         metacardMap.put(Metacard.EXPIRATION, Arrays.asList(CswRecordMetacardType.CSW_VALID_QNAME));
+        metacardMap.put(Metacard.RESOURCE_URI, Arrays.asList(CswRecordMetacardType.CSW_SOURCE_QNAME));
 
         metacardMapping = Collections.unmodifiableMap(metacardMap);
 
