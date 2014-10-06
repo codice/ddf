@@ -14,12 +14,6 @@
  **/
 package org.codice.proxy.http;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Dictionary;
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.servlet.ServletComponent;
@@ -33,6 +27,12 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Dictionary;
+
 /**
  * Http Proxy service which creates a Camel based http proxy
  * 
@@ -41,10 +41,6 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpProxyServiceImpl implements HttpProxyService {
     BundleContext bundleContext = null;
-
-    RouteBuilder routeBuilder = null;
-
-    String targetUri = null;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxyServiceImpl.class);
 
@@ -142,8 +138,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         }
 
         // Create Camel route
-        this.targetUri = targetUri;
-        routeBuilder = new RouteBuilder() {
+        RouteBuilder routeBuilder = new RouteBuilder() {
             @Override
             public void configure() throws Exception {
                 from("servlet:///" + endpointName)

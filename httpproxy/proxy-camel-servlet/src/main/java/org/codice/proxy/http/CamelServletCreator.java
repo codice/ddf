@@ -14,13 +14,13 @@
  **/
 package org.codice.proxy.http;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
-
+import org.apache.camel.CamelContext;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 /**
  * Creates a registered Camel Servlet
@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class CamelServletCreator {
+    private final CamelContext camelContext;
+
     BundleContext bundleContext = null;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CamelServletCreator.class);
@@ -37,8 +39,9 @@ public class CamelServletCreator {
 
     public static final String SERVLET_NAME = "CamelServlet";
 
-    public CamelServletCreator(BundleContext bundleContext) {
+    public CamelServletCreator(BundleContext bundleContext, CamelContext camelContext) {
         this.bundleContext = bundleContext;
+        this.camelContext = camelContext;
     }
 
     /**
@@ -50,6 +53,6 @@ public class CamelServletCreator {
         props.put("alias", SERVLET_PATH);
         props.put("servlet-name", SERVLET_NAME);
         bundleContext.registerService("javax.servlet.Servlet",
-                new HttpProxyCamelHttpTransportServlet(), props);
+                new HttpProxyCamelHttpTransportServlet(camelContext), props);
     }
 }

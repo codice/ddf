@@ -31,15 +31,10 @@
  */
 package org.codice.proxy.http;
 
-import java.io.IOException;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
+import org.apache.camel.Route;
 import org.apache.camel.component.http.CamelServlet;
 import org.apache.camel.component.http.HttpConsumer;
 import org.apache.camel.component.http.HttpMessage;
@@ -52,6 +47,14 @@ import org.apache.camel.impl.DefaultExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 /**
  * Camel HTTP servlet which can be used in Camel routes to route servlet invocations in routes.
  */
@@ -59,8 +62,15 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
     private static final long serialVersionUID = -1797014782158930490L;
     private static final Logger LOG = LoggerFactory.getLogger(HttpProxyCamelHttpTransportServlet.class);
 
+    private CamelContext camelContext;
     private HttpRegistry httpRegistry;
     private boolean ignoreDuplicateServletName;
+
+    private ConcurrentMap<String, HttpConsumer> consumers = new ConcurrentHashMap<String, HttpConsumer>();
+
+    public HttpProxyCamelHttpTransportServlet(CamelContext camelContext) {
+        this.camelContext = camelContext;
+    }
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -117,29 +127,43 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
     	HttpProxyWrappedCleanRequest request = new HttpProxyWrappedCleanRequest(oldRequest);
     	
     	log.trace("Service: {}", request);
-    	
+
         // Is there a consumer registered for the request.
         HttpConsumer consumer = resolve(request);
+
+        if(consumer == null) {
+            String endpointName = request.getPathInfo().substring(1);
+            endpointName = endpointName.substring(0, endpointName.indexOf("/"));
+
+            Route route = camelContext.getRoute(endpointName);
+            try {
+                connect((HttpConsumer) route.getConsumer());
+            } catch (Exception e) {
+                log.debug("Exception while creating consumer", e);
+            }
+            consumer = resolve(request);
+        }
+
         if (consumer == null) {
             log.debug("No consumer to service request {}", request);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
-        }       
+        }
         
         // are we suspended?
-        if (consumer.isSuspended()) {
+        if (consumer.getEndpoint().isSuspended()) {
             log.debug("Consumer suspended, cannot service request {}", request);
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             return;
         }
         
-        if (consumer.getEndpoint().getHttpMethodRestrict() != null 
+        if (consumer.getEndpoint().getHttpMethodRestrict() != null
             && !consumer.getEndpoint().getHttpMethodRestrict().equals(request.getMethod())) {
             response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             return;
         }
 
-        if ("TRACE".equals(request.getMethod()) && !consumer.isTraceEnabled()) {
+        if ("TRACE".equals(request.getMethod()) && !consumer.getEndpoint().isTraceEnabled()) {
             response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             return;
         }
@@ -221,12 +245,34 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
         return (ServletEndpoint)consumer.getEndpoint();
     }
 
+    protected HttpConsumer resolve(HttpServletRequest request) {
+        String path = request.getPathInfo();
+        path = path.substring(0, path.indexOf("/", 1));
+        HttpConsumer answer = consumers.get(path);
+
+        if (answer == null) {
+            for (String key : consumers.keySet()) {
+                if (consumers.get(key).getEndpoint().isMatchOnUriPrefix() && path.startsWith(key)) {
+                    answer = consumers.get(key);
+                    break;
+                }
+            }
+        }
+        return answer;
+    }
+
     @Override
     public void connect(HttpConsumer consumer) {
         ServletEndpoint endpoint = getServletEndpoint(consumer);
-        if (endpoint.getServletName() != null && endpoint.getServletName().equals(getServletName())) {
-            super.connect(consumer);
+        if (endpoint.getServletName() != null) {
+            log.debug("Connecting consumer: {}", consumer);
+            consumers.put(consumer.getPath(), consumer);
         }
+    }
+
+    public void disconnect(HttpConsumer consumer) {
+        log.debug("Disconnecting consumer: {}", consumer);
+        consumers.remove(consumer.getPath());
     }
 
     public boolean isIgnoreDuplicateServletName() {
