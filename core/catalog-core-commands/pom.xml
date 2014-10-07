@@ -70,6 +70,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-cql</artifactId>
+            <version>8.4</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -81,7 +87,8 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            joda-time;scope=runtime|compile, joda-convert;scope=runtime|compile
+                            joda-time;scope=runtime|compile, joda-convert;scope=runtime|compile,
+                            gt-cql;scope=runtime|compile
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>

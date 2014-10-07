@@ -19,6 +19,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.fusesource.jansi.Ansi;
+import org.geotools.filter.text.cql2.CQL;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 
@@ -47,10 +48,18 @@ public class SearchCommand extends CatalogCommands {
     @Argument(name = "NUMBER_OF_ITEMS", description = "Number of maximum records to display.", index = 1, multiValued = false, required = false)
     int numberOfItems = -1;
 
-    @Argument(name = "SEARCH_PHRASE", description = "Phrase to query the catalog provider.", index = 0, multiValued = false, required = true)
+    @Argument(name = "SEARCH_PHRASE", index = 0, multiValued = false, required = true,
+            description = "Phrase to query the catalog provider.\n"
+                    + "To Search across all textual data simply do 'search someText'.\n"
+                    + "To Search using CQL use quotes around the search phrase like: 'search \"title like 'some test'\".\n"
+                    + "CQL Examples:\n"
+                    + "\tTextual:   search \"title like 'some text'\"\n"
+                    + "\tTemporal:  search \"modified before 2012-09-01T12:30:00Z\"\n"
+                    + "\tSpatial:   search \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
+                    + "\tComplex:   search \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String searchPhrase = null;
 
-    @Option(name = "case-sensitive", required = false, aliases = {"-c"}, multiValued = false, description = "Makes the search case sensitive")
+    @Option(name = "case-sensitive", required = false, aliases = {"-c"}, multiValued = false, description = "Makes the search case sensitive. NOTE: Does not apply to CQL searches")
     boolean caseSensitive = false;
 
     @Override
@@ -62,11 +71,20 @@ public class SearchCommand extends CatalogCommands {
         CatalogFacade catalogProvider = getCatalog();
 
         Filter filter = null;
-        if (caseSensitive) {
-            filter = getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like()
-                    .caseSensitiveText(searchPhrase);
+        searchPhrase.trim();
+        if(searchPhrase.split("\\s").length == 1){
+            // This is just a "*" type query and should be run against Metacard.ANY_TEXT
+            if (caseSensitive) {
+                filter = getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like()
+                        .caseSensitiveText(searchPhrase);
+            } else {
+                filter = getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like()
+                        .text(searchPhrase);
+            }
+
         } else {
-            filter = getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase);
+            // We have a CQL Expression so parse it
+            filter = CQL.toFilter(searchPhrase);
         }
 
         QueryImpl query = new QueryImpl(filter);

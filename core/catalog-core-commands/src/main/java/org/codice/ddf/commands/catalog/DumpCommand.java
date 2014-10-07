@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.commands.catalog;
 
@@ -25,6 +25,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.geotools.filter.text.cql2.CQL;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
@@ -56,24 +57,34 @@ public class DumpCommand extends CatalogCommands {
     int pageSize = 1000;
 
     // DDF-535: remove "Transformer" alias in DDF 3.0
-    @Option(name = "--transformer", required = false, aliases = {"-t", "Transformer"}, multiValued = false, description = "The metacard transformer ID to use to transform metacards into data files. The default metacard transformer is the Java serialization transformer.")
+    @Option(name = "--transformer", required = false, aliases = {"-t",
+            "Transformer"}, multiValued = false, description = "The metacard transformer ID to use to transform metacards into data files. The default metacard transformer is the Java serialization transformer.")
     String transformerId = DEFAULT_TRANSFORMER_ID;
 
     // DDF-535: remove "Extension" alias in DDF 3.0
-    @Option(name = "--extension", required = false, aliases = {"-e", "Extension"}, multiValued = false, description = "The file extension of the data files.")
+    @Option(name = "--extension", required = false, aliases = {"-e",
+            "Extension"}, multiValued = false, description = "The file extension of the data files.")
     String fileExtension = null;
 
-    @Option(name = "--created-after", required = false, aliases = {"-ca"}, multiValued = false, description = "Include only entries created after this date/time (ISO8601 format).")
+    @Option(name = "--created-after", required = false, aliases = {
+            "-ca"}, multiValued = false, description = "Include only entries created after this date/time (ISO8601 format).")
     String createdAfter = null;
 
-    @Option(name = "--created-before", required = false, aliases = {"-cb"}, multiValued = false, description = "Include only entries created before this date/time (ISO8601 format).")
+    @Option(name = "--created-before", required = false, aliases = {
+            "-cb"}, multiValued = false, description = "Include only entries created before this date/time (ISO8601 format).")
     String createdBefore = null;
 
-    @Option(name = "--modified-after", required = false, aliases = {"-ma"}, multiValued = false, description = "Include only entries modified after this date/time (ISO8601 format).")
+    @Option(name = "--modified-after", required = false, aliases = {
+            "-ma"}, multiValued = false, description = "Include only entries modified after this date/time (ISO8601 format).")
     String modifiedAfter = null;
 
-    @Option(name = "--modified-before", required = false, aliases = {"-mb"}, multiValued = false, description = "Include only entries modified before this date/time (ISO8601 format)")
+    @Option(name = "--modified-before", required = false, aliases = {
+            "-mb"}, multiValued = false, description = "Include only entries modified before this date/time (ISO8601 format)")
     String modifiedBefore = null;
+
+    @Option(name = "--searchPhrase", required = false, aliases = {
+            "--sp"}, multiValued = false, description = "CQL Search Phrase to limit which metacards are dumped. Use the 'search' command first to see which metacards will be dumped.")
+    String searchPhrase = null;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -101,31 +112,36 @@ public class DumpCommand extends CatalogCommands {
         CatalogFacade catalog = getCatalog();
         FilterBuilder builder = getFilterBuilder();
 
-
         Filter createdFilter = null;
         if ((createdAfter != null) && (createdBefore != null)) {
             DateTime createStartDateTime = DateTime.parse(createdAfter);
             DateTime createEndDateTime = DateTime.parse(createdBefore);
-            createdFilter = builder.attribute(Metacard.CREATED).is().during().dates(createStartDateTime.toDate(), createEndDateTime.toDate());
+            createdFilter = builder.attribute(Metacard.CREATED).is().during()
+                    .dates(createStartDateTime.toDate(), createEndDateTime.toDate());
         } else if (createdAfter != null) {
             DateTime createStartDateTime = DateTime.parse(createdAfter);
-            createdFilter = builder.attribute(Metacard.CREATED).is().after().date(createStartDateTime.toDate());
+            createdFilter = builder.attribute(Metacard.CREATED).is().after()
+                    .date(createStartDateTime.toDate());
         } else if (createdBefore != null) {
             DateTime createEndDateTime = DateTime.parse(createdBefore);
-            createdFilter = builder.attribute(Metacard.CREATED).is().before().date(createEndDateTime.toDate());
+            createdFilter = builder.attribute(Metacard.CREATED).is().before()
+                    .date(createEndDateTime.toDate());
         }
 
         Filter modifiedFilter = null;
         if ((modifiedAfter != null) && (modifiedBefore != null)) {
             DateTime modifiedStartDateTime = DateTime.parse(modifiedAfter);
             DateTime modifiedEndDateTime = DateTime.parse(modifiedBefore);
-            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().during().dates(modifiedStartDateTime.toDate(), modifiedEndDateTime.toDate());
+            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().during()
+                    .dates(modifiedStartDateTime.toDate(), modifiedEndDateTime.toDate());
         } else if (modifiedAfter != null) {
             DateTime modifiedStartDateTime = DateTime.parse(modifiedAfter);
-            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().after().date(modifiedStartDateTime.toDate());
+            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().after()
+                    .date(modifiedStartDateTime.toDate());
         } else if (modifiedBefore != null) {
             DateTime modifiedEndDateTime = DateTime.parse(modifiedBefore);
-            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().before().date(modifiedEndDateTime.toDate());
+            modifiedFilter = builder.attribute(Metacard.MODIFIED).is().before()
+                    .date(modifiedEndDateTime.toDate());
         }
 
         Filter filter = null;
@@ -143,6 +159,10 @@ public class DumpCommand extends CatalogCommands {
             filter = builder.attribute(Metacard.ID).is().like().text(WILDCARD);
         }
 
+        if (searchPhrase != null) {
+            filter = CQL.toFilter(searchPhrase);
+        }
+        
         QueryImpl query = new QueryImpl(filter);
         query.setRequestsTotalResultsCount(false);
         query.setPageSize(pageSize);
@@ -185,7 +205,7 @@ public class DumpCommand extends CatalogCommands {
     }
 
     private void exportMetacard(File dumpLocation, Metacard metacard) throws IOException,
-        CatalogTransformerException {
+            CatalogTransformerException {
 
         String extension = "";
         if (fileExtension != null) {
