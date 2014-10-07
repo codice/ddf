@@ -23,6 +23,20 @@ define(function (require) {
 
         defaultFlytoHeight : 15000.0,
 
+        CQL_DATE_FORMAT : 'YYYY-MM-DD[T]HH:mm:ss[Z]',
+
+        filters: {
+            METADATA_CONTENT_TYPE: 'metadata-content-type',
+            SOURCE_ID: 'source-id',
+            OPERATIONS : {
+                'string': ['contains','equals'],
+                'xml': ['contains','equals'],
+                'date': ['before','after'],
+                'number': ['=','!=','>','>=','<','<='],
+                'anyGeo': ['intersects','contains']
+            }
+        },
+
         init : function(){
             // use this function to initialize variables that rely on others
             var props = this;

@@ -20,7 +20,8 @@ define(['config'], function () {
         'application',
         'icanhaz',
         'properties',
-        'js/HandlebarsHelpers'
+        'js/HandlebarsHelpers',
+        'js/ApplicationHelpers'
     ], function ($, Backbone, Marionette, app, ich, properties) {
         'use strict';
 

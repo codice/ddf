@@ -1,0 +1,158 @@
+.filter-view {
+
+  .filter-status {
+    border-top: 1px solid @divider-hr-color;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .filter-menu {
+    display: none;
+  }
+
+  .add-filter {
+    .i-clickable();
+    font-size: 19px;
+  }
+
+  .btn.add {
+    margin-left: 6px;
+  }
+
+  .item {
+    display: block;
+    border-top: 1px solid @divider-hr-color;
+    padding: 6px 0px;
+    overflow: auto; // float auto height magic.
+
+
+
+    select, input {
+      width: auto;
+      border-radius: 4px;
+      font-size: 12px;
+      height: 28px;
+    }
+
+    select {
+      padding: 0px;
+    }
+
+
+
+    .value-input-group,
+    .operator-group,
+    .metadata-field-group,
+    .button-group {
+      float: left;
+      vertical-align: top;
+    }
+
+    .metadata-field-group {
+      margin-right: 5px;
+    }
+
+    .metadata-field-group select {
+      width: 80px;
+      margin-bottom: 0px;
+    }
+
+    .operator-group {
+      margin-right: 5px;
+    }
+
+    .operator-group select {
+      width: 80px;
+      margin-bottom: 0px;
+    }
+
+    .value-input-group input {
+      width: 180px;
+      margin-bottom: 0px;
+    }
+
+    .button-group {
+      float: right;
+      padding-top: 4px;
+      padding-right: 6px;
+      padding-left: 6px;
+      cursor: pointer;
+
+      i {
+        .i-clickable();
+      }
+    }
+
+    &:last-child {
+      padding-bottom: 6px;
+    }
+  }
+
+  .field-value {
+    font-size: small;
+  }
+
+  &.active {
+    .filter-menu {
+
+      display: block;
+      transition: max-height 1s ease 0s;
+      transition-delay: 0s;
+    }
+  }
+}
+
+// this is in the latest bootstrap, once its upgraded we probably don't need this once we update to latest bootstrap.
+.has-feedback {
+  position: relative;
+
+  .form-control-feedback {
+    position: absolute;
+    top: 5px;
+    right: 0;
+    z-index: 2;
+    display: block;
+    width: 34px;
+    text-align: center;
+  }
+
+  &.has-value {
+    .form-control-feedback {
+      display: none;
+    }
+  }
+}
+
+
+@media (min-width: 700px){
+  .full-screen-search {
+
+    .filter-view {
+      .metadata-field-group select {
+        width: auto;
+      }
+
+      .operator-group select {
+        width: auto;
+      }
+
+      .value-input-group input {
+        width: 400px;
+        margin-bottom: 0px;
+      }
+    }
+  }
+}
+
+@media (min-width: 1000px){
+  .full-screen-search {
+    .filter-menu {
+      width: 1000px;
+      margin: 0 auto;
+    }
+  }
+}
+
+i.clickable {
+  .i-clickable();
+}

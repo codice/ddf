@@ -18,13 +18,12 @@ define([
         'moment',
         'js/model/Metacard',
         'usngs',
+        'js/model/Filter',
         'backboneassociations'
     ],
-    function (Backbone, _, properties, moment, Metacard, usngs) {
+    function (Backbone, _, properties, moment, Metacard, usngs, Filter) {
         "use strict";
         var Query = {};
-
-        var CQL_DATE_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss[Z]';
 
         var converter = new usngs.Converter();
 
@@ -69,6 +68,8 @@ define([
                 this.listenTo(this, 'change:usng', this.setRadiusUsng);
                 this.listenTo(this, 'EndExtent', this.notDrawing);
                 this.listenTo(this, 'BeginExtent', this.drawingOn);
+
+                this.filters = new Filter.Collection();
 
                 if (this.get('scheduled')) {
                     this.startSearch();
@@ -116,6 +117,134 @@ define([
                 this.set(result);
             },
 
+            toFilters: function(){
+                var filters = [];
+
+                // contextual
+                var q = this.get('q');
+                if (q) {
+                    filters.push(new Filter.Model({
+                        fieldName: 'anyText',
+                        fieldType: 'string',
+                        fieldOperator: 'contains',
+                        stringValue1: q
+                    }));
+                }
+
+                // temporal
+                var start = this.get('dtstart'),
+                    end = this.get('dtend'),
+                    offset = this.get('dtoffset'),
+                    timeType = this.get('timeType');
+                if (start && end) {
+                    filters.push(new Filter.Model({
+                        fieldName: timeType,
+                        fieldType: 'date',
+                        fieldOperator: 'after',
+                        dateValue1: start
+                    }));
+                    filters.push(new Filter.Model({
+                        fieldName: timeType,
+                        fieldType: 'date',
+                        fieldOperator: 'before',
+                        dateValue1: end
+                    }));
+                } else if (start) {
+                    filters.push(new Filter.Model({
+                        fieldName: timeType,
+                        fieldType: 'date',
+                        fieldOperator: 'after',
+                        dateValue1: start
+                    }));
+                } else if (end) {
+                    filters.push(new Filter.Model({
+                        fieldName: timeType,
+                        fieldType: 'date',
+                        fieldOperator: 'before',
+                        dateValue1: end
+                    }));
+
+                } else if (offset) {
+                    filters.push(new Filter.Model({
+                        fieldName: timeType,
+                        fieldType: 'date',
+                        fieldOperator: 'before',
+                        dateValue1: moment().subtract(offset, 'milliseconds').toDate()
+                    }));
+                }
+
+
+
+                // type
+                var types = this.get('type');
+                if (types) {
+                    filters.push(new Filter.Model({
+                        fieldName: properties.filters.METADATA_CONTENT_TYPE,
+                        fieldType: 'string',
+                        fieldOperator: 'contains',
+                        stringValue1: types  // this should already be common delimited for us.
+                    }));
+                }
+
+                // spacial stuff.
+                var north = this.get('north'),
+                    south = this.get('south'),
+                    west = this.get('west'),
+                    east = this.get('east'),
+                    lat = this.get('lat'),
+                    lon = this.get('lon'),
+                    radius = this.get('radius');
+                if (north && south && east && west) {
+                    var bbox = 'POLYGON ((' +
+                        west + ' ' + south +
+                        ', ' + west + ' ' + north +
+                        ', ' + east + ' ' + north +
+                        ', ' + east + ' ' + south +
+                        ', ' + west + ' ' + south +
+                        '))';
+
+                    filters.push(new Filter.Model({
+                        fieldName: 'anyGeo',
+                        fieldType: 'anyGeo',
+                        fieldOperator: 'intersects',
+                        //geoValue1: 'INTERSECTS(anyGeo, ' + bbox + ')'
+                        geoValue1: bbox
+                    }));
+
+                } else if (lat && lon && radius) {
+                    var point = 'POINT(' + lon + ' ' + lat + ')';
+                    filters.push(new Filter.Model({
+                        fieldName: 'anyGeo',
+                        fieldType: 'anyGeo',
+                        fieldOperator: 'contains',
+//                        geoValue1: 'DWITHIN(anyGeo, ' + point + ', ' + radius + ', meters)'
+                        geoValue1: point + ', ' + radius
+                    }));
+                }
+
+                // if no filters so far, lets create a global search one.
+                if (_.isEmpty(filters)) {
+                    filters.push(new Filter.Model({
+                        fieldName: 'anyText',
+                        fieldType: 'string',
+                        fieldOperator: 'contains',
+                        stringValue1: '*'
+                    }));
+                }
+
+                var src = this.get('src');
+                if(src){
+                    filters.push(new Filter.Model({
+                        fieldName: properties.filters.SOURCE_ID,
+                        fieldType: 'string',
+                        fieldOperator: 'equals',
+                        stringValue1: src
+                    }));
+                }
+
+                return filters;
+            },
+
             getCql: function () {
                 var filters = [];
 
@@ -139,7 +268,7 @@ define([
                     filters.push(timeType + ' BEFORE ' + this.getValue(new Date(end)));
                 } else if (offset) {
                     filters.push(timeType + ' AFTER ' +
-                        moment().subtract(offset, 'milliseconds').format(CQL_DATE_FORMAT));
+                        moment().subtract(offset, 'milliseconds').format(properties.CQL_DATE_FORMAT));
                 }
 
                 // spatial
@@ -182,7 +311,7 @@ define([
                 if (types) {
                     var typeFilters = [];
                     _.each(types.split(','), function (type) {
-                        typeFilters.push('"metadata-content-type" = ' + this.getValue(type));
+                        typeFilters.push('"' + properties.filters.METADATA_CONTENT_TYPE + '" = ' + this.getValue(type));
                     }, this);
 
                     filters.push(this.logicalCql(typeFilters, 'OR'));
@@ -216,7 +345,7 @@ define([
                         return String(value);
                     case 'object':
                         if (_.isDate(value)) {
-                            return moment(value).format(CQL_DATE_FORMAT);
+                            return moment(value).format(properties.CQL_DATE_FORMAT);
                         } else {
                             throw new Error("Can't write object to CQL: " + value);
                         }
@@ -271,9 +400,32 @@ define([
                     this.get('result').cleanup();
                 }
                 this.set({result: undefined});
+                this.filters.reset(this.toFilters());
+                this.trigger('searchCleared');
+            },
+
+
+            buildSearchData: function(){
+                var data = this.toJSON();
+                if(this.filters.length === 0){
+                    this.filters.reset(this.toFilters()); // init filters from search parameters.
+                }
+                // this overrides the cql generation with the filters cql.
+                data.cql = this.filters.toCQL();
+
+                // lets handle the source-id filters since they are not included in the cql.
+                var sourceFilters = this.filters.where({fieldName: properties.filters.SOURCE_ID});
+                var sources = [];
+                _.each(sourceFilters, function(sourceFilter){
+                    sources.push(sourceFilter.get('stringValue1'));
+                });
+                data.src = sources.join(',');
+
+                return data;
             },
 
             startSearch:function(progressFunction) {
+
                 var result;
                 if (this.get('result')) {
                     result = this.get('result');
@@ -293,9 +445,11 @@ define([
                     localResult = null;
                 };
 
+                var data = this.buildSearchData();
+
                 return result.fetch({
                     progress: progress,
-                    data: this.toJSON(),
+                    data: data,
                     dataType: "json",
                     timeout: 300000,
                     error : function(){

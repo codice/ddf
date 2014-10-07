@@ -29,12 +29,13 @@ define([
         'js/view/SearchControl.view',
         'js/model/Query',
         'js/view/WorkspaceSaveResults.view',
+        'js/controllers/Filter.controller',
         // Load non attached libs and plugins
         'perfectscrollbar'
     ],
     function ($, _, Marionette, SlidingRegion, QueryView, Progress, MetacardList, MetacardDetail,
               MetacardModel, Backbone, dir, ich, wreqr, searchPanel, SearchControl, QueryModel,
-              WorkspaceSaveResults) {
+              WorkspaceSaveResults, FilterController) {
         "use strict";
         var Search = {};
 
@@ -56,6 +57,10 @@ define([
                 _.bindAll(this);
 
                 this.query = new QueryModel.Model();
+
+                this.controller = new FilterController({
+                    query: this.query
+                });
 
                 this.listenTo(wreqr.vent, 'workspace:tabshown', this.setupWreqr);
             },

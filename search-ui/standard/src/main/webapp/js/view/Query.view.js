@@ -64,7 +64,8 @@ define([
             },
 
             modelEvents: {
-                'change:bbox change:radius change:polygon': 'updateZoomOnResults'
+                'change:bbox change:radius change:polygon': 'updateZoomOnResults',
+                'searchCleared': 'onSearchCleared'
             },
 
             initialize: function (options) {
@@ -439,6 +440,11 @@ define([
 
             saveSearch: function() {
                 wreqr.vent.trigger('workspace:saveresults', this.model);
+            },
+
+            onSearchCleared: function(){
+                // i don't like this being here.  I'd like to keep things centralized.
+                wreqr.vent.trigger('filterFlagChanged', false);
             },
 
             search: function () {
