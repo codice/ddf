@@ -1027,14 +1027,14 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         QueryResponse queryResponse = null;
         QueryRequest queryReq = queryRequest;
 
-        if (fanoutEnabled) {
-            // Force an enterprise query
-            queryReq = new QueryRequestImpl(queryRequest.getQuery(), true, null,
-                    queryRequest.getProperties());
-        }
-
         try {
             validateQueryRequest(queryReq);
+            
+            if (fanoutEnabled) {
+                // Force an enterprise query
+                queryReq = new QueryRequestImpl(queryRequest.getQuery(), true, null,
+                        queryRequest.getProperties());
+            }
 
             for (PreQueryPlugin service : preQuery) {
                 try {
