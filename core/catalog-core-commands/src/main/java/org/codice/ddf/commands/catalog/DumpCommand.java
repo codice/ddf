@@ -82,9 +82,9 @@ public class DumpCommand extends CatalogCommands {
             "-mb"}, multiValued = false, description = "Include only entries modified before this date/time (ISO8601 format)")
     String modifiedBefore = null;
 
-    @Option(name = "--searchPhrase", required = false, aliases = {
-            "--sp"}, multiValued = false, description = "CQL Search Phrase to limit which metacards are dumped. Use the 'search' command first to see which metacards will be dumped.")
-    String searchPhrase = null;
+    @Option(name = "--cql", required = false, aliases = {
+            "--c"}, multiValued = false, description = "CQL filter to limit which metacards are dumped. Use the 'search' command first to see which metacards will be dumped.")
+    String cql = null;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -159,8 +159,8 @@ public class DumpCommand extends CatalogCommands {
             filter = builder.attribute(Metacard.ID).is().like().text(WILDCARD);
         }
 
-        if (searchPhrase != null) {
-            filter = CQL.toFilter(searchPhrase);
+        if (cql != null) {
+            filter = CQL.toFilter(cql);
         }
         
         QueryImpl query = new QueryImpl(filter);
