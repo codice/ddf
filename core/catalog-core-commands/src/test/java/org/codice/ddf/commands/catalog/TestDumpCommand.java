@@ -14,29 +14,30 @@
  **/
 package org.codice.ddf.commands.catalog;
 
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
-
-import java.io.File;
-import java.util.List;
-
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.codice.ddf.commands.catalog.facade.Framework;
-
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-
-import org.apache.commons.io.FileUtils;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.codice.ddf.commands.catalog.facade.Framework;
 import org.fusesource.jansi.Ansi;
-import org.joda.time.DateTime;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests the {@link DumpCommand} output.
  * 
  */
 public class TestDumpCommand extends AbstractCommandTest {
+
+    @Rule
+    public TemporaryFolder testFolder = new TemporaryFolder();
 
     static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
 
@@ -87,8 +88,7 @@ public class TestDumpCommand extends AbstractCommandTest {
 
         // given
         DumpCommand command = new DumpCommand();
-        File testFile = new File("somefile.txt");
-        testFile.createNewFile();
+        File testFile = testFolder.newFile("somefile.txt");
         String testFilePath = testFile.getAbsolutePath();
         command.dirPath = testFilePath;
 
@@ -134,8 +134,7 @@ public class TestDumpCommand extends AbstractCommandTest {
                 return new GeotoolsFilterBuilder();
             }
         };
-        File outputDirectory = new File("somedirectory");
-        outputDirectory.mkdir();
+        File outputDirectory = testFolder.newFolder("somedirectory");
         String outputDirectoryPath = outputDirectory.getAbsolutePath();
         command.dirPath = outputDirectoryPath;
 
@@ -147,11 +146,8 @@ public class TestDumpCommand extends AbstractCommandTest {
 
         // then
         try {
-            String expectedPrintOut = " 2 file(s) dumped in ";
-            assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
-
+            assertThat(consoleOutput.getOutput(), containsString(" 2 file(s) dumped in "));
         } finally {
-            FileUtils.deleteDirectory(outputDirectory);
             consoleOutput.closeBuffer();
         }
     }
@@ -180,8 +176,7 @@ public class TestDumpCommand extends AbstractCommandTest {
                 return new GeotoolsFilterBuilder();
             }
         };
-        File outputDirectory = new File("somedirectory");
-        outputDirectory.mkdir();
+        File outputDirectory = testFolder.newFolder("somedirectory");
         String outputDirectoryPath = outputDirectory.getAbsolutePath();
         command.dirPath = outputDirectoryPath;
 
@@ -197,7 +192,6 @@ public class TestDumpCommand extends AbstractCommandTest {
             assertThat(consoleOutput.getOutput(), startsWith(expectedPrintOut));
 
         } finally {
-            FileUtils.deleteDirectory(outputDirectory);
             consoleOutput.closeBuffer();
         }
     }

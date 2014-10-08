@@ -177,7 +177,7 @@ public class CatalogCommands extends OsgiCommandSupport {
         return (int) ((Double.valueOf(currentCount) / Double.valueOf(totalPossible)) * PERCENTAGE_MULTIPLIER);
     }
 
-    private int calculateRecordsPerSecond(long currentCount, long start, long end) {
+    protected int calculateRecordsPerSecond(long currentCount, long start, long end) {
         return (int) (Double.valueOf(currentCount) / (Double.valueOf(end - start) / MILLISECONDS_PER_SECOND));
     }
 }

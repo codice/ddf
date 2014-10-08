@@ -14,29 +14,6 @@
  **/
 package org.codice.ddf.commands.catalog;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
@@ -46,6 +23,40 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import org.apache.commons.lang.StringUtils;
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Custom Karaf command for ingesting records into the Catalog.
@@ -54,9 +65,9 @@ import ddf.catalog.transform.InputTransformer;
 @Command(scope = CatalogCommands.NAMESPACE, name = "ingest", description = "Ingests Metacards into the Catalog.")
 public class IngestCommand extends CatalogCommands {
 
-    private static final int DEFAULT_BATCH_SIZE = 1000;
+    private static final Logger LOGGER = LoggerFactory.getLogger(IngestCommand.class);
 
-    File failedIngestDirectory = null;
+    private static final int DEFAULT_BATCH_SIZE = 1000;
 
     @Argument(name = "File path or Directory path", description = "File path to a record or a directory of files to be ingested. Paths are absolute and must be in quotes."
             + " This command can only detect roughly 2 billion records in one folder. Individual operating system limits might also apply.", index = 0, multiValued = false, required = true)
@@ -72,7 +83,7 @@ public class IngestCommand extends CatalogCommands {
 
     // DDF-535: Remove "Multithreaded" alias in ddf-3.0
     @Option(name = "--multithreaded", required = false, aliases = {"-m", "Multithreaded"}, multiValued = false, description = "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
-    int multithreaded = 1;
+    int multithreaded = 8;
 
     // DDF-535: remove "-d" and "Ingest Failure Directory" aliases in ddf-3.0
     @Option(name = "--failedDir", required = false, aliases = {"-d", "-f", "Ingest Failure Directory"}, multiValued = false, description = "The directory to put files that failed to ingest.  Using this option will force a batch size of 1.")
@@ -81,11 +92,24 @@ public class IngestCommand extends CatalogCommands {
     @Option(name = "--batchsize", required = false, aliases = {"-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
     int batchSize = DEFAULT_BATCH_SIZE;
 
+    private final PeriodFormatter timeFormatter = new PeriodFormatterBuilder()
+            .printZeroRarelyLast()
+            .appendDays().appendSuffix(" day", " days").appendSeparator(" ")
+            .appendHours().appendSuffix(" hour", " hours").appendSeparator(" ")
+            .appendMinutes().appendSuffix(" minute", " minutes").appendSeparator(" ")
+            .appendSeconds().appendSuffix(" second", " seconds")
+            .toFormatter();
+
+    private final AtomicInteger ingestCount = new AtomicInteger();
+    private final AtomicInteger fileCount = new AtomicInteger(Integer.MAX_VALUE);
+
+    File failedIngestDirectory = null;
+
     @Override
     protected Object doExecute() throws Exception {
 
         final CatalogFacade catalog = getCatalog();
-        File inputFile = new File(filePath);
+        final File inputFile = new File(filePath);
 
         if (!inputFile.exists()) {
             printErrorMessage("File or directory [" + filePath + "] must exist.");
@@ -123,135 +147,57 @@ public class IngestCommand extends CatalogCommands {
             batchSize = 1;
         }
 
-        ArrayList<Metacard> metacards = new ArrayList<Metacard>(batchSize);
-        final CountRecorder ingestCountObj = new CountRecorder();
+        BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(
+                multithreaded);
+        RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor
+                .CallerRunsPolicy();
+        ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
+                multithreaded, 0L, TimeUnit.MILLISECONDS, blockingQueue,
+                rejectedExecutionHandler);
 
         if (inputFile.isDirectory()) {
-            final long startTime = System.currentTimeMillis();
-            final File[] fileList = inputFile.listFiles();
+            final long start = System.currentTimeMillis();
 
-            console.println("Found " + fileList.length + " file(s) to insert.");
-
-            printProgressAndFlush(startTime, fileList.length, ingestCountObj.getCount());
-
-            if (multithreaded > 1 && fileList.length > batchSize) {
-                BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(
-                        multithreaded);
-                RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
-                final ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
-                        multithreaded, 0L, TimeUnit.MILLISECONDS, blockingQueue,
-                        rejectedExecutionHandler);
-
-                for (final File file : fileList) {
-                    executorService.submit(new Runnable() {
-                        @Override
-                        public void run() {
-                            Metacard result = null;
-                            try {
-                                result = readMetacard(file);
-                            } catch (IngestException e) {
-                                result = null;
-                                logIngestException(e, file);
-                                if (failedIngestDirectory == null) {
-                                    executorService.shutdownNow();
-                                } else {
-                                    moveToFailedIngestDirectory(file);
-                                }
-                            }
-
-                            CreateResponse createResponse = null;
-                            
-                            if (result != null) {
-                                try {
-                                    CreateRequest createRequest = new CreateRequestImpl(result);
-                                    createResponse = catalog.create(createRequest);
-                                } catch (IngestException e) {
-                                    // don't display the error here, or you'll get an entire screen
-                                    // full of them need to shutdown on an ingest error so that we capture 
-                                    // ctrl+c in the console shutdownNow causes the threadpool to die and 
-                                    // then we can exit  semi-gracefully
-                                    // console.printf(e.getMessage());
-                                    createResponse = null;
-                                    if (failedIngestDirectory == null) {
-                                        executorService.shutdownNow();
-                                    } else {
-                                        logIngestException(e, file);
-                                        moveToFailedIngestDirectory(file);
-                                    }
-                                } catch (SourceUnavailableException e) {
-                                    executorService.shutdownNow();
-                                }
-                            }
-
-                            if (createResponse != null) {
-                                ingestCountObj.updateCount(createResponse.getCreatedMetacards().size());
-                            }
-
-                            printProgressAndFlush(startTime, fileList.length, ingestCountObj.getCount());
-
-                        }
-                    });
+            executorService.submit(new Runnable() {
+                @Override public void run() {
+                    fileCount.getAndSet(getFileCount(inputFile));
                 }
+            });
 
+            printProgressAndFlush(start, fileCount.get(), ingestCount.get());
+
+            IngestVisitor visitor = new IngestVisitor(start, catalog, executorService);
+            try {
+                Files.walkFileTree(Paths.get(filePath), visitor);
+                visitor.done();
+            } finally {
                 executorService.shutdown();
+            }
 
-                while (!executorService.isTerminated()) {
-                    try {
-                        TimeUnit.SECONDS.sleep(1);
-                    } catch (InterruptedException e) {
-                        // ignore
-                    }
-                }
-
-            } else {
-                for (File file : fileList) {
-                    Metacard result = null;
-                    try {
-                        result = readMetacard(file);
-                    } catch (IngestException e) {
-                        result = null;
-                        logIngestException(e, file);
-                        if (failedIngestDirectory != null) {
-                            moveToFailedIngestDirectory(file);
-                        } else {
-                            return null;
-                        }
-                    }
-
-                    if (result != null) {
-                        metacards.add(result);
-                    }
-
-                    if (batchSize == 1 && metacards.size() == batchSize) {
-                        if (!processBatch(catalog, metacards, file, ingestCountObj) && failedIngestDirectory == null) {
-                            return null;
-                        }
-                    } else if (batchSize > 1 && metacards.size() == batchSize) {
-                        if (!processBatch(catalog, metacards, ingestCountObj)) {
-                            return null;
-                        }
-                    }
-
-                    printProgressAndFlush(startTime, fileList.length, ingestCountObj.getCount());
-                }
-
-                if (metacards.size() > 0) {
-                    processBatch(catalog, metacards, ingestCountObj);
+            while (!executorService.isTerminated()) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException e) {
+                    // ignore
                 }
             }
 
-            printProgressAndFlush(startTime, fileList.length, ingestCountObj.getCount());
+            printProgressAndFlush(start, fileCount.get(), ingestCount.get());
 
             long end = System.currentTimeMillis();
 
             console.println();
-            console.printf(" %d file(s) ingested in %3.3f seconds%n", ingestCountObj.getCount(),
-                    (end - startTime) / MILLISECONDS_PER_SECOND);
+            String elapsedTime = timeFormatter.print(new Period(start, end).withMillis(0));
+            console.printf(" %d file(s) ingested in %s", ingestCount.get(), elapsedTime);
+            LOGGER.info("{} file(s) ingested in {} [{} records/sec]", ingestCount.get(),
+                    elapsedTime, calculateRecordsPerSecond(ingestCount.get(), start, end));
+            console.println();
 
             return null;
-        }
+        } else if (inputFile.isFile()) {
+            executorService.shutdown();
 
-        if (inputFile.isFile()) {
+            ArrayList<Metacard> metacards = new ArrayList<Metacard>(batchSize);
             Metacard result = null;
             try {
                 result = readMetacard(inputFile);
@@ -288,10 +234,25 @@ public class IngestCommand extends CatalogCommands {
                 }
             }
             return null;
-        } 
+        }
 
+        executorService.shutdown();
         console.println("Could not execute command.");
         return null;
+    }
+
+    private int getFileCount(File dir) {
+        int count = 0;
+
+        for (File file : dir.listFiles()) {
+            if (file.isDirectory()) {
+                count += getFileCount(file);
+            } else {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     private void logIngestException(IngestException exception, File inputFile) {
@@ -399,8 +360,8 @@ public class IngestCommand extends CatalogCommands {
         }
     }
 
-    private boolean processBatch(CatalogFacade catalog, ArrayList<Metacard> metacards,
-            CountRecorder ingestCountObj) throws SourceUnavailableException {
+    private boolean processBatch(CatalogFacade catalog, ArrayList<Metacard> metacards) throws
+            SourceUnavailableException {
         CreateResponse createResponse = null;
         boolean success = false;
 
@@ -414,7 +375,7 @@ public class IngestCommand extends CatalogCommands {
         }
 
         if (success) {
-            ingestCountObj.updateCount(createResponse.getCreatedMetacards().size());
+            ingestCount.getAndAdd(createResponse.getCreatedMetacards().size());
         }
 
         metacards.clear();
@@ -422,10 +383,10 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private boolean processBatch(CatalogFacade catalog, ArrayList<Metacard> metacards,
-            File inputFile, CountRecorder ingestCountObj) throws SourceUnavailableException {
+            File inputFile) throws SourceUnavailableException {
         boolean success = false;
 
-        if (!processBatch(catalog, metacards, ingestCountObj)) {
+        if (!processBatch(catalog, metacards)) {
             if (failedIngestDirectory != null) {
                 printErrorMessage("Failed to ingest file [" + inputFile.getAbsolutePath() + "].");
                 moveToFailedIngestDirectory(inputFile);
@@ -447,15 +408,116 @@ public class IngestCommand extends CatalogCommands {
         }
     }
 
-    private static class CountRecorder {
-        private int count = 0;
+    private class IngestVisitor extends SimpleFileVisitor<Path> {
 
-        public synchronized void updateCount(int i) {
-            count += i;
+        private long start;
+
+        private CatalogFacade catalog;
+
+        private ExecutorService executorService;
+
+        private ArrayList<Metacard> metacards = new ArrayList<Metacard>(batchSize);
+
+        public IngestVisitor(long start, CatalogFacade catalog, ExecutorService executorService) {
+            this.start = start;
+            this.catalog = catalog;
+            this.executorService = executorService;
         }
 
-        public int getCount() {
-            return count;
+        @Override
+        public FileVisitResult visitFile(Path path, BasicFileAttributes attrs)
+                throws IOException {
+
+            final File file = path.toFile();
+
+            if (multithreaded > 1) {
+                executorService.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        Metacard result;
+
+                        try {
+                            result = readMetacard(file);
+                        } catch (IngestException e) {
+                            result = null;
+                            logIngestException(e, file);
+                            if (failedIngestDirectory == null) {
+                                executorService.shutdownNow();
+                            } else {
+                                moveToFailedIngestDirectory(file);
+                            }
+                        }
+
+                        CreateResponse createResponse = null;
+
+                        if (result != null) {
+                            try {
+                                CreateRequest createRequest = new CreateRequestImpl(result);
+                                createResponse = catalog.create(createRequest);
+                            } catch (IngestException e) {
+                                createResponse = null;
+                                if (failedIngestDirectory == null) {
+                                    executorService.shutdownNow();
+                                } else {
+                                    logIngestException(e, file);
+                                    moveToFailedIngestDirectory(file);
+                                }
+                            } catch (SourceUnavailableException e) {
+                                executorService.shutdownNow();
+                            }
+                        }
+
+                        if (createResponse != null) {
+                            ingestCount.getAndAdd(
+                                    createResponse.getCreatedMetacards().size());
+                        }
+
+                        printProgressAndFlush(start, fileCount.get(), ingestCount.get());
+                    }
+                });
+            } else {
+                Metacard result;
+                try {
+                    result = readMetacard(file);
+                } catch (IngestException e) {
+                    result = null;
+                    logIngestException(e, file);
+                    if (failedIngestDirectory != null) {
+                        moveToFailedIngestDirectory(file);
+                    } else {
+                        return FileVisitResult.TERMINATE;
+                    }
+                }
+
+                if (result != null) {
+                    metacards.add(result);
+                }
+
+                try {
+                    if (batchSize == 1 && metacards.size() == batchSize) {
+                        if (!processBatch(catalog, metacards, file)
+                                && failedIngestDirectory == null) {
+                            return FileVisitResult.TERMINATE;
+                        }
+                    } else if (batchSize > 1 && metacards.size() == batchSize) {
+                        if (!processBatch(catalog, metacards)) {
+                            return FileVisitResult.TERMINATE;
+                        }
+                    }
+                } catch (SourceUnavailableException e) {
+                    return FileVisitResult.TERMINATE;
+                }
+
+                printProgressAndFlush(start, fileCount.get(), ingestCount.get());
+            }
+
+            return FileVisitResult.CONTINUE;
+        }
+
+        public void done() throws SourceUnavailableException {
+            if (metacards.size() > 0) {
+                processBatch(catalog, metacards);
+            }
         }
     }
 

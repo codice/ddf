@@ -45,7 +45,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -86,6 +85,8 @@ public class CachingFederationStrategy implements FederationStrategy {
     protected static final String QUERY_MODE = "mode";
 
     protected static final String CACHE_QUERY_MODE = "cache";
+
+    protected static final String NATIVE_QUERY_MODE = "native";
 
     protected static final String INDEX_QUERY_MODE = "index";
 
@@ -331,7 +332,7 @@ public class CachingFederationStrategy implements FederationStrategy {
                 cache.create(sourceResponse.getResults());
                 // unblock phase and wait for all other parties to unblock phase
                 phaser.awaitAdvance(phaser.arriveAndDeregister());
-            } else {
+            } else if (!NATIVE_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
                 cacheExecutorService.submit(new Runnable() {
                     @Override public void run() {
                         cache.create(sourceResponse.getResults());

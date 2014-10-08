@@ -14,25 +14,6 @@
  **/
 package org.codice.ddf.commands.catalog;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.geotools.filter.text.cql2.CQL;
-import org.joda.time.DateTime;
-import org.opengis.filter.Filter;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-
 import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -44,9 +25,53 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
+import org.apache.commons.io.FileUtils;
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.geotools.filter.text.cql2.CQL;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
+import org.opengis.filter.Filter;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them.\n\tDate filters are ANDed together, and are exclusive for range.\n\tISO8601 format includes YYYY-MM-dd, YYYY-MM-ddTHH, YYYY-MM-ddTHH:mm, YYYY-MM-ddTHH:mm:ss, YYY-MM-ddTHH:mm:ss.sss, THH:mm:sss. See documentation for full syntax and examples.")
 public class DumpCommand extends CatalogCommands {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DumpCommand.class);
+
+    private final PeriodFormatter timeFormatter = new PeriodFormatterBuilder()
+            .printZeroRarelyLast()
+            .appendDays().appendSuffix(" day", " days").appendSeparator(" ")
+            .appendHours().appendSuffix(" hour", " hours").appendSeparator(" ")
+            .appendMinutes().appendSuffix(" minute", " minutes").appendSeparator(" ")
+            .appendSeconds().appendSuffix(" second", " seconds")
+            .toFormatter();
 
     private static List<MetacardTransformer> transformers = null;
 
@@ -86,9 +111,19 @@ public class DumpCommand extends CatalogCommands {
             "--c"}, multiValued = false, description = "CQL filter to limit which metacards are dumped. Use the 'search' command first to see which metacards will be dumped.")
     String cql = null;
 
+    @Option(name = "--multithreaded", required = false, aliases = {"-m", "Multithreaded"},
+            multiValued = false, description = "Number of threads to use when dumping. Setting "
+            + "this value too high for your system can cause performance degradation.")
+    int multithreaded = 20;
+
+    @Option(name = "--dirlevel", required = false, multiValued = false,
+            description = "Number of subdirectory levels to create.  Two characters from the ID "
+                    + "will be used to name each subdirectory level.")
+    int dirLevel = 0;
+
     @Override
     protected Object doExecute() throws Exception {
-        File dumpDir = new File(dirPath);
+        final File dumpDir = new File(dirPath);
 
         if (!dumpDir.exists()) {
             printErrorMessage("Directory [" + dirPath + "] must exist.");
@@ -167,20 +202,46 @@ public class DumpCommand extends CatalogCommands {
         query.setRequestsTotalResultsCount(false);
         query.setPageSize(pageSize);
 
-        long resultCount = 0;
+        Map<String, Serializable> props = new HashMap<String, Serializable>();
+        // Avoid caching all results while dumping with native query mode
+        props.put("mode", "native");
+
+        final AtomicLong resultCount = new AtomicLong(0);
         long start = System.currentTimeMillis();
 
-        SourceResponse response = catalog.query(new QueryRequestImpl(query));
+        SourceResponse response = catalog.query(new QueryRequestImpl(query, props));
+
+        BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(
+                multithreaded);
+        RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
+        final ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
+                multithreaded, 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
 
         while (response.getResults().size() > 0) {
-            response = catalog.query(new QueryRequestImpl(query));
+            response = catalog.query(new QueryRequestImpl(query, props));
 
-            for (Result result : response.getResults()) {
-                Metacard metacard = result.getMetacard();
-                exportMetacard(dumpDir, metacard);
-                resultCount++;
-                if (resultCount % pageSize == 0) {
-                    console.print(".");
+            if (multithreaded > 1) {
+                final List<Result> results = new ArrayList<Result>(response.getResults());
+                executorService.submit(new Runnable() {
+                    @Override public void run() {
+                        for (final Result result : results) {
+                            Metacard metacard = result.getMetacard();
+                            try {
+                                exportMetacard(dumpDir, metacard);
+                            } catch (IOException e) {
+                                executorService.shutdownNow();
+                            } catch (CatalogTransformerException e) {
+                                executorService.shutdownNow();
+                            }
+                            printStatus(resultCount.incrementAndGet());
+                        }
+                    }
+                });
+            } else {
+                for (final Result result : response.getResults()) {
+                    Metacard metacard = result.getMetacard();
+                    exportMetacard(dumpDir, metacard);
+                    printStatus(resultCount.incrementAndGet());
                 }
             }
 
@@ -193,13 +254,21 @@ public class DumpCommand extends CatalogCommands {
             }
         }
 
-        if (resultCount > pageSize) {
-            console.println();
+        executorService.shutdown();
+
+        while (!executorService.isTerminated()) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch (InterruptedException e) {
+                // ignore
+            }
         }
 
         long end = System.currentTimeMillis();
-        console.printf(" %d file(s) dumped in %3.3f seconds%n", resultCount, (end - start)
-                / MILLISECONDS_PER_SECOND);
+        String elapsedTime = timeFormatter.print(new Period(start, end).withMillis(0));
+        console.printf(" %d file(s) dumped in %s\t\n", resultCount.get(), elapsedTime);
+        LOGGER.info("{} file(s) dumped in {}", resultCount.get(), elapsedTime);
+        console.println();
 
         return null;
     }
@@ -207,14 +276,9 @@ public class DumpCommand extends CatalogCommands {
     private void exportMetacard(File dumpLocation, Metacard metacard) throws IOException,
             CatalogTransformerException {
 
-        String extension = "";
-        if (fileExtension != null) {
-            extension = "." + fileExtension;
-        }
-
         if (DEFAULT_TRANSFORMER_ID.matches(transformerId)) {
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(
-                    dumpLocation, metacard.getId() + extension)));
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(
+                    getOutputFile(dumpLocation, metacard)));
             try {
                 oos.writeObject(new MetacardImpl(metacard));
 
@@ -224,8 +288,7 @@ public class DumpCommand extends CatalogCommands {
             }
         } else {
 
-            FileOutputStream fos = new FileOutputStream(new File(dumpLocation, metacard.getId()
-                    + extension));
+            FileOutputStream fos = new FileOutputStream(getOutputFile(dumpLocation, metacard));
             BinaryContent binaryContent;
             try {
                 if (metacard != null) {
@@ -241,6 +304,30 @@ public class DumpCommand extends CatalogCommands {
                 fos.close();
             }
         }
+    }
+
+    private File getOutputFile(File dumpLocation, Metacard metacard) throws IOException {
+        String extension = "";
+        if (fileExtension != null) {
+            extension = "." + fileExtension;
+        }
+
+        String id = metacard.getId();
+        File parent = dumpLocation;
+
+        if (dirLevel > 0 && id.length() >= dirLevel * 2) {
+            for (int i = 0; i < dirLevel; i++) {
+                parent = new File(parent, id.substring(i*2, i*2+2));
+            }
+            FileUtils.forceMkdir(parent);
+        }
+
+        return new File(parent, id + extension);
+    }
+
+    protected void printStatus(long count) {
+        console.print(String.format(" %d file(s) dumped\t\r", count));
+        console.flush();
     }
 
     private List<MetacardTransformer> getTransformers() {
