@@ -8,5 +8,6 @@
     "branding": "DDF",
     "format": "",
     "timeout": 5000,
-    "header": ""
+    "header": "",
+    "resultCount": 250
 }

@@ -24,6 +24,7 @@ casper.test.begin('simple contextual query', 3, function(test) {
 
     casper.thenClick('.searchButton');
 
+    /* breaks, likely due to mock page not receiving configuration information */
     casper.waitFor(function() {
         return this.evaluate(function() {
             return document.querySelectorAll('#low-count').length != 0;
