@@ -51,7 +51,9 @@ define([
                 count: properties.resultCount,
                 start: 1,
                 format: "geojson",
-                locationType: 'latlon'
+                locationType: 'latlon',
+                lat: undefined,
+                lon: undefined
             },
 
             drawing: false,
@@ -83,8 +85,10 @@ define([
             },
 
             repositionLatLon: function () {
-                var result = converter.USNGtoLL(this.get('usngbb'));
-                this.set(result);
+                if (this.get('usngbb')) {
+                    var result = converter.USNGtoLL(this.get('usngbb'));
+                    this.set(result);
+                }
             },
 
             setBboxLatLon: function () {

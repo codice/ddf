@@ -184,7 +184,7 @@ define([
                 //radius
                 this.$('#latdiv').show();
                 this.$('#londiv').show();
-                this.$('#usngsdiv').hide();
+                this.$('#usngdiv').hide();
                 //bbox
                 this.$('#westdiv').show();
                 this.$('#southdiv').show();
