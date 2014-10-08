@@ -1255,7 +1255,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
      * false otherwise
      */
     protected boolean hasCatalogProvider() {
-        if (this.catalog != null) {
+        if (!this.fanoutEnabled && this.catalog != null) {
             logger.trace("hasCatalogProvider() returning true");
             return true;
         }
