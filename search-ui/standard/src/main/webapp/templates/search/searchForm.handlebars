@@ -86,6 +86,15 @@
         <li class="nav-header">Location</li>
         <li>
             <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
+                <button type="button" name="latLonButton"
+                        class="btn btn-mini {{#is locationType 'latlon'}}active{{/is}}" value="latlon">Lat / Lon
+                </button>
+                <button type="button" name="usngButton"
+                        class="btn btn-mini {{#is locationType 'usng'}}active{{/is}}" value="usng">USNG / MGRS
+                </button>
+            </div>
+            <br />
+            <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
                 <button type="button" name="noLocationButton"
                         class="btn btn-mini location {{#ifNotOr radius bbox}}active{{/ifNotOr}}" data-target="#nogeo"
                         data-toggle="tab">Any
@@ -105,15 +114,20 @@
                 <div id="pointradius" class="tab-pane {{#if radius}}active{{/if}}">
                     <input type="hidden" name="radius" value="">
 
-                    <div class="input-prepend input-append">
+                    <div id="latdiv" class="input-prepend input-append">
                         <span class="add-on add-on-label">Latitude&nbsp;</span>
                         <input class="input-medium" id="latitude" name="lat" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
-                    <div class="input-prepend input-append">
+                    <div id="londiv" class="input-prepend input-append">
                         <span class="add-on add-on-label">Longitude&nbsp;</span>
                         <input class="input-medium" id="longitude" name="lon" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
+                    </div>
+
+                    <div id="usngdiv" class="input-prepend input-append" style="display: none;">
+                        <span class="add-on add-on-label">USNG / MGRS&nbsp;</span>
+                        <input class="input-medium" id="usng" name="usng" type="text" placeholder=""/>
                     </div>
 
                     <div class="input-prepend input-append">
@@ -132,25 +146,30 @@
                 <div id="boundingbox" class="tab-pane {{#if bbox}}active{{/if}}">
                     <input type="hidden" name="bbox" value="">
 
-                    <div class="input-prepend input-append">
+                    <div id="westdiv" class="input-prepend input-append">
                         <span class="add-on add-on-label">West&nbsp;</span>
                         <input class="input-medium" id="west" name="west" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
-                    <div class="input-prepend input-append">
+                    <div id="southdiv" class="input-prepend input-append">
                         <span class="add-on add-on-label">South&nbsp;</span>
                         <input class="input-medium" id="south" name="south" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
-                    <div class="input-prepend input-append">
+                    <div id="eastdiv" class="input-prepend input-append">
                         <span class="add-on add-on-label">East&nbsp;</span>
                         <input class="input-medium" id="east" name="east" type="number" min="-180" max="180" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
                     </div>
-                    <div class="input-prepend input-append">
+                    <div id="northdiv" class="input-prepend input-append">
                         <span class="add-on add-on-label">North&nbsp;</span>
                         <input class="input-medium" id="north" name="north" type="number" min="-90" max="90" step="any" placeholder=""/>
                         <label class="add-on">&deg;</label>
+                    </div>
+
+                    <div id="usngbbdiv" class="input-prepend input-append" style="display: none;">
+                        <span class="add-on add-on-label">USNG / MGRS&nbsp;</span>
+                        <input class="input-medium" id="usngbb" name="usngbb" type="text" placeholder=""/>
                     </div>
                 </div>
             </div>

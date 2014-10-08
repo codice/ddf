@@ -44,12 +44,15 @@ define([
                 'click .type': 'clearType',
                 'click button[name=pointRadiusButton]' : 'drawCircle',
                 'click button[name=bboxButton]' : 'drawBbox',
+                'click button[name=noLocationButton]' : 'notDrawing',
                 'click button[name=noFederationButton]' : 'setNoFederation',
                 'click button[name=selectedFederationButton]': 'setSelectedFederation',
                 'click button[name=enterpriseFederationButton]': 'setEnterpriseFederation',
                 'click button[name=createdTimeButton]': 'swapTimeTypeCreated',
                 'click button[name=modifiedTimeButton]': 'swapTimeTypeModified',
                 'click button[name=effectiveTimeButton]': 'swapTimeTypeEffective',
+                'click button[name=latLonButton]': 'swapLocationTypeLatLon',
+                'click button[name=usngButton]': 'swapLocationTypeUsng',
                 'keypress input[name=q]': 'filterOnEnter',
                 'change #radiusUnits': 'onRadiusUnitsChanged',
                 'change #offsetTimeUnits': 'onTimeUnitsChanged',
@@ -174,6 +177,35 @@ define([
 
             swapTimeTypeEffective: function() {
                 this.model.set("timeType", "effective");
+            },
+
+            swapLocationTypeLatLon: function() {
+                this.model.set('locationType', 'latlon');
+                //radius
+                this.$('#latdiv').show();
+                this.$('#londiv').show();
+                this.$('#usngsdiv').hide();
+                //bbox
+                this.$('#westdiv').show();
+                this.$('#southdiv').show();
+                this.$('#eastdiv').show();
+                this.$('#northdiv').show();
+                this.$('#usngbbdiv').hide();
+            },
+
+            swapLocationTypeUsng: function() {
+                this.model.set('locationType', 'usng');
+                this.model.repositionLatLon();
+                //radius
+                this.$('#latdiv').hide();
+                this.$('#londiv').hide();
+                this.$('#usngdiv').show();
+                //bbox
+                this.$('#westdiv').hide();
+                this.$('#southdiv').hide();
+                this.$('#eastdiv').hide();
+                this.$('#northdiv').hide();
+                this.$('#usngbbdiv').show();
             },
 
             updateScrollbar: function () {

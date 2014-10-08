@@ -17,13 +17,16 @@ define([
         'properties',
         'moment',
         'js/model/Metacard',
+        'usngs',
         'backboneassociations'
     ],
-    function (Backbone, _, properties, moment, Metacard) {
+    function (Backbone, _, properties, moment, Metacard, usngs) {
         "use strict";
         var Query = {};
 
         var CQL_DATE_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss[Z]';
+
+        var converter = new usngs.Converter();
 
         Query.Model = Backbone.AssociatedModel.extend({
             relations: [
@@ -47,19 +50,65 @@ define([
                 radiusValue: 0,
                 count: properties.resultCount,
                 start: 1,
-                format: "geojson"
+                format: "geojson",
+                locationType: 'latlon'
             },
+
+            drawing: false,
 
             initialize: function () {
                 _.bindAll(this);
                 this.listenTo(this, 'change:north change:south change:east change:west',this.setBBox);
                 this.listenTo(this, 'change:scheduled change:scheduleValue change:scheduleUnits', this.startScheduledSearch);
+                this.listenTo(this, 'change:north change:south change:east change:west', this.setBboxLatLon);
+                this.listenTo(this, 'change:lat change:lon', this.setRadiusLatLon);
+                this.listenTo(this, 'change:usngbb', this.setBboxUsng);
+                this.listenTo(this, 'change:usng', this.setRadiusUsng);
+                this.listenTo(this, 'EndExtent', this.notDrawing);
+                this.listenTo(this, 'BeginExtent', this.drawingOn);
 
                 if (this.get('scheduled')) {
                     this.startSearch();
                 }
 
                 this.startScheduledSearch();
+            },
+
+            notDrawing: function() {
+                this.drawing = false;
+            },
+
+            drawingOn: function() {
+                this.drawing = true;
+            },
+
+            repositionLatLon: function () {
+                var result = converter.USNGtoLL(this.get('usngbb'));
+                this.set(result);
+            },
+
+            setBboxLatLon: function () {
+                var usngsStr = converter.LLBboxtoUSNG(this.get('north'), this.get('south'), this.get('east'),this.get('west'));
+
+                this.set('usngbb', usngsStr, {silent:this.get('locationType') !== 'usng'});
+                if (this.get('locationType') === 'usng' && this.drawing) {
+                    this.repositionLatLon();
+                }
+            },
+
+            setRadiusLatLon: function () {
+                var usngsStr = converter.LLtoUSNG(this.get('lat'), this.get('lon'), 5);
+                this.set('usng', usngsStr, {silent:true});
+            },
+
+            setBboxUsng: function () {
+                var result = converter.USNGtoLL(this.get('usngbb'));
+                this.set(result, {silent:this.get('locationType') === 'usng' && this.drawing});
+            },
+
+            setRadiusUsng: function () {
+                var result = converter.USNGtoLL(this.get('usng'), true);
+                this.set(result);
             },
 
             getCql: function () {

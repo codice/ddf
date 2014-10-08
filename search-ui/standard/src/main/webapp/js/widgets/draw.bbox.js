@@ -94,7 +94,9 @@ define([
                 if (_.every(defaultAttrs, function (val) {
                     return _.isUndefined(obj[val]);
                 }) || _.isEmpty(obj)) {
-                    this.scene.getPrimitives().remove(this.primitive);
+                    if(this.scene && this.scene.primitives) {
+                        this.scene.primitives.remove(this.primitive);
+                    }
                     this.stopListening();
                     return;
                 }
@@ -283,6 +285,7 @@ define([
                     this.notificationView = new Draw.NotificationView({
                         el: this.notificationEl
                     }).render();
+                    bboxModel.trigger('BeginExtent');
                     this.listenToOnce(bboxModel, 'EndExtent', function () {
                         this.notificationView.close();
                     });

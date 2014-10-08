@@ -71,7 +71,10 @@
             css: 'lib/require-css/css.min',
             
             // pnotify
-            pnotify: 'lib/pnotify/jquery.pnotify.min'
+            pnotify: 'lib/pnotify/jquery.pnotify.min',
+
+            // map tools
+            usngs: 'lib/usng/usng'
         },
 
 
