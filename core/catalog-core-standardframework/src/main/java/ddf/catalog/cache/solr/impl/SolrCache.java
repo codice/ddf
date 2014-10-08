@@ -312,26 +312,30 @@ public class SolrCache {
 
             Metacard metacard = result.getMetacard();
 
-            boolean isSourceIdSet = (metacard.getSourceId() != null && !"".equals(metacard
-                    .getSourceId()));
-            boolean isMetacardIdSet = (metacard.getId() != null && !metacard.getId().equals(""));
-
-            if (isSourceIdSet && isMetacardIdSet) {
-
-                SolrInputDocument solrInputDocument = new SolrInputDocument();
-
-                try {
-                    resolver.addFields(metacard, solrInputDocument);
-                } catch (MetacardCreationException e) {
-                    LOGGER.warn("Metacard creation exception adding fields", e);
-                    return;
+            if (metacard != null) {
+                boolean isSourceIdSet = (metacard.getSourceId() != null && !"".equals(metacard
+                        .getSourceId()));
+                boolean isMetacardIdSet = (metacard.getId() != null && !metacard.getId().equals(""));
+    
+                if (isSourceIdSet && isMetacardIdSet) {
+    
+                    SolrInputDocument solrInputDocument = new SolrInputDocument();
+    
+                    try {
+                        resolver.addFields(metacard, solrInputDocument);
+                    } catch (MetacardCreationException e) {
+                        LOGGER.warn("Metacard creation exception adding fields", e);
+                        return;
+                    }
+    
+                    if (StringUtils.isNotBlank(metacard.getSourceId())) {
+                        solrInputDocument.addField(SchemaFields.METACARD_SOURCE_NAME, metacard.getSourceId());
+                    }
+    
+                    docs.add(solrInputDocument);
                 }
-
-                if (StringUtils.isNotBlank(metacard.getSourceId())) {
-                    solrInputDocument.addField(SchemaFields.METACARD_SOURCE_NAME, metacard.getSourceId());
-                }
-
-                docs.add(solrInputDocument);
+            } else {
+                LOGGER.debug("metacard in result was null");
             }
         }
 
