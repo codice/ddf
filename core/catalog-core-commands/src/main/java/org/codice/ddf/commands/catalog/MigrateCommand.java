@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Provider;
+import org.geotools.filter.text.cql2.CQL;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.ServiceReference;
@@ -92,7 +93,9 @@ public class MigrateCommand extends DuplicateCommands {
 
         start = System.currentTimeMillis();
 
-        final Filter filter = getFilter(getFilterStartTime(start), start, Metacard.MODIFIED);
+        final Filter filter = (cqlFilter != null) ?
+                CQL.toFilter(cqlFilter) :
+                getFilter(getFilterStartTime(start), start, Metacard.MODIFIED);
 
         QueryImpl query = new QueryImpl(filter);
         query.setRequestsTotalResultsCount(true);

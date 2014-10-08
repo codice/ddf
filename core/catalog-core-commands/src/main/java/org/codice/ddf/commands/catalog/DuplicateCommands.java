@@ -92,6 +92,15 @@ public abstract class DuplicateCommands extends CatalogCommands {
     @Option(name = "--failedDir", required = false, aliases = {"-f"}, multiValued = false, description = "Option to specify where to write metacards that failed to ingest.")
     String failedDir;
 
+    @Option(name = "--cql", required = false, aliases = {}, multiValued = false, description =
+            "Remove Metacards that match a CQL Filter expressions. It is recommended to use the search command first to see which metacards will be removed.\n"
+                    + "CQL Examples:\n"
+                    + "\tTextual:   search --cql \"title like 'some text'\"\n"
+                    + "\tTemporal:  search --cql \"modified before 2012-09-01T12:30:00Z\"\n"
+                    + "\tSpatial:   search --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
+                    + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
+    String cqlFilter = null;
+
     abstract List<Metacard> query(CatalogFacade facade, int startIndex, Filter filter);
 
     /**

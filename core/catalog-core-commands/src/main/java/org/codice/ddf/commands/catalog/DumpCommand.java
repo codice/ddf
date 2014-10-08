@@ -107,9 +107,14 @@ public class DumpCommand extends CatalogCommands {
             "-mb"}, multiValued = false, description = "Include only entries modified before this date/time (ISO8601 format)")
     String modifiedBefore = null;
 
-    @Option(name = "--cql", required = false, aliases = {
-            "--c"}, multiValued = false, description = "CQL filter to limit which metacards are dumped. Use the 'search' command first to see which metacards will be dumped.")
-    String cql = null;
+    @Option(name = "--cql", required = false, aliases = {}, multiValued = false, description =
+            "Search using CQL Filter expressions.\n"
+                    + "CQL Examples:\n"
+                    + "\tTextual:   search --cql \"title like 'some text'\"\n"
+                    + "\tTemporal:  search --cql \"modified before 2012-09-01T12:30:00Z\"\n"
+                    + "\tSpatial:   search --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
+                    + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
+    String cqlFilter = null;
 
     @Option(name = "--multithreaded", required = false, aliases = {"-m", "Multithreaded"},
             multiValued = false, description = "Number of threads to use when dumping. Setting "
@@ -194,8 +199,8 @@ public class DumpCommand extends CatalogCommands {
             filter = builder.attribute(Metacard.ID).is().like().text(WILDCARD);
         }
 
-        if (cql != null) {
-            filter = CQL.toFilter(cql);
+        if (cqlFilter != null) {
+            filter = CQL.toFilter(cqlFilter);
         }
         
         QueryImpl query = new QueryImpl(filter);

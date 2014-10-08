@@ -32,6 +32,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Framework;
+import org.geotools.filter.text.cql2.CQL;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
@@ -97,7 +98,9 @@ public class ReplicationCommand extends DuplicateCommands {
         
         start = System.currentTimeMillis();
 
-        final Filter filter = getFilter(getFilterStartTime(start), start, Metacard.EFFECTIVE);
+        final Filter filter = (cqlFilter != null) ?
+                CQL.toFilter(cqlFilter) :
+                getFilter(getFilterStartTime(start), start, Metacard.EFFECTIVE);
 
         QueryImpl query = new QueryImpl(filter);
         query.setRequestsTotalResultsCount(true);

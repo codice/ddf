@@ -48,19 +48,22 @@ public class SearchCommand extends CatalogCommands {
     @Argument(name = "NUMBER_OF_ITEMS", description = "Number of maximum records to display.", index = 1, multiValued = false, required = false)
     int numberOfItems = -1;
 
-    @Argument(name = "SEARCH_PHRASE", index = 0, multiValued = false, required = true,
-            description = "Phrase to query the catalog provider.\n"
-                    + "To Search across all textual data simply do 'search someText'.\n"
-                    + "To Search using CQL use quotes around the search phrase like: 'search \"title like 'some test'\".\n"
-                    + "CQL Examples:\n"
-                    + "\tTextual:   search \"title like 'some text'\"\n"
-                    + "\tTemporal:  search \"modified before 2012-09-01T12:30:00Z\"\n"
-                    + "\tSpatial:   search \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
-                    + "\tComplex:   search \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
+    @Argument(name = "SEARCH_PHRASE", index = 0, multiValued = false, required = false,
+            description = "Phrase to query the catalog provider.")
     String searchPhrase = null;
 
-    @Option(name = "case-sensitive", required = false, aliases = {"-c"}, multiValued = false, description = "Makes the search case sensitive. NOTE: Does not apply to CQL searches")
+    @Option(name = "case-sensitive", required = false, aliases = {
+            "-c"}, multiValued = false, description = "Makes the search case sensitive. NOTE: Does not apply to CQL filters")
     boolean caseSensitive = false;
+
+    @Option(name = "--cql", required = false, aliases = {}, multiValued = false, description =
+            "Search using CQL Filter expressions.\n"
+                    + "CQL Examples:\n"
+                    + "\tTextual:   search --cql \"title like 'some text'\"\n"
+                    + "\tTemporal:  search --cql \"modified before 2012-09-01T12:30:00Z\"\n"
+                    + "\tSpatial:   search --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
+                    + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
+    String cqlFilter = null;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -71,9 +74,12 @@ public class SearchCommand extends CatalogCommands {
         CatalogFacade catalogProvider = getCatalog();
 
         Filter filter = null;
-        searchPhrase.trim();
-        if(searchPhrase.split("\\s").length == 1){
-            // This is just a "*" type query and should be run against Metacard.ANY_TEXT
+        if (cqlFilter != null) {
+            filter = CQL.toFilter(cqlFilter);
+        } else {
+            if (searchPhrase == null) {
+                searchPhrase = "*";
+            }
             if (caseSensitive) {
                 filter = getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like()
                         .caseSensitiveText(searchPhrase);
@@ -81,10 +87,6 @@ public class SearchCommand extends CatalogCommands {
                 filter = getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like()
                         .text(searchPhrase);
             }
-
-        } else {
-            // We have a CQL Expression so parse it
-            filter = CQL.toFilter(searchPhrase);
         }
 
         QueryImpl query = new QueryImpl(filter);
@@ -115,37 +117,43 @@ public class SearchCommand extends CatalogCommands {
 
         for (Result result : response.getResults()) {
             Metacard metacard = result.getMetacard();
-            XPathHelper helper = new XPathHelper(metacard.getMetadata());
-            String indexedText = helper.getDocument().getDocumentElement().getTextContent();
-            indexedText = indexedText.replaceAll("\\r\\n|\\r|\\n", " ");
-
-            String normalizedSearchPhrase = searchPhrase.replaceAll("\\*", "");
-
-            int index = -1;
-
-            if (caseSensitive) {
-                index = indexedText.indexOf(normalizedSearchPhrase);
-            } else {
-                index = indexedText.toLowerCase().indexOf(normalizedSearchPhrase.toLowerCase());
-            }
 
             String title = (metacard.getTitle() != null ? metacard.getTitle() : "N/A");
             String excerpt = "N/A";
             String modifiedDate = "";
-            if (index != -1) {
-                int contextLength = (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
-                excerpt = "..." + indexedText.substring(Math.max(index - contextLength, 0), index);
-                excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
-                excerpt = excerpt
-                        + indexedText.substring(index, index + normalizedSearchPhrase.length());
-                excerpt = excerpt + Ansi.ansi().reset().toString();
-                excerpt = excerpt
-                        + indexedText.substring(
-                                index + normalizedSearchPhrase.length(),
-                                Math.min(indexedText.length(),
-                                        index + normalizedSearchPhrase.length() + contextLength))
-                        + "...";
 
+            if (searchPhrase != null) {
+                XPathHelper helper = new XPathHelper(metacard.getMetadata());
+                String indexedText = helper.getDocument().getDocumentElement().getTextContent();
+                indexedText = indexedText.replaceAll("\\r\\n|\\r|\\n", " ");
+
+                String normalizedSearchPhrase = searchPhrase.replaceAll("\\*", "");
+
+                int index = -1;
+
+                if (caseSensitive) {
+                    index = indexedText.indexOf(normalizedSearchPhrase);
+                } else {
+                    index = indexedText.toLowerCase().indexOf(normalizedSearchPhrase.toLowerCase());
+                }
+
+                if (index != -1) {
+                    int contextLength =
+                            (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
+                    excerpt = "..." + indexedText
+                            .substring(Math.max(index - contextLength, 0), index);
+                    excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
+                    excerpt = excerpt
+                            + indexedText.substring(index, index + normalizedSearchPhrase.length());
+                    excerpt = excerpt + Ansi.ansi().reset().toString();
+                    excerpt = excerpt
+                            + indexedText.substring(
+                            index + normalizedSearchPhrase.length(),
+                            Math.min(indexedText.length(),
+                                    index + normalizedSearchPhrase.length() + contextLength))
+                            + "...";
+
+                }
             }
 
             if (metacard.getModifiedDate() != null) {
