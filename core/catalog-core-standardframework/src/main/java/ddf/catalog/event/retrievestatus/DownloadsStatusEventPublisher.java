@@ -63,8 +63,7 @@ public class DownloadsStatusEventPublisher {
     private boolean notificationEnabled = true;
     private boolean activityEnabled = true;
     private static final int ONE_HUNDRED_PERCENT = 100;
-    private static final String NO_PROGRESS_BAR = "";
-    private static final String UNKNOWN_PROGRESS = "-1";
+    private static final int UNKNOWN_PROGRESS = -1;
 
     /**
      * Used to publish product retrieval status updates via the OSGi Event Service
@@ -163,7 +162,7 @@ public class DownloadsStatusEventPublisher {
 
             // send activity event
             // progress for downloads
-            String progress = NO_PROGRESS_BAR;
+            int progress = UNKNOWN_PROGRESS;
             Map<String, String> operations = new HashMap<String, String>();
             ActivityStatus type;
             switch (status) {
@@ -175,7 +174,8 @@ public class DownloadsStatusEventPublisher {
                 }
                 break;
             case COMPLETE:
-                type = ActivityStatus.FINISHED;
+                type = ActivityStatus.COMPLETE;
+                progress = ONE_HUNDRED_PERCENT;
                 if (downloadAction != null) {
                     operations = ImmutableMap.of("download", downloadAction.getUrl().toString());
                 }
@@ -190,15 +190,14 @@ public class DownloadsStatusEventPublisher {
                 type = ActivityStatus.RUNNING;
                 if (downloadAction != null) {
                     operations = ImmutableMap.of("cancel", "true");
-                    progress = UNKNOWN_PROGRESS;
-                    if (metacard != null) {
-                        String resourceSizeStr = metacard.getResourceSize();
-                        if (org.apache.commons.lang.math.NumberUtils.isNumber(resourceSizeStr)) {
-                            Long resourceSize = Long.parseLong(resourceSizeStr);
-                            if (resourceSize > 0) {
-                                progress = Long
-                                        .toString((bytes * ONE_HUNDRED_PERCENT) / resourceSize);
-                            }
+                }
+                progress = UNKNOWN_PROGRESS;
+                if (metacard != null) {
+                    String resourceSizeStr = metacard.getResourceSize();
+                    if (org.apache.commons.lang.math.NumberUtils.isNumber(resourceSizeStr)) {
+                        Long resourceSize = Long.parseLong(resourceSizeStr);
+                        if (resourceSize > 0) {
+                            progress = (int) (bytes * ONE_HUNDRED_PERCENT / resourceSize);
                         }
                     }
                 }
@@ -212,7 +211,7 @@ public class DownloadsStatusEventPublisher {
                     resourceResponse.getResource().getName(), 
                     generateMessage(status, resourceResponse.getResource().getName(), bytes, sysTimeMillis, detail), 
                     progress, operations, user, type, bytes);
-            Event event = new Event(ActivityEvent.EVENT_TOPIC_BROADCAST, eventProperties);
+            Event event = new Event(ActivityEvent.EVENT_TOPIC, eventProperties);
             eventAdmin.postEvent(event);
         }
         else {
