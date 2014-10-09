@@ -11,16 +11,13 @@
  **/
 /*global define*/
 
-define(["backbone", "underscore", "jquery"], function (Backbone, _, $) {
+define(["backbone", "moment", "underscore", "jquery"], function (Backbone, moment, _, $) {
 
     var Notification = {};
 
     Notification.Notification = Backbone.Model.extend({
 
         url: '/notification/action',
-        initialize : function(){
-            this.set("timestamp", parseInt(this.get("timestamp"), 10));
-        },
 
         //validates the notification ensuring it contains the 3 necessary parts
         validate: function (attrs) {
@@ -47,7 +44,7 @@ define(["backbone", "underscore", "jquery"], function (Backbone, _, $) {
         model: Notification.Notification,
         comparator: function(a, b) {
                     if(a.get('application') === b.get('application')) {
-                        return a.get('timestamp') - b.get('timestamp');
+                        return moment(a.get('timestamp') )- moment(b.get('timestamp'));
                     } else {
                         return a.get('application').localeCompare(b.get('application'));
                     }
@@ -56,7 +53,7 @@ define(["backbone", "underscore", "jquery"], function (Backbone, _, $) {
             latest: function (timeCutOff) {
                 var coll = this;
                 this.each(function (notification) {
-                    if (notification.get('timestamp') + timeCutOff < coll.now) {
+                    if (moment(notification.get('timestamp')).valueOf() + timeCutOff < coll.now) {
                         coll.remove(notification);
                     }
                 });

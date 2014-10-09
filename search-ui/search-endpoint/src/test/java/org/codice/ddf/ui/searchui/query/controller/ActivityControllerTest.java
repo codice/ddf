@@ -185,7 +185,7 @@ public class ActivityControllerTest {
         testEventProperties.put(
                 ActivityEvent.ID_KEY, "");
         acitivityController.handleEvent(new Event(
-                ActivityEvent.EVENT_TOPIC_BROADCAST, 
+                ActivityEvent.EVENT_TOPIC, 
                 testEventProperties));
     }
 
@@ -201,7 +201,7 @@ public class ActivityControllerTest {
         testEventProperties.put(
                 ActivityEvent.MESSAGE_KEY, "");
         acitivityController.handleEvent(new Event(
-                ActivityEvent.EVENT_TOPIC_BROADCAST, 
+                ActivityEvent.EVENT_TOPIC, 
                 testEventProperties));
     }
     
@@ -217,7 +217,7 @@ public class ActivityControllerTest {
         testEventProperties.put(
                 ActivityEvent.USER_ID_KEY, "");
         acitivityController.handleEvent(new Event(
-                ActivityEvent.EVENT_TOPIC_BROADCAST, 
+                ActivityEvent.EVENT_TOPIC, 
                 testEventProperties));
     }
 
@@ -233,7 +233,7 @@ public class ActivityControllerTest {
         testEventProperties.put(
                 ActivityEvent.ID_KEY, null);
         acitivityController.handleEvent(new Event(
-                ActivityEvent.EVENT_TOPIC_BROADCAST, 
+                ActivityEvent.EVENT_TOPIC, 
                 testEventProperties));
     }
 
@@ -249,7 +249,7 @@ public class ActivityControllerTest {
         testEventProperties.put(
                 ActivityEvent.MESSAGE_KEY, null);
         acitivityController.handleEvent(new Event(
-                ActivityEvent.EVENT_TOPIC_BROADCAST, 
+                ActivityEvent.EVENT_TOPIC, 
                 testEventProperties));
     }
 
@@ -265,7 +265,7 @@ public class ActivityControllerTest {
         testEventProperties.put(
                 ActivityEvent.TIMESTAMP_KEY, null);
         acitivityController.handleEvent(new Event(
-                ActivityEvent.EVENT_TOPIC_BROADCAST, 
+                ActivityEvent.EVENT_TOPIC, 
                 testEventProperties));
     }
     
@@ -281,7 +281,7 @@ public class ActivityControllerTest {
         testEventProperties.put(
                 ActivityEvent.USER_ID_KEY, null);
         acitivityController.handleEvent(new Event(
-                ActivityEvent.EVENT_TOPIC_BROADCAST, 
+                ActivityEvent.EVENT_TOPIC, 
                 testEventProperties));
     }
 }

@@ -14,6 +14,12 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import net.minidev.json.JSONObject;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -32,15 +38,10 @@ import org.cometd.bayeux.server.ServerSession;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The {@code ActivityController} handles the processing and routing of activities.
@@ -54,7 +55,7 @@ public class ActivityController extends AbstractEventController {
 
     // CometD requires prepending the topic name with a '/' character, whereas
     // the OSGi Event Admin doesn't allow it.
-    protected static final String ACTIVITY_TOPIC_COMETD = "/" + ActivityEvent.EVENT_TOPIC_BROADCAST;
+    protected static final String ACTIVITY_TOPIC_COMETD = "/" + ActivityEvent.EVENT_TOPIC;
 
     public ActivityController(PersistentStore persistentStore, BundleContext bundleContext,
             EventAdmin eventAdmin) {
@@ -130,7 +131,8 @@ public class ActivityController extends AbstractEventController {
             JSONObject jsonPropMap = new JSONObject();
 
             for (String key : event.getPropertyNames()) {
-                if (event.getProperty(key) != null) {
+                if (!EventConstants.EVENT_TOPIC.equals(key)
+                        && !ActivityEvent.USER_ID_KEY.equals(key) && event.getProperty(key) != null) {
                     jsonPropMap.put(key, event.getProperty(key));
                 }
             }
@@ -197,8 +199,7 @@ public class ActivityController extends AbstractEventController {
             List<Map<String, Object>> activities = getActivitiesForUser(userId);
 
             if (CollectionUtils.isNotEmpty((Collection) activities)) {
-                queuePersistedMessages(remote, activities, "/"
-                        + ActivityEvent.EVENT_TOPIC_BROADCAST);
+                queuePersistedMessages(remote, activities, ACTIVITY_TOPIC_COMETD);
             }
         }
     }
@@ -271,6 +272,6 @@ public class ActivityController extends AbstractEventController {
 
     @Override
     public String getControllerRootTopic() {
-        return ActivityEvent.EVENT_TOPIC + "/*";
+        return ActivityEvent.EVENT_TOPIC; 
     }
 }

@@ -16,6 +16,7 @@ package org.codice.ddf.ui.searchui.query.controller;
 
 
 import net.minidev.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -31,6 +32,7 @@ import org.cometd.bayeux.server.ServerSession;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,7 +128,10 @@ public class NotificationController extends AbstractEventController {
             JSONObject jsonPropMap = new JSONObject();
 
             for (String key : event.getPropertyNames()) {
-                jsonPropMap.put(key, event.getProperty(key));
+                if (!EventConstants.EVENT_TOPIC.equals(key)
+                        && !Notification.NOTIFICATION_KEY_USER_ID.equals(key)) {
+                    jsonPropMap.put(key, event.getProperty(key));
+                }
             }
 
             LOGGER.debug("Sending the following property map \"{}\": ", jsonPropMap.toJSONString());
