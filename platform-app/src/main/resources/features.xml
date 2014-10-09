@@ -727,12 +727,12 @@
         <bundle>mvn:joda-time/joda-time/${joda-time.version}</bundle>
     </feature>
 
-    <feature name="platform-security-session" install="auto" version="${project.version}" description="Custom Session Manager">
+    <feature name="platform-security-session" install="manual" version="${project.version}" description="Custom Session Manager">
         <feature>pax-jetty</feature>
         <bundle>mvn:ddf.platform.security/platform-security-session/${project.version}</bundle>
     </feature>
 
-    <feature name="kernel-webconsolebranding" version="${project.version}" description="DDF Web Admin Console branding">
+    <feature name="kernel-webconsolebranding" install="manual" version="${project.version}" description="DDF Web Admin Console branding">
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>
