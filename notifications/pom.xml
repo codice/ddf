@@ -45,6 +45,12 @@
                         <preparationGoals>clean verify install</preparationGoals>
                         <arguments>-Pgenerate_uml_javadoc</arguments>
                         <pushChanges>false</pushChanges>
+                        <instructions>
+                            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                            <Embed-Dependency>
+                                joda-time
+                            </Embed-Dependency>
+                        </instructions>
                     </configuration>
                 </plugin>
             </plugins>
@@ -57,6 +63,11 @@
             <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>1.6.2</version>
+        </dependency>        
     </dependencies>
 
     <repositories>

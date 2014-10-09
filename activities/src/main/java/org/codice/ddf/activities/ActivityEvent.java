@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +54,6 @@ public class ActivityEvent extends HashMap<String, Object> {
 
     public static final String EVENT_TOPIC = "ddf/activities";
 
-    public static final String EVENT_TOPIC_BROADCAST = EVENT_TOPIC + "/broadcast";
-
     public static final String EVENT_TOPIC_DOWNLOAD_CANCEL = "ddf/download/cancel";
 
     /**
@@ -77,11 +76,11 @@ public class ActivityEvent extends HashMap<String, Object> {
      * 
      */
     public enum ActivityStatus {
-        STARTED, RUNNING, FINISHED, STOPPED, PAUSED, FAILED
+        STARTED, RUNNING, COMPLETE, STOPPED, PAUSED, FAILED
     }
 
     public ActivityEvent(String id, String sessionId, Date timestamp, String category, String title, String message,
-            String progress, Map<String, String> operations, String user, ActivityStatus type, Long bytes) {
+            int progress, Map<String, String> operations, String user, ActivityStatus type, Long bytes) {
         setActivityId(id);
         setSessionId(sessionId);
         setTimestamp(timestamp);
@@ -110,12 +109,20 @@ public class ActivityEvent extends HashMap<String, Object> {
      * Sets the progress of the activity.
      * 
      * @param progress
-     *            String representation of the progress. Should be described in
-     *            a human-readable format of a percentage without the %.
-     *            Example: 45 would be set for 45%.
+     *            Integer value representation of the progress, ranging from 0 to 100
      */
-    public void setProgress(String progress) {
+    public void setProgress(int progress) {
         this.put(PROGRESS_KEY, progress);
+    }
+
+    /**
+     * Returns the progress of the activity.
+     * 
+     * @return progress
+     *            Integer value representation of the progress, ranging from 0 to 100
+     */
+    public int getProgress() {
+        return (Integer) this.get(PROGRESS_KEY);
     }
 
     /**
@@ -227,61 +234,94 @@ public class ActivityEvent extends HashMap<String, Object> {
     }
 
     /**
-     * Returns a {@code Date} depicting the time at which the event that
-     * triggered this {@code Activity} occurred.
+     * Returns a {@code String} depicting the time at which the event that
+     * triggered this {@code ActivityEvent} occurred.
+     *  
+     * @return A {@code String} representing the number of milliseconds
+     *         between January 1, 1970, 00:00:00 GMT and the point at 
+     *         which the event that triggered this {@code ActivityEvent}  
+     *         occurred.
+     */
+    public String getTimestampString() {
+        return this.get(TIMESTAMP_KEY).toString();
+    }
+    
+    /**
+     * Returns a <code>long</code> depicting the time at which the event that
+     * triggered this {@code ActivityEvent} occurred.
+     *  
+     * @return A <code>long</code> representing the number of milliseconds
+     *         between January 1, 1970, 00:00:00 GMT and the point at 
+     *         which the event that triggered this {@code ActivityEvent} 
+     *         occurred.
+     */
+    public Long getTimestampLong() {
+        return getTimestamp().getTime();
+    }
+    
+    /**
+     * Returns a <code>Date</code> depicting the time at which the event that triggered this
+     * {@code ActivityEvent} occurred.
      * 
-     * @return A {@code Date} representing the point at which the event that
-     *         triggered this {@code ActivityEvent} occurred.
+     * @return A <code>Date</code> the point at which the event that triggered this
+     *         {@code ActivityEvent} occurred.
      */
     public Date getTimestamp() {
-        try {
-            Long dateMillis = new Long(this.get(TIMESTAMP_KEY).toString());
-            return new Date(dateMillis);
-        } catch (NumberFormatException nfe) {
-            return null;
-        }
+        return ISODateTimeFormat.dateTime().parseDateTime(getTimestampString()).toDate();
     }
-
+    
     /**
      * Overwrites the timestamp that depicts the time at which the event that
-     * triggered the {@code Activity} occurred.
+     * triggered the {@code ActivityEvent} occurred.
+     *  
+     * @param timestampString A {@code String} representing the number of 
+     *                        milliseconds between January 1, 1970, 00:00:00 GMT
+     *                        and the point at which the event that triggered
+     *                        this {@code ActivityEvent} occurred.
+     */
+    private void setTimestamp(String timestampString) {
+        this.put(TIMESTAMP_KEY, timestampString);
+    }
+    
+    /**
+     * Overwrites the timestamp that depicts the time at which the event that triggered the
+     * {@code ActivityEvent} occurred.
      * 
      * @param timestamp
-     *            A {@code Date} representing the number of milliseconds between
-     *            January 1, 1970, 00:00:00 GMT and the point at which the event
-     *            that triggered this {@code Activity} occurred.
+     *            A <code>long</code> representing the point at which the event that triggered this
+     *            {@code ActivityEvent} occurred.
      */
     public void setTimestamp(Date timestamp) {
-        this.put(TIMESTAMP_KEY, Long.toString(timestamp.getTime()));
+        setTimestamp(ISODateTimeFormat.dateTime().print(timestamp.getTime()));
     }
-
+    
     /**
      * Overwrites the timestamp that depicts the time at which the event that
-     * triggered the {@code Activity} occurred.
-     * 
-     * @param timestamp
-     *            A <code>long</code> representing the number of milliseconds
-     *            between January 1, 1970, 00:00:00 GMT and the point at which
-     *            the event that triggered this {@code Notification} occurred.
+     * triggered the {@code ActivityEvent} occurred.
+     *  
+     * @param timestamp A <code>long</code> representing the number of 
+     *                  milliseconds between January 1, 1970, 00:00:00 GMT and
+     *                  the point at which the event that triggered this 
+     *                  {@code ActivityEvent} occurred.
      */
     public void setTimestamp(Long timestamp) {
-        this.put(TIMESTAMP_KEY, String.valueOf(timestamp));
+        this.setTimestamp(new Date(timestamp));
     }
 
     /**
-     * Returns the id of the user to whom this {@code Activity} is addressed.
+     * Returns the id of the user to whom this {@code ActivityEvent} is addressed.
      * 
-     * @return The id of the user to whom this {@code Activity} is addressed.
+     * @return The id of the user to whom this {@code ActivityEvent} is addressed.
      */
     public String getUserId() {
         return this.get(USER_ID_KEY).toString();
     }
 
     /**
-     * Overwrites the id of the user to whom the {@code Activity} is addressed.
+     * Overwrites the id of the user to whom the {@code ActivityEvent} is addressed.
      * 
      * @param userId
-     *            The new userId to whom the {@code Activity} should be
+     *            The new userId to whom the {@code ActivityEvent} should be
      *            addressed.
      */
     public void setUserId(String userId) {
@@ -289,9 +329,9 @@ public class ActivityEvent extends HashMap<String, Object> {
     }
 
     /**
-     * Returns the bytes read associated with the {@code Activity}.
+     * Returns the bytes read associated with the {@code ActivityEvent}.
      *
-     * @return The bytes read associated with the {@code Activity}.
+     * @return The bytes read associated with the {@code ActivityEvent}.
      */
     public Long getBytesRead() {
         try {
@@ -304,10 +344,10 @@ public class ActivityEvent extends HashMap<String, Object> {
     }
 
     /**
-     * Overwrites the bytes read associated with the {@code Activity}.
+     * Overwrites the bytes read associated with the {@code ActivityEvent}.
      *
      * @param bytesRead
-     *            The new bytes read associated with the {@code Activity}.
+     *            The new bytes read associated with the {@code ActivityEvent}.
      */
     public void setBytesRead(Long bytesRead) {
         this.put(BYTES_READ_KEY, bytesRead);

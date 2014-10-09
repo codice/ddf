@@ -14,7 +14,10 @@
  **/
 package org.codice.ddf.notifications;
 
+import java.util.Date;
 import java.util.HashMap;
+
+import org.joda.time.format.ISODateTimeFormat;
 
 /**
  * A {@code java.util.Map} implementation that is used in concert with the
@@ -53,16 +56,16 @@ public class Notification extends HashMap<String, String> {
      * 
      * @param message The message associated with this {@code Notification}
      * 
-     * @param timestamp A <code>long</code> representing the number of 
-     *                  milliseconds between January 1, 1970, 00:00:00 GMT and
-     *                  the point at which the event triggering this
-     *                  {@code Notification} was generated.
+     * @param timestamp
+     *            A {@code Date} representing the point at which the event triggering this
+     *            {@code Notification} was generated.\
+     *            
      */
     public Notification(String id, String sessionId, String application, String title, String message, 
-            Long timestamp) {
-        this(id, sessionId, application, title, message, String.valueOf(timestamp), null);
+            Date timestamp) {
+        this(id, sessionId, application, title, message, timestamp, null);
     }
-    
+
     /**
      * Constructs a Notification with the specified application name, title
      * message, and timestamp.
@@ -78,14 +81,14 @@ public class Notification extends HashMap<String, String> {
      * 
      * @param message The message associated with this {@code Notification}
      * 
-     * @param timestamp A {@code String} representing the number of milliseconds
-     *                  between January 1, 1970, 00:00:00 GMT and the point at 
-     *                  which the event triggering this {@code Notification} was 
-     *                  generated.
+     * @param timestamp A <code>long</code> representing the number of 
+     *                  milliseconds between January 1, 1970, 00:00:00 GMT and
+     *                  the point at which the event triggering this
+     *                  {@code Notification} was generated.
      */
     public Notification(String id, String sessionId, String application, String title, String message, 
-            String timestamp) {
-        this(id, sessionId, application, title, message, timestamp, null);
+            Long timestamp) {
+        this(id, sessionId, application, title, message, new Date(timestamp), null);
     }
     
     /**
@@ -113,7 +116,7 @@ public class Notification extends HashMap<String, String> {
      */
     public Notification(String id, String sessionId, String application, String title, String message, 
             Long timestamp, String userId) {
-       this(id, sessionId, application, title, message, String.valueOf(timestamp), userId);
+       this(id, sessionId, application, title, message, new Date(timestamp), userId);
     }
     
     /**
@@ -131,28 +134,28 @@ public class Notification extends HashMap<String, String> {
      * 
      * @param message The message associated with this {@code Notification}
      * 
-     * @param timestamp A {@code String} representing the number of milliseconds
-     *                  between January 1, 1970, 00:00:00 GMT and the point at 
-     *                  which the event triggering this {@code Notification} was 
-     *                  generated.
+     * @param timestamp
+     *            A {@code Date} representing the point at which the event triggering this
+     *            {@code Notification} was generated.\
+     *            
      *                  
      * @param userId The id of the user to which this {@code Notification}
      *               should be sent.
      */
     public Notification(String id, String sessionId, String application, String title, String message, 
-            String timestamp, String userId) {
-        
-        setId(id);
-        setSessionId(sessionId);
-        setApplication(application);
-        setTitle(title);
-        setMessage(message);
-        setTimestamp(timestamp);
-        
-        // Allow blank user ID (since that is the default user ID for anonymous user)
-        if (null != userId) {
-            setUserId(userId);
-        }
+            Date timestamp, String userId) {
+       setId(id);
+       setSessionId(sessionId);
+       setApplication(application);
+       setTitle(title);
+       setMessage(message);
+       setTimestamp(timestamp);
+       
+       // Allow blank user ID (since that is the default user ID for anonymous user)
+       if (null != userId) {
+           setUserId(userId);
+       }
+
     }
     
     /**
@@ -272,7 +275,18 @@ public class Notification extends HashMap<String, String> {
      *         occurred.
      */
     public Long getTimestampLong() {
-        return Long.valueOf(this.get(NOTIFICATION_KEY_TIMESTAMP));
+        return getTimestamp().getTime();
+    }
+    
+    /**
+     * Returns a <code>Date</code> depicting the time at which the event that triggered this
+     * {@code Notification} occurred.
+     * 
+     * @return A <code>Date</code> the point at which the event that triggered this
+     *         {@code Notification} occurred.
+     */
+    public Date getTimestamp() {
+        return ISODateTimeFormat.dateTime().parseDateTime(getTimestampString()).toDate();
     }
     
     /**
@@ -284,8 +298,20 @@ public class Notification extends HashMap<String, String> {
      *                        and the point at which the event that triggered
      *                        this {@code Notification} occurred.
      */
-    public void setTimestamp(String timestampString) {
+    private void setTimestamp(String timestampString) {
         this.put(NOTIFICATION_KEY_TIMESTAMP, timestampString);
+    }
+    
+    /**
+     * Overwrites the timestamp that depicts the time at which the event that triggered the
+     * {@code Notification} occurred.
+     * 
+     * @param timestamp
+     *            A <code>long</code> representing the point at which the event that triggered this
+     *            {@code Notification} occurred.
+     */
+    public void setTimestamp(Date timestamp) {
+        setTimestamp(ISODateTimeFormat.dateTime().print(timestamp.getTime()));
     }
     
     /**
@@ -298,7 +324,7 @@ public class Notification extends HashMap<String, String> {
      *                  {@code Notification} occurred.
      */
     public void setTimestamp(Long timestamp) {
-        this.put(NOTIFICATION_KEY_TIMESTAMP, String.valueOf(timestamp));
+        this.setTimestamp(new Date(timestamp));
     }
     
     /**

@@ -18,20 +18,21 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Date;
 
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Test;
 
 /**
  * Class of test methods for the {@link Notification} class.
  */
 public class NotificationTest {
-    
+
     private static final String DEFAULT_USER_ID = "";
 
     /**
      * Test of the {@link Notification#Notification(String, String, String, String, String)}
      * constructor.
-     * 
-     * Verifies that the constructor will set a 
+     *
+     * Verifies that the constructor will set a
      * {@link Notification#NOTIFICATION_KEY_USER_ID} to an empty {@code String},
      * which simulates an anonymous user.
      */
@@ -39,10 +40,9 @@ public class NotificationTest {
     public void testNotificationSetAnonymousUserId() {
         Notification notification = new Notification("myId", "mySessionId",
                 "myAppName", "testing", "testing", new Date().getTime(), "");
-        assertEquals("Notification constructor accepted empty userId", DEFAULT_USER_ID, 
+        assertEquals("Notification constructor accepted empty userId", DEFAULT_USER_ID,
                 notification.getUserId());
     }
-    
     /**
      * Test of the {@link Notification#getTimestampLong()} method.
      * 
@@ -51,18 +51,17 @@ public class NotificationTest {
      */
     @Test
     public void testSetAndGetTimestampLong() {
-        Long timeNow = new Date().getTime();
-        String timeNowString = String.valueOf(timeNow);
+        Date timeNow = new Date();
         Notification notification = new Notification("myId", "mySessionId",
-                "myAppName", "testing", "testing", timeNowString);
+                "myAppName", "testing", "testing", timeNow);
         
-        assertEquals("Notification did not return expected timestamp string", 
-                timeNowString, notification.getTimestampString());
+        assertEquals("Notification did not return expected timestamp string", ISODateTimeFormat
+                .dateTime().print(timeNow.getTime()), notification.getTimestampString());
         
-        Long newTime = new Date().getTime();
-        notification.setTimestamp(String.valueOf(newTime));
+        Date newTime = new Date();
+        notification.setTimestamp(newTime);
         
         assertEquals("Notification did not return correct timestamp value", 
-                newTime, notification.getTimestampLong());
+                newTime.getTime(), notification.getTimestampLong().longValue());
     }
 }

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.codice.ddf.activities.ActivityEvent.ActivityStatus;
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Test;
 
 public class ActivityEventTest {
@@ -35,7 +36,7 @@ public class ActivityEventTest {
         String category = "Product Retrieval";
         String title = "Download 12345";
         String message = "Downloading a file.";
-        String progress = "55%";
+        int progress = 55;
         Map<String, String> operations = new HashMap<String, String>();
         operations.put("cancel", "true");
         String user = UUID.randomUUID().toString();
@@ -55,7 +56,9 @@ public class ActivityEventTest {
         // time stamp
         assertEquals(timestamp, event.getTimestamp());
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis((Long.parseLong(event.get(ActivityEvent.TIMESTAMP_KEY).toString())));
+        cal.setTimeInMillis(ISODateTimeFormat.dateTime()
+                .parseDateTime(event.get(ActivityEvent.TIMESTAMP_KEY).toString()).toDate()
+                .getTime());
         assertEquals(timestamp, cal.getTime());
         
         // category
@@ -101,7 +104,7 @@ public class ActivityEventTest {
         String category = "Product Retrieval";
         String title = "Download 12345";
         String message = "Downloading a file.";
-        String progress = "55%";
+        int progress = 55;
         Map<String, String> operations = new HashMap<String, String>();
         operations.put("cancel", "true");
         String user = "";
@@ -121,7 +124,9 @@ public class ActivityEventTest {
         // time stamp
         assertEquals(timestamp, event.getTimestamp());
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis((Long.parseLong(event.get(ActivityEvent.TIMESTAMP_KEY).toString())));
+        cal.setTimeInMillis(ISODateTimeFormat.dateTime()
+                .parseDateTime(event.get(ActivityEvent.TIMESTAMP_KEY).toString()).toDate()
+                .getTime());
         assertEquals(timestamp, cal.getTime());
         
         // category

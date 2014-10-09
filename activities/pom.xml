@@ -44,6 +44,12 @@
                         <preparationGoals>clean verify install</preparationGoals>
                         <arguments>-Pgenerate_uml_javadoc</arguments>
                         <pushChanges>false</pushChanges>
+                        <instructions>
+                            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                            <Embed-Dependency>
+                                joda-time
+                            </Embed-Dependency>
+                        </instructions>
                     </configuration>
                 </plugin>
             </plugins>
@@ -60,6 +66,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
             <version>1.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>1.6.2</version>
         </dependency>
     </dependencies>
 
