@@ -60,9 +60,8 @@ public class SendCommand extends OsgiCommandSupport {
                 "Activity category",
                 "Activity title",
                 "Activity message",
-                "Activity progress",
-                operations, userId, ActivityStatus.RUNNING, 100L);
-        Event event = new Event(ActivityEvent.EVENT_TOPIC_BROADCAST, eventProperties);
+                -1, operations, userId, ActivityStatus.RUNNING, 100L);
+        Event event = new Event(ActivityEvent.EVENT_TOPIC, eventProperties);
 
         // Get OSGi Event Admin service
         EventAdmin eventAdmin = null;
