@@ -22,7 +22,11 @@
 
 {{#is editing true}}
     <td>
-        <input type="text" id="name" class="input-xlarge" placeholder="{{name}}" autofocus>
+        <div class="col-lg-6 form-group">
+            <div class="input-group input-group-sm margin-no">
+                <input type="text" id="name" class="form-control" placeholder="{{name}}" autofocus>
+            </div>
+        </div>
     </td>
     <td>
         <a href="#" class="fa fa-times workspace-link workspace-remove"></a>

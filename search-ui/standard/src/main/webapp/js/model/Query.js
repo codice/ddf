@@ -53,7 +53,8 @@ define([
                 format: "geojson",
                 locationType: 'latlon',
                 lat: undefined,
-                lon: undefined
+                lon: undefined,
+                federation: 'enterprise'
             },
 
             drawing: false,

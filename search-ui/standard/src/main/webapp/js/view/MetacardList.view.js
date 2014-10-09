@@ -198,7 +198,7 @@ define([
                 }
             },
             toggleStatus: function() {
-                this.$('#status-table').toggle();
+                this.$('#status-table').toggleClass('shown hidden');
                 this.$('#status-icon').toggleClass('fa-caret-down fa-caret-right');
             },
             refreshResults: function() {

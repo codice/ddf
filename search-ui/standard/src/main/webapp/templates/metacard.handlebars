@@ -11,14 +11,14 @@
  *
  **/
  --}}
-<div class="metacard-nav holder-row pagination-centered">
+<div class="metacard-nav holder-row">
     <a id="prevRecord" target='blank' title="Previous"><i class='fa fa-chevron-circle-up fa-3x' /></a>
     <a id="nextRecord" target='blank' title="Next"><i class='fa fa-chevron-circle-down fa-3x' /></a>
 </div>
 
 <div class="panel-primary row-fluid">
 
-    <div class="span12 metacard-details">
+    <div class="metacard-details">
         <ul class="nav nav-tabs" id="myTab">
             <li {{#if hash}} {{#is hash "#summary"}} class="active" {{/is}} {{else}} class="active" {{/if}}>
                 <a href="#summary" data-toggle="tab">Summary</a>
@@ -32,19 +32,17 @@
         <div class="tab-content">
             <div class="tab-pane  {{#if hash}} {{#is hash "#summary"}} active {{/is}} {{else}} active {{/if}}" id="summary">
                 <div class="row-fluid" title="Thumbnail">
-                    <div class="span12">
-                        <h3 class="title" title="Title">
-                            {{#if properties.title}}
-                                {{properties.title}}
-                            {{else}}
-                                [No Title]
-                            {{/if}}
-                        </h3>
-                        <hr/>
-                    </div>
+                    <h4 class="title" title="Title">
+                        {{#if properties.title}}
+                            {{properties.title}}
+                        {{else}}
+                            [No Title]
+                        {{/if}}
+                    </h4>
+                    <hr/>
 
-                    <div class="span12 pagination-centered">
-                        <ul class="inline">
+                    <div class="col-sm-5">
+                        <ul class="list-group">
                             <li class="attribute" title="Source">
                                 <span class="attribute-label muted"><i class="fa fa-sitemap fa-2x"></i> </span>
                                 <span class="attribute-value">{{properties.source-id}}</span>
@@ -61,7 +59,10 @@
                                 <span class="attribute-value">{{momentHelp properties.created fromNow=function}}</span>
                             </li>
                             {{/isNotBlank}}
-
+                        </ul>
+                    </div>
+                    <div class="col-sm-5 pull-right">
+                        <ul class="list-group">
                             {{#isNotBlank properties.modified}}
                             <li class="attribute" title="Modified Date">
                                 <span class="attribute-label muted">
@@ -84,13 +85,13 @@
                     </div>
 
                     {{#if properties.thumbnail}}
-                        <div class="span12 pagination-centered holder-row">
+                        <div class="holder-row">
                             <a href="/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=thumbnail" target="_blank"><img class='thumbnail' alt='{{properties.title}}' src='data:image/jpeg;charset=utf-8;base64, {{properties.thumbnail}}' /> </a>
                         </div>
                     {{/if}}
 
                     {{#if properties.resource-uri}}
-                    <div class="span12 pagination-centered holder-row">
+                    <div class="holder-row">
                         <a target='blank' title="Download Product"
                            href='/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=resource&session={{clientId}}'>
                             <i class='fa fa-download fa-2x metacard-action'></i>

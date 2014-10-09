@@ -12,211 +12,254 @@
  **/
  --}}
 <form id="searchForm" class="search-form" method="get">
-    <ul class="nav nav-list">
+    <ul class="nav">
         {{#is isWorkspace true}}
-            <li class="nav-header">Query Name</li>
             <li>
-                <input id="queryName" type="text" class="input-xlarge" value="{{name}}" />
+                <h6>Query Name</h6>
+            </li>
+            <li>
+                <div class="col-lg-10 form-group">
+                    <div class="input-group input-group-sm margin-no">
+                        <input id="queryName" type="text" class="form-control" value="{{name}}" />
+                    </div>
+                </div>
             </li>
         {{/is}}
 
-        <li class="nav-header">Keywords</li>
         <li>
-            <input name="q" type="text" class="input-xlarge" autofocus />
+            <div style="clear:both"></div>
+            <h6>Keywords</h6>
+        </li>
+        <li>
+            <div class="col-lg-10 form-group">
+                <div class="input-group input-group-sm margin-no">
+                    <input name="q" type="text" class="form-control" autofocus />
+                </div>
+            </div>
         </li>
 
-        <li class="nav-header">Time</li>
         <li>
-            <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
-                <button type="button" class="btn btn-mini {{#is timeType 'created'}}active{{/is}}" name="createdTimeButton" value="created">Created
-                </button>
-                <button type="button" class="btn btn-mini {{#is timeType 'modified'}}active{{/is}}" name="modifiedTimeButton" value="modified">Modified
-                </button>
-                <button type="button" class="btn btn-mini {{#is timeType 'effective'}}active{{/is}}" name="effectiveTimeButton" value="effective">Effective
-                </button>
-
+            <div style="clear:both"></div>
+            <h6>Time</h6>
+        </li>
+        <li>
+            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                <label id="created" class="btn btn-default {{#is timeType 'created'}}active{{/is}}" >
+                    <input type="radio" name="createdTimeButton" value="created">
+                    Created
+                </label>
+                <label id="modified" class="btn btn-default {{#is timeType 'modified'}}active{{/is}}">
+                    <input type="radio" name="modifiedTimeButton" value="modified">
+                    Modified
+                </label>
+                <label id="effective" class="btn btn-default {{#is timeType 'effective'}}active{{/is}}">
+                    <input type="radio" name="effectiveTimeButton" value="effective">
+                    Effective
+                </label>
             </div>
             <br />
-            <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
-                <button type="button" class="btn btn-mini time {{#ifNotOr dtoffset dtend dtstart}}active{{/ifNotOr}}"
-                        name="noTemporalButton" data-target="#notemporal"
-                        data-toggle="tab">Any
-                </button>
-                <button type="button" class="btn btn-mini time {{#if dtoffset}}active{{/if}}"
-                        name="relativeTimeButton" data-target="#time_relative"
-                        data-toggle="tab">Relative
-                </button>
-                <button type="button" class="btn btn-mini time {{#ifAnd dtend dtstart}}active{{/ifAnd}}"
-                        name="absoluteTimeButton" data-target="#time_absolute"
-                        data-toggle="tab">Absolute
-                </button>
+            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                <label class="btn btn-default time {{#ifNotOr dtoffset dtend dtstart}}active{{/ifNotOr}}" data-toggle="tab" data-target="#notemporal">
+                    <input type="radio" name="noTemporalButton">
+                    Any
+                </label>
+                <label class="btn btn-default time {{#if dtoffset}}active{{/if}}" data-target="#time_relative" data-toggle="tab">
+                    <input type="radio" name="relativeTimeButton">
+                    Relative
+                </label>
+                <label class="btn btn-default time {{#ifAnd dtend dtstart}}active{{/ifAnd}}" data-target="#time_absolute" data-toggle="tab">
+                    <input type="radio" name="absoluteTimeButton">
+                    Absolute
+                </label>
             </div>
-            <div class="tab-content">
+            <div class="tab-content form-group">
                 <div id="notemporal" class="tab-pane {{#ifNotOr dtoffset dtend dtstart}}active{{/ifNotOr}}"></div>
                 <div id="time_relative" class="tab-pane {{#if dtoffset}}active{{/if}}">
-                    <div class="input-prepend input-append">
-                        <span class="add-on add-on-label">Last&nbsp;</span>
-                        <input name="dtoffset" type="hidden" />
-                        <input id="offsetTime" name="offsetTime" class="input-medium" type="number"/>
-                        <select id="offsetTimeUnits" name="offsetTimeUnits" class="add-on">
-                            <option value="seconds">seconds</option>
-                            <option value="minutes">minutes</option>
-                            <option selected="selected" value="hours">hours</option>
-                            <option value="days">days</option>
-                            <option value="weeks">weeks</option>
-                            <option value="months">months</option>
-                            <option value="years">years</option>
-                        </select>
+                    <input name="dtoffset" type="hidden" />
+                    <div class="col-lg-10">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Last&nbsp;</span>
+                            <input id="offsetTime" name="offsetTime" class="form-control" type="number"/>
+                            <span class="input-group-btn">
+                                <select id="offsetTimeUnits" name="offsetTimeUnits" class="input-group-addon">
+                                    <option value="seconds">seconds</option>
+                                    <option value="minutes">minutes</option>
+                                    <option selected="selected" value="hours">hours</option>
+                                    <option value="days">days</option>
+                                    <option value="weeks">weeks</option>
+                                    <option value="months">months</option>
+                                    <option value="years">years</option>
+                                </select>
+                            </span>
+                        </div>
                     </div>
-                    
                 </div>
                 <div id="time_absolute" class="tab-pane {{#ifAnd dtend dtstart}}active{{/ifAnd}}">
-                    <div class="input-prepend">
-                        <span class="add-on add-on-label">Begin&nbsp;</span>
-                        <input id="absoluteStartTime" name="dtstart" type="text" class="input-large"/>
-                    </div>
-                    <div class="input-prepend">
-                        <span class="add-on add-on-label">End&nbsp;</span>
-                        <input id="absoluteEndTime" name="dtend" type="text" class="input-large"/>
+                    <div class="col-lg-10">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Begin&nbsp;</span>
+                            <input id="absoluteStartTime" name="dtstart" type="text" class="form-control"/>
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">End&nbsp;</span>
+                            <input id="absoluteEndTime" name="dtend" type="text" class="form-control"/>
+                        </div>
                     </div>
                 </div>
             </div>
         </li>
 
-        <li class="nav-header">Location</li>
         <li>
-            <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
-                <button type="button" name="latLonButton"
-                        class="btn btn-mini {{#is locationType 'latlon'}}active{{/is}}" value="latlon">Lat / Lon
-                </button>
-                <button type="button" name="usngButton"
-                        class="btn btn-mini {{#is locationType 'usng'}}active{{/is}}" value="usng">USNG / MGRS
-                </button>
+            <div style="clear:both"></div>
+            <h6>Location</h6>
+        </li>
+        <li>
+            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                <label id="latlon" class="btn btn-default {{#is locationType 'latlon'}}active{{/is}}">
+                    <input type="radio" name="latLonButton" value="latlon">
+                    Lat / Lon
+                </label>
+                <label id="usng" class="btn btn-default {{#is locationType 'usng'}}active{{/is}}">
+                    <input type="radio" name="usngButton" value="usng">
+                    USNG / MGRS
+                </label>
             </div>
             <br />
-            <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
-                <button type="button" name="noLocationButton"
-                        class="btn btn-mini location {{#ifNotOr radius bbox}}active{{/ifNotOr}}" data-target="#nogeo"
-                        data-toggle="tab">Any
-                </button>
-                <button type="button" name="pointRadiusButton"
-                        class="btn btn-mini location {{#if radius}}active{{/if}}" data-target="#pointradius"
-                        data-toggle="tab">Point-Radius
-                </button>
-                <button type="button" name="bboxButton" class="btn btn-mini location {{#if bbox}}active{{/if}}"
-                        data-target="#boundingbox" data-toggle="tab">Bounding
-                    Box
-                </button>
+            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                <label id="locationAny" class="btn btn-default location {{#ifNotOr radius bbox}}active{{/ifNotOr}}" data-target="#nogeo" data-toggle="tab">
+                    <input type="radio" name="noLocationButton">
+                    Any
+                </label>
+                <label id="locationPoint" class="btn btn-default location {{#if radius}}active{{/if}}" data-target="#pointradius" data-toggle="tab">
+                    <input type="radio" name="pointRadiusButton">
+                    Point-Radius
+                </label>
+                <label id="locationBbox" class="btn btn-default location {{#if bbox}}active{{/if}}" data-target="#boundingbox" data-toggle="tab">
+                    <input type="radio" name="bboxButton">
+                    Bounding Box
+                </label>
             </div>
-            <div class="tab-content">
+            <div class="tab-content form-group">
                 <div id="nogeo" class="tab-pane {{#ifNotOr radius bbox}}active{{/ifNotOr}}"></div>
 
                 <div id="pointradius" class="tab-pane {{#if radius}}active{{/if}}">
                     <input type="hidden" name="radius" value="">
 
-                    <div id="latdiv" class="input-prepend input-append">
-                        <span class="add-on add-on-label">Latitude&nbsp;</span>
-                        <input class="input-medium" id="latitude" name="lat" type="number" min="-90" max="90" step="any" placeholder=""/>
-                        <label class="add-on">&deg;</label>
-                    </div>
-                    <div id="londiv" class="input-prepend input-append">
-                        <span class="add-on add-on-label">Longitude&nbsp;</span>
-                        <input class="input-medium" id="longitude" name="lon" type="number" min="-180" max="180" step="any" placeholder=""/>
-                        <label class="add-on">&deg;</label>
-                    </div>
+                    <div class="col-lg-10">
+                        <div id="latdiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">Latitude&nbsp;</span>
+                            <input class="form-control" id="latitude" name="lat" type="number" min="-90" max="90" step="any" placeholder=""/>
+                            <label class="input-group-addon">&deg;</label>
+                        </div>
+                        <div id="londiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">Longitude&nbsp;</span>
+                            <input class="form-control" id="longitude" name="lon" type="number" min="-180" max="180" step="any" placeholder=""/>
+                            <label class="input-group-addon">&deg;</label>
+                        </div>
 
-                    <div id="usngdiv" class="input-prepend input-append" style="display: none;">
-                        <span class="add-on add-on-label usng-label">USNG / MGRS&nbsp;</span>
-                        <input class="input-medium" id="usng" name="usng" type="text" placeholder=""/>
-                    </div>
+                        <div id="usngdiv" class="input-group input-group-sm" style="display: none;">
+                            <span class="input-group-addon usng-label">USNG / MGRS&nbsp;</span>
+                            <input class="form-control" id="usng" name="usng" type="text" placeholder=""/>
+                        </div>
 
-                    <div class="input-prepend input-append">
-                        <span class="add-on add-on-label">Radius&nbsp;</span>
-                        <input class="input-medium" id="radiusValue" name="radiusValue" type="number" min="0" step="any" placeholder=""/>
-                        <select id="radiusUnits" name="radiusUnits" class="add-on">
-                            <option value="meters" selected="selected">meters</option>
-                            <option value="kilometers">kilometers</option>
-                            <option value="feet">feet</option>
-                            <option value="yards">yards</option>
-                            <option value="miles">miles</option>
-                        </select>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon">Radius&nbsp;</span>
+                            <input class="form-control" id="radiusValue" name="radiusValue" type="number" min="0" step="any" placeholder=""/>
+                            <span class="input-group-btn">
+                                <select id="radiusUnits" name="radiusUnits" class="input-group-addon">
+                                    <option value="meters" selected="selected">meters</option>
+                                    <option value="kilometers">kilometers</option>
+                                    <option value="feet">feet</option>
+                                    <option value="yards">yards</option>
+                                    <option value="miles">miles</option>
+                                </select>
+                            </span>
+                        </div>
                     </div>
                 </div>
 
                 <div id="boundingbox" class="tab-pane {{#if bbox}}active{{/if}}">
                     <input type="hidden" name="bbox" value="">
 
-                    <div id="westdiv" class="input-prepend input-append">
-                        <span class="add-on add-on-label">West&nbsp;</span>
-                        <input class="input-medium" id="west" name="west" type="number" min="-180" max="180" step="any" placeholder=""/>
-                        <label class="add-on">&deg;</label>
-                    </div>
-                    <div id="southdiv" class="input-prepend input-append">
-                        <span class="add-on add-on-label">South&nbsp;</span>
-                        <input class="input-medium" id="south" name="south" type="number" min="-90" max="90" step="any" placeholder=""/>
-                        <label class="add-on">&deg;</label>
-                    </div>
-                    <div id="eastdiv" class="input-prepend input-append">
-                        <span class="add-on add-on-label">East&nbsp;</span>
-                        <input class="input-medium" id="east" name="east" type="number" min="-180" max="180" step="any" placeholder=""/>
-                        <label class="add-on">&deg;</label>
-                    </div>
-                    <div id="northdiv" class="input-prepend input-append">
-                        <span class="add-on add-on-label">North&nbsp;</span>
-                        <input class="input-medium" id="north" name="north" type="number" min="-90" max="90" step="any" placeholder=""/>
-                        <label class="add-on">&deg;</label>
-                    </div>
+                    <div class="col-lg-10">
+                        <div id="westdiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">West&nbsp;</span>
+                            <input class="form-control" id="west" name="west" type="number" min="-180" max="180" step="any" placeholder=""/>
+                            <label class="input-group-addon">&deg;</label>
+                        </div>
+                        <div id="southdiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">South&nbsp;</span>
+                            <input class="form-control" id="south" name="south" type="number" min="-90" max="90" step="any" placeholder=""/>
+                            <label class="input-group-addon">&deg;</label>
+                        </div>
+                        <div id="eastdiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">East&nbsp;</span>
+                            <input class="form-control" id="east" name="east" type="number" min="-180" max="180" step="any" placeholder=""/>
+                            <label class="input-group-addon">&deg;</label>
+                        </div>
+                        <div id="northdiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">North&nbsp;</span>
+                            <input class="form-control" id="north" name="north" type="number" min="-90" max="90" step="any" placeholder=""/>
+                            <label class="input-group-addon">&deg;</label>
+                        </div>
 
-                    <div id="usngbbdiv" class="input-prepend input-append" style="display: none;">
-                        <span class="add-on add-on-label usng-label">USNG / MGRS&nbsp;</span>
-                        <input class="input-medium" id="usngbb" name="usngbb" type="text" placeholder=""/>
+                        <div id="usngbbdiv" class="input-group input-group-sm" style="display: none;">
+                            <span class="input-group-addon usng-label">USNG / MGRS&nbsp;</span>
+                            <input class="form-control" id="usngbb" name="usngbb" type="text" placeholder=""/>
+                        </div>
                     </div>
                 </div>
             </div>
         </li>
 
-        <li class="nav-header">Type</li>
         <li>
-            <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
-                <button type="button" name="noTypeButton"
-                        class="btn btn-mini type {{#ifNotOr type}}active{{/ifNotOr}}" data-target="#noTypeTab"
-                        data-toggle="tab">Any
-                </button>
-                <button type="button" name="typeButton" class="btn btn-mini type {{#if type}}active{{/if}}"
-                        data-target="#typeTab" data-toggle="tab">Specific
-                    Types
-                </button>
+            <div style="clear:both"></div>
+            <h6>Type</h6>
+        </li>
+        <li>
+            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                <label class="btn btn-default type {{#ifNotOr type}}active{{/ifNotOr}}" data-target="#noTypeTab" data-toggle="tab">
+                    <input type="radio" name="noTypeButton">
+                    Any
+                </label>
+                <label class="btn btn-default type {{#if type}}active{{/if}}" data-target="#typeTab" data-toggle="tab">
+                    <input type="radio" name="typeButton">
+                    Specific Types
+                </label>
             </div>
-            <div class="tab-content">
+            <div class="tab-content form-group">
                 <div id="noTypeTab" class="tab-pane {{#ifNotOr type}}active{{/ifNotOr}}"></div>
-                <div id="typeTab" class="tab-pane {{#if type}}active{{/if}}">
-                    <select id="typeList" name="type" class="input-xlarge" multiple="multiple">
+                <div id="typeTab" class="tab-pane col-lg-10 {{#if type}}active{{/if}}">
+                    <select id="typeList" name="type" multiple="multiple">
                     </select>
                 </div>
             </div>
         </li>
 
-        <li class="nav-header">Additional Sources</li>
         <li>
-            <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
-                <button type="button" class="btn btn-mini {{#is federation 'enterprise'}}active{{/is}}"
-                        name="enterpriseFederationButton" data-target="#nofed"
-                        data-toggle="tab">All Sources
-                </button>
-                <button type="button" class="btn btn-mini {{#is federation 'selected'}}active{{/is}}"
-                        name="selectedFederationButton" data-target="#sources"
-                        data-toggle="tab">Specific Sources
-                </button>
-                <button type="button" class="btn btn-mini {{#is federation 'local'}}active{{/is}}"
-                        name="noFederationButton" data-target="#local"
-                        data-toggle="tab">None
-                </button>
+            <div style="clear:both"></div>
+            <h6>Additional Sources</h6>
+        </li>
+        <li>
+            <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                <label id="federationAll" class="btn btn-default {{#is federation 'enterprise'}}active{{/is}}" data-target="#nofed" data-toggle="tab">
+                    <input type="radio" name="enterpriseFederationButton">
+                    All Sources
+                </label>
+                <label id="federationSelected" class="btn btn-default {{#is federation 'selected'}}active{{/is}}" data-target="#sources" data-toggle="tab">
+                    <input type="radio" name="selectedFederationButton">
+                    Specific Sources
+                </label>
+                <label id="federationNo" class="btn btn-default {{#is federation 'local'}}active{{/is}}" data-target="#local" data-toggle="tab">
+                    <input type="radio" name="noFederationButton">
+                    None
+                </label>
             </div>
-            <div class="tab-content">
+            <div class="tab-content form-group">
                 <div id="nofed" class="tab-pane {{#is federation 'enterprise'}}active{{/is}}"></div>
-                <div id="sources" class="tab-pane {{#is federation 'selected'}}active{{/is}}">
+                <div id="sources" class="tab-pane col-lg-10 {{#is federation 'selected'}}active{{/is}}">
                     <div id="scrollableSources" class="scrollable">
-                        <select id="federationSources" class="input-xlarge" multiple="multiple">
+                        <select id="federationSources" multiple="multiple">
                         </select>
                     </div>
                 </div>
@@ -225,28 +268,35 @@
         </li>
 
         {{#is isWorkspace true}}
-            <li class="nav-header">Scheduling</li>
             <li>
-                <div class="btn-group margin-bottom-large" data-toggle="buttons-radio">
-                    <button type="button" class="btn btn-mini {{#isnt scheduled true}} active{{/isnt}}"
-                            name="notScheduledButton" data-target="#nosched"
-                            data-toggle="tab">Not Scheduled
-                    </button>
-                    <button type="button" class="btn btn-mini {{#is scheduled true}} active{{/is}}"
-                            name="scheduledButton" data-target="#sched"
-                            data-toggle="tab">Scheduled
-                    </button>
+                <div style="clear:both"></div>
+                <h6>Scheduling</h6>
+            </li>
+            <li>
+                <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                    <label id="scheduledNo" class="btn btn-default {{#isnt scheduled true}} active{{/isnt}}" data-target="#nosched" data-toggle="tab">
+                        <input type="radio" name="notScheduledButton">
+                        Not Scheduled
+                    </label>
+                    <label id="scheduledYes" class="btn btn-default {{#is scheduled true}} active{{/is}}" data-target="#sched" data-toggle="tab">
+                        <input type="radio" name="scheduledButton">
+                        Scheduled
+                    </label>
                 </div>
                 <div id="schedulingOptions" class="tab-content">
                     <div id="nosched" class="tab-pane {{#isnt scheduled true}} active{{/isnt}}"></div>
                     <div id="sched" class="tab-pane {{#is scheduled true}} active{{/is}}">
-                        <div class="input-prepend input-append">
-                            <span class="add-on add-on-label">Every&nbsp;</span>
-                            <input class="input-medium" id="scheduleValue" name="scheduleValue" type="number" min="0" step="any" placeholder="" />
-                            <select id="scheduleUnits" name="scheduleUnits" class="add-on">
-                                <option value="minutes" selected="selected">minutes</option>
-                                <option value="hours">hours</option>
-                            </select>
+                        <div class="col-lg-8">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-addon">Every&nbsp;</span>
+                                <input class="form-control" id="scheduleValue" name="scheduleValue" type="number" min="0" step="any" placeholder="" />
+                                <span class="input-group-btn">
+                                    <select id="scheduleUnits" name="scheduleUnits" class="input-group-addon">
+                                        <option value="minutes" selected="selected">minutes</option>
+                                        <option value="hours">hours</option>
+                                    </select>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -256,21 +306,21 @@
         <li>
             <div class="form-actions btn-group search-buttons">
                 {{#is isWorkspace true}}
-                    <a href="#" id="workspaceSearchButton" class="btn btn-medium btn-primary searchButton">
+                    <a href="#" id="workspaceSearchButton" class="btn btn-primary searchButton">
                         <i class="fa fa-search"></i> Save & Search
                     </a>
                 {{else}}
-                    <a href="#" id="searchButton" class="btn btn-medium btn-primary searchButton">
+                    <a href="#" id="searchButton" class="btn btn-primary searchButton">
                         <i class="fa fa-search"></i> Search
                     </a>
-                    <a href="#" id="saveButton" class="btn btn-medium">
+                    <a href="#" id="saveButton" class="btn btn-default">
                         Save
                     </a>
                 {{/is}}
 
-                <a href="#" id="resetButton" class="btn btn-medium resetButton" type="reset">Clear</a>
+                <a href="#" id="resetButton" class="btn btn-default resetButton" type="reset">Clear</a>
                 {{#is isWorkspace true}}
-                    <a href="#" id="workspaceCancelButton" class="btn btn-medium">
+                    <a href="#" id="workspaceCancelButton" class="btn btn-default">
                         Cancel
                     </a>
                 {{/is}}

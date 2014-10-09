@@ -11,20 +11,30 @@
  *
  **/
  --}}
-<form id="workspaceSelectForm" class="workspace-add-panel">
+<form id="workspaceSelectForm" class="workspace-add-panel search-form">
     {{#if hasSearch}}
-        <ul class="nav nav-list">
-            <li class="nav-header">Enter Name for Saved Search</li>
+        <ul class="nav">
             <li>
-                <input name="searchName" type="text" class="input-xlarge margin-bottom-xlarge">
+                <h6>Enter Name for Saved Search</h6>
+            </li>
+            <li>
+                <div class="col-lg-6 form-group">
+                    <div class="input-group input-group-sm margin-no">
+                        <input name="searchName" type="text" class="form-control">
+                    </div>
+                </div>
             </li>
         </ul>
     {{/if}}
-    <ul class="nav nav-list">
+    <ul class="nav">
         {{#if hasSearch}}
-            <li class="nav-header">Select Workspace for Saved Search</li>
+            <li>
+                <h6>Select Workspace for Saved Search</h6>
+            </li>
         {{else}}
-            <li class="nav-header">Select Workspace for Saved Records</li>
+            <li>
+                <h6>Select Workspace for Saved Records</h6>
+            </li>
         {{/if}}
         {{#each workspaces}}
             <li>
@@ -35,12 +45,12 @@
         <li>
             <input id="workspaceNameRadio" type="radio" name="workspaceType" value="create_new_workspace" class="pull-left">
             <div class="workspace-select-name">
-                <input name="workspaceName" type="text" class="input-xlarge" autofocus>
+                <input name="workspaceName" type="text" class="form-control" autofocus>
             </div>
         </li>
     </ul>
     <div class="form-actions btn-group">
-        <a href="#" class="btn btn-medium btn-primary submit">Save</a>
-        <a href="#" id="cancel" class="btn btn-medium" type="reset">Cancel</a>
+        <a href="#" class="btn btn-primary submit">Save</a>
+        <a href="#" id="cancel" class="btn btn-default" type="reset">Cancel</a>
     </div>
 </form>

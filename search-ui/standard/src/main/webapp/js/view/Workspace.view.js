@@ -194,7 +194,7 @@ define([
 
         WorkspaceView.Workspace = Marionette.Layout.extend({
             template: 'workspace',
-            className: 'nav-list',
+            className: 'search-form',
             regions: {
                 workspaceSearchPanelRegion: '#workspaceSearchPanel',
                 workspaceMetacardPanelRegion: '#workspaceMetacardPanel'
@@ -454,7 +454,7 @@ define([
 
         WorkspaceView.WorkspaceLayout = Marionette.Layout.extend({
             template : 'workspacePanel',
-            className: 'partialaffix span3 row-fluid nav nav-list well well-small search-controls',
+            className: 'partialaffix span3 row-fluid nav well well-small search-controls',
             regions : {
                 workspacesRegion: "#workspaces",
                 searchRegion: "#search"

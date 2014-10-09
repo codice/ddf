@@ -14,13 +14,25 @@
 <div class="login-container">
     <form class="login-form">
         <div align="center" id="loginError" class="alert alert-error" style="display: none;">Credentials are invalid.</div>
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" />
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" />
-        <div class="form-actions btn-group pull-right">
-            <a href="#" class="btn btn-medium btn-primary btn-signin">Sign In</a>
-            <a href="#" class="btn btn-medium btn-clear" type="reset">Clear</a>
+
+        <div class="col-lg-10 form-group">
+            <div class="input-group input-group-sm margin-no">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" class="form-control" />
+            </div>
         </div>
+
+        <div class="col-lg-10 form-group">
+            <div class="input-group input-group-sm margin-no">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" class="form-control" />
+            </div>
+        </div>
+
+        <div class="col-lg-10 form-actions btn-group">
+            <a href="#" class="btn btn-primary btn-signin">Sign In</a>
+            <a href="#" class="btn btn-default btn-clear" type="reset">Clear</a>
+        </div>
+        <div style="clear:both;"></div>
     </form>
 </div>

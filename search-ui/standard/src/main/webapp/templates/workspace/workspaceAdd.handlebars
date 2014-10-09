@@ -11,15 +11,21 @@
  *
  **/
  --}}
-<form id="workspaceAddForm" class="workspace-add-panel">
-    <ul class="nav nav-list">
-        <li class="nav-header">Workspace Name</li>
+<form id="workspaceAddForm" class="workspace-add-panel search-form">
+    <ul class="nav">
         <li>
-            <input id="workspaceName" type="text" class="input-xlarge" autofocus>
+            <h6>Workspace Name</h6>
+        </li>
+        <li>
+            <div class="col-lg-10 form-group">
+                <div class="input-group input-group-sm margin-no">
+                    <input id="workspaceName" type="text" class="form-control" autofocus />
+                </div>
+            </div>
         </li>
     </ul>
     <div class="form-actions btn-group">
-        <a href="#" class="btn btn-medium btn-primary submit">Add</a>
-        <a href="#" id="cancel" class="btn btn-medium" type="reset">Cancel</a>
+        <a href="#" class="btn btn-primary submit">Add</a>
+        <a href="#" id="cancel" class="btn btn-default" type="reset">Cancel</a>
     </div>
 </form>

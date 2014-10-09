@@ -42,22 +42,22 @@ define([
                 'click .time': 'clearTime',
                 'click .location': 'clearLocation',
                 'click .type': 'clearType',
-                'click button[name=pointRadiusButton]' : 'drawCircle',
-                'click button[name=bboxButton]' : 'drawBbox',
-                'click button[name=noLocationButton]' : 'notDrawing',
-                'click button[name=noFederationButton]' : 'setNoFederation',
-                'click button[name=selectedFederationButton]': 'setSelectedFederation',
-                'click button[name=enterpriseFederationButton]': 'setEnterpriseFederation',
-                'click button[name=createdTimeButton]': 'swapTimeTypeCreated',
-                'click button[name=modifiedTimeButton]': 'swapTimeTypeModified',
-                'click button[name=effectiveTimeButton]': 'swapTimeTypeEffective',
-                'click button[name=latLonButton]': 'swapLocationTypeLatLon',
-                'click button[name=usngButton]': 'swapLocationTypeUsng',
+                'click #locationPoint' : 'drawCircle',
+                'click #locationBbox' : 'drawBbox',
+                'click #locationAny' : 'notDrawing',
+                'click #federationNo' : 'setNoFederation',
+                'click #federationSelected': 'setSelectedFederation',
+                'click #federationAll': 'setEnterpriseFederation',
+                'click #created': 'swapTimeTypeCreated',
+                'click #modified': 'swapTimeTypeModified',
+                'click #effective': 'swapTimeTypeEffective',
+                'click #latlon': 'swapLocationTypeLatLon',
+                'click #usng': 'swapLocationTypeUsng',
                 'keypress input[name=q]': 'filterOnEnter',
                 'change #radiusUnits': 'onRadiusUnitsChanged',
                 'change #offsetTimeUnits': 'onTimeUnitsChanged',
-                'click button[name=notScheduledButton]': 'updateScheduling',
-                'click button[name=scheduledButton]': 'updateScheduling',
+                'click #scheduledNo': 'updateScheduling',
+                'click #scheduledYes': 'updateScheduling',
                 'click #saveButton': 'saveSearch'
             },
 
@@ -311,7 +311,7 @@ define([
                     header: false,
                     minWidth: 110,
                     height: 185,
-                    classes: 'add-on multiselect',
+                    classes: 'input-group-addon multiselect',
                     multiple: false,
                     selectedText: function(numChecked, numTotal, checkedItems){
                         if(checkedItems && checkedItems.length > 0) {
@@ -322,7 +322,7 @@ define([
                 };
 
                 var multiselectOptions = {
-                    minWidth: 350,
+                    minWidth: 300,
                     height: 185,
                     classes: 'multiselect',
                     checkAllText: 'Select all',
@@ -333,7 +333,7 @@ define([
                 };
 
                 var typeSelectOptions = _.clone(multiselectOptions);
-                typeSelectOptions.minWidth = 350;
+                typeSelectOptions.minWidth = 300;
                 typeSelectOptions.noneSelectedText = 'Select a Type';
 
                 var federationSourcesSelectOptions = _.clone(multiselectOptions);
