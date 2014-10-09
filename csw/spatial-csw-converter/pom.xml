@@ -87,6 +87,11 @@
             <artifactId>jaxb2-basics-runtime</artifactId>
             <version>0.6.0</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.action.core</groupId>
+            <artifactId>action-core-api</artifactId>
+            <version>${ddf.platform.app.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

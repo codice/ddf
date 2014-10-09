@@ -106,7 +106,7 @@ public class TestGetRecordsResponseConverter {
         XStream xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
         
-        RecordConverterFactory factory = new CswRecordConverterFactory();
+        RecordConverterFactory factory = new CswRecordConverterFactory(null);
 
         xstream.registerConverter(new GetRecordsResponseConverter(Arrays.asList(factory)));
         xstream.alias("GetRecordsResponse", CswRecordCollection.class);
@@ -225,7 +225,7 @@ public class TestGetRecordsResponseConverter {
         XStream xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
         
-        RecordConverterFactory factory = new CswRecordConverterFactory();
+        RecordConverterFactory factory = new CswRecordConverterFactory(null);
         
         GetRecordsResponseConverter grrc = new GetRecordsResponseConverter(Arrays.asList(factory));
         grrc.setUnmarshalConverterSchema(CswConstants.CSW_OUTPUT_SCHEMA,
@@ -707,7 +707,7 @@ public class TestGetRecordsResponseConverter {
     }
 
     private XStream createXStream(final String elementName) {
-        RecordConverterFactory factory = new CswRecordConverterFactory();
+        RecordConverterFactory factory = new CswRecordConverterFactory(null);
         GetRecordsResponseConverter rrConverter = new GetRecordsResponseConverter(
                 Arrays.asList(factory));
 

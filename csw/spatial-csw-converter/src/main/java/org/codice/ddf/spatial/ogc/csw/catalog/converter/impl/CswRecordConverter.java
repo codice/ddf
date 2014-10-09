@@ -40,6 +40,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.namespace.QName;
 
+import ddf.action.Action;
+import ddf.action.ActionProvider;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 
 import org.apache.commons.codec.binary.Base64;
@@ -115,6 +117,8 @@ public class CswRecordConverter implements RecordConverter {
     
     private boolean  isLonLatOrder;
 
+    private ActionProvider resourceActionProvider;
+
     /**
      * The map of metacard attributes that both the basic DDF MetacardTypeImpl and the CSW
      * MetacardType define as attributes. This is used to detect these element tags when
@@ -151,6 +155,10 @@ public class CswRecordConverter implements RecordConverter {
         this.thumbnailMapping = thumbnailMapping;
         this.isLonLatOrder = isLonLatOrder;
         setCswToMetacardAttributeMappings(metacardToCswAttributeMappings);
+    }
+
+    public void setResourceActionProvider(ActionProvider resourceActionProvider){
+        this.resourceActionProvider = resourceActionProvider;
     }
 
     public void setCswToMetacardAttributeMappings(Map<String, String> metacardToAttribute) {
@@ -207,7 +215,23 @@ public class CswRecordConverter implements RecordConverter {
             LOGGER.warn("Failed to marshal Metacard: {}", source);
             return;
         }
-        Metacard metacard = (Metacard) source;
+        MetacardImpl metacard = new MetacardImpl((Metacard)  source);
+
+        if (metacard.getResourceURI() != null && resourceActionProvider != null){
+            Action action =  resourceActionProvider.getAction(metacard);
+            if (action != null) {
+                URL resourceUrl = action.getUrl();
+                if (resourceUrl != null) {
+                    try {
+                        metacard.setResourceURI(resourceUrl.toURI());
+                    } catch (URISyntaxException e) {
+                        LOGGER.warn("Unable to retrieve '{}' from '{}' for metacard ID [{}]",
+                                Metacard.RESOURCE_URI, resourceActionProvider.getClass().getName(),
+                                metacard.getId());
+                    }
+                }
+            }
+        }
 
         if (fieldsToWrite != null) {
             for (QName qName : fieldsToWrite) {
@@ -223,6 +247,7 @@ public class CswRecordConverter implements RecordConverter {
         } else { // write all fields
             Set<AttributeDescriptor> attrDescs = metacard.getMetacardType().getAttributeDescriptors();
             for (AttributeDescriptor ad : attrDescs) {
+                // TODO: Find the resource-uri and use the ActionProvider to get the correct URL.
                 List<QName> qNames = DefaultCswRecordMap.getDefaultCswRecordMap().getCswFieldsFor(ad.getName());
                 for (QName qName : qNames) {
                     writeAttribute(writer, context, metacard, ad, qName);

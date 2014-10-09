@@ -52,7 +52,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
 
     @Test
     public void testMarshalRecordCollection() throws WebApplicationException, IOException, JAXBException {
-        RecordConverterFactory factory = new CswRecordConverterFactory();
+        RecordConverterFactory factory = new CswRecordConverterFactory(null);
         CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
                 Arrays.asList(factory));
 
@@ -80,7 +80,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
 
     @Test
     public void testMarshalAcknowledgement() throws WebApplicationException, IOException, JAXBException {
-        RecordConverterFactory factory = new CswRecordConverterFactory();
+        RecordConverterFactory factory = new CswRecordConverterFactory(null);
         CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
                 Arrays.asList(factory));
 
@@ -108,7 +108,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
     @Test
     public void testMarshalRecordCollectionByIdRequest() throws WebApplicationException,
         IOException, JAXBException {
-        RecordConverterFactory factory = new CswRecordConverterFactory();
+        RecordConverterFactory factory = new CswRecordConverterFactory(null);
         CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
                 Arrays.asList(factory));
         CswRecordCollection collection = createCswRecordCollection(null, 2);

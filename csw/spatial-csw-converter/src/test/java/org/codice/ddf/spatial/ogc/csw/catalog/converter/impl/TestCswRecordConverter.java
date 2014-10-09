@@ -14,41 +14,26 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter.impl;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
-
-import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.naming.NoNameCoder;
+import com.thoughtworks.xstream.io.xml.DomReader;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
+import com.thoughtworks.xstream.io.xml.WstxDriver;
+import ddf.action.Action;
+import ddf.action.ActionProvider;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.BeforeClass;
@@ -58,20 +43,42 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.naming.NoNameCoder;
-import com.thoughtworks.xstream.io.xml.DomReader;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
-import com.thoughtworks.xstream.io.xml.WstxDriver;
+import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.MetacardTypeImpl;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TestCswRecordConverter {
 
@@ -83,6 +90,8 @@ public class TestCswRecordConverter {
     private static final String SOURCE = "CSW_SOURCE";
 
     private static final String THUMBNAIL_URL = "THUMBNAIL_URL";
+
+    private static final String TEST_URI = "http://host:port/my/product.pdf";
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -481,6 +490,46 @@ public class TestCswRecordConverter {
         LOGGER.debug(xstream.toXML(metacard));
     }
 
+    @Test
+    public void testMarshalRecordWithActionProvider()
+            throws IOException, JAXBException, SAXException, XpathException {
+        CswRecordConverter cswRecordConverter = createRecordConverter();
+
+        ActionProvider mockActionProvider = mock(ActionProvider.class);
+        final String actionUrl = "http://example.com/source/id?transform=resource";
+        Action mockAction = mock(Action.class);
+
+        cswRecordConverter.setResourceActionProvider(mockActionProvider);
+        Metacard metacard = getTestMetacard();
+
+        cswRecordConverter.setFieldsToWrite(Arrays.asList(new QName("source")));
+        XStream xstream = new XStream(new StaxDriver(new NoNameCoder()));
+
+        xstream.registerConverter(cswRecordConverter);
+
+        xstream.alias("Record", MetacardImpl.class);
+
+        String xml = xstream.toXML(metacard);
+
+        XMLUnit.setIgnoreWhitespace(true);
+
+        final String test1 = "<?xml version='1.0' encoding='UTF-8'?><Record><source>"
+                + TEST_URI + "</source></Record>";
+
+        assertXMLEqual(test1, xml);
+
+        when(mockAction.getUrl()).thenReturn(new URL(actionUrl));
+
+        when(mockActionProvider.getAction(any(MetacardImpl.class))).thenReturn(mockAction);
+
+        String xml2 = xstream.toXML(metacard);
+
+        final String test2 = "<?xml version='1.0' encoding='UTF-8'?><Record><source>" + actionUrl
+                + "</source></Record>";
+
+        assertXMLEqual(test2, xml2);
+    }
+
     // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private CswRecordConverter createRecordConverter() {
@@ -525,7 +574,7 @@ public class TestCswRecordConverter {
         metacard.setSourceId("sourceID");
         metacard.setTitle("This is my title");
         try {
-            metacard.setResourceURI(new URI("http://host:port/my/product.pdf"));
+            metacard.setResourceURI(new URI(TEST_URI));
         } catch (URISyntaxException e) {
             LOGGER.debug("URISyntaxException", e);
         }

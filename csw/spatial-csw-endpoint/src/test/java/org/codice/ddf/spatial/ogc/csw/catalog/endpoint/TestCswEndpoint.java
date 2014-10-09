@@ -262,7 +262,7 @@ public class TestCswEndpoint {
     private static ObjectFactory filterObjectFactory;
 
     private static List<RecordConverterFactory> factories = Arrays
-            .<RecordConverterFactory> asList(new CswRecordConverterFactory());
+            .<RecordConverterFactory> asList(new CswRecordConverterFactory(null));
 
     
     @BeforeClass

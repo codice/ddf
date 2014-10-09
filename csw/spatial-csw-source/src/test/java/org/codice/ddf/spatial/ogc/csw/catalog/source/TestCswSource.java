@@ -904,7 +904,7 @@ public class TestCswSource extends TestCswSourceBase {
     private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context, RecordConverter recordConverter,
                                    List<String> contentTypes, String contentMapping)  {
 
-        RecordConverterFactory factory = new CswRecordConverterFactory();
+        RecordConverterFactory factory = new CswRecordConverterFactory(null);
         CswSourceConfiguration cswSourceConfiguration = getStandardCswSourceConfiguration(contentMapping);
         cswSourceConfiguration.setContentTypeMapping(contentMapping);
         CswSource cswSource = new CswSource(remoteCsw, mockContext, cswSourceConfiguration,

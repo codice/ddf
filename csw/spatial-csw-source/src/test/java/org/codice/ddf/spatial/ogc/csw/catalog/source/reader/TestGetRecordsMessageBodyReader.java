@@ -47,7 +47,7 @@ public class TestGetRecordsMessageBodyReader {
 
     @Test
     public void testGetMultipleMetacards() throws Exception {
-        RecordConverterFactory factory = new CswRecordConverterFactory();
+        RecordConverterFactory factory = new CswRecordConverterFactory(null);
         // RecordConverter recordConverter = new
         // CswRecordConverter(this.getDefaultMetacardAttributeMappings(),
         // CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
@@ -133,7 +133,7 @@ public class TestGetRecordsMessageBodyReader {
     // special characters
     @Test
     public void testGetMultipleMetacardsWithForeignText() throws Exception {
-        RecordConverterFactory factory = new CswRecordConverterFactory();
+        RecordConverterFactory factory = new CswRecordConverterFactory(null);
         CswSourceConfiguration config = new CswSourceConfiguration();
         config.setMetacardCswMappings(getDefaultMetacardAttributeMappings());
         config.setProductRetrievalMethod(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL);

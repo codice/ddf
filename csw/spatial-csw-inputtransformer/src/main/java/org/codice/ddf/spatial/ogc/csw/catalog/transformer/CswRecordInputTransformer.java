@@ -39,7 +39,7 @@ public class CswRecordInputTransformer implements InputTransformer {
 
     public CswRecordInputTransformer() {
 
-        RecordConverterFactory recordConverterFactory = new CswRecordConverterFactory();
+        RecordConverterFactory recordConverterFactory = new CswRecordConverterFactory(null);
 
         RecordConverter recordConverter = recordConverterFactory.createConverter(null, null, null,
                 null, true);

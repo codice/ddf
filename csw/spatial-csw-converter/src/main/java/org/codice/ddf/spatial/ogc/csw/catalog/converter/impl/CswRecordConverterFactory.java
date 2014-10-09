@@ -16,6 +16,9 @@ package org.codice.ddf.spatial.ogc.csw.catalog.converter.impl;
 
 import java.util.Map;
 
+import ddf.action.ActionProvider;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverter;
@@ -28,8 +31,11 @@ public class CswRecordConverterFactory implements RecordConverterFactory {
     private String outputSchema = CswConstants.CSW_OUTPUT_SCHEMA;
     
     private static final Logger LOGGER = LoggerFactory.getLogger(CswRecordConverterFactory.class);
+
+    private ActionProvider resourceActionProvider;
     
-    public CswRecordConverterFactory() {
+    public CswRecordConverterFactory(ActionProvider provider) {
+        this.resourceActionProvider = provider;
     }
     
     @Override
@@ -44,10 +50,11 @@ public class CswRecordConverterFactory implements RecordConverterFactory {
     public RecordConverter createConverter(Map<String, String> metacardAttributeMap,
             Map<String, String> prefixToUriMapping, String productRetrievalMethod,
             String resourceUriMapping, String thumbnailMapping, boolean isLonLatOrder) {
-        RecordConverter recordConverter = new CswRecordConverter(metacardAttributeMap,
+        CswRecordConverter recordConverter = new CswRecordConverter(metacardAttributeMap,
                 prefixToUriMapping, productRetrievalMethod, resourceUriMapping, thumbnailMapping,
                 isLonLatOrder);
         recordConverter.setMetacardType(new CswRecordMetacardType());
+        recordConverter.setResourceActionProvider(resourceActionProvider);
         return recordConverter;
     }
     
@@ -61,5 +68,4 @@ public class CswRecordConverterFactory implements RecordConverterFactory {
         LOGGER.debug("Setting output schema to: {}.", schema);
         this.outputSchema = schema;
     }
-
 }

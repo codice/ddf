@@ -14,7 +14,9 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+    <reference id="resourceActionProvider" interface="ddf.action.ActionProvider" filter="id=catalog.data.metacard.resource" />
     <bean id="cswRecordFactory" class="org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory">
+        <argument ref="resourceActionProvider" />
         <property name="outputSchema" value="http://www.opengis.net/cat/csw/2.0.2"/>
     </bean>
     <service ref="cswRecordFactory" interface="org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory">
@@ -25,6 +27,7 @@
     	</service-properties>
     </service>
     <bean id="cswOgcCoreConverterFactory" class="org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory">
+        <argument ref="resourceActionProvider" />
         <property name="outputSchema" value="OGCCORE" />
     </bean>
     <service ref="cswOgcCoreConverterFactory" interface="org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory">
