@@ -157,7 +157,7 @@
 	<bean id="sorted" class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
           destroy-method="shutdown">
 		<cm:managed-properties
-			persistent-id="ddf.catalog.federation.impl.SortedFederationStrategy"
+			persistent-id="ddf.catalog.federation.impl.CachingFederationStrategy"
 			update-strategy="container-managed" />
 		<argument ref="pool" />
 		<argument ref="preFederatedQuerySortedList" />

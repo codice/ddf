@@ -87,6 +87,8 @@ public class SolrCache {
 
     private DynamicSchemaResolver resolver;
 
+    private String url = "http://localhost:8181/solr";
+
     private SolrServer server;
 
     private SolrFilterDelegateFactory solrFilterDelegateFactory;
@@ -485,6 +487,29 @@ public class SolrCache {
 
         }
         return result;
+    }
+
+    public void updateServer(String newUrl) {
+        LOGGER.info("New url {}", newUrl);
+
+        if (newUrl != null) {
+
+            if (!StringUtils.equalsIgnoreCase(newUrl.trim(), url)) {
+
+                this.url = newUrl.trim();
+
+                if (server != null) {
+                    LOGGER.info("Shutting down the connection manager to the Solr Server and releasing allocated resources.");
+                    server.shutdown();
+                    LOGGER.info("Shutdown complete.");
+                }
+
+                server = new HttpSolrServer(url);
+            }
+        } else {
+            // sets to null
+            this.url = newUrl;
+        }
     }
 
     /**

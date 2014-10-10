@@ -400,6 +400,10 @@ public class CachingFederationStrategy implements FederationStrategy {
         }
     }
 
+    public void setUrl(String url) {
+        cache.updateServer(url);
+    }
+
     protected Runnable createMonitor(final CompletionService<SourceResponse> completionService,
             final Map<Future<SourceResponse>, Source> futures,
             final QueryResponseImpl returnResults, final QueryRequest request) {
