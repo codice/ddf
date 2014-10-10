@@ -30,8 +30,7 @@
 	<modules>
         <module>distribution</module>
 		<module>sdk</module>
-		<!--<module>test</module>
-        -->
+		<module>test</module>
 	</modules>
 
     <build>

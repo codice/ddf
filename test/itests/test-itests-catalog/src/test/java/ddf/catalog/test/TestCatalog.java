@@ -15,13 +15,17 @@
 package ddf.catalog.test;
 
 import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.get;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasXPath;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.concurrent.TimeUnit;
 
+import com.jayway.restassured.response.Response;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,92 +47,106 @@ import org.osgi.service.cm.Configuration;
 @ExamReactorStrategy(EagerSingleStagedReactorFactory.class)
 public class TestCatalog extends AbstractIntegrationTest {
 
-    private static final String SOLR_CONFIG_PID = "ddf.catalog.source.solr.SolrCatalogProvider";
+    private static final String EXTERNAL_SOLR_CONFIG_PID ="ddf.catalog.solr.external.SolrHttpCatalogProvider";
 
-    private static final String EXTERNAL_SOLR_CONFIG_PID = "ddf.catalog.solr.external.SolrHttpCatalogProvider";
+    public static final String CACHING_FEDERATION_STRATEGY_PID = "ddf.catalog.federation.impl.CachingFederationStrategy";
 
-    private static final String CATALOG_SYMBOLIC_NAME_PREFIX = "catalog-";
+    protected static final String SERVICE_ROOT = "http://localhost:" + HTTP_PORT + "/services";
 
-    private static final String SERVICE_ROOT = "http://localhost:" + HTTP_PORT + "/services";
+    protected static final String REST_PATH = SERVICE_ROOT + "/catalog/";
 
-    private static final String REST_PATH = SERVICE_ROOT + "/catalog/";
+    protected static final String OPENSEARCH_PATH = REST_PATH + "query/";
 
-    private static final String OPENSEARCH_PATH = REST_PATH + "query/";
+    private static boolean ranBefore = false;
 
     @Before
-    public void beforeTest() throws InterruptedException, IOException {
-        setLogLevels();
-        waitForRequiredBundles(CATALOG_SYMBOLIC_NAME_PREFIX);
-        setSolrSoftCommit();
-        waitForCatalogProviderToBeAvailable();
+    public void beforeTest() {
+        LOGGER.info("Before {}", testName.getMethodName());
+        if (!ranBefore) {
+            try {
+                setLogLevels();
+                configureBundles();
+                waitForAllBundles();
+                waitForCatalogProviderToBeAvailable();
+                waitForCxf();
+                ranBefore = true;
+            } catch (Exception e) {
+                LOGGER.error("Failed to setup test", e);
+                fail();
+            }
+        }
+        LOGGER.info("Starting {}", testName.getMethodName());
     }
 
-    private void setSolrSoftCommit() throws IOException {
-        Configuration solrConfig = configAdmin.getConfiguration(SOLR_CONFIG_PID, null);
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
-        properties.put("forceAutoCommit", "true");
-        solrConfig.update(properties);
+    private void waitForCxf() throws InterruptedException {
+        LOGGER.info("Waiting for CXF");
+        boolean isCxfReady = false;
+        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(1);
+        while (!isCxfReady) {
+            Response response = get(SERVICE_ROOT);
+            isCxfReady = response.getStatusCode() == 200 && response.getBody().print().contains(
+                    "catalog/query");
+            if (!isCxfReady) {
+                if (System.currentTimeMillis() > timeoutLimit) {
+                    fail("CXF did not start in time.");
+                }
+                LOGGER.info("CXF not up, sleeping...");
+                Thread.sleep(1000);
+            }
+        }
+        LOGGER.info("Source status: \n" + get(REST_PATH + "sources").getBody().prettyPrint());
     }
 
-    @Test
-    public void testMetacardTransformersFromRest() throws Exception {
-        String id = ingestGeoJson(Library.getSimpleGeoJson());
+    private void configureBundles() throws IOException, InterruptedException {
+        LOGGER.info("Updating Solr configuration.");
 
-        expect().body(hasXPath("/metacard[@id='" + id + "']")).when().get(REST_PATH + id);
-
-        deleteMetacard(id);
-    }
-
-    @Test
-    public void testOpenSearchQuery() throws Exception {
-        String id = ingestGeoJson(Library.getSimpleGeoJson());
-
-        expect().body(containsString(id)).when().get(OPENSEARCH_PATH + "?q=*&format=xml");
-
-        deleteMetacard(id);
-    }
-
-    @Test
-    public void testExternalSolr() throws Exception {
-        installExternalSolrAndProvider();
-
-        testOpenSearchQuery();
-    }
-
-    private void installExternalSolrAndProvider() throws Exception, InterruptedException,
-        IOException {
-        features.uninstallFeature("catalog-solr-embedded-provider");
-        features.installFeature("catalog-solr-server");
-        features.installFeature("catalog-solr-external-provider");
-
-        waitForRequiredBundles(CATALOG_SYMBOLIC_NAME_PREFIX);
-        configureExternalSolrProvider();
-        waitForCatalogProviderToBeAvailable();
-    }
-
-    private void configureExternalSolrProvider() throws IOException {
-        Configuration solrConfig = configAdmin.getConfiguration(EXTERNAL_SOLR_CONFIG_PID, null);
+        Configuration fedConfig = configAdmin.getConfiguration(CACHING_FEDERATION_STRATEGY_PID,
+                null);
 
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         properties.put("url", "http://localhost:" + HTTP_PORT + "/solr");
+
+        fedConfig.update(properties);
+
         properties.put("forceAutoCommit", "true");
 
+        Configuration solrConfig = configAdmin.getConfiguration(EXTERNAL_SOLR_CONFIG_PID, null);
         solrConfig.update(properties);
     }
 
-    private void deleteMetacard(String id) {
+    @Test
+    public void testMetacardTransformersFromRest() {
+        String id = ingestGeoJson(Library.getSimpleGeoJson());
+
+        String url = REST_PATH + id;
+        LOGGER.info("Getting response to {}: \n{}", url, get(url).getBody().prettyPrint());
+        expect().body(hasXPath("/metacard[@id='" + id + "']")).when().get(url);
+
+        deleteMetacard(id);
+    }
+
+    @Test
+    public void testOpenSearchQuery() {
+        String id = ingestGeoJson(Library.getSimpleGeoJson());
+
+        String url = OPENSEARCH_PATH + "?q=*&format=xml";
+        LOGGER.info("Getting response to {}: \n{}", url, get(url).getBody().prettyPrint());
+        expect().body(containsString(id)).when().get(url);
+
+        deleteMetacard(id);
+    }
+
+    protected void deleteMetacard(String id) {
+        LOGGER.info("Deleteing metacard {}", id);
         expect().statusCode(200).when().delete(REST_PATH + id);
     }
 
-    private String ingestGeoJson(String json) {
+    protected String ingestGeoJson(String json) {
         return ingest(json, "application/json");
     }
 
-    private String ingestXml(String xml) {
-        return ingest(xml, "text/xml");
-    }
-
-    private String ingest(String data, String mimeType) {
+    protected String ingest(String data, String mimeType) {
+        LOGGER.info("Ingesting data of type {}:\n{}", mimeType, data);
         return expect().statusCode(201).when().given().body(data).header("Content-Type", mimeType)
                 .post(REST_PATH).getHeader("id");
     }

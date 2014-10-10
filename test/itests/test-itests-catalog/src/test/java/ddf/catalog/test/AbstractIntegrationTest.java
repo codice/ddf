@@ -36,7 +36,10 @@ import org.apache.karaf.shell.osgi.BlueprintListener;
 import org.apache.karaf.shell.osgi.BlueprintListener.BlueprintState;
 import org.apache.karaf.tooling.exam.options.KarafDistributionKitConfigurationOption;
 import org.apache.karaf.tooling.exam.options.KarafDistributionKitConfigurationOption.Platform;
+import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.apache.karaf.tooling.exam.options.LogLevelOption.LogLevel;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.MavenUrlReference;
 import org.osgi.framework.Bundle;
@@ -48,7 +51,7 @@ import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
-import.org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.source.CatalogProvider;
 
@@ -64,11 +67,11 @@ public abstract class AbstractIntegrationTest {
 
     private static final int CONFIG_UPDATE_WAIT_INTERVAL = 5;
 
-    protected static final Logger LOGGER = Logger.getLogger(AbstractIntegrationTest.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 
     protected static final String LOG_CONFIG_PID = "org.ops4j.pax.logging";
 
-    protected static final String LOGGER_PREFIX = "slf4j.logger.";
+    protected static final String LOGGER_PREFIX = "log4j.logger.";
 
     private static final String KARAF_VERSION = "2.3.8";
 
@@ -86,6 +89,9 @@ public abstract class AbstractIntegrationTest {
     protected static final String RMI_SERVER_PORT = "44445";
 
     protected static final String RMI_REG_PORT = "1100";
+
+    @Rule
+    public TestName testName = new TestName();
 
     @Inject
     protected BundleContext bundleCtx;
@@ -108,6 +114,8 @@ public abstract class AbstractIntegrationTest {
             System.setProperty("org.ops4j.pax.url.mvn.localRepository",
                     System.getProperty("maven.repo.local"));
         }
+        // Disable debug port
+        System.clearProperty("KARAF_DEBUG");
     }
 
     /**
@@ -117,12 +125,11 @@ public abstract class AbstractIntegrationTest {
      */
     @org.ops4j.pax.exam.junit.Configuration
     public Option[] config() {
-        // @formatter:off
         return options(
                 getPlatformOption(Platform.WINDOWS),
                 getPlatformOption(Platform.NIX),
                 logLevel(LogLevel.INFO),
-                // KarafDistributionOption.keepRuntimeFolder(),
+                KarafDistributionOption.keepRuntimeFolder(),
                 mavenBundle("junit", "junit", "4.10"),
                 mavenBundle("ddf.test.thirdparty", "hamcrest-all")
                         .versionAsInProject(),
@@ -130,6 +137,7 @@ public abstract class AbstractIntegrationTest {
                         .versionAsInProject(),
                 editConfigurationFilePut("etc/org.apache.karaf.shell.cfg",
                         "sshPort", SSH_PORT),
+                editConfigurationFilePut("etc/ddf.platform.config.cfg", "port", HTTP_PORT),
                 editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
                         "org.osgi.service.http.port", HTTP_PORT),
                 editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
@@ -139,8 +147,10 @@ public abstract class AbstractIntegrationTest {
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg",
                         "rmiServerPort", RMI_SERVER_PORT),
                 replaceConfigurationFile("etc/hazelcast.xml", new File(
-                        "src/test/resources/hazelcast.xml")));
-        // @formatter:on
+                        "src/test/resources/hazelcast.xml")),
+                replaceConfigurationFile("etc/org.codice.ddf.admin.applicationlist.properties", new File(
+                        "src/test/resources/org.codice.ddf.admin.applicationlist.properties"))
+        );
     }
 
     protected KarafDistributionKitConfigurationOption getPlatformOption(Platform platform) {
@@ -214,6 +224,10 @@ public abstract class AbstractIntegrationTest {
         logConfig.update(properties);
     }
 
+    protected void waitForAllBundles() throws InterruptedException {
+        waitForRequiredBundles("");
+    }
+
     protected void waitForRequiredBundles(String symbolicNamePrefix) throws InterruptedException {
         boolean ready = false;
         if (blueprintListener == null) {
@@ -259,6 +273,7 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected CatalogProvider waitForCatalogProviderToBeAvailable() throws InterruptedException {
+        LOGGER.info("Waiting for CatalogProvider to become available.");
         ServiceTracker st = new ServiceTracker(bundleCtx, CatalogProvider.class.getName(), null);
         st.open();
 
