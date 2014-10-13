@@ -247,7 +247,6 @@ public class CswRecordConverter implements RecordConverter {
         } else { // write all fields
             Set<AttributeDescriptor> attrDescs = metacard.getMetacardType().getAttributeDescriptors();
             for (AttributeDescriptor ad : attrDescs) {
-                // TODO: Find the resource-uri and use the ActionProvider to get the correct URL.
                 List<QName> qNames = DefaultCswRecordMap.getDefaultCswRecordMap().getCswFieldsFor(ad.getName());
                 for (QName qName : qNames) {
                     writeAttribute(writer, context, metacard, ad, qName);
