@@ -47,6 +47,7 @@
         <ddf.searchui.app.version>2.6.0-SNAPSHOT</ddf.searchui.app.version>
         <ddf.spatial.app.version>2.6.0-SNAPSHOT</ddf.spatial.app.version>
         <ddf.admin.app.version>1.1.0-SNAPSHOT</ddf.admin.app.version>
+        <install-profiles.app.version>2.6.0-SNAPSHOT</install-profiles.app.version>
         <sitename.default>ddf.distribution</sitename.default>
     </properties>
 
@@ -113,6 +114,9 @@
                                 </descriptor>
                                 <descriptor>
                                     mvn:ddf.admin/admin-app/${ddf.admin.app.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:ddf.distribution/install-profiles/${install-profiles.app.version}/xml/features
                                 </descriptor>
                             </descriptors>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
