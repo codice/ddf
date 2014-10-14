@@ -90,6 +90,8 @@ public class ConfigurationStore {
 
     private Boolean isGazetteer = true;
 
+    private Boolean isIngest = true;
+
     private BrandingPlugin branding;
 
     private static MimeType JSON_MIME_TYPE;
@@ -169,6 +171,7 @@ public class ConfigurationStore {
         configObj.put("terrainProvider", proxiedTerrainProvider);
         configObj.put("imageryProviders", proxiedImageryProviders);
         configObj.put("gazetteer", isGazetteer);
+        configObj.put("showIngest", isIngest);
 
         String configString = JSONValue.toJSONString(configObj);
         BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configString.getBytes()),
@@ -408,6 +411,14 @@ public class ConfigurationStore {
 
     public void setGazetteer(Boolean isGazetteer) {
         this.isGazetteer = isGazetteer;
+    }
+
+    public Boolean getIngest() {
+        return this.isIngest;
+    }
+
+    public void setIngest(Boolean isIngest) {
+        this.isIngest = isIngest;
     }
 
     public void setTypeNameMapping(String[] mappings) {

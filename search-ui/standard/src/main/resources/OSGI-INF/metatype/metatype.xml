@@ -86,6 +86,9 @@
         <AD description="Show gazetteer for searching place names." name="Show Gazetteer" id="gazetteer"
             required="false" type="Boolean" default="true" />
 
+        <AD description="Show upload menu for adding new metatype." name="Show Uploader" id="ingest"
+            required="false" type="Boolean" default="true"/>
+
         <AD name="Type Name Mapping" id="typeNameMapping"
             required="false" type="String" cardinality="10000"
             description="Mapping of display names to content types in the form name=type."

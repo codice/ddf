@@ -28,13 +28,17 @@ define([
     'text!templates/menu/help.handlebars',
     'cometdinit',
     'jquery',
+    'js/view/ingest/IngestMenu',
     'modelbinder',
     'perfectscrollbar',
     'backbonecometd',
     'progressbar'
-], function(Marionette, ich, menubarTemplate, menubarItemTemplate, User, Backbone, notificationMenuTemplate, notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $) {
+], function(Marionette, ich, menubarTemplate, menubarItemTemplate, User, Backbone, notificationMenuTemplate, notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $,
+        IngestMenu) {
 
-    ich.addTemplate('menubarItemTemplate', menubarItemTemplate);
+    if (!ich.menubarItemTemplate) {
+        ich.addTemplate('menubarItemTemplate', menubarItemTemplate);
+    }
 
     ich.addTemplate('menubarTemplate', menubarTemplate);
 
@@ -385,7 +389,8 @@ define([
             welcome: '#welcome',
             notification: '#notification',
             help: '#help',
-            tasks: '#tasks'
+            tasks: '#tasks',
+            ingest: '#ingest'
         },
         onRender: function() {
             var menuBarView = this;
@@ -582,6 +587,17 @@ define([
                 iconOnly: true,
                 dropdown: true
             })}));
+
+            if (this.model.get('showIngest')) {
+                var ingest = new IngestMenu({model: new MenuItem({
+                    id: 'Ingest',
+                    name: 'Ingest',
+                    classes: 'fa fa-upload center-icon showModal',
+                    iconOnly: true,
+                    dropdown: false
+                })});
+                this.ingest.show(ingest);
+            }
         }
     });
 
