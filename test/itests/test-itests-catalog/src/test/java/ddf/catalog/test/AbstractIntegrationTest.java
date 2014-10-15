@@ -70,7 +70,7 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String LOGGER_PREFIX = "slf4j.logger.";
 
-    private static final String KARAF_VERSION = "2.3.3";
+    private static final String KARAF_VERSION = "2.3.8";
 
     protected static final int ONE_MINUTE_MILLIS = 60000;
 

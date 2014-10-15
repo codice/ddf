@@ -16,7 +16,7 @@
   <parent>
     <groupId>ddf</groupId>
     <artifactId>ddf-parent</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1-SNAPSHOT</version>
   </parent>
   
   <modelVersion>4.0.0</modelVersion>
@@ -27,7 +27,7 @@
   
   <properties>
     <commons-io.version>2.1</commons-io.version>
-    <karaf.version>2.3.3</karaf.version>
+    <karaf.version>2.3.8</karaf.version>
     <pax.web.version>3.0.4</pax.web.version>
   </properties> 
   
@@ -40,14 +40,14 @@
     <module>install-profiles</module>
     <module>ddf</module>
   </modules>
-  	
-	<repositories>		
-		<repository>
-			<id>codice</id>
-			<name>Codice Repository</name>
-			<url>http://artifacts.codice.org/content/groups/public/</url>
-		</repository>
-	</repositories>
+    
+    <repositories>      
+        <repository>
+            <id>codice</id>
+            <name>Codice Repository</name>
+            <url>http://artifacts.codice.org/content/groups/public/</url>
+        </repository>
+    </repositories>
   
   <profiles>
     <profile>
@@ -57,11 +57,11 @@
           <name>ddf-release</name>
         </property>
       </activation>
-	  
-	  <modules>
-	  	<module>ddf-distro-src</module>
-	  	<module>ddf-distro-repo</module>
-	  </modules>
+      
+      <modules>
+        <module>ddf-distro-src</module>
+        <module>ddf-distro-repo</module>
+      </modules>
   
     </profile>
   </profiles>
