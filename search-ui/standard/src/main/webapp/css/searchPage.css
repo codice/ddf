@@ -105,8 +105,6 @@ body {
     z-index: 100;
     border: 0;
     border-radius: 5px;
-    box-shadow: 4px 4px 3px rgba(54,54,54,0.8);
-    -webkit-box-shadow: 4px 4px 3px rgba(54,54,54,0.8);
     background-color: rgba(36,36,36,0.9);
     margin-bottom: 0;
 }
