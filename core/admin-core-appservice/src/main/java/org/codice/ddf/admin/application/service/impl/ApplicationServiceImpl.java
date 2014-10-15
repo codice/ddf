@@ -258,7 +258,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             appMap.put(curApp, new ApplicationNodeImpl(curApp, getApplicationStatus(curApp)));
         }
 
-        // find dependencies in each app and add them into correct node
+        // The boolean is used because this function is used twice in a row.
+        //   The proper output should be that of the second call rather than the first.
         traverseDependencies(appMap, filteredApplications, false);
         traverseDependencies(appMap, filteredApplications, true);
 
@@ -273,11 +274,19 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationTree;
     }
 
+    /**
+     * Finds a parent and children dependencies for each app.  Needs to be run twice
+     * in order to get full dependency correlations.
+     *
+     * @param appMap
+     *            Application Map containing all the application nodes.
+     * @param filteredApplications
+     *            Set containing all the application nodes minus those in the ignored list
+     */
     private void traverseDependencies(Map<Application, ApplicationNodeImpl> appMap,
                                       Set<Application> filteredApplications,
                                       boolean reportDebug) {
-        // The reportDebug variable is used because this function is used twice in a row.
-        //   The proper output should be that of the second call rather than the first.
+        // find dependencies in each app and add them into correct node
         for (Entry<Application, ApplicationNodeImpl> curAppNode : appMap.entrySet()) {
             try {
                 // main feature will contain dependencies
