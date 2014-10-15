@@ -202,6 +202,12 @@ body {
     text-decoration: none;
 }
 
+.btn-default {
+    color: #ffffff;
+    background-color: #575757;
+    border-color: #575757;
+}
+
 #toolbar {
     margin: 5px;
     padding: 2px 5px;
@@ -856,11 +862,7 @@ button.ui-multiselect {
     color: rgba(255,255,255,1);
     -o-text-overflow: clip;
     text-overflow: clip;
-    background-color: rgba(0, 0, 0, 0);
-    background: -webkit-linear-gradient(90deg, rgba(24,24,24,0.95) 0, rgba(66,66,66,0.95) 100%);
-    background: -moz-linear-gradient(0deg, rgba(24,24,24,0.95) 0, rgba(66,66,66,0.95) 100%);
-    background: linear-gradient(0deg, rgba(24,24,24,0.95) 0, rgba(66,66,66,0.95) 100%);
-    background-repeat: repeat-x;
+    background: rgba(24,24,24,0.95);
     -webkit-background-origin: padding-box;
     background-origin: padding-box;
     -webkit-background-clip: border-box;
@@ -903,9 +905,7 @@ button.ui-multiselect {
 
 .navbar .nav>li:hover,
 .navbar .nav>li:focus {
-    background: -webkit-linear-gradient(90deg, rgba(66,66,66,0.9) 0, rgba(24,24,24,0.9) 100%);
-    background: -moz-linear-gradient(0deg, rgba(66,66,66,0.9) 0, rgba(24,24,24,0.9) 100%);
-    background: linear-gradient(0deg, rgba(66,66,66,0.9) 0, rgba(24,24,24,0.9) 100%);
+    background: rgba(66,66,66,0.9);
 }
 
 .navbar .nav>li>a {

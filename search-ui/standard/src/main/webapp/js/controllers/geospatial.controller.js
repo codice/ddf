@@ -61,7 +61,7 @@ define(['underscore',
                     animation: false,
                     fullscreenButton: false,
                     timeline: false,
-                    geocoder: false,
+                    geocoder: properties.gazetteer,
                     homeButton: true,
                     sceneModePicker: true,
 
@@ -95,6 +95,15 @@ define(['underscore',
                     var initObj = terrainProvider[key];
                     if (viewer) {
                         viewer.scene.terrainProvider = new type(initObj);
+                        if (properties.gazetteer) {
+                            var container = $('div.cesium-viewer-geocoderContainer');
+                            container.html("");
+                            viewer._geocoder = new Cesium.Geocoder({
+                                container: container[0],
+                                url: '/services/',
+                                scene: viewer.scene
+                            });
+                        }
                     }
                 }
 
@@ -166,7 +175,7 @@ define(['underscore',
 
                 var widthGap = Math.abs(rectangle.east) - Math.abs(rectangle.west);
                 var heightGap = Math.abs(rectangle.north) - Math.abs(rectangle.south);
-                
+
                 //ensure rectangle has some size
                 if(widthGap === 0) {
                     widthGap = 1;
@@ -261,7 +270,7 @@ define(['underscore',
                 var geometry = model.get('geometry');
                 this.flyToGeometry(geometry);
             },
-            
+
             flyToGeometry: function (geometry) {
                 var rectangle, cartArray;
 

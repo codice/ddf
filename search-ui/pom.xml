@@ -38,6 +38,8 @@
         <module>search-redirect</module>
         <module>search-htmltransformer</module>
         <module>search-endpoint</module>
+        <module>search-geocoder</module>
+        <module>search-geonames</module>
         <module>search-app</module>
     </modules>
     

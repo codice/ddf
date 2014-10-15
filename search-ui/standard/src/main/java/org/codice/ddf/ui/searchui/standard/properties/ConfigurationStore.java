@@ -84,9 +84,11 @@ public class ConfigurationStore {
 
     private String terrainEndpoint;
 
-    private Boolean isSignIn;
+    private Boolean isSignIn = false;
 
-    private Boolean isTask;
+    private Boolean isTask = false;
+
+    private Boolean isGazetteer = true;
 
     private BrandingPlugin branding;
 
@@ -166,6 +168,7 @@ public class ConfigurationStore {
         configObj.put("typeNameMapping", typeNameMapping);
         configObj.put("terrainProvider", proxiedTerrainProvider);
         configObj.put("imageryProviders", proxiedImageryProviders);
+        configObj.put("gazetteer", isGazetteer);
 
         String configString = JSONValue.toJSONString(configObj);
         BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configString.getBytes()),
@@ -397,6 +400,14 @@ public class ConfigurationStore {
 
     public void setTask(Boolean isTask) {
         this.isTask = isTask;
+    }
+
+    public Boolean getGazetteer() {
+        return isGazetteer;
+    }
+
+    public void setGazetteer(Boolean isGazetteer) {
+        this.isGazetteer = isGazetteer;
     }
 
     public void setTypeNameMapping(String[] mappings) {

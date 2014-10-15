@@ -83,6 +83,9 @@
         <AD description="Show task menu area for long running actions." name="Show Tasks" id="task"
             required="false" type="Boolean" default="false" />
 
+        <AD description="Show gazetteer for searching place names." name="Show Gazetteer" id="gazetteer"
+            required="false" type="Boolean" default="true" />
+
         <AD name="Type Name Mapping" id="typeNameMapping"
             required="false" type="String" cardinality="10000"
             description="Mapping of display names to content types in the form name=type."
