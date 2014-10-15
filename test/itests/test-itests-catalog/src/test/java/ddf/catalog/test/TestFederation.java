@@ -14,35 +14,27 @@
  **/
 package ddf.catalog.test;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.source.FederatedSource;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.junit.ExamReactorStrategy;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.spi.reactors.EagerSingleStagedReactorFactory;
-import org.osgi.util.tracker.ServiceTracker;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
 
 /**
@@ -53,8 +45,8 @@ import static org.junit.Assert.fail;
 * @author ddf.isgs@lmco.com
 *
 */
-@RunWith(JUnit4TestRunner.class)
-@ExamReactorStrategy(EagerSingleStagedReactorFactory.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerClass.class)
 public class TestFederation extends TestCatalog {
 
     private static XLogger LOGGER = new XLogger(LoggerFactory.getLogger(TestFederation.class));
@@ -82,8 +74,6 @@ public class TestFederation extends TestCatalog {
 
     private static String[] metacardIds = new String[2];
 
-    private static FederatedSource source;
-
     /**
      * Runs each time before each test, items that don't need to be run each time have a conditional
      * flag.
@@ -104,7 +94,7 @@ public class TestFederation extends TestCatalog {
                         sourceProperties.createDefaultProperties(String.valueOf(HTTP_PORT),
                                 REMOTE_SITE_NAME), 1000);
 
-                this.source = waitForFederatedSource();
+                waitForFederatedSource(REMOTE_SITE_NAME);
                 File file = new File("sample.txt");
                 file.createNewFile();
                 FileUtils.write(file, SAMPLE_DATA);
@@ -131,20 +121,10 @@ public class TestFederation extends TestCatalog {
      */
     @Test
     public void testFederatedQueryByWildCardSearchPhrase() throws Exception {
-
-        // given
-
-        // when
         String queryUrl = OPENSEARCH_PATH + "?q=*&format=xml&src=" + REMOTE_SITE_NAME;
 
-        String result = read(queryUrl);
-
-        // then
-        assertNotNull(result);
-        assertTrue("Record should include the first record title.", result.contains(RECORD_TITLE_1));
-        assertTrue("Record should include the second record title.",
-                result.contains(RECORD_TITLE_2));
-
+        when().get(queryUrl).then().log().all().assertThat().body(containsString(RECORD_TITLE_1),
+                containsString(RECORD_TITLE_2));
     }
 
     /**
@@ -156,20 +136,11 @@ public class TestFederation extends TestCatalog {
     @Test
     public void testFederatedQueryBySearchPhrase() throws Exception {
 
-        // given
-
-        // when
         String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
                 + REMOTE_SITE_NAME;
 
-        String result = read(queryUrl);
-
-        // then
-        assertNotNull(result);
-        assertTrue("Record should include the first record title.", result.contains(RECORD_TITLE_1));
-        assertTrue("Record should include the second record title.",
-                result.contains(RECORD_TITLE_2));
-
+        when().get(queryUrl).then().log().all().assertThat().body(containsString(RECORD_TITLE_1),
+                containsString(RECORD_TITLE_2));
     }
 
     /**
@@ -179,19 +150,12 @@ public class TestFederation extends TestCatalog {
      */
     @Test
     public void testFederatedQueryByNegativeSearchPhrase() throws Exception {
-
-        // given
-
-        // when
         String negativeSearchPhrase = "negative";
         String queryUrl = OPENSEARCH_PATH + "?q=" + negativeSearchPhrase + "&format=xml&src="
                 + REMOTE_SITE_NAME;
-        String result = read(queryUrl);
 
-        // then
-        assertNotNull(result);
-        assertTrue("No records should have been returned.", !result.contains(RECORD_TITLE_1));
-
+        when().get(queryUrl).then().log().all().assertThat().body(
+                not(containsString(RECORD_TITLE_1)), not(containsString(RECORD_TITLE_2)));
     }
 
     /**
@@ -201,20 +165,11 @@ public class TestFederation extends TestCatalog {
      */
     @Test
     public void testFederatedQueryById() throws Exception {
-
-        // given
-
-        // when
         String restUrl = REST_PATH + "sources/" + REMOTE_SITE_NAME + "/"
                 + metacardIds[GEOJSON_RECORD_INDEX];
 
-        String result = read(restUrl);
-
-        // then
-        assertNotNull(result);
-        LOGGER.debug("testFederatedQueryById result\n" + result);
-        assertTrue("Record should include the right title.", result.contains(RECORD_TITLE_1));
-
+        when().get(restUrl).then().log().all().assertThat().body(containsString(RECORD_TITLE_1),
+                not(containsString(RECORD_TITLE_2)));
     }
 
     /**
@@ -225,18 +180,11 @@ public class TestFederation extends TestCatalog {
     @Test
     public void testFederatedRetrieveExistingProduct() throws Exception {
 
-        // given
-        Map<String, Serializable> requestProperties = new Hashtable<String, Serializable>();
-        requestProperties.put(Metacard.ID, metacardIds[XML_RECORD_INDEX]);
+        String restUrl = REST_PATH + "sources/" + REMOTE_SITE_NAME + "/"
+                + metacardIds[XML_RECORD_INDEX] + "?transform=resource";
 
-        // when
-        ResourceResponse response = source.retrieveResource(null, requestProperties);
-
-        // then
-        String mimeTypeValue = response.getResource().getMimeTypeValue();
-        LOGGER.info("MimeType returned [{}]", mimeTypeValue);
-        assertEquals("text/plain", mimeTypeValue);
-        assertEquals(SAMPLE_DATA, IOUtils.toString(response.getResource().getInputStream()));
+        when().get(restUrl).then().log().all().assertThat().contentType("text/plain").body(is(
+                SAMPLE_DATA));
     }
 
     /**
@@ -251,32 +199,6 @@ public class TestFederation extends TestCatalog {
 
         LOGGER.info(get(restUrl).prettyPrint());
         expect().log().all().body(containsString("Unknown resource request")).when().get(restUrl);
-    }
-
-    private FederatedSource waitForFederatedSource() throws InterruptedException {
-        ServiceTracker st = new ServiceTracker(bundleCtx, FederatedSource.class.getName(), null);
-        st.open();
-        FederatedSource source = (FederatedSource) st.waitForService(5000);
-
-        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(1);
-        boolean available = source.isAvailable();
-
-        while (!available && System.currentTimeMillis() < timeoutLimit) {
-            available = source.isAvailable();
-            if (!available) {
-                Thread.sleep(100);
-            }
-        }
-
-        if (!available) {
-            fail("Federated Source was not created in a timely manner.");
-        }
-
-        return source;
-    }
-
-    private String read(String getUrl) throws IOException {
-        return get(getUrl).getBody().prettyPrint();
     }
 
     public class FederatedSourceProperties extends Hashtable<String, Object> {

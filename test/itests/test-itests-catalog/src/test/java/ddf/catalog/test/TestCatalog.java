@@ -14,26 +14,29 @@
  **/
 package ddf.catalog.test;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.get;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasXPath;
-import static org.junit.Assert.fail;
+import com.jayway.restassured.response.Response;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.osgi.service.cm.Configuration;
 
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 
-import com.jayway.restassured.response.Response;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.junit.ExamReactorStrategy;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.spi.reactors.EagerSingleStagedReactorFactory;
-import org.osgi.service.cm.Configuration;
+import static com.jayway.restassured.RestAssured.delete;
+import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.when;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.xml.HasXPath.hasXPath;
+import static org.junit.Assert.fail;
 
 /**
  * Tests the Catalog framework components. Includes helper methods at the Catalog level.
@@ -43,11 +46,11 @@ import org.osgi.service.cm.Configuration;
  * @author ddf.isgs@lmco.com
  * 
  */
-@RunWith(JUnit4TestRunner.class)
-@ExamReactorStrategy(EagerSingleStagedReactorFactory.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerClass.class)
 public class TestCatalog extends AbstractIntegrationTest {
 
-    private static final String EXTERNAL_SOLR_CONFIG_PID ="ddf.catalog.solr.external.SolrHttpCatalogProvider";
+    private static final String EXTERNAL_SOLR_CONFIG_PID = "ddf.catalog.solr.external.SolrHttpCatalogProvider";
 
     public static final String CACHING_FEDERATION_STRATEGY_PID = "ddf.catalog.federation.impl.CachingFederationStrategy";
 
@@ -67,7 +70,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 setLogLevels();
                 configureBundles();
                 waitForAllBundles();
-                waitForCatalogProviderToBeAvailable();
+                waitForCatalogProvider();
                 waitForCxf();
                 ranBefore = true;
             } catch (Exception e) {
@@ -76,6 +79,11 @@ public class TestCatalog extends AbstractIntegrationTest {
             }
         }
         LOGGER.info("Starting {}", testName.getMethodName());
+    }
+
+    @After
+    public void afterTest() {
+        LOGGER.info("End of {}", testName.getMethodName());
     }
 
     private void waitForCxf() throws InterruptedException {
@@ -94,7 +102,8 @@ public class TestCatalog extends AbstractIntegrationTest {
                 Thread.sleep(1000);
             }
         }
-        LOGGER.info("Source status: \n" + get(REST_PATH + "sources").getBody().prettyPrint());
+        LOGGER.info("Source status: \n");
+        when().get(REST_PATH + "sources").then().log().all();
     }
 
     private void configureBundles() throws IOException, InterruptedException {
@@ -119,8 +128,9 @@ public class TestCatalog extends AbstractIntegrationTest {
         String id = ingestGeoJson(Library.getSimpleGeoJson());
 
         String url = REST_PATH + id;
-        LOGGER.info("Getting response to {}: \n{}", url, get(url).getBody().prettyPrint());
-        expect().body(hasXPath("/metacard[@id='" + id + "']")).when().get(url);
+        LOGGER.info("Getting response to {}", url);
+        when().get(url).then().log().all().assertThat().body(
+                hasXPath("/metacard[@id='" + id + "']"));
 
         deleteMetacard(id);
     }
@@ -130,15 +140,15 @@ public class TestCatalog extends AbstractIntegrationTest {
         String id = ingestGeoJson(Library.getSimpleGeoJson());
 
         String url = OPENSEARCH_PATH + "?q=*&format=xml";
-        LOGGER.info("Getting response to {}: \n{}", url, get(url).getBody().prettyPrint());
-        expect().body(containsString(id)).when().get(url);
+        LOGGER.info("Getting response to {}", url);
+        expect().body(containsString(id)).when().get(url).prettyPrint();
 
         deleteMetacard(id);
     }
 
     protected void deleteMetacard(String id) {
         LOGGER.info("Deleteing metacard {}", id);
-        expect().statusCode(200).when().delete(REST_PATH + id);
+        delete(REST_PATH + id).then().assertThat().statusCode(200).log().all();
     }
 
     protected String ingestGeoJson(String json) {
@@ -147,8 +157,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     protected String ingest(String data, String mimeType) {
         LOGGER.info("Ingesting data of type {}:\n{}", mimeType, data);
-        return expect().statusCode(201).when().given().body(data).header("Content-Type", mimeType)
-                .post(REST_PATH).getHeader("id");
+        return given().body(data).header("Content-Type", mimeType).expect().log().all()
+                .statusCode(201).when().post(REST_PATH).getHeader("id");
     }
 
 }

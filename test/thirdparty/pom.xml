@@ -25,12 +25,10 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<restassured.version>1.8.0</restassured.version>
-		<hamcrest.version>1.3</hamcrest.version>
+		<restassured.version>2.3.4</restassured.version>
 	</properties>
 
 	<modules>
-		<module>hamcrest-all</module>
 		<module>rest-assured</module>
 	</modules>
 

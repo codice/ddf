@@ -27,11 +27,16 @@
 			<groupId>com.jayway.restassured</groupId>
 			<artifactId>rest-assured</artifactId>
 			<version>${restassured.version}</version>
-		</dependency>
-		<dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.2.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-library</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 	</dependencies>
 
@@ -48,7 +53,10 @@
 						<Bundle-Name>${project.name}</Bundle-Name>
 						
 						<Embed-Transitive>true</Embed-Transitive>
-						<Embed-Dependency>*;artifactId=!hamcrest-core|hamcrest-library</Embed-Dependency>
+						<Embed-Dependency>
+                            *;artifactId=!hamcrest-core|hamcrest-library|hamcrest-all|
+                                junit|mockito-all
+                        </Embed-Dependency>
 
 						<Export-Package>						
 							com.jayway.restassured;version="${restassured.version}",
@@ -82,15 +90,15 @@
 						</Export-Package>
 
 						<Import-Package>
-							org.hamcrest;version="${hamcrest.version}",
-							org.hamcrest.core;version="${hamcrest.version}",
-							org.hamcrest.internal;version="${hamcrest.version}",
-							org.hamcrest.beans;version="${hamcrest.version}",
-							org.hamcrest.collection;version="${hamcrest.version}",
-							org.hamcrest.number;version="${hamcrest.version}",
-							org.hamcrest.object;version="${hamcrest.version}",
-							org.hamcrest.text;version="${hamcrest.version}",
-							org.hamcrest.xml;version="${hamcrest.version}",
+                            org.hamcrest,
+                            org.hamcrest.core,
+                            org.hamcrest.internal,
+                            org.hamcrest.beans,
+                            org.hamcrest.collection,
+                            org.hamcrest.number,
+                            org.hamcrest.object,
+                            org.hamcrest.text,
+                            org.hamcrest.xml,
 							javax.xml.bind,
 							javax.xml.bind.annotation,
 							*;resolution:=optional

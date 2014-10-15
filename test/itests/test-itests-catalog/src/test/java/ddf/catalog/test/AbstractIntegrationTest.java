@@ -14,46 +14,50 @@
  **/
 package ddf.catalog.test;
 
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.replaceConfigurationFile;
-import static org.junit.Assert.fail;
-import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.options;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.apache.commons.io.FilenameUtils;
+import ddf.catalog.source.CatalogProvider;
+import ddf.catalog.source.FederatedSource;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.osgi.BlueprintListener;
 import org.apache.karaf.shell.osgi.BlueprintListener.BlueprintState;
-import org.apache.karaf.tooling.exam.options.KarafDistributionKitConfigurationOption;
-import org.apache.karaf.tooling.exam.options.KarafDistributionKitConfigurationOption.Platform;
-import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
-import org.apache.karaf.tooling.exam.options.LogLevelOption.LogLevel;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.options.MavenUrlReference;
+import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
-import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.source.CatalogProvider;
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Dictionary;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.fail;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.vmOption;
+import static org.ops4j.pax.exam.CoreOptions.when;
+import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
 
 /**
  * Abstract integration test with helper methods and configuration at the container level.
@@ -114,8 +118,6 @@ public abstract class AbstractIntegrationTest {
             System.setProperty("org.ops4j.pax.url.mvn.localRepository",
                     System.getProperty("maven.repo.local"));
         }
-        // Disable debug port
-        System.clearProperty("KARAF_DEBUG");
     }
 
     /**
@@ -123,20 +125,24 @@ public abstract class AbstractIntegrationTest {
      * 
      * @return list of pax exam options
      */
-    @org.ops4j.pax.exam.junit.Configuration
+    @org.ops4j.pax.exam.Configuration
     public Option[] config() {
         return options(
-                getPlatformOption(Platform.WINDOWS),
-                getPlatformOption(Platform.NIX),
-                logLevel(LogLevel.INFO),
-                KarafDistributionOption.keepRuntimeFolder(),
-                mavenBundle("junit", "junit", "4.10"),
-                mavenBundle("ddf.test.thirdparty", "hamcrest-all")
-                        .versionAsInProject(),
-                mavenBundle("ddf.test.thirdparty", "rest-assured")
-                        .versionAsInProject(),
-                editConfigurationFilePut("etc/org.apache.karaf.shell.cfg",
-                        "sshPort", SSH_PORT),
+                karafDistributionConfiguration(
+                        maven().groupId("ddf.distribution").artifactId("ddf").type("zip")
+                                .versionAsInProject().getURL(), "ddf", KARAF_VERSION)
+                        .unpackDirectory(new
+                                File("target/exam")).useDeployFolder(false),
+                logLevel(LogLevelOption.LogLevel.INFO),
+                keepRuntimeFolder(),
+                useOwnExamBundlesStartLevel(100),
+                junitBundles(),
+                // HACK: incorrect version exported to override hamcrest-core from exam
+                // feature which causes a split package issue for rest-assured
+                wrappedBundle(mavenBundle("org.hamcrest", "hamcrest-all").versionAsInProject())
+                        .exports("*;version=1.3.0.10"),
+                mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject(),
+                editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", SSH_PORT),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "port", HTTP_PORT),
                 editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
                         "org.osgi.service.http.port", HTTP_PORT),
@@ -148,28 +154,16 @@ public abstract class AbstractIntegrationTest {
                         "rmiServerPort", RMI_SERVER_PORT),
                 replaceConfigurationFile("etc/hazelcast.xml", new File(
                         "src/test/resources/hazelcast.xml")),
-                replaceConfigurationFile("etc/org.codice.ddf.admin.applicationlist.properties", new File(
-                        "src/test/resources/org.codice.ddf.admin.applicationlist.properties"))
+                replaceConfigurationFile("etc/org.codice.ddf.admin.applicationlist.properties",
+                        new File(
+                                "src/test/resources/org.codice.ddf.admin.applicationlist"
+                                        + ".properties")),
+                when(Boolean.getBoolean("isDebugEnabled")).useOptions(
+                        vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
+                vmOption("-Xmx2048M"),
+                vmOption("-XX:PermSize=128M"),
+                vmOption("-XX:MaxPermSize=512M")
         );
-    }
-
-    protected KarafDistributionKitConfigurationOption getPlatformOption(Platform platform) {
-        String ddfScript = "bin/ddf";
-        String adminScript = "bin/admin";
-
-        if (platform.equals(Platform.WINDOWS)) {
-            ddfScript = FilenameUtils.separatorsToWindows(ddfScript) + ".bat";
-            adminScript = FilenameUtils.separatorsToWindows(adminScript) + ".bat";
-        }
-
-        MavenUrlReference ddf = maven().groupId("ddf.distribution").artifactId("ddf").type("zip")
-                .versionAsInProject();
-        KarafDistributionKitConfigurationOption platformOption = new KarafDistributionKitConfigurationOption(
-                ddf, "ddf", KARAF_VERSION, platform).executable(ddfScript).filesToMakeExecutable(
-                adminScript);
-        platformOption.unpackDirectory(new File("target/exam"));
-
-        return platformOption;
     }
 
     /**
@@ -272,18 +266,26 @@ public abstract class AbstractIntegrationTest {
         }
     }
 
-    protected CatalogProvider waitForCatalogProviderToBeAvailable() throws InterruptedException {
+    protected CatalogProvider waitForCatalogProvider() throws InterruptedException {
         LOGGER.info("Waiting for CatalogProvider to become available.");
-        ServiceTracker st = new ServiceTracker(bundleCtx, CatalogProvider.class.getName(), null);
-        st.open();
 
-        CatalogProvider provider = (CatalogProvider) st.waitForService(5000);
+        CatalogProvider provider = null;
+        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+        boolean available = false;
 
-        boolean ready = false;
-        long timeoutLimit = System.currentTimeMillis() + ONE_MINUTE_MILLIS;
-        while (!ready) {
-            ready = provider.isAvailable();
-            if (!ready) {
+        while (!available) {
+            if (provider == null) {
+                ServiceReference<CatalogProvider> providerRef = bundleCtx
+                        .getServiceReference(CatalogProvider.class);
+                if (providerRef != null) {
+                    provider = bundleCtx.getService(providerRef);
+                }
+            }
+
+            if (provider != null) {
+                available = provider.isAvailable();
+            }
+            if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {
                     fail("Catalog provider timed out.");
                 }
@@ -292,7 +294,42 @@ public abstract class AbstractIntegrationTest {
         }
 
         return provider;
+    }
 
+    protected FederatedSource waitForFederatedSource(String id) throws InterruptedException,
+            InvalidSyntaxException {
+        LOGGER.info("Waiting for FederatedSource {} to become available.", id);
+
+        FederatedSource source = null;
+        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+        boolean available = false;
+
+        while (!available) {
+            if (source == null) {
+                Collection<ServiceReference<FederatedSource>> srcRefs = bundleCtx
+                        .getServiceReferences(FederatedSource.class, null);
+                for (ServiceReference<FederatedSource> srcRef : srcRefs) {
+                    FederatedSource src = bundleCtx.getService(srcRef);
+                    if (id.equals(src.getId())) {
+                        source = src;
+                    }
+                }
+            }
+
+            if (source != null) {
+                available = source.isAvailable();
+            }
+
+            if (!available) {
+                if (System.currentTimeMillis() > timeoutLimit) {
+                    fail("Federated Source was not created in a timely manner.");
+                }
+                Thread.sleep(100);
+            }
+        }
+
+
+        return source;
     }
 
     private class ServiceConfigurationListener implements ConfigurationListener {
