@@ -282,6 +282,10 @@ public class ApplicationServiceImpl implements ApplicationService {
      *            Application Map containing all the application nodes.
      * @param filteredApplications
      *            Set containing all the application nodes minus those in the ignored list
+     * @param reportDebug
+     *            Boolean that allows debug statements to be output or not.  Only reason
+     *            why this exists is because this function will be called twice and only
+     *            the second set of statements will be relevant
      */
     private void traverseDependencies(Map<Application, ApplicationNodeImpl> appMap,
                                       Set<Application> filteredApplications,
