@@ -37,6 +37,8 @@ public class SendCommand extends OsgiCommandSupport {
 
     public static final String SERVICE_PID = "org.osgi.service.event.EventAdmin";
 
+    private static final int UNKNOWN_PROGRESS = -1;
+
     @Argument(name = "User ID", description = "User ID to send notifications to. ", index = 0,
             multiValued = false, required = true)
 
@@ -60,7 +62,7 @@ public class SendCommand extends OsgiCommandSupport {
                 "Activity category",
                 "Activity title",
                 "Activity message",
-                -1, operations, userId, ActivityStatus.RUNNING, 100L);
+                UNKNOWN_PROGRESS, operations, userId, ActivityStatus.RUNNING, 100L);
         Event event = new Event(ActivityEvent.EVENT_TOPIC, eventProperties);
 
         // Get OSGi Event Admin service
