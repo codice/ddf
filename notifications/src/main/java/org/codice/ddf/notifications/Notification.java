@@ -307,7 +307,7 @@ public class Notification extends HashMap<String, String> {
      * {@code Notification} occurred.
      * 
      * @param timestamp
-     *            A <code>long</code> representing the point at which the event that triggered this
+     *            A <code>Date</code> representing the point at which the event that triggered this
      *            {@code Notification} occurred.
      */
     public void setTimestamp(Date timestamp) {

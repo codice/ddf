@@ -109,7 +109,8 @@ public class ActivityEvent extends HashMap<String, Object> {
      * Sets the progress of the activity.
      * 
      * @param progress
-     *            Integer value representation of the progress, ranging from 0 to 100
+     *            Integer value representation of the progress, ranging from 0 to 100,
+     *            or -1 when progress is unknown or not applicable
      */
     public void setProgress(int progress) {
         this.put(PROGRESS_KEY, progress);
@@ -119,7 +120,8 @@ public class ActivityEvent extends HashMap<String, Object> {
      * Returns the progress of the activity.
      * 
      * @return progress
-     *            Integer value representation of the progress, ranging from 0 to 100
+     *            Integer value representation of the progress, ranging from 0 to 100,
+     *            or -1 when progress is unknown or not applicable
      */
     public int getProgress() {
         return (Integer) this.get(PROGRESS_KEY);
@@ -288,7 +290,7 @@ public class ActivityEvent extends HashMap<String, Object> {
      * {@code ActivityEvent} occurred.
      * 
      * @param timestamp
-     *            A <code>long</code> representing the point at which the event that triggered this
+     *            A <code>Date</code> representing the point at which the event that triggered this
      *            {@code ActivityEvent} occurred.
      */
     public void setTimestamp(Date timestamp) {
