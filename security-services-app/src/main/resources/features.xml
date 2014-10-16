@@ -1,4 +1,4 @@
-<!--
+ <!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -83,6 +83,7 @@
         </configfile>
         <feature>cxf-core</feature>
         <feature>cxf-ws-security</feature>
+        <feature>cxf-sts</feature>
         <feature>spring-tx</feature>
         <feature>security-sts-ldaplogin</feature>
         <feature>security-sts-ldapclaimshandler</feature>
