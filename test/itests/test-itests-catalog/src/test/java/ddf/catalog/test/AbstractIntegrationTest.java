@@ -49,6 +49,7 @@ import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 import static org.ops4j.pax.exam.CoreOptions.when;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
@@ -112,14 +113,6 @@ public abstract class AbstractIntegrationTest {
     // PAX-EXAM wipes away field information before each test method.
     protected static CatalogProvider catalogProvider;
 
-    static {
-        // Make Pax URL use the maven.repo.local setting if present
-        if (System.getProperty("maven.repo.local") != null) {
-            System.setProperty("org.ops4j.pax.url.mvn.localRepository",
-                    System.getProperty("maven.repo.local"));
-        }
-    }
-
     /**
      * Configures the pax exam test container
      * 
@@ -152,6 +145,16 @@ public abstract class AbstractIntegrationTest {
                         "rmiRegistryPort", RMI_REG_PORT),
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg",
                         "rmiServerPort", RMI_SERVER_PORT),
+                editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
+                        "org.ops4j.pax.url.mvn.repositories",
+                        "https://repo1.maven.org/maven2@id=central,"
+                                + "https://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
+                                + "https://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
+                                + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
+                                + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
+                                + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
+                                + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
+                                + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
                 replaceConfigurationFile("etc/hazelcast.xml", new File(
                         "src/test/resources/hazelcast.xml")),
                 replaceConfigurationFile("etc/org.codice.ddf.admin.applicationlist.properties",
@@ -160,6 +163,9 @@ public abstract class AbstractIntegrationTest {
                                         + ".properties")),
                 when(Boolean.getBoolean("isDebugEnabled")).useOptions(
                         vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
+                when(System.getProperty("maven.repo.local") != null)
+                        .useOptions(systemProperty("org.ops4j.pax.url.mvn.localRepository")
+                                .value(System.getProperty("maven.repo.local", ""))),
                 vmOption("-Xmx2048M"),
                 vmOption("-XX:PermSize=128M"),
                 vmOption("-XX:MaxPermSize=512M")
