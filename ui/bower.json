@@ -26,7 +26,8 @@
         "bootswatch": "=v3.1.1",
         "jquery-file-upload": "9.5.7",
         "lato": "0.2.0",
-        "moment": "2.5.1"
+        "moment": "2.5.1",
+        "iframe-resizer": "2.6.2"
     },
     "resolutions": {
         "jquery": "1.11.0"

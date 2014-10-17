@@ -55,7 +55,10 @@
             app: 'js/application',
 
             //moment
-            moment: 'lib/moment/moment'
+            moment: 'lib/moment/moment',
+
+            //iframe-resizer
+            iframeresizer: 'lib/iframe-resizer/js/iframeResizer.min'
         },
 
 

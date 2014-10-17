@@ -14,14 +14,16 @@
  **/
 /* global define */
 define([
+    'jquery',
     'require',
     'marionette',
     'backbone',
     'icanhaz',
     'js/views/application/IFrameView.js',
     'text!pluginTabContentItemView',
-    'text!pluginTabContentCollectionView'
-    ],function (require, Marionette, Backbone, ich, IFrameView, pluginTabContentItemView, pluginTabContentCollectionView) {
+    'text!pluginTabContentCollectionView',
+    'iframeresizer'
+    ],function ($,require, Marionette, Backbone, ich, IFrameView, pluginTabContentItemView, pluginTabContentCollectionView) {
 
     ich.addTemplate('pluginTabContentItemView', pluginTabContentItemView);
     ich.addTemplate('pluginTabContentCollectionView', pluginTabContentCollectionView);
@@ -51,6 +53,9 @@ define([
                 view.tabContentInner.show(new IFrameView({
                     model: new Backbone.Model({url : iframeLocation})
                 }));
+                $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
+                  $('iframe').iFrameResize();
+                });
             }
         }
     });
