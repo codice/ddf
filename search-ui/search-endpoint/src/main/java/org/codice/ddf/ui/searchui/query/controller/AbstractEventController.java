@@ -265,6 +265,9 @@ public abstract class AbstractEventController implements EventHandler {
                     break;
                 }
             }
+            if(null == userId) {
+                userId = serverSession.getId();
+            }
         } else {
             userId = serverSession.getId();
         }
