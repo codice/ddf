@@ -18,27 +18,33 @@ define([
         'underscore',
         'js/views/configuration/ConfigurationEdit.view', //TODO this import should be done better.
         'js/models/Service',
+        'js/wreqr.js',
         'js/views/configuration/Service.view' // TODO this import should be done better.
-    ], function(Marionette, _, ConfigurationView, ConfigurationModel, ServiceView){
+    ], function(Marionette, _, ConfigurationView, ConfigurationModel, wreqr, ServiceView){
         "use strict";
 
         var FeatureController = Marionette.Controller.extend({
 
             initialize: function(options){
+                _.bindAll(this);
                 this.region = options.region;
+                this.listenTo(wreqr.vent, 'refreshConfigurations', this.show);
             },
 
             show: function(appName){
                 var self = this;
-                self.appName = appName;
-                var configurations = new ConfigurationModel.Response();
-                configurations.fetch({
-                    url: "/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getServices/" + appName,
-                    success: function() {
-                        var servicePage = new ServiceView.ServicePage({model: configurations});
-                        self.region.show(servicePage);
-                    }
-                });
+                if (!self.appName) {
+                    self.appName = appName;
+                }
+                if (self.appName) {
+                    var configurations = new ConfigurationModel.Response({url: "/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getServices/" + self.appName});
+                    configurations.fetch({
+                        success: function () {
+                            var servicePage = new ServiceView.ServicePage({model: configurations, url: "/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getServices/" + self.appName});
+                            self.region.show(servicePage);
+                        }
+                    });
+                }
             }
         });
 

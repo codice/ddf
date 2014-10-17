@@ -143,9 +143,6 @@ define([
 
     ConfigurationEditView.ConfigurationCollection = Marionette.CollectionView.extend({
         itemView: ConfigurationEditView.ConfigurationItem,
-        initialize: function() {
-            this.listenTo(wreqr.vent, 'poller:start', this.render);
-        },
         buildItemView: function(item, ItemViewType, itemViewOptions){
             var view;
             var configuration = this.options.configuration;
@@ -205,6 +202,12 @@ define([
             this.listenTo(wreqr.vent, 'sync', this.bind);
         },
 
+        serializeData: function() {
+            var data = this.model.toJSON();
+            data.service = this.service.toJSON();
+            return data;
+        },
+
         onRender: function() {
             this.configurationItems.show(new ConfigurationEditView.ConfigurationCollection({
                 collection: this.service.get('metatype'),
@@ -224,8 +227,10 @@ define([
                             case 'ViewToModel':
                                 return bindValue.toString();
                             case 'ModelToView':
-                                if(bindValue){
-                                    return JSON.parse(bindValue.toLowerCase());
+
+                                if(bindValue && bindValue !== ""){
+                                    var bindValueString = "" + bindValue;
+                                    return JSON.parse(bindValueString.toLowerCase());
                                 }
                                 return null;  // TODO determine if this is correct
 
@@ -241,14 +246,18 @@ define([
         submitData: function() {
             wreqr.vent.trigger('beforesave');
             if(this.service) {
-                this.service.get('configurations').add(this.model);
+                if (!this.model.get('properties').has('service.pid')) {
+                    this.model.get('properties').set('service.pid', this.service.get('id'));
+                }
             }
             this.model.save();
+            wreqr.vent.trigger('sync');
             wreqr.vent.trigger('poller:start');
 
             var view = this;
             _.defer(function() {
                 view.close();
+                wreqr.vent.trigger('refreshConfigurations');
             });
         },
         /**
@@ -287,7 +296,7 @@ define([
          */
         
         refresh: function() {
-            wreqr.vent.trigger('refresh');
+            wreqr.vent.trigger('refreshConfigurations');
         }
     });
 

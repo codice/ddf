@@ -34,6 +34,9 @@ define([
         },
         onRender: function(){
             this.controller.show(this.model.get('appId'));
+        },
+        onClose: function() {
+            this.controller.close();
         }
     });
 

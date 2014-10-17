@@ -13,20 +13,22 @@
  *
  **/
 /*global define*/
-define(['backbone', 'jquery','backbonerelational'],function (Backbone, $) {
+define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
 
+
+    Backbone.Associations.SEPARATOR = '~';
 
     var Service = {};
 
-    Service.Metatype = Backbone.RelationalModel.extend({
+    Service.Metatype = Backbone.AssociatedModel.extend({
 
     });
 
-    Service.Properties = Backbone.RelationalModel.extend({
+    Service.Properties = Backbone.AssociatedModel.extend({
 
     });
 
-    Service.Configuration = Backbone.RelationalModel.extend({
+    Service.Configuration = Backbone.AssociatedModel.extend({
         configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
 
         defaults: {
@@ -35,7 +37,7 @@ define(['backbone', 'jquery','backbonerelational'],function (Backbone, $) {
 
         relations: [
             {
-                type: Backbone.HasOne,
+                type: Backbone.One,
                 key: 'properties',
                 relatedModel: Service.Properties,
                 includeInJSON: true
@@ -90,9 +92,8 @@ define(['backbone', 'jquery','backbonerelational'],function (Backbone, $) {
                 model = this,
                 addUrl = [model.configUrl, "add"].join("/");
             //if it has a pid we are editing an existing record
-            if(model.get('properties') && model.get('properties').get("service.pid") || (model.get('service').get('id') && !model.get('fpid')))
-            {
-                var collect = model.collectedData(model.get('properties').get("service.pid") || model.get('service').get('id'));
+            if(model.get('properties') && model.get('properties').get("service.pid") || (model.parents.length > 0 && model.parents[0].get('id') && !model.get('fpid'))) {
+                var collect = model.collectedData(model.get('properties').get("service.pid") || model.parents[0].get('id'));
                 var jData = JSON.stringify(collect);
 
                 return $.ajax({
@@ -105,9 +106,8 @@ define(['backbone', 'jquery','backbonerelational'],function (Backbone, $) {
                     }).fail(function (error) {
                         deferred.fail(error);
                     });
-            }
-            else //no pid means this is a new record
-            {
+            } else {
+                //no pid means this is a new record
                 model.makeConfigCall(model).done(function (data) {
                     var collect = model.collectedData(JSON.parse(data).value);
                     var jData = JSON.stringify(collect);
@@ -161,33 +161,30 @@ define(['backbone', 'jquery','backbonerelational'],function (Backbone, $) {
         }
     });
 
-    Service.MetatypeList = Backbone.Collection.extend({
-        model: Service.Metatype
-    });
-
     Service.ConfigurationList = Backbone.Collection.extend({
         model: Service.Configuration
     });
 
-    Service.Model = Backbone.RelationalModel.extend({
+    Service.Model = Backbone.AssociatedModel.extend({
         configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
+
+        defaults: {
+            configurations: new Service.ConfigurationList()
+        },
+
 
         relations: [
             {
-                type: Backbone.HasMany,
+                type: Backbone.Many,
                 key: 'configurations',
                 relatedModel: Service.Configuration,
                 collectionType: Service.ConfigurationList,
-                includeInJSON: true,
-                reverseRelation: {
-                    key: 'service'
-                }
+                includeInJSON: true
             },
             {
-                type: Backbone.HasMany,
+                type: Backbone.Many,
                 key: 'metatype',
                 relatedModel: Service.Metatype,
-                collectionType: Service.MetatypeList,
                 includeInJSON: false
             }
         ],
@@ -206,24 +203,24 @@ define(['backbone', 'jquery','backbonerelational'],function (Backbone, $) {
         }
     });
 
-    Service.Collection = Backbone.Collection.extend({
-        model: Service.Model
-    });
 
-    Service.Response = Backbone.RelationalModel.extend({
-        url: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices",
+    Service.Response = Backbone.AssociatedModel.extend({
         relations: [
             {
-                type: Backbone.HasMany,
+                type: Backbone.Many,
                 key: 'value',
                 relatedModel: Service.Model,
-                collectionType: Service.Collection,
-                includeInJSON: false,
-                reverseRelation: {
-                    key: 'response'
-                }
+                includeInJSON: false
             }
-        ]
+        ],
+
+        initialize: function(options) {
+            if (options && options.url) {
+                this.url = options.url;
+            } else {
+                this.url = "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices";
+            }
+        }
     });
 
     return Service;

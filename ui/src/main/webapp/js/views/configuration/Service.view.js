@@ -47,7 +47,7 @@ define([
         },
         editConfiguration: function() {
             wreqr.vent.trigger('poller:stop');
-            this.editModal.show(new ConfigurationEdit.View({model: this.model, service: this.model.collection.service}));
+            this.editModal.show(new ConfigurationEdit.View({model: this.model, service: this.model.collection.parents[0]}));
             wreqr.vent.trigger('refresh');
         },
         removeConfiguration: function() {
@@ -80,19 +80,18 @@ define([
             this.collectionRegion.show(new ServiceView.ConfigurationTable({ collection: this.model.get("configurations") }));
         },
         newConfiguration: function() {
-            if(this.model.get("factory") || this.model.get("configurations").length === 0) {
+            if (this.model.has("factory") || !this.model.get("configurations").isEmpty()) {
                 wreqr.vent.trigger('poller:stop');
                 var configuration = new Service.Configuration();
-                if(this.model.get("factory")) {
+                if (this.model.get("factory")) {
                     configuration.initializeFromMSF(this.model);
                 } else {
                     configuration.initializeFromService(this.model);
                 }
                 this.editModal.show(new ConfigurationEdit.View({model: configuration, service: this.model}));
-            } else if(this.model.get("configurations").length === 1) {
+            } else if (this.model.get("configurations").isEmpty()) {
                 this.editModal.show(new ConfigurationEdit.View({model: this.model.get("configurations").at(0), service: this.model}));
             }
-            wreqr.vent.trigger('refresh');
         }
     });
 
@@ -129,8 +128,8 @@ define([
                 this.listenTo(wreqr.vent, 'poller:start', this.startPoller);
                 this.listenTo(this.model, 'sync', this.triggerSync);
             }
-
             this.showWarnings = options.showWarnings;
+            this.url = options.url;
         },
         triggerSync: function() {
             wreqr.vent.trigger('sync');
@@ -145,7 +144,7 @@ define([
             this.collectionRegion.show(new ServiceView.ServiceTable({ collection: this.model.get("value"), showWarnings: this.showWarnings }));
         },
         refreshServices: function() {
-            this.model.fetch();
+            wreqr.vent.trigger('refreshConfigurations');
         }
     });
 
