@@ -54,7 +54,7 @@ define([
                     model: new Backbone.Model({url : iframeLocation})
                 }));
                 $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
-                  $('iframe').iFrameResize();
+                  view.$('iframe').iFrameResize();
                 });
             }
         }
