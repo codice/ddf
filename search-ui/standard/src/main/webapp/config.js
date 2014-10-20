@@ -19,6 +19,7 @@
 
             bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
             cesium: 'lib/cesium/Cesium',
+            openlayers: 'lib/openlayers3/build/ol',
             cometd: 'lib/cometd/org/cometd',
             jquerycometd: 'lib/cometd/jquery/jquery.cometd',
             moment: 'lib/moment/min/moment.min',
@@ -44,6 +45,7 @@
             cometdinit: 'js/cometd',
             direction: 'js/direction',
             webglcheck : 'js/webglcheck',
+            twodcheck : 'js/2dmapcheck',
             maptype : 'js/maptype',
             spinnerConfig : 'js/spinnerConfig',
             wreqr: 'js/wreqr',
@@ -134,7 +136,11 @@
 
             purl: ['jquery'],
 
-            bootstrap: ['jquery']
+            bootstrap: ['jquery'],
+
+            openlayers: {
+                exports: 'ol'
+            }
 
         },
 

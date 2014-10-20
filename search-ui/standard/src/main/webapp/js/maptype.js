@@ -15,9 +15,10 @@ define([
         'jquery',
         'underscore',
         'webglcheck',
+        'twodcheck',
         'purl'
     ],
-    function ($, _, webgl) {
+    function ($, _, webgl, twoD) {
         'use strict';
 
         var MapTypeEnum = {
@@ -37,6 +38,8 @@ define([
 
                 if (webgl.isAvailable()) {
                     return MapTypeEnum.THREED;
+                } else if (twoD.isAvailable()) {
+                    return MapTypeEnum.TWOD;
                 } else {
                     return MapTypeEnum.NONE;
                 }

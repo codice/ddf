@@ -149,7 +149,8 @@ define([
                     east = this.get('east'),
                     lat = this.get('lat'),
                     lon = this.get('lon'),
-                    radius = this.get('radius');
+                    radius = this.get('radius'),
+                    polygon = this.get('polygon');
                 if (north && south && east && west) {
                     var bbox = 'POLYGON ((' +
                         west + ' ' + south +
@@ -159,6 +160,18 @@ define([
                         ', ' + west + ' ' + south +
                         '))';
                     filters.push('INTERSECTS(anyGeo, ' + bbox + ')');
+                } else if (polygon) {
+                    var poly = 'POLYGON ((';
+                    var polyPoint;
+                    for (var i = 0;i<polygon.length;i++) {
+                        polyPoint = polygon[i];
+                        poly += polyPoint[0] + ' ' + polyPoint[1];
+                        if (i < polygon.length - 1) {
+                            poly += ', ';
+                        }
+                    }
+                    poly += '))';
+                    filters.push('INTERSECTS(anyGeo, ' + poly + ')');
                 } else if (lat && lon && radius) {
                     var point = 'POINT(' + lon + ' ' + lat + ')';
                     filters.push('DWITHIN(anyGeo, ' + point + ', ' + radius + ', meters)');

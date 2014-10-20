@@ -17,7 +17,7 @@ define([
         'cesium',
         'underscore',
         'wreqr',
-        './draw.bbox.js',
+        'js/widgets/cesium.bbox',
         'maptype'
     ],
     function (Marionette, Backbone, Cesium, _, wreqr, DrawBbox, maptype) {

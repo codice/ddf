@@ -126,21 +126,29 @@
             </div>
             <br />
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
-                <label id="locationAny" class="btn btn-default location {{#ifNotOr radius bbox}}active{{/ifNotOr}}" data-target="#nogeo" data-toggle="tab">
+                <label id="locationAny" class="btn btn-default location {{#ifNotOr radius bbox polygon}}active{{/ifNotOr}}" data-target="#nogeo" data-toggle="tab">
                     <input type="radio" name="noLocationButton">
                     Any
                 </label>
-                <label id="locationPoint" class="btn btn-default location {{#if radius}}active{{/if}}" data-target="#pointradius" data-toggle="tab">
-                    <input type="radio" name="pointRadiusButton">
-                    Point-Radius
-                </label>
+                {{#if is2D}}
+                    <label id="locationPolygon" class="btn btn-default location {{#if polygon}}active{{/if}}" data-target="#polygonTab" data-toggle="tab">
+                        <input type="radio" name="polygonButton">
+                        Polygon
+                    </label>
+                {{else}}
+                    <label id="locationPoint" class="btn btn-default location {{#if radius}}active{{/if}}" data-target="#pointradius" data-toggle="tab">
+                        <input type="radio" name="pointRadiusButton">
+                        Point-Radius
+                    </label>
+                {{/if}}
+
                 <label id="locationBbox" class="btn btn-default location {{#if bbox}}active{{/if}}" data-target="#boundingbox" data-toggle="tab">
                     <input type="radio" name="bboxButton">
                     Bounding Box
                 </label>
             </div>
             <div class="tab-content form-group">
-                <div id="nogeo" class="tab-pane {{#ifNotOr radius bbox}}active{{/ifNotOr}}"></div>
+                <div id="nogeo" class="tab-pane {{#ifNotOr radius bbox polygon}}active{{/ifNotOr}}"></div>
 
                 <div id="pointradius" class="tab-pane {{#if radius}}active{{/if}}">
                     <input type="hidden" name="radius" value="">
@@ -174,6 +182,17 @@
                                     <option value="miles">miles</option>
                                 </select>
                             </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="polygonTab" class="tab-pane {{#if polygon}}active{{/if}}">
+                    <input type="hidden" name="polygon" value="">
+
+                    <div class="col-lg-10">
+                        <div id="polygondiv" class="input-group input-group-sm">
+                            <span class="input-group-addon">Polygon&nbsp;</span>
+                            <input class="form-control" id="polygon" name="polygon" type="text" placeholder=""/>
                         </div>
                     </div>
                 </div>

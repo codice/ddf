@@ -92,7 +92,7 @@ define(['jquery',
                 'js/module/Notification.module',
                 'js/module/Tasks.module',
                 'js/module/Menu.module',
-                'js/module/Map3d.module',
+                'js/module/Map.module',
                 'js/module/Workspace.module'
             ]);
         });

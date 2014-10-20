@@ -22,9 +22,10 @@ define([
         'js/view/Progress.view',
         'wreqr',
         'text!templates/search/searchForm.handlebars',
-        'direction'
+        'direction',
+        'maptype'
     ],
-    function ($, Backbone, Marionette, _, ich, properties, MetaCard, Progress, wreqr, searchFormTemplate, dir) {
+    function ($, Backbone, Marionette, _, ich, properties, MetaCard, Progress, wreqr, searchFormTemplate, dir, maptype) {
         "use strict";
         var Query = {};
 
@@ -43,6 +44,7 @@ define([
                 'click .location': 'clearLocation',
                 'click .type': 'clearType',
                 'click #locationPoint' : 'drawCircle',
+                'click #locationPolygon' : 'drawPolygon',
                 'click #locationBbox' : 'drawBbox',
                 'click #locationAny' : 'notDrawing',
                 'click #federationNo' : 'setNoFederation',
@@ -224,7 +226,7 @@ define([
                 if(this.types) {
                     allTypes = this.types.toJSON();
                 }
-                return _.extend(this.model.toJSON(), {types: allTypes, sources: allSources, isWorkspace: this.isWorkspace});
+                return _.extend(this.model.toJSON(), {types: allTypes, sources: allSources, isWorkspace: this.isWorkspace, is3D: maptype.is3d(), is2D: maptype.is2d()});
             },
 
             onRender: function () {
@@ -253,6 +255,23 @@ define([
                             view.model.set("dtoffset", view.getTimeInMillis(view.$("input[name=offsetTime]").val(), view.$("select[name=offsetTimeUnits]").val()));
                         }
                         return value;
+                    },
+                    polygonConverter = function(direction, value) {
+                        if (value && direction === 'ViewToModel') {
+                            return $.parseJSON(value);
+                        } else if (value && direction === 'ModelToView') {
+                            var retVal = '[';
+                            for(var i=0;i<value.length;i++) {
+                                var point = value[i];
+                                retVal += '[' + point[0].toFixed(2) + ', ' + point[1].toFixed(2) + ']';
+
+                                if (i < value.length - 1) {
+                                    retVal += ', ';
+                                }
+                            }
+                            retVal += ']';
+                            return retVal;
+                        }
                     },
                     listConverter = function(direction,value){
                         // If there are multiple federated sources, the model wants
@@ -283,6 +302,7 @@ define([
                 queryModelBindings.type = {};
                 queryModelBindings.type.selector = '#typeList';
                 queryModelBindings.type.converter = listConverter;
+                queryModelBindings.polygon.converter = polygonConverter;
 
                 // ORDER MATTERS! The SourcesCollection must be bound prior to
                 // the QueryModel so that the sources exist in the select list
@@ -356,6 +376,10 @@ define([
 
             drawCircle: function(){
                 wreqr.vent.trigger("search:drawcircle", this.model);
+            },
+
+            drawPolygon: function(){
+                wreqr.vent.trigger("search:drawpoly", this.model);
             },
 
             drawBbox: function(){
