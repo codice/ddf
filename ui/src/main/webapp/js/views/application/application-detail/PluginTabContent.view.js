@@ -14,7 +14,6 @@
  **/
 /* global define */
 define([
-    'jquery',
     'require',
     'marionette',
     'backbone',
