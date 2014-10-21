@@ -21,8 +21,9 @@ define([
     'js/views/application/IFrameView.js',
     'text!pluginTabContentItemView',
     'text!pluginTabContentCollectionView',
+    'js/wreqr.js',
     'iframeresizer'
-    ],function ($,require, Marionette, Backbone, ich, IFrameView, pluginTabContentItemView, pluginTabContentCollectionView) {
+    ],function (require, Marionette, Backbone, ich, IFrameView, pluginTabContentItemView, pluginTabContentCollectionView, wreqr) {
 
     ich.addTemplate('pluginTabContentItemView', pluginTabContentItemView);
     ich.addTemplate('pluginTabContentCollectionView', pluginTabContentCollectionView);
@@ -35,6 +36,7 @@ define([
         },
         initialize: function(options){
             this.applicationModel = options.applicationModel;
+            this.listenTo(wreqr.vent, 'application:tabShown', this.handleTabShown);
         },
         onBeforeRender: function(){
             this.$el.attr('id', this.model.get('id'));
@@ -52,10 +54,10 @@ define([
                 view.tabContentInner.show(new IFrameView({
                     model: new Backbone.Model({url : iframeLocation})
                 }));
-                $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
-                  view.$('iframe').iFrameResize();
-                });
             }
+        },
+        handleTabShown: function(){
+            this.$('iframe').iFrameResize();
         }
     });
 
