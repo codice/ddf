@@ -125,10 +125,11 @@ define(['underscore',
                         return Q(Cesium.loadImage(billboard));
                     }))
                     .then(function (images) {
-                        controller.billboardCollection.textureAtlas = new Cesium.TextureAtlas({
-                            scene: controller.scene,
+                        var texAtlas = new Cesium.TextureAtlas({
+                            context: controller.scene.context,
                             images: images
                         });
+                        controller.billboardCollection.textureAtlas = texAtlas;
                         controller.scene.primitives.add(controller.billboardCollection);
                     });
 

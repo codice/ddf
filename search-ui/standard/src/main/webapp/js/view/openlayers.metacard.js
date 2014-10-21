@@ -35,7 +35,6 @@ define([
                     this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
                 }
                 this.color = options.color || {red: 1, green: 0.6431372549019608, blue: 0.403921568627451, alpha: 1 };
-                this.imageIndex = options.imageIndex || 0;
                 this.buildBillboard();
             },
 
@@ -84,10 +83,8 @@ define([
 
                 if (this.model.get('context')) {
                     this.billboard.scale = 0.5;
-                    this.billboard.imageIndex = this.imageIndex + 1;
                 } else {
                     this.billboard.scale = 0.41;
-                    this.billboard.imageIndex = this.imageIndex;
                 }
 
             },

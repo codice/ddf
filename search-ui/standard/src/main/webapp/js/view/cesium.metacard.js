@@ -28,6 +28,11 @@ define([
             modelEvents: {
                 'change:context': 'toggleSelection'
             },
+            billboards: [
+                'images/default.png',
+                'images/default-selected.png'
+                // add extra here if you want to switch
+            ],
             initialize: function (options) {
                 this.geoController = options.geoController;
                 if(! options.ignoreEvents) {
@@ -35,17 +40,21 @@ define([
                     this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
                 }
                 this.color = options.color || {red: 1, green: 0.6431372549019608, blue: 0.403921568627451, alpha: 1 };
-                this.imageIndex = options.imageIndex || 0;
                 this.buildBillboard();
             },
 
             isThisPrimitive : function(event){
                 // could wrap this in one huge if statement, but this seems more readable
-                if(_.has(event,'object')){
+                if(event.object){
                     if(event.object === this.billboard){
                         return true;
                     }
                     if(_.contains(this.lines, event.object)){
+                        return true;
+                    }
+                    if(_.contains(_.map(this.geometries, function (view) {
+                            return view.billboard;
+                        }), event.object)){
                         return true;
                     }
                 }
@@ -55,7 +64,7 @@ define([
             buildBillboard: function () {
                 var point = this.model.get('geometry').getPoint();
                 this.billboard = this.geoController.billboardCollection.add({
-                    imageIndex: this.imageIndex,
+                    image: this.billboards[0],
                     position: this.geoController.ellipsoid.cartographicToCartesian(
                         Cesium.Cartographic.fromDegrees(
                             point.longitude,
@@ -65,11 +74,11 @@ define([
                     ),
                     horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                     verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                    scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5)
+                    scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5),
+                    color: this.color,
+                    scale: 0.41,
+                    hasScale: true
                 });
-                this.billboard.color = this.color;
-                this.billboard.scale = 0.41;
-                this.billboard.hasScale = true;
             },
 
             toggleSelection: function () {
@@ -81,22 +90,22 @@ define([
 
                 if (this.model.get('context')) {
                     this.billboard.scale = 0.5;
-                    this.billboard.imageIndex = this.imageIndex + 1;
+                    this.billboard.image = this.billboards[1];
                 } else {
                     this.billboard.scale = 0.41;
-                    this.billboard.imageIndex = this.imageIndex;
+                    this.billboard.image = this.billboards[0];
                 }
 
             },
             onMapLeftClick: function (event) {
                 // find out if this click is on us
-                if (_.has(event, 'object') && event.object === this.billboard) {
+                if (this.isThisPrimitive(event)) {
                     wreqr.vent.trigger('metacard:selected', dir.none, this.model);
                 }
             },
             onMapDoubleClick: function (event) {
                 // find out if this click is on us
-                if (_.has(event, 'object') && event.object === this.billboard) {
+                if (this.isThisPrimitive(event)) {
                     this.geoController.flyToLocation(this.model);
 
                 }
@@ -128,15 +137,15 @@ define([
 
                 view.points = _.map(cartPoints, function(point) {
                     var billboard = view.geoController.billboardCollection.add({
-                        imageIndex: view.imageIndex,
+                        image: view.billboards[0],
                         position: view.geoController.ellipsoid.cartographicToCartesian(point),
                         horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
                         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                        scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5)
+                        scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5),
+                        color: view.color,
+                        scale: 0.41,
+                        hasScale: true
                     });
-                    billboard.color = view.color;
-                    billboard.scale = 0.41;
-                    billboard.hasScale = true;
                     return billboard;
                 });
             },
@@ -152,10 +161,10 @@ define([
                     }
                     if (view.model.get('context')) {
                         point.scale = 0.5;
-                        point.imageIndex = view.imageIndex + 1;
+                        point.image = view.billboards[1];
                     } else {
                         point.scale = 0.41;
-                        point.imageIndex = view.imageIndex;
+                        point.image = view.billboards[0];
                     }
                 });
             },
@@ -259,7 +268,7 @@ define([
                     view.addLine(positions);
                 });
                 view.geoController.scene.primitives.add(view.lines);
-            },
+            }
         });
 
         Views.RegionView = Views.PointView.extend({
@@ -270,7 +279,6 @@ define([
                 this.color = options.color || {red: this.polygonColor.red, green: this.polygonColor.green, blue: this.polygonColor.blue, alpha: 1};
                 // a grey matching the outline of the default marker
                 this.outlineColor = options.outlineColor || new Cesium.Color(0.707, 0.707, 0.707, 1);
-                this.imageIndex = options.imageIndex || 0;
 
                 Views.PointView.prototype.initialize.call(this, options);
                 this.buildPolygon();
@@ -525,27 +533,31 @@ define([
             buildBillboard: function () {
             },
 
-            toggleSelection: function () {
-                var view = this;
-
-                _.each(view.geometries, function(geometry) {
-                    geometry.toggleSelection();
-                });
-            },
-
             onMapLeftClick: function (event) {
                 var view = this;
 
-                _.each(view.geometries, function(geometry) {
-                    geometry.onMapLeftClick(event);
-                });
+                if(this.isThisPrimitive(event)) {
+                    if (this.model) {
+                        wreqr.vent.trigger('metacard:selected', dir.none, this.model);
+                    }
+                    _.each(view.geometries, function (geometry) {
+                        geometry.onMapLeftClick(event);
+                        geometry.toggleSelection();
+                    });
+                }
             },
 
             onMapDoubleClick: function (event) {
                 var view = this;
-                _.each(view.geometries, function(geometry) {
-                    geometry.onMapDoubleClick(event);
-                });
+                if(this.isThisPrimitive(event)) {
+                    if (this.model) {
+                        wreqr.vent.trigger('metacard:selected', dir.none, this.model);
+                    }
+                    _.each(view.geometries, function (geometry) {
+                        geometry.onMapDoubleClick(event);
+                        geometry.toggleSelection();
+                    });
+                }
             },
 
             onClose: function () {

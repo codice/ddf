@@ -79,10 +79,6 @@ define([
                         latitude: this.average(points, 'latitude'),
                         longitude: this.average(points, 'longitude')
                     };
-                } else {
-                    if (typeof console !== 'undefined') {
-                        console.log('centroid worked?');
-                    }
                 }
                 return centroid;
             },
