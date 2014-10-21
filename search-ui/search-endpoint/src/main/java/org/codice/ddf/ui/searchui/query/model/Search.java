@@ -46,6 +46,8 @@ public class Search {
 
     public static final String RESULTS = "results";
 
+    public static final String TYPES = "types";
+
     public static final String SUCCESSFUL = "successful";
 
     public static final String STATUS = "status";
@@ -72,7 +74,7 @@ public class Search {
      * Adds a query response to the cached set of results.
      *
      * @param queryResponse - Query response to add
-     * @return true, if the response for this paging set is different from the last time it was sent
+     *
      * @throws InterruptedException
      */
     public synchronized void addQueryResponse(QueryResponse queryResponse)

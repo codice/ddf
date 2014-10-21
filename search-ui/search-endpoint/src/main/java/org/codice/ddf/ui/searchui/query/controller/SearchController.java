@@ -15,6 +15,8 @@
 package org.codice.ddf.ui.searchui.query.controller;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.Query;
@@ -47,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -108,7 +111,7 @@ public class SearchController {
         bayeuxServer.createChannelIfAbsent(channelName, new ConfigurableServerChannel.Initializer()
         {
             public void configureChannel(ConfigurableServerChannel channel) {
-            channel.setPersistent(true);
+                channel.setPersistent(true);
             }
         });
 
@@ -280,7 +283,7 @@ public class SearchController {
         throws CatalogTransformerException {
 
         SourceResponse upstreamResponse = search.getCompositeQueryResponse();
-
+        Map<String, MetacardType> metaTypes = new HashMap<String, MetacardType>();
         if (upstreamResponse == null) {
             throw new CatalogTransformerException("Cannot transform null "
                     + SourceResponse.class.getName());
@@ -290,8 +293,12 @@ public class SearchController {
 
         addObject(rootObject, Search.HITS, search.getHits());
         addObject(rootObject, Search.ID, searchRequest.getId().toString());
-        addObject(rootObject, Search.RESULTS, getResultList(upstreamResponse.getResults()));
+        addObject(rootObject, Search.RESULTS, getResultList(upstreamResponse.getResults(),
+                metaTypes));
         addObject(rootObject, Search.STATUS, getQueryStatus(search.getQueryStatus()));
+        addObject(rootObject, Search.TYPES, getMetacardTypes(metaTypes.values()));
+
+        LOGGER.debug(rootObject.toJSONString());
 
         return rootObject;
     }
@@ -318,17 +325,16 @@ public class SearchController {
         return statuses;
     }
 
-    private JSONArray getResultList(List<Result> results)
+    private JSONArray getResultList(List<Result> results, Map<String, MetacardType> metaTypes)
             throws CatalogTransformerException {
         JSONArray resultsList = new JSONArray();
-
         if (results != null) {
             for (Result result : results) {
                 if (result == null) {
                     throw new CatalogTransformerException("Cannot transform null "
                             + Result.class.getName());
                 }
-                JSONObject jsonObj = convertToJSON(result);
+                JSONObject jsonObj = convertToJSON(result, metaTypes);
                 if (jsonObj != null) {
                     resultsList.add(jsonObj);
                 }
@@ -337,15 +343,42 @@ public class SearchController {
         return resultsList;
     }
 
-    private static JSONObject convertToJSON(Result result) throws CatalogTransformerException {
+    private JSONObject convertToJSON(Result result, Map<String, MetacardType> metaTypes)
+            throws CatalogTransformerException {
         JSONObject rootObject = new JSONObject();
 
         addObject(rootObject, Search.DISTANCE, result.getDistanceInMeters());
         addObject(rootObject, Search.RELEVANCE, result.getRelevanceScore());
         addObject(rootObject, Search.METACARD,
                 GeoJsonMetacardTransformer.convertToJSON(result.getMetacard()));
+        metaTypes.put(result.getMetacard().getMetacardType().getName(),
+                result.getMetacard().getMetacardType());
 
         return rootObject;
+    }
+
+    private JSONObject getMetacardTypes(Collection<MetacardType> types)
+            throws CatalogTransformerException {
+        JSONObject typesObject = new JSONObject();
+
+        for (MetacardType type : types) {
+            JSONObject typeObj = convertToJSON(type);
+            if (typeObj != null) {
+                typesObject.put(type.getName(), typeObj);
+            }
+        }
+
+        return typesObject;
+    }
+
+    private JSONObject convertToJSON(MetacardType metacardType)
+            throws CatalogTransformerException {
+        JSONObject fields = new JSONObject();
+
+        for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {
+            fields.put(descriptor.getName(), descriptor.getType().getAttributeFormat().toString());
+        }
+        return fields;
     }
 
     private static void addObject(JSONObject obj, String name, Object value) {
