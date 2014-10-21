@@ -83,6 +83,8 @@
             <Embed-Dependency>balana</Embed-Dependency>
             <Import-Package>
               javax.servlet.http; version="[2.5.0,3.0.0)",
+              org.apache.commons.io; version="[1.4.0,3.0.0)",
+              org.apache.commons.io.monitor; version="[1.4.0,3.0.0)",
               *
             </Import-Package>
             <Export-Package />
