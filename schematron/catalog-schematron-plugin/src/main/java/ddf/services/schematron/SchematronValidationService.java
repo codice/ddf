@@ -159,9 +159,9 @@ public class SchematronValidationService implements MetacardValidator {
     public SchematronValidationService(final Bundle bundle, String schematronSchemaFilename,
             boolean suppressWarnings) throws SchematronInitializationException {
         String methodName = "constructor";
-        LOGGER.debug("ENTERING: " + CLASS_NAME + "." + methodName);
-        LOGGER.debug("schematronSchemaFilename = " + schematronSchemaFilename);
-        LOGGER.debug("suppressWarnings = " + suppressWarnings);
+        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
+        LOGGER.debug("schematronSchemaFilename = {}", schematronSchemaFilename);
+        LOGGER.debug("suppressWarnings = {}", suppressWarnings);
 
         this.schematronSchemaFilename = schematronSchemaFilename;
         this.bundleBaseDir = null;
@@ -170,7 +170,7 @@ public class SchematronValidationService implements MetacardValidator {
 
         init(bundle, schematronSchemaFilename);
 
-        LOGGER.debug("EXITING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
     }
     
     /**
@@ -189,9 +189,9 @@ public class SchematronValidationService implements MetacardValidator {
     public SchematronValidationService(final Bundle bundle, String schematronSchemaFilename, String bundleBaseDir,
             boolean suppressWarnings) throws SchematronInitializationException {
         String methodName = "constructor";
-        LOGGER.debug("ENTERING: " + CLASS_NAME + "." + methodName);
-        LOGGER.debug("schematronSchemaFilename = " + schematronSchemaFilename);
-        LOGGER.debug("suppressWarnings = " + suppressWarnings);
+        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
+        LOGGER.debug("schematronSchemaFilename = {}", schematronSchemaFilename);
+        LOGGER.debug("suppressWarnings = {}", suppressWarnings);
 
         this.schematronSchemaFilename = schematronSchemaFilename;
         this.bundleBaseDir = bundleBaseDir;
@@ -200,7 +200,7 @@ public class SchematronValidationService implements MetacardValidator {
 
         init(bundle, schematronSchemaFilename);
 
-        LOGGER.debug("EXITING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
     }
     /**
      * @param bundle
@@ -212,7 +212,7 @@ public class SchematronValidationService implements MetacardValidator {
     private void init(final Bundle bundle, String schematronSchemaFilename)
         throws SchematronInitializationException {
         String methodName = "init";
-        LOGGER.debug("ENTERING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
 
         // Initialize TransformerFactory if not already done
         if (transformerFactory == null) {
@@ -228,8 +228,8 @@ public class SchematronValidationService implements MetacardValidator {
             URIResolver resolver = new URIResolver() {
                 @Override
                 public Source resolve(String href, String base) throws TransformerException {
-                    LOGGER.debug("URIResolver:  href = " + href + ",   base = " + base);
-                    LOGGER.debug("bundleBaseDir = " + bundleBaseDir);
+                    LOGGER.debug("URIResolver:  href = {},   base = {}", href, base);
+                    LOGGER.debug("bundleBaseDir = {}", bundleBaseDir);
                     
                     // Since paths to resources within a bundle are not actually file system paths,
                     // paths with relative pathing in them should be stripped out. Relative pathing
@@ -245,16 +245,16 @@ public class SchematronValidationService implements MetacardValidator {
                     if (StringUtils.isNotBlank(bundleBaseDir)) {
                         href = bundleBaseDir + "/" + href;
                     }
-                    LOGGER.debug("URIResolver:  (Modified) href = " + href);
+                    LOGGER.debug("URIResolver:  (Modified) href = {}", href);
 
                     try {
                         URL resourceAddressURL = bundle.getResource(href);
                         String resourceAddress = resourceAddressURL.toString();
-                        LOGGER.debug("Resolved resource address:" + resourceAddress);
+                        LOGGER.debug("Resolved resource address: {}", resourceAddress);
 
                         return new StreamSource(resourceAddress);
                     } catch (Exception e) {
-                        LOGGER.error("URIResolver error: " + e.getMessage());
+                        LOGGER.error("URIResolver error: {}", e.getMessage());
                         return null;
                     }
                 }
@@ -316,7 +316,7 @@ public class SchematronValidationService implements MetacardValidator {
                             + this.schematronSchemaFilename, e);
         }
 
-        LOGGER.debug("EXITING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
     }
 
     /**
@@ -339,8 +339,8 @@ public class SchematronValidationService implements MetacardValidator {
         throws TransformerException, TransformerConfigurationException,
         ParserConfigurationException, SchematronInitializationException {
         String methodName = "performStage";
-        LOGGER.debug("ENTERING: " + CLASS_NAME + "." + methodName);
-        LOGGER.debug("preprocessorFilename = " + preprocessorFilename);
+        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
+        LOGGER.debug("preprocessorFilename = {}", preprocessorFilename);
 
         // Retrieve the preprocessor XSL file
         URL preprocessorUrl = bundle.getResource(preprocessorFilename);
@@ -350,7 +350,7 @@ public class SchematronValidationService implements MetacardValidator {
                     + preprocessorFilename
                     + " - cannot perform staging of Schematron preprocessor file");
         } else {
-            LOGGER.debug("URL = " + preprocessorUrl.toString());
+            LOGGER.debug("URL = {}", preprocessorUrl.toString());
         }
         Source preprocessorSource = new StreamSource(preprocessorUrl.toString());
 
@@ -369,7 +369,7 @@ public class SchematronValidationService implements MetacardValidator {
         DOMResult domResult = new DOMResult();
         transformer.transform(input, domResult);
 
-        LOGGER.debug("EXITING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
 
         return domResult;
     }
@@ -387,13 +387,13 @@ public class SchematronValidationService implements MetacardValidator {
     public void performSchematronValidation(int catalogEntryNum, Metacard catalogEntry)
         throws StopProcessingException {
         String methodName = "performSchematronValidation";
-        LOGGER.debug("ENTERING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
 
-        LOGGER.debug("Using .sch ruleset: " + this.schematronSchemaFilename);
+        LOGGER.debug("Using .sch ruleset: {}", this.schematronSchemaFilename);
 
         // Convert the catalog entry's Document to a String
         String entryDocument = catalogEntry.getMetadata();
-        LOGGER.debug("entryDocument: " + entryDocument);
+        LOGGER.debug("entryDocument: {}", entryDocument);
 
         // Create a Reader for the catalog entry's contents
         StringReader entryDocumentReader = new StringReader(entryDocument);
@@ -406,7 +406,7 @@ public class SchematronValidationService implements MetacardValidator {
             transformer.transform(new StreamSource(entryDocumentReader), schematronResult);
             this.report = new SvrlReport(schematronResult);
 
-            LOGGER.trace("SVRL Report:\n\n" + report.getReportAsText());
+            LOGGER.trace("SVRL Report:\n\n{}", report.getReportAsText());
 
             // If the Schematron validation failed, then throw an exception with details of the
             // errors
@@ -417,7 +417,7 @@ public class SchematronValidationService implements MetacardValidator {
                         "Schematron validation failed for catalog entry #" + catalogEntryNum
                                 + ".\n\n");
                 List<String> errors = this.report.getErrors();
-                LOGGER.debug("errors.size() = " + errors.size());
+                LOGGER.debug("errors.size() = {}", errors.size());
                 for (String error : errors) {
                     errorMessage.append(error);
                     errorMessage.append("\n");
@@ -427,9 +427,9 @@ public class SchematronValidationService implements MetacardValidator {
                 // message
                 if (!this.suppressWarnings) {
                     List<String> warnings = this.report.getWarnings();
-                    LOGGER.debug("warnings.size() = " + warnings.size());
+                    LOGGER.debug("warnings.size() = {}", warnings.size());
                     for (String warning : warnings) {
-                        LOGGER.debug("warning = " + warning);
+                        LOGGER.debug("warning = {}", warning);
                         errorMessage.append(warning);
                         errorMessage.append("\n");
                     }
@@ -440,12 +440,12 @@ public class SchematronValidationService implements MetacardValidator {
 
         } catch (TransformerException te) {
             LOGGER.debug("Unable to setup validator", te);
-            LOGGER.debug("EXITING: " + CLASS_NAME + "." + methodName);
+            LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
 
             throw new StopProcessingException("Could not setup validator to perform validation.");
         }
 
-        LOGGER.debug("EXITING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
     }
 
     /**
@@ -477,8 +477,7 @@ public class SchematronValidationService implements MetacardValidator {
      */
     public void setSuppressWarnings(boolean suppressWarnings) {
         LOGGER.debug("ENTERING: setSuppressWarnings");
-        LOGGER.debug("suppressWarnings = " + suppressWarnings + "(sch filename = "
-                + this.schematronSchemaFilename + ")");
+        LOGGER.debug("suppressWarnings = {} (sch filename = {})", suppressWarnings, this.schematronSchemaFilename);
 
         this.suppressWarnings = suppressWarnings;
 
@@ -505,8 +504,8 @@ public class SchematronValidationService implements MetacardValidator {
      */
     public void setPriority(int priority) {
         String methodName = "setPriority";
-        LOGGER.debug("ENTERING: " + CLASS_NAME + "." + methodName);
-        LOGGER.debug("Setting priority = " + priority);
+        LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
+        LOGGER.debug("Setting priority = {}", priority);
 
         this.priority = priority;
 
@@ -516,7 +515,7 @@ public class SchematronValidationService implements MetacardValidator {
         else if (this.priority < 1)
             this.priority = 1;
 
-        LOGGER.debug("EXITING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
     }
 
     /**
@@ -550,11 +549,11 @@ public class SchematronValidationService implements MetacardValidator {
     @Override
     public void validate(Metacard metacard) throws ValidationException {
         // TODO Refactor this method
-        LOGGER.debug("Using .sch ruleset: " + this.schematronSchemaFilename);
+        LOGGER.debug("Using .sch ruleset: {}", this.schematronSchemaFilename);
 
         // Convert the metacard's metadata to a String
         String metadata = metacard.getMetadata();
-        LOGGER.debug("metadata: " + metadata);
+        LOGGER.debug("metadata: {}", metadata);
 
         // Create a Reader for the catalog entry's contents
         StringReader metadataReader = new StringReader(metadata);
@@ -567,7 +566,7 @@ public class SchematronValidationService implements MetacardValidator {
             transformer.transform(new StreamSource(metadataReader), schematronResult);
             this.report = new SvrlReport(schematronResult);
 
-            LOGGER.trace("SVRL Report:\n\n" + report.getReportAsText());
+            LOGGER.trace("SVRL Report:\n\n{}", report.getReportAsText());
 
             // If the Schematron validation failed, then throw an exception with details of the
             // errors
@@ -579,7 +578,7 @@ public class SchematronValidationService implements MetacardValidator {
                 StringBuffer errorMessage = new StringBuffer("Schematron validation failed.\n\n");
                 List<String> errors = this.report.getErrors();
 
-                LOGGER.debug("errors.size() = " + errors.size());
+                LOGGER.debug("errors.size() = {}", errors.size());
                 for (String error : errors) {
                     errorMessage.append(error);
                     errorMessage.append("\n");
@@ -588,9 +587,9 @@ public class SchematronValidationService implements MetacardValidator {
                 // message
                 if (!this.suppressWarnings) {
                     warnings = this.report.getWarnings();
-                    LOGGER.debug("warnings.size() = " + warnings.size());
+                    LOGGER.debug("warnings.size() = {}", warnings.size());
                     for (String warning : warnings) {
-                        LOGGER.debug("warning = " + warning);
+                        LOGGER.debug("warning = {}", warning);
                         errorMessage.append(warning);
                         errorMessage.append("\n");
                     }
