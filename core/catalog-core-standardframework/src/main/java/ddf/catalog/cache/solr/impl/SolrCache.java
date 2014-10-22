@@ -87,7 +87,7 @@ public class SolrCache {
 
     private DynamicSchemaResolver resolver;
 
-    private String url = "http://localhost:8181/solr";
+    private String url = SolrServerFactory.DEFAULT_HTTP_ADDRESS;
 
     private SolrServer server;
 
@@ -104,8 +104,13 @@ public class SolrCache {
      *            injected implementation of FilterAdapter
      */
     public SolrCache(FilterAdapter adapter, SolrFilterDelegateFactory solrFilterDelegateFactory) {
+        if (System.getProperty("host") != null && System.getProperty("jetty.port") != null && System
+                .getProperty("hostContext") != null) {
+            url = "http://" + System.getProperty("host") + ":" + System.getProperty("jetty.port") +
+                    "/" + StringUtils.stripStart(System.getProperty("hostContext"), "/");
+        }
         this.server = SolrServerFactory
-                .getHttpSolrServer(SolrServerFactory.DEFAULT_HTTP_ADDRESS +
+                .getHttpSolrServer(url +
                         "/" + METACARD_CACHE_CORE_NAME);
         this.filterAdapter = adapter;
         this.solrFilterDelegateFactory = solrFilterDelegateFactory;
@@ -115,7 +120,7 @@ public class SolrCache {
     }
 
     private void createSolrCore(String coreName) {
-        HttpSolrServer solrServer = new HttpSolrServer(SolrServerFactory.DEFAULT_HTTP_ADDRESS);
+        HttpSolrServer solrServer = new HttpSolrServer(url);
         if (!solrCoreExists(solrServer, coreName)) {
             LOGGER.info("Creating Solr core {}", coreName);
 
