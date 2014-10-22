@@ -4,6 +4,8 @@ script: mvn test --quiet -B
 jdk:
   - openjdk7
   - oraclejdk7
-  - oraclejdk8
+# Karaf 2.3.x does not support Java 8
+# https://issues.apache.org/jira/browse/KARAF-2602
+#  - oraclejdk8
 notifications:
   slack: connexta:81WapNypxEStYlHEnsrCml7n
