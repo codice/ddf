@@ -18,7 +18,6 @@ package ddf.services.schematron;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -38,6 +37,7 @@ import net.sf.saxon.Configuration;
 import net.sf.saxon.TransformerFactoryImpl;
 import net.sf.saxon.trans.DynamicLoader;
 
+import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,6 +123,14 @@ public class SchematronValidationService implements MetacardValidator {
      * Schematron validation
      */
     private static final String ISO_SVRL_XSL_FILENAME = "iso-schematron/iso_svrl_for_xslt2.xsl";
+    
+    /**
+     * Base directory in the bundle that all paths to resources will be relative to,
+     * e.g., "xyz" could be the bundle base directory and path to CVE files would be appended
+     * to this bundle base directory. A value of null indicates that "/" is the default
+     * base directory for the bundle.
+     */
+    private final String bundleBaseDir;
 
     /**
      * @param bundle
@@ -156,6 +164,7 @@ public class SchematronValidationService implements MetacardValidator {
         LOGGER.debug("suppressWarnings = " + suppressWarnings);
 
         this.schematronSchemaFilename = schematronSchemaFilename;
+        this.bundleBaseDir = null;
         this.suppressWarnings = suppressWarnings;
         this.priority = DEFAULT_PRIORITY;
 
@@ -163,7 +172,36 @@ public class SchematronValidationService implements MetacardValidator {
 
         LOGGER.debug("EXITING: " + CLASS_NAME + "." + methodName);
     }
+    
+    /**
+     * @param bundle
+     *            OSGi bundle containing sch file that will be using this service
+     * @param schematronSchemaFilename
+     *            client-provided Schematron rules in XML-format, usually with a .sch file extension
+     * @param bundleBaseDir
+     *            base directory in the bundle for getting resources out of the bundle
+     * @param suppressWarnings
+     *            indicates whether to suppress Schematron validation warnings and indicate that a
+     *            Catalog Entry with only warnings is valid
+     * 
+     * @throws SchematronInitializationException
+     */
+    public SchematronValidationService(final Bundle bundle, String schematronSchemaFilename, String bundleBaseDir,
+            boolean suppressWarnings) throws SchematronInitializationException {
+        String methodName = "constructor";
+        LOGGER.debug("ENTERING: " + CLASS_NAME + "." + methodName);
+        LOGGER.debug("schematronSchemaFilename = " + schematronSchemaFilename);
+        LOGGER.debug("suppressWarnings = " + suppressWarnings);
 
+        this.schematronSchemaFilename = schematronSchemaFilename;
+        this.bundleBaseDir = bundleBaseDir;
+        this.suppressWarnings = suppressWarnings;
+        this.priority = DEFAULT_PRIORITY;
+
+        init(bundle, schematronSchemaFilename);
+
+        LOGGER.debug("EXITING: " + CLASS_NAME + "." + methodName);
+    }
     /**
      * @param bundle
      *            OSGi bundle containing sch file that will be using this service
@@ -191,14 +229,23 @@ public class SchematronValidationService implements MetacardValidator {
                 @Override
                 public Source resolve(String href, String base) throws TransformerException {
                     LOGGER.debug("URIResolver:  href = " + href + ",   base = " + base);
-
-                    // If href starts with "./" strip it off because the bundle class loader does
-                    // not
-                    // know how to handle this prefix
-                    if (href.startsWith("./")) {
-                        href = href.substring("./".length());
-                        LOGGER.debug("URIResolver:  (Modified) href = " + href);
+                    LOGGER.debug("bundleBaseDir = " + bundleBaseDir);
+                    
+                    // Since paths to resources within a bundle are not actually file system paths,
+                    // paths with relative pathing in them should be stripped out. Relative pathing
+                    // notation is not understood by the bundle.getResource(...) method.
+                    
+                    // Example: the path xyz/Schematron/subdir1/../../CVE/subdir2 is *not* the equivalient
+                    //     to xyz/CVE/subdir2. xyz would have been passed in as the bundleBaseDir, and
+                    //     the href passed in would be ../../CVE/subdir2, hence the relative pathing
+                    //     needs to be removed.
+                    href = StringUtils.remove(href, "../");
+                    href = StringUtils.remove(href, "./");
+                    
+                    if (StringUtils.isNotBlank(bundleBaseDir)) {
+                        href = bundleBaseDir + "/" + href;
                     }
+                    LOGGER.debug("URIResolver:  (Modified) href = " + href);
 
                     try {
                         URL resourceAddressURL = bundle.getResource(href);
