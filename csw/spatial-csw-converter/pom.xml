@@ -92,6 +92,10 @@
             <artifactId>action-core-api</artifactId>
             <version>${ddf.platform.app.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-csw-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

@@ -51,6 +51,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswTransformProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.source.reader.GetRecordsMessageBodyReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,12 +81,12 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
      * @param recordConverterFactories The reference to the the CSW Record Converters
      * @param cswSourceConfiguration   The Csw Source Configuration
      */
-    public RemoteCsw(List<RecordConverterFactory> recordConverterFactories,
+    public RemoteCsw(CswTransformProvider cswTransformProvider,
             CswSourceConfiguration cswSourceConfiguration) {
         csw = createClientBean(Csw.class, cswSourceConfiguration.getCswUrl(),
                 cswSourceConfiguration.getUsername(), cswSourceConfiguration.getPassword(),
                 cswSourceConfiguration.getDisableCnCheck(),
-                initProviders(recordConverterFactories, cswSourceConfiguration), getClass()
+                initProviders(cswTransformProvider, cswSourceConfiguration), getClass()
                         .getClassLoader());
     }
 
@@ -120,7 +121,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     }    
 
     protected List<? extends Object> initProviders(
-            List<RecordConverterFactory> recordConverterFactories,
+            CswTransformProvider cswTransformProvider,
             CswSourceConfiguration cswSourceConfiguration) {
         getRecordsTypeProvider = new CswJAXBElementProvider<GetRecordsType>();
         getRecordsTypeProvider.setMarshallAsJaxbElement(true);
@@ -159,7 +160,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
         getRecordsTypeProvider.setJaxbElementClassMap(jaxbElementClassMap);
 
         GetRecordsMessageBodyReader grmbr = new GetRecordsMessageBodyReader(
-                recordConverterFactories, cswSourceConfiguration);
+                cswTransformProvider, cswSourceConfiguration);
         return Arrays.asList(getRecordsTypeProvider, new CswResponseExceptionMapper(), grmbr);
 
     }

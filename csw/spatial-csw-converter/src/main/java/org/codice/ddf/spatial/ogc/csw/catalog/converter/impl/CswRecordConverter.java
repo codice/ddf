@@ -14,6 +14,47 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter.impl;
 
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
+import com.thoughtworks.xstream.io.naming.NoNameCoder;
+import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
+import com.thoughtworks.xstream.io.xml.WstxDriver;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import ddf.action.Action;
+import ddf.action.ActionProvider;
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
+import net.opengis.cat.csw.v_2_0_2.ElementSetType;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.BoundingBoxReader;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverter;
+import org.joda.time.format.ISODateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.XMLConstants;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.namespace.QName;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,51 +75,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.xml.XMLConstants;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.namespace.QName;
-
-import ddf.action.Action;
-import ddf.action.ActionProvider;
-import net.opengis.cat.csw.v_2_0_2.ElementSetType;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.BoundingBoxReader;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverter;
-import org.joda.time.format.ISODateTimeFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
-import com.thoughtworks.xstream.io.naming.NoNameCoder;
-import com.thoughtworks.xstream.io.xml.CompactWriter;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
-import com.thoughtworks.xstream.io.xml.WstxDriver;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.GeometryFactory;
-
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
 
 /**
  * Converts CSW Record to a Metacard.
@@ -108,8 +104,6 @@ public class CswRecordConverter implements RecordConverter {
     Map<String, String> prefixToUriMapping;
     
     private String productRetrievalMethod;
-    
-    private List<QName> fieldsToWrite;
     
     private String resourceUriMapping;
     
@@ -143,6 +137,7 @@ public class CswRecordConverter implements RecordConverter {
         }
         XSD_FACTORY = factory;
     }
+
     public CswRecordConverter(Map<String, String> metacardToCswAttributeMappings, String productRetrievalMethod, String resourceUriMapping, String thumbnailMapping, boolean isLonLatOrder) {
         this(metacardToCswAttributeMappings, null, productRetrievalMethod, resourceUriMapping, thumbnailMapping, isLonLatOrder);
     }
@@ -157,7 +152,7 @@ public class CswRecordConverter implements RecordConverter {
         setCswToMetacardAttributeMappings(metacardToCswAttributeMappings);
     }
 
-    public void setResourceActionProvider(ActionProvider resourceActionProvider){
+    public void setResourceActionProvider(ActionProvider resourceActionProvider) {
         this.resourceActionProvider = resourceActionProvider;
     }
 
@@ -191,11 +186,10 @@ public class CswRecordConverter implements RecordConverter {
     }
 
     public void setFieldsToWrite(List<QName> fieldsToWrite) {
-        this.fieldsToWrite = fieldsToWrite;
     }
 
     public List<QName> getFieldsToWrite() {
-        return fieldsToWrite;
+        return null;
     }
 
 
@@ -215,9 +209,25 @@ public class CswRecordConverter implements RecordConverter {
             LOGGER.warn("Failed to marshal Metacard: {}", source);
             return;
         }
+
+        Map<String, Object> arguments = getArguments(context);
+
+        writer.startNode((String) arguments.get(CswConstants.ROOT_NODE_NAME));
+
+        if ((Boolean) arguments.get(CswConstants.WRITE_NAMESPACES)) {
+            writer.addAttribute("xmlns:" + CswConstants.CSW_NAMESPACE_PREFIX,
+                    CswConstants.CSW_OUTPUT_SCHEMA);
+            writer.addAttribute("xmlns:" + CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX,
+                    CswConstants.DUBLIN_CORE_SCHEMA);
+            writer.addAttribute("xmlns:" + CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX,
+                    CswConstants.DUBLIN_CORE_TERMS_SCHEMA);
+            writer.addAttribute("xmlns:" + CswConstants.OWS_NAMESPACE_PREFIX,
+                    CswConstants.OWS_NAMESPACE);
+        }
+
         MetacardImpl metacard = new MetacardImpl((Metacard)  source);
 
-        if (metacard.getResourceURI() != null && resourceActionProvider != null){
+        if (metacard.getResourceURI() != null && resourceActionProvider != null) {
             Action action =  resourceActionProvider.getAction(metacard);
             if (action != null) {
                 URL resourceUrl = action.getUrl();
@@ -232,6 +242,8 @@ public class CswRecordConverter implements RecordConverter {
                 }
             }
         }
+
+        List<QName> fieldsToWrite = (List<QName>) arguments.get(CswConstants.ELEMENT_NAMES);
 
         if (fieldsToWrite != null) {
             for (QName qName : fieldsToWrite) {
@@ -275,6 +287,58 @@ public class CswRecordConverter implements RecordConverter {
         if (fieldsToWrite == null || fieldsToWrite.contains(CswRecordMetacardType.OWS_BOUNDING_BOX_QNAME)) {
             writeBoundingBox(writer, context, metacard);
         }
+        writer.endNode();
+    }
+
+    private Map<String, Object> getArguments(MarshallingContext context) {
+        Map<String, Object> args = new HashMap<String, Object>();
+
+        Object writeNamespaceObj = context.get(CswConstants.WRITE_NAMESPACES);
+        Boolean doWriteNamespaces = false;
+        if (writeNamespaceObj instanceof Boolean) {
+            doWriteNamespaces = (Boolean) writeNamespaceObj;
+            args.put(CswConstants.WRITE_NAMESPACES, doWriteNamespaces);
+        } else {
+            args.put(CswConstants.WRITE_NAMESPACES, doWriteNamespaces);
+        }
+
+        Object elementSetObj = context.get(CswConstants.ELEMENT_SET_TYPE);
+        Object elementNamesObj = context.get(CswConstants.ELEMENT_NAMES);
+
+        String rootNodeName = (doWriteNamespaces) ?
+                CswConstants.CSW_RECORD :
+                CswConstants.CSW_RECORD_LOCAL_NAME;
+
+        if (elementSetObj instanceof ElementSetType) {
+            List<QName> elementsToWrite;
+            ElementSetType elementSetType = (ElementSetType) elementSetObj;
+            switch (elementSetType) {
+            case BRIEF:
+                elementsToWrite = CswRecordMetacardType.BRIEF_CSW_RECORD_FIELDS;
+                rootNodeName = (doWriteNamespaces) ?
+                        CswConstants.CSW_BRIEF_RECORD :
+                        CswConstants.CSW_BRIEF_RECORD_LOCAL_NAME;
+                break;
+            case SUMMARY:
+                elementsToWrite = CswRecordMetacardType.SUMMARY_CSW_RECORD_FIELDS;
+                rootNodeName = (doWriteNamespaces) ?
+                        CswConstants.CSW_SUMMARY_RECORD :
+                        CswConstants.CSW_SUMMARY_RECORD_LOCAL_NAME;
+                break;
+            case FULL:
+            default:
+                elementsToWrite = CswRecordMetacardType.FULL_CSW_RECORD_FIELDS;
+                break;
+            }
+            args.put(CswConstants.ELEMENT_NAMES, elementsToWrite);
+            args.put(CswConstants.ROOT_NODE_NAME, rootNodeName);
+        } else if (elementNamesObj instanceof List<?>) {
+            args.put(CswConstants.ELEMENT_NAMES, (List<?>) elementNamesObj);
+            args.put(CswConstants.ROOT_NODE_NAME, rootNodeName);
+        } else {
+            args.put(CswConstants.ROOT_NODE_NAME, rootNodeName);
+        }
+        return args;
     }
 
     private void writeBoundingBox(HierarchicalStreamWriter writer, MarshallingContext context,

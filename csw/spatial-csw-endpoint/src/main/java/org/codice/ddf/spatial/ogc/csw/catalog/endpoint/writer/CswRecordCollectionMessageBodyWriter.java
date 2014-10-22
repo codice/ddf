@@ -14,64 +14,47 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.GregorianCalendar;
-import java.util.List;
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.QueryResponseTransformer;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-
-import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
-import net.opengis.cat.csw.v_2_0_2.EchoedRequestType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
-import net.opengis.cat.csw.v_2_0_2.ResultType;
-
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.GetRecordsResponseConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.XStreamException;
-import com.thoughtworks.xstream.io.naming.NoNameCoder;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
  * CswRecordCollectionMessageBodyWriter generates an xml response for a {@link CswRecordCollection}
  *
  */
-
-@Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
 @Provider
 public class CswRecordCollectionMessageBodyWriter implements MessageBodyWriter<CswRecordCollection> {
 
-    private XStream xstreamGetRecordsResponse;
-    
-    private XStream xstreamGetRecordByIdResponse;
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(CswRecordCollectionMessageBodyWriter.class);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CswRecordCollectionMessageBodyWriter.class);    
+    private final TransformerManager<QueryResponseTransformer> transformerManager;
 
-    public CswRecordCollectionMessageBodyWriter(List<RecordConverterFactory> factories) {
-        xstreamGetRecordsResponse = initXstream(CswConstants.GET_RECORDS_RESPONSE, factories);
-        xstreamGetRecordByIdResponse = initXstream(CswConstants.GET_RECORD_BY_ID_RESPONSE,
-                factories);
+    public CswRecordCollectionMessageBodyWriter(TransformerManager<QueryResponseTransformer> manager) {
+        this.transformerManager = manager;
     }
     
     @Override
@@ -91,66 +74,40 @@ public class CswRecordCollectionMessageBodyWriter implements MessageBodyWriter<C
             Annotation[] annotations, MediaType mediaType,
             MultivaluedMap<String, Object> httpHeaders, OutputStream outStream)
         throws IOException, WebApplicationException {
-        if (recordCollection.isById()) {
-            try {
-                xstreamGetRecordByIdResponse.toXML(recordCollection, outStream);
-            } catch (XStreamException e) {
-                throw new WebApplicationException(e);
-            }
+
+        QueryResponseTransformer transformer;
+        Map<String, Serializable> arguments = new HashMap<String, Serializable>();
+        if (StringUtils.isBlank(recordCollection.getOutputSchema())) {
+            transformer = transformerManager
+                    .getTransformerByMimeType(recordCollection.getMimeType());
         } else {
-            if (ResultType.VALIDATE.equals(recordCollection.getRequest().getResultType())) {
-                writeAcknowledgement(recordCollection.getRequest(), outStream);
-            } else {
-                try {
-                    xstreamGetRecordsResponse.toXML(recordCollection, outStream);
-                } catch (XStreamException e) {
-                    throw new WebApplicationException(e);
-                }
+            transformer = transformerManager.getCswQueryResponseTransformer();
+            if (recordCollection.getElementName() != null) {
+                arguments.put(CswConstants.ELEMENT_NAMES,
+                        recordCollection.getElementName().toArray());
             }
+            arguments.put(CswConstants.ELEMENT_SET_TYPE, recordCollection.getElementSetType());
+            arguments.put(CswConstants.IS_BY_ID_QUERY, recordCollection.isById());
+            arguments.put(CswConstants.IS_VALIDATE_QUERY, recordCollection.isValidateQuery());
+            arguments.put(CswConstants.GET_RECORDS, recordCollection.getRequest());
         }
-    }
 
-    private void writeAcknowledgement(GetRecordsType request, OutputStream outStream)
-        throws IOException {
-        //xstream.toXML(new Acknowledgement(recordCollection.getRequest()), outStream);
+        if (transformer == null) {
+            throw new WebApplicationException();
+        }
 
+        BinaryContent content = null;
         try {
-            JAXBContext jaxBContext = JAXBContext.newInstance("net.opengis.cat.csw.v_2_0_2:" +  
-                            "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0");
-            Marshaller marshaller = jaxBContext.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-            AcknowledgementType ack = new AcknowledgementType();
-            EchoedRequestType echoedRequest = new EchoedRequestType();
-            JAXBElement<GetRecordsType> jaxBRequest = new ObjectFactory().createGetRecords(request);
-            echoedRequest.setAny(jaxBRequest);
-            ack.setEchoedRequest(echoedRequest);
-            try {
-                ack.setTimeStamp(DatatypeFactory.newInstance().newXMLGregorianCalendar(new GregorianCalendar()));
-            } catch (DatatypeConfigurationException e) {
-                LOGGER.warn("Failed to set timestamp on Acknowledgement, Exception {}", e);
-            }
-            
-            JAXBElement<AcknowledgementType> jaxBAck = new ObjectFactory().createAcknowledgement(ack);
-            marshaller.marshal(jaxBAck, outStream);
-        } catch (JAXBException e) {
-            throw new IOException(e);
+            content = transformer.transform(recordCollection.getSourceResponse(), arguments);
+        } catch (CatalogTransformerException e) {
+            throw new WebApplicationException(e);
         }
+
+        if (content != null) {
+            IOUtils.copy(content.getInputStream(), outStream);
+        } else {
+            throw new WebApplicationException();
+        }
+
     }
-    
-    private XStream initXstream(final String elementName, List<RecordConverterFactory> factories) {
-        XStream xstream = new XStream(new StaxDriver(new NoNameCoder()));
-        xstream.setClassLoader(xstream.getClass().getClassLoader());
-
-        GetRecordsResponseConverter cswGetRecordsResponseConverter = new GetRecordsResponseConverter(
-                factories);
-
-        xstream.registerConverter(cswGetRecordsResponseConverter);
-
-        xstream.alias(CswConstants.CSW_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER
-                + elementName, CswRecordCollection.class);
-
-        return xstream;
-    }
-
 }

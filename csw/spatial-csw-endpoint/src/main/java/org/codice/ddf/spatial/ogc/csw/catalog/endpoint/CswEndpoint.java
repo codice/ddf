@@ -48,6 +48,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import ddf.catalog.transform.QueryResponseTransformer;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
@@ -101,8 +102,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.utils.RecordTypeEntry;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.utils.RecordTypeRegistry;
+import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.text.cql2.CQL;
@@ -141,6 +141,8 @@ public class CswEndpoint implements Csw {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswEndpoint.class);
 
+    private final TransformerManager<QueryResponseTransformer> transformerManager;
+
     private FilterBuilder builder;
 
     private BundleContext context;
@@ -151,8 +153,6 @@ public class CswEndpoint implements Csw {
 
     private DatatypeFactory datatypeFactory;
     
-    private RecordTypeRegistry recordTypeRegistry;
-
     private List<RecordConverterFactory> converterFactories;
 
     protected static final String SERVICE_TITLE = "Catalog Service for the Web";
@@ -202,26 +202,23 @@ public class CswEndpoint implements Csw {
      * JAX-RS Server that represents a CSW v2.0.2 Server.
      */
     public CswEndpoint(BundleContext context, CatalogFramework ddf, FilterBuilder filterBuilder,
-            List<RecordConverterFactory> factories) {
+            TransformerManager manager) {
         this.context = context;
         this.framework = ddf;
         this.builder = filterBuilder;
-        this.converterFactories = factories;
-        recordTypeRegistry = new RecordTypeRegistry();
+        this.transformerManager = manager;
         try {
             datatypeFactory = DatatypeFactory.newInstance();
         } catch (DatatypeConfigurationException e) {
             LOGGER.warn("Failed to construct datatypeFactory.  Exception {}", e);
         }
-        initializeElements();
     }
 
     /* Constructor for unit testing */
     public CswEndpoint(BundleContext context, CatalogFramework ddf, FilterBuilder filterBuilder,
-            UriInfo uri, List<RecordConverterFactory> factories) {
-        this(context, ddf, filterBuilder, Collections.EMPTY_LIST);
+            UriInfo uri, TransformerManager manager) {
+        this(context, ddf, filterBuilder, manager);
         this.uri = uri;
-        this.converterFactories = factories;
     }
 
     public static synchronized JAXBContext getJaxBContext() throws JAXBException {
@@ -580,30 +577,20 @@ public class CswEndpoint implements Csw {
         return namespaceUri;
     }
 
-    private DescribeRecordResponseType buildDescribeRecordResponseFromTypes(List<QName> types, String version) throws CswException {
+    private DescribeRecordResponseType buildDescribeRecordResponseFromTypes(List<QName> types,
+            String version) throws CswException {
 
         validateFullyQualifiedTypes(types);
 
         DescribeRecordResponseType response = new DescribeRecordResponseType();
         List<SchemaComponentType> schemas = new ArrayList<SchemaComponentType>();
-        List<RecordTypeEntry> entries = recordTypeRegistry.getRecordTypes();
+        System.out.println("KCW: " + Arrays.toString(types.toArray()));
 
-
-        if (types == null || types.size() == 0) {
-            // return all known sources
-            for (RecordTypeEntry entry : entries) {
-                schemas.add(getSchemaComponentType(entry));
-            }
-            response.setSchemaComponent(schemas);
-        } else {
-            for (QName type : types) {
-                RecordTypeEntry entry = recordTypeRegistry.getEntry(type, version);
-                if (entry != null) {
-                    schemas.add(getSchemaComponentType(entry));
-                }
-            }
-            response.setSchemaComponent(schemas);
+        if (types.isEmpty() || types.contains(
+                new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME))) {
+            schemas.add(getSchemaComponentType());
         }
+        response.setSchemaComponent(schemas);
         return response;
     }
 
@@ -753,18 +740,23 @@ public class CswEndpoint implements Csw {
         return new SortByImpl(propName, sortBy.getSortOrder());
     }
     
-    private SchemaComponentType getSchemaComponentType(RecordTypeEntry entry) {
+    private SchemaComponentType getSchemaComponentType() throws CswException {
         SchemaComponentType schemaComponentType = new SchemaComponentType();
         List<Object> listOfObject = new ArrayList<Object>();
-        listOfObject.add(getDocElementFromResourcePath(entry.getResourcePath()));
+        listOfObject.add(getDocElementFromResourcePath("csw/2.0.2/record.xsd"));
         schemaComponentType.setContent(listOfObject);
-        schemaComponentType.setSchemaLanguage(entry.getSchemaLanguage());
-        schemaComponentType.setTargetNamespace(entry.getType().getNamespaceURI());
+        schemaComponentType.setSchemaLanguage(CswConstants.XML_SCHEMA_LANGUAGE);
+        schemaComponentType.setTargetNamespace(CswConstants.CSW_OUTPUT_SCHEMA);
         return schemaComponentType;
     }
 
-    private Element getDocElementFromResourcePath(String resourcePath) {
-        return documentElements.get(resourcePath);
+    private Element getDocElementFromResourcePath(String resourcePath) throws CswException {
+        Element element = documentElements.get(resourcePath);
+        if (element == null){
+            element = loadDocElementFromResourcePath(resourcePath);
+            documentElements.put(resourcePath, element);
+        }
+        return element;
     }
 
     private Element loadDocElementFromResourcePath(String resourcePath) throws CswException {
@@ -918,7 +910,7 @@ public class CswEndpoint implements Csw {
         addOperationParameter(CswConstants.TYPE_NAME_PARAMETER,
                 Arrays.asList(CswConstants.CSW_RECORD), describeRecordOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER,
-                CswConstants.VALID_OUTPUT_FORMATS, describeRecordOp);
+                transformerManager.getAvailableMimeTypes(), describeRecordOp);
         addOperationParameter("schemaLanguage", CswConstants.VALID_SCHEMA_LANGUAGES,
                 describeRecordOp);
 
@@ -927,21 +919,24 @@ public class CswEndpoint implements Csw {
         addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
                 Arrays.asList("hits", "results", "validate"), getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER,
-                CswConstants.VALID_OUTPUT_FORMATS, getRecordsOp);
-        addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER, getOutputSchemas(),
+                transformerManager.getAvailableMimeTypes(), getRecordsOp);
+        addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER,
+                transformerManager.getAvailableSchemas(),
                 getRecordsOp);
         addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER,
                 Arrays.asList(CswConstants.CSW_RECORD), getRecordsOp);
         addOperationParameter(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER, Arrays.asList(
-                CswConstants.CONSTRAINT_LANGUAGE_FILTER, CswConstants.CONSTRAINT_LANGUAGE_CQL),
+                        CswConstants.CONSTRAINT_LANGUAGE_FILTER,
+                        CswConstants.CONSTRAINT_LANGUAGE_CQL),
                 getRecordsOp);
 
         // Builds GetRecordById operation metadata
         Operation getRecordByIdOp = buildOperation(CswConstants.GET_RECORD_BY_ID, getAndPost);
-        addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER, getOutputSchemas(),
+        addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER,
+                transformerManager.getAvailableSchemas(),
                 getRecordByIdOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER,
-                CswConstants.VALID_OUTPUT_FORMATS, getRecordByIdOp);
+                transformerManager.getAvailableMimeTypes(), getRecordByIdOp);
         addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
                 Arrays.asList("hits", "results", "validate"), getRecordByIdOp);
         addOperationParameter(CswConstants.ELEMENT_SET_NAME_PARAMETER,
@@ -950,7 +945,7 @@ public class CswEndpoint implements Csw {
         List<Operation> ops = Arrays.asList(getCapabilitiesOp, describeRecordOp, getRecordsOp,
                 getRecordByIdOp);
         om.setOperation(ops);
-        
+
         om.getParameter().add(createDomainType(CswConstants.SERVICE, CswConstants.CSW));
         om.getParameter().add(createDomainType(CswConstants.VERSION, CswConstants.VERSION_2_0_2));
 
@@ -1063,7 +1058,7 @@ public class CswEndpoint implements Csw {
      * 
      * @param types
      *            List of QNames representing types
-     * @version the specified version of the types
+     * @param version the specified version of the types
      */
     private void validateTypes(List<QName> types, String version) throws CswException {
         if (types == null || types.size() == 0) {
@@ -1071,25 +1066,17 @@ public class CswEndpoint implements Csw {
             return;
         }
 
-        for (QName type : types) {
-            if (!recordTypeRegistry.containsType(type, version)) {
-                throw createUnknownTypeException(type.toString());
+        if (types.size() == 1) {
+            if (!types.get(0).equals(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                    CswConstants.CSW_RECORD_LOCAL_NAME))) {
+                throw createUnknownTypeException(types.get(0).toString());
             }
+
         }
     }
 
     private void validateOutputSchema(String schema) throws CswException {
-        if (schema == null) {
-            return;
-        }
-        // TODO - Need to resolve how we will consolidate the RecordTypeRegistry and the Converters
-        // list.
-        // for (RecordTypeEntry rte : recordTypeRegistry.getRecordTypes()) {
-        // if (schema.equals(rte.getType().getNamespaceURI())) {
-        // return;
-        // }
-        // }
-        if (getOutputSchemas().contains(schema)) {
+        if (schema == null || transformerManager.getTransformerBySchema(schema) != null) {
             return;
         }
         throw createUnknownSchemaException(schema);
@@ -1106,7 +1093,7 @@ public class CswEndpoint implements Csw {
 
     private void validateOutputFormat(String format) throws CswException {
         if (!StringUtils.isEmpty(format)) {
-            if (!CswConstants.VALID_OUTPUT_FORMATS.contains(format)) {
+            if (!transformerManager.getAvailableMimeTypes().contains(format)){
                 throw new CswException("Invalid output format '"
                         + format + "'", CswConstants.INVALID_PARAMETER_VALUE, "outputformat");
             }
@@ -1134,21 +1121,6 @@ public class CswEndpoint implements Csw {
     private CswException createUnknownSchemaException(final String schema) {
         return new CswException("The schema '" + schema + "' is not known to this service.",
                 CswConstants.INVALID_PARAMETER_VALUE, "OutputSchema");
-    }
-
-    private void initializeElements() {
-        for (RecordTypeEntry entry : recordTypeRegistry.getRecordTypes()) {
-            Element element = null;
-            if (!documentElements.containsKey(entry.getResourcePath())) {
-                try {
-                    element = loadDocElementFromResourcePath(entry.getResourcePath());
-                } catch (CswException e) {
-                    // We do not want to preclude the service from running, rather LOG exception
-                    LOGGER.error("Could not load element '{}'", entry.getResourcePath(), e);
-                }
-                documentElements.put(entry.getResourcePath(), element);
-            }
-        }
     }
 
     private InputStream marshalJaxB(JAXBElement<?> filterElement) throws JAXBException {
@@ -1229,25 +1201,5 @@ public class CswEndpoint implements Csw {
         } catch (FederationException e) {
             throw new CswException(e);
         }
-    }
-
-    public RecordTypeRegistry getRecordTypeRegistry() {
-        return recordTypeRegistry;
-    }
-
-    public void setRecordTypeRegistry(RecordTypeRegistry recordTypeRegistry) {
-        this.recordTypeRegistry = recordTypeRegistry;
-        initializeElements();
-    }
-
-    private List<String> getOutputSchemas() {
-        List<String> schemas = new ArrayList<String>();
-        for (RecordConverterFactory factory : converterFactories) {
-            if (StringUtils.isNotBlank(factory.getOutputSchema())) {
-                LOGGER.debug("Available OutputSchema: {}", factory.getOutputSchema());
-                schemas.add(factory.getOutputSchema());
-            }
-        }
-        return schemas;
     }
 }

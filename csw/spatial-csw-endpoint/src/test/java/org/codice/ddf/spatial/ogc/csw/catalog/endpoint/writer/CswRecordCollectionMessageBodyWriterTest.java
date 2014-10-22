@@ -14,146 +14,133 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.ws.rs.WebApplicationException;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-
-import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordByIdResponseType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import net.opengis.cat.csw.v_2_0_2.ResultType;
-
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.QueryResponseTransformer;
+import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
+import javax.ws.rs.WebApplicationException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CswRecordCollectionMessageBodyWriterTest {
 
-    @Test
-    public void testMarshalRecordCollection() throws WebApplicationException, IOException, JAXBException {
-        RecordConverterFactory factory = new CswRecordConverterFactory(null);
-        CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
-                Arrays.asList(factory));
+    private TransformerManager mockManager = mock(TransformerManager.class);
 
-        GetRecordsType query = new GetRecordsType();
-        query.setResultType(ResultType.RESULTS);
-        query.setMaxRecords(BigInteger.valueOf(6));
-        query.setStartPosition(BigInteger.valueOf(4));
-        CswRecordCollection collection = createCswRecordCollection(query, 22);
-        
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        writer.writeTo(collection, null, null, null, null, null, stream); 
+    private QueryResponseTransformer mockTransformer = mock(QueryResponseTransformer.class);
 
-        String xml = new String(stream.toByteArray());
+    private BinaryContent mockContent = mock(BinaryContent.class);
 
-        JAXBElement<?> jaxb = (JAXBElement<?>) getJaxBContext().createUnmarshaller().unmarshal(
-                new ByteArrayInputStream(xml.getBytes("UTF-8")));
-        
-        assertThat(jaxb.getValue(), is(instanceOf(GetRecordsResponseType.class)));
-        GetRecordsResponseType response = (GetRecordsResponseType) jaxb.getValue();
-        assertThat(response.getSearchResults().getNumberOfRecordsReturned().intValue(), is(6));
-        assertThat(response.getSearchResults().getNumberOfRecordsMatched().intValue(), is(22));
-        assertThat(response.getSearchResults().getNextRecord().intValue(), is(10));
-        assertThat(response.getSearchResults().getAbstractRecord().size(), is(6));
+    @Before
+    public void setUp() {
+
     }
-
     @Test
-    public void testMarshalAcknowledgement() throws WebApplicationException, IOException, JAXBException {
-        RecordConverterFactory factory = new CswRecordConverterFactory(null);
+    public void testWriteToWithSchema()
+            throws WebApplicationException, IOException, JAXBException,
+            CatalogTransformerException {
         CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
-                Arrays.asList(factory));
+                mockManager);
+        when(mockManager.getCswQueryResponseTransformer()).thenReturn(mockTransformer);
 
-        GetRecordsType query = new GetRecordsType();
-        query.setResultType(ResultType.VALIDATE);
-        query.setMaxRecords(BigInteger.valueOf(6));
-        query.setStartPosition(BigInteger.valueOf(4));
-        CswRecordCollection collection = createCswRecordCollection(query, 22);
-        
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        writer.writeTo(collection, null, null, null, null, null, stream); 
+        ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
+        when(mockTransformer.transform(any(SourceResponse.class), any(Map.class))).thenReturn(
+                mockContent);
+        when(mockContent.getInputStream()).thenReturn(new ByteArrayInputStream("bytes".getBytes()));
 
-        String xml = new String(stream.toByteArray());
-
-        JAXBElement<?> jaxb = (JAXBElement<?>) getJaxBContext().createUnmarshaller().unmarshal(
-                new ByteArrayInputStream(xml.getBytes("UTF-8")));
-        
-        assertThat(jaxb.getValue(), is(instanceOf(AcknowledgementType.class)));
-        AcknowledgementType response = (AcknowledgementType) jaxb.getValue();
-        assertThat(response.getEchoedRequest().getAny(), is(instanceOf(JAXBElement.class)));
-        JAXBElement<?> jaxB = (JAXBElement<?>) response.getEchoedRequest().getAny();
-        assertThat(jaxB.getValue(), is(instanceOf(GetRecordsType.class)));
-    }
-
-    @Test
-    public void testMarshalRecordCollectionByIdRequest() throws WebApplicationException,
-        IOException, JAXBException {
-        RecordConverterFactory factory = new CswRecordConverterFactory(null);
-        CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
-                Arrays.asList(factory));
-        CswRecordCollection collection = createCswRecordCollection(null, 2);
+        CswRecordCollection collection = createCswRecordCollection(6);
+        collection.setNumberOfRecordsMatched(22);
+        collection.setNumberOfRecordsReturned(6);
+        collection.setOutputSchema("http://example.com/schema");
+        collection.setValidateQuery(true);
         collection.setById(true);
+        QName example = new QName("example");
+
+        collection.setElementName(Arrays.asList(example));
+        collection.setElementSetType(ElementSetType.BRIEF);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         writer.writeTo(collection, null, null, null, null, null, stream);
 
-        String xml = new String(stream.toByteArray());
+        verify(mockManager, times(1)).getCswQueryResponseTransformer();
+        verify(mockTransformer).transform(any(SourceResponse.class), captor.capture());
 
-        JAXBElement<?> jaxb = (JAXBElement<?>) getJaxBContext().createUnmarshaller().unmarshal(
-                new ByteArrayInputStream(xml.getBytes("UTF-8")));
-
-        assertThat(jaxb.getValue(), is(instanceOf(GetRecordByIdResponseType.class)));
-        GetRecordByIdResponseType response = (GetRecordByIdResponseType) jaxb.getValue();
-        assertThat(response.getAbstractRecord().size(), is(2));
+        Map arguments = captor.getValue();
+        assertThat(true, is((Boolean) arguments.get(CswConstants.IS_VALIDATE_QUERY)));
+        assertThat(true, is((Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY)));
+        assertThat(ElementSetType.BRIEF,
+                is((ElementSetType) arguments.get(CswConstants.ELEMENT_SET_TYPE)));
+        assertThat(example, is(((QName[]) arguments.get(CswConstants.ELEMENT_NAMES))[0]));
     }
 
-    private CswRecordCollection createCswRecordCollection(GetRecordsType request, int resultCount) {
-        CswRecordCollection collection = new CswRecordCollection();
-        int first = 1;
-        int last = 2;
-        
-        if (request != null) {
-            first = request.getStartPosition().intValue();
-            int next = request.getMaxRecords().intValue() + first;
-            last = next - 1;
-            if (last >= resultCount) {
-                last = resultCount;
-                next = 0;
-            }
-        }
-        int returned = last - first + 1;
+    @Test
+    public void testWriteToWithMimeType()
+            throws WebApplicationException, IOException, JAXBException,
+            CatalogTransformerException {
+        CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
+                mockManager);
+        when(mockManager.getTransformerByMimeType(any(String.class))).thenReturn(mockTransformer);
+        when(mockTransformer.transform(any(SourceResponse.class), any(Map.class))).thenReturn(
+                mockContent);
+        when(mockContent.getInputStream()).thenReturn(new ByteArrayInputStream("bytes".getBytes()));
 
-        collection.setCswRecords(createMetacardList(first, last));
-        collection.setNumberOfRecordsMatched(resultCount);
-        collection.setNumberOfRecordsReturned(returned);
-        collection.setRequest(request);
+        CswRecordCollection collection = createCswRecordCollection(6);
+        collection.setNumberOfRecordsMatched(22);
+        collection.setNumberOfRecordsReturned(6);
+        //        collection.setOutputSchema("http://example.com/schema");
+        collection.setValidateQuery(true);
+        collection.setById(true);
+        QName example = new QName("example");
+
+        collection.setElementName(Arrays.asList(example));
+        collection.setElementSetType(ElementSetType.BRIEF);
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        writer.writeTo(collection, null, null, null, null, null, stream);
+
+        verify(mockManager, times(1)).getTransformerByMimeType(any(String.class));
+
+        // TODO - assert lookup by mime type
+        // TODO failure case
+    }
+
+    private CswRecordCollection createCswRecordCollection(int resultCount) {
+        CswRecordCollection collection = new CswRecordCollection();
+        collection.setCswRecords(createMetacardList(resultCount));
         return collection;
     }
-    
-    private List<Metacard> createMetacardList(int start, int finish) {
+
+    private List<Metacard> createMetacardList(int count) {
         List<Metacard> list = new LinkedList<Metacard>();
-        
-        for (int i = start; i <= finish; i++) {
+
+        for (int i = 0; i <= count; i++) {
             MetacardImpl metacard = new MetacardImpl();
             
             metacard.setId("id_" + i);

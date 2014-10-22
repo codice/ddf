@@ -32,6 +32,5 @@
         <module>spatial-csw-converter</module>
         <module>spatial-csw-source</module>
         <module>spatial-csw-endpoint</module>
-        <module>spatial-csw-inputtransformer</module>
     </modules>
 </project>

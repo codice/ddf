@@ -42,7 +42,7 @@ public class CswRecordInputTransformer implements InputTransformer {
         RecordConverterFactory recordConverterFactory = new CswRecordConverterFactory(null);
 
         RecordConverter recordConverter = recordConverterFactory.createConverter(null, null, null,
-                null, true);
+                null, false);
 
         xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());

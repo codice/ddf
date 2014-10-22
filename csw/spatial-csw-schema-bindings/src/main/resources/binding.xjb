@@ -13,6 +13,7 @@
 			generateIsSetMethod="true">
 			<xjc:noValidator />
 			<xjc:noValidatingUnmarshaller />
+            <xjc:serializable uid="12343"/>
 		</jaxb:globalBindings>
 		<jaxb:schemaBindings>
 			<jaxb:package name="net.opengis.cat.csw.v_2_0_2"/>

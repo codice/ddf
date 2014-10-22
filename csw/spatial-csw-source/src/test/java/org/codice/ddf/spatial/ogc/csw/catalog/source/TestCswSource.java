@@ -38,6 +38,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswTransformProvider;
 import org.geotools.filter.FilterFactoryImpl;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -95,6 +96,8 @@ import static org.mockito.Mockito.when;
 public class TestCswSource extends TestCswSourceBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCswSource.class);
+
+    private CswTransformProvider mockProvider = mock(CswTransformProvider.class);
 
 
     @Test
@@ -908,7 +911,7 @@ public class TestCswSource extends TestCswSourceBase {
         CswSourceConfiguration cswSourceConfiguration = getStandardCswSourceConfiguration(contentMapping);
         cswSourceConfiguration.setContentTypeMapping(contentMapping);
         CswSource cswSource = new CswSource(remoteCsw, mockContext, cswSourceConfiguration,
-                Arrays.asList(factory));
+                mockProvider);
         cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
         cswSource.setFilterBuilder(builder);
         cswSource.setContext(context);

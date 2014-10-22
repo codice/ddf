@@ -19,6 +19,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -28,14 +32,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ddf.catalog.transform.InputTransformer;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswTransformProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswRecordInputTransformer;
+import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -45,25 +54,37 @@ import ddf.catalog.data.Metacard;
 
 public class TestGetRecordsMessageBodyReader {
 
+    private CswTransformProvider mockProvider = mock(CswTransformProvider.class);
+
+    private TransformerManager<InputTransformer> mockInputManager = mock(TransformerManager.class);
+
+
+    @Before
+    public void setUp() {
+        when(mockProvider.canConvert(any(Class.class))).thenReturn(true);
+    }
+
     @Test
     public void testGetMultipleMetacards() throws Exception {
-        RecordConverterFactory factory = new CswRecordConverterFactory(null);
-        // RecordConverter recordConverter = new
-        // CswRecordConverter(this.getDefaultMetacardAttributeMappings(),
-        // CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-        // recordConverter.setMetacardType(new CswRecordMetacardType());
+
+        CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
+
+        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(new CswRecordInputTransformer());
+
         CswSourceConfiguration config = new CswSourceConfiguration();
         config.setMetacardCswMappings(getDefaultMetacardAttributeMappings());
         config.setProductRetrievalMethod(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL);
-        GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(
-                Arrays.asList(factory), config);
+        GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(provider, config);
         InputStream is = TestGetRecordsMessageBodyReader.class
                 .getResourceAsStream("/getRecordsResponse.xml");
         CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class, null, null,
                 null, null, is);
         List<Metacard> metacards = cswRecords.getCswRecords();
+
         assertThat(metacards, not(nullValue()));
         assertThat(metacards.size(), equalTo(3));
+
+
 
         // verify first metacard's values
         Metacard mc = metacards.get(0);
@@ -128,18 +149,15 @@ public class TestGetRecordsMessageBodyReader {
         expectedValues.clear();
     }
 
-    // verifies UTF-8 encoding configured properly when XML includes foreign
-    // text with
-    // special characters
+    // verifies UTF-8 encoding configured properly when XML includes foreign text with special characters
     @Test
     public void testGetMultipleMetacardsWithForeignText() throws Exception {
-        RecordConverterFactory factory = new CswRecordConverterFactory(null);
         CswSourceConfiguration config = new CswSourceConfiguration();
         config.setMetacardCswMappings(getDefaultMetacardAttributeMappings());
         config.setProductRetrievalMethod(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL);
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(
-                Arrays.asList(factory), config);
+                mockProvider, config);
         
         InputStream is = TestGetRecordsMessageBodyReader.class
                 .getResourceAsStream("/geomaticsGetRecordsResponse.xml");

@@ -14,6 +14,9 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter.impl;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,16 +25,17 @@ import javax.measure.converter.ConversionException;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
+import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
+import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
+import com.thoughtworks.xstream.io.xml.XppReader;
+import com.thoughtworks.xstream.io.xml.xppdom.XppFactory;
+import ddf.catalog.data.BinaryContent;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import net.opengis.cat.csw.v_2_0_2.QueryType;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverter;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
@@ -46,6 +50,8 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * Converts a {@link CSWRecordCollection} into a {@link GetRecordsResponse} with CSW records
@@ -55,9 +61,11 @@ public class GetRecordsResponseConverter implements Converter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetRecordsResponseConverter.class);
 
-    private RecordConverter unmarshalRecordConverter;
+    private CswTransformProvider transformProvider;
 
-    private List<RecordConverterFactory> converterFactories;
+//    private Converter unmarshalRecordConverter;
+
+//    private List<RecordConverterFactory> converterFactories;
 
     private DefaultCswRecordMap defaultCswRecordMap = new DefaultCswRecordMap();
 
@@ -97,8 +105,9 @@ public class GetRecordsResponseConverter implements Converter {
      * @param recordConverter
      *            The converter which will transform a {@link Metacard} to a CSWRecord
      */
-    public GetRecordsResponseConverter(List<RecordConverterFactory> factories) {
-        this.converterFactories = factories;
+    public GetRecordsResponseConverter(CswTransformProvider transformProvider) {
+        this.transformProvider = transformProvider;
+//        this.converterFactories = factories;
     }
 
     @Override
@@ -122,57 +131,25 @@ public class GetRecordsResponseConverter implements Converter {
         }
 
         long start = 1;
-        String elementSet = "full";
+        String elementSet = null;
         String recordSchema = CswConstants.CSW_OUTPUT_SCHEMA;
 
-        GetRecordsType request = cswRecordCollection.getRequest();
-        QueryType query = null;
-        List<QName> elementsToWrite = null;
-        ElementSetType elementSetType = ElementSetType.FULL;
-
-        if (request != null) {
-            if (request.isSetStartPosition()) {
-                start = request.getStartPosition().longValue();
-            }
-            if (request.isSetAbstractQuery()
-                    && request.getAbstractQuery().getValue() instanceof QueryType) {
-                query = (QueryType) request.getAbstractQuery().getValue();
-            }
+        if (cswRecordCollection.getStartPosition() > 0) {
+            start = cswRecordCollection.getStartPosition();
         }
 
         if (StringUtils.isNotBlank(cswRecordCollection.getOutputSchema())) {
             recordSchema = cswRecordCollection.getOutputSchema();
 
         }
-        RecordConverterFactory converterFactory = null;
-        for (RecordConverterFactory factory : converterFactories) {
-            LOGGER.debug("Factory recordSchema == {}", factory.getOutputSchema());
-            if (StringUtils.equals(factory.getOutputSchema(), recordSchema)) {
-                converterFactory = factory;
-            }
-        }
-
-        if (converterFactory == null) {
-            throw new ConversionException("Unable to locate converter for outputSchema.");
-        }
+        context.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, recordSchema);
 
         if (cswRecordCollection.getElementSetType() != null) {
-            elementSetType = cswRecordCollection.getElementSetType();
-            elementSet = elementSetType.value();
-            switch (elementSetType) {
-            case BRIEF:
-                elementsToWrite = CswRecordMetacardType.BRIEF_CSW_RECORD_FIELDS;
-                break;
-            case SUMMARY:
-                elementsToWrite = CswRecordMetacardType.SUMMARY_CSW_RECORD_FIELDS;
-                break;
-            case FULL:
-            default:
-                elementsToWrite = CswRecordMetacardType.FULL_CSW_RECORD_FIELDS;
-                break;
-            }
-        } else if (query != null && query.isSetElementName()) {
-            elementsToWrite = query.getElementName();
+            context.put(CswConstants.ELEMENT_SET_TYPE, cswRecordCollection.getElementSetType());
+
+            elementSet = cswRecordCollection.getElementSetType().value();
+        } else if (cswRecordCollection.getElementName() != null) {
+            context.put(CswConstants.ELEMENT_NAMES, cswRecordCollection.getElementName());
         }
 
         long nextRecord = start + cswRecordCollection.getNumberOfRecordsReturned();
@@ -197,23 +174,13 @@ public class GetRecordsResponseConverter implements Converter {
 
             writer.addAttribute(NEXT_RECORD_ATTRIBUTE, Long.toString(nextRecord));
             writer.addAttribute(RECORD_SCHEMA_ATTRIBUTE, recordSchema);
-            writer.addAttribute(ELEMENT_SET_ATTRIBUTE, elementSet);
+            if (StringUtils.isNotBlank(elementSet)) {
+                writer.addAttribute(ELEMENT_SET_ATTRIBUTE, elementSet);
+            }
         }
 
-        // TODO - need to pass good values here.
-        RecordConverter recordConverter = converterFactory.createConverter(null,
-                defaultCswRecordMap.getPrefixToUriMapping(), null, null, null,
-                true);
-        recordConverter.setFieldsToWrite(elementsToWrite);
         for (Metacard mc : cswRecordCollection.getCswRecords()) {
-            String rootElementName = recordConverter.getRootElementName(elementSetType.toString());
-            if (StringUtils.isNotBlank(rootElementName)) {
-                writer.startNode(rootElementName);
-                context.convertAnother(mc, recordConverter);
-                writer.endNode();
-            } else {
-                context.convertAnother(mc, recordConverter);
-            }
+            context.convertAnother(mc, transformProvider);
         }
         if (!cswRecordCollection.isById()) {
             writer.endNode();
@@ -242,8 +209,8 @@ public class GetRecordsResponseConverter implements Converter {
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
 
-        unmarshalRecordConverter = createUnmarshalConverter();
-        if (unmarshalRecordConverter == null) {
+//        unmarshalRecordConverter = transformProvider;
+        if (transformProvider == null) {
             throw new ConversionException("Unable to locate Converter for outputSchema: "
                     + outputSchema);
         }
@@ -263,7 +230,7 @@ public class GetRecordsResponseConverter implements Converter {
                     String name = reader.getNodeName();
                     LOGGER.debug("node name = {}", name);
                     Metacard metacard = (Metacard) context.convertAnother(null, MetacardImpl.class,
-                            unmarshalRecordConverter);
+                            transformProvider);
                     metacards.add(metacard);
 
                     // move back up to the <SearchResults> parent of the
@@ -275,18 +242,18 @@ public class GetRecordsResponseConverter implements Converter {
         }
 
         LOGGER.debug("Unmarshalled {} metacards", metacards.size());
-        if (LOGGER.isDebugEnabled()) {
+        if (LOGGER.isTraceEnabled()) {
             int index = 1;
             for (Metacard m : metacards) {
-                LOGGER.debug("metacard {}: ", index);
-                LOGGER.debug("    id = {}", m.getId());
-                LOGGER.debug("    title = {}", m.getTitle());
+                LOGGER.trace("metacard {}: ", index);
+                LOGGER.trace("    id = {}", m.getId());
+                LOGGER.trace("    title = {}", m.getTitle());
     
                 // Some CSW services return an empty bounding box, i.e., no lower
                 // and/or upper corner positions
                 Attribute boundingBoxAttr = m.getAttribute("BoundingBox");
                 if (boundingBoxAttr != null) {
-                    LOGGER.debug("    bounding box = {}", boundingBoxAttr.getValue());
+                    LOGGER.trace("    bounding box = {}", boundingBoxAttr.getValue());
                 }
                 index++;
             }
@@ -317,20 +284,22 @@ public class GetRecordsResponseConverter implements Converter {
         this.resourceUriMapping = resourceUriMapping;
         this.thumbnailMapping = thumbnailMapping;
         this.isLonLatOrder = isLonLatOrder;
-        this.unmarshalRecordConverter = createUnmarshalConverter();
+//        this.unmarshalRecordConverter = createUnmarshalConverter();
     }
 
-    private RecordConverter createUnmarshalConverter() {
-        if (unmarshalRecordConverter == null) {
-            for (RecordConverterFactory converterFactory : converterFactories) {
-                if (StringUtils.equals(converterFactory.getOutputSchema(), outputSchema)) {
-                    return converterFactory.createConverter(metacardAttributeMap,
-                            productRetrievalMethod, resourceUriMapping, thumbnailMapping,
-                            isLonLatOrder);
-                }
-            }
-            return null;
-        }
-        return unmarshalRecordConverter;
-    }
+//    private RecordConverter createUnmarshalConverter() {
+//        if (unmarshalRecordConverter == null) {
+//            for (RecordConverterFactory converterFactory : converterFactories) {
+//                if (StringUtils.equals(converterFactory.getOutputSchema(), outputSchema)) {
+//                    return converterFactory.createConverter(metacardAttributeMap,
+//                            productRetrievalMethod, resourceUriMapping, thumbnailMapping,
+//                            isLonLatOrder);
+//                }
+//            }
+//            return null;
+//        }
+//        return unmarshalRecordConverter;
+//    }
+
+
 }

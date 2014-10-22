@@ -17,17 +17,24 @@ package org.codice.ddf.spatial.ogc.csw.catalog.converter.impl;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,8 +48,10 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import ddf.catalog.transform.InputTransformer;
 import net.opengis.cat.csw.v_2_0_2.AbstractRecordType;
-import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordByIdResponseType;
@@ -51,8 +60,7 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.cat.csw.v_2_0_2.RecordType;
-import net.opengis.cat.csw.v_2_0_2.SummaryRecordType;
-import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
+import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
 import net.opengis.ows.v_1_0_0.BoundingBoxType;
 
 import org.apache.commons.lang.StringUtils;
@@ -62,10 +70,14 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswRecordInputTransformer;
+import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.junit.BeforeClass;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,14 +113,30 @@ public class TestGetRecordsResponseConverter {
 
     private static final String WKT = "POLYGON((4 1, 2 5, 4 5, 4 1))";
 
+    private CswTransformProvider mockProvider = mock(CswTransformProvider.class);
+
+    private TransformerManager<InputTransformer> mockInputManager = mock(TransformerManager.class);
+
+    @Before
+    public void setUp() {
+        when(mockProvider.canConvert(any(Class.class))).thenReturn(true);
+
+    }
+
+    /**
+     * This test acutally runs the full thread of calling the GetRecordsResponseConverter then calls the CswInputTransformer.
+     */
     @Test
-    public void testGetRecordsResponseConversion() {
+    public void testGetRecordsResponseFull() {
+
         XStream xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
-        
-        RecordConverterFactory factory = new CswRecordConverterFactory(null);
 
-        xstream.registerConverter(new GetRecordsResponseConverter(Arrays.asList(factory)));
+        CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
+
+        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(new CswRecordInputTransformer());
+        
+        xstream.registerConverter(new GetRecordsResponseConverter(provider));
         xstream.alias("GetRecordsResponse", CswRecordCollection.class);
 
         String xml = "<csw:GetRecordsResponse xmlns:csw=\"http://www.opengis.net/cat/csw\">\r\n"
@@ -159,6 +187,7 @@ public class TestGetRecordsResponseConverter {
 
         // verify first metacard's values
         Metacard mc = metacards.get(0);
+        assertThat(mc, not(nullValue()));
         Map<String, Object> expectedValues = new HashMap<String, Object>();
         expectedValues.put(Metacard.ID, "{8C1F6297-EC96-4302-A01E-14988C9149FD}");
         expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER,
@@ -190,6 +219,7 @@ public class TestGetRecordsResponseConverter {
 
         // verify second metacard's values
         mc = metacards.get(1);
+        assertThat(mc, not(nullValue()));
         expectedValues = new HashMap<String, Object>();
         expectedValues.put(Metacard.ID, "{23362852-F370-4369-B0B2-BE74B2859614}");
         expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER,
@@ -227,7 +257,7 @@ public class TestGetRecordsResponseConverter {
         
         RecordConverterFactory factory = new CswRecordConverterFactory(null);
         
-        GetRecordsResponseConverter grrc = new GetRecordsResponseConverter(Arrays.asList(factory));
+        GetRecordsResponseConverter grrc = new GetRecordsResponseConverter(mockProvider);
         grrc.setUnmarshalConverterSchema(CswConstants.CSW_OUTPUT_SCHEMA,
                 getDefaultMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL,
                 null, null, false);
@@ -259,35 +289,41 @@ public class TestGetRecordsResponseConverter {
         CswRecordCollection cswRecords = (CswRecordCollection) xstream.fromXML(inStream);
         IOUtils.closeQuietly(inStream);
 
+        assertThat(cswRecords.getNumberOfRecordsReturned(), is(10L));
+        assertThat(cswRecords.getNumberOfRecordsMatched(), is(479L));
+
+
         List<Metacard> metacards = cswRecords.getCswRecords();
         assertThat(metacards, not(nullValue()));
         assertThat(metacards.size(), equalTo(1));
 
+
+        // TODO get rid of this crap
         // verify first metacard's values
-        Metacard mc = metacards.get(0);
-        Map<String, Object> expectedValues = new HashMap<String, Object>();
-        expectedValues.put(Metacard.ID, "{8C1F6297-EC96-4302-A01E-14988C9149FD}");
-        expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER,
-                new String[] {"{8C1F6297-EC96-4302-A01E-14988C9149FD}"});
-        expectedValues.put(Metacard.TITLE, "title 1");
-        expectedValues.put(CswRecordMetacardType.CSW_TITLE, new String[] {"title 1"});
-        String expectedModifiedDateStr = "2008-12-15";
-        DateTimeFormatter dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
-        Date expectedModifiedDate = dateFormatter.parseDateTime(expectedModifiedDateStr).toDate();
-        expectedValues.put(CswRecordMetacardType.CSW_MODIFIED,
-                new String[] {expectedModifiedDateStr});
-        expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
-        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, new String[] {"subject 1",
-            "second subject"});
-        expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"abstract 1"});
-        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"copyright 1",
-            "copyright 2"});
-        expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
-        expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset");
-        expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile"});
-        expectedValues.put(Metacard.GEOGRAPHY, null);
-        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, null);
-        assertMetacard(mc, expectedValues);
+//        Metacard mc = metacards.get(0);
+//        Map<String, Object> expectedValues = new HashMap<String, Object>();
+//        expectedValues.put(Metacard.ID, "{8C1F6297-EC96-4302-A01E-14988C9149FD}");
+//        expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER,
+//                new String[] {"{8C1F6297-EC96-4302-A01E-14988C9149FD}"});
+//        expectedValues.put(Metacard.TITLE, "title 1");
+//        expectedValues.put(CswRecordMetacardType.CSW_TITLE, new String[] {"title 1"});
+//        String expectedModifiedDateStr = "2008-12-15";
+//        DateTimeFormatter dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
+//        Date expectedModifiedDate = dateFormatter.parseDateTime(expectedModifiedDateStr).toDate();
+//        expectedValues.put(CswRecordMetacardType.CSW_MODIFIED,
+//                new String[] {expectedModifiedDateStr});
+//        expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
+//        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, new String[] {"subject 1",
+//            "second subject"});
+//        expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"abstract 1"});
+//        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"copyright 1",
+//            "copyright 2"});
+//        expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
+//        expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset");
+//        expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile"});
+//        expectedValues.put(Metacard.GEOGRAPHY, null);
+//        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, null);
+//        assertMetacard(mc, expectedValues);
     }
 
     @Test
@@ -303,27 +339,32 @@ public class TestGetRecordsResponseConverter {
         ObjectFactory objectFactory = new ObjectFactory();
         getRecords.setAbstractQuery(objectFactory.createAbstractQuery(query));
         CswRecordCollection collection = createCswRecordCollection(getRecords, totalResults);
-        
+        collection.setElementSetType(ElementSetType.BRIEF);
+
+        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor.forClass(MarshallingContext.class);
+
         String xml = xstream.toXML(collection);
+
+        // Verify the context arguments were set correctly
+        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
+
+        MarshallingContext context = captor.getValue();
+        assertThat(context, not(nullValue()));
+        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
+        assertThat((ElementSetType)context.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.BRIEF));
 
         JAXBElement<GetRecordsResponseType> jaxb = (JAXBElement<GetRecordsResponseType>) getJaxBContext()
                 .createUnmarshaller().unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
        
         GetRecordsResponseType response = jaxb.getValue();
-        assertThat(response.getSearchResults().getAbstractRecord().size(), equalTo(totalResults));
-
-        List<JAXBElement<? extends AbstractRecordType>> records = response.getSearchResults().getAbstractRecord();
-        int counter = 1;
-        for (JAXBElement<? extends AbstractRecordType> abRecord : records) {
-            AbstractRecordType abstractRecord = abRecord.getValue();
-            assertTrue(abstractRecord instanceof BriefRecordType);
-            BriefRecordType briefRecord = (BriefRecordType) abstractRecord;
-            assertThat(briefRecord.getIdentifier().get(0).getValue().getContent().get(0), equalTo(ID_PREFIX + counter));
-            assertThat(briefRecord.getTitle().get(0).getValue().getContent().get(0), equalTo(TITLE_PREFIX + counter));
-            assertThat(briefRecord.getType(), equalTo(null));
-            
-            counter++;
-        }
+        // Assert the GetRecordsResponse elements and attributes
+        assertThat(response, not(nullValue()));
+        SearchResultsType resultsType = response.getSearchResults();
+        assertThat(resultsType, not(nullValue()));
+        assertThat(resultsType.getElementSet(), is(ElementSetType.BRIEF));
+        assertThat(resultsType.getNumberOfRecordsMatched().intValue(), is(totalResults));
+        assertThat(resultsType.getNumberOfRecordsReturned().intValue(), is(totalResults));
+        assertThat(resultsType.getRecordSchema(), is(CswConstants.CSW_OUTPUT_SCHEMA));
     }
 
     @Test
@@ -339,41 +380,32 @@ public class TestGetRecordsResponseConverter {
         ObjectFactory objectFactory = new ObjectFactory();
         getRecords.setAbstractQuery(objectFactory.createAbstractQuery(query));
         CswRecordCollection collection = createCswRecordCollection(getRecords, totalResults);
-        
+        collection.setElementSetType(ElementSetType.SUMMARY);
+
+        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor.forClass(MarshallingContext.class);
+
         String xml = xstream.toXML(collection);
+
+        // Verify the context arguments were set correctly
+        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
+
+        MarshallingContext context = captor.getValue();
+        assertThat(context, not(nullValue()));
+        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
+        assertThat((ElementSetType)context.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.SUMMARY));
 
         JAXBElement<GetRecordsResponseType> jaxb = (JAXBElement<GetRecordsResponseType>) getJaxBContext()
                 .createUnmarshaller().unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-       
-        GetRecordsResponseType response = jaxb.getValue();
-        assertThat(response.getSearchResults().getAbstractRecord().size(), equalTo(totalResults));
 
-        List<JAXBElement<? extends AbstractRecordType>> records = response.getSearchResults().getAbstractRecord();
-        int counter = 1;
-        for (JAXBElement<? extends AbstractRecordType> abRecord : records) {
-            AbstractRecordType abstractRecord = abRecord.getValue();
-            assertTrue(abstractRecord instanceof SummaryRecordType);
-            SummaryRecordType summaryRecord = (SummaryRecordType) abstractRecord;
-            assertThat(summaryRecord.getIdentifier().size(), equalTo(1));
-            assertThat(summaryRecord.getIdentifier().get(0).getValue().getContent().get(0), equalTo(ID_PREFIX + counter));
-            assertThat(summaryRecord.getTitle().size(), equalTo(1));
-            assertThat(summaryRecord.getTitle().get(0).getValue().getContent().get(0), equalTo(TITLE_PREFIX + counter));
-            assertThat(summaryRecord.getFormat().size(), equalTo(2));
-            assertThat(summaryRecord.getFormat().get(0).getValue().getContent().get(0), equalTo(FORMAT));
-            assertThat(summaryRecord.getFormat().get(1).getValue().getContent().get(0), equalTo(FORMAT));
-            assertThat(summaryRecord.getRelation().size(), equalTo(1));
-            assertThat(summaryRecord.getRelation().get(0).getValue().getContent().get(0), equalTo(RELATION));
-            assertThat(summaryRecord.getType(), equalTo(null));
-            
-            BoundingBoxType bBox = summaryRecord.getBoundingBox().get(0).getValue();
-            
-            assertThat(bBox.getLowerCorner().get(0), equalTo(Double.valueOf(2)));
-            assertThat(bBox.getLowerCorner().get(1), equalTo(Double.valueOf(1)));
-            assertThat(bBox.getUpperCorner().get(0), equalTo(Double.valueOf(4)));
-            assertThat(bBox.getUpperCorner().get(1), equalTo(Double.valueOf(5)));
-            
-            counter++;
-        }
+        GetRecordsResponseType response = jaxb.getValue();
+        // Assert the GetRecordsResponse elements and attributes
+        assertThat(response, not(nullValue()));
+        SearchResultsType resultsType = response.getSearchResults();
+        assertThat(resultsType, not(nullValue()));
+        assertThat(resultsType.getElementSet(), is(ElementSetType.SUMMARY));
+        assertThat(resultsType.getNumberOfRecordsMatched().intValue(), is(totalResults));
+        assertThat(resultsType.getNumberOfRecordsReturned().intValue(), is(totalResults));
+        assertThat(resultsType.getRecordSchema(), is(CswConstants.CSW_OUTPUT_SCHEMA));
     }
 
     @Test
@@ -389,104 +421,34 @@ public class TestGetRecordsResponseConverter {
         ObjectFactory objectFactory = new ObjectFactory();
         getRecords.setAbstractQuery(objectFactory.createAbstractQuery(query));
         CswRecordCollection collection = createCswRecordCollection(getRecords, totalResults);
-        
+        collection.setElementSetType(ElementSetType.FULL);
+
+        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor.forClass(MarshallingContext.class);
+
         String xml = xstream.toXML(collection);
+
+        // Verify the context arguments were set correctly
+        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
+
+        MarshallingContext context = captor.getValue();
+        assertThat(context, not(nullValue()));
+        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
+        assertThat((ElementSetType)context.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.FULL));
 
         JAXBElement<GetRecordsResponseType> jaxb = (JAXBElement<GetRecordsResponseType>) getJaxBContext()
                 .createUnmarshaller().unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-       
+
         GetRecordsResponseType response = jaxb.getValue();
-        assertThat(response.getSearchResults().getAbstractRecord().size(), equalTo(totalResults));
-
-        List<JAXBElement<? extends AbstractRecordType>> records = response.getSearchResults().getAbstractRecord();
-        int counter = 1;
-        for (JAXBElement<? extends AbstractRecordType> abRecord : records) {
-            AbstractRecordType abstractRecord = abRecord.getValue();
-            assertTrue(abstractRecord instanceof RecordType);
-            RecordType record = (RecordType) abstractRecord;
-            List<JAXBElement<SimpleLiteral>> list = record.getDCElement();
-            int titleCounter = 0;
-            int idCounter = 0;
-            int sourceCounter = 0;
-            int relationCounter = 0;
-            int formatCounter = 0;
-            for (JAXBElement<SimpleLiteral> jaxbSL : list) {
-                SimpleLiteral sl = jaxbSL.getValue();
-                if (jaxbSL.getName().getLocalPart().equals(TITLE)) {
-                    titleCounter++;
-                    assertThat(sl.getContent().get(0), equalTo(TITLE_PREFIX + counter));
-                } else if (jaxbSL.getName().getLocalPart().equals(ID)) {
-                    idCounter++;
-                    assertThat(sl.getContent().get(0), equalTo(ID_PREFIX + counter));
-                } else if (jaxbSL.getName().getLocalPart().equals(PUBLISHER)) {
-                    sourceCounter++;
-                    assertThat(sl.getContent().get(0), equalTo(SOURCE_PREFIX + counter));
-                } else if (jaxbSL.getName().getLocalPart().equals(RELATION)) {
-                    relationCounter++;
-                    assertThat(sl.getContent().get(0), equalTo(RELATION));
-                } else if (jaxbSL.getName().getLocalPart().equals(FORMAT)) {
-                    formatCounter++;
-                    assertThat(sl.getContent().get(0), equalTo(FORMAT));
-                } else {
-                    fail("Unexpected Field: " + jaxbSL.getName().getLocalPart());
-                }
-            }
-            
-            assertThat(titleCounter, equalTo(1));
-            assertThat(idCounter, equalTo(1));
-            assertThat(sourceCounter, equalTo(1));
-            assertThat(relationCounter, equalTo(1));
-            assertThat(formatCounter, equalTo(2));
-
-            counter++;
-        }
+        // Assert the GetRecordsResponse elements and attributes
+        assertThat(response, not(nullValue()));
+        SearchResultsType resultsType = response.getSearchResults();
+        assertThat(resultsType, not(nullValue()));
+        assertThat(resultsType.getElementSet(), is(ElementSetType.FULL));
+        assertThat(resultsType.getNumberOfRecordsMatched().intValue(), is(totalResults));
+        assertThat(resultsType.getNumberOfRecordsReturned().intValue(), is(totalResults));
+        assertThat(resultsType.getRecordSchema(), is(CswConstants.CSW_OUTPUT_SCHEMA));
     }
 
-    @Test
-    public void testMarshalRecordCollectionBoundingBox() throws UnsupportedEncodingException, JAXBException {
-        final int totalResults = 1;
-        final double minX = 2;
-        final double minY = 1;
-        final double maxX = 4;
-        final double maxY = 5;
-
-        XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
-        GetRecordsType getRecords = new GetRecordsType();
-        QueryType query = new QueryType();
-        ElementSetNameType set = new ElementSetNameType();
-        set.setValue(ElementSetType.FULL);
-        query.setElementSetName(set);
-        ObjectFactory objectFactory = new ObjectFactory();
-        getRecords.setAbstractQuery(objectFactory.createAbstractQuery(query));
-        CswRecordCollection collection = createCswRecordCollection(getRecords, totalResults);
-        
-        String xml = xstream.toXML(collection);
-
-        JAXBElement<GetRecordsResponseType> jaxb = (JAXBElement<GetRecordsResponseType>) getJaxBContext()
-                .createUnmarshaller().unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-       
-        GetRecordsResponseType response = jaxb.getValue();
-        assertThat(response.getSearchResults().getAbstractRecord().size(), equalTo(totalResults));
-
-        List<JAXBElement<? extends AbstractRecordType>> records = response.getSearchResults().getAbstractRecord();
-        AbstractRecordType abstractRecord = records.get(0).getValue();
-
-        RecordType record = (RecordType) abstractRecord;
-
-        List<JAXBElement<BoundingBoxType>> bBoxList = record.getBoundingBox();
-        assertThat(bBoxList.size(), equalTo(1));
-        BoundingBoxType bBox = bBoxList.get(0).getValue();
-        
-        assertThat(bBox.getLowerCorner().size(), equalTo(2));
-        assertThat(bBox.getUpperCorner().size(), equalTo(2));
-
-        assertThat(bBox.getUpperCorner().get(0), equalTo(maxX));
-        assertThat(bBox.getUpperCorner().get(1), equalTo(maxY));
-        assertThat(bBox.getLowerCorner().get(0), equalTo(minX));
-        assertThat(bBox.getLowerCorner().get(1), equalTo(minY));
-    }
-
-    
     @Test
     public void testMarshalRecordCollectionGetElements() throws UnsupportedEncodingException, JAXBException {
         final int totalResults = 5;
@@ -502,42 +464,35 @@ public class TestGetRecordsResponseConverter {
         ObjectFactory objectFactory = new ObjectFactory();
         getRecords.setAbstractQuery(objectFactory.createAbstractQuery(query));
         CswRecordCollection collection = createCswRecordCollection(getRecords, totalResults);
-        
+        collection.setElementName(elements);
+        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor.forClass(MarshallingContext.class);
+
         String xml = xstream.toXML(collection);
+
+        // Verify the context arguments were set correctly
+        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
+
+        MarshallingContext context = captor.getValue();
+        assertThat(context, not(nullValue()));
+        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
+        assertThat((ElementSetType)context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
+        assertThat(context.get(CswConstants.ELEMENT_NAMES), is(notNullValue()));
+        List<QName> qnames = (List<QName>) context.get(CswConstants.ELEMENT_NAMES);
+        assertThat(qnames.contains(CswRecordMetacardType.CSW_TITLE_QNAME), is(true));
+        assertThat(qnames.contains(CswRecordMetacardType.CSW_SOURCE_QNAME), is(true));
 
         JAXBElement<GetRecordsResponseType> jaxb = (JAXBElement<GetRecordsResponseType>) getJaxBContext()
                 .createUnmarshaller().unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-       
-        GetRecordsResponseType response = jaxb.getValue();
-        assertThat(response.getSearchResults().getAbstractRecord().size(), equalTo(totalResults));
 
-        List<JAXBElement<? extends AbstractRecordType>> records = response.getSearchResults().getAbstractRecord();
-        int counter = 1;
-        for (JAXBElement<? extends AbstractRecordType> abRecord : records) {
-            AbstractRecordType abstractRecord = abRecord.getValue();
-            assertTrue(abstractRecord instanceof RecordType);
-            RecordType record = (RecordType) abstractRecord;
-            List<JAXBElement<SimpleLiteral>> list = record.getDCElement();
-            int titleCounter = 0;
-            int sourceCounter = 0;
-            for (JAXBElement<SimpleLiteral> jaxbSL : list) {
-                SimpleLiteral sl = jaxbSL.getValue();
-                if (jaxbSL.getName().getLocalPart().equals(TITLE)) {
-                    titleCounter++;
-                    assertThat(sl.getContent().get(0), equalTo(TITLE_PREFIX + counter));
-                } else if (jaxbSL.getName().getLocalPart().equals(PUBLISHER)) {
-                    sourceCounter++;
-                    assertThat(sl.getContent().get(0), equalTo(SOURCE_PREFIX + counter));
-                } else {
-                    fail("Unexpected Field: " + jaxbSL.getName().getLocalPart());
-                }
-            }
-            
-            assertThat(titleCounter, equalTo(1));
-            assertThat(sourceCounter, equalTo(1));
- 
-            counter++;
-        }
+        GetRecordsResponseType response = jaxb.getValue();
+        // Assert the GetRecordsResponse elements and attributes
+        assertThat(response, not(nullValue()));
+        SearchResultsType resultsType = response.getSearchResults();
+        assertThat(resultsType, not(nullValue()));
+        assertThat(resultsType.getElementSet(), is(nullValue()));
+        assertThat(resultsType.getNumberOfRecordsMatched().intValue(), is(totalResults));
+        assertThat(resultsType.getNumberOfRecordsReturned().intValue(), is(totalResults));
+        assertThat(resultsType.getRecordSchema(), is(CswConstants.CSW_OUTPUT_SCHEMA));
     }
 
     @Test
@@ -593,46 +548,25 @@ public class TestGetRecordsResponseConverter {
         CswRecordCollection collection = createCswRecordCollection(null, totalResults);
         collection.setById(true);
 
+        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor.forClass(MarshallingContext.class);
+
         String xml = xstream.toXML(collection);
+
+        // Verify the context arguments were set correctly
+        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
+
+        MarshallingContext context = captor.getValue();
+        assertThat(context, not(nullValue()));
+        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
+        assertThat((ElementSetType)context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
+        assertThat(context.get(CswConstants.ELEMENT_NAMES), is(nullValue()));
 
         JAXBElement<GetRecordByIdResponseType> jaxb = (JAXBElement<GetRecordByIdResponseType>) getJaxBContext()
                 .createUnmarshaller().unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
 
         GetRecordByIdResponseType response = jaxb.getValue();
-        assertThat(response.getAbstractRecord().size(), equalTo(totalResults));
-
-        List<JAXBElement<? extends AbstractRecordType>> records = response.getAbstractRecord();
-        int counter = 1;
-        for (JAXBElement<? extends AbstractRecordType> abRecord : records) {
-            AbstractRecordType abstractRecord = abRecord.getValue();
-            assertTrue(abstractRecord instanceof RecordType);
-            RecordType record = (RecordType) abstractRecord;
-            List<JAXBElement<SimpleLiteral>> list = record.getDCElement();
-            int titleCounter = 0;
-            int idCounter = 0;
-            int sourceCounter = 0;
-            for (JAXBElement<SimpleLiteral> jaxbSL : list) {
-                SimpleLiteral sl = jaxbSL.getValue();
-                if (jaxbSL.getName().getLocalPart().equals(TITLE)) {
-                    titleCounter++;
-                    assertThat(sl.getContent().get(0), equalTo(TITLE_PREFIX + counter));
-                } else if (jaxbSL.getName().getLocalPart().equals(ID)) {
-                    idCounter++;
-                    assertThat(sl.getContent().get(0), equalTo(ID_PREFIX + counter));
-                } else if (jaxbSL.getName().getLocalPart().equals(PUBLISHER)) {
-                    sourceCounter++;
-                    assertThat(sl.getContent().get(0), equalTo(SOURCE_PREFIX + counter));
-                } else {
-                    fail("Unexpected Field: " + jaxbSL.getName().getLocalPart());
-                }
-            }
-
-            assertThat(titleCounter, equalTo(1));
-            assertThat(idCounter, equalTo(1));
-            assertThat(sourceCounter, equalTo(1));
-
-            counter++;
-        }
+        // Assert the GetRecordsResponse elements and attributes
+        assertThat(response, not(nullValue()));
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -645,7 +579,8 @@ public class TestGetRecordsResponseConverter {
         query.setMaxRecords(BigInteger.valueOf(maxRecords));
         query.setStartPosition(BigInteger.valueOf(startPosition));
         CswRecordCollection collection = createCswRecordCollection(query, totalResults);
-        
+        collection.setStartPosition(startPosition);
+
         String xml = xstream.toXML(collection);
 
         JAXBElement<GetRecordsResponseType> jaxb = (JAXBElement<GetRecordsResponseType>) getJaxBContext()
@@ -654,7 +589,7 @@ public class TestGetRecordsResponseConverter {
         GetRecordsResponseType response = jaxb.getValue();
         assertThat(response.getSearchResults().getNumberOfRecordsMatched().intValue(), equalTo(totalResults));
         assertThat(response.getSearchResults().getNumberOfRecordsReturned().intValue(), equalTo(expectedReturn));
-        assertThat(response.getSearchResults().getAbstractRecord().size(), equalTo(expectedReturn));
+//        assertThat(response.getSearchResults().getAbstractRecord().size(), equalTo(expectedReturn));
         assertThat(response.getSearchResults().getNextRecord().intValue(), equalTo(expectedNext));
     }
 
@@ -708,8 +643,7 @@ public class TestGetRecordsResponseConverter {
 
     private XStream createXStream(final String elementName) {
         RecordConverterFactory factory = new CswRecordConverterFactory(null);
-        GetRecordsResponseConverter rrConverter = new GetRecordsResponseConverter(
-                Arrays.asList(factory));
+        GetRecordsResponseConverter rrConverter = new GetRecordsResponseConverter(mockProvider);
 
         XStream xstream = new XStream(new StaxDriver(new NoNameCoder()));
 
@@ -740,7 +674,7 @@ public class TestGetRecordsResponseConverter {
         collection.setCswRecords(createMetacardList(first, last));
         collection.setNumberOfRecordsMatched(resultCount);
         collection.setNumberOfRecordsReturned(returned);
-        collection.setRequest(request);
+//        collection.setRequest(request);
         return collection;
     }
     

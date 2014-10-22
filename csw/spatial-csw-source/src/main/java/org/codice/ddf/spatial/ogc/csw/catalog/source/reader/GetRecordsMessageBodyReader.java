@@ -28,10 +28,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.MessageBodyReader;
 
+import ddf.catalog.transform.InputTransformer;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswTransformProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.GetRecordsResponseConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,10 +54,10 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
 
     private XStream xstream;
 
-    public GetRecordsMessageBodyReader(List<RecordConverterFactory> factories, CswSourceConfiguration configuration) {
+    public GetRecordsMessageBodyReader(CswTransformProvider provider, CswSourceConfiguration configuration) {
         xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
-        GetRecordsResponseConverter converter = new GetRecordsResponseConverter(factories);
+        GetRecordsResponseConverter converter = new GetRecordsResponseConverter(provider);
         converter.setUnmarshalConverterSchema(configuration.getOutputSchema(),
                 configuration.getMetacardCswMappings(), configuration.getProductRetrievalMethod(),
                 configuration.getResourceUriMapping(), configuration.getThumbnailMapping(),

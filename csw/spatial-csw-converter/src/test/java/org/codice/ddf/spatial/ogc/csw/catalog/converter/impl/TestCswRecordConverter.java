@@ -15,9 +15,12 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.converter.impl;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.core.TreeMarshaller;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.DomReader;
+import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
 import ddf.action.Action;
@@ -29,9 +32,13 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.NamespaceContext;
+import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.joda.time.format.DateTimeFormatter;
@@ -45,6 +52,8 @@ import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -61,6 +70,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -68,10 +78,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import static junit.framework.Assert.assertTrue;
+import static net.opengis.cat.csw.v_2_0_2.ElementSetType.BRIEF;
+import static net.opengis.cat.csw.v_2_0_2.ElementSetType.FULL;
+import static net.opengis.cat.csw.v_2_0_2.ElementSetType.SUMMARY;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
@@ -93,9 +110,36 @@ public class TestCswRecordConverter {
 
     private static final String TEST_URI = "http://host:port/my/product.pdf";
 
+    private static final DatatypeFactory XSD_FACTORY;
+
+    private static final GregorianCalendar CREATED_DATE = new GregorianCalendar(2014, 10, 1);
+
+    private static final GregorianCalendar MODIFIED_DATE = new GregorianCalendar(2016, 10, 1);
+
+    private static final GregorianCalendar EFFECTIVE_DATE = new GregorianCalendar(2015, 10, 1);
+
+    private static String MODIFIED;
+
+    private static String EFFECTIVE;
+
+    private static String CREATED;
+
+    static {
+        DatatypeFactory factory = null;
+        try {
+            factory = DatatypeFactory.newInstance();
+        } catch (DatatypeConfigurationException e) {
+            LOGGER.error("Failed to create xsdFactory: {}", e.getMessage());
+        }
+        XSD_FACTORY = factory;
+    }
+
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
+        MODIFIED = XSD_FACTORY.newXMLGregorianCalendar(MODIFIED_DATE).toXMLFormat();
+        EFFECTIVE = XSD_FACTORY.newXMLGregorianCalendar(EFFECTIVE_DATE).toXMLFormat();
+        CREATED = XSD_FACTORY.newXMLGregorianCalendar(CREATED_DATE).toXMLFormat();
     }
 
     @Test
@@ -478,16 +522,57 @@ public class TestCswRecordConverter {
     }
     
     @Test
-    public void testMarshalRecord() throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecord() throws IOException, JAXBException, SAXException,
+            XpathException {
         CswRecordConverter cswRecordConverter = createRecordConverter();
         Metacard metacard = getTestMetacard();
-        XStream xstream = new XStream(new StaxDriver(new NoNameCoder()));
 
-        xstream.registerConverter(cswRecordConverter);
+        StringWriter stringWriter = new StringWriter();
+        PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
+        MarshallingContext context = new TreeMarshaller(writer, null, null);
 
-        xstream.alias(CswConstants.CSW_RECORD, MetacardImpl.class);
-        
-        LOGGER.debug(xstream.toXML(metacard));
+        cswRecordConverter.marshal(metacard, writer, context);
+
+        System.out.println(stringWriter.toString());
+        String xml = stringWriter.toString();
+        assertThat(xml, containsString("<Record>"));
+        assertRecordXml(xml, metacard, FULL);
+    }
+
+    @Test
+    public void testMarshalBriefRecord() throws IOException, JAXBException, SAXException,
+            XpathException {
+        CswRecordConverter cswRecordConverter = createRecordConverter();
+        Metacard metacard = getTestMetacard();
+
+        StringWriter stringWriter = new StringWriter();
+        PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
+        MarshallingContext context = new TreeMarshaller(writer, null, null);
+        context.put(CswConstants.ELEMENT_SET_TYPE, ElementSetType.BRIEF);
+
+        cswRecordConverter.marshal(metacard, writer, context);
+
+        String xml = stringWriter.toString();
+        assertThat(xml, containsString("<BriefRecord>"));
+        assertRecordXml(xml, metacard, BRIEF);
+    }
+
+    @Test
+    public void testMarshalSummaryRecord() throws IOException, JAXBException, SAXException,
+            XpathException {
+        CswRecordConverter cswRecordConverter = createRecordConverter();
+        Metacard metacard = getTestMetacard();
+
+        StringWriter stringWriter = new StringWriter();
+        PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
+        MarshallingContext context = new TreeMarshaller(writer, null, null);
+        context.put(CswConstants.ELEMENT_SET_TYPE, ElementSetType.SUMMARY);
+
+        cswRecordConverter.marshal(metacard, writer, context);
+
+        String xml = stringWriter.toString();
+        assertThat(xml, containsString("<SummaryRecord>"));
+        assertRecordXml(xml, metacard, SUMMARY);
     }
 
     @Test
@@ -502,14 +587,14 @@ public class TestCswRecordConverter {
         cswRecordConverter.setResourceActionProvider(mockActionProvider);
         Metacard metacard = getTestMetacard();
 
-        cswRecordConverter.setFieldsToWrite(Arrays.asList(new QName("source")));
-        XStream xstream = new XStream(new StaxDriver(new NoNameCoder()));
+        StringWriter stringWriter = new StringWriter();
+        PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
+        MarshallingContext context = new TreeMarshaller(writer, null, null);
+        context.put(CswConstants.ELEMENT_NAMES, Arrays.asList(new QName("source")));
 
-        xstream.registerConverter(cswRecordConverter);
+        cswRecordConverter.marshal(metacard, writer, context);
 
-        xstream.alias("Record", MetacardImpl.class);
-
-        String xml = xstream.toXML(metacard);
+        String xml = "<?xml version='1.0' encoding='UTF-8'?>" + stringWriter.toString();
 
         XMLUnit.setIgnoreWhitespace(true);
 
@@ -522,12 +607,35 @@ public class TestCswRecordConverter {
 
         when(mockActionProvider.getAction(any(MetacardImpl.class))).thenReturn(mockAction);
 
-        String xml2 = xstream.toXML(metacard);
+        stringWriter.getBuffer().setLength(0);
+        cswRecordConverter.marshal(metacard, writer, context);
+
+        String xml2 = "<?xml version='1.0' encoding='UTF-8'?>" + stringWriter.toString();
 
         final String test2 = "<?xml version='1.0' encoding='UTF-8'?><Record><source>" + actionUrl
                 + "</source></Record>";
 
         assertXMLEqual(test2, xml2);
+    }
+
+    @Test
+    public void testMarshalRecordWithNamespaces() throws IOException, JAXBException, SAXException,
+            XpathException {
+        CswRecordConverter cswRecordConverter = createRecordConverter();
+        Metacard metacard = getTestMetacard();
+
+        StringWriter stringWriter = new StringWriter();
+        PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
+        MarshallingContext context = new TreeMarshaller(writer, null, null);
+        context.put(CswConstants.WRITE_NAMESPACES, true);
+
+        cswRecordConverter.marshal(metacard, writer, context);
+
+        String xml = stringWriter.toString();
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(getControlRecord(), xml);
+//        assertThat(xml, containsString("<csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dct=\"http://purl.org/dc/terms/\">"));
+//        assertRecordXml(xml, metacard, FULL);
     }
 
     // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -564,13 +672,13 @@ public class TestCswRecordConverter {
 
         metacard.setContentTypeName("I have some content type");
         metacard.setContentTypeVersion("1.0.0");
-        metacard.setCreatedDate(new Date());
-        metacard.setEffectiveDate(new Date());
+        metacard.setCreatedDate(CREATED_DATE.getTime());
+        metacard.setEffectiveDate(EFFECTIVE_DATE.getTime());
         metacard.setId("ID");
         metacard.setLocation("POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))");
         metacard.setMetadata("metadata a whole bunch of metadata");
-        metacard.setModifiedDate(new Date());
-        metacard.setResourceSize("123 is the size");
+        metacard.setModifiedDate(MODIFIED_DATE.getTime());
+        metacard.setResourceSize("123TB");
         metacard.setSourceId("sourceID");
         metacard.setTitle("This is my title");
         try {
@@ -578,34 +686,6 @@ public class TestCswRecordConverter {
         } catch (URISyntaxException e) {
             LOGGER.debug("URISyntaxException", e);
         }
-
-        Set<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
-        descriptors.add(new AttributeDescriptorImpl("id", false, false, false, false,
-                BasicTypes.LONG_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("version", false, false, false, false,
-                BasicTypes.LONG_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("end_date", false, false, false, false,
-                BasicTypes.DATE_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("filename", false, false, false, false,
-                BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("height", false, false, false, false,
-                BasicTypes.LONG_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("index_id", false, false, false, false,
-                BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("other_tags_xml", false, false, false, false,
-                BasicTypes.STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("repository_id", false, false, false, false,
-                BasicTypes.LONG_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("start_date", false, false, false, false,
-                BasicTypes.DATE_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("style_id", false, false, false, false,
-                BasicTypes.INTEGER_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("width", false, false, false, false,
-                BasicTypes.LONG_TYPE));
-        descriptors.add(new AttributeDescriptorImpl("ground_geom", false, false, false, false,
-                BasicTypes.GEO_TYPE));
-
-        metacard.setType(new MetacardTypeImpl("test_type", descriptors));
 
         return metacard;
     }
@@ -683,5 +763,78 @@ public class TestCswRecordConverter {
         byte[] thumbnail = IOUtils.toByteArray(is);
         IOUtils.closeQuietly(is);
         return thumbnail;
+    }
+
+    private String getControlRecord() {
+        return "<csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" "
+                + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
+                + "xmlns:dct=\"http://purl.org/dc/terms/\" "
+                + "xmlns:ows=\"http://www.opengis.net/ows\">\n"
+                + "  <dct:created>" + CREATED + "</dct:created>\n"
+                + "  <dc:date>" + MODIFIED + "</dc:date>\n"
+                + "  <dct:modified>" + MODIFIED + "</dct:modified>\n"
+                + "  <dct:dateSubmitted>" + MODIFIED + "</dct:dateSubmitted>\n"
+                + "  <dct:issued>" + MODIFIED + "</dct:issued>\n"
+                + "  <dc:identifier>ID</dc:identifier>\n"
+                + "  <dct:bibliographicCitation>ID</dct:bibliographicCitation>\n"
+                + "  <dc:source>http://host:port/my/product.pdf</dc:source>\n"
+                + "  <dc:title>This is my title</dc:title>\n"
+                + "  <dct:alternative>This is my title</dct:alternative>\n"
+                + "  <metadata>metadata a whole bunch of metadata</metadata>\n"
+                + "  <dc:type>I have some content type</dc:type>\n"
+                + "  <metadata-content-type-version>1.0.0</metadata-content-type-version>\n"
+                + "  <location>POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))</location>\n"
+                + "  <resource-size>123TB</resource-size>\n"
+                + "  <dct:dateAccepted>" + EFFECTIVE + "</dct:dateAccepted>\n"
+                + "  <dct:dateCopyrighted>" + EFFECTIVE + "</dct:dateCopyrighted>\n"
+                + "  <dc:publisher>sourceID</dc:publisher>\n"
+                + "  <ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
+                + "    <ows:LowerCorner>10.0 10.0</ows:LowerCorner>\n"
+                + "    <ows:UpperCorner>40.0 40.0</ows:UpperCorner>\n"
+                + "  </ows:BoundingBox>\n"
+                + "</csw:Record>\n";
+    }
+
+    private void assertRecordXml(String xml, Metacard metacard, ElementSetType elemntSetType) {
+        switch (elemntSetType) {
+        case FULL:
+            assertThat(xml, containsString("<dct:bibliographicCitation>" + metacard.getId()
+                    + "</dct:bibliographicCitation>"));
+            assertThat(xml, containsString(
+                    "<dct:alternative>" + metacard.getTitle() + "</dct:alternative>"));
+            assertThat(xml, containsString("<dc:date>" + MODIFIED + "</dc:date>"));
+            assertThat(xml, containsString("<dct:modified>" + MODIFIED + "</dct:modified>"));
+            assertThat(xml, containsString("<dct:created>" + CREATED + "</dct:created>"));
+            assertThat(xml,
+                    containsString("<dct:dateAccepted>" + EFFECTIVE + "</dct:dateAccepted>"));
+            assertThat(xml,
+                    containsString("<dct:dateCopyrighted>" + EFFECTIVE + "</dct:dateCopyrighted>"));
+            assertThat(xml,
+                    containsString("<dct:dateSubmitted>" + MODIFIED + "</dct:dateSubmitted>"));
+            assertThat(xml, containsString("<dct:issued>" + MODIFIED + "</dct:issued>"));
+            assertThat(xml,
+                    containsString("<dc:source>" + metacard.getResourceURI() + "</dc:source>"));
+            assertThat(xml,
+                    containsString("<dc:publisher>" + metacard.getSourceId() + "</dc:publisher>"));
+
+        case SUMMARY:
+            // This seems weak but we only have a default mapping for modified
+            assertThat(xml, containsString("<dct:modified>" + MODIFIED + "</dct:modified>"));
+            //            assertThat(xml, containsString("<dc:subject>" + metacard.getId() + "</dc:subject>"));
+            //            assertThat(xml, containsString("<dc:format>" + metacard.getId() + "</dc:format>"));
+            //            assertThat(xml, containsString("<dc:relation>" + metacard.getId() + "</dc:relation>"));
+            //            assertThat(xml, containsString("<dc:abstract>" + metacard.getId() + "</dc:abstract>"));
+            //            assertThat(xml, containsString("<dc:spatial>" + metacard.getId() + "</dc:spatial>"));
+            //            assertThat(xml, containsString("<dc:modified>" + metacard.getId() + "</dc:modified>"));
+
+        case BRIEF:
+            assertThat(xml,
+                    containsString("<dc:identifier>" + metacard.getId() + "</dc:identifier>"));
+            assertThat(xml, containsString("<dc:title>" + metacard.getTitle() + "</dc:title>"));
+            assertThat(xml,
+                    containsString("<dc:type>" + metacard.getContentTypeName() + "</dc:type>"));
+        }
+
+        // TODO - assert the reverse - if brief then it shouldn't have the others
     }
 }

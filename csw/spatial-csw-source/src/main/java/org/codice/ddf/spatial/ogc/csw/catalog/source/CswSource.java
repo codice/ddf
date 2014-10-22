@@ -87,6 +87,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswTransformProvider;
 import org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
@@ -170,7 +171,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     protected boolean contentTypeMappingUpdated;
 
-    protected List<RecordConverterFactory> recordConverterFactories;
+//    protected List<RecordConverterFactory> recordConverterFactories;
+    private CswTransformProvider cswTransformProvider;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswSource.class);
 
@@ -264,11 +266,12 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
      * @param context   The {@link BundleContext} from the OSGi Framework
      */
     public CswSource(RemoteCsw remoteCsw, BundleContext context,
-            CswSourceConfiguration cswSourceConfiguration, List<RecordConverterFactory> factories) {
+            CswSourceConfiguration cswSourceConfiguration, CswTransformProvider provider) {
         this.remoteCsw = remoteCsw;
         this.context = context;
         this.cswSourceConfiguration = cswSourceConfiguration;
-        this.recordConverterFactories = factories;
+//        this.recordConverterFactories = factories;
+        this.cswTransformProvider = provider;
         scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
@@ -486,7 +489,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         LOGGER.debug("Connecting to remote CSW Server " + cswSourceConfiguration.getCswUrl());
 
         try {
-            remoteCsw = new RemoteCsw(recordConverterFactories, cswSourceConfiguration);
+            remoteCsw = new RemoteCsw(cswTransformProvider, cswSourceConfiguration);
             remoteCsw.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
                     trustStorePassword);
             remoteCsw.setTimeouts(cswSourceConfiguration.getConnectionTimeout(),
@@ -899,11 +902,11 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             LOGGER.debug(builder.toString());
         }
 
-        this.recordConverterFactories = factories;
+//        this.recordConverterFactories = factories;
     }
 
     public List<RecordConverterFactory> getRecordConverterFactoryList() {
-        return this.recordConverterFactories;
+        return null;
     }
    
     public String getForceSpatialFilter() {

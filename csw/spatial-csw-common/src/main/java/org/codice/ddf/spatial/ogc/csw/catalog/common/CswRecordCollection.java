@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import ddf.catalog.operation.SourceResponse;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
@@ -49,6 +50,14 @@ public class CswRecordCollection {
 
     private String outputSchema;
 
+    private boolean isValidateQuery;
+
+    private SourceResponse sourceResponse;
+
+    private String mimeType;
+
+    private int startPosition;
+
     /**
      * Retrieves the request made that generated this set of CSW Records, if applicable
      * 
@@ -63,6 +72,7 @@ public class CswRecordCollection {
      * 
      * @param request A {@link GetRecordsType} used to generate this request
      */
+    // TODO - I don't like this - how about this just becomes a simple setter
     public void setRequest(GetRecordsType request) {
         if (request != null) {
             this.request = request;
@@ -145,4 +155,36 @@ public class CswRecordCollection {
         this.outputSchema = outputSchema;
     }
     
+    public void setValidateQuery(boolean isValidateQuery){
+        this.isValidateQuery = isValidateQuery;
+    }
+    
+    public boolean isValidateQuery(){
+        return isValidateQuery;
+    }
+
+    public SourceResponse getSourceResponse(){
+        return sourceResponse;
+    }
+
+    public void setSourceResponse(SourceResponse response){
+        this.sourceResponse = response;
+    }
+    
+    public String getMimeType(){
+        return mimeType;
+    }
+    
+    public void setMimeType(String mimeType){
+        this.mimeType = mimeType;
+    }
+
+    public void setStartPosition(int start){
+        this.startPosition = start;
+    }
+
+    public int getStartPosition(){
+        return startPosition;
+    }
+
 }

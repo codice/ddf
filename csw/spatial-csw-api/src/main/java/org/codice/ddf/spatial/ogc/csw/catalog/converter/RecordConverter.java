@@ -53,14 +53,14 @@ public interface RecordConverter extends Converter {
      * 
      * @param fieldsToWrite
      */
-    public void setFieldsToWrite(List<QName> fieldsToWrite);
+//    public void setFieldsToWrite(List<QName> fieldsToWrite);
 
     /**
      * Gets the fields to write to the {@link Metacard}
      * 
      * @return fields to write
      */
-    public List<QName> getFieldsToWrite();
+//    public List<QName> getFieldsToWrite();
 
     /**
      * Gets the root element name to write for this Element Set.
@@ -69,6 +69,6 @@ public interface RecordConverter extends Converter {
      *            - the element set name
      * @return the root element name
      */
-    public String getRootElementName(String elementSetType);
+//    public String getRootElementName(String elementSetType);
 
 }
