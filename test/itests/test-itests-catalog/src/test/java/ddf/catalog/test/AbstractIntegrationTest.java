@@ -166,6 +166,9 @@ public abstract class AbstractIntegrationTest {
                 when(System.getProperty("maven.repo.local") != null)
                         .useOptions(systemProperty("org.ops4j.pax.url.mvn.localRepository")
                                 .value(System.getProperty("maven.repo.local", ""))),
+                systemProperty("host").value("localhost"),
+                systemProperty("jetty.port").value(HTTP_PORT),
+                systemProperty("hostContext").value("/solr"),
                 vmOption("-Xmx2048M"),
                 vmOption("-XX:PermSize=128M"),
                 vmOption("-XX:MaxPermSize=512M")
