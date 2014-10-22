@@ -265,8 +265,17 @@ public class ConfigurationStore {
     }
 
     public void setImageryProviders(List<String> imageryProviders) {
-        this.imageryProviders = imageryProviders;
-        setProxiesForImagery(imageryProviders);
+        List<String> itemList = new ArrayList<String>();
+        for (String item : imageryProviders) {
+            if (item.contains(",")) {
+                String[] items = item.split(",");
+                itemList.addAll(Arrays.asList(items));
+            } else {
+                itemList.add(item);
+            }
+        }
+        this.imageryProviders = itemList;
+        setProxiesForImagery(itemList);
     }
 
     public String getProxiedTerrainProvider() {
