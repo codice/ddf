@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
@@ -76,10 +77,7 @@ public final class PropertiesLoader {
         Properties properties = new Properties();
         if (propertiesFile != null) {
             try {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Attempting to load properties from " + propertiesFile
-                            + " with Spring PropertiesLoaderUtils.");
-                }
+                LOGGER.debug("Attempting to load properties from {} with Spring PropertiesLoaderUtils.", propertiesFile);
                 properties = PropertiesLoaderUtils.loadAllProperties(propertiesFile);
             } catch (IOException e) {
                 error = true;
@@ -88,10 +86,7 @@ public final class PropertiesLoader {
             if (error || properties.isEmpty()) {
                 if (classLoader != null) {
                     try {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Attempting to load properties from " + propertiesFile
-                                    + " with Spring PropertiesLoaderUtils with class loader.");
-                        }
+                        LOGGER.debug("Attempting to load properties from {} with Spring PropertiesLoaderUtils with class loader.", propertiesFile);
                         properties = PropertiesLoaderUtils.loadAllProperties(propertiesFile,
                                 classLoader);
                         error = false;
@@ -103,10 +98,7 @@ public final class PropertiesLoader {
                     }
                 } else {
                     try {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Attempting to load properties from " + propertiesFile
-                                    + " with Spring PropertiesLoaderUtils with class loader.");
-                        }
+                        LOGGER.debug("Attempting to load properties from {} with Spring PropertiesLoaderUtils with class loader.", propertiesFile);
                         properties = PropertiesLoaderUtils.loadAllProperties(propertiesFile,
                                 PropertiesLoader.class.getClassLoader());
                         error = false;
@@ -120,10 +112,7 @@ public final class PropertiesLoader {
             }
 
             if (error || properties.isEmpty()) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Attempting to load properties from file system: "
-                            + propertiesFile);
-                }
+                LOGGER.debug("Attempting to load properties from file system: {}", propertiesFile);
                 File propFile = new File(propertiesFile);
                 // If properties file has fully-qualified absolute path (which
                 // the blueprint file specifies) then can load it directly.
@@ -144,39 +133,36 @@ public final class PropertiesLoader {
                     }
                 }
                 properties = new Properties();
+                FileReader reader = null;
                 try {
-                    properties.load(new FileReader(propFile));
+                    reader = new FileReader(propFile);
+                    properties.load(reader);
                 } catch (FileNotFoundException e) {
                     error = true;
-                    LOGGER.error("Could not find properties file: " + propFile.getAbsolutePath(), e);
+                    LOGGER.error("Could not find properties file: {}", propFile.getAbsolutePath(), e);
                 } catch (IOException e) {
                     error = true;
-                    LOGGER.error("Error reading properties file: " + propFile.getAbsolutePath(), e);
+                    LOGGER.error("Error reading properties file: {}", propFile.getAbsolutePath(), e);
+                } finally {
+                    IOUtils.closeQuietly(reader);
                 }
             }
             if (error || properties.isEmpty()) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Attempting to load properties as a resource: " + propertiesFile);
-                }
+                LOGGER.debug("Attempting to load properties as a resource: {}", propertiesFile);
                 InputStream ins = PropertiesLoader.class.getResourceAsStream(propertiesFile);
                 if (ins != null) {
                     try {
                         properties.load(ins);
                         ins.close();
                     } catch (IOException e) {
-                        LOGGER.error("Unable to load properties: " + propertiesFile, e);
+                        LOGGER.error("Unable to load properties: {}", propertiesFile, e);
                     } finally {
-                        try {
-                            ins.close();
-                        } catch (IOException ignore) {
-                        }
+                        IOUtils.closeQuietly(ins);
                     }
                 }
             }
         } else {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Properties file must not be null.");
-            }
+            LOGGER.debug("Properties file must not be null.");
         }
 
         return properties;
