@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
 
@@ -33,7 +33,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPathExpression;
 
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
@@ -57,17 +56,22 @@ import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.AttributeType.AttributeFormat;
 
-public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConverter implements FeatureConverter {
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFeatureConverterWfs20.class);
+public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConverter
+        implements FeatureConverter {
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(AbstractFeatureConverterWfs20.class);
+
     private static final String XML_PARSE_FAILURE = "Failed to parse GML based XML into a Document.";
+
     private static final String CREATE_TRANSFORMER_FAILURE = "Failed to create Transformer.";
+
     private static final String GML_FAILURE = "Failed to transform GML.\n";
-    
+
     public AbstractFeatureConverterWfs20() {
-        
+
     }
-    
+
     public AbstractFeatureConverterWfs20(MetacardMapper metacardMapper) {
         super(metacardMapper);
     }
@@ -104,12 +108,12 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             String geometryXml = node.toString();
             Geometry geo = null;
             geo = (Geometry) readGml(geometryXml);
-            
+
             LOGGER.debug("coordinateOrder = {}", coordinateOrder);
             if (WfsConstants.LAT_LON_ORDER.equals(coordinateOrder)) {
                 swapCoordinates(geo);
             }
-            
+
             if (geo != null) {
                 WKTWriter wktWriter = new WKTWriter();
                 ser = wktWriter.write(geo);
@@ -146,47 +150,38 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             dBuilder = dbFactory.newDocumentBuilder();
             InputSource is = new InputSource();
             is.setCharacterStream(new StringReader(xml));
-            doc = dBuilder.parse(is);  
-        } catch (ParserConfigurationException e) {
-            LOGGER.error(XML_PARSE_FAILURE);
-        } catch (SAXException e) {
-            LOGGER.error(XML_PARSE_FAILURE);
-        } catch (IOException e) {
+            doc = dBuilder.parse(is);
+        } catch (ParserConfigurationException|SAXException|IOException e) {
             LOGGER.error(XML_PARSE_FAILURE);
         }
 
         String[] namePrefix = doc.getDocumentElement().getNodeName().split(":");
         String prefix = "";
         if (namePrefix.length < 2) {
-            LOGGER.debug("Incoming XML has no GML prefix");    
+            LOGGER.debug("Incoming XML has no GML prefix");
         } else {
             prefix = ":" + namePrefix[0];
         }
-        
+
         String xmlNs = doc.getDocumentElement().getAttribute("xmlns" + prefix);
         if (xmlNs.equals(Wfs20Constants.GML_3_2_NAMESPACE)) {
             LOGGER.warn("Namespace already exists.");
         } else {
-            //Add GML 3.2.1 namespace to XML chunk
-            doc.getDocumentElement().setAttribute("xmlns" + prefix, Wfs20Constants.GML_3_2_NAMESPACE);
+            doc.createElementNS(Wfs20Constants.GML_3_2_NAMESPACE, doc.getDocumentElement().getNodeName());
+
         }
-        
         //Convert DOM to InputStream
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Source xmlSource = new DOMSource(doc);
         Result outputTarget = new StreamResult(outputStream);
         try {
             TransformerFactory.newInstance().newTransformer().transform(xmlSource, outputTarget);
-        } catch (TransformerConfigurationException e) {
-            LOGGER.error(CREATE_TRANSFORMER_FAILURE);
-        } catch (TransformerException e) {
-            LOGGER.error(CREATE_TRANSFORMER_FAILURE);
-        } catch (TransformerFactoryConfigurationError e) {
+        } catch (TransformerException|TransformerFactoryConfigurationError e) {
             LOGGER.error(CREATE_TRANSFORMER_FAILURE);
         }
 
         xmlIs = new ByteArrayInputStream(outputStream.toByteArray());
-        
+
         //Parse XML into a Geometry object
         Configuration configurationG = new org.geotools.gml3.v3_2.GMLConfiguration();
         Parser parser = new org.geotools.xml.Parser(configurationG);
@@ -198,17 +193,13 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         Object gml = null;
         try {
             gml = parser.parse(xmlIs);
-        } catch (IOException e) {
-            LOGGER.error("{} {}", GML_FAILURE, xml);
-        } catch (SAXException e) {
-            LOGGER.error("{} {}", GML_FAILURE, xml);
-        } catch (ParserConfigurationException e) {
+        } catch (IOException|SAXException|ParserConfigurationException e) {
             LOGGER.error("{} {}", GML_FAILURE, xml);
         }
-        
+
         return gml;
     }
-    
+
     private void swapCoordinates(Geometry geo) {
         LOGGER.debug("Swapping Lat/Lon Coords to Lon/Lat using Geometry");
 
@@ -223,7 +214,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             }
 
         });
-        
+
         geo.geometryChanged();
     }
 }
