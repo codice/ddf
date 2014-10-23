@@ -14,6 +14,10 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter.impl;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.core.TreeUnmarshaller;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.XppFactory;
@@ -54,7 +58,8 @@ public class TestCswTransformProvider {
         XmlPullParser parser = XppFactory.createDefaultParser();
         HierarchicalStreamReader reader = new XppReader(new StringReader(getRecord()), parser);
         CswTransformProvider provider = new CswTransformProvider(null, mockManager);
-        Metacard metacard = (Metacard) provider.unmarshal(reader, null);
+        UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
+        Metacard metacard = (Metacard) provider.unmarshal(reader, context);
 
         // TODO - assert things here
 

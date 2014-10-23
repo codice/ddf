@@ -94,8 +94,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
@@ -261,9 +259,6 @@ public class TestCswEndpoint {
     
     private static net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory;
     private static ObjectFactory filterObjectFactory;
-
-    private static List<RecordConverterFactory> factories = Arrays
-            .<RecordConverterFactory> asList(new CswRecordConverterFactory(null));
 
     private static TransformerManager mockManager = mock(TransformerManager.class);
 

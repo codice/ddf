@@ -161,11 +161,16 @@ public class TestCswRecordConverter {
     }
 
     @Test
+    public void testConstructionDefault() {
+        CswRecordConverter converter = new CswRecordConverter();
+        assertDefaultDateMappings(converter.cswToMetacardAttributeNames);
+    }
+
+    @Test
     public void testUnmarshalSingleCswRecordToMetacard() {
         XStream xstream = new XStream(new WstxDriver());
 
         CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-        converter.setMetacardType(new CswRecordMetacardType());
 
         converter.setSourceId("CSW");
         xstream.registerConverter(converter);
@@ -199,8 +204,6 @@ public class TestCswRecordConverter {
         
         CswRecordConverter converter = new CswRecordConverter(metacardAttributeMappings, CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
         
-        converter.setMetacardType(new CswRecordMetacardType());
-
         converter.setSourceId("CSW");
         xstream.registerConverter(converter);
 
@@ -217,7 +220,6 @@ public class TestCswRecordConverter {
         XStream xstream = new XStream(new WstxDriver());
 
         CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-        converter.setMetacardType(new CswRecordMetacardType());
 
         converter.setSourceId("CSW");
         xstream.registerConverter(converter);
@@ -240,7 +242,6 @@ public class TestCswRecordConverter {
         XStream xstream = new XStream(new WstxDriver());
 
         CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-        converter.setMetacardType(new CswRecordMetacardType());
 
         converter.setSourceId("CSW");
         xstream.registerConverter(converter);
@@ -267,8 +268,6 @@ public class TestCswRecordConverter {
 
         CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, CswRecordMetacardType.CSW_SOURCE, null, false);
         
-        converter.setMetacardType(new CswRecordMetacardType());
-
         converter.setSourceId("CSW");
         xstream.registerConverter(converter);
 
@@ -287,7 +286,6 @@ public class TestCswRecordConverter {
         XStream xstream = new XStream(new WstxDriver());
 
         CswRecordConverter converter = new CswRecordConverter(null, CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-        converter.setMetacardType(new CswRecordMetacardType());
 
         converter.setSourceId("CSW_Source");
         xstream.registerConverter(converter);
@@ -359,7 +357,6 @@ public class TestCswRecordConverter {
         XStream xstream = new XStream(new WstxDriver());
 
         CswRecordConverter converter = new CswRecordConverter(null, CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-        converter.setMetacardType(new CswRecordMetacardType());
 
         converter.setSourceId("CSW_Source");
         xstream.registerConverter(converter);
@@ -381,7 +378,6 @@ public class TestCswRecordConverter {
         metacardAttributeMappings.put(Metacard.MODIFIED, CswRecordMetacardType.CSW_DATE_SUBMITTED);
 
         CswRecordConverter converter = new CswRecordConverter(metacardAttributeMappings, CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-        converter.setMetacardType(new CswRecordMetacardType());
 
         converter.setSourceId("CSW_Source");
         xstream.registerConverter(converter);
@@ -412,7 +408,6 @@ public class TestCswRecordConverter {
         
         CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, CswRecordMetacardType.CSW_SOURCE, CswRecordMetacardType.CSW_REFERENCES, false);
         
-        converter.setMetacardType(new CswRecordMetacardType());
         converter.setSourceId(SOURCE);
 
         xstream.registerConverter(converter);
@@ -510,8 +505,6 @@ public class TestCswRecordConverter {
         
         CswRecordConverter cswRecordConverter = new CswRecordConverter(metacardAttributeMappings, CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
         
-        cswRecordConverter.setMetacardType(new CswRecordMetacardType());
-
         // Perform test
         Metacard metacard = (Metacard) cswRecordConverter.unmarshal(reader, null);
 
@@ -533,7 +526,6 @@ public class TestCswRecordConverter {
 
         cswRecordConverter.marshal(metacard, writer, context);
 
-        System.out.println(stringWriter.toString());
         String xml = stringWriter.toString();
         assertThat(xml, containsString("<Record>"));
         assertRecordXml(xml, metacard, FULL);
@@ -662,7 +654,6 @@ public class TestCswRecordConverter {
                 "resourceUriMapping",
                 "thumbnailMapping",
                 true);
-        cswRecordConverter.setFieldsToWrite(CswRecordMetacardType.FULL_CSW_RECORD_FIELDS);
         return cswRecordConverter;
     }
 

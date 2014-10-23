@@ -14,6 +14,7 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter.impl;
 
+import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -83,7 +84,7 @@ import java.util.Set;
  * 
  */
 
-public class CswRecordConverter implements RecordConverter {
+public class CswRecordConverter implements Converter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswRecordConverter.class);
 
@@ -91,7 +92,7 @@ public class CswRecordConverter implements RecordConverter {
     
     private static final DatatypeFactory XSD_FACTORY;
 
-    protected MetacardType metacardType;
+    private static final MetacardType CSW_METACARD_TYPE = new CswRecordMetacardType();
 
     private String sourceId = null;
 
@@ -138,11 +139,20 @@ public class CswRecordConverter implements RecordConverter {
         XSD_FACTORY = factory;
     }
 
-    public CswRecordConverter(Map<String, String> metacardToCswAttributeMappings, String productRetrievalMethod, String resourceUriMapping, String thumbnailMapping, boolean isLonLatOrder) {
-        this(metacardToCswAttributeMappings, null, productRetrievalMethod, resourceUriMapping, thumbnailMapping, isLonLatOrder);
+    public CswRecordConverter() {
+        loadFallbackMappings();
     }
 
-    public CswRecordConverter(Map<String, String> metacardToCswAttributeMappings, Map<String, String> prefixToUriMapping, String productRetrievalMethod, String resourceUriMapping, String thumbnailMapping, boolean isLonLatOrder) {
+    public CswRecordConverter(Map<String, String> metacardToCswAttributeMappings,
+            String productRetrievalMethod, String resourceUriMapping, String thumbnailMapping,
+            boolean isLonLatOrder) {
+        this(metacardToCswAttributeMappings, null, productRetrievalMethod, resourceUriMapping,
+                thumbnailMapping, isLonLatOrder);
+    }
+
+    public CswRecordConverter(Map<String, String> metacardToCswAttributeMappings,
+            Map<String, String> prefixToUriMapping, String productRetrievalMethod,
+            String resourceUriMapping, String thumbnailMapping, boolean isLonLatOrder) {
         this.metacardToCswAttributeMappings = metacardToCswAttributeMappings;
         this.prefixToUriMapping = prefixToUriMapping;
         this.productRetrievalMethod = productRetrievalMethod;
@@ -168,10 +178,8 @@ public class CswRecordConverter implements RecordConverter {
             for (String metacardAttrName : metacardToAttribute.keySet()) {
                 String cswAttrName = metacardToAttribute.get(metacardAttrName);
 
-                // Check if this mapping has overlaps with basic Metacard
-                // attribute names -
-                // if so, need to prepend CSW prefix to attribute name so
-                // that it is uniquely named
+                // Check if this mapping has overlaps with basic Metacard attribute names - if so,
+                // need to prepend CSW prefix to attribute name so that it is uniquely named
                 // (see CswRecordMetacardType class)
                 if (CSW_OVERLAPPING_ATTRIBUTE_NAMES.contains(cswAttrName)) {
                     cswAttrName = CswRecordMetacardType.CSW_ATTRIBUTE_PREFIX + cswAttrName;
@@ -180,18 +188,11 @@ public class CswRecordConverter implements RecordConverter {
                 cswToMetacardAttributeNames.put(cswAttrName, metacardAttrName);
             }
         } else {
-            LOGGER.info("No default attribute mappings provided by caller - using fallback mappings");
+            LOGGER.debug(
+                    "No default attribute mappings provided by caller - using fallback mappings");
             loadFallbackMappings();
         }
     }
-
-    public void setFieldsToWrite(List<QName> fieldsToWrite) {
-    }
-
-    public List<QName> getFieldsToWrite() {
-        return null;
-    }
-
 
     private void loadFallbackMappings() {
         cswToMetacardAttributeNames = DefaultCswRecordMap.getDefaultCswRecordMap()
@@ -483,18 +484,10 @@ public class CswRecordConverter implements RecordConverter {
         // changes a new converter will get created.
         // setCswToMetacardAttributeMappings(metacardToCswAttributeMappings);
 
-        Metacard metacard = createMetacardFromCswRecord(reader, metacardType);
+        Metacard metacard = createMetacardFromCswRecord(reader, CSW_METACARD_TYPE);
         metacard.setSourceId(sourceId);
 
         return metacard;
-    }
-
-    public void setMetacardType(MetacardType metacardType) {
-        this.metacardType = metacardType;
-    }
-
-    public MetacardType getMetacardType() {
-        return this.metacardType;
     }
 
     protected HierarchicalStreamReader copyXml(HierarchicalStreamReader hreader, StringWriter writer) {

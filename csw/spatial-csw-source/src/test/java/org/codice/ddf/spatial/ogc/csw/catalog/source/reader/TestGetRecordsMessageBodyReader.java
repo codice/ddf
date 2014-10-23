@@ -37,8 +37,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswTransformProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswRecordInputTransformer;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;

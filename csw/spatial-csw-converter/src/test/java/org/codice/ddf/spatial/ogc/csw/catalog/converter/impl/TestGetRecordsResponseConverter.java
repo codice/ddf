@@ -255,8 +255,6 @@ public class TestGetRecordsResponseConverter {
         XStream xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
         
-        RecordConverterFactory factory = new CswRecordConverterFactory(null);
-        
         GetRecordsResponseConverter grrc = new GetRecordsResponseConverter(mockProvider);
         grrc.setUnmarshalConverterSchema(CswConstants.CSW_OUTPUT_SCHEMA,
                 getDefaultMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL,
@@ -642,7 +640,6 @@ public class TestGetRecordsResponseConverter {
     }
 
     private XStream createXStream(final String elementName) {
-        RecordConverterFactory factory = new CswRecordConverterFactory(null);
         GetRecordsResponseConverter rrConverter = new GetRecordsResponseConverter(mockProvider);
 
         XStream xstream = new XStream(new StaxDriver(new NoNameCoder()));

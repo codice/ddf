@@ -14,7 +14,9 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter.impl;
 
+import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -47,7 +49,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * This class maintains a list of the available MetacardTransformers for mime types text/xml and application/xml.
+ * Class to determine what transformer to use based on the schema and transforms the data appropriately.
  */
 public class CswTransformProvider implements Converter {
 
@@ -64,6 +66,17 @@ public class CswTransformProvider implements Converter {
         this.inputTransformerManager = inputTransformerManager;
     }
 
+    /**
+     * Marshals Metacards to an xml. This method is not typically be called directly, instead it is
+     * called by another XStream Converter using MarshallingContext.convertAnother();
+     *
+     * @param o       - metacard to transform.
+     * @param writer  - writes the XML.
+     * @param context - the marshalling context. Should contain a map entry for {@link
+     *                org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.OUTPUT_SCHEMA_PARAMETER}
+     *                to identify which transformer to use. Also contains properties for any
+     *                arguments to provide the transformer.
+     */
     @Override public void marshal(Object o, HierarchicalStreamWriter writer,
             MarshallingContext context) {
         if (o == null) {
@@ -81,16 +94,14 @@ public class CswTransformProvider implements Converter {
         }
 
         if (transformer == null) {
-            // TODO - throw or just return?
-            return;
+            throw new ConversionException("Unable to locate a transformer for output schema: " + arg);
         }
 
         BinaryContent content = null;
         try {
             content = transformer.transform(metacard, getArguments(context));
         } catch (CatalogTransformerException e) {
-            // TODO - throw or return??
-            return;
+            throw new ConversionException("Unable to transform Metacard", e);
         }
 
         writeXml(content, writer);
@@ -103,18 +114,18 @@ public class CswTransformProvider implements Converter {
                     .copy(new XppReader(new InputStreamReader(content.getInputStream()), parser),
                             writer);
         } catch (XmlPullParserException e) {
-            LOGGER.error("Unable to copy metadata to XML Output.", e);
+            throw new ConversionException("Unable to copy metadata to XML Output.", e);
         }
 
     }
 
-    private Map<String, Serializable> getArguments(MarshallingContext context) {
+    private Map<String, Serializable> getArguments(DataHolder holder) {
         Map<String, Serializable> arguments = new HashMap<>();
-        Iterator<Object> contextIterator = context.keys();
+        Iterator<Object> contextIterator = holder.keys();
         while (contextIterator.hasNext()) {
             Object key = contextIterator.next();
             if (key instanceof String) {
-                Object value = context.get(key);
+                Object value = holder.get(key);
                 if (value instanceof Serializable) {
                     arguments.put((String) key, (Serializable) value);
                 }
@@ -123,18 +134,37 @@ public class CswTransformProvider implements Converter {
         return arguments;
     }
 
+    /**
+     * Creates a Metacard from the given XML. This method is not typically be called directly, instead it is
+     * called by another XStream Converter using UnmarshallingContext.convertAnother();
+     * @param reader
+     * @param context
+     * @return
+     */
     @Override public Object unmarshal(HierarchicalStreamReader reader,
             UnmarshallingContext context) {
-        // TODO - lookup schema from context properties
-        InputTransformer transformer = inputTransformerManager.getTransformerBySchema(
-                CswConstants.CSW_OUTPUT_SCHEMA);
+
+        // TODO - how I am supposed to pass any arguments to my InputTransformer????????
+        Object arg = context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER);
+        InputTransformer transformer = null;
+        if (arg == null || CswConstants.CSW_OUTPUT_SCHEMA.equals((String) arg)) {
+            transformer = inputTransformerManager
+                    .getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
+        } else {
+            String outputSchema = (String) arg;
+            transformer = inputTransformerManager.getTransformerBySchema(outputSchema);
+        }
+
+        if (transformer == null) {
+            throw new ConversionException(
+                    "Unable to locate a transformer for output schema: " + arg);
+        }
 
         Metacard metacard = null;
         try (InputStream is = readXml(reader, context)) {
             metacard = transformer.transform(is);
         } catch (IOException|CatalogTransformerException e) {
-            // TODO - do something here
-            return null;
+            throw new ConversionException("Unable to transform Metacard", e);
         }
         return metacard;
     }

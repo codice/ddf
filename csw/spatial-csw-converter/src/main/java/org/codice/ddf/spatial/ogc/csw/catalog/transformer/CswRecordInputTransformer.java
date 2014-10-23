@@ -14,35 +14,27 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverter;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory;
-
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
-
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverter;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class CswRecordInputTransformer implements InputTransformer {
 
     private XStream xstream;
 
     public CswRecordInputTransformer() {
-
-        RecordConverterFactory recordConverterFactory = new CswRecordConverterFactory(null);
-
-        RecordConverter recordConverter = recordConverterFactory.createConverter(null, null, null,
-                null, false);
+        CswRecordConverter recordConverter = new CswRecordConverter();
 
         xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());

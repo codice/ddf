@@ -27,7 +27,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>spatial-csw-schema-bindings</module>
-        <module>spatial-csw-api</module>
         <module>spatial-csw-common</module>
         <module>spatial-csw-converter</module>
         <module>spatial-csw-source</module>

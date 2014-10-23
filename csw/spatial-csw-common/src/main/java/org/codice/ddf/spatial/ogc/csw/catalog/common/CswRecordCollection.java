@@ -72,21 +72,8 @@ public class CswRecordCollection {
      * 
      * @param request A {@link GetRecordsType} used to generate this request
      */
-    // TODO - I don't like this - how about this just becomes a simple setter
     public void setRequest(GetRecordsType request) {
-        if (request != null) {
-            this.request = request;
-            if (this.request.isSetOutputSchema()) {
-                this.outputSchema = this.request.getOutputSchema();
-            }
-            if (this.request.getAbstractQuery() != null
-                    && this.request.getAbstractQuery().getValue() instanceof QueryType) {
-                QueryType query = (QueryType) this.request.getAbstractQuery().getValue();
-                if (query.isSetElementSetName() && query.getElementSetName().getValue() != null) {
-                    this.elementSetType = query.getElementSetName().getValue();
-                }
-            }
-        }
+        this.request = request;
     }
 
     /**

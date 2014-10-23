@@ -36,8 +36,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverter;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswTransformProvider;
 import org.geotools.filter.FilterFactoryImpl;
 import org.joda.time.DateTime;
@@ -907,7 +905,6 @@ public class TestCswSource extends TestCswSourceBase {
     private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context, RecordConverter recordConverter,
                                    List<String> contentTypes, String contentMapping)  {
 
-        RecordConverterFactory factory = new CswRecordConverterFactory(null);
         CswSourceConfiguration cswSourceConfiguration = getStandardCswSourceConfiguration(contentMapping);
         cswSourceConfiguration.setContentTypeMapping(contentMapping);
         CswSource cswSource = new CswSource(remoteCsw, mockContext, cswSourceConfiguration,

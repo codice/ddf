@@ -43,11 +43,7 @@ public class CswRecordMetacardTransformer implements MetacardTransformer {
     private CswRecordConverter recordConverter;
 
     public CswRecordMetacardTransformer() {
-        // TODO - should we make one of these in blueprint with all the defaults preconfigured?
-        recordConverter = new CswRecordConverter(
-                DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames(),
-                DefaultCswRecordMap.getDefaultCswRecordMap().getPrefixToUriMapping(), null, null,
-                null, false);
+        recordConverter = new CswRecordConverter();
 
         xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
@@ -57,7 +53,6 @@ public class CswRecordMetacardTransformer implements MetacardTransformer {
 
     @Override public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
             throws CatalogTransformerException {
-
         StringWriter stringWriter = new StringWriter();
         stringWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
         PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);

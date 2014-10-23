@@ -14,7 +14,6 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
-import ddf.catalog.transform.QueryResponseTransformer;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
