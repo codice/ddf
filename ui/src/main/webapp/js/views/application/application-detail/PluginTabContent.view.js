@@ -20,8 +20,10 @@ define([
     'icanhaz',
     'js/views/application/IFrameView.js',
     'text!pluginTabContentItemView',
-    'text!pluginTabContentCollectionView'
-    ],function (require, Marionette, Backbone, ich, IFrameView, pluginTabContentItemView, pluginTabContentCollectionView) {
+    'text!pluginTabContentCollectionView',
+    'js/wreqr.js',
+    'iframeresizer'
+    ],function (require, Marionette, Backbone, ich, IFrameView, pluginTabContentItemView, pluginTabContentCollectionView, wreqr) {
 
     ich.addTemplate('pluginTabContentItemView', pluginTabContentItemView);
     ich.addTemplate('pluginTabContentCollectionView', pluginTabContentCollectionView);
@@ -34,6 +36,7 @@ define([
         },
         initialize: function(options){
             this.applicationModel = options.applicationModel;
+            this.listenTo(wreqr.vent, 'application:tabShown', this.handleTabShown);
         },
         onBeforeRender: function(){
             this.$el.attr('id', this.model.get('id'));
@@ -52,6 +55,9 @@ define([
                     model: new Backbone.Model({url : iframeLocation})
                 }));
             }
+        },
+        handleTabShown: function(){
+            this.$('iframe').iFrameResize();
         }
     });
 

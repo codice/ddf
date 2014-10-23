@@ -17,8 +17,9 @@ define([
     'marionette',
     'icanhaz',
     'text!pluginTabItemView',
-    'text!pluginTabCollectionView'
-    ],function (Marionette, ich, pluginTabItemView, pluginTabCollectionView) {
+    'text!pluginTabCollectionView',
+    'js/wreqr.js',
+    ],function (Marionette, ich, pluginTabItemView, pluginTabCollectionView, wreqr) {
 
     ich.addTemplate('pluginTabItemView',pluginTabItemView);
     ich.addTemplate('pluginTabCollectionView', pluginTabCollectionView);
@@ -33,7 +34,13 @@ define([
         template: 'pluginTabCollectionView',
         itemView: ItemView,
         className: '.plugin-view',
-        itemViewContainer: '.nav.nav-tabs'
+        itemViewContainer: '.nav.nav-tabs',
+        events: {
+            'shown.bs.tab .nav-tabs>li>a': 'tabShown'
+        },
+        tabShown: function(){
+            wreqr.vent.trigger('application:tabShown');
+        }
     });
 
 
