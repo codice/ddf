@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 public class AnonymousInterceptorWrapper extends AbstractWSS4JInterceptor {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AnonymousInterceptorWrapper.class);
 	private BundleContext context = null;
-	private PhaseInterceptor anonIntercep = null;
 	
 	public AnonymousInterceptorWrapper(BundleContext context) {
         super();
@@ -44,6 +43,7 @@ public class AnonymousInterceptorWrapper extends AbstractWSS4JInterceptor {
 
 	@Override
 	public void handleMessage(SoapMessage msg) throws Fault {
+	    PhaseInterceptor anonIntercep = null;
 	    ServiceReference anonIntercepRef = context
                 .getServiceReference(PhaseInterceptor.class.getName());
 	    
