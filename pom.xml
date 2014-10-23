@@ -262,8 +262,8 @@
         <module>opensearch</module>
         <module>rest</module>
         <module>security</module>
-        <module>catalog-app</module>
         <module>admin</module>
+        <module>catalog-app</module>
     </modules>
 
     <repositories>
