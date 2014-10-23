@@ -24,6 +24,7 @@ define(['jquery',
         'text!templates/header.layout.handlebars',
         'text!templates/footer.layout.handlebars',
         'js/controllers/application.controller',
+        'js/controllers/Modal.controller',
         // Load non attached libs and plugins
         'bootstrap',
         'backboneassociations',
@@ -31,7 +32,7 @@ define(['jquery',
         'jquerycometd',
         'modelbinder',
         'collectionbinder'
-    ], function ($, _, Marionette, Backbone, ich, properties, maptype, map, header, footer, ApplicationController) {
+    ], function ($, _, Marionette, Backbone, ich, properties, maptype, map, header, footer, ApplicationController, ModalController) {
         'use strict';
 
         var Application = {};
@@ -45,7 +46,11 @@ define(['jquery',
 
         Application.AppModel = new Backbone.Model(properties);
 
-        Application.Controllers = {};
+        Application.Controllers = {
+
+            modalController: new ModalController({application: Application.App})
+
+        };
 
         // Set up the main regions that will be available at the Application level.
         Application.App.addRegions({
@@ -54,7 +59,8 @@ define(['jquery',
             headerRegion : 'header',
             footerRegion : 'footer',
             menuRegion: '#menu',
-            controlPanelRegion: '#controlPanel'
+            controlPanelRegion: '#controlPanel',
+            modalRegion: '#modalRegion'
         });
 
         Application.Router = new Marionette.AppRouter({

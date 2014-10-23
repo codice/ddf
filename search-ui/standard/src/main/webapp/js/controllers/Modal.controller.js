@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,24 +9,27 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="navbar-brand">
-    <div class="branding">
-        <i class="fa fa-globe"></i> {{branding}}
-    </div>
-</div>
-<ul id="welcome" class="nav pull-right">
+/*global define */
+define(['jquery',
+        'underscore',
+        'marionette',
+        'wreqr'
+    ], function ($, _, Marionette, wreqr) {
+        'use strict';
+        var ModalController;
 
-</ul>
-<ul id="help" class="nav pull-right">
+        ModalController = Marionette.Controller.extend({
+            initialize: function (options) {
+                this.application = options.application;
+                this.listenTo(wreqr.vent, "showModal", this.showModal);
+            },
+            showModal: function(modalView) {
+                this.application.modalRegion.show(modalView);
+                modalView.show();
+            }
 
-</ul>
-<ul id="notification" class="nav pull-right">
+        });
 
-</ul>
-<ul id="tasks" class="nav pull-right">
-
-</ul>
-<ul id="ingest" class="nav pull-right showModal">
-
-</ul>
+        return ModalController;
+    }
+);

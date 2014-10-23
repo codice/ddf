@@ -55,7 +55,6 @@
             // jquery
             jquery: 'lib/jquery/jquery.min',
             jqueryuiCore: 'lib/jquery-ui/ui/minified/jquery.ui.core.min',
-            jqueryuiWidget: 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
             datepicker: 'lib/jquery-ui/ui/minified/jquery.ui.datepicker.min',
             progressbar: 'lib/jquery-ui/ui/minified/jquery.ui.progressbar.min',
             datepickerOverride: 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
@@ -63,6 +62,8 @@
             purl: 'lib/purl/purl',
             multiselect: 'lib/multiselect/src/jquery.multiselect',
             multiselectfilter: 'lib/multiselect/src/jquery.multiselect.filter',
+            "jquery.ui.widget": 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
+            fileupload: 'lib/jquery-file-upload/js/jquery.fileupload',
 
             // handlebars
             handlebars: 'lib/handlebars/handlebars.min',
@@ -128,8 +129,8 @@
             datepicker: ['jquery', 'jqueryuiCore'],
             datepickerOverride: ['datepicker'],
             datepickerAddon: ['datepicker'],
-            progressbar: ['jquery', 'jqueryuiCore', 'jqueryuiWidget'],
-            multiselect: ['jquery', 'jqueryuiWidget'],
+            progressbar: ['jquery', 'jqueryuiCore', 'jquery.ui.widget'],
+            multiselect: ['jquery', 'jquery.ui.widget'],
             multiselectfilter: ['jquery', 'multiselect'],
 
             perfectscrollbar: ['jquery'],

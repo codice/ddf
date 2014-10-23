@@ -95,3 +95,85 @@
 .banner-text-black {
     color: black;
 }
+
+.ingest-upload-buttons {
+    float: right;
+}
+
+.file-upload-region {
+    overflow: auto;
+    max-height: 400px;
+}
+
+.file-info-area {
+    max-width: 200px;
+}
+
+.hideButtonGroup {
+    display: none;
+}
+
+.showButtonGroup {
+    display: inline-block;
+}
+
+.drop-zone {
+    text-align: center;
+    border: dashed medium black;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.uploadProgressBar {
+    padding-top: 5px;
+}
+
+.file-list {
+    padding: 0;
+    margin-top: 10px;
+}
+.file-list-item {
+    list-style-type: none;
+    margin-bottom: 5px;
+    padding: 5px;
+    text-align: left;
+    margin-right: 16px;
+    color: #AAA;
+    white-space: nowrap;
+    overflow-x: hidden;
+    position: relative;
+}
+.file-info-area {
+    float: left;
+}
+.file-progress-area {
+    clear: both;
+}
+.fileupload-progress {
+    clear: both;
+}
+.file-attrs {
+    list-style-type: none;
+    padding: 0;
+}
+.file-finish-area {
+    float: right;
+    margin-top: 40px;
+}
+.file-finish-text {
+    color: green;
+}
+.file-fail-text {
+    color: red;
+}
+.cancel-upload-link {
+    color: red;
+}
+
+.fileinput-button input {
+    height: 100%;
+}
+.fileinput-button {
+    margin: 10px;
+    height: 100%;
+}

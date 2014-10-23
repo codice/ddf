@@ -31,7 +31,8 @@
     "lato": "v0.2.1",
     "strapdown": "arturadib/strapdown#509f99f9c00e6b40f208a39e2a2c980331642fe5",
     "usng": "codice/usng.js#a09ec5a19dd432bc85317d9e99561bdaadd878a7",
-    "openlayers3": "v3.0.0"
+    "openlayers3": "v3.0.0",
+    "jquery-file-upload": "9.5.7"
   },
   "resolutions": {
     "jquery": "1.11.0"
