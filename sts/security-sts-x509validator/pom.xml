@@ -43,6 +43,17 @@
             <groupId>ddf.security</groupId>
             <artifactId>ddf-security-common</artifactId>
         </dependency>
+                <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-crlinterceptor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-x509delegationhandler</artifactId>
+            <version>${project.version}</version>
+        </dependency>
    </dependencies>
 
     <build>

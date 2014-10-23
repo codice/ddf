@@ -29,6 +29,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>security-interceptor-anonymous</module>
+        <module>security-interceptor-anonymous-wrapper</module>
     </modules>
 
 
