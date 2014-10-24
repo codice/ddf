@@ -87,11 +87,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-x509delegationhandler</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -137,6 +132,8 @@
                             org.apache.cxf.sts.token.realm;version=${cxf.version},
                             org.apache.cxf.sts.token.renewer;version=${cxf.version},
                             org.apache.cxf.sts.token.validator;version=${cxf.version},
+                            org.codice.ddf.security.common;version=${project.version},
+                            org.springframework.ldap.core,
                             ddf.security.sts;version=${project.version}
                         </Export-Package>
                     </instructions>
