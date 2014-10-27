@@ -17,13 +17,13 @@
 define(function(require) {
 
     var Application = require('js/application'),
-        SourceView = require('/sources/js/view/Source.view.js'),
+        SourceView = require('js/view/Source.view.js'),
         poller = require('poller'),
-        Source = require('/sources/js/model/Source.js');
+        Source = require('js/model/Source.js');
 
     Application.App.module('Sources', function(SourceModule, App, Backbone, Marionette)  {
 
-        var Service = require('/sources/js/model/Service.js');
+        var Service = require('js/model/Service.js');
 
         var serviceModel = new Service.Response();
         serviceModel.fetch();
@@ -59,7 +59,7 @@ define(function(require) {
 
         SourceModule.addInitializer(function(){
             SourceModule.contentController = new Controller({
-                region: App.sources
+                region: App.mainRegion
             });
             SourceModule.contentController.show();
         });

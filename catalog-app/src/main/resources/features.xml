@@ -180,6 +180,10 @@
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
     </feature>
     
+    <feature name="catalog-admin-module-sources" install="manual" vrsion="${project.version}" description="DDF Admin Module">
+        <bundle>mvn:ddf.catalog.admin/catalog-admin-module-sources/${project.version}</bundle>
+    </feature>
+    
     <feature name="catalog-app" install="auto" version="${project.version}"
         description="The DDF Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.::DDF Catalog">
         <feature>platform-app</feature>
@@ -198,6 +202,7 @@
         <feature>catalog-transformer-geoformatter</feature>
         <feature>catalog-transformer-xml</feature>
         <feature>catalog-security-plugin</feature>
+        <feature>catalog-admin-module-sources</feature>
     </feature>   
         
 </features>

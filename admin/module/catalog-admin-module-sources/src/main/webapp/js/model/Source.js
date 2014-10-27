@@ -16,7 +16,8 @@
 define(function (require) {
 
     var Backbone = require('backbone'),
-        Service = require('/sources/js/model/Service.js');
+        Service = require('js/model/Service.js'),
+        _ = require('underscore');
 
     require('backbonerelational');
 
@@ -85,8 +86,8 @@ define(function (require) {
         sourceMap: {},
         addSource: function(configuration, enabled) {
             var source;
-            if(this.sourceMap[configuration.get("sourceId")]) {
-                source = this.sourceMap[configuration.get("sourceId")];
+            if(this.sourceMap[configuration.get("id")]) {
+                source = this.sourceMap[configuration.get("id")];
                 if(enabled) {
                     source.addConfiguration(configuration);
                 } else {
@@ -94,8 +95,7 @@ define(function (require) {
                 }
             } else {
                 source = new Source.Model();
-//                this.listenTo(source, 'removeSource', this.removeSource);
-                this.sourceMap[configuration.get("sourceId")] = source;
+                this.sourceMap[configuration.get("id")] = source;
                 if(enabled) {
                     source.setCurrentConfiguration(configuration);
                     source.addConfiguration(configuration);
@@ -108,7 +108,11 @@ define(function (require) {
         removeSource: function(source) {
             this.stopListening(source);
             this.remove(source);
-            delete this.sourceMap[source.get('currentConfiguration').get('sourceId')];
+            delete this.sourceMap[source.get('currentConfiguration').get('id')];
+        },
+        comparator: function(model){
+            var id = model.get('currentConfiguration').id.replace('_disabled','');  // scrub the label of the _disable
+            return id;
         }
     });
 
@@ -125,25 +129,52 @@ define(function (require) {
             var resModel = this;
             if(this.model.get("value")) {
                 this.model.get("value").each(function(service) {
-                    if(service.get("configurations") && service.get("configurations").length > 0) {
+                    if(!_.isEmpty(service.get("configurations"))) {
                         service.get("configurations").each(function(configuration) {
-                            if(configuration.get("sourceId")) {
+                            if(configuration.get('fpid') && configuration.get('id') && configuration.get('fpid').indexOf('Source') !== -1){
                                 resModel.get("collection").addSource(configuration, true);
-                            }
-                        });
-                    }
-                    if(service.get("disabledConfigurations") && service.get("disabledConfigurations").length > 0) {
-                        service.get("disabledConfigurations").each(function(configuration) {
-                            if(configuration.get("sourceId")) {
-                                resModel.get("collection").addSource(configuration, false);
                             }
                         });
                     }
                 });
             }
+        },
+        getSourceMetatypes: function() {
+            var resModel = this;
+            var metatypes = [];
+            if(resModel.model.get('value')) {
+                resModel.model.get('value').each(function(service) {
+                var id = service.get('id');
+                var name = service.get('name');
+                if (!_.isUndefined(id) && id.indexOf('Source') !== -1 || !_.isUndefined(name) && name.indexOf('Source') !== -1) {
+                    metatypes.push(service);
+                }
+                });
+            }
+            return metatypes;
+        },
+        getSourceModelWithServices: function() {
+            var resModel = this;
+            var serviceCollection = resModel.model.get('value');
+            var retModel = new Source.Model();
+            
+            if(serviceCollection) {
+                serviceCollection.each(function(service) {
+                    var id = service.get('id');
+                    var name = service.get('name');
+                    if (!_.isUndefined(id) && id.indexOf('Source') !== -1 || !_.isUndefined(name) && name.indexOf('Source') !== -1) {
+                        var config = new Service.Configuration();
+                        config.initializeFromService(service);
+                        retModel.addDisabledConfiguration(config);
+                    }
+                });
+            }
+            return retModel;
+        },
+        isSourceConfiguration: function(configuration) {
+            return (configuration.get('fpid') && configuration.get('id') && configuration.get('fpid').indexOf('Source') !== -1);
         }
     });
-
     return Source;
 
 });

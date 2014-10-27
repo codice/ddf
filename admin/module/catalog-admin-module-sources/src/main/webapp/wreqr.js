@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,15 +9,15 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<table class='sourcesTable table table-striped'>
-    <thead>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Status</th>
-        <th><a style="text-decoration:none" href="#" class="refreshButton glyphicon glyphicon-repeat"></a></th>
-    </thead>
-    <tbody>
+/*global define*/
 
-    </tbody>
-</table>
+define(['backbone', 'marionette'], function (Backbone) {
+    'use strict';
+    var wreqr = {};
+
+    wreqr.vent = new Backbone.Wreqr.EventAggregator();
+    wreqr.commands = new Backbone.Wreqr.Commands();
+    wreqr.reqres = new Backbone.Wreqr.RequestResponse();
+
+    return wreqr;
+});

@@ -31,6 +31,11 @@
             <artifactId>admin-core-api</artifactId>
         </dependency>
         <dependency>
+            <version>${ddf.admin.app.version}</version>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-appservice</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
         </dependency>
