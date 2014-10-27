@@ -71,7 +71,7 @@ public class GetRecordsResponseConverter implements Converter {
 
     private String outputSchema = CswConstants.CSW_OUTPUT_SCHEMA;
 
-    private Map<String, String> metacardAttributeMap;
+//    private Map<String, String> metacardAttributeMap;
 
     private String productRetrievalMethod;
 
@@ -273,19 +273,19 @@ public class GetRecordsResponseConverter implements Converter {
 
     }
 
-    public void setUnmarshalConverterSchema(String schema,
-            Map<String, String> metacardAttributeMap, String productRetrievalMethod,
-            String resourceUriMapping, String thumbnailMapping, boolean isLonLatOrder) {
-        if (StringUtils.isNotBlank(schema)) {
-            this.outputSchema = schema;
-        }
-        this.metacardAttributeMap = metacardAttributeMap;
-        this.productRetrievalMethod = productRetrievalMethod;
-        this.resourceUriMapping = resourceUriMapping;
-        this.thumbnailMapping = thumbnailMapping;
-        this.isLonLatOrder = isLonLatOrder;
-//        this.unmarshalRecordConverter = createUnmarshalConverter();
-    }
+//    public void setUnmarshalConverterSchema(String schema,
+//            Map<String, String> metacardAttributeMap, String productRetrievalMethod,
+//            String resourceUriMapping, String thumbnailMapping, boolean isLonLatOrder) {
+//        if (StringUtils.isNotBlank(schema)) {
+//            this.outputSchema = schema;
+//        }
+//        this.metacardAttributeMap = metacardAttributeMap;
+//        this.productRetrievalMethod = productRetrievalMethod;
+//        this.resourceUriMapping = resourceUriMapping;
+//        this.thumbnailMapping = thumbnailMapping;
+//        this.isLonLatOrder = isLonLatOrder;
+////        this.unmarshalRecordConverter = createUnmarshalConverter();
+//    }
 
 //    private RecordConverter createUnmarshalConverter() {
 //        if (unmarshalRecordConverter == null) {

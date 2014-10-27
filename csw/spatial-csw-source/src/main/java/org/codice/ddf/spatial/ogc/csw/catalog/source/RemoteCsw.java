@@ -78,7 +78,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     /**
      * Instantiates a new RemoteCsw
      *
-     * @param recordConverterFactories The reference to the the CSW Record Converters
+     * @param cswTransformProvider The reference to the the CSW Transform Provider
      * @param cswSourceConfiguration   The Csw Source Configuration
      */
     public RemoteCsw(CswTransformProvider cswTransformProvider,

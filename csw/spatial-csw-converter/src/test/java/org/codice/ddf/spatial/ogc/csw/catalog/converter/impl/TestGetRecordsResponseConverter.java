@@ -253,9 +253,6 @@ public class TestGetRecordsResponseConverter {
         xstream.setClassLoader(this.getClass().getClassLoader());
 
         GetRecordsResponseConverter grrc = new GetRecordsResponseConverter(mockProvider);
-        grrc.setUnmarshalConverterSchema(CswConstants.CSW_OUTPUT_SCHEMA,
-                getDefaultMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL,
-                null, null, false);
         xstream.registerConverter(grrc);
         xstream.alias("GetRecordsResponse", CswRecordCollection.class);
 

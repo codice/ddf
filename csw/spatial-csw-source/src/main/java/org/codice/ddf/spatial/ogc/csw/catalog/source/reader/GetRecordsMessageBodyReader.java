@@ -17,6 +17,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.source.reader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -28,8 +29,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.MessageBodyReader;
 
+import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.xml.XppReader;
+import com.thoughtworks.xstream.io.xml.xppdom.XppFactory;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.InputTransformer;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
@@ -41,12 +48,12 @@ import org.slf4j.LoggerFactory;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * Custom JAX-RS MessageBodyReader for parsing a CSW GetRecords response, extracting the search
  * results and CSW records.
- * 
- * @author rodgersh
  * 
  */
 public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordCollection> {
@@ -54,22 +61,33 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
 
     private XStream xstream;
 
+    private DataHolder argumentHolder;
+
+    private WstxDriver wstxDriver;
+
     public GetRecordsMessageBodyReader(CswTransformProvider provider, CswSourceConfiguration configuration) {
-        xstream = new XStream(new WstxDriver());
+        wstxDriver = new WstxDriver();
+        xstream = new XStream(wstxDriver);
         xstream.setClassLoader(this.getClass().getClassLoader());
         GetRecordsResponseConverter converter = new GetRecordsResponseConverter(provider);
-        converter.setUnmarshalConverterSchema(configuration.getOutputSchema(),
-                configuration.getMetacardCswMappings(), configuration.getProductRetrievalMethod(),
-                configuration.getResourceUriMapping(), configuration.getThumbnailMapping(),
-                configuration.isLonLatOrder());
         xstream.registerConverter(converter);
-        xstream.alias("GetRecordsResponse", CswRecordCollection.class);
+        xstream.alias(CswConstants.GET_RECORDS_RESPONSE, CswRecordCollection.class);
+        buildArguments(configuration);
+    }
+
+    private void buildArguments(CswSourceConfiguration configuration) {
+        argumentHolder = xstream.newDataHolder();
+        argumentHolder.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, configuration.getOutputSchema());
+        argumentHolder.put(CswConstants.CSW_MAPPING, configuration.getMetacardCswMappings());
+        argumentHolder.put(CswConstants.IS_LON_LAT_ORDER_PROPERTY, configuration.isLonLatOrder());
+        argumentHolder.put(CswConstants.PRODUCT_RETRIEVAL_METHOD, configuration.getProductRetrievalMethod());
+        argumentHolder.put(Metacard.RESOURCE_URI, configuration.getResourceUriMapping());
+        argumentHolder.put(Metacard.THUMBNAIL, configuration.getThumbnailMapping());
     }
 
     @Override
     public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations,
             MediaType mediaType) {
-
         return CswRecordCollection.class.isAssignableFrom(type);
     }
 
@@ -90,12 +108,9 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
 
         CswRecordCollection cswRecords = null;
 
-        // TODO - need to pass in some properties here
-        // TODO - outputSchema
-        // TODO - mapping
-
         try {
-            cswRecords = (CswRecordCollection) xstream.fromXML(inStream);
+            HierarchicalStreamReader reader =  wstxDriver.createReader(inStream);
+            cswRecords = (CswRecordCollection) xstream.unmarshal(reader, null, argumentHolder);
         } catch (XStreamException e) {
             // If an ExceptionReport is sent from the remote CSW site it will be sent with an
             // JAX-RS "OK" status, hence the ErrorResponse exception mapper will not fire.

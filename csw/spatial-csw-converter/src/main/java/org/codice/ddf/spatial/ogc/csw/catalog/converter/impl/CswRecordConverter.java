@@ -606,10 +606,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             // Determine the csw field mapped to the resource uri and set that value
             // on the Metacard.RESOURCE_URI attribute
             // Default is for <source> field to define URI for product to be downloaded
-            Attribute resourceUriAttr = null;
-            if (resourceUriMapping instanceof String) {
-                resourceUriAttr = mc.getAttribute((String)resourceUriMapping);
-            }
+            Attribute resourceUriAttr = mc.getAttribute(resourceUriMapping);
             if (resourceUriAttr != null && resourceUriAttr.getValue() != null) {
                 String source = (String) resourceUriAttr.getValue();
                 try {
@@ -623,10 +620,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         // determine the csw field mapped to the thumbnail and set that value on
         // the Metacard.THUMBNAIL
         // attribute
-        Attribute thumbnailAttr = null;
-        if (thumbnailMapping instanceof String) {
-            thumbnailAttr = mc.getAttribute((String)thumbnailMapping);
-        }
+        Attribute thumbnailAttr = mc.getAttribute(thumbnailMapping);
         if (thumbnailAttr != null && thumbnailAttr.getValue() != null) {
             String thumbnail = (String) thumbnailAttr.getValue();
             URL url;
@@ -785,27 +779,6 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         return ser;
 
     }
-
-//    public void setSourceId(final String sourceId) {
-//        this.sourceId = sourceId;
-//    }
-
-//    public String getRootElementName(String elementSetType) {
-//        String rootElementName = null;
-//        switch (ElementSetType.valueOf(elementSetType)) {
-//        case BRIEF:
-//            rootElementName = CswConstants.CSW_BRIEF_RECORD;
-//            break;
-//        case SUMMARY:
-//            rootElementName = CswConstants.CSW_SUMMARY_RECORD;
-//            break;
-//        case FULL:
-//        default:
-//            rootElementName = CswConstants.CSW_RECORD;
-//            break;
-//        }
-//        return rootElementName;
-//    }
 
     @Override public Metacard transform(InputStream inputStream)
             throws IOException, CatalogTransformerException {

@@ -23,6 +23,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
+import com.thoughtworks.xstream.io.xml.WstxDriver;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.XppFactory;
 import ddf.catalog.data.BinaryContent;

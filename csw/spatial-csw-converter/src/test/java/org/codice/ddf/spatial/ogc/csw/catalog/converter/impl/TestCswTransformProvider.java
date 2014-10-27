@@ -14,59 +14,189 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter.impl;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.converters.ConversionException;
+import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.core.TreeMarshaller;
 import com.thoughtworks.xstream.core.TreeUnmarshaller;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import com.thoughtworks.xstream.io.xml.WstxDriver;
 import com.thoughtworks.xstream.io.xml.XppReader;
-import com.thoughtworks.xstream.io.xml.xppdom.XppFactory;
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.InputTransformer;
+import ddf.catalog.transform.MetacardTransformer;
+import org.apache.commons.io.IOUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-import org.xmlpull.v1.XmlPullParser;
+import org.mockito.ArgumentCaptor;
+import org.xmlpull.v1.XmlPullParserFactory;
 
+import javax.activation.MimeType;
+import javax.ws.rs.core.MediaType;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.StringWriter;
+import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class TestCswTransformProvider {
 
-    private TransformerManager<InputTransformer> mockManager = mock(TransformerManager.class);
+    private TransformerManager<InputTransformer> mockInputManager = mock(TransformerManager.class);
 
-    private CswRecordConverter mockInputTransformer = mock(CswRecordConverter.class);
+    private TransformerManager<MetacardTransformer> mockMetacardManager = mock(TransformerManager.class);
+
+    private CswRecordConverter mockCswRecordConverter = mock(CswRecordConverter.class);
+
+    private MetacardTransformer mockMetacardTransformer = mock(MetacardTransformer.class);
 
     @Test
-    public void testMarshal() throws Exception {
+    public void testMarshalCswRecord() throws Exception {
+        when(mockMetacardManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA)).thenReturn(
+                mockCswRecordConverter);
+
+        when(mockCswRecordConverter.transform(any(Metacard.class), any(Map.class))).thenReturn(
+                new BinaryContentImpl(IOUtils.toInputStream(getRecord()),
+                        new MimeType(MediaType.APPLICATION_XML)));
+
+        StringWriter stringWriter = new StringWriter();
+        HierarchicalStreamWriter writer = new WstxDriver().createWriter(stringWriter);
+        CswTransformProvider provider = new CswTransformProvider(mockMetacardManager, null);
+        MarshallingContext context = new TreeMarshaller(writer, null, null);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor
+                .forClass(String.class);
+
+        provider.marshal(getMetacard(), writer, context);
+
+        // Verify the context arguments were set correctly
+        verify(mockMetacardManager, times(1)).getTransformerBySchema(captor.capture());
+
+        String outputSchema = captor.getValue();
+
+        assertThat(outputSchema, is(CswConstants.CSW_OUTPUT_SCHEMA));
+    }
+
+    @Test
+    public void testMarshalOtherSchema() throws Exception {
+        final String OTHER_SCHEMA = "http://example.com/scheam.xsd";
+        when(mockMetacardManager.getTransformerBySchema(OTHER_SCHEMA)).thenReturn(
+                mockMetacardTransformer);
+
+        when(mockMetacardTransformer.transform(any(Metacard.class), any(Map.class))).thenReturn(
+                new BinaryContentImpl(IOUtils.toInputStream(getRecord()),
+                        new MimeType(MediaType.APPLICATION_XML)));
+
+        StringWriter stringWriter = new StringWriter();
+        HierarchicalStreamWriter writer = new WstxDriver().createWriter(stringWriter);
+        CswTransformProvider provider = new CswTransformProvider(mockMetacardManager, null);
+        MarshallingContext context = new TreeMarshaller(writer, null, null);
+        context.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, OTHER_SCHEMA);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor
+                .forClass(String.class);
+
+        provider.marshal(getMetacard(), writer, context);
+
+        // Verify the context arguments were set correctly
+        verify(mockMetacardManager, times(1)).getTransformerBySchema(captor.capture());
+
+        String outputSchema = captor.getValue();
+
+        assertThat(outputSchema, is(OTHER_SCHEMA));
+    }
+
+    @Test (expected = ConversionException.class)
+    public void testMarshalNoTransformers() throws Exception {
+        when(mockMetacardManager.getTransformerBySchema(anyString())).thenReturn(null);
+
+        StringWriter stringWriter = new StringWriter();
+        HierarchicalStreamWriter writer = new WstxDriver().createWriter(stringWriter);
+        CswTransformProvider provider = new CswTransformProvider(mockMetacardManager, null);
+        MarshallingContext context = new TreeMarshaller(writer, null, null);
+
+        provider.marshal(getMetacard(), writer, context);
 
     }
 
     @Test
-    public void testUnmarshal() throws Exception {
-        when(mockManager.getTransformerBySchema(Matchers.any(String.class))).thenReturn(mockInputTransformer);
-        when(mockInputTransformer.transform(any(InputStream.class))).thenReturn(getMetacard());
-        XmlPullParser parser = XppFactory.createDefaultParser();
-        HierarchicalStreamReader reader = new XppReader(new StringReader(getRecord()), parser);
-        CswTransformProvider provider = new CswTransformProvider(null, mockManager);
+    public void testUnmarshalCswRecord() throws Exception {
+        when(mockInputManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA)).thenReturn(
+                mockCswRecordConverter);
+
+        HierarchicalStreamReader reader = new WstxDriver().createReader(new StringReader(getRecord()));
+        CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
         UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor
+                .forClass(String.class);
+
         Metacard metacard = (Metacard) provider.unmarshal(reader, context);
 
-        // TODO - assert things here
+        // Verify the context arguments were set correctly
+        verify(mockInputManager, times(1)).getTransformerBySchema(captor.capture());
 
+        String outputSchema = captor.getValue();
+
+        assertThat(outputSchema, is(CswConstants.CSW_OUTPUT_SCHEMA));
+    }
+
+    @Test
+    public void testUnmarshalOtherSchema() throws Exception {
+        InputTransformer mockInputTransformer = mock(InputTransformer.class);
+        final String OTHER_SCHEMA = "http://example.com/scheam.xsd";
+        when(mockInputManager.getTransformerBySchema(OTHER_SCHEMA)).thenReturn(
+                mockInputTransformer);
+
+        when(mockInputTransformer.transform(any(InputStream.class))).thenReturn(getMetacard());
+
+        // XppReader is not namespace aware so it will read the XML and ignore the namespaces
+        // WstxReader is namespace aware. It may fail for XML fragments.
+        HierarchicalStreamReader reader = new XppReader(new StringReader(getRecord()),
+                XmlPullParserFactory.newInstance().newPullParser());
+        CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
+        UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
+        context.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, OTHER_SCHEMA);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor
+                .forClass(String.class);
+
+        Metacard metacard = (Metacard) provider.unmarshal(reader, context);
+
+        // Verify the context arguments were set correctly
+        verify(mockInputManager, times(1)).getTransformerBySchema(captor.capture());
+
+        String outputSchema = captor.getValue();
+
+        assertThat(outputSchema, is(OTHER_SCHEMA));
+    }
+
+    @Test (expected = ConversionException.class)
+    public void testUnmarshalNoTransformers() throws Exception {
+        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(null);
+
+        HierarchicalStreamReader reader = new WstxDriver().createReader(new StringReader(getRecord()));
+        CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
+        UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
+
+        provider.unmarshal(reader, context);
 
     }
 
-    public String getRecord() {
+    private String getRecord() {
         return "<Record>\n"
                 + "  <dct:created>2014-11-01T00:00:00.000-05:00</dct:created>\n"
                 + "  <dc:title>This is my title</dc:title>\n"

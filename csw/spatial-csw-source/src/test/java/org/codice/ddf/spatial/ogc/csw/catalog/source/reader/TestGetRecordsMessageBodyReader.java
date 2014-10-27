@@ -14,6 +14,10 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source.reader;
 
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.InputTransformer;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -22,11 +26,13 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswTransformProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -38,11 +44,15 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class TestGetRecordsMessageBodyReader {
@@ -57,21 +67,77 @@ public class TestGetRecordsMessageBodyReader {
     }
 
     @Test
-    public void testGetMultipleMetacards() throws Exception {
+    public void testConfigurationArguments() throws Exception {
+        when(mockInputManager.getTransformerBySchema(anyString()))
+                .thenReturn(new CswRecordConverter());
 
+        CswSourceConfiguration config = new CswSourceConfiguration();
+        config.setMetacardCswMappings(DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
+        config.setProductRetrievalMethod(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL);
+        config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+        config.setIsLonLatOrder(false);
+        config.setThumbnailMapping(CswRecordMetacardType.CSW_REFERENCES);
+        config.setResourceUriMapping(CswRecordMetacardType.CSW_SOURCE);
+
+        GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(mockProvider, config);
+        InputStream is = TestGetRecordsMessageBodyReader.class
+                .getResourceAsStream("/getRecordsResponse.xml");
+
+        ArgumentCaptor<UnmarshallingContext> captor = ArgumentCaptor
+                .forClass(UnmarshallingContext.class);
+
+        reader.readFrom(CswRecordCollection.class, null, null,
+                null, null, is);
+
+        // Verify the context arguments were set correctly
+        verify(mockProvider, times(3))
+                .unmarshal(any(HierarchicalStreamReader.class), captor.capture());
+
+        UnmarshallingContext context = captor.getValue();
+        // Assert the properties needed for CswRecordConverter
+        assertThat(context.get(CswConstants.CSW_MAPPING), notNullValue());
+        Object cswMapping = context.get(CswConstants.CSW_MAPPING);
+        assertThat(cswMapping, is(Map.class));
+        assertThat(context.get(Metacard.RESOURCE_URI), is(String.class));
+        assertThat((String) context.get(Metacard.RESOURCE_URI),
+                is(CswRecordMetacardType.CSW_SOURCE));
+        assertThat(context.get(Metacard.THUMBNAIL), is(String.class));
+        assertThat((String) context.get(Metacard.THUMBNAIL),
+                is(CswRecordMetacardType.CSW_REFERENCES));
+        assertThat(context.get(CswConstants.PRODUCT_RETRIEVAL_METHOD), is(String.class));
+        assertThat((String) context.get(CswConstants.PRODUCT_RETRIEVAL_METHOD),
+                is(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL));
+        assertThat(context.get(CswConstants.IS_LON_LAT_ORDER_PROPERTY), is(Boolean.class));
+        assertThat((Boolean) context.get(CswConstants.IS_LON_LAT_ORDER_PROPERTY), is(false));
+
+        // Assert the output Schema is set.
+        assertThat(context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(String.class));
+        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+                is(CswConstants.CSW_OUTPUT_SCHEMA));
+    }
+
+    @Test
+    public void testFullThread() throws Exception {
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
 
         when(mockInputManager.getTransformerBySchema(anyString()))
                 .thenReturn(new CswRecordConverter());
 
         CswSourceConfiguration config = new CswSourceConfiguration();
-        config.setMetacardCswMappings(getDefaultMetacardAttributeMappings());
+        config.setMetacardCswMappings(DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
         config.setProductRetrievalMethod(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL);
+        config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
+        config.setIsLonLatOrder(false);
+        config.setThumbnailMapping(CswRecordMetacardType.CSW_REFERENCES);
+        config.setResourceUriMapping(CswRecordMetacardType.CSW_SOURCE);
+
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(provider, config);
         InputStream is = TestGetRecordsMessageBodyReader.class
                 .getResourceAsStream("/getRecordsResponse.xml");
+
         CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class, null, null,
                 null, null, is);
+
         List<Metacard> metacards = cswRecords.getCswRecords();
 
         assertThat(metacards, not(nullValue()));
@@ -146,7 +212,7 @@ public class TestGetRecordsMessageBodyReader {
     @Test
     public void testGetMultipleMetacardsWithForeignText() throws Exception {
         CswSourceConfiguration config = new CswSourceConfiguration();
-        config.setMetacardCswMappings(getDefaultMetacardAttributeMappings());
+        config.setMetacardCswMappings(DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
         config.setProductRetrievalMethod(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL);
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(
@@ -198,13 +264,5 @@ public class TestGetRecordsMessageBodyReader {
         List<String> valuesList = new ArrayList<String>();
         valuesList.addAll((List<? extends String>) values);
         assertThat(valuesList, hasItems(expectedValues));
-    }
-
-    private Map<String, String> getDefaultMetacardAttributeMappings() {
-        Map<String, String> metacardAttributeMappings = new HashMap<String, String>();
-        metacardAttributeMappings.put(Metacard.EFFECTIVE, CswRecordMetacardType.CSW_CREATED);
-        metacardAttributeMappings.put(Metacard.CREATED, CswRecordMetacardType.CSW_DATE_SUBMITTED);
-        metacardAttributeMappings.put(Metacard.MODIFIED, CswRecordMetacardType.CSW_MODIFIED);
-        return metacardAttributeMappings;
     }
 }
