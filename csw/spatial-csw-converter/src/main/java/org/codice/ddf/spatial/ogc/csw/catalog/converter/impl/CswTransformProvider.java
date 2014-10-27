@@ -143,13 +143,14 @@ public class CswTransformProvider implements Converter {
      */
     @Override public Object unmarshal(HierarchicalStreamReader reader,
             UnmarshallingContext context) {
-
-        // TODO - how I am supposed to pass any arguments to my InputTransformer????????
         Object arg = context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER);
         InputTransformer transformer = null;
         if (arg == null || CswConstants.CSW_OUTPUT_SCHEMA.equals((String) arg)) {
             transformer = inputTransformerManager
                     .getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
+            if (transformer != null) {
+                return ((CswRecordConverter)transformer).unmarshal(reader, context);
+            }
         } else {
             String outputSchema = (String) arg;
             transformer = inputTransformerManager.getTransformerBySchema(outputSchema);

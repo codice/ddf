@@ -1,18 +1,39 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source.reader;
+
+import ddf.catalog.data.Metacard;
+import ddf.catalog.transform.InputTransformer;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverter;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswTransformProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -24,38 +45,11 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import ddf.catalog.transform.InputTransformer;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswTransformProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswRecordInputTransformer;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ddf.catalog.data.Metacard;
-
 public class TestGetRecordsMessageBodyReader {
 
     private CswTransformProvider mockProvider = mock(CswTransformProvider.class);
 
     private TransformerManager<InputTransformer> mockInputManager = mock(TransformerManager.class);
-
 
     @Before
     public void setUp() {
@@ -67,7 +61,8 @@ public class TestGetRecordsMessageBodyReader {
 
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
 
-        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(new CswRecordInputTransformer());
+        when(mockInputManager.getTransformerBySchema(anyString()))
+                .thenReturn(new CswRecordConverter());
 
         CswSourceConfiguration config = new CswSourceConfiguration();
         config.setMetacardCswMappings(getDefaultMetacardAttributeMappings());
@@ -81,8 +76,6 @@ public class TestGetRecordsMessageBodyReader {
 
         assertThat(metacards, not(nullValue()));
         assertThat(metacards.size(), equalTo(3));
-
-
 
         // verify first metacard's values
         Metacard mc = metacards.get(0);
@@ -99,10 +92,10 @@ public class TestGetRecordsMessageBodyReader {
                 new String[] {expectedModifiedDateStr});
         expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
         expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, new String[] {"subject 1",
-            "second subject"});
+                "second subject"});
         expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"abstract 1"});
         expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"copyright 1",
-            "copyright 2"});
+                "copyright 2"});
         expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
         expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset");
         expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile"});
@@ -110,7 +103,8 @@ public class TestGetRecordsMessageBodyReader {
                 "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))");
         expectedValues
                 .put(CswRecordMetacardType.OWS_BOUNDING_BOX,
-                        new String[] {"POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))"});
+                        new String[] {
+                                "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))"});
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
@@ -130,10 +124,10 @@ public class TestGetRecordsMessageBodyReader {
                 new String[] {expectedModifiedDateStr});
         expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
         expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, new String[] {"first subject",
-            "subject 2"});
+                "subject 2"});
         expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"mc2 abstract"});
         expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"first copyright",
-            "second copyright"});
+                "second copyright"});
         expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
         expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset 2");
         expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile 2"});
@@ -141,7 +135,8 @@ public class TestGetRecordsMessageBodyReader {
                 "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))");
         expectedValues
                 .put(CswRecordMetacardType.OWS_BOUNDING_BOX,
-                        new String[] {"POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))"});
+                        new String[] {
+                                "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))"});
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
@@ -156,7 +151,7 @@ public class TestGetRecordsMessageBodyReader {
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(
                 mockProvider, config);
-        
+
         InputStream is = TestGetRecordsMessageBodyReader.class
                 .getResourceAsStream("/geomaticsGetRecordsResponse.xml");
         CswRecordCollection cswRecords = reader.readFrom(CswRecordCollection.class, null, null,
@@ -204,7 +199,7 @@ public class TestGetRecordsMessageBodyReader {
         valuesList.addAll((List<? extends String>) values);
         assertThat(valuesList, hasItems(expectedValues));
     }
-    
+
     private Map<String, String> getDefaultMetacardAttributeMappings() {
         Map<String, String> metacardAttributeMappings = new HashMap<String, String>();
         metacardAttributeMappings.put(Metacard.EFFECTIVE, CswRecordMetacardType.CSW_CREATED);

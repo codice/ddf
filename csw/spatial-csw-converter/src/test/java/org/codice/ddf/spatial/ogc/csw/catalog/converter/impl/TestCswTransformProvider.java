@@ -44,7 +44,7 @@ public class TestCswTransformProvider {
 
     private TransformerManager<InputTransformer> mockManager = mock(TransformerManager.class);
 
-    private InputTransformer mockInputTransformer = mock(InputTransformer.class);
+    private CswRecordConverter mockInputTransformer = mock(CswRecordConverter.class);
 
     @Test
     public void testMarshal() throws Exception {

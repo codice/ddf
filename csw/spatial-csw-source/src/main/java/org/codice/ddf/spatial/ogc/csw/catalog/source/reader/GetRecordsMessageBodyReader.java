@@ -90,6 +90,10 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
 
         CswRecordCollection cswRecords = null;
 
+        // TODO - need to pass in some properties here
+        // TODO - outputSchema
+        // TODO - mapping
+
         try {
             cswRecords = (CswRecordCollection) xstream.fromXML(inStream);
         } catch (XStreamException e) {

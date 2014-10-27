@@ -235,4 +235,10 @@ public interface CswConstants {
     String WRITE_NAMESPACES = "WRITE_NAMESPACES";
 
     String ROOT_NODE_NAME = "ROOT_NODE_NAME";
+
+    String CSW_MAPPING = "CSW_MAPPING";
+
+    String PRODUCT_RETRIEVAL_METHOD = "PRODUCT_RETRIEVAL_METHOD";
+
+    String IS_LON_LAT_ORDER_PROPERTY = "isLonLatOrder";
 }

@@ -14,7 +14,10 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter.impl;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -22,6 +25,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
 import com.vividsolutions.jts.geom.Envelope;
@@ -33,12 +37,17 @@ import ddf.action.ActionProvider;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.InputTransformer;
+import ddf.catalog.transform.MetacardTransformer;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -52,6 +61,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.activation.MimeType;
 import javax.xml.XMLConstants;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -84,7 +94,7 @@ import java.util.Set;
  * 
  */
 
-public class CswRecordConverter implements Converter {
+public class CswRecordConverter implements Converter, MetacardTransformer, InputTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswRecordConverter.class);
 
@@ -92,25 +102,11 @@ public class CswRecordConverter implements Converter {
     
     private static final DatatypeFactory XSD_FACTORY;
 
-    private static final MetacardType CSW_METACARD_TYPE = new CswRecordMetacardType();
-
-    private String sourceId = null;
+    private static final CswRecordMetacardType CSW_METACARD_TYPE = new CswRecordMetacardType();
 
     protected HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
 
     protected NoNameCoder noNameCoder = new NoNameCoder();
-    
-    private Map<String, String> metacardToCswAttributeMappings;
-    
-    Map<String, String> prefixToUriMapping;
-    
-    private String productRetrievalMethod;
-    
-    private String resourceUriMapping;
-    
-    private String thumbnailMapping;
-    
-    private boolean  isLonLatOrder;
 
     private ActionProvider resourceActionProvider;
 
@@ -123,11 +119,6 @@ public class CswRecordConverter implements Converter {
     private static final List<String> CSW_OVERLAPPING_ATTRIBUTE_NAMES = Arrays.asList(
             Metacard.TITLE, Metacard.CREATED, Metacard.MODIFIED);
 
-    /**
-     * Mapping of the CSW attribute names to Metacard attribute names where overlap or customization
-     * may occur.
-     */
-    protected Map<String, String> cswToMetacardAttributeNames;
 
     static {
         DatatypeFactory factory = null;
@@ -139,64 +130,18 @@ public class CswRecordConverter implements Converter {
         XSD_FACTORY = factory;
     }
 
+    private XStream xstream;
+
     public CswRecordConverter() {
-        loadFallbackMappings();
+        xstream = new XStream(new WstxDriver());
+        xstream.setClassLoader(this.getClass().getClassLoader());
+        xstream.registerConverter(this);
+        xstream.alias(CswConstants.CSW_RECORD_LOCAL_NAME, Metacard.class);
     }
 
-    public CswRecordConverter(Map<String, String> metacardToCswAttributeMappings,
-            String productRetrievalMethod, String resourceUriMapping, String thumbnailMapping,
-            boolean isLonLatOrder) {
-        this(metacardToCswAttributeMappings, null, productRetrievalMethod, resourceUriMapping,
-                thumbnailMapping, isLonLatOrder);
-    }
-
-    public CswRecordConverter(Map<String, String> metacardToCswAttributeMappings,
-            Map<String, String> prefixToUriMapping, String productRetrievalMethod,
-            String resourceUriMapping, String thumbnailMapping, boolean isLonLatOrder) {
-        this.metacardToCswAttributeMappings = metacardToCswAttributeMappings;
-        this.prefixToUriMapping = prefixToUriMapping;
-        this.productRetrievalMethod = productRetrievalMethod;
-        this.resourceUriMapping = resourceUriMapping;
-        this.thumbnailMapping = thumbnailMapping;
-        this.isLonLatOrder = isLonLatOrder;
-        setCswToMetacardAttributeMappings(metacardToCswAttributeMappings);
-    }
 
     public void setResourceActionProvider(ActionProvider resourceActionProvider) {
         this.resourceActionProvider = resourceActionProvider;
-    }
-
-    public void setCswToMetacardAttributeMappings(Map<String, String> metacardToAttribute) {
-        cswToMetacardAttributeNames = new HashMap<String, String>();
-
-        // Default mappings (never overridden by metatype.xml settings)
-        cswToMetacardAttributeNames.put(CswRecordMetacardType.CSW_TITLE, Metacard.TITLE);
-
-        // Mappings specified by metatype.xml - should always at least
-        // contain the default mappings
-        if (metacardToAttribute != null && metacardToAttribute.size() > 0) {
-            for (String metacardAttrName : metacardToAttribute.keySet()) {
-                String cswAttrName = metacardToAttribute.get(metacardAttrName);
-
-                // Check if this mapping has overlaps with basic Metacard attribute names - if so,
-                // need to prepend CSW prefix to attribute name so that it is uniquely named
-                // (see CswRecordMetacardType class)
-                if (CSW_OVERLAPPING_ATTRIBUTE_NAMES.contains(cswAttrName)) {
-                    cswAttrName = CswRecordMetacardType.CSW_ATTRIBUTE_PREFIX + cswAttrName;
-                }
-
-                cswToMetacardAttributeNames.put(cswAttrName, metacardAttrName);
-            }
-        } else {
-            LOGGER.debug(
-                    "No default attribute mappings provided by caller - using fallback mappings");
-            loadFallbackMappings();
-        }
-    }
-
-    private void loadFallbackMappings() {
-        cswToMetacardAttributeNames = DefaultCswRecordMap.getDefaultCswRecordMap()
-                .getCswToMetacardAttributeNames();
     }
 
     @Override
@@ -461,33 +406,48 @@ public class CswRecordConverter implements Converter {
         }
     }
 
+    // TODO - do we really need this??
     private void writeNamespace(HierarchicalStreamWriter writer, QName field) {
-        if (prefixToUriMapping == null
-                || !prefixToUriMapping.containsKey(field.getPrefix())
-                || !prefixToUriMapping.get(field.getPrefix()).equals(
-                        field.getNamespaceURI())) {
-            writer.addAttribute(XMLConstants.XMLNS_ATTRIBUTE
-                    + CswConstants.NAMESPACE_DELIMITER + field.getPrefix(),
-                    field.getNamespaceURI());
-        }
+//        if (prefixToUriMapping == null
+//                || !prefixToUriMapping.containsKey(field.getPrefix())
+//                || !prefixToUriMapping.get(field.getPrefix()).equals(
+//                        field.getNamespaceURI())) {
+//            writer.addAttribute(XMLConstants.XMLNS_ATTRIBUTE
+//                    + CswConstants.NAMESPACE_DELIMITER + field.getPrefix(),
+//                    field.getNamespaceURI());
+//        }
     }
     
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+        Map<String, String> cswAttrMap = DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames();
+        Object mappingObj = context.get(CswConstants.CSW_MAPPING);
+        if (mappingObj instanceof Map<?, ?>){
+            cswAttrMap = (Map<String, String>) mappingObj;
+        }
 
-        // Always ensure using latest mappings from CSW source's configuration.
-        // If they changed,
-        // CswSource will have updated its configuration object from which we
-        // pull the latest
-        // mappings and convert to our csw-to-metacard mappings.
-        // KCW - Pretty sure we should only do this when we create the converter - if the config
-        // changes a new converter will get created.
-        // setCswToMetacardAttributeMappings(metacardToCswAttributeMappings);
+        String resourceUriMapping = (isString(context.get(Metacard.RESOURCE_URI)))?(String)context.get(Metacard.RESOURCE_URI):null;
+        String thumbnailMapping = (isString(context.get(Metacard.THUMBNAIL)))?(String)context.get(Metacard.THUMBNAIL):null;
+        String productRetrievalMethod = (isString(context.get(CswConstants.PRODUCT_RETRIEVAL_METHOD)))?(String)context.get(Metacard.RESOURCE_URI):null;
 
-        Metacard metacard = createMetacardFromCswRecord(reader, CSW_METACARD_TYPE);
-        metacard.setSourceId(sourceId);
+        boolean isLonLatOrder = false;
+        Object lonLatObj = context.get(CswConstants.IS_LON_LAT_ORDER_PROPERTY);
+        if (lonLatObj instanceof Boolean) {
+            isLonLatOrder = (Boolean) lonLatObj;
+        }
+
+        Metacard metacard = createMetacardFromCswRecord(reader, cswAttrMap, resourceUriMapping, thumbnailMapping, productRetrievalMethod, isLonLatOrder);
+
+        Object sourceIdObj = context.get(Metacard.SOURCE_ID);
+        if (sourceIdObj instanceof String) {
+            metacard.setSourceId((String)sourceIdObj);
+        }
 
         return metacard;
+    }
+
+    private boolean isString(Object object) {
+        return object instanceof String;
     }
 
     protected HierarchicalStreamReader copyXml(HierarchicalStreamReader hreader, StringWriter writer) {
@@ -508,12 +468,13 @@ public class CswRecordConverter implements Converter {
     }
 
     protected MetacardImpl createMetacardFromCswRecord(HierarchicalStreamReader hreader,
-            MetacardType type) {
+            Map<String, String> cswToMetacardAttributeNames, String resourceUriMapping,
+            String thumbnailMapping, String productRetrievalMethod, boolean isLatLonOrder) {
 
         StringWriter metadataWriter = new StringWriter();
         HierarchicalStreamReader reader = copyXml(hreader, metadataWriter);
 
-        MetacardImpl mc = new MetacardImpl(type);
+        MetacardImpl mc = new MetacardImpl(CSW_METACARD_TYPE);
         Map<String, Attribute> attributes = new HashMap<String, Attribute>();
 
         while (reader.hasMoreChildren()) {
@@ -531,7 +492,7 @@ public class CswRecordConverter implements Converter {
             }
 
             LOGGER.debug("Processing node {}", name);
-            AttributeDescriptor attributeDescriptor = type.getAttributeDescriptor(name);
+            AttributeDescriptor attributeDescriptor = CSW_METACARD_TYPE.getAttributeDescriptor(name);
 
             Serializable value = null;
 
@@ -546,7 +507,7 @@ public class CswRecordConverter implements Converter {
                     && (StringUtils.isNotBlank(reader.getValue()) || BasicTypes.GEO_TYPE
                             .equals(attributeDescriptor.getType()))) {
                 value = convertRecordPropertyToMetacardAttribute(attributeDescriptor.getType()
-                        .getAttributeFormat(), reader);
+                        .getAttributeFormat(), reader, isLatLonOrder);
             }
 
             if (null != value) {
@@ -579,9 +540,9 @@ public class CswRecordConverter implements Converter {
             // value.
             if (cswToMetacardAttributeNames.containsKey(attrName)) {
                 String metacardAttrName = cswToMetacardAttributeNames.get(attrName);
-                AttributeFormat cswAttributeFormat = type.getAttributeDescriptor(attrName)
+                AttributeFormat cswAttributeFormat = CSW_METACARD_TYPE.getAttributeDescriptor(attrName)
                         .getType().getAttributeFormat();
-                AttributeDescriptor metacardAttributeDescriptor = type
+                AttributeDescriptor metacardAttributeDescriptor = CSW_METACARD_TYPE
                         .getAttributeDescriptor(metacardAttrName);
                 AttributeFormat metacardAttrFormat = metacardAttributeDescriptor.getType()
                         .getAttributeFormat();
@@ -609,10 +570,9 @@ public class CswRecordConverter implements Converter {
         mc.setId((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue());
 
         try {
-            if (type instanceof CswRecordMetacardType) {
-                URI namespaceUri = new URI(((CswRecordMetacardType) type).getNamespaceURI());
-                mc.setTargetNamespace(namespaceUri);
-            }
+            URI namespaceUri = new URI(CSW_METACARD_TYPE.getNamespaceURI());
+            mc.setTargetNamespace(namespaceUri);
+
         } catch (URISyntaxException e) {
             LOGGER.info("Error setting target namespace uri on metacard, Exception {}", e);
         }
@@ -646,7 +606,10 @@ public class CswRecordConverter implements Converter {
             // Determine the csw field mapped to the resource uri and set that value
             // on the Metacard.RESOURCE_URI attribute
             // Default is for <source> field to define URI for product to be downloaded
-            Attribute resourceUriAttr = mc.getAttribute(resourceUriMapping);
+            Attribute resourceUriAttr = null;
+            if (resourceUriMapping instanceof String) {
+                resourceUriAttr = mc.getAttribute((String)resourceUriMapping);
+            }
             if (resourceUriAttr != null && resourceUriAttr.getValue() != null) {
                 String source = (String) resourceUriAttr.getValue();
                 try {
@@ -660,7 +623,10 @@ public class CswRecordConverter implements Converter {
         // determine the csw field mapped to the thumbnail and set that value on
         // the Metacard.THUMBNAIL
         // attribute
-        Attribute thumbnailAttr = mc.getAttribute(thumbnailMapping);
+        Attribute thumbnailAttr = null;
+        if (thumbnailMapping instanceof String) {
+            thumbnailAttr = mc.getAttribute((String)thumbnailMapping);
+        }
         if (thumbnailAttr != null && thumbnailAttr.getValue() != null) {
             String thumbnail = (String) thumbnailAttr.getValue();
             URL url;
@@ -771,7 +737,7 @@ public class CswRecordConverter implements Converter {
      * @return
      */
     protected Serializable convertRecordPropertyToMetacardAttribute(
-            AttributeFormat attributeFormat, HierarchicalStreamReader reader) {
+            AttributeFormat attributeFormat, HierarchicalStreamReader reader, boolean isLonLatOrder) {
         LOGGER.debug("converting csw record property {}", reader.getValue());
         Serializable ser = null;
         switch (attributeFormat) {
@@ -820,24 +786,69 @@ public class CswRecordConverter implements Converter {
 
     }
 
-    public void setSourceId(final String sourceId) {
-        this.sourceId = sourceId;
+//    public void setSourceId(final String sourceId) {
+//        this.sourceId = sourceId;
+//    }
+
+//    public String getRootElementName(String elementSetType) {
+//        String rootElementName = null;
+//        switch (ElementSetType.valueOf(elementSetType)) {
+//        case BRIEF:
+//            rootElementName = CswConstants.CSW_BRIEF_RECORD;
+//            break;
+//        case SUMMARY:
+//            rootElementName = CswConstants.CSW_SUMMARY_RECORD;
+//            break;
+//        case FULL:
+//        default:
+//            rootElementName = CswConstants.CSW_RECORD;
+//            break;
+//        }
+//        return rootElementName;
+//    }
+
+    @Override public Metacard transform(InputStream inputStream)
+            throws IOException, CatalogTransformerException {
+        return transform(inputStream, null);
     }
 
-    public String getRootElementName(String elementSetType) {
-        String rootElementName = null;
-        switch (ElementSetType.valueOf(elementSetType)) {
-        case BRIEF:
-            rootElementName = CswConstants.CSW_BRIEF_RECORD;
-            break;
-        case SUMMARY:
-            rootElementName = CswConstants.CSW_SUMMARY_RECORD;
-            break;
-        case FULL:
-        default:
-            rootElementName = CswConstants.CSW_RECORD;
-            break;
+    @Override public Metacard transform(InputStream inputStream, String id)
+            throws IOException, CatalogTransformerException {
+        Metacard metacard = null;
+        try {
+            metacard = (Metacard) xstream.fromXML(inputStream);
+            if (StringUtils.isNotEmpty(id)) {
+                metacard.setAttribute(new AttributeImpl(Metacard.ID, id));
+            }
+        } catch (XStreamException e) {
+            throw new CatalogTransformerException(
+                    "Unable to transform from CSW Record to Metacard.", e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
-        return rootElementName;
+
+        if (metacard == null) {
+            throw new CatalogTransformerException(
+                    "Unable to transform from CSW Record to Metacard.");
+        }
+
+        return metacard;
+    }
+
+    @Override public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
+            throws CatalogTransformerException {
+        StringWriter stringWriter = new StringWriter();
+        stringWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
+        PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
+        DataHolder holder = xstream.newDataHolder();
+        holder.put(CswConstants.WRITE_NAMESPACES, true);
+
+        xstream.marshal(metacard, writer, holder);
+
+        BinaryContent transformedContent = null;
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(stringWriter.toString().getBytes());
+        transformedContent = new BinaryContentImpl(bais, new MimeType());
+        return transformedContent;
     }
 }

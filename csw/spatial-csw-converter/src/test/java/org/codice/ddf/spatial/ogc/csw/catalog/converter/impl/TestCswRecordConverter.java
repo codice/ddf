@@ -15,8 +15,11 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.converter.impl;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.core.TreeMarshaller;
+import com.thoughtworks.xstream.core.TreeUnmarshaller;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.DomReader;
@@ -144,35 +147,17 @@ public class TestCswRecordConverter {
 
     @Test
     public void testConstruction() {
-        CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-        assertDateMappings(converter.cswToMetacardAttributeNames);
-    }
-
-    @Test
-    public void testConstructionWithNullConfiguration() {
-        CswRecordConverter converter = new CswRecordConverter(null, null, null, null, false);
-        assertDefaultDateMappings(converter.cswToMetacardAttributeNames);
-    }
-
-    @Test
-    public void testConstructionWithNoDateMappings() {
-        CswRecordConverter converter = new CswRecordConverter(null, null, null, null, false);
-        assertDefaultDateMappings(converter.cswToMetacardAttributeNames);
-    }
-
-    @Test
-    public void testConstructionDefault() {
         CswRecordConverter converter = new CswRecordConverter();
-        assertDefaultDateMappings(converter.cswToMetacardAttributeNames);
+//        assertDefaultDateMappings(converter.cswToMetacardAttributeNames);
     }
+
 
     @Test
     public void testUnmarshalSingleCswRecordToMetacard() {
         XStream xstream = new XStream(new WstxDriver());
 
-        CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
+        CswRecordConverter converter = new CswRecordConverter();
 
-        converter.setSourceId("CSW");
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
@@ -196,32 +181,36 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testUnmarshalSingleCswRecordToMetacardContentTypeMapsToFormat() {
+    public void testUnmarshalSingleCswRecordToMetacardContentTypeMapsToFormat()
+            throws ParserConfigurationException, IOException, SAXException {
         XStream xstream = new XStream(new WstxDriver());
 
         Map<String, String> metacardAttributeMappings = getMetacardAttributeMappings();
-        metacardAttributeMappings.put(Metacard.CONTENT_TYPE, CswRecordMetacardType.CSW_FORMAT);
+        metacardAttributeMappings.put(CswRecordMetacardType.CSW_FORMAT, Metacard.CONTENT_TYPE);
+
+        CswRecordConverter converter = new CswRecordConverter();
         
-        CswRecordConverter converter = new CswRecordConverter(metacardAttributeMappings, CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-        
-        converter.setSourceId("CSW");
         xstream.registerConverter(converter);
 
-        xstream.alias("Record", MetacardImpl.class);
-        InputStream is = TestCswRecordConverter.class.getResourceAsStream("/Csw_Record.xml");
-        Metacard mc = (Metacard) xstream.fromXML(is);
+        xstream.alias("csw:Record", MetacardImpl.class);
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse("src/test/resources/Csw_Record.xml");
+        HierarchicalStreamReader reader = new DomReader(doc);
+        DataHolder holder = xstream.newDataHolder();
+        holder.put(CswConstants.CSW_MAPPING, metacardAttributeMappings);
+
+        Metacard mc = (Metacard) xstream.unmarshal(reader, null, holder);
 
         assertThat(mc, not(nullValue()));
-        assertThat((String) mc.getContentTypeName(), is("PDF"));
+        assertThat(mc.getContentTypeName(), is("PDF"));
     }
 
     @Test
     public void testUnmarshalCswRecordGeometryToMetacard() {
         XStream xstream = new XStream(new WstxDriver());
 
-        CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-
-        converter.setSourceId("CSW");
+        CswRecordConverter converter = new CswRecordConverter();
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
@@ -241,9 +230,7 @@ public class TestCswRecordConverter {
     public void testUnmarshalCswRecordMultipleTitles() {
         XStream xstream = new XStream(new WstxDriver());
 
-        CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-
-        converter.setSourceId("CSW");
+        CswRecordConverter converter = new CswRecordConverter();
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
@@ -266,9 +253,7 @@ public class TestCswRecordConverter {
     public void testUnmarshalCswRecordMultipleResourceUri() {
         XStream xstream = new XStream(new WstxDriver());
 
-        CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, CswRecordMetacardType.CSW_SOURCE, null, false);
-        
-        converter.setSourceId("CSW");
+        CswRecordConverter converter = new CswRecordConverter();
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
@@ -285,9 +270,7 @@ public class TestCswRecordConverter {
     public void testUnmarshalCswRecordMetacardAttributeOverlap() {
         XStream xstream = new XStream(new WstxDriver());
 
-        CswRecordConverter converter = new CswRecordConverter(null, CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-
-        converter.setSourceId("CSW_Source");
+        CswRecordConverter converter = new CswRecordConverter();
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
@@ -356,9 +339,7 @@ public class TestCswRecordConverter {
     Metacard buildMetacardFromCSW(String cswFileName) {
         XStream xstream = new XStream(new WstxDriver());
 
-        CswRecordConverter converter = new CswRecordConverter(null, CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-
-        converter.setSourceId("CSW_Source");
+        CswRecordConverter converter = new CswRecordConverter();
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
@@ -368,23 +349,28 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testUnmarshalCswRecordWithCustomDateMappings() {
+    public void testUnmarshalCswRecordWithCustomDateMappings()
+            throws ParserConfigurationException, IOException, SAXException {
         XStream xstream = new XStream(new WstxDriver());
 
         // Custom date mappings
         Map<String, String> metacardAttributeMappings = new HashMap<String, String>();
-        metacardAttributeMappings.put(Metacard.EFFECTIVE, CswRecordMetacardType.CSW_MODIFIED);
-        metacardAttributeMappings.put(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED);
-        metacardAttributeMappings.put(Metacard.MODIFIED, CswRecordMetacardType.CSW_DATE_SUBMITTED);
+        metacardAttributeMappings.put(CswRecordMetacardType.CSW_MODIFIED, Metacard.EFFECTIVE);
+        metacardAttributeMappings.put(CswRecordMetacardType.CSW_CREATED, Metacard.CREATED);
+        metacardAttributeMappings.put(CswRecordMetacardType.CSW_DATE_SUBMITTED, Metacard.MODIFIED);
 
-        CswRecordConverter converter = new CswRecordConverter(metacardAttributeMappings, CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-
-        converter.setSourceId("CSW_Source");
+        CswRecordConverter converter = new CswRecordConverter();
         xstream.registerConverter(converter);
 
-        xstream.alias("Record", MetacardImpl.class);
-        InputStream is = TestCswRecordConverter.class.getResourceAsStream("/Csw_Record.xml");
-        Metacard mc = (Metacard) xstream.fromXML(is);
+        xstream.alias("csw:Record", MetacardImpl.class);
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse("src/test/resources/Csw_Record.xml");
+        HierarchicalStreamReader reader = new DomReader(doc);
+        DataHolder holder = xstream.newDataHolder();
+        holder.put(CswConstants.CSW_MAPPING, metacardAttributeMappings);
+
+        Metacard mc = (Metacard) xstream.unmarshal(reader, null, holder);
 
         assertThat(mc, not(nullValue()));
 
@@ -403,16 +389,13 @@ public class TestCswRecordConverter {
 
     @Test
     public void testUnmarshalCswRecordWithProductAndThumbnail() throws URISyntaxException,
-        IOException, JAXBException {
+            IOException, JAXBException, ParserConfigurationException, SAXException {
         XStream xstream = new XStream(new WstxDriver());
-        
-        CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, CswRecordMetacardType.CSW_SOURCE, CswRecordMetacardType.CSW_REFERENCES, false);
-        
-        converter.setSourceId(SOURCE);
+
+        CswRecordConverter converter = new CswRecordConverter();
 
         xstream.registerConverter(converter);
 
-        xstream.alias("Record", MetacardImpl.class);
         InputStream is = TestCswRecordConverter.class.getResourceAsStream("/Csw_Record.xml");
 
         // get the URL to the thumbnail image and stick it in the xml string
@@ -426,7 +409,16 @@ public class TestCswRecordConverter {
             xml = xml.replace(THUMBNAIL_URL, thumbnail.toString());
         }
 
-        Metacard mc = (Metacard) xstream.fromXML(xml);
+        xstream.alias("csw:Record", MetacardImpl.class);
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        Document doc = docBuilder.parse(IOUtils.toInputStream(xml));
+        HierarchicalStreamReader reader = new DomReader(doc);
+        DataHolder holder = xstream.newDataHolder();
+        holder.put(Metacard.RESOURCE_URI, CswRecordMetacardType.CSW_SOURCE);
+        holder.put(Metacard.THUMBNAIL, CswRecordMetacardType.CSW_REFERENCES);
+
+        Metacard mc = (Metacard) xstream.unmarshal(reader, null, holder);
 
         assertThat(mc, not(nullValue()));
 
@@ -447,7 +439,7 @@ public class TestCswRecordConverter {
      */
     @Test
     public void testConvertISODateMetacardAttribute() {
-        CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
+        CswRecordConverter converter = new CswRecordConverter();
         String dateStr = "2013-05-03T17:25:04Z";
         Serializable ser = converter.convertStringValueToMetacardValue(
                 AttributeFormat.DATE, dateStr);
@@ -467,7 +459,7 @@ public class TestCswRecordConverter {
      */
     @Test
     public void testConvertInvalidTimeZoneInDateMetacardAttribute() {
-        CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
+        CswRecordConverter converter = new CswRecordConverter();
         String dateStr = "2013-05-13T10:56:39EDT";
         Serializable ser = converter.convertStringValueToMetacardValue(
                 AttributeFormat.DATE, dateStr);
@@ -480,7 +472,7 @@ public class TestCswRecordConverter {
      */
     @Test
     public void testConvertInvalidDateMetacardAttribute() {
-        CswRecordConverter converter = new CswRecordConverter(this.getMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
+        CswRecordConverter converter = new CswRecordConverter();
         String dateStr = "26021000ZFEB11";
         Serializable ser = converter.convertStringValueToMetacardValue(
                 AttributeFormat.DATE, dateStr);
@@ -501,12 +493,13 @@ public class TestCswRecordConverter {
         HierarchicalStreamReader reader = new DomReader(doc);
         
         Map<String, String> metacardAttributeMappings = this.getMetacardAttributeMappings();
-        metacardAttributeMappings.put(Metacard.CONTENT_TYPE, CswRecordMetacardType.CSW_TYPE);
-        
-        CswRecordConverter cswRecordConverter = new CswRecordConverter(metacardAttributeMappings, CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL, null, null, false);
-        
+        metacardAttributeMappings.put(CswRecordMetacardType.CSW_TYPE, Metacard.CONTENT_TYPE);
+        UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
+        context.put(CswConstants.CSW_MAPPING, metacardAttributeMappings);
+
+        CswRecordConverter converter = new CswRecordConverter();
         // Perform test
-        Metacard metacard = (Metacard) cswRecordConverter.unmarshal(reader, null);
+        Metacard metacard = (Metacard) converter.unmarshal(reader, context);
 
         // Verify
         LOGGER.debug("metacard id: {}", metacard.getId());
@@ -647,13 +640,7 @@ public class TestCswRecordConverter {
                 CswConstants.DUBLIN_CORE_SCHEMA);
         prefixToUriMapping.put(CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX,
                 CswConstants.DUBLIN_CORE_TERMS_SCHEMA);
-        cswRecordConverter = new CswRecordConverter(
-                new HashMap<String, String>(),
-                prefixToUriMapping,
-                "productRetrievalMethod",
-                "resourceUriMapping",
-                "thumbnailMapping",
-                true);
+        cswRecordConverter = new CswRecordConverter();
         return cswRecordConverter;
     }
 
@@ -743,9 +730,9 @@ public class TestCswRecordConverter {
     
     private Map<String, String> getMetacardAttributeMappings() {
         Map<String, String> metacardAttributeMappings = new HashMap<String, String>();
-        metacardAttributeMappings.put(Metacard.EFFECTIVE, CswRecordMetacardType.CSW_CREATED);
-        metacardAttributeMappings.put(Metacard.CREATED, CswRecordMetacardType.CSW_DATE_SUBMITTED);
-        metacardAttributeMappings.put(Metacard.MODIFIED, CswRecordMetacardType.CSW_MODIFIED);
+        metacardAttributeMappings.put(CswRecordMetacardType.CSW_CREATED, Metacard.EFFECTIVE);
+        metacardAttributeMappings.put(CswRecordMetacardType.CSW_DATE_SUBMITTED, Metacard.CREATED);
+        metacardAttributeMappings.put(CswRecordMetacardType.CSW_MODIFIED, Metacard.MODIFIED);
         return metacardAttributeMappings;
     }
 

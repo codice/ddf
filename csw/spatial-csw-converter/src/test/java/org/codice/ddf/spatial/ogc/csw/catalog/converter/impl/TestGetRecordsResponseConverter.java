@@ -1,35 +1,60 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter.impl;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import com.thoughtworks.xstream.io.naming.NoNameCoder;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
+import com.thoughtworks.xstream.io.xml.WstxDriver;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.transform.InputTransformer;
+import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
+import net.opengis.cat.csw.v_2_0_2.ElementSetType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordByIdResponseType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
+import net.opengis.cat.csw.v_2_0_2.QueryType;
+import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
+import org.apache.commons.lang.StringUtils;
+import org.apache.tika.io.IOUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -43,72 +68,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
-
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import ddf.catalog.transform.InputTransformer;
-import net.opengis.cat.csw.v_2_0_2.AbstractRecordType;
-import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
-import net.opengis.cat.csw.v_2_0_2.ElementSetType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordByIdResponseType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
-import net.opengis.cat.csw.v_2_0_2.QueryType;
-import net.opengis.cat.csw.v_2_0_2.RecordType;
-import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
-import net.opengis.ows.v_1_0_0.BoundingBoxType;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.tika.io.IOUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswRecordInputTransformer;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.naming.NoNameCoder;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
-import com.thoughtworks.xstream.io.xml.WstxDriver;
-
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.MetacardTypeImpl;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TestGetRecordsResponseConverter {
 
-    
     private static final Logger LOGGER = LoggerFactory
             .getLogger(TestGetRecordsResponseConverter.class);
-    
+
     private static final String ID_PREFIX = "id_";
+
     private static final String SOURCE_PREFIX = "source_";
+
     private static final String TITLE_PREFIX = "title ";
 
     private static final String ID = "identifier";
+
     private static final String SOURCE = "source";
+
     private static final String PUBLISHER = "publisher";
+
     private static final String TITLE = "title";
+
     private static final String FORMAT = "format";
+
     private static final String RELATION = "relation";
 
     private static final String WKT = "POLYGON((4 1, 2 5, 4 5, 4 1))";
@@ -134,8 +128,9 @@ public class TestGetRecordsResponseConverter {
 
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
 
-        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(new CswRecordInputTransformer());
-        
+        when(mockInputManager.getTransformerBySchema(anyString()))
+                .thenReturn(new CswRecordConverter());
+
         xstream.registerConverter(new GetRecordsResponseConverter(provider));
         xstream.alias("GetRecordsResponse", CswRecordCollection.class);
 
@@ -201,10 +196,10 @@ public class TestGetRecordsResponseConverter {
                 new String[] {expectedModifiedDateStr});
         expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
         expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, new String[] {"subject 1",
-            "second subject"});
+                "second subject"});
         expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"abstract 1"});
         expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"copyright 1",
-            "copyright 2"});
+                "copyright 2"});
         expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
         expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset");
         expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile"});
@@ -212,7 +207,8 @@ public class TestGetRecordsResponseConverter {
                 "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))");
         expectedValues
                 .put(CswRecordMetacardType.OWS_BOUNDING_BOX,
-                        new String[] {"POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))"});
+                        new String[] {
+                                "POLYGON((52.139 5.121, 52.517 5.121, 52.517 4.468, 52.139 4.468, 52.139 5.121))"});
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
@@ -233,10 +229,10 @@ public class TestGetRecordsResponseConverter {
                 new String[] {expectedModifiedDateStr});
         expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
         expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, new String[] {"first subject",
-            "subject 2"});
+                "subject 2"});
         expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"mc2 abstract"});
         expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"first copyright",
-            "second copyright"});
+                "second copyright"});
         expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
         expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset 2");
         expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile 2"});
@@ -244,7 +240,8 @@ public class TestGetRecordsResponseConverter {
                 "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))");
         expectedValues
                 .put(CswRecordMetacardType.OWS_BOUNDING_BOX,
-                        new String[] {"POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))"});
+                        new String[] {
+                                "POLYGON((53.139 6.121, 53.517 6.121, 53.517 5.468, 53.139 5.468, 53.139 6.121))"});
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
@@ -254,7 +251,7 @@ public class TestGetRecordsResponseConverter {
     public void testGetRecordsResponseConversionWithEmptyBoundingBox() {
         XStream xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
-        
+
         GetRecordsResponseConverter grrc = new GetRecordsResponseConverter(mockProvider);
         grrc.setUnmarshalConverterSchema(CswConstants.CSW_OUTPUT_SCHEMA,
                 getDefaultMetacardAttributeMappings(), CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL,
@@ -290,42 +287,41 @@ public class TestGetRecordsResponseConverter {
         assertThat(cswRecords.getNumberOfRecordsReturned(), is(10L));
         assertThat(cswRecords.getNumberOfRecordsMatched(), is(479L));
 
-
         List<Metacard> metacards = cswRecords.getCswRecords();
         assertThat(metacards, not(nullValue()));
         assertThat(metacards.size(), equalTo(1));
 
-
         // TODO get rid of this crap
         // verify first metacard's values
-//        Metacard mc = metacards.get(0);
-//        Map<String, Object> expectedValues = new HashMap<String, Object>();
-//        expectedValues.put(Metacard.ID, "{8C1F6297-EC96-4302-A01E-14988C9149FD}");
-//        expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER,
-//                new String[] {"{8C1F6297-EC96-4302-A01E-14988C9149FD}"});
-//        expectedValues.put(Metacard.TITLE, "title 1");
-//        expectedValues.put(CswRecordMetacardType.CSW_TITLE, new String[] {"title 1"});
-//        String expectedModifiedDateStr = "2008-12-15";
-//        DateTimeFormatter dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
-//        Date expectedModifiedDate = dateFormatter.parseDateTime(expectedModifiedDateStr).toDate();
-//        expectedValues.put(CswRecordMetacardType.CSW_MODIFIED,
-//                new String[] {expectedModifiedDateStr});
-//        expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
-//        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, new String[] {"subject 1",
-//            "second subject"});
-//        expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"abstract 1"});
-//        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"copyright 1",
-//            "copyright 2"});
-//        expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
-//        expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset");
-//        expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile"});
-//        expectedValues.put(Metacard.GEOGRAPHY, null);
-//        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, null);
-//        assertMetacard(mc, expectedValues);
+        //        Metacard mc = metacards.get(0);
+        //        Map<String, Object> expectedValues = new HashMap<String, Object>();
+        //        expectedValues.put(Metacard.ID, "{8C1F6297-EC96-4302-A01E-14988C9149FD}");
+        //        expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER,
+        //                new String[] {"{8C1F6297-EC96-4302-A01E-14988C9149FD}"});
+        //        expectedValues.put(Metacard.TITLE, "title 1");
+        //        expectedValues.put(CswRecordMetacardType.CSW_TITLE, new String[] {"title 1"});
+        //        String expectedModifiedDateStr = "2008-12-15";
+        //        DateTimeFormatter dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
+        //        Date expectedModifiedDate = dateFormatter.parseDateTime(expectedModifiedDateStr).toDate();
+        //        expectedValues.put(CswRecordMetacardType.CSW_MODIFIED,
+        //                new String[] {expectedModifiedDateStr});
+        //        expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
+        //        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, new String[] {"subject 1",
+        //            "second subject"});
+        //        expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"abstract 1"});
+        //        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"copyright 1",
+        //            "copyright 2"});
+        //        expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
+        //        expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset");
+        //        expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile"});
+        //        expectedValues.put(Metacard.GEOGRAPHY, null);
+        //        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, null);
+        //        assertMetacard(mc, expectedValues);
     }
 
     @Test
-    public void testMarshalRecordCollectionGetBrief() throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetBrief()
+            throws UnsupportedEncodingException, JAXBException {
         final int totalResults = 5;
 
         XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -339,21 +335,25 @@ public class TestGetRecordsResponseConverter {
         CswRecordCollection collection = createCswRecordCollection(getRecords, totalResults);
         collection.setElementSetType(ElementSetType.BRIEF);
 
-        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor.forClass(MarshallingContext.class);
+        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor
+                .forClass(MarshallingContext.class);
 
         String xml = xstream.toXML(collection);
 
         // Verify the context arguments were set correctly
-        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
+        verify(mockProvider, times(totalResults))
+                .marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType)context.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.BRIEF));
+        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+                is(CswConstants.CSW_OUTPUT_SCHEMA));
+        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE),
+                is(ElementSetType.BRIEF));
 
         JAXBElement<GetRecordsResponseType> jaxb = (JAXBElement<GetRecordsResponseType>) getJaxBContext()
                 .createUnmarshaller().unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-       
+
         GetRecordsResponseType response = jaxb.getValue();
         // Assert the GetRecordsResponse elements and attributes
         assertThat(response, not(nullValue()));
@@ -366,7 +366,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetSummary() throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetSummary()
+            throws UnsupportedEncodingException, JAXBException {
         final int totalResults = 5;
 
         XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -380,17 +381,21 @@ public class TestGetRecordsResponseConverter {
         CswRecordCollection collection = createCswRecordCollection(getRecords, totalResults);
         collection.setElementSetType(ElementSetType.SUMMARY);
 
-        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor.forClass(MarshallingContext.class);
+        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor
+                .forClass(MarshallingContext.class);
 
         String xml = xstream.toXML(collection);
 
         // Verify the context arguments were set correctly
-        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
+        verify(mockProvider, times(totalResults))
+                .marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType)context.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.SUMMARY));
+        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+                is(CswConstants.CSW_OUTPUT_SCHEMA));
+        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE),
+                is(ElementSetType.SUMMARY));
 
         JAXBElement<GetRecordsResponseType> jaxb = (JAXBElement<GetRecordsResponseType>) getJaxBContext()
                 .createUnmarshaller().unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
@@ -407,7 +412,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetFull() throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetFull()
+            throws UnsupportedEncodingException, JAXBException {
         final int totalResults = 5;
 
         XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -421,17 +427,21 @@ public class TestGetRecordsResponseConverter {
         CswRecordCollection collection = createCswRecordCollection(getRecords, totalResults);
         collection.setElementSetType(ElementSetType.FULL);
 
-        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor.forClass(MarshallingContext.class);
+        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor
+                .forClass(MarshallingContext.class);
 
         String xml = xstream.toXML(collection);
 
         // Verify the context arguments were set correctly
-        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
+        verify(mockProvider, times(totalResults))
+                .marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType)context.get(CswConstants.ELEMENT_SET_TYPE), is(ElementSetType.FULL));
+        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+                is(CswConstants.CSW_OUTPUT_SCHEMA));
+        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE),
+                is(ElementSetType.FULL));
 
         JAXBElement<GetRecordsResponseType> jaxb = (JAXBElement<GetRecordsResponseType>) getJaxBContext()
                 .createUnmarshaller().unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
@@ -448,7 +458,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetElements() throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetElements()
+            throws UnsupportedEncodingException, JAXBException {
         final int totalResults = 5;
 
         XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
@@ -458,22 +469,25 @@ public class TestGetRecordsResponseConverter {
         elements.add(CswRecordMetacardType.CSW_TITLE_QNAME);
         elements.add(CswRecordMetacardType.CSW_SOURCE_QNAME);
         query.setElementName(elements);
-        
+
         ObjectFactory objectFactory = new ObjectFactory();
         getRecords.setAbstractQuery(objectFactory.createAbstractQuery(query));
         CswRecordCollection collection = createCswRecordCollection(getRecords, totalResults);
         collection.setElementName(elements);
-        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor.forClass(MarshallingContext.class);
+        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor
+                .forClass(MarshallingContext.class);
 
         String xml = xstream.toXML(collection);
 
         // Verify the context arguments were set correctly
-        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
+        verify(mockProvider, times(totalResults))
+                .marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType)context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
+        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+                is(CswConstants.CSW_OUTPUT_SCHEMA));
+        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
         assertThat(context.get(CswConstants.ELEMENT_NAMES), is(notNullValue()));
         List<QName> qnames = (List<QName>) context.get(CswConstants.ELEMENT_NAMES);
         assertThat(qnames.contains(CswRecordMetacardType.CSW_TITLE_QNAME), is(true));
@@ -494,7 +508,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetFirstPage() throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetFirstPage()
+            throws UnsupportedEncodingException, JAXBException {
         final int maxRecords = 6;
         final int startPosition = 1;
         final int totalResults = 22;
@@ -505,7 +520,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetMiddlePage() throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetMiddlePage()
+            throws UnsupportedEncodingException, JAXBException {
         final int maxRecords = 6;
         final int startPosition = 4;
         final int totalResults = 22;
@@ -516,7 +532,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetLastPage() throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetLastPage()
+            throws UnsupportedEncodingException, JAXBException {
         final int maxRecords = 6;
         final int startPosition = 18;
         final int totalResults = 22;
@@ -527,7 +544,8 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testMarshalRecordCollectionGetAllOnePage() throws UnsupportedEncodingException, JAXBException {
+    public void testMarshalRecordCollectionGetAllOnePage()
+            throws UnsupportedEncodingException, JAXBException {
         final int maxRecords = 23;
         final int startPosition = 1;
         final int totalResults = 22;
@@ -539,24 +557,27 @@ public class TestGetRecordsResponseConverter {
 
     @Test
     public void testMarshalRecordCollectionById() throws UnsupportedEncodingException,
-        JAXBException {
+            JAXBException {
         final int totalResults = 2;
 
         XStream xstream = createXStream(CswConstants.GET_RECORD_BY_ID_RESPONSE);
         CswRecordCollection collection = createCswRecordCollection(null, totalResults);
         collection.setById(true);
 
-        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor.forClass(MarshallingContext.class);
+        ArgumentCaptor<MarshallingContext> captor = ArgumentCaptor
+                .forClass(MarshallingContext.class);
 
         String xml = xstream.toXML(collection);
 
         // Verify the context arguments were set correctly
-        verify(mockProvider, times(totalResults)).marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
+        verify(mockProvider, times(totalResults))
+                .marshal(any(Object.class), any(HierarchicalStreamWriter.class), captor.capture());
 
         MarshallingContext context = captor.getValue();
         assertThat(context, not(nullValue()));
-        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ElementSetType)context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
+        assertThat((String) context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+                is(CswConstants.CSW_OUTPUT_SCHEMA));
+        assertThat((ElementSetType) context.get(CswConstants.ELEMENT_SET_TYPE), is(nullValue()));
         assertThat(context.get(CswConstants.ELEMENT_NAMES), is(nullValue()));
 
         JAXBElement<GetRecordByIdResponseType> jaxb = (JAXBElement<GetRecordByIdResponseType>) getJaxBContext()
@@ -571,7 +592,7 @@ public class TestGetRecordsResponseConverter {
 
     private void getRecords(final int maxRecords, final int startPosition, final int totalResults,
             final int expectedNext, final int expectedReturn) throws JAXBException,
-        UnsupportedEncodingException {
+            UnsupportedEncodingException {
         XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
         GetRecordsType query = new GetRecordsType();
         query.setMaxRecords(BigInteger.valueOf(maxRecords));
@@ -583,11 +604,13 @@ public class TestGetRecordsResponseConverter {
 
         JAXBElement<GetRecordsResponseType> jaxb = (JAXBElement<GetRecordsResponseType>) getJaxBContext()
                 .createUnmarshaller().unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
-       
+
         GetRecordsResponseType response = jaxb.getValue();
-        assertThat(response.getSearchResults().getNumberOfRecordsMatched().intValue(), equalTo(totalResults));
-        assertThat(response.getSearchResults().getNumberOfRecordsReturned().intValue(), equalTo(expectedReturn));
-//        assertThat(response.getSearchResults().getAbstractRecord().size(), equalTo(expectedReturn));
+        assertThat(response.getSearchResults().getNumberOfRecordsMatched().intValue(),
+                equalTo(totalResults));
+        assertThat(response.getSearchResults().getNumberOfRecordsReturned().intValue(),
+                equalTo(expectedReturn));
+        //        assertThat(response.getSearchResults().getAbstractRecord().size(), equalTo(expectedReturn));
         assertThat(response.getSearchResults().getNextRecord().intValue(), equalTo(expectedNext));
     }
 
@@ -653,7 +676,7 @@ public class TestGetRecordsResponseConverter {
 
     private CswRecordCollection createCswRecordCollection(GetRecordsType request, int resultCount) {
         CswRecordCollection collection = new CswRecordCollection();
-        
+
         int first = 1;
         int last = 2;
         if (request != null) {
@@ -671,16 +694,16 @@ public class TestGetRecordsResponseConverter {
         collection.setCswRecords(createMetacardList(first, last));
         collection.setNumberOfRecordsMatched(resultCount);
         collection.setNumberOfRecordsReturned(returned);
-//        collection.setRequest(request);
+        //        collection.setRequest(request);
         return collection;
     }
-    
+
     private List<Metacard> createMetacardList(int start, int finish) {
         List<Metacard> list = new LinkedList<Metacard>();
-        
+
         for (int i = start; i <= finish; i++) {
             MetacardImpl metacard = new MetacardImpl();
-            
+
             metacard.setId(ID_PREFIX + i);
             metacard.setSourceId(SOURCE_PREFIX + i);
             metacard.setTitle(TITLE_PREFIX + i);
@@ -697,21 +720,21 @@ public class TestGetRecordsResponseConverter {
             metacard.setAttribute(attr);
             // for testing a attribute with no attribute descriptor
             metacard.setAttribute(RELATION, RELATION);
-                
+
             list.add(metacard);
         }
-        
+
         return list;
     }
-    
+
     private JAXBContext getJaxBContext() throws JAXBException {
         JAXBContext context = null;
         String contextPath = StringUtils.join(new String[] {
-            CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE, 
-            CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
+                CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
+                CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
 
         context = JAXBContext.newInstance(contextPath,
                 CswJAXBElementProvider.class.getClassLoader());
         return context;
-    }    
+    }
 }
