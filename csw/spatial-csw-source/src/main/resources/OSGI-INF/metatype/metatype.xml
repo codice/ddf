@@ -36,7 +36,7 @@
         <AD description="Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing" 
         	name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean" default="false" />
             
-        <AD name="Product Retrieval Method" id="productRetrievalMethod" required="true" type="String" default="Source URI"
+        <AD name="Product Retrieval Method" id="productRetrievalMethod" required="true" type="String" default="SOURCE_URI"
             description="How products are to be retrieved from the CSW Source: Source URI = CSW record will specify URI to product in its <source> element; WCS = use the CSW Source's Web Coverage Service (WCS)">
             <Option label="Source URI" value="SOURCE_URI" />
             <Option label="WCS" value="WCS" />
@@ -96,7 +96,7 @@
             
         <AD description="Force only the selected Spatial Filter Type as the only available Spatial Filter."
             name="Forced Spatial Filter Type" id="forceSpatialFilter"
-            required="false" type="String" default="">
+            required="false" type="String" default="NO_FILTER">
             <Option label="None" value="NO_FILTER" />
             <Option label="BBOX" value="BBOX" />
             <Option label="Beyond" value="Beyond" />
