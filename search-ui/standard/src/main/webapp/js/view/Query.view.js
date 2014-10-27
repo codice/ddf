@@ -64,7 +64,7 @@ define([
             },
 
             modelEvents: {
-                'change:bbox change:radius': 'updateZoomOnResults'
+                'change:bbox change:radius change:polygon': 'updateZoomOnResults'
             },
 
             initialize: function (options) {
@@ -368,6 +368,8 @@ define([
                 this.$('#offsetTimeUnits').multiselect(singleselectOptions);
 
                 this.$('#scheduleUnits').multiselect(singleselectOptions);
+
+                this.updateZoomOnResults();
             },
 
             beforeShowDatePicker: function(picker){
@@ -409,7 +411,7 @@ define([
             },
 
             updateZoomOnResults: function() {
-                this.zoomOnResults = this.model.get("bbox") || this.model.get("radius") ? true : false;
+                this.zoomOnResults = this.model.get("bbox") || this.model.get("radius") || this.model.get('polygon') ? true : false;
             },
 
             workspaceSearch: function() {

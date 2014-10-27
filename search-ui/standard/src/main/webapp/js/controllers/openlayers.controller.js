@@ -19,8 +19,9 @@ define(['underscore',
         'wreqr',
         'properties',
         'js/view/openlayers.metacard',
-        'jquery'
-    ], function (_, Marionette, ol, Q, wreqr, properties, OpenlayersMetacard, $) {
+        'jquery',
+        'js/view/openlayers.geocoder'
+    ], function (_, Marionette, ol, Q, wreqr, properties, OpenlayersMetacard, $, geocoder) {
         "use strict";
 
         var imageryProviderTypes = {
@@ -32,10 +33,12 @@ define(['underscore',
 
         var Controller = Marionette.Controller.extend({
             initialize: function () {
+                this.geoCoder = new geocoder.View({el: $('#mapTools')});
                 this.mapViewer = this.createMap('cesiumContainer');
                 this.setupEvents();
 
                 this.listenTo(wreqr.vent, 'search:mapshow', this.flyToLocation);
+                this.listenTo(wreqr.vent, 'search:maprectanglefly', this.flyToRectangle);
                 this.listenTo(wreqr.vent, 'search:start', this.clearResults);
                 this.listenTo(wreqr.vent, 'map:results', this.newResults);
                 this.listenTo(wreqr.vent, 'map:clear', this.clear);
@@ -86,6 +89,8 @@ define(['underscore',
                         })
                     });
                 }
+
+                this.geoCoder.render();
 
                 return map;
             },
