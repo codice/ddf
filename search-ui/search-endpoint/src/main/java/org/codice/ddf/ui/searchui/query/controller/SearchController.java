@@ -35,6 +35,7 @@ import ddf.security.Subject;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.collections.map.LRUMap;
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.ui.searchui.query.model.QueryStatus;
 import org.codice.ddf.ui.searchui.query.model.Search;
 import org.codice.ddf.ui.searchui.query.model.SearchRequest;
@@ -296,7 +297,7 @@ public class SearchController {
         addObject(rootObject, Search.RESULTS, getResultList(upstreamResponse.getResults(),
                 metaTypes));
         addObject(rootObject, Search.STATUS, getQueryStatus(search.getQueryStatus()));
-        addObject(rootObject, Search.TYPES, getMetacardTypes(metaTypes.values()));
+        addObject(rootObject, Search.METACARD_TYPES, getMetacardTypes(metaTypes.values()));
 
         LOGGER.debug(rootObject.toJSONString());
 
@@ -351,9 +352,11 @@ public class SearchController {
         addObject(rootObject, Search.RELEVANCE, result.getRelevanceScore());
         addObject(rootObject, Search.METACARD,
                 GeoJsonMetacardTransformer.convertToJSON(result.getMetacard()));
-        metaTypes.put(result.getMetacard().getMetacardType().getName(),
-                result.getMetacard().getMetacardType());
-
+        if (result.getMetacard().getMetacardType() != null &&
+                !StringUtils.isBlank(result.getMetacard().getMetacardType().getName())) {
+            metaTypes.put(result.getMetacard().getMetacardType().getName(),
+                    result.getMetacard().getMetacardType());
+        }
         return rootObject;
     }
 

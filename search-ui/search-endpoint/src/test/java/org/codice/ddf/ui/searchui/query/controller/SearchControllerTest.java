@@ -24,6 +24,7 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import org.codice.ddf.ui.searchui.query.model.Search;
 import org.codice.ddf.ui.searchui.query.model.SearchRequest;
 import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ServerChannel;
@@ -108,10 +109,10 @@ public class SearchControllerTest {
         verify(channel, timeout(1000).only()).publish(any(ServerSession.class),
                 reply.capture(), anyString());
         assertThat(reply.getValue(), is(not(nullValue())));
-        assertThat(reply.getValue().get("types"), is(not(nullValue())));
-        assertThat(reply.getValue().get("types"), instanceOf(Map.class));
+        assertThat(reply.getValue().get(Search.METACARD_TYPES), is(not(nullValue())));
+        assertThat(reply.getValue().get(Search.METACARD_TYPES), instanceOf(Map.class));
 
-        Map<String, Object> types = (Map) reply.getValue().get("types");
+        Map<String, Object> types = (Map) reply.getValue().get(Search.METACARD_TYPES);
 
         assertThat(types.get("ddf.metacard"), is(not(nullValue())));
         assertThat(types.get("ddf.metacard"), instanceOf(Map.class));

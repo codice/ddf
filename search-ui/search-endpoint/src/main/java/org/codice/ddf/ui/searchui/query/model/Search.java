@@ -14,20 +14,19 @@
  **/
 package org.codice.ddf.ui.searchui.query.model;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import ddf.catalog.data.Result;
+import ddf.catalog.operation.ProcessingDetails;
+import ddf.catalog.operation.QueryResponse;
 import org.apache.commons.collections.Bag;
 import org.apache.commons.collections.bag.HashBag;
 import org.codice.ddf.ui.searchui.query.model.QueryStatus.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.Result;
-import ddf.catalog.operation.ProcessingDetails;
-import ddf.catalog.operation.QueryResponse;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class represents the cached asynchronous query response from all sources.
@@ -46,7 +45,7 @@ public class Search {
 
     public static final String RESULTS = "results";
 
-    public static final String TYPES = "types";
+    public static final String METACARD_TYPES = "metacard-types";
 
     public static final String SUCCESSFUL = "successful";
 
