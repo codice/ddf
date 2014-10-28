@@ -14,6 +14,7 @@
  **/
 package ddf.catalog.test;
 
+import com.jayway.restassured.http.ContentType;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,10 +32,12 @@ import java.util.Hashtable;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasXPath;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
 
 /**
@@ -57,7 +60,7 @@ public class TestFederation extends TestCatalog {
 
     private static final int GEOJSON_RECORD_INDEX = 0;
 
-    /* ************************ */
+    private static final String CSW_PATH = SERVICE_ROOT + "/csw";
 
     private static final String DEFAULT_KEYWORD = "text";
 
@@ -65,7 +68,9 @@ public class TestFederation extends TestCatalog {
 
     private static final String RECORD_TITLE_2 = "myXmlTitle";
 
-    private static final String REMOTE_SITE_NAME = "remoteSite";
+    private static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
+
+    private static final String CSW_SOURCE_ID = "cswSource";
 
     /*
      * The fields must be static if they are purposely used across all test methods.
@@ -83,18 +88,23 @@ public class TestFederation extends TestCatalog {
      */
     @Before
     public void beforeFederation() {
-
         if (!ranBefore) {
             try {
                 LOGGER.info("Running one-time federation setup.");
 
-                FederatedSourceProperties sourceProperties = new FederatedSourceProperties();
+                OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties();
+                createManagedService(OpenSearchSourceProperties.FACTORY_PID,
+                        openSearchProperties.createDefaultProperties(OPENSEARCH_SOURCE_ID));
 
-                createManagedService(FederatedSourceProperties.FACTORY_PID,
-                        sourceProperties.createDefaultProperties(String.valueOf(HTTP_PORT),
-                                REMOTE_SITE_NAME), 1000);
+                waitForCxfService("/csw");
+                get(CSW_PATH + "?_wadl").prettyPrint();
+                CswSourceProperties cswProperties = new CswSourceProperties();
+                createManagedService(CswSourceProperties.FACTORY_PID,
+                        cswProperties.createDefaultProperties(CSW_SOURCE_ID));
 
-                waitForFederatedSource(REMOTE_SITE_NAME);
+                waitForFederatedSource(OPENSEARCH_SOURCE_ID);
+                waitForFederatedSource(CSW_SOURCE_ID);
+
                 File file = new File("sample.txt");
                 file.createNewFile();
                 FileUtils.write(file, SAMPLE_DATA);
@@ -104,13 +114,15 @@ public class TestFederation extends TestCatalog {
 
                 LOGGER.debug("File Location: {}", fileLocation);
                 metacardIds[XML_RECORD_INDEX] = ingest(Library.getSimpleXml(fileLocation), "text/xml");
+
+                LOGGER.info("Source status: \n{}", get(REST_PATH + "sources").body());
+
                 ranBefore = true;
             } catch (Exception e) {
                 LOGGER.error("Failed to setup federation.", e);
-                fail("Failed to setup federation.");
+                fail("Failed to setup federation: " + e.getMessage());
             }
         }
-
     }
 
     /**
@@ -121,7 +133,7 @@ public class TestFederation extends TestCatalog {
      */
     @Test
     public void testFederatedQueryByWildCardSearchPhrase() throws Exception {
-        String queryUrl = OPENSEARCH_PATH + "?q=*&format=xml&src=" + REMOTE_SITE_NAME;
+        String queryUrl = OPENSEARCH_PATH + "?q=*&format=xml&src=" + OPENSEARCH_SOURCE_ID;
 
         when().get(queryUrl).then().log().all().assertThat().body(containsString(RECORD_TITLE_1),
                 containsString(RECORD_TITLE_2));
@@ -135,9 +147,8 @@ public class TestFederation extends TestCatalog {
      */
     @Test
     public void testFederatedQueryBySearchPhrase() throws Exception {
-
         String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
-                + REMOTE_SITE_NAME;
+                + OPENSEARCH_SOURCE_ID;
 
         when().get(queryUrl).then().log().all().assertThat().body(containsString(RECORD_TITLE_1),
                 containsString(RECORD_TITLE_2));
@@ -152,7 +163,7 @@ public class TestFederation extends TestCatalog {
     public void testFederatedQueryByNegativeSearchPhrase() throws Exception {
         String negativeSearchPhrase = "negative";
         String queryUrl = OPENSEARCH_PATH + "?q=" + negativeSearchPhrase + "&format=xml&src="
-                + REMOTE_SITE_NAME;
+                + OPENSEARCH_SOURCE_ID;
 
         when().get(queryUrl).then().log().all().assertThat().body(
                 not(containsString(RECORD_TITLE_1)), not(containsString(RECORD_TITLE_2)));
@@ -165,7 +176,7 @@ public class TestFederation extends TestCatalog {
      */
     @Test
     public void testFederatedQueryById() throws Exception {
-        String restUrl = REST_PATH + "sources/" + REMOTE_SITE_NAME + "/"
+        String restUrl = REST_PATH + "sources/" + OPENSEARCH_SOURCE_ID + "/"
                 + metacardIds[GEOJSON_RECORD_INDEX];
 
         when().get(restUrl).then().log().all().assertThat().body(containsString(RECORD_TITLE_1),
@@ -179,8 +190,7 @@ public class TestFederation extends TestCatalog {
      */
     @Test
     public void testFederatedRetrieveExistingProduct() throws Exception {
-
-        String restUrl = REST_PATH + "sources/" + REMOTE_SITE_NAME + "/"
+        String restUrl = REST_PATH + "sources/" + OPENSEARCH_SOURCE_ID + "/"
                 + metacardIds[XML_RECORD_INDEX] + "?transform=resource";
 
         when().get(restUrl).then().log().all().assertThat().contentType("text/plain").body(is(
@@ -194,26 +204,68 @@ public class TestFederation extends TestCatalog {
      */
     @Test
     public void testFederatedRetrieveNoProduct() throws Exception {
-        String restUrl = REST_PATH + "sources/" + REMOTE_SITE_NAME + "/"
+        String restUrl = REST_PATH + "sources/" + OPENSEARCH_SOURCE_ID + "/"
                 + metacardIds[GEOJSON_RECORD_INDEX] + "?transform=resource";
 
-        LOGGER.info(get(restUrl).prettyPrint());
         expect().log().all().body(containsString("Unknown resource request")).when().get(restUrl);
     }
 
-    public class FederatedSourceProperties extends Hashtable<String, Object> {
+    @Test
+    public void testFederatedCwqQueryByWildCardSearchPhrase() throws Exception {
+        String wildcardQuery = Library.getCswQuery("AnyText", "*");
+
+        given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_PATH)
+                .then().log().all().assertThat().body(
+                hasXPath("/GetRecordsResponse/SearchResults/Record/identifier[text()='" +
+                        metacardIds[GEOJSON_RECORD_INDEX] + "']"),
+                hasXPath("/GetRecordsResponse/SearchResults/Record/identifier[text()='" +
+                        metacardIds[XML_RECORD_INDEX] + "']"),
+                hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
+                        is("2")));
+    }
+
+    @Test
+    public void testFederatedCwqQueryByTitle() throws Exception {
+        String titleQuery = Library.getCswQuery("title", "myTitle");
+
+        given().contentType(ContentType.XML).body(titleQuery).when().post(CSW_PATH)
+                .then().log().all().assertThat().body(
+                hasXPath("/GetRecordsResponse/SearchResults/Record/identifier",
+                        is(metacardIds[GEOJSON_RECORD_INDEX])),
+                hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
+                        is("1")));
+    }
+
+    public class OpenSearchSourceProperties extends Hashtable<String, Object> {
+
+        public static final String SYMBOLIC_NAME = "catalog-opensearch-source";
 
         public static final String FACTORY_PID = "OpenSearchSource";
 
-        public Dictionary<String, Object> createDefaultProperties(String port, String remoteSiteName) {
+        public Dictionary<String, Object> createDefaultProperties(String sourceId) {
+            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
-            this.put("shortname", remoteSiteName);
-            this.put("endpointUrl", "http://localhost:" + port + "/services/catalog/query");
-            this.put("localQueryOnly", "true");
+            this.put("shortname", sourceId);
+            this.put("endpointUrl", OPENSEARCH_PATH);
 
             return this;
         }
+    }
 
+    public class CswSourceProperties extends Hashtable<String, Object> {
+
+        public static final String SYMBOLIC_NAME = "spatial-csw-source";
+
+        public static final String FACTORY_PID = "Csw_Federated_Source";
+
+        public Dictionary<String, Object> createDefaultProperties(String sourceId) {
+            this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
+
+            this.put("id", sourceId);
+            this.put("cswUrl", CSW_PATH);
+
+            return this;
+        }
     }
 
 }

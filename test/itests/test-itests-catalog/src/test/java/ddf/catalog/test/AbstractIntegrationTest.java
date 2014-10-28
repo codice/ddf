@@ -14,6 +14,7 @@
  **/
 package ddf.catalog.test;
 
+import com.jayway.restassured.response.Response;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import org.apache.karaf.features.FeaturesService;
@@ -32,6 +33,10 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
+import org.osgi.service.metatype.AttributeDefinition;
+import org.osgi.service.metatype.MetaTypeInformation;
+import org.osgi.service.metatype.MetaTypeService;
+import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,9 +46,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static com.jayway.restassured.RestAssured.get;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
@@ -53,6 +62,7 @@ import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 import static org.ops4j.pax.exam.CoreOptions.when;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
@@ -95,6 +105,12 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String RMI_REG_PORT = "1100";
 
+    protected static final String SERVICE_ROOT = "http://localhost:" + HTTP_PORT + "/services";
+
+    protected static final String REST_PATH = SERVICE_ROOT + "/catalog/";
+
+    protected static final String OPENSEARCH_PATH = REST_PATH + "query";
+
     @Rule
     public TestName testName = new TestName();
 
@@ -108,6 +124,9 @@ public abstract class AbstractIntegrationTest {
 
     @Inject
     protected FeaturesService features;
+
+    @Inject
+    protected MetaTypeService metatype;
 
     // Fields used across all test methods must be static.
     // PAX-EXAM wipes away field information before each test method.
@@ -135,6 +154,8 @@ public abstract class AbstractIntegrationTest {
                 wrappedBundle(mavenBundle("org.hamcrest", "hamcrest-all").versionAsInProject())
                         .exports("*;version=1.3.0.10"),
                 mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject(),
+                editConfigurationFileExtend("etc/org.apache.karaf.features.cfg", "featuresBoot",
+                        "catalog-app,solr-app,spatial-app"),
                 editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", SSH_PORT),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "port", HTTP_PORT),
                 editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
@@ -157,10 +178,6 @@ public abstract class AbstractIntegrationTest {
                                 + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
                 replaceConfigurationFile("etc/hazelcast.xml", new File(
                         "src/test/resources/hazelcast.xml")),
-                replaceConfigurationFile("etc/org.codice.ddf.admin.applicationlist.properties",
-                        new File(
-                                "src/test/resources/org.codice.ddf.admin.applicationlist"
-                                        + ".properties")),
                 when(Boolean.getBoolean("isDebugEnabled")).useOptions(
                         vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
                 when(System.getProperty("maven.repo.local") != null)
@@ -171,7 +188,9 @@ public abstract class AbstractIntegrationTest {
                 systemProperty("hostContext").value("/solr"),
                 vmOption("-Xmx2048M"),
                 vmOption("-XX:PermSize=128M"),
-                vmOption("-XX:MaxPermSize=512M")
+                vmOption("-XX:MaxPermSize=512M"),
+                // avoid integration tests stealing focus on OS X
+                vmOption("-Djava.awt.headless=true")
         );
     }
 
@@ -187,8 +206,8 @@ public abstract class AbstractIntegrationTest {
      *             if access to persistent storage fails
      * @throws InterruptedException
      */
-    public void createManagedService(String factoryPid, Dictionary<String, Object> properties,
-            long timeout) throws IOException, InterruptedException {
+    public void createManagedService(String factoryPid, Dictionary<String,
+            Object> properties) throws IOException, InterruptedException {
 
         final Configuration sourceConfig = configAdmin.createFactoryConfiguration(factoryPid, null);
 
@@ -200,7 +219,7 @@ public abstract class AbstractIntegrationTest {
         sourceConfig.update(properties);
 
         long millis = 0;
-        while (!listener.isUpdated() && millis < timeout) {
+        while (!listener.isUpdated() && millis < TimeUnit.MINUTES.toMillis(5)) {
             try {
                 Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL);
                 millis += CONFIG_UPDATE_WAIT_INTERVAL;
@@ -211,12 +230,8 @@ public abstract class AbstractIntegrationTest {
         }
 
         if (!listener.isUpdated()) {
-            throw new RuntimeException(
-                    "Service was not updated before timeout ["
-                            + timeout
-                            + "]. Increase the timeout or found why the service was not updated or created.");
+            throw new RuntimeException("Service was not updated before timeout.");
         }
-
     }
 
     protected void setLogLevels() throws IOException {
@@ -302,6 +317,7 @@ public abstract class AbstractIntegrationTest {
             }
         }
 
+        LOGGER.info("CatalogProvider is available.");
         return provider;
     }
 
@@ -337,8 +353,77 @@ public abstract class AbstractIntegrationTest {
             }
         }
 
-
+        LOGGER.info("FederatedSource {} is available.", id);
         return source;
+    }
+
+    protected void waitForCxfService(String servicePath) throws InterruptedException {
+        LOGGER.info("Waiting for CXF service with {} path.", servicePath);
+
+        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+        boolean isCxfReady = false;
+
+        while (!isCxfReady) {
+            Response response = get(SERVICE_ROOT);
+            isCxfReady = response.getStatusCode() == 200 && response.getBody().print().contains(
+                    servicePath);
+            if (!isCxfReady) {
+                if (System.currentTimeMillis() > timeoutLimit) {
+                    fail("CXF did not start in time.");
+                }
+                Thread.sleep(100);
+            }
+        }
+
+        LOGGER.info("CXF service with {} path ready.", servicePath);
+    }
+
+    protected Map<String, Object> getMetatypeDefaults(String symbolicName, String factoryPid) {
+        Map<String, Object> properties = new HashMap<>();
+        ObjectClassDefinition metatype = getObjectClassDefinition(symbolicName, factoryPid);
+
+        for (AttributeDefinition attributeDef : metatype.getAttributeDefinitions(ObjectClassDefinition.ALL)) {
+            if (attributeDef.getID() != null) {
+                if (attributeDef.getDefaultValue() != null) {
+                    if (attributeDef.getCardinality() == 0) {
+                        properties.put(attributeDef.getID(), attributeDef.getDefaultValue()[0]);
+                    } else {
+                        properties.put(attributeDef.getID(), attributeDef.getDefaultValue());
+                    }
+                } else if (attributeDef.getCardinality() != 0) {
+                    properties.put(attributeDef.getID(), new String[0]);
+                }
+            }
+        }
+
+        return properties;
+    }
+
+    private ObjectClassDefinition getObjectClassDefinition(String symbolicName, String pid) {
+        Bundle[] bundles = bundleCtx.getBundles();
+        for (Bundle bundle : bundles) {
+            if (symbolicName.equals(bundle.getSymbolicName())) {
+                try {
+                    if (bundle != null) {
+                        MetaTypeInformation mti = metatype.getMetaTypeInformation(bundle);
+                        if (mti != null) {
+                            try {
+                                ObjectClassDefinition ocd = mti.getObjectClassDefinition(pid,
+                                        Locale.getDefault().toString());
+                                if (ocd != null) {
+                                    return ocd;
+                                }
+                            } catch (IllegalArgumentException e) {
+                                // ignoring
+                            }
+                        }
+                    }
+                } catch (IllegalArgumentException iae) {
+                    // ignoring
+                }
+            }
+        }
+        return null;
     }
 
     private class ServiceConfigurationListener implements ConfigurationListener {

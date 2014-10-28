@@ -14,7 +14,6 @@
  **/
 package ddf.catalog.test;
 
-import com.jayway.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,11 +26,9 @@ import org.osgi.service.cm.Configuration;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.concurrent.TimeUnit;
 
 import static com.jayway.restassured.RestAssured.delete;
 import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -54,12 +51,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     public static final String CACHING_FEDERATION_STRATEGY_PID = "ddf.catalog.federation.impl.CachingFederationStrategy";
 
-    protected static final String SERVICE_ROOT = "http://localhost:" + HTTP_PORT + "/services";
-
-    protected static final String REST_PATH = SERVICE_ROOT + "/catalog/";
-
-    protected static final String OPENSEARCH_PATH = REST_PATH + "query/";
-
     private static boolean ranBefore = false;
 
     @Before
@@ -71,11 +62,11 @@ public class TestCatalog extends AbstractIntegrationTest {
                 configureBundles();
                 waitForAllBundles();
                 waitForCatalogProvider();
-                waitForCxf();
+                waitForCxfService("/catalog/query");
                 ranBefore = true;
             } catch (Exception e) {
                 LOGGER.error("Failed to setup test", e);
-                fail();
+                fail("Failed to setup catalog: " + e.getMessage());
             }
         }
         LOGGER.info("Starting {}", testName.getMethodName());
@@ -84,26 +75,6 @@ public class TestCatalog extends AbstractIntegrationTest {
     @After
     public void afterTest() {
         LOGGER.info("End of {}", testName.getMethodName());
-    }
-
-    private void waitForCxf() throws InterruptedException {
-        LOGGER.info("Waiting for CXF");
-        boolean isCxfReady = false;
-        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(1);
-        while (!isCxfReady) {
-            Response response = get(SERVICE_ROOT);
-            isCxfReady = response.getStatusCode() == 200 && response.getBody().print().contains(
-                    "catalog/query");
-            if (!isCxfReady) {
-                if (System.currentTimeMillis() > timeoutLimit) {
-                    fail("CXF did not start in time.");
-                }
-                LOGGER.info("CXF not up, sleeping...");
-                Thread.sleep(1000);
-            }
-        }
-        LOGGER.info("Source status: \n");
-        when().get(REST_PATH + "sources").then().log().all();
     }
 
     private void configureBundles() throws IOException, InterruptedException {
