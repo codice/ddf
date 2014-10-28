@@ -19,5 +19,5 @@
 
     <bean id="catalogPlugin" class="org.codice.ddf.catalog.admin.plugin.SourcesPlugin"></bean>
 
-    <service interface="org.codice.ddf.admin.application.plugin.ApplicationConfigurationPlugin" ref="catalogPlugin" />
+    <service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin" ref="catalogPlugin" />
 </blueprint>
