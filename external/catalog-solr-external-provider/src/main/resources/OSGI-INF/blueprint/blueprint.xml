@@ -15,17 +15,12 @@
 
 	<!-- Get reference to Filter Adapter implementation -->
 	<reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter" />
-	
-	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<argument value="http://localhost:8181/solr"/>
-	</bean>
 
 	<bean id="solrCatalogProvider" class="ddf.catalog.solr.external.SolrHttpCatalogProvider" destroy-method="shutdown">
 		<!-- Aries does not call my object on startup if set to component-managed. Therefore, we will use container-managed
 		and have the setter call the update method. -->
 		<cm:managed-properties persistent-id="ddf.catalog.solr.external.SolrHttpCatalogProvider" update-strategy="container-managed" />
 		<argument ref="filterAdapter" />
-		<argument ref="solrServer" />
 		<argument>
 			<bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
 		</argument>

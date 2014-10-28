@@ -56,6 +56,8 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
 
+    private static final String DEFAULT_SOLR_URL = "http://localhost:8181/solr";
+
     private String url;
 
     private CatalogProvider provider = new UnconfiguredCatalogProvider();
@@ -104,6 +106,22 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
     public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrServer server,
             SolrFilterDelegateFactory solrFilterDelegateFactory) {
         this(filterAdapter, server, solrFilterDelegateFactory, null);
+    }
+
+    public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrFilterDelegateFactory
+            solrFilterDelegateFactory) {
+        this(filterAdapter, new HttpSolrServer(SolrHttpCatalogProvider.getSolrUrl()),
+                solrFilterDelegateFactory, null);
+    }
+
+    private static String getSolrUrl() {
+        String url = DEFAULT_SOLR_URL;
+        if (System.getProperty("host") != null && System.getProperty("jetty.port") != null && System
+                .getProperty("hostContext") != null) {
+            url = "http://" + System.getProperty("host") + ":" + System.getProperty("jetty.port") +
+                    "/" + StringUtils.stripStart(System.getProperty("hostContext"), "/");
+        }
+        return url;
     }
 
     @Override
