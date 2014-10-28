@@ -17,9 +17,6 @@ package ddf.catalog.test;
 /**
  * Helper class containing test data.
  * 
- * @author Phillip Klinefelter
- * @author ddf.isgs@lmco.com
- * 
  */
 public final class Library {
 
@@ -28,16 +25,24 @@ public final class Library {
     }
 
     public static String getSimpleGeoJson() {
-        return "{\r\n" + "    \"properties\": {\r\n" + "        \"title\": \"myTitle\",\r\n"
+        return "{\r\n"
+                + "    \"properties\": {\r\n"
+                + "        \"title\": \"myTitle\",\r\n"
                 + "        \"thumbnail\": \"CA==\",\r\n"
                 + "        \"created\": \"2012-09-01T00:09:19.368+0000\",\r\n"
                 + "        \"metadata-content-type-version\": \"myVersion\",\r\n"
                 + "        \"metadata-content-type\": \"myType\",\r\n"
                 + "        \"metadata\": \"<xml>text</xml>\",\r\n"
-                + "        \"modified\": \"2012-09-01T00:09:19.368+0000\"\r\n" + "    },\r\n"
-                + "    \"type\": \"Feature\",\r\n" + "    \"geometry\": {\r\n"
-                + "        \"type\": \"Point\",\r\n" + "        \"coordinates\": [\r\n"
-                + "            30.0,\r\n" + "            10.0\r\n" + "        ]\r\n" + "    }\r\n"
+                + "        \"modified\": \"2012-09-01T00:09:19.368+0000\"\r\n"
+                + "    },\r\n"
+                + "    \"type\": \"Feature\",\r\n"
+                + "    \"geometry\": {\r\n"
+                + "        \"type\": \"Point\",\r\n"
+                + "        \"coordinates\": [\r\n"
+                + "            30.0,\r\n"
+                + "            10.0\r\n"
+                + "        ]\r\n"
+                + "    }\r\n"
                 + "} ";
     }
 
@@ -48,26 +53,42 @@ public final class Library {
     public static String getSimpleXml(String uri) {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
                 + "<metacard xmlns=\"urn:catalog:metacard\" xmlns:ns2=\"http://www.opengis.net/gml\" xmlns:ns3=\"http://www.w3.org/1999/xlink\" xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\">\n"
-                + "    <type>ddf.metacard</type>\n" + "    <source>ddf.distribution</source>\n"
+                + "    <type>ddf.metacard</type>\n"
+                + "    <source>ddf.distribution</source>\n"
                 + "    <string name=\"metadata-content-type-version\">\n"
-                + "        <value>myVersion</value>\n" + "    </string>\n"
-                + "    <string name=\"title\">\n" + "        <value>myXmlTitle</value>\n"
-                + "    </string>\n" + "    <geometry name=\"location\">\n" + "        <value>\n"
-                + "            <ns2:Point>\n" + "                <ns2:pos>30.0 10.0</ns2:pos>\n"
-                + "            </ns2:Point>\n" + "        </value>\n" + "    </geometry>\n"
+                + "        <value>myVersion</value>\n"
+                + "    </string>\n"
+                + "    <string name=\"title\">\n"
+                + "        <value>myXmlTitle</value>\n"
+                + "    </string>\n"
+                + "    <geometry name=\"location\">\n"
+                + "        <value>\n"
+                + "            <ns2:Point>\n"
+                + "                <ns2:pos>30.0 10.0</ns2:pos>\n"
+                + "            </ns2:Point>\n"
+                + "        </value>\n"
+                + "    </geometry>\n"
                 + "    <dateTime name=\"created\">\n"
-                + "        <value>2013-04-18T10:50:27.371-07:00</value>\n" + "    </dateTime>\n"
+                + "        <value>2013-04-18T10:50:27.371-07:00</value>\n"
+                + "    </dateTime>\n"
                 + "    <dateTime name=\"modified\">\n"
-                + "        <value>2013-04-18T10:50:27.371-07:00</value>\n" + "    </dateTime>\n"
-                + "    <base64Binary name=\"thumbnail\">\n" + "        <value>CA==</value>\n"
-                + "    </base64Binary>\n" + "    <stringxml name=\"metadata\">\n"
+                + "        <value>2013-04-18T10:50:27.371-07:00</value>\n"
+                + "    </dateTime>\n"
+                + "    <base64Binary name=\"thumbnail\">\n"
+                + "        <value>CA==</value>\n"
+                + "    </base64Binary>\n"
+                + "    <stringxml name=\"metadata\">\n"
                 + "        <value>\n"
                 + "            <xml xmlns:ns6=\"urn:catalog:metacard\" xmlns=\"\">text</xml>\n"
-                + "        </value>\n" + "    </stringxml>\n"
+                + "        </value>\n"
+                + "    </stringxml>\n"
                 + "    <string name=\"metadata-content-type\">\n"
-                + "        <value>myType</value>\n" + "    </string>\n"
-                + "    <string name=\"resource-uri\">\n" + "        <value>" + uri + "</value>\n"
-                + "    </string>\n" + "</metacard>\n";
+                + "        <value>myType</value>\n"
+                + "    </string>\n"
+                + "    <string name=\"resource-uri\">\n"
+                + "        <value>" + uri + "</value>\n"
+                + "    </string>\n"
+                + "</metacard>\n";
     }
 
     public static String getCswQuery(String propertyName, String literalValue) {

@@ -47,6 +47,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -72,10 +73,6 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExa
 
 /**
  * Abstract integration test with helper methods and configuration at the container level.
- * 
- * @author Ashraf Barakat
- * @author Phillip Klinefelter
- * @author ddf.isgs@lmco.com
  * 
  */
 public abstract class AbstractIntegrationTest {
@@ -206,7 +203,7 @@ public abstract class AbstractIntegrationTest {
      *             if access to persistent storage fails
      * @throws InterruptedException
      */
-    public void createManagedService(String factoryPid, Dictionary<String,
+    public void createManagedService(String factoryPid, Map<String,
             Object> properties) throws IOException, InterruptedException {
 
         final Configuration sourceConfig = configAdmin.createFactoryConfiguration(factoryPid, null);
@@ -216,7 +213,7 @@ public abstract class AbstractIntegrationTest {
 
         bundleCtx.registerService(ConfigurationListener.class.getName(), listener, null);
 
-        sourceConfig.update(properties);
+        sourceConfig.update(new Hashtable<>(properties));
 
         long millis = 0;
         while (!listener.isUpdated() && millis < TimeUnit.MINUTES.toMillis(5)) {
@@ -261,7 +258,7 @@ public abstract class AbstractIntegrationTest {
             ready = true;
             for (Bundle bundle : bundles) {
                 if (bundle.getSymbolicName().startsWith(symbolicNamePrefix)) {
-                    String bundleName = (String) bundle.getHeaders().get(Constants.BUNDLE_NAME);
+                    String bundleName = bundle.getHeaders().get(Constants.BUNDLE_NAME);
                     String blueprintState = blueprintListener.getState(bundle);
                     if (blueprintState != null) {
                         if (BlueprintState.Failure.toString().equals(blueprintState)) {
@@ -380,9 +377,10 @@ public abstract class AbstractIntegrationTest {
 
     protected Map<String, Object> getMetatypeDefaults(String symbolicName, String factoryPid) {
         Map<String, Object> properties = new HashMap<>();
-        ObjectClassDefinition metatype = getObjectClassDefinition(symbolicName, factoryPid);
+        ObjectClassDefinition bundleMetatype = getObjectClassDefinition(symbolicName, factoryPid);
 
-        for (AttributeDefinition attributeDef : metatype.getAttributeDefinitions(ObjectClassDefinition.ALL)) {
+        for (AttributeDefinition attributeDef : bundleMetatype.getAttributeDefinitions(
+                ObjectClassDefinition.ALL)) {
             if (attributeDef.getID() != null) {
                 if (attributeDef.getDefaultValue() != null) {
                     if (attributeDef.getCardinality() == 0) {
@@ -404,18 +402,16 @@ public abstract class AbstractIntegrationTest {
         for (Bundle bundle : bundles) {
             if (symbolicName.equals(bundle.getSymbolicName())) {
                 try {
-                    if (bundle != null) {
-                        MetaTypeInformation mti = metatype.getMetaTypeInformation(bundle);
-                        if (mti != null) {
-                            try {
-                                ObjectClassDefinition ocd = mti.getObjectClassDefinition(pid,
-                                        Locale.getDefault().toString());
-                                if (ocd != null) {
-                                    return ocd;
-                                }
-                            } catch (IllegalArgumentException e) {
-                                // ignoring
+                    MetaTypeInformation mti = metatype.getMetaTypeInformation(bundle);
+                    if (mti != null) {
+                        try {
+                            ObjectClassDefinition ocd = mti.getObjectClassDefinition(pid,
+                                    Locale.getDefault().toString());
+                            if (ocd != null) {
+                                return ocd;
                             }
+                        } catch (IllegalArgumentException e) {
+                            // ignoring
                         }
                     }
                 } catch (IllegalArgumentException iae) {
@@ -439,7 +435,7 @@ public abstract class AbstractIntegrationTest {
         @Override
         public void configurationEvent(ConfigurationEvent event) {
             LOGGER.info("Configuration event received: {}", event);
-            if (event.getPid().equals(pid) && event.CM_UPDATED == event.getType()) {
+            if (event.getPid().equals(pid) && ConfigurationEvent.CM_UPDATED == event.getType()) {
                 updated = true;
             }
         }
@@ -447,6 +443,6 @@ public abstract class AbstractIntegrationTest {
         public boolean isUpdated() {
             return updated;
         }
-    };
+    }
 
 }

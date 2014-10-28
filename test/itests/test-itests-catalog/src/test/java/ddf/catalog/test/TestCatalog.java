@@ -37,11 +37,7 @@ import static org.junit.Assert.fail;
 
 /**
  * Tests the Catalog framework components. Includes helper methods at the Catalog level.
- * 
- * @author Ashraf Barakat
- * @author Phillip Klinefelter
- * @author ddf.isgs@lmco.com
- * 
+ *
  */
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -83,7 +79,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         Configuration fedConfig = configAdmin.getConfiguration(CACHING_FEDERATION_STRATEGY_PID,
                 null);
 
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("url", "http://localhost:" + HTTP_PORT + "/solr");
 
         fedConfig.update(properties);

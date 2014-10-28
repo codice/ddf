@@ -26,9 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.get;
@@ -41,13 +39,9 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.fail;
 
 /**
-* Tests Federation aspects.
-*
-* @author Ashraf Barakat
-* @author Phillip Klinefelter
-* @author ddf.isgs@lmco.com
-*
-*/
+ * Tests Federation aspects.
+ *
+ */
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class TestFederation extends TestCatalog {
@@ -83,8 +77,6 @@ public class TestFederation extends TestCatalog {
      * Runs each time before each test, items that don't need to be run each time have a conditional
      * flag.
      *
-     * @throws InterruptedException
-     * @throws IOException
      */
     @Before
     public void beforeFederation() {
@@ -92,21 +84,22 @@ public class TestFederation extends TestCatalog {
             try {
                 LOGGER.info("Running one-time federation setup.");
 
-                OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties();
-                createManagedService(OpenSearchSourceProperties.FACTORY_PID,
-                        openSearchProperties.createDefaultProperties(OPENSEARCH_SOURCE_ID));
+                OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
+                        OPENSEARCH_SOURCE_ID);
+                createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
 
                 waitForCxfService("/csw");
                 get(CSW_PATH + "?_wadl").prettyPrint();
-                CswSourceProperties cswProperties = new CswSourceProperties();
-                createManagedService(CswSourceProperties.FACTORY_PID,
-                        cswProperties.createDefaultProperties(CSW_SOURCE_ID));
+                CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
+                createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
 
                 waitForFederatedSource(OPENSEARCH_SOURCE_ID);
                 waitForFederatedSource(CSW_SOURCE_ID);
 
                 File file = new File("sample.txt");
-                file.createNewFile();
+                if (!file.createNewFile()) {
+                    fail("Unable to create sample.txt file");
+                }
                 FileUtils.write(file, SAMPLE_DATA);
                 String fileLocation = file.toURI().toURL().toString();
                 metacardIds[GEOJSON_RECORD_INDEX] = ingest(Library.getSimpleGeoJson(),
@@ -236,36 +229,34 @@ public class TestFederation extends TestCatalog {
                         is("1")));
     }
 
-    public class OpenSearchSourceProperties extends Hashtable<String, Object> {
+    public class OpenSearchSourceProperties extends HashMap<String, Object> {
 
         public static final String SYMBOLIC_NAME = "catalog-opensearch-source";
 
         public static final String FACTORY_PID = "OpenSearchSource";
 
-        public Dictionary<String, Object> createDefaultProperties(String sourceId) {
+        public OpenSearchSourceProperties(String sourceId) {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
             this.put("shortname", sourceId);
             this.put("endpointUrl", OPENSEARCH_PATH);
-
-            return this;
         }
+
     }
 
-    public class CswSourceProperties extends Hashtable<String, Object> {
+    public class CswSourceProperties extends HashMap<String, Object> {
 
         public static final String SYMBOLIC_NAME = "spatial-csw-source";
 
         public static final String FACTORY_PID = "Csw_Federated_Source";
 
-        public Dictionary<String, Object> createDefaultProperties(String sourceId) {
+        public CswSourceProperties(String sourceId) {
             this.putAll(getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
             this.put("id", sourceId);
             this.put("cswUrl", CSW_PATH);
-
-            return this;
         }
+
     }
 
 }
