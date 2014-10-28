@@ -390,6 +390,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 									String bundleLocation = (String) item.get("bundle_location");
 									if (bundleLocations.contains(bundleLocation)) {
 										returnValues.add(service);
+										break;
 									}
 								}
 							}
@@ -421,17 +422,21 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         boolean ifFactory = (Boolean) service.get("factory");
         if (ifFactory) {
             for (MetaTypeInformation information : metatypeInformations) {
-                for (String pid : information.getFactoryPids()) {
-                    if (pid.equals(id)) {
-                        return true;
+                if (information != null) {
+                    for (String pid : information.getFactoryPids()) {
+                        if (pid.equals(id)) {
+                            return true;
+                        }
                     }
                 }
             }
         } else {
             for (MetaTypeInformation information : metatypeInformations) {
-                for (String pid : information.getPids()) {
-                    if (pid.equals(id)) {
-                        return true;
+                if (information != null) {
+                    for (String pid : information.getPids()) {
+                        if (pid.equals(id)) {
+                            return true;
+                        }
                     }
                 }
             }

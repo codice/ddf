@@ -57,8 +57,12 @@
             //moment
             moment: 'lib/moment/moment',
 
+
             //iframe-resizer
-            iframeresizer: 'lib/iframe-resizer/js/iframeResizer.min'
+            iframeresizer: 'lib/iframe-resizer/js/iframeResizer.min',
+
+            //backbone assocations
+            backboneassociations: 'lib/backbone-associations/backbone-associations-min'
         },
 
 
@@ -92,7 +96,9 @@
 
             jqueryui: ['jquery'],
             bootstrap: ['jqueryui'],
-            moment: {exports: 'moment'}
+            moment: {exports: 'moment'},
+
+            backboneassociations: ['backbone']
 
         },
 

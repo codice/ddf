@@ -18,14 +18,16 @@ define([
         'underscore',
         'js/views/configuration/ConfigurationEdit.view',
         'js/models/Service',
+        'js/wreqr.js',
         'js/views/configuration/Service.view'
-    ], function(Marionette, _, ConfigurationView, ConfigurationModel, ServiceView){
+    ], function(Marionette, _, ConfigurationView, ConfigurationModel, wreqr, ServiceView){
         "use strict";
 
         var FeatureController = Marionette.Controller.extend({
 
             initialize: function(options){
                 this.region = options.region;
+                this.listenTo(wreqr.vent, 'refreshConfigurations', this.show);
             },
 
             show: function(){
