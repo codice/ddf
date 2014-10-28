@@ -199,7 +199,11 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
         this.configurationAdmin = configurationAdmin;
 
         this.readOnlySettings = new Hashtable();
-        readOnlySettings.put(HOME_DIR, System.getenv(DDF_HOME_ENVIRONMENT_VARIABLE));
+        if (System.getenv(DDF_HOME_ENVIRONMENT_VARIABLE) != null) {
+            readOnlySettings.put(HOME_DIR, System.getenv(DDF_HOME_ENVIRONMENT_VARIABLE));
+        } else {
+            readOnlySettings.put(HOME_DIR, System.getProperty("user.dir"));
+        }
         readOnlySettings
                 .put(HTTP_PORT, getConfigurationValue(PAX_WEB_SERVICE_PID, JETTY_HTTP_PORT));
         readOnlySettings.put(SERVICES_CONTEXT_ROOT,
