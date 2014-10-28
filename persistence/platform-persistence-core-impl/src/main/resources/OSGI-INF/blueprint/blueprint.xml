@@ -16,7 +16,6 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
     
     <bean id="persistentStore" class="org.codice.ddf.persistence.internal.PersistentStoreImpl">
-        <argument value="http://localhost:8181/solr"/>
     </bean>
     
     <service ref="persistentStore" id="persistentStoreService" interface="org.codice.ddf.persistence.PersistentStore">

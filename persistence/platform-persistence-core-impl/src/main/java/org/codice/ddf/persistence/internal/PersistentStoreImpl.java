@@ -49,15 +49,30 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PersistentStoreImpl implements PersistentStore {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistentStoreImpl.class);
-    
+
+    private static final String DEFAULT_SOLR_URL = "http://localhost:8181/solr";
+
     private String solrUrl;
     private SolrServer solrServer;
-    private ConcurrentHashMap<String, SolrServer> coreSolrServers;
-    
-    
+    private ConcurrentHashMap<String, SolrServer> coreSolrServers = new ConcurrentHashMap<String,
+            SolrServer>();
+
+    public PersistentStoreImpl() {
+        this(getSolrUrl());
+    }
+
+    private static String getSolrUrl() {
+        String url = DEFAULT_SOLR_URL;
+        if (System.getProperty("host") != null && System.getProperty("jetty.port") != null && System
+                .getProperty("hostContext") != null) {
+            url = "http://" + System.getProperty("host") + ":" + System.getProperty("jetty.port") +
+                    "/" + StringUtils.stripStart(System.getProperty("hostContext"), "/");
+        }
+        return url;
+    }
+
     public PersistentStoreImpl(String solrUrl) {
         LOGGER.trace("INSIDE: PersistentStoreImpl constructor with solrUrl = {}", solrUrl);
-        coreSolrServers = new ConcurrentHashMap<String, SolrServer>();
         setSolrUrl(solrUrl);
     }
     
