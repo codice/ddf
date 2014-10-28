@@ -57,12 +57,23 @@ define([
                 }
 
                 this.listenTo(wreqr.vent, 'search:beginMerge', this.invalidateList);
+
+                if (wreqr.reqres.hasHandler('workspace:gettypes')) {
+                    this.types = wreqr.reqres.request('workspace:gettypes');
+                }
             },
             onRender: function () {
                 this.updateIterationControls();
             },
             serializeData: function() {
-                return _.extend(this.model.toJSON(), {mapAvailable: maptype.isMap(), url: this.model.url, clientId: Cometd.Comet.getClientId()});
+                var type;
+                if (this.types) {
+                    var typeObj = this.types.findWhere({value: this.model.get('properties').get('metadata-content-type')});
+                    if (typeObj) {
+                        type = typeObj.get('name');
+                    }
+                }
+                return _.extend(this.model.toJSON(), {mapAvailable: maptype.isMap(), url: this.model.url, clientId: Cometd.Comet.getClientId(), mappedType: type});
             },
             updateIterationControls: function () {
                 if (_.isUndefined(this.prevModel)) {

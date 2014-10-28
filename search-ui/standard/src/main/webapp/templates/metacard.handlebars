@@ -142,6 +142,14 @@
                             </td>
                         </tr>
                     {{/if}}
+                    {{#if mappedType}}
+                        <tr>
+                            <td>Content Type</td>
+                            <td>
+                                {{safeString mappedType}}
+                            </td>
+                        </tr>
+                    {{/if}}
                     </tbody>
                 </table>
             </div>
