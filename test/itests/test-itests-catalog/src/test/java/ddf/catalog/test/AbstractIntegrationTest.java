@@ -60,6 +60,7 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 import static org.ops4j.pax.exam.CoreOptions.when;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
@@ -145,6 +146,8 @@ public abstract class AbstractIntegrationTest {
                 logLevel(LogLevelOption.LogLevel.INFO),
                 keepRuntimeFolder(),
                 useOwnExamBundlesStartLevel(100),
+                // increase timeout for TravisCI
+                systemTimeout(TimeUnit.MINUTES.toMillis(10)),
                 junitBundles(),
                 // HACK: incorrect version exported to override hamcrest-core from exam
                 // feature which causes a split package issue for rest-assured
