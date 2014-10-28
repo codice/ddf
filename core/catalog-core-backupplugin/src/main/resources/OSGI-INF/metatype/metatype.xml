@@ -1,0 +1,35 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD description="Backup Post-Ingest Plugin Configuration"
+         name="Backup Post-Ingest Plugin" id="plugin.backup">
+
+        <AD
+                description="Root backup directory for Metacards."
+                name="Root backup directory path" id="rootBackupDir" required="true" type="String"
+                default="" />
+
+        <AD
+                description="Number of subdirectory levels to create. Two characters from the ID will be used to name each subdirectory level."
+                name="Subdirectory levels" id="subDirLevels"
+                required="true" type="Integer" default="0" />
+
+    </OCD>
+
+    <Designate pid="plugin.backup">
+        <Object ocdref="plugin.backup" />
+    </Designate>
+
+</metatype:MetaData>

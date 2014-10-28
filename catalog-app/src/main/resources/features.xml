@@ -68,7 +68,12 @@
         description="Catalog plug-in to capture metrics about catalog operations.">
         <bundle>mvn:ddf.catalog.core/catalog-core-metricsplugin/${project.version}</bundle>
     </feature>
-    
+
+    <feature name="catalog-core-backupplugin" install="manual" version="${project.version}"
+             description="Catalog post ingest plug-in to backup metacards to a file system.">
+        <bundle>mvn:ddf.catalog.core/catalog-core-backupplugin/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-core-sourcemetricsplugin" install="manual" version="${project.version}"
         description="Capture metrics about individual source operations.">
         <bundle>mvn:ddf.catalog.core/catalog-core-sourcemetricsplugin/${project.version}</bundle>
