@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -19,12 +19,12 @@
     <groupId>ddf</groupId>
     <version>2.6.0-SNAPSHOT</version>
   </parent>
-  
+
   <artifactId>webconsole-branding-plugin</artifactId>
   <groupId>ddf.distribution</groupId>
   <name>DDF :: Distribution :: Console Branding Plugin</name>
   <packaging>bundle</packaging>
-  
+
   <build>
   <resources>
 		<resource>
@@ -52,13 +52,6 @@
       <plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
-			<configuration>
-				<source>1.6</source>
-				<target>1.6</target>
-				<maxmem>256M</maxmem>
-				<fork>${compiler.fork}</fork>
-				<encoding>${project.build.sourceEncoding}</encoding>
-			</configuration>
 		</plugin>
     </plugins>
   </build>
@@ -69,7 +62,7 @@
 			<artifactId>org.apache.karaf.webconsole.console</artifactId>
 			<version>${karaf.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
