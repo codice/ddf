@@ -24,14 +24,12 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.source.IngestException;
-import ddf.catalog.source.Source;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
@@ -83,6 +81,8 @@ public class SolrCache {
 
     public static final String METACARD_CACHE_CORE_NAME = "metacard_cache";
 
+    private static final long DEFAULT_CACHE_EXPIRATION_INTERVAL_IN_MINUTES = 10080;  // 7 days
+
     private FilterAdapter filterAdapter;
 
     private DynamicSchemaResolver resolver;
@@ -95,7 +95,9 @@ public class SolrCache {
 
     private AtomicBoolean dirty = new AtomicBoolean(false);
 
-    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService scheduler;
+
+    private long expirationIntervalInMinutes;
 
     /**
      * Convenience constructor that creates a the Solr server
@@ -116,7 +118,8 @@ public class SolrCache {
         this.solrFilterDelegateFactory = solrFilterDelegateFactory;
         this.resolver = new DynamicSchemaResolver();
         createSolrCore(METACARD_CACHE_CORE_NAME);
-        scheduler.scheduleAtFixedRate(new ExpirationRunner(), 7, 7, TimeUnit.DAYS);
+        this.expirationIntervalInMinutes = DEFAULT_CACHE_EXPIRATION_INTERVAL_IN_MINUTES;
+        configureCacheExpirationScheduler();
     }
 
     private void createSolrCore(String coreName) {
@@ -494,6 +497,42 @@ public class SolrCache {
         return result;
     }
 
+    public void setExpirationIntervalInMinutes(long expirationInterval) {
+        this.expirationIntervalInMinutes = expirationInterval;
+        configureCacheExpirationScheduler();
+    }
+
+    private void configureCacheExpirationScheduler() {
+        shutdownCacheExpirationScheduler();
+        LOGGER.info("Configuring cache expiration scheduler with an expiration interval of {} minute(s).", expirationIntervalInMinutes);
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(new ExpirationRunner(), expirationIntervalInMinutes, expirationIntervalInMinutes, TimeUnit.MINUTES);
+    }
+
+    private void shutdownCacheExpirationScheduler() {
+        if(scheduler != null && !scheduler.isShutdown()) {
+            LOGGER.debug("Shutting down cache expiration scheduler.");
+            scheduler.shutdown();
+            try {
+                // Wait up to 60 seconds existing tasks to terminate
+                if(!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+                    scheduler.shutdownNow();
+                    // Wait up to 60 seconds for tasks to respond to being cancelled
+                    if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+                        LOGGER.warn("Cache expiration scheduler did not terminate.");
+                    }
+                }
+            } catch(InterruptedException e) {
+                // (Recancel/cancel if current thread also interrupted
+                scheduler.shutdownNow();
+                // Preserve interrupt status
+                Thread.currentThread().interrupt();
+            }
+        } else {
+            LOGGER.debug("Cache expiration scheduler already shutdown.");
+        }
+    }
+
     public void updateServer(String newUrl) {
         LOGGER.info("New url {}", newUrl);
 
@@ -562,6 +601,8 @@ public class SolrCache {
     }
 
     public void shutdown() {
+        LOGGER.info("Shutting down cache expiration scheduler.");
+        shutdownCacheExpirationScheduler();
         LOGGER.info("Shutting down solr server.");
         server.shutdown();
     }
@@ -571,6 +612,7 @@ public class SolrCache {
         @Override
         public void run() {
             try {
+                LOGGER.debug("Expiring cache.");
                 server.deleteByQuery(SchemaFields.CACHED_DATE + ":[* TO NOW-10MINUTES]");
             } catch (SolrServerException e) {
                 LOGGER.warn("Unable to expire cache.", e);
