@@ -21,8 +21,9 @@ define([
     ],
     function (Backbone, Marionette, _, Cesium, dir, wreqr) {
         "use strict";
-        var Views = {};
-
+        var Views = {},
+            pointScale = 0.02,
+            selectedPointScale = 0.035;
 
         Views.PointView = Marionette.ItemView.extend({
             modelEvents: {
@@ -72,12 +73,8 @@ define([
                             point.altitude
                         )
                     ),
-                    horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                    scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5),
                     color: this.color,
-                    scale: 0.41,
-                    hasScale: true
+                    scale: pointScale
                 });
             },
 
@@ -89,10 +86,10 @@ define([
                 }
 
                 if (this.model.get('context')) {
-                    this.billboard.scale = 0.5;
+                    this.billboard.scale = selectedPointScale;
                     this.billboard.image = this.billboards[1];
                 } else {
-                    this.billboard.scale = 0.41;
+                    this.billboard.scale = pointScale;
                     this.billboard.image = this.billboards[0];
                 }
 
@@ -139,12 +136,8 @@ define([
                     var billboard = view.geoController.billboardCollection.add({
                         image: view.billboards[0],
                         position: view.geoController.ellipsoid.cartographicToCartesian(point),
-                        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                        scaleByDistance: new Cesium.NearFarScalar(1.0, 1.0, 1.5e7, 0.5),
                         color: view.color,
-                        scale: 0.41,
-                        hasScale: true
+                        scale: pointScale
                     });
                     return billboard;
                 });
@@ -160,10 +153,10 @@ define([
                         point.eyeOffset = new Cesium.Cartesian3(0, 0, -10);
                     }
                     if (view.model.get('context')) {
-                        point.scale = 0.5;
+                        point.scale = selectedPointScale;
                         point.image = view.billboards[1];
                     } else {
-                        point.scale = 0.41;
+                        point.scale = pointScale;
                         point.image = view.billboards[0];
                     }
                 });
