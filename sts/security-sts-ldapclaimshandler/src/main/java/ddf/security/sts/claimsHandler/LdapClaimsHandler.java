@@ -26,6 +26,7 @@ import org.apache.directory.api.ldap.model.entry.Value;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.filter.AndFilter;
@@ -163,6 +164,8 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
                 }
 
             }
+        } catch (InvalidConnectionException e) {
+            LOGGER.warn("Cannot connect to server, therefore unable to set role claims.");
         } catch (Exception e) {
             LOGGER.error("Unable to set role claims.", e);
         } finally {
