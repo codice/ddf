@@ -28,17 +28,16 @@ define([
 	
     var ConfigurationEditView = {};
 
-
-    if(!ich.configurationItem) {
+    if(!ich['configuration.configurationItem']) {
         ich.addTemplate('configuration.configurationItem', configurationItem);
     }
-    if(!ich.configurationEdit) {
+    if(!ich['configuration.configurationEdit']) {
         ich.addTemplate('configuration.configurationEdit', configurationEdit);
     }
-    if(!ich.textTypeListHeader) {
+    if(!ich['configuration.textTypeListHeader']) {
         ich.addTemplate('configuration.textTypeListHeader', textTypeListHeader);
     }
-    if(!ich.textTypeList) {
+    if(!ich['configuration.textTypeList']) {
         ich.addTemplate('configuration.textTypeList', textTypeList);
     }
 
