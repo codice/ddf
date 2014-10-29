@@ -280,9 +280,7 @@ define(['underscore',
                 });
 
                 rectangle = Cesium.Rectangle.fromCartographicArray(cartArray);
-                this.mapViewer.scene.camera.flyToRectangle({
-                    destination: this.expandRectangle(rectangle)
-                });
+                this.flyToRectangle(rectangle);
             },
 
             flyToRectangle: function (rectangle) {
