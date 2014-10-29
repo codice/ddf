@@ -19,7 +19,7 @@
 
             bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
             cesium: 'lib/cesium/Cesium',
-            openlayers: 'lib/openlayers3/build/ol-debug',
+            openlayers: 'lib/openlayers3/build/ol',
             cometd: 'lib/cometd/org/cometd',
             jquerycometd: 'lib/cometd/jquery/jquery.cometd',
             moment: 'lib/moment/min/moment.min',
