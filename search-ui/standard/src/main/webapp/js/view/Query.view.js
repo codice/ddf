@@ -479,10 +479,10 @@ define([
             },
 
             reset: function () {
-                $('button[name=noTemporalButton]').click();
-                $('button[name=noLocationButton]').click();
-                $('button[name=noTypeButton]').click();
-                $('button[name=enterpriseFederationButton]').click();
+                $('input[name=noTemporalButton]').click();
+                $('input[name=noLocationButton]').click();
+                $('input[name=noTypeButton]').click();
+                $('input[name=enterpriseFederationButton]').click();
                 this.model.clear();
                 this.model.setDefaults();
                 // Refresh the multiselect lists to reflect the changes
