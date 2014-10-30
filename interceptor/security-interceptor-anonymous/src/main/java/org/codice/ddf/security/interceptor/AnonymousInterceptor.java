@@ -16,6 +16,7 @@ package org.codice.ddf.security.interceptor;
 
 import ddf.security.encryption.EncryptionService;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
+
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
@@ -53,6 +54,7 @@ import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPMessage;
+
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -63,7 +65,7 @@ import java.util.UUID;
 public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnonymousInterceptor.class);
-
+    
     private final List<Realm> realms;
 
     private EncryptionService encryptionService;
@@ -87,203 +89,216 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
         SOAPMessage soapMessage = getSOAPMessage(message);
+        
+        //Check if security header exists; if not, execute AnonymousInterceptor logic
+        String actor = (String) getOption(WSHandlerConstants.ACTOR);
+        if (actor == null) {
+            actor = (String) message.getContextualProperty(SecurityConstants.ACTOR);
+        } 
 
-        AssertionInfoMap assertionInfoMap = message.get(AssertionInfoMap.class);
-
-        //TODO: we should really be reading the policy and figuring out which things are actually needed and adding them dynamically
-        //right now I'm just adding in stuff that I know is required
-        //I'm going to leave this code in here commented out because it will be needed once we go to that model, and this will save someone the
-        //trouble of figuring it out
-
-//        EffectivePolicy effectivePolicy = message.get(EffectivePolicy.class);
-//
-//        Exchange exchange = message.getExchange();
-//        BindingOperationInfo bindingOperationInfo = exchange.getBindingOperationInfo();
-//        Endpoint endpoint = exchange.get(Endpoint.class);
-//        if (null == endpoint) {
-//            return;
-//        }
-//        EndpointInfo endpointInfo = endpoint.getEndpointInfo();
-//
-//        Bus bus = exchange.get(Bus.class);
-//        PolicyEngine policyEngine = bus.getExtension(PolicyEngine.class);
-//
-//        if (effectivePolicy == null) {
-//            if (policyEngine != null) {
-//                if (MessageUtils.isRequestor(message)) {
-//                    effectivePolicy = policyEngine.getEffectiveClientResponsePolicy(endpointInfo, bindingOperationInfo);
-//                } else {
-//                    effectivePolicy = policyEngine.getEffectiveServerRequestPolicy(endpointInfo, bindingOperationInfo);
-//                }
-//            }
-//        }
-
-        //if there is no policy then we don't need to do anything anyways
-        if (assertionInfoMap != null) {
-            RequestData reqData = new CXFRequestData();
-
-            WSSConfig config = (WSSConfig) message.getContextualProperty(WSSConfig.class.getName());
-            WSSecurityEngine engine = null;
-            if (config != null) {
-                engine = new WSSecurityEngine();
-                engine.setWssConfig(config);
-            }
-            if (engine == null) {
-                engine = new WSSecurityEngine();
-                config = engine.getWssConfig();
-            }
-
-            reqData.setWssConfig(config);
-
-            SoapVersion version = message.getVersion();
-
-            String actor = (String) getOption(WSHandlerConstants.ACTOR);
-            if (actor == null) {
-                actor = (String) message.getContextualProperty(SecurityConstants.ACTOR);
-            }
-
-            try {
-                Element elem = WSSecurityUtil.getSecurityHeader(soapMessage.getSOAPPart(), actor);
-
-                List<WSSecurityEngineResult> wsResult = engine.processSecurityHeader(elem, reqData);
-
-                //if there is a security header just ignore and go to the next interceptor
-                if (wsResult == null || wsResult.isEmpty()) {
-                    //no security header, need to inject assertion
-                    AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("DDF");
-
-                    //synchronize the step of requesting the assertion, it is not thread safe
-                    AuthenticationInfo authenticationInfo = null;
-                    synchronized (lock) {
-                        if (realms != null && !realms.isEmpty()) {
-                            for (Realm realm : realms) {
-                                try {
-                                    authenticationInfo = realm.getAuthenticationInfo(token);
-                                    if (authenticationInfo != null) {
-                                        break;
-                                    }
-                                } catch (Exception e) {
-                                    LOGGER.warn("Unable to request auth info for anonymous user.", e);
-                                }
-                            }
-                        }
-                    }
-                    if (authenticationInfo != null) {
-                        SecurityToken securityToken = null;
-                        for (Object principal : authenticationInfo.getPrincipals()) {
-                            if (principal instanceof SecurityToken) {
-                                securityToken = (SecurityToken) principal;
-                            }
-                        }
-                        if (securityToken != null) {
-                            String addressingProperty = "javax.xml.ws.addressing.context.inbound";
-                            AddressingPropertiesImpl addressingProperties = new AddressingPropertiesImpl();
-                            Element samlElement = securityToken.getToken();
-                            SOAPFactory soapFactory = null;
-                            try {
-                                soapFactory = SOAPFactory.newInstance();
-                            } catch (SOAPException e) {
-                                LOGGER.error("Could not create a SOAPFactory.", e);
-                            }
-                            if (soapFactory != null) {
-                                SOAPElement securityHeader = null;
-                                try {
-                                    securityHeader = soapFactory.createElement("Security", "wsse",
-                                            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
-                                } catch (SOAPException e) {
-                                    LOGGER.error("Unable to create security header for anonymous user.", e);
-                                }
-
-                                SOAPElement timestamp = null;
-                                try {
-                                    timestamp = soapFactory.createElement("Timestamp", "wsu", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-                                    SOAPElement created = soapFactory.createElement("Created", "wsu", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-                                    DateTime dateTime = new DateTime();
-                                    created.addTextNode(dateTime.toString());
-                                    SOAPElement expires = soapFactory.createElement("Expires", "wsu", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-                                    expires.addTextNode(dateTime.plusMinutes(5).toString());
-                                    timestamp.addChildElement(created);
-                                    timestamp.addChildElement(expires);
-                                } catch (SOAPException e) {
-                                    LOGGER.error("Unable to create security timestamp.", e);
-                                }
-
-                                SOAPElement action = null;
-                                try {
-                                    action = soapFactory.createElement("Action", "wsa", "http://www.w3.org/2005/08/addressing");
-                                    action.addTextNode((String) message.get("org.apache.cxf.request.url"));
-                                    AttributedURIType attributedString = new AttributedURIType();
-                                    attributedString.setValue((String) message.get("org.apache.cxf.request.url"));
-                                    addressingProperties.setAction(attributedString);
-                                } catch (SOAPException e) {
-                                    LOGGER.error("Unable to add addressing action.", e);
-                                }
-
-                                SOAPElement messageId = null;
-                                try {
-                                    messageId = soapFactory.createElement("MessageID", "wsa", "http://www.w3.org/2005/08/addressing");
-                                    String uuid = "urn:uuid:" + UUID.randomUUID().toString();
-                                    messageId.addTextNode(uuid);
-                                    AttributedURIType attributedString = new AttributedURIType();
-                                    attributedString.setValue(uuid);
-                                    addressingProperties.setMessageID(attributedString);
-                                } catch (SOAPException e) {
-                                    LOGGER.error("Unable to add addressing action.", e);
-                                }
-
-                                SOAPElement to = null;
-                                try {
-                                    to = soapFactory.createElement("To", "wsa", "http://www.w3.org/2005/08/addressing");
-                                    to.addTextNode((String) message.get("org.apache.cxf.request.url"));
-                                    EndpointReferenceType endpointReferenceType = new EndpointReferenceType();
-                                    AttributedURIType attributedString = new AttributedURIType();
-                                    attributedString.setValue((String) message.get("org.apache.cxf.request.url"));
-                                    endpointReferenceType.setAddress(attributedString);
-                                    addressingProperties.setTo(endpointReferenceType);
-                                } catch (SOAPException e) {
-                                    LOGGER.error("Unable to add addressing action.", e);
-                                }
-
-                                SOAPElement replyTo = null;
-                                try {
-                                    replyTo = soapFactory.createElement("ReplyTo", "wsa", "http://www.w3.org/2005/08/addressing");
-                                    SOAPElement address = soapFactory.createElement("Address", "wsa", "http://www.w3.org/2005/08/addressing");
-                                    address.addTextNode("http://www.w3.org/2005/08/addressing/anonymous");
-                                    replyTo.addChildElement(address);
-                                } catch (SOAPException e) {
-                                    LOGGER.error("Unable to add addressing action.", e);
-                                }
-
-                                SOAPElement samlAssertion = null;
-                                try {
-                                    samlAssertion = soapFactory.createElement(samlElement);
-                                } catch (SOAPException e) {
-                                    LOGGER.error("Unable to convert SecurityToken to SOAPElement.", e);
-                                }
-
-                                try {
-                                    if (securityHeader != null) {
-                                        securityHeader.addAttribute(new QName("http://schemas.xmlsoap.org/soap/envelope/", "mustUnderstand"), "1");
-                                        securityHeader.addChildElement(timestamp);
-                                        securityHeader.addChildElement(samlAssertion);
-                                        soapMessage.getSOAPHeader().addChildElement(messageId);
-                                        soapMessage.getSOAPHeader().addChildElement(action);
-                                        soapMessage.getSOAPHeader().addChildElement(to);
-                                        soapMessage.getSOAPHeader().addChildElement(replyTo);
-                                        soapMessage.getSOAPHeader().addChildElement(securityHeader);
-                                        message.put(addressingProperty, addressingProperties);
-                                    }
-                                } catch (SOAPException e) {
-                                    LOGGER.error("Unable to add security header to SOAP message.", e);
-                                }
-                            }
-                        }
-                    }
+        Element elem = null;
+        try {
+            elem = WSSecurityUtil.getSecurityHeader(soapMessage.getSOAPPart(), actor);
+        } catch (WSSecurityException e1) {
+            LOGGER.debug("Issue with getting security header", e1);
+        }
+        if (elem == null) {
+            LOGGER.debug("Security Header returned null, execute AnonymousInterceptor");
+      
+            
+            
+            AssertionInfoMap assertionInfoMap = message.get(AssertionInfoMap.class);
+    
+            //TODO: we should really be reading the policy and figuring out which things are actually needed and adding them dynamically
+            //right now I'm just adding in stuff that I know is required
+            //I'm going to leave this code in here commented out because it will be needed once we go to that model, and this will save someone the
+            //trouble of figuring it out
+    
+    //        EffectivePolicy effectivePolicy = message.get(EffectivePolicy.class);
+    //
+    //        Exchange exchange = message.getExchange();
+    //        BindingOperationInfo bindingOperationInfo = exchange.getBindingOperationInfo();
+    //        Endpoint endpoint = exchange.get(Endpoint.class);
+    //        if (null == endpoint) {
+    //            return;
+    //        }
+    //        EndpointInfo endpointInfo = endpoint.getEndpointInfo();
+    //
+    //        Bus bus = exchange.get(Bus.class);
+    //        PolicyEngine policyEngine = bus.getExtension(PolicyEngine.class);
+    //
+    //        if (effectivePolicy == null) {
+    //            if (policyEngine != null) {
+    //                if (MessageUtils.isRequestor(message)) {
+    //                    effectivePolicy = policyEngine.getEffectiveClientResponsePolicy(endpointInfo, bindingOperationInfo);
+    //                } else {
+    //                    effectivePolicy = policyEngine.getEffectiveServerRequestPolicy(endpointInfo, bindingOperationInfo);
+    //                }
+    //            }
+    //        }
+    
+            //if there is no policy then we don't need to do anything anyways
+            if (assertionInfoMap != null) {
+                RequestData reqData = new CXFRequestData();
+    
+                WSSConfig config = (WSSConfig) message.getContextualProperty(WSSConfig.class.getName());
+                WSSecurityEngine engine = null;
+                if (config != null) {
+                    engine = new WSSecurityEngine();
+                    engine.setWssConfig(config);
                 }
-            } catch (WSSecurityException e) {
-                LOGGER.warn("", e);
-                throw createSoapFault(version, e);
+                if (engine == null) {
+                    engine = new WSSecurityEngine();
+                    config = engine.getWssConfig();
+                }
+    
+                reqData.setWssConfig(config);
+    
+                SoapVersion version = message.getVersion();
+    
+                try {
+                    List<WSSecurityEngineResult> wsResult = engine.processSecurityHeader(elem, reqData);
+    
+                    //if there is a security header just ignore and go to the next interceptor
+                    if (wsResult == null || wsResult.isEmpty()) {
+                        //no security header, need to inject assertion
+                        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("DDF");
+    
+                        //synchronize the step of requesting the assertion, it is not thread safe
+                        AuthenticationInfo authenticationInfo = null;
+                        synchronized (lock) {
+                            if (realms != null && !realms.isEmpty()) {
+                                for (Realm realm : realms) {
+                                    try {
+                                        authenticationInfo = realm.getAuthenticationInfo(token);
+                                        if (authenticationInfo != null) {
+                                            break;
+                                        }
+                                    } catch (Exception e) {
+                                        LOGGER.warn("Unable to request auth info for anonymous user.", e);
+                                    }
+                                }
+                            }
+                        }
+                        if (authenticationInfo != null) {
+                            SecurityToken securityToken = null;
+                            for (Object principal : authenticationInfo.getPrincipals()) {
+                                if (principal instanceof SecurityToken) {
+                                    securityToken = (SecurityToken) principal;
+                                }
+                            }
+                            if (securityToken != null) {
+                                String addressingProperty = "javax.xml.ws.addressing.context.inbound";
+                                AddressingPropertiesImpl addressingProperties = new AddressingPropertiesImpl();
+                                Element samlElement = securityToken.getToken();
+                                SOAPFactory soapFactory = null;
+                                try {
+                                    soapFactory = SOAPFactory.newInstance();
+                                } catch (SOAPException e) {
+                                    LOGGER.error("Could not create a SOAPFactory.", e);
+                                }
+                                if (soapFactory != null) {
+                                    SOAPElement securityHeader = null;
+                                    try {
+                                        securityHeader = soapFactory.createElement("Security", "wsse",
+                                                "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
+                                    } catch (SOAPException e) {
+                                        LOGGER.error("Unable to create security header for anonymous user.", e);
+                                    }
+    
+                                    SOAPElement timestamp = null;
+                                    try {
+                                        timestamp = soapFactory.createElement("Timestamp", "wsu", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
+                                        SOAPElement created = soapFactory.createElement("Created", "wsu", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
+                                        DateTime dateTime = new DateTime();
+                                        created.addTextNode(dateTime.toString());
+                                        SOAPElement expires = soapFactory.createElement("Expires", "wsu", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
+                                        expires.addTextNode(dateTime.plusMinutes(5).toString());
+                                        timestamp.addChildElement(created);
+                                        timestamp.addChildElement(expires);
+                                    } catch (SOAPException e) {
+                                        LOGGER.error("Unable to create security timestamp.", e);
+                                    }
+    
+                                    SOAPElement action = null;
+                                    try {
+                                        action = soapFactory.createElement("Action", "wsa", "http://www.w3.org/2005/08/addressing");
+                                        action.addTextNode((String) message.get("org.apache.cxf.request.url"));
+                                        AttributedURIType attributedString = new AttributedURIType();
+                                        attributedString.setValue((String) message.get("org.apache.cxf.request.url"));
+                                        addressingProperties.setAction(attributedString);
+                                    } catch (SOAPException e) {
+                                        LOGGER.error("Unable to add addressing action.", e);
+                                    }
+    
+                                    SOAPElement messageId = null;
+                                    try {
+                                        messageId = soapFactory.createElement("MessageID", "wsa", "http://www.w3.org/2005/08/addressing");
+                                        String uuid = "urn:uuid:" + UUID.randomUUID().toString();
+                                        messageId.addTextNode(uuid);
+                                        AttributedURIType attributedString = new AttributedURIType();
+                                        attributedString.setValue(uuid);
+                                        addressingProperties.setMessageID(attributedString);
+                                    } catch (SOAPException e) {
+                                        LOGGER.error("Unable to add addressing action.", e);
+                                    }
+    
+                                    SOAPElement to = null;
+                                    try {
+                                        to = soapFactory.createElement("To", "wsa", "http://www.w3.org/2005/08/addressing");
+                                        to.addTextNode((String) message.get("org.apache.cxf.request.url"));
+                                        EndpointReferenceType endpointReferenceType = new EndpointReferenceType();
+                                        AttributedURIType attributedString = new AttributedURIType();
+                                        attributedString.setValue((String) message.get("org.apache.cxf.request.url"));
+                                        endpointReferenceType.setAddress(attributedString);
+                                        addressingProperties.setTo(endpointReferenceType);
+                                    } catch (SOAPException e) {
+                                        LOGGER.error("Unable to add addressing action.", e);
+                                    }
+    
+                                    SOAPElement replyTo = null;
+                                    try {
+                                        replyTo = soapFactory.createElement("ReplyTo", "wsa", "http://www.w3.org/2005/08/addressing");
+                                        SOAPElement address = soapFactory.createElement("Address", "wsa", "http://www.w3.org/2005/08/addressing");
+                                        address.addTextNode("http://www.w3.org/2005/08/addressing/anonymous");
+                                        replyTo.addChildElement(address);
+                                    } catch (SOAPException e) {
+                                        LOGGER.error("Unable to add addressing action.", e);
+                                    }
+    
+                                    SOAPElement samlAssertion = null;
+                                    try {
+                                        samlAssertion = soapFactory.createElement(samlElement);
+                                    } catch (SOAPException e) {
+                                        LOGGER.error("Unable to convert SecurityToken to SOAPElement.", e);
+                                    }
+    
+                                    try {
+                                        if (securityHeader != null) {
+                                            securityHeader.addAttribute(new QName("http://schemas.xmlsoap.org/soap/envelope/", "mustUnderstand"), "1");
+                                            securityHeader.addChildElement(timestamp);
+                                            securityHeader.addChildElement(samlAssertion);
+                                            soapMessage.getSOAPHeader().addChildElement(messageId);
+                                            soapMessage.getSOAPHeader().addChildElement(action);
+                                            soapMessage.getSOAPHeader().addChildElement(to);
+                                            soapMessage.getSOAPHeader().addChildElement(replyTo);
+                                            soapMessage.getSOAPHeader().addChildElement(securityHeader);
+                                            message.put(addressingProperty, addressingProperties);
+                                        }
+                                    } catch (SOAPException e) {
+                                        LOGGER.error("Unable to add security header to SOAP message.", e);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (WSSecurityException e) {
+                    LOGGER.warn("", e);
+                    throw createSoapFault(version, e);
+                }
             }
+        } else {
+            LOGGER.warn("SOAP message contains security header, ignore AnonymousInterceptor.");
         }
     }
 

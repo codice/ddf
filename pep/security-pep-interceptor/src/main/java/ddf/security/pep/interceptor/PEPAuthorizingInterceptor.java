@@ -101,6 +101,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     }
 
                     logger.debug("Is user authenticated: {}", user.isAuthenticated());
+
                     logger.debug("Checking for permission");
                     SecurityLogger.logInfo("Is user [" + user.getPrincipal() + "] authenticated: "
                             + user.isAuthenticated());
@@ -111,6 +112,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                             if (curHeader.getName().equals(SOAP_ACTION)) {
                                 action = new ActionPermission(
                                         ((Element) curHeader.getObject()).getTextContent());
+                                logger.debug("Action Permission: " + ((Element) curHeader.getObject()).getTextContent());
                                 break;
                             }
                         }
