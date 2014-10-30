@@ -29,6 +29,7 @@ import net.opengis.cat.csw.v_2_0_2.EchoedRequestType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
+import net.opengis.cat.csw.v_2_0_2.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -76,13 +77,16 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
     @Override public BinaryContent transform(SourceResponse sourceResponse,
             Map<String, Serializable> arguments) throws CatalogTransformerException {
-        if (sourceResponse.getResults() == null) {
+        LOGGER.debug("Entering CswQueryResponseTransformer.transform()");
+        if (sourceResponse.getResults() == null && arguments.get(CswConstants.RESULT_TYPE_PARAMETER) == null) {
+            LOGGER.warn("Attempted to Transform and empty Result list.");
             return null;
         }
 
         BinaryContent transformedContent = null;
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
+        LOGGER.debug("Creating recordCollection");
         CswRecordCollection recordCollection = new CswRecordCollection();
         for (Result result : sourceResponse.getResults()) {
             recordCollection.getCswRecords().add(result.getMetacard());
@@ -92,24 +96,30 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
         recordCollection.setNumberOfRecordsReturned(sourceResponse.getResults().size());
         recordCollection.setStartPosition(sourceResponse.getRequest().getQuery().getStartIndex());
 
+        LOGGER.debug("Evaluating Arguments");
         evaluateArguments(arguments, recordCollection);
 
         if (recordCollection.isById()) {
+            LOGGER.debug("Transforming GetRecordByIdResponse");
             try {
                 xstreamGetRecordByIdResponse.toXML(recordCollection, os);
             } catch (XStreamException e) {
                 throw new CatalogTransformerException(e);
             }
+            // TODO - should use recordCollection.getResultType() here
         } else if (recordCollection.isValidateQuery()) {
+            LOGGER.debug("Transforming Acknowledgement");
             try {
                 writeAcknowledgement(recordCollection.getRequest(), os);
             } catch (IOException e) {
                 throw new CatalogTransformerException(e);
             }
         } else {
+            LOGGER.debug("Transforming GetRecordsResponse");
             try {
                 xstreamGetRecordsResponse.toXML(recordCollection, os);
             } catch (XStreamException e) {
+                LOGGER.warn("Failed to transform GetRecordsResponse", e);
                 throw new CatalogTransformerException(e);
             }
         }
@@ -143,19 +153,25 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 }
             }
 
-            Boolean isByIdQuery = (Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY);
+            Object isByIdQuery = arguments.get(CswConstants.IS_BY_ID_QUERY);
             if (isByIdQuery != null) {
-                recordCollection.setById(isByIdQuery);
+                recordCollection.setById((Boolean)isByIdQuery);
             }
 
-            Boolean isValidateQuery = (Boolean) arguments.get(CswConstants.IS_VALIDATE_QUERY);
+            Object isValidateQuery = arguments.get(CswConstants.IS_VALIDATE_QUERY);
             if (isValidateQuery != null) {
-                recordCollection.setValidateQuery(isValidateQuery);
+                recordCollection.setValidateQuery((Boolean)isValidateQuery);
                 Object arg = arguments.get((CswConstants.GET_RECORDS));
                 if (arg != null && arg instanceof GetRecordsType){
                     recordCollection.setRequest((GetRecordsType) arg);
                 }
             }
+
+            Object resultType = arguments.get(CswConstants.RESULT_TYPE_PARAMETER);
+            if (resultType != null) {
+                recordCollection.setResultType(ResultType.fromValue((String)resultType));
+            }
+
         }
     }
 

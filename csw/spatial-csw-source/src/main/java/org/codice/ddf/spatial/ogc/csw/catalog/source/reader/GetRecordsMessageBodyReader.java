@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.source.reader;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
+import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
@@ -54,7 +55,7 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
 
     private WstxDriver wstxDriver;
 
-    public GetRecordsMessageBodyReader(CswTransformProvider provider,
+    public GetRecordsMessageBodyReader(Converter provider,
             CswSourceConfiguration configuration) {
         wstxDriver = new WstxDriver();
         xstream = new XStream(wstxDriver);

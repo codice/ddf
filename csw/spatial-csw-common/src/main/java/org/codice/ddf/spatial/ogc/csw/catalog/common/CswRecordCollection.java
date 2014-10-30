@@ -24,6 +24,7 @@ import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import ddf.catalog.data.Metacard;
+import net.opengis.cat.csw.v_2_0_2.ResultType;
 
 /**
  * This class represents the domain object for the list of metacards corresponding to the list of
@@ -57,6 +58,8 @@ public class CswRecordCollection {
     private String mimeType;
 
     private int startPosition;
+
+    private ResultType resultType;
 
     /**
      * Retrieves the request made that generated this set of CSW Records, if applicable
@@ -174,4 +177,11 @@ public class CswRecordCollection {
         return startPosition;
     }
 
+    public void setResultType(ResultType resultType) {
+        this.resultType = resultType;
+    }
+
+    public ResultType getResultType() {
+        return this.resultType;
+    }
 }

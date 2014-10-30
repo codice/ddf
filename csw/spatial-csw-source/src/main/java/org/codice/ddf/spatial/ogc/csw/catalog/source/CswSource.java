@@ -47,6 +47,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
+import com.thoughtworks.xstream.converters.Converter;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
@@ -86,7 +87,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
 import org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader;
 import org.opengis.filter.Filter;
@@ -172,7 +172,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     protected boolean contentTypeMappingUpdated;
 
 //    protected List<RecordConverterFactory> recordConverterFactories;
-    private CswTransformProvider cswTransformProvider;
+    private Converter cswTransformProvider;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswSource.class);
 
@@ -270,7 +270,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         this.remoteCsw = remoteCsw;
         this.context = context;
         this.cswSourceConfiguration = cswSourceConfiguration;
-//        this.recordConverterFactories = factories;
         this.cswTransformProvider = provider;
         scheduler = Executors.newSingleThreadScheduledExecutor();
     }
@@ -889,24 +888,12 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         this.cswSourceConfiguration.setPollIntervalMinutes(interval);
     }
 
-    public void setRecordConverterFactoryList(List<RecordConverterFactory> factories) {
-        if (LOGGER.isDebugEnabled()) {
-            StringBuilder builder = new StringBuilder();
-            builder.append("\nRecord converter factory output schema list:");
-
-            for (RecordConverterFactory rcf : ListUtils.emptyIfNull(factories)) {
-                builder.append("\n  Output schema: ");
-                builder.append(rcf.getOutputSchema());
-            }
-
-            LOGGER.debug(builder.toString());
-        }
-
-//        this.recordConverterFactories = factories;
+    public void setCswTransformProvider(Converter provider) {
+        this.cswTransformProvider = provider;
     }
 
-    public List<RecordConverterFactory> getRecordConverterFactoryList() {
-        return null;
+    public Converter getCswTransformProvider() {
+        return this.cswTransformProvider;
     }
    
     public String getForceSpatialFilter() {

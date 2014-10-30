@@ -99,8 +99,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.DescribeRecordRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.DefaultCswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.geotools.feature.NameImpl;
@@ -141,7 +140,7 @@ public class CswEndpoint implements Csw {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswEndpoint.class);
 
-    private final TransformerManager<QueryResponseTransformer> transformerManager;
+    private final TransformerManager transformerManager;
 
     private FilterBuilder builder;
 
@@ -153,8 +152,6 @@ public class CswEndpoint implements Csw {
 
     private DatatypeFactory datatypeFactory;
     
-    private List<RecordConverterFactory> converterFactories;
-
     protected static final String SERVICE_TITLE = "Catalog Service for the Web";
 
     protected static final String SERVICE_ABSTRACT = "DDF CSW Endpoint";
@@ -194,6 +191,8 @@ public class CswEndpoint implements Csw {
     private static JAXBContext jaxBContext;
 
     private static final Configuration PARSER_CONFIG = new org.geotools.filter.v1_1.OGCConfiguration();
+
+    private static final String DEFAULT_OUTPUT_FORMAT = MediaType.APPLICATION_XML;
 
     @Context
     private UriInfo uri;
@@ -617,6 +616,9 @@ public class CswEndpoint implements Csw {
 
         CswRecordCollection response = new CswRecordCollection();
         response.setRequest(request);
+        response.setOutputSchema(request.getOutputSchema());
+        response.setMimeType(request.getOutputFormat());
+        response.setResultType(request.getResultType());
         
         if (ResultType.HITS.equals(request.getResultType()) || ResultType.RESULTS.equals(request.getResultType())) {
             QueryImpl frameworkQuery = new QueryImpl(buildFilter(query));
@@ -637,13 +639,14 @@ public class CswEndpoint implements Csw {
             long hits = 0;
             try {
                 QueryResponse queryResponse = framework.query(new QueryRequestImpl(frameworkQuery, federated));
+                response.setSourceResponse(queryResponse);
     
-                hits = queryResponse.getHits();
-                count = queryResponse.getResults().size();
-                for (Result result : queryResponse.getResults()) {
-                    metacards.add(result.getMetacard());
-                }
-    
+//                hits = queryResponse.getHits();
+//                count = queryResponse.getResults().size();
+//                for (Result result : queryResponse.getResults()) {
+//                    metacards.add(result.getMetacard());
+//                }
+//
             } catch (UnsupportedQueryException e) {
                 LOGGER.warn("Unable to query", e);
                 throw new CswException(e);
@@ -655,14 +658,14 @@ public class CswEndpoint implements Csw {
                 throw new CswException(e);
             }
 
-            response.setNumberOfRecordsMatched(hits);
-            if (ResultType.HITS.equals(request.getResultType()) || request.getMaxRecords().intValue() < 1) {
-                response.setNumberOfRecordsReturned(0);
-                
-            } else {
-                response.setNumberOfRecordsReturned(count);
-                response.setCswRecords(metacards);
-            }
+            //response.setNumberOfRecordsMatched(hits);
+//            if (ResultType.HITS.equals(request.getResultType()) || request.getMaxRecords().intValue() < 1) {
+//                response.setNumberOfRecordsReturned(0);
+//
+//            } else {
+//                response.setNumberOfRecordsReturned(count);
+//                response.setCswRecords(metacards);
+//            }
         }
         
         return response;
@@ -909,8 +912,10 @@ public class CswEndpoint implements Csw {
         Operation describeRecordOp = buildOperation(CswConstants.DESCRIBE_RECORD, getAndPost);
         addOperationParameter(CswConstants.TYPE_NAME_PARAMETER,
                 Arrays.asList(CswConstants.CSW_RECORD), describeRecordOp);
-        addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER,
-                transformerManager.getAvailableMimeTypes(), describeRecordOp);
+        List<String> mimeTypes = new ArrayList();
+        mimeTypes.add(DEFAULT_OUTPUT_FORMAT);
+        mimeTypes.addAll(transformerManager.getAvailableMimeTypes());
+        addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, describeRecordOp);
         addOperationParameter("schemaLanguage", CswConstants.VALID_SCHEMA_LANGUAGES,
                 describeRecordOp);
 
@@ -918,8 +923,7 @@ public class CswEndpoint implements Csw {
         Operation getRecordsOp = buildOperation(CswConstants.GET_RECORDS, getAndPost);
         addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
                 Arrays.asList("hits", "results", "validate"), getRecordsOp);
-        addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER,
-                transformerManager.getAvailableMimeTypes(), getRecordsOp);
+        addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER,
                 transformerManager.getAvailableSchemas(),
                 getRecordsOp);
@@ -935,8 +939,7 @@ public class CswEndpoint implements Csw {
         addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER,
                 transformerManager.getAvailableSchemas(),
                 getRecordByIdOp);
-        addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER,
-                transformerManager.getAvailableMimeTypes(), getRecordByIdOp);
+        addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordByIdOp);
         addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
                 Arrays.asList("hits", "results", "validate"), getRecordByIdOp);
         addOperationParameter(CswConstants.ELEMENT_SET_NAME_PARAMETER,
@@ -988,7 +991,7 @@ public class CswEndpoint implements Csw {
     /**
      * Creates an Operation object for the OperationsMetadata section TODO: We currently don't use
      * the constraint or metadata elements, those can be added in as desired
-     * 
+     *
      * @param name
      *            The name of the operation
      * @param types
@@ -1093,7 +1096,7 @@ public class CswEndpoint implements Csw {
 
     private void validateOutputFormat(String format) throws CswException {
         if (!StringUtils.isEmpty(format)) {
-            if (!transformerManager.getAvailableMimeTypes().contains(format)){
+            if (!DEFAULT_OUTPUT_FORMAT.equals(format) && !transformerManager.getAvailableMimeTypes().contains(format)){
                 throw new CswException("Invalid output format '"
                         + format + "'", CswConstants.INVALID_PARAMETER_VALUE, "outputformat");
             }

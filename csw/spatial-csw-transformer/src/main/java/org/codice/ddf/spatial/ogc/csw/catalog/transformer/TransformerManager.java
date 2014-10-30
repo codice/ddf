@@ -16,6 +16,8 @@ package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +25,11 @@ import java.util.List;
 /**
  * Maintains a list of available Transformers and their properties.
  */
-public class TransformerManager<T> {
+public class TransformerManager {
 
-    private final List<ServiceReference<T>> serviceRefs;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransformerManager.class);
+
+    private final List<ServiceReference> serviceRefs;
 
     private final BundleContext context;
 
@@ -34,7 +38,7 @@ public class TransformerManager<T> {
     private static final String SCHEMA = "schema";
 
     public TransformerManager(BundleContext context,
-            List<ServiceReference<T>> serviceReferences) {
+            List<ServiceReference> serviceReferences) {
         this.serviceRefs = serviceReferences;
         this.context = context;
     }
@@ -49,7 +53,8 @@ public class TransformerManager<T> {
 
     private List<String> getAvailableProperty(String propertyName) {
         List<String> properties = new ArrayList<String>();
-        for (ServiceReference<T> serviceRef : serviceRefs) {
+
+        for (ServiceReference serviceRef : serviceRefs) {
             Object mimeObject = serviceRef.getProperty(propertyName);
             if (mimeObject != null && mimeObject instanceof String) {
                 properties.add((String) mimeObject);
@@ -58,38 +63,45 @@ public class TransformerManager<T> {
         return properties;
     }
 
-    public T getTransformerBySchema(String schema) {
+    public <T> T getTransformerBySchema(String schema) {
         return getTransformerByProperty(SCHEMA, schema);
     }
 
-    public T getTransformerByMimeType(String mimeType) {
+    public <T> T getTransformerByMimeType(String mimeType) {
         return getTransformerByProperty(MIME_TYPE, mimeType);
     }
 
-    public T getCswQueryResponseTransformer() {
-        for (ServiceReference<T> serviceRef : serviceRefs) {
+    public <T> T getCswQueryResponseTransformer() {
+        LOGGER.trace("Looking up transformer id='csw'");
+        for (ServiceReference serviceRef : serviceRefs) {
             Object propertyObject = serviceRef.getProperty("id");
             if (propertyObject != null && propertyObject instanceof String) {
                 if ("csw".equals((String) propertyObject)) {
-                    return context.getService(serviceRef);
+                    LOGGER.trace("Found CSW Transformer");
+                    return (T)context.getService(serviceRef);
                 }
             }
         }
         return null;
     }
 
-    private T getTransformerByProperty(String property, String value) {
+    private <T> T getTransformerByProperty(String property, String value) {
         if (value == null) {
             return null;
         }
-        for (ServiceReference<T> serviceRef : serviceRefs) {
+        LOGGER.trace("Looking up transformer for property: {} == value: {}", property, value);
+        for (ServiceReference serviceRef : serviceRefs) {
             Object propertyObject = serviceRef.getProperty(property);
             if (propertyObject != null && propertyObject instanceof String) {
                 if (value.equals((String) propertyObject)) {
-                    return context.getService(serviceRef);
+                    LOGGER.trace("Found transformer for property: {} == value: {}", property, value);
+                    T serviceObject = (T) context.getService(serviceRef);
+                    LOGGER.trace("Transformer is {}", serviceObject);
+                    return serviceObject;
                 }
             }
         }
+        LOGGER.debug("Did not find transformer for property: {} == value: {}", property, value);
         return null;
     }
 }

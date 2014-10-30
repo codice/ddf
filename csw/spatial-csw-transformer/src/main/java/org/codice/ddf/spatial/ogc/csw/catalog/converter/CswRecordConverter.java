@@ -20,6 +20,7 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.core.TreeMarshaller;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
@@ -251,9 +252,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         Object elementSetObj = context.get(CswConstants.ELEMENT_SET_TYPE);
         Object elementNamesObj = context.get(CswConstants.ELEMENT_NAMES);
 
-        String rootNodeName = (doWriteNamespaces) ?
-                CswConstants.CSW_RECORD :
-                CswConstants.CSW_RECORD_LOCAL_NAME;
+        String rootNodeName = CswConstants.CSW_RECORD;
 
         if (elementSetObj instanceof ElementSetType) {
             List<QName> elementsToWrite;
@@ -261,15 +260,11 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             switch (elementSetType) {
             case BRIEF:
                 elementsToWrite = CswRecordMetacardType.BRIEF_CSW_RECORD_FIELDS;
-                rootNodeName = (doWriteNamespaces) ?
-                        CswConstants.CSW_BRIEF_RECORD :
-                        CswConstants.CSW_BRIEF_RECORD_LOCAL_NAME;
+                rootNodeName = CswConstants.CSW_BRIEF_RECORD;
                 break;
             case SUMMARY:
                 elementsToWrite = CswRecordMetacardType.SUMMARY_CSW_RECORD_FIELDS;
-                rootNodeName = (doWriteNamespaces) ?
-                        CswConstants.CSW_SUMMARY_RECORD :
-                        CswConstants.CSW_SUMMARY_RECORD_LOCAL_NAME;
+                rootNodeName = CswConstants.CSW_SUMMARY_RECORD;
                 break;
             case FULL:
             default:
@@ -283,6 +278,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             args.put(CswConstants.ROOT_NODE_NAME, rootNodeName);
         } else {
             args.put(CswConstants.ROOT_NODE_NAME, rootNodeName);
+            args.put(CswConstants.ELEMENT_NAMES, CswRecordMetacardType.FULL_CSW_RECORD_FIELDS);
         }
         return args;
     }
@@ -811,17 +807,31 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     @Override public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
             throws CatalogTransformerException {
         StringWriter stringWriter = new StringWriter();
-        stringWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
+        Boolean omitXmlDec = (Boolean)arguments.get(CswConstants.OMIT_XML_DECLARATION);
+        if (omitXmlDec == null || !omitXmlDec) {
+            stringWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+        }
         PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
-        DataHolder holder = xstream.newDataHolder();
-        holder.put(CswConstants.WRITE_NAMESPACES, true);
+        MarshallingContext context = new TreeMarshaller(writer, null, null);
+        context.put(CswConstants.WRITE_NAMESPACES, true);
+        copyArgumentsToContext(context, arguments);
 
-        xstream.marshal(metacard, writer, holder);
+        this.marshal(metacard, writer, context);
 
         BinaryContent transformedContent = null;
 
         ByteArrayInputStream bais = new ByteArrayInputStream(stringWriter.toString().getBytes());
         transformedContent = new BinaryContentImpl(bais, new MimeType());
         return transformedContent;
+    }
+
+    private void copyArgumentsToContext(MarshallingContext context, Map<String, Serializable> arguments) {
+        if (context == null || arguments == null) {
+            return;
+        }
+
+        for (String key : arguments.keySet()) {
+            context.put(key, arguments.get(key));
+        }
     }
 }

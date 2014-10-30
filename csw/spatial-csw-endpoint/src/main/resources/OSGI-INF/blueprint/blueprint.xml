@@ -47,17 +47,20 @@
         </property>
     </bean>
 
-    <bean id="converterFactoryList" class="ddf.catalog.util.impl.SortedServiceList">
-		<argument ref="blueprintBundleContext" />
-	</bean>	
-	<reference-list id="converterFactory" interface="org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory">
-		<reference-listener bind-method="bindPlugin"
-			unbind-method="unbindPlugin" ref="converterFactoryList" />
-	</reference-list>
+    <!-- QueryResponseTransformer TransformerManager -->
+    <bean id="queryResponseTransformerManager" class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager" >
+        <argument ref="blueprintBundleContext" />
+        <argument ref="queryResponseTransformers" />
+    </bean>
+
+    <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList" />
+    <reference-list id="queryResponseTransformerList" member-type="service-reference" interface="ddf.catalog.transform.QueryResponseTransformer" >
+        <reference-listener bind-method="bindService" unbind-method="bindService" ref="queryResponseTransformers" />
+    </reference-list>
 
     <bean id="cswExceptionMapperProvider" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswExceptionMapper" />
     <bean id="cswRecordCollectionWriter" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer.CswRecordCollectionMessageBodyWriter">
-    	<argument ref="converterFactoryList" />
+    	<argument ref="queryResponseTransformerManager" />
     </bean>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
@@ -67,7 +70,7 @@
         <argument ref="blueprintBundleContext" />
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
-        <argument ref="converterFactoryList" />
+        <argument ref="queryResponseTransformerManager" />
     </bean>
 
     <jaxrs:server id="CswService" address="/csw">

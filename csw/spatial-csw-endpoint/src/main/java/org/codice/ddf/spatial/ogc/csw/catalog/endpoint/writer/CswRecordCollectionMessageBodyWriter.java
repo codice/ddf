@@ -51,9 +51,9 @@ public class CswRecordCollectionMessageBodyWriter implements MessageBodyWriter<C
     private static final Logger LOGGER = LoggerFactory
             .getLogger(CswRecordCollectionMessageBodyWriter.class);
 
-    private final TransformerManager<QueryResponseTransformer> transformerManager;
+    private final TransformerManager transformerManager;
 
-    public CswRecordCollectionMessageBodyWriter(TransformerManager<QueryResponseTransformer> manager) {
+    public CswRecordCollectionMessageBodyWriter(TransformerManager manager) {
         this.transformerManager = manager;
     }
     
@@ -75,11 +75,16 @@ public class CswRecordCollectionMessageBodyWriter implements MessageBodyWriter<C
             MultivaluedMap<String, Object> httpHeaders, OutputStream outStream)
         throws IOException, WebApplicationException {
 
+        LOGGER.debug(
+                "Attempting to transform RecordCollection with mime-type: {} & outputSchema: {}",
+                recordCollection.getMimeType(), recordCollection.getOutputSchema());
         QueryResponseTransformer transformer;
         Map<String, Serializable> arguments = new HashMap<String, Serializable>();
         if (StringUtils.isBlank(recordCollection.getOutputSchema())) {
             transformer = transformerManager
                     .getTransformerByMimeType(recordCollection.getMimeType());
+        } else if (!CswConstants.CSW_OUTPUT_SCHEMA.equals(recordCollection.getOutputSchema())) {
+            transformer = transformerManager.getTransformerBySchema(recordCollection.getOutputSchema());
         } else {
             transformer = transformerManager.getCswQueryResponseTransformer();
             if (recordCollection.getElementName() != null) {
@@ -90,16 +95,18 @@ public class CswRecordCollectionMessageBodyWriter implements MessageBodyWriter<C
             arguments.put(CswConstants.IS_BY_ID_QUERY, recordCollection.isById());
             arguments.put(CswConstants.IS_VALIDATE_QUERY, recordCollection.isValidateQuery());
             arguments.put(CswConstants.GET_RECORDS, recordCollection.getRequest());
+            arguments.put(CswConstants.RESULT_TYPE_PARAMETER, recordCollection.getResultType().value());
         }
 
         if (transformer == null) {
-            throw new WebApplicationException();
+            throw new WebApplicationException(new CatalogTransformerException("Unable to locate Transformer."));
         }
 
         BinaryContent content = null;
         try {
             content = transformer.transform(recordCollection.getSourceResponse(), arguments);
         } catch (CatalogTransformerException e) {
+            LOGGER.warn("Failed to Trasnform CswRecordCollection.", e);
             throw new WebApplicationException(e);
         }
 

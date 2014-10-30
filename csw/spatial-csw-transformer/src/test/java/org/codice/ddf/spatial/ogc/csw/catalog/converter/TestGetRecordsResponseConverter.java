@@ -35,6 +35,7 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
+import net.opengis.cat.csw.v_2_0_2.ResultType;
 import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.io.IOUtils;
@@ -78,6 +79,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -109,7 +111,7 @@ public class TestGetRecordsResponseConverter {
 
     private CswTransformProvider mockProvider = mock(CswTransformProvider.class);
 
-    private TransformerManager<InputTransformer> mockInputManager = mock(TransformerManager.class);
+    private TransformerManager mockInputManager = mock(TransformerManager.class);
 
     @Before
     public void setUp() {
@@ -121,7 +123,7 @@ public class TestGetRecordsResponseConverter {
      * This test acutally runs the full thread of calling the GetRecordsResponseConverter then calls the CswInputTransformer.
      */
     @Test
-    public void testGetRecordsResponseFull() {
+    public void testUnmarshalGetRecordsResponseFull() {
 
         XStream xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
@@ -248,7 +250,7 @@ public class TestGetRecordsResponseConverter {
     }
 
     @Test
-    public void testGetRecordsResponseConversionWithEmptyBoundingBox() {
+    public void testUnmarshalGetRecordsResponseConversionWithEmptyBoundingBox() {
         XStream xstream = new XStream(new WstxDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
 
@@ -287,33 +289,6 @@ public class TestGetRecordsResponseConverter {
         List<Metacard> metacards = cswRecords.getCswRecords();
         assertThat(metacards, not(nullValue()));
         assertThat(metacards.size(), equalTo(1));
-
-        // TODO get rid of this crap
-        // verify first metacard's values
-        //        Metacard mc = metacards.get(0);
-        //        Map<String, Object> expectedValues = new HashMap<String, Object>();
-        //        expectedValues.put(Metacard.ID, "{8C1F6297-EC96-4302-A01E-14988C9149FD}");
-        //        expectedValues.put(CswRecordMetacardType.CSW_IDENTIFIER,
-        //                new String[] {"{8C1F6297-EC96-4302-A01E-14988C9149FD}"});
-        //        expectedValues.put(Metacard.TITLE, "title 1");
-        //        expectedValues.put(CswRecordMetacardType.CSW_TITLE, new String[] {"title 1"});
-        //        String expectedModifiedDateStr = "2008-12-15";
-        //        DateTimeFormatter dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
-        //        Date expectedModifiedDate = dateFormatter.parseDateTime(expectedModifiedDateStr).toDate();
-        //        expectedValues.put(CswRecordMetacardType.CSW_MODIFIED,
-        //                new String[] {expectedModifiedDateStr});
-        //        expectedValues.put(Metacard.MODIFIED, expectedModifiedDate);
-        //        expectedValues.put(CswRecordMetacardType.CSW_SUBJECT, new String[] {"subject 1",
-        //            "second subject"});
-        //        expectedValues.put(CswRecordMetacardType.CSW_ABSTRACT, new String[] {"abstract 1"});
-        //        expectedValues.put(CswRecordMetacardType.CSW_RIGHTS, new String[] {"copyright 1",
-        //            "copyright 2"});
-        //        expectedValues.put(CswRecordMetacardType.CSW_LANGUAGE, new String[] {"english"});
-        //        expectedValues.put(CswRecordMetacardType.CSW_TYPE, "dataset");
-        //        expectedValues.put(CswRecordMetacardType.CSW_FORMAT, new String[] {"Shapefile"});
-        //        expectedValues.put(Metacard.GEOGRAPHY, null);
-        //        expectedValues.put(CswRecordMetacardType.OWS_BOUNDING_BOX, null);
-        //        assertMetacard(mc, expectedValues);
     }
 
     @Test
@@ -454,6 +429,44 @@ public class TestGetRecordsResponseConverter {
         assertThat(resultsType.getRecordSchema(), is(CswConstants.CSW_OUTPUT_SCHEMA));
     }
 
+
+    @Test
+    public void testMarshalRecordCollectionHits()
+            throws UnsupportedEncodingException, JAXBException {
+        final int totalResults = 5;
+
+        XStream xstream = createXStream(CswConstants.GET_RECORDS_RESPONSE);
+        GetRecordsType getRecords = new GetRecordsType();
+        QueryType query = new QueryType();
+        ElementSetNameType set = new ElementSetNameType();
+        set.setValue(ElementSetType.FULL);
+        query.setElementSetName(set);
+        ObjectFactory objectFactory = new ObjectFactory();
+        getRecords.setAbstractQuery(objectFactory.createAbstractQuery(query));
+        CswRecordCollection collection = createCswRecordCollection(getRecords, totalResults);
+        collection.setElementSetType(ElementSetType.FULL);
+        collection.setResultType(ResultType.HITS);
+
+        String xml = xstream.toXML(collection);
+
+        // Verify the context arguments were set correctly
+        verify(mockProvider, never())
+                .marshal(any(Object.class), any(HierarchicalStreamWriter.class), any(MarshallingContext.class));
+
+        JAXBElement<GetRecordsResponseType> jaxb = (JAXBElement<GetRecordsResponseType>) getJaxBContext()
+                .createUnmarshaller().unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+
+        GetRecordsResponseType response = jaxb.getValue();
+        // Assert the GetRecordsResponse elements and attributes
+        assertThat(response, not(nullValue()));
+        SearchResultsType resultsType = response.getSearchResults();
+        assertThat(resultsType, not(nullValue()));
+        assertThat(resultsType.getElementSet(), is(ElementSetType.FULL));
+        assertThat(resultsType.getNumberOfRecordsMatched().intValue(), is(totalResults));
+        assertThat(resultsType.getNumberOfRecordsReturned().intValue(), is(0));
+        assertThat(resultsType.getRecordSchema(), is(CswConstants.CSW_OUTPUT_SCHEMA));
+    }
+
     @Test
     public void testMarshalRecordCollectionGetElements()
             throws UnsupportedEncodingException, JAXBException {
@@ -583,6 +596,49 @@ public class TestGetRecordsResponseConverter {
         GetRecordByIdResponseType response = jaxb.getValue();
         // Assert the GetRecordsResponse elements and attributes
         assertThat(response, not(nullValue()));
+    }
+
+    @Test
+    public void testMarshalRecordCollectionFullXml()
+            throws UnsupportedEncodingException, JAXBException {
+        final int totalResults = 5;
+
+        TransformerManager mockMetacardManager = mock(TransformerManager.class);
+        when(mockMetacardManager.getTransformerBySchema(anyString())).thenReturn(
+                new CswRecordConverter());
+        GetRecordsResponseConverter rrConverter = new GetRecordsResponseConverter(new CswTransformProvider(mockMetacardManager, null));
+
+        XStream xstream = new XStream(new StaxDriver(new NoNameCoder()));
+
+        xstream.registerConverter(rrConverter);
+
+        xstream.alias(CswConstants.CSW_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER
+                + CswConstants.GET_RECORDS_RESPONSE, CswRecordCollection.class);
+
+        GetRecordsType getRecords = new GetRecordsType();
+        QueryType query = new QueryType();
+        ElementSetNameType set = new ElementSetNameType();
+        set.setValue(ElementSetType.FULL);
+        query.setElementSetName(set);
+        ObjectFactory objectFactory = new ObjectFactory();
+        getRecords.setAbstractQuery(objectFactory.createAbstractQuery(query));
+        CswRecordCollection collection = createCswRecordCollection(getRecords, totalResults);
+        collection.setElementSetType(ElementSetType.FULL);
+
+        String xml = xstream.toXML(collection);
+
+        JAXBElement<GetRecordsResponseType> jaxb = (JAXBElement<GetRecordsResponseType>) getJaxBContext()
+                .createUnmarshaller().unmarshal(new ByteArrayInputStream(xml.getBytes("UTF-8")));
+
+        GetRecordsResponseType response = jaxb.getValue();
+        // Assert the GetRecordsResponse elements and attributes
+        assertThat(response, not(nullValue()));
+        SearchResultsType resultsType = response.getSearchResults();
+        assertThat(resultsType, not(nullValue()));
+        assertThat(resultsType.getElementSet(), is(ElementSetType.FULL));
+        assertThat(resultsType.getNumberOfRecordsMatched().intValue(), is(totalResults));
+        assertThat(resultsType.getNumberOfRecordsReturned().intValue(), is(totalResults));
+        assertThat(resultsType.getRecordSchema(), is(CswConstants.CSW_OUTPUT_SCHEMA));
     }
 
     // //////////////////////////////////////////////////////////////////////////////////////////////////////

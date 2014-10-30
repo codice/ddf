@@ -30,11 +30,14 @@ import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.transform.CatalogTransformerException;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -51,6 +54,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -97,6 +101,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -520,7 +525,7 @@ public class TestCswRecordConverter {
         cswRecordConverter.marshal(metacard, writer, context);
 
         String xml = stringWriter.toString();
-        assertThat(xml, containsString("<Record>"));
+        assertThat(xml, containsString(CswConstants.CSW_RECORD));
         assertRecordXml(xml, metacard, FULL);
     }
 
@@ -538,7 +543,7 @@ public class TestCswRecordConverter {
         cswRecordConverter.marshal(metacard, writer, context);
 
         String xml = stringWriter.toString();
-        assertThat(xml, containsString("<BriefRecord>"));
+        assertThat(xml, containsString(CswConstants.CSW_BRIEF_RECORD));
         assertRecordXml(xml, metacard, BRIEF);
     }
 
@@ -556,7 +561,7 @@ public class TestCswRecordConverter {
         cswRecordConverter.marshal(metacard, writer, context);
 
         String xml = stringWriter.toString();
-        assertThat(xml, containsString("<SummaryRecord>"));
+        assertThat(xml, containsString(CswConstants.CSW_SUMMARY_RECORD));
         assertRecordXml(xml, metacard, SUMMARY);
     }
 
@@ -576,6 +581,7 @@ public class TestCswRecordConverter {
         PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
         MarshallingContext context = new TreeMarshaller(writer, null, null);
         context.put(CswConstants.ELEMENT_NAMES, Arrays.asList(new QName("source")));
+        context.put(CswConstants.WRITE_NAMESPACES, true);
 
         cswRecordConverter.marshal(metacard, writer, context);
 
@@ -583,8 +589,8 @@ public class TestCswRecordConverter {
 
         XMLUnit.setIgnoreWhitespace(true);
 
-        final String test1 = "<?xml version='1.0' encoding='UTF-8'?><Record><source>"
-                + TEST_URI + "</source></Record>";
+        final String test1 = "<?xml version='1.0' encoding='UTF-8'?><csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"><source>"
+                + TEST_URI + "</source></csw:Record>";
 
         assertXMLEqual(test1, xml);
 
@@ -597,8 +603,8 @@ public class TestCswRecordConverter {
 
         String xml2 = "<?xml version='1.0' encoding='UTF-8'?>" + stringWriter.toString();
 
-        final String test2 = "<?xml version='1.0' encoding='UTF-8'?><Record><source>" + actionUrl
-                + "</source></Record>";
+        final String test2 = "<?xml version='1.0' encoding='UTF-8'?><csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"><source>" + actionUrl
+                + "</source></csw:Record>";
 
         assertXMLEqual(test2, xml2);
     }
@@ -619,8 +625,43 @@ public class TestCswRecordConverter {
         String xml = stringWriter.toString();
         XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(getControlRecord(), xml);
-//        assertThat(xml, containsString("<csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dct=\"http://purl.org/dc/terms/\">"));
-//        assertRecordXml(xml, metacard, FULL);
+    }
+
+    @Test
+    public void testTransform() throws IOException, JAXBException, SAXException,
+            XpathException, CatalogTransformerException {
+        CswRecordConverter cswRecordConverter = createRecordConverter();
+        Metacard metacard = getTestMetacard();
+
+        Map<String, Serializable> args = new HashMap<>();
+        args.put(CswConstants.WRITE_NAMESPACES, true);
+
+        BinaryContent content = cswRecordConverter.transform(metacard, args);
+
+        String xml = IOUtils.toString(content.getInputStream());
+        assertThat(xml,
+                containsString("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"));
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(getControlRecord(), xml);
+    }
+
+    @Test
+    public void testTransformOmitXmlDeclaration() throws IOException, JAXBException, SAXException,
+            XpathException, CatalogTransformerException {
+        CswRecordConverter cswRecordConverter = createRecordConverter();
+        Metacard metacard = getTestMetacard();
+
+        Map<String, Serializable> args = new HashMap<>();
+        args.put(CswConstants.WRITE_NAMESPACES, true);
+        args.put(CswConstants.OMIT_XML_DECLARATION, true);
+
+        BinaryContent content = cswRecordConverter.transform(metacard, args);
+
+        String xml = IOUtils.toString(content.getInputStream());
+        assertThat(xml, not(containsString(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>")));
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(getControlRecord(), xml);
     }
 
     // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -744,7 +785,8 @@ public class TestCswRecordConverter {
     }
 
     private String getControlRecord() {
-        return "<csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" "
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+                + "<csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" "
                 + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
                 + "xmlns:dct=\"http://purl.org/dc/terms/\" "
                 + "xmlns:ows=\"http://www.opengis.net/ows\">\n"
@@ -758,11 +800,7 @@ public class TestCswRecordConverter {
                 + "  <dc:source>http://host:port/my/product.pdf</dc:source>\n"
                 + "  <dc:title>This is my title</dc:title>\n"
                 + "  <dct:alternative>This is my title</dct:alternative>\n"
-                + "  <metadata>metadata a whole bunch of metadata</metadata>\n"
                 + "  <dc:type>I have some content type</dc:type>\n"
-                + "  <metadata-content-type-version>1.0.0</metadata-content-type-version>\n"
-                + "  <location>POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))</location>\n"
-                + "  <resource-size>123TB</resource-size>\n"
                 + "  <dct:dateAccepted>" + EFFECTIVE + "</dct:dateAccepted>\n"
                 + "  <dct:dateCopyrighted>" + EFFECTIVE + "</dct:dateCopyrighted>\n"
                 + "  <dc:publisher>sourceID</dc:publisher>\n"

@@ -35,8 +35,8 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverter;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswTransformProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
 import org.geotools.filter.FilterFactoryImpl;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -100,8 +100,7 @@ public class TestCswSource extends TestCswSourceBase {
 
     @Test
     public void testParseCapabilities() throws CswException {
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-        CswSource source = getCswSource(createRemoteCsw(), mockContext, mockRecordConverter, new ArrayList<String>());
+        CswSource source = getCswSource(createRemoteCsw(), mockContext, new ArrayList<String>());
 
         assertTrue(source.isAvailable());
         assertEquals(10, source.getContentTypes().size());
@@ -113,9 +112,7 @@ public class TestCswSource extends TestCswSourceBase {
     @Test
     public void testInitialContentList() throws CswException {
 
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
-        CswSource source = getCswSource(createRemoteCsw(), mockContext, mockRecordConverter, Arrays.asList("x", "y"));
+        CswSource source = getCswSource(createRemoteCsw(), mockContext, Arrays.asList("x", "y"));
 
         assertTrue(source.isAvailable());
         assertEquals(12, source.getContentTypes().size());
@@ -140,8 +137,7 @@ public class TestCswSource extends TestCswSourceBase {
         doReturn(mockServiceReference).when(mockRegisteredMetacardType).getReference();
         when(mockServiceReference.getProperty(eq(Metacard.CONTENT_TYPE))).thenReturn(expectedNames);
 
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-        CswSource source = getCswSource(remote, mockContext, mockRecordConverter, new ArrayList<String>());
+        CswSource source = getCswSource(remote, mockContext, new ArrayList<String>());
 
         assertEquals(10, source.getContentTypes().size());
 
@@ -184,13 +180,11 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
         QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
                 .like().text(searchPhrase));
         propertyIsLikeQuery.setPageSize(pageSize);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter, new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -235,16 +229,13 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
         QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
                 .like().text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(TITLE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter,
-                new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -290,16 +281,13 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
         QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like()
                 .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(Result.DISTANCE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter,
-                new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -340,16 +328,13 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
         QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like()
                 .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(Result.RELEVANCE, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter,
-                new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -394,16 +379,13 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
         QueryImpl query = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like()
                 .text(searchPhrase));
         query.setPageSize(pageSize);
         SortBy sortBy = new SortByImpl(Result.TEMPORAL, SortOrder.DESCENDING);
         query.setSortBy(sortBy);
 
-        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter,
-                new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -457,10 +439,7 @@ public class TestCswSource extends TestCswSourceBase {
                 .is().text(format));
         propertyIsEqualToQuery.setPageSize(pageSize);
 
-        // Set content type mapping to "format"
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
-        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter, new LinkedList<String>(), CswRecordMetacardType.CSW_FORMAT);
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>(), CswRecordMetacardType.CSW_FORMAT);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -516,11 +495,8 @@ public class TestCswSource extends TestCswSourceBase {
         QueryImpl propertyIsEqualToQuery = new QueryImpl(filter);
         propertyIsEqualToQuery.setPageSize(pageSize);
 
-        // Set content type mapping to "format"
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
-        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter,
-                new LinkedList<String>(), CswRecordMetacardType.CSW_FORMAT);
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>(),
+                CswRecordMetacardType.CSW_FORMAT);
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -593,9 +569,7 @@ public class TestCswSource extends TestCswSourceBase {
         QueryImpl temporalQuery = new QueryImpl(temporalFilter);
         temporalQuery.setPageSize(pageSize);
 
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
-        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter, new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -696,9 +670,7 @@ public class TestCswSource extends TestCswSourceBase {
         QueryImpl temporalQuery = new QueryImpl(temporalFilter);
         temporalQuery.setPageSize(pageSize);
 
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
-        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter, new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -754,9 +726,7 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not verify Mock CSW record count " + e.getMessage());
         }
 
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
-        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter, new ArrayList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new ArrayList<String>());
 
         // Perform test
         try {
@@ -778,9 +748,7 @@ public class TestCswSource extends TestCswSourceBase {
         when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(
                 mockCapabilitiesType);
 
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
-        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter, new ArrayList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new ArrayList<String>());
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
         QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
@@ -812,10 +780,7 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
-        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter,
-                new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -857,10 +822,7 @@ public class TestCswSource extends TestCswSourceBase {
             fail("Could not configure Mock Remote CSW: " + e.getMessage());
         }
 
-        RecordConverter mockRecordConverter = mock(RecordConverter.class);
-
-        CswSource cswSource = getCswSource(mockCsw, mockContext, mockRecordConverter,
-                new LinkedList<String>());
+        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
         cswSource.setCswUrl(URL);
         cswSource.setId(ID);
 
@@ -875,8 +837,7 @@ public class TestCswSource extends TestCswSourceBase {
 
     @Test
     public void testRefresh(){
-        CswSource cswSource = getCswSource(null, null, null,
-                Collections.<String> emptyList());
+        CswSource cswSource = getCswSource(null, null, Collections.<String> emptyList());
 
         cswSource.refresh(null);
 
@@ -898,14 +859,15 @@ public class TestCswSource extends TestCswSourceBase {
         return cswSourceConfiguration;
     }
 
-    private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context, RecordConverter recordConverter, List<String> contentTypes)  {
-        return getCswSource(remoteCsw, context, recordConverter, contentTypes, null);
+    private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context, List<String> contentTypes)  {
+        return getCswSource(remoteCsw, context, contentTypes, null);
     }
 
-    private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context, RecordConverter recordConverter,
-                                   List<String> contentTypes, String contentMapping)  {
+    private CswSource getCswSource(RemoteCsw remoteCsw, BundleContext context,
+            List<String> contentTypes, String contentMapping) {
 
-        CswSourceConfiguration cswSourceConfiguration = getStandardCswSourceConfiguration(contentMapping);
+        CswSourceConfiguration cswSourceConfiguration = getStandardCswSourceConfiguration(
+                contentMapping);
         cswSourceConfiguration.setContentTypeMapping(contentMapping);
         CswSource cswSource = new CswSource(remoteCsw, mockContext, cswSourceConfiguration,
                 mockProvider);

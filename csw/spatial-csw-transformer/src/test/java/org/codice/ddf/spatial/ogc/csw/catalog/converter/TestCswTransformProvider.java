@@ -55,9 +55,9 @@ import static org.mockito.Mockito.when;
 
 public class TestCswTransformProvider {
 
-    private TransformerManager<InputTransformer> mockInputManager = mock(TransformerManager.class);
+    private TransformerManager mockInputManager = mock(TransformerManager.class);
 
-    private TransformerManager<MetacardTransformer> mockMetacardManager = mock(TransformerManager.class);
+    private TransformerManager mockMetacardManager = mock(TransformerManager.class);
 
     private CswRecordConverter mockCswRecordConverter = mock(CswRecordConverter.class);
 

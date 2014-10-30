@@ -35,8 +35,7 @@
     -->
     <list id="resourceReaders" interface="ddf.catalog.resource.ResourceReader"/>
 
-    <list id="recordConverterFactoryList"
-          interface="org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory"/>
+    <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter" />
 
      <osgix:managed-service-factory
             id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.id"
@@ -82,7 +81,7 @@
             <beans:property name="pollInterval" value=""/>
             <beans:property name="resourceReaders" ref="resourceReaders"/>
             <beans:property name="outputSchema" value=""/>
-            <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList"/>
+            <beans:property name="cswTransformProvider" ref="cswTransformProvider"/>
             <beans:property name="isCqlForced" value="false"/>
             <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>
@@ -132,7 +131,7 @@
             <beans:property name="pollInterval" value=""/>
             <beans:property name="resourceReaders" ref="resourceReaders"/>
             <beans:property name="outputSchema" value=""/>
-            <beans:property name="recordConverterFactoryList" ref="recordConverterFactoryList"/>
+            <beans:property name="cswTransformProvider" ref="cswTransformProvider"/>
             <beans:property name="isCqlForced" value="false"/>
             <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>

@@ -14,19 +14,17 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source.reader;
 
-import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.InputTransformer;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverter;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswTransformProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.DefaultCswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -59,7 +57,7 @@ public class TestGetRecordsMessageBodyReader {
 
     private CswTransformProvider mockProvider = mock(CswTransformProvider.class);
 
-    private TransformerManager<InputTransformer> mockInputManager = mock(TransformerManager.class);
+    private TransformerManager mockInputManager = mock(TransformerManager.class);
 
     @Before
     public void setUp() {
@@ -72,7 +70,8 @@ public class TestGetRecordsMessageBodyReader {
                 .thenReturn(new CswRecordConverter());
 
         CswSourceConfiguration config = new CswSourceConfiguration();
-        config.setMetacardCswMappings(DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
+        config.setMetacardCswMappings(
+                DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
         config.setProductRetrievalMethod(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL);
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         config.setIsLonLatOrder(false);
@@ -124,7 +123,8 @@ public class TestGetRecordsMessageBodyReader {
                 .thenReturn(new CswRecordConverter());
 
         CswSourceConfiguration config = new CswSourceConfiguration();
-        config.setMetacardCswMappings(DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
+        config.setMetacardCswMappings(
+                DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
         config.setProductRetrievalMethod(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL);
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         config.setIsLonLatOrder(false);
@@ -212,7 +212,8 @@ public class TestGetRecordsMessageBodyReader {
     @Test
     public void testGetMultipleMetacardsWithForeignText() throws Exception {
         CswSourceConfiguration config = new CswSourceConfiguration();
-        config.setMetacardCswMappings(DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
+        config.setMetacardCswMappings(
+                DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
         config.setProductRetrievalMethod(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL);
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(

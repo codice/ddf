@@ -32,6 +32,7 @@ import com.thoughtworks.xstream.io.xml.xppdom.XppFactory;
 import ddf.catalog.data.BinaryContent;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 
+import net.opengis.cat.csw.v_2_0_2.ResultType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -61,7 +62,7 @@ public class GetRecordsResponseConverter implements Converter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetRecordsResponseConverter.class);
 
-    private CswTransformProvider transformProvider;
+    private Converter transformProvider;
 
 //    private Converter unmarshalRecordConverter;
 
@@ -105,7 +106,7 @@ public class GetRecordsResponseConverter implements Converter {
      * @param recordConverter
      *            The converter which will transform a {@link Metacard} to a CSWRecord
      */
-    public GetRecordsResponseConverter(CswTransformProvider transformProvider) {
+    public GetRecordsResponseConverter(Converter transformProvider) {
         this.transformProvider = transformProvider;
 //        this.converterFactories = factories;
     }
@@ -169,8 +170,12 @@ public class GetRecordsResponseConverter implements Converter {
                     + SEARCH_RESULTS_NODE_NAME);
             writer.addAttribute(NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE,
                     Long.toString(cswRecordCollection.getNumberOfRecordsMatched()));
-            writer.addAttribute(NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE,
-                    Long.toString(cswRecordCollection.getNumberOfRecordsReturned()));
+            if (!ResultType.HITS.equals(cswRecordCollection.getResultType())) {
+                writer.addAttribute(NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE,
+                        Long.toString(cswRecordCollection.getNumberOfRecordsReturned()));
+            } else {
+                writer.addAttribute(NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE, Long.toString(0));
+            }
 
             writer.addAttribute(NEXT_RECORD_ATTRIBUTE, Long.toString(nextRecord));
             writer.addAttribute(RECORD_SCHEMA_ATTRIBUTE, recordSchema);
@@ -179,12 +184,15 @@ public class GetRecordsResponseConverter implements Converter {
             }
         }
 
-        for (Metacard mc : cswRecordCollection.getCswRecords()) {
-            context.convertAnother(mc, transformProvider);
+        if (!ResultType.HITS.equals(cswRecordCollection.getResultType())) {
+            for (Metacard mc : cswRecordCollection.getCswRecords()) {
+                context.convertAnother(mc, transformProvider);
+            }
         }
         if (!cswRecordCollection.isById()) {
             writer.endNode();
         }
+
     }
 
     /**

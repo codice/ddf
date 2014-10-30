@@ -12,29 +12,70 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
-    <reference id="resourceActionProvider" interface="ddf.action.ActionProvider" filter="id=catalog.data.metacard.resource" />
-    <bean id="cswRecordFactory" class="org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory">
-        <argument ref="resourceActionProvider" />
-        <property name="outputSchema" value="http://www.opengis.net/cat/csw/2.0.2"/>
-    </bean>
-    <service ref="cswRecordFactory" interface="org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory">
-    	<service-properties>
-    		<entry key="outputSchema">
-    			<value type="java.lang.String">http://www.opengis.net/cat/csw/2.0.2</value>
-    		</entry>
-    	</service-properties>
-    </service>
-    <bean id="cswOgcCoreConverterFactory" class="org.codice.ddf.spatial.ogc.csw.catalog.converter.impl.CswRecordConverterFactory">
-        <argument ref="resourceActionProvider" />
-        <property name="outputSchema" value="OGCCORE" />
-    </bean>
-    <service ref="cswOgcCoreConverterFactory" interface="org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverterFactory">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <!-- Register the Transformers -->
+    <service interface="ddf.catalog.transform.InputTransformer">
+		<service-properties>
+			<entry key="id" value="csw" />
+			<entry key="mime-type" value="text/xml" />
+            <!-- TODO - still need to register OGCCORE for old school system -->
+            <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2" />
+		</service-properties>
+		<bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter" />
+	</service>
+
+    <service interface="ddf.catalog.transform.MetacardTransformer">
         <service-properties>
-            <entry key="outputSchema">
-                <value type="java.lang.String">OGCCORE</value>
-            </entry>
+            <entry key="id" value="csw" />
+            <entry key="mime-type" value="text/xml" />
+            <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2" />
         </service-properties>
+        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter" />
     </service>
+
+    <service interface="ddf.catalog.transform.QueryResponseTransformer">
+        <service-properties>
+            <entry key="id" value="csw" />
+            <entry key="mime-type" value="text/xml" />
+            <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2" />
+        </service-properties>
+        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswQueryResponseTransformer">
+            <argument ref="cswTransformProvider" />
+        </bean>
+    </service>
+
+
+    <!-- MetacardTransformer TransformerManager -->
+    <bean id="metacardTransformerManager" class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager" >
+        <argument ref="blueprintBundleContext" />
+        <argument ref="metacardTransformers" />
+    </bean>
+
+
+    <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList" />
+    <reference-list id="metacardTransformerList" member-type="service-reference" interface="ddf.catalog.transform.MetacardTransformer" >
+        <reference-listener bind-method="bindService" unbind-method="unbindService" ref="metacardTransformers" />
+    </reference-list>
+
+    <!-- InputTransformer TransformerManager -->
+    <bean id="inputTransformerManager" class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager" >
+        <argument ref="blueprintBundleContext" />
+        <argument ref="inputTransformers" />
+    </bean>
+
+    <bean id="inputTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList" />
+    <reference-list id="inputTransformerList" member-type="service-reference" interface="ddf.catalog.transform.InputTransformer" >
+        <reference-listener bind-method="bindService" unbind-method="unbindService" ref="inputTransformers" />
+    </reference-list>
+
+
+    <!-- CswTransformeProvider  -->
+    <bean id="cswTransformProvider" class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider" >
+        <argument ref="metacardTransformerManager" />
+        <argument ref="inputTransformerManager" />
+    </bean>
+
+    <service ref="cswTransformProvider" id="CswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter" />
+
 </blueprint>

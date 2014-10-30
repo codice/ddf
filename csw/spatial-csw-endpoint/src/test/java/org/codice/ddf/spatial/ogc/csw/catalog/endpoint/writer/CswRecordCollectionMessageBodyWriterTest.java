@@ -21,6 +21,7 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
+import net.opengis.cat.csw.v_2_0_2.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
@@ -45,6 +46,7 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -58,12 +60,44 @@ public class CswRecordCollectionMessageBodyWriterTest {
 
     private BinaryContent mockContent = mock(BinaryContent.class);
 
-    @Before
-    public void setUp() {
-
-    }
     @Test
     public void testWriteToWithSchema()
+            throws WebApplicationException, IOException, JAXBException,
+            CatalogTransformerException {
+        CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
+                mockManager);
+        when(mockManager.getTransformerBySchema(anyString())).thenReturn(mockTransformer);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
+        when(mockTransformer.transform(any(SourceResponse.class), any(Map.class))).thenReturn(
+                mockContent);
+        when(mockContent.getInputStream()).thenReturn(new ByteArrayInputStream("bytes".getBytes()));
+
+        CswRecordCollection collection = createCswRecordCollection(6);
+        collection.setNumberOfRecordsMatched(22);
+        collection.setNumberOfRecordsReturned(6);
+        final String EXAMPLE_SCHEMA = "http://example.com/schema";
+        collection.setOutputSchema(EXAMPLE_SCHEMA);
+        collection.setValidateQuery(true);
+        collection.setById(true);
+        QName example = new QName("example");
+
+        collection.setElementName(Arrays.asList(example));
+        collection.setElementSetType(ElementSetType.BRIEF);
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        writer.writeTo(collection, null, null, null, null, null, stream);
+
+        verify(mockManager, times(1)).getTransformerBySchema(captor.capture());
+
+        String schema = captor.getValue();
+
+        assertThat(schema, is(EXAMPLE_SCHEMA));
+    }
+
+    @Test
+    public void testWriteValidate()
             throws WebApplicationException, IOException, JAXBException,
             CatalogTransformerException {
         CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
@@ -78,13 +112,14 @@ public class CswRecordCollectionMessageBodyWriterTest {
         CswRecordCollection collection = createCswRecordCollection(6);
         collection.setNumberOfRecordsMatched(22);
         collection.setNumberOfRecordsReturned(6);
-        collection.setOutputSchema("http://example.com/schema");
+        collection.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         collection.setValidateQuery(true);
         collection.setById(true);
         QName example = new QName("example");
 
         collection.setElementName(Arrays.asList(example));
         collection.setElementSetType(ElementSetType.BRIEF);
+        collection.setResultType(ResultType.VALIDATE);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         writer.writeTo(collection, null, null, null, null, null, stream);

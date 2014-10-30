@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,6 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.isNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -98,6 +100,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.styling.UomOgcMapping;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -1314,6 +1317,10 @@ public class TestCswEndpoint {
                 "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
+        final String EXAMPLE_SCHEMA = CswConstants.CSW_OUTPUT_SCHEMA;
+        grr.setOutputSchema(EXAMPLE_SCHEMA);
+        final String EXAMPLE_MIME = "application/xml";
+        grr.setOutputFormat(EXAMPLE_MIME);
 
         CatalogFramework framework = mock(CatalogFramework.class);
         List<Result> results = new LinkedList<Result>();
@@ -1332,10 +1339,15 @@ public class TestCswEndpoint {
 
         CswRecordCollection collection = cswEndpoint.getRecords(grr);
 
-        assertThat(collection.getCswRecords(), is(not(empty())));
-        assertThat(collection.getNumberOfRecordsMatched(), is(TOTAL_COUNT));
-        assertThat(collection.getNumberOfRecordsReturned(), is(RESULT_COUNT));
+        // TODO - assert ElementSetType / ElementNames
+
+        assertThat(collection.getMimeType(), is(EXAMPLE_MIME));
+        assertThat(collection.getOutputSchema(), is(EXAMPLE_SCHEMA));
+        assertThat(collection.getSourceResponse(), notNullValue());
+
     }
+
+
 
     @Test
     public void testPostGetRecordsHits() throws CswException,
@@ -1374,8 +1386,7 @@ public class TestCswEndpoint {
         CswRecordCollection collection = cswEndpoint.getRecords(grr);
 
         assertThat(collection.getCswRecords(), is(empty()));
-        assertThat(collection.getNumberOfRecordsMatched(), is(TOTAL_COUNT));
-        assertThat(collection.getNumberOfRecordsReturned(), is(0L));
+        assertThat(collection.getResultType(), is(ResultType.HITS));
     }
 
     @Test

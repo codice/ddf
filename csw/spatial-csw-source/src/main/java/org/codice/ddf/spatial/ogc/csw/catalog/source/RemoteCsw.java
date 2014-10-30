@@ -27,6 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
 
+import com.thoughtworks.xstream.converters.Converter;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
@@ -80,7 +81,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
      * @param cswTransformProvider The reference to the the CSW Transform Provider
      * @param cswSourceConfiguration   The Csw Source Configuration
      */
-    public RemoteCsw(CswTransformProvider cswTransformProvider,
+    public RemoteCsw(Converter cswTransformProvider,
             CswSourceConfiguration cswSourceConfiguration) {
         csw = createClientBean(Csw.class, cswSourceConfiguration.getCswUrl(),
                 cswSourceConfiguration.getUsername(), cswSourceConfiguration.getPassword(),
@@ -120,7 +121,7 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     }    
 
     protected List<? extends Object> initProviders(
-            CswTransformProvider cswTransformProvider,
+            Converter cswTransformProvider,
             CswSourceConfiguration cswSourceConfiguration) {
         getRecordsTypeProvider = new CswJAXBElementProvider<GetRecordsType>();
         getRecordsTypeProvider.setMarshallAsJaxbElement(true);

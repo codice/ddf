@@ -126,15 +126,10 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-collections4</artifactId>
 		</dependency>
-        
-        <dependency>
-        	<groupId>org.codice.ddf.spatial</groupId>
-        	<artifactId>spatial-csw-api</artifactId>
-        </dependency>
-        
+
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-csw-converter</artifactId>
+            <artifactId>spatial-csw-transformer</artifactId>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
@@ -177,7 +172,7 @@
                         <Embed-Dependency>
                             spatial-csw-common,
                             spatial-ogc-common,
-                            spatial-csw-converter,
+                            spatial-csw-transformer,
                             spatial-csw-schema-bindings,
                             gml-v_3_1_1-schema,
                             ows-v_1_0_0-schema,

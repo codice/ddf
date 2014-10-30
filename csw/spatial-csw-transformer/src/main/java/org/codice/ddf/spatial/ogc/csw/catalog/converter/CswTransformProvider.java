@@ -23,7 +23,6 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
-import com.thoughtworks.xstream.io.xml.WstxDriver;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.XppFactory;
 import ddf.catalog.data.BinaryContent;
@@ -35,6 +34,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParser;
@@ -57,14 +57,14 @@ public class CswTransformProvider implements Converter {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(CswTransformProvider.class);
 
-    private final TransformerManager<MetacardTransformer> transformerManager;
-    private final TransformerManager<InputTransformer> inputTransformerManager;
+    private TransformerManager metacardTransformerManager;
 
-    public CswTransformProvider(
-            TransformerManager<MetacardTransformer> transformerManager,
-            TransformerManager<InputTransformer> inputTransformerManager) {
-        this.transformerManager = transformerManager;
-        this.inputTransformerManager = inputTransformerManager;
+    private TransformerManager inputTransformerManager;
+
+    public CswTransformProvider(TransformerManager metacardTransformers,
+            TransformerManager inputTransformers) {
+        this.metacardTransformerManager = metacardTransformers;
+        this.inputTransformerManager = inputTransformers;
     }
 
     /**
@@ -89,13 +89,15 @@ public class CswTransformProvider implements Converter {
 
         if (arg != null && StringUtils.isNotBlank((String) arg)) {
             String outputSchema = (String) arg;
-            transformer = transformerManager.getTransformerBySchema(outputSchema);
+            transformer = metacardTransformerManager.getTransformerBySchema(outputSchema);
         } else {
-            transformer = transformerManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
+            transformer = metacardTransformerManager
+                    .getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
         }
 
         if (transformer == null) {
-            throw new ConversionException("Unable to locate a transformer for output schema: " + arg);
+            throw new ConversionException(
+                    "Unable to locate a transformer for output schema: " + arg);
         }
 
         BinaryContent content = null;
@@ -138,6 +140,7 @@ public class CswTransformProvider implements Converter {
     /**
      * Creates a Metacard from the given XML. This method is not typically be called directly, instead it is
      * called by another XStream Converter using UnmarshallingContext.convertAnother();
+     *
      * @param reader
      * @param context
      * @return
@@ -148,13 +151,13 @@ public class CswTransformProvider implements Converter {
         InputTransformer transformer = null;
         if (arg == null || CswConstants.CSW_OUTPUT_SCHEMA.equals((String) arg)) {
             transformer = inputTransformerManager
-                    .getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
+                    .<InputTransformer>getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA);
             if (transformer != null) {
-                return ((CswRecordConverter)transformer).unmarshal(reader, context);
+                return ((CswRecordConverter) transformer).unmarshal(reader, context);
             }
         } else {
             String outputSchema = (String) arg;
-            transformer = inputTransformerManager.getTransformerBySchema(outputSchema);
+            transformer = inputTransformerManager.<InputTransformer>getTransformerBySchema(outputSchema);
         }
 
         if (transformer == null) {
@@ -165,7 +168,7 @@ public class CswTransformProvider implements Converter {
         Metacard metacard = null;
         try (InputStream is = readXml(reader, context)) {
             metacard = transformer.transform(is);
-        } catch (IOException|CatalogTransformerException e) {
+        } catch (IOException | CatalogTransformerException e) {
             throw new ConversionException("Unable to transform Metacard", e);
         }
         return metacard;

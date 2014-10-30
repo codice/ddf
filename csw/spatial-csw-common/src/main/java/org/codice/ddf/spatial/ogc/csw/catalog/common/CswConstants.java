@@ -241,4 +241,6 @@ public interface CswConstants {
     String PRODUCT_RETRIEVAL_METHOD = "PRODUCT_RETRIEVAL_METHOD";
 
     String IS_LON_LAT_ORDER_PROPERTY = "isLonLatOrder";
+
+    String OMIT_XML_DECLARATION = "OMIT_XML_DECLARATION";
 }
