@@ -57,7 +57,7 @@
       "description": "The DDF Standard Search UI is an application that not only provides results in a html format but also provides a convenient, simple querying user interface.\\nThe left pane of the SearchUI contains basic fields to query the Catalog and other Sources. The right pane consists of a map.\\nIt includes both standard (3d globe) and simple (text page) versions.::DDF Standard Search UI",
       "name": "search-ui-app",
       "state": "INACTIVE",
-      "uri": "mvn:ddf.ui.search/search-app/2.5.0-SNAPSHOT/xml/features",
+      "uri": "mvn:ddf.ui.search/search-ui-app/2.5.0-SNAPSHOT/xml/features",
       "version": "2.5.0-SNAPSHOT"
     },
     {
@@ -69,7 +69,7 @@
       "description": "The Solr Catalog Provider (SCP) is an implementation of the CatalogProvider interface using Apache Solr 4.7.2 as a data store.\\nThe SCP supports extensible metacards, fast/simple contextual searching, indexes xml attributes/CDATA sections/XML text elements, contains full XPath support, works with an embedded local Solr Server, and also works with a standalone Solr Server.::DDF Solr Catalog",
       "name": "solr-app",
       "state": "INACTIVE",
-      "uri": "mvn:ddf.catalog.solr/catalog-solr-app/2.4.1/xml/features",
+      "uri": "mvn:ddf.catalog.solr/solr-app/2.4.1/xml/features",
       "version": "2.4.1"
     },
     {
