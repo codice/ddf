@@ -235,8 +235,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
             logger.warn("Cannot connect to server, therefore unable to set role claims.");
         } catch (Exception e) {
             logger.error("Unable to set role claims.", e);
-        }
-        finally {
+        } finally {
             try {
                 connection.unBind();
             } catch (LdapException ignore) {

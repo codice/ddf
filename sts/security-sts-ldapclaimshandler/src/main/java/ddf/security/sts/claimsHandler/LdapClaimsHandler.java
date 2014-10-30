@@ -165,9 +165,9 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
             }
         } catch (InvalidConnectionException e) {
-            LOGGER.warn("Cannot connect to server, therefore unable to set role claims.");
+            LOGGER.warn("Cannot connect to server, therefore unable to set user attributes.");
         } catch (Exception e) {
-            LOGGER.error("Unable to set role claims.", e);
+            LOGGER.error("Unable to set user attributes.", e);
         } finally {
             try {
                 connection.unBind();
