@@ -20,7 +20,7 @@
     <version>2.4.3-SNAPSHOT</version>
   </parent>
   
-  <artifactId>catalog-solr-app</artifactId>
+  <artifactId>solr-app</artifactId>
   <packaging>pom</packaging>
   <name>DDF :: Solr Catalog App</name>
   

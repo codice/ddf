@@ -111,7 +111,7 @@
 	<modules>
 		<module>embedded</module>
 		<module>external</module>
-		<module>catalog-solr-app</module>
+		<module>solr-app</module>
     </modules>
 	
 		
