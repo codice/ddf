@@ -40,7 +40,7 @@
         <module>search-endpoint</module>
         <module>search-geocoder</module>
         <module>search-geonames</module>
-        <module>search-app</module>
+        <module>search-ui-app</module>
     </modules>
     
     <dependencyManagement>
