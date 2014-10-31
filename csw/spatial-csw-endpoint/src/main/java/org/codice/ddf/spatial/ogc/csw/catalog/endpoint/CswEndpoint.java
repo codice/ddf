@@ -318,7 +318,7 @@ public class CswEndpoint implements Csw {
 
     @Override
     @GET
-    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.WILDCARD })
     public CswRecordCollection getRecords(@QueryParam("")
         GetRecordsRequest request) throws CswException {
 
@@ -337,7 +337,7 @@ public class CswEndpoint implements Csw {
     @Override
     @POST
     @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.WILDCARD })
     public CswRecordCollection getRecords(GetRecordsType request) throws CswException {
         
         if (request == null) {
@@ -618,7 +618,7 @@ public class CswEndpoint implements Csw {
         response.setRequest(request);
         response.setOutputSchema(request.getOutputSchema());
         response.setMimeType(request.getOutputFormat());
-        response.setResultType(request.getResultType());
+        response.setResultType((request.getResultType() == null) ? ResultType.HITS : request.getResultType());
         
         if (ResultType.HITS.equals(request.getResultType()) || ResultType.RESULTS.equals(request.getResultType())) {
             QueryImpl frameworkQuery = new QueryImpl(buildFilter(query));

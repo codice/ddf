@@ -69,10 +69,10 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
     private XStream xstreamGetRecordByIdResponse;
 
-    public CswQueryResponseTransformer(CswTransformProvider provider) {
-        xstreamGetRecordsResponse = initXstream(CswConstants.GET_RECORDS_RESPONSE, provider);
+    public CswQueryResponseTransformer(GetRecordsResponseConverter converter) {
+        xstreamGetRecordsResponse = initXstream(CswConstants.GET_RECORDS_RESPONSE, converter);
         xstreamGetRecordByIdResponse = initXstream(CswConstants.GET_RECORD_BY_ID_RESPONSE,
-                provider);
+                converter);
     }
 
     @Override public BinaryContent transform(SourceResponse sourceResponse,
@@ -169,20 +169,22 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
 
             Object resultType = arguments.get(CswConstants.RESULT_TYPE_PARAMETER);
             if (resultType != null) {
-                recordCollection.setResultType(ResultType.fromValue((String)resultType));
+                recordCollection.setResultType(ResultType.fromValue((String) resultType));
+            }
+
+            Object outputSchema = arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER);
+            if (outputSchema instanceof String) {
+                recordCollection.setOutputSchema((String)outputSchema);
             }
 
         }
     }
 
-    private XStream initXstream(final String elementName, CswTransformProvider provider) {
+    private XStream initXstream(final String elementName, GetRecordsResponseConverter converter) {
         XStream xstream = new XStream(new StaxDriver(new NoNameCoder()));
         xstream.setClassLoader(xstream.getClass().getClassLoader());
 
-        GetRecordsResponseConverter cswGetRecordsResponseConverter = new GetRecordsResponseConverter(
-                provider);
-
-        xstream.registerConverter(cswGetRecordsResponseConverter);
+        xstream.registerConverter(converter);
 
         xstream.alias(CswConstants.CSW_NAMESPACE_PREFIX + CswConstants.NAMESPACE_DELIMITER
                 + elementName, CswRecordCollection.class);

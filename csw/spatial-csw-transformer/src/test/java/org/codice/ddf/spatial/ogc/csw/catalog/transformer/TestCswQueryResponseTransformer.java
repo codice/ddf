@@ -14,6 +14,9 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -31,9 +34,14 @@ import net.opengis.cat.csw.v_2_0_2.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
+import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
+import org.hamcrest.Matchers;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.opengis.filter.Filter;
 
@@ -54,19 +62,27 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class TestCswQueryResponseTransformer {
 
-    private static CswQueryResponseTransformer transformer;
+    private CswQueryResponseTransformer transformer;
 
-    private static CswTransformProvider mockTransformProvider = Mockito.mock(CswTransformProvider.class);
+    private GetRecordsResponseConverter mockConverter;
 
-    private Filter filter = Mockito.mock(Filter.class);
+    private CswTransformProvider mockTransformProvider;
 
-    @BeforeClass
-    public static void init() {
-        transformer = new CswQueryResponseTransformer(mockTransformProvider);
+    private Filter filter = mock(Filter.class);
+
+    @Before
+    public void before() {
+        mockConverter = mock(GetRecordsResponseConverter.class);
+        mockTransformProvider = mock(CswTransformProvider.class);
+        transformer = new CswQueryResponseTransformer(mockConverter);
+        when(mockConverter.canConvert(any(Class.class))).thenReturn(true);
         when(mockTransformProvider.canConvert(any(Class.class))).thenReturn(true);
     }
 
@@ -81,18 +97,26 @@ public class TestCswQueryResponseTransformer {
         query.setStartPosition(BigInteger.valueOf(4));
         SourceResponse sourceResponse = createSourceResponse(query, 22);
 
-        BinaryContent content = transformer.transform(sourceResponse, null);
+        Map<String, Serializable> args = new HashMap<>();
+        args.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, CswConstants.CSW_OUTPUT_SCHEMA);
+        args.put(CswConstants.RESULT_TYPE_PARAMETER, ResultType.RESULTS.value());
 
-        String xml = new String(content.getByteArray());
+        ArgumentCaptor<CswRecordCollection> captor = ArgumentCaptor.forClass(CswRecordCollection.class);
 
-        JAXBElement<?> jaxb = (JAXBElement<?>) getJaxBContext().createUnmarshaller().unmarshal(
-                new ByteArrayInputStream(xml.getBytes("UTF-8")));
+        BinaryContent content = transformer.transform(sourceResponse, args);
 
-        assertThat(jaxb.getValue(), is(instanceOf(GetRecordsResponseType.class)));
-        GetRecordsResponseType response = (GetRecordsResponseType) jaxb.getValue();
-        assertThat(response.getSearchResults().getNumberOfRecordsReturned().intValue(), is(6));
-        assertThat(response.getSearchResults().getNumberOfRecordsMatched().intValue(), is(22));
-        assertThat(response.getSearchResults().getNextRecord().intValue(), is(10));
+        verify(mockConverter, times(1)).marshal(captor.capture(), any(
+                HierarchicalStreamWriter.class), any(MarshallingContext.class));
+
+        CswRecordCollection collection = captor.getValue();
+
+        assertThat(collection.getResultType(), is(ResultType.RESULTS));
+        assertThat(collection.getOutputSchema(), is(CswConstants.CSW_OUTPUT_SCHEMA));
+        assertThat(collection.getStartPosition(), is(4));
+        assertThat(collection.isById(), is(false));
+        assertThat(collection.getNumberOfRecordsMatched(), is(22L));
+        assertThat(collection.getNumberOfRecordsReturned(), is(6L));
+        assertThat(collection.getCswRecords().isEmpty(), is(false));
     }
 
     @Test
@@ -131,16 +155,16 @@ public class TestCswQueryResponseTransformer {
 
         Map<String, Serializable> args = new HashMap<String, Serializable>();
         args.put(CswConstants.IS_BY_ID_QUERY, true);
+        ArgumentCaptor<CswRecordCollection> captor = ArgumentCaptor.forClass(CswRecordCollection.class);
 
         BinaryContent content = transformer.transform(sourceResponse, args);
 
-        String xml = new String(content.getByteArray());
+        verify(mockConverter, times(1)).marshal(captor.capture(), any(
+                HierarchicalStreamWriter.class), any(MarshallingContext.class));
 
-        JAXBElement<?> jaxb = (JAXBElement<?>) getJaxBContext().createUnmarshaller().unmarshal(
-                new ByteArrayInputStream(xml.getBytes("UTF-8")));
+        CswRecordCollection collection = captor.getValue();
 
-        assertThat(jaxb.getValue(), is(instanceOf(GetRecordByIdResponseType.class)));
-        GetRecordByIdResponseType response = (GetRecordByIdResponseType) jaxb.getValue();
+        assertThat(collection.isById(), is(true));
     }
 
     private SourceResponse createSourceResponse(GetRecordsType request, int resultCount) {

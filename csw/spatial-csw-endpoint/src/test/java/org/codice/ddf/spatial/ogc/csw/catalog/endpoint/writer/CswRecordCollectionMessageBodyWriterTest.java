@@ -27,11 +27,11 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
@@ -46,7 +46,6 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -66,10 +65,9 @@ public class CswRecordCollectionMessageBodyWriterTest {
             CatalogTransformerException {
         CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
                 mockManager);
-        when(mockManager.getTransformerBySchema(anyString())).thenReturn(mockTransformer);
+        when(mockManager.getCswQueryResponseTransformer()).thenReturn(mockTransformer);
 
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-
+        ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
         when(mockTransformer.transform(any(SourceResponse.class), any(Map.class))).thenReturn(
                 mockContent);
         when(mockContent.getInputStream()).thenReturn(new ByteArrayInputStream("bytes".getBytes()));
@@ -81,6 +79,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
         collection.setOutputSchema(EXAMPLE_SCHEMA);
         collection.setValidateQuery(true);
         collection.setById(true);
+        collection.setResultType(ResultType.HITS);
         QName example = new QName("example");
 
         collection.setElementName(Arrays.asList(example));
@@ -89,11 +88,16 @@ public class CswRecordCollectionMessageBodyWriterTest {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         writer.writeTo(collection, null, null, null, null, null, stream);
 
-        verify(mockManager, times(1)).getTransformerBySchema(captor.capture());
+        verify(mockTransformer).transform(any(SourceResponse.class), captor.capture());
 
-        String schema = captor.getValue();
-
-        assertThat(schema, is(EXAMPLE_SCHEMA));
+        Map arguments = captor.getValue();
+        assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(
+                EXAMPLE_SCHEMA));
+        assertThat(true, is((Boolean) arguments.get(CswConstants.IS_VALIDATE_QUERY)));
+        assertThat(true, is((Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY)));
+        assertThat(ElementSetType.BRIEF,
+                is((ElementSetType) arguments.get(CswConstants.ELEMENT_SET_TYPE)));
+        assertThat(example, is(((QName[]) arguments.get(CswConstants.ELEMENT_NAMES))[0]));
     }
 
     @Test
@@ -128,6 +132,8 @@ public class CswRecordCollectionMessageBodyWriterTest {
         verify(mockTransformer).transform(any(SourceResponse.class), captor.capture());
 
         Map arguments = captor.getValue();
+        assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(
+                CswConstants.CSW_OUTPUT_SCHEMA));
         assertThat(true, is((Boolean) arguments.get(CswConstants.IS_VALIDATE_QUERY)));
         assertThat(true, is((Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY)));
         assertThat(ElementSetType.BRIEF,
@@ -152,6 +158,8 @@ public class CswRecordCollectionMessageBodyWriterTest {
         //        collection.setOutputSchema("http://example.com/schema");
         collection.setValidateQuery(true);
         collection.setById(true);
+        collection.setResultType(ResultType.RESULTS);
+        collection.setMimeType(MediaType.APPLICATION_JSON);
         QName example = new QName("example");
 
         collection.setElementName(Arrays.asList(example));
@@ -177,26 +185,26 @@ public class CswRecordCollectionMessageBodyWriterTest {
 
         for (int i = 0; i <= count; i++) {
             MetacardImpl metacard = new MetacardImpl();
-            
+
             metacard.setId("id_" + i);
             metacard.setSourceId("source_" + i);
             metacard.setTitle("title " + i);
-                
+
             list.add(metacard);
         }
-        
+
         return list;
     }
 
     private JAXBContext getJaxBContext() throws JAXBException {
         JAXBContext context = null;
         String contextPath = StringUtils.join(new String[] {
-            CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE, 
-            CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
+                CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
+                CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
 
         context = JAXBContext.newInstance(contextPath,
                 CswJAXBElementProvider.class.getClassLoader());
-        
+
         return context;
     }
 }

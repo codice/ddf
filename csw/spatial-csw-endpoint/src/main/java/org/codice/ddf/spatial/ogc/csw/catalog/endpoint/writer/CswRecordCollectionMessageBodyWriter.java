@@ -26,6 +26,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -36,6 +37,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +54,9 @@ public class CswRecordCollectionMessageBodyWriter implements MessageBodyWriter<C
             .getLogger(CswRecordCollectionMessageBodyWriter.class);
 
     private final TransformerManager transformerManager;
+
+    private static final List<String> XML_MIME_TYPES = Arrays
+            .asList(MediaType.APPLICATION_XML, MediaType.TEXT_XML);
 
     public CswRecordCollectionMessageBodyWriter(TransformerManager manager) {
         this.transformerManager = manager;
@@ -75,22 +80,23 @@ public class CswRecordCollectionMessageBodyWriter implements MessageBodyWriter<C
             MultivaluedMap<String, Object> httpHeaders, OutputStream outStream)
         throws IOException, WebApplicationException {
 
+        final String mimeType = recordCollection.getMimeType();
         LOGGER.debug(
                 "Attempting to transform RecordCollection with mime-type: {} & outputSchema: {}",
-                recordCollection.getMimeType(), recordCollection.getOutputSchema());
+                mimeType, recordCollection.getOutputSchema());
         QueryResponseTransformer transformer;
         Map<String, Serializable> arguments = new HashMap<String, Serializable>();
-        if (StringUtils.isBlank(recordCollection.getOutputSchema())) {
+        if (StringUtils.isBlank(recordCollection.getOutputSchema()) && StringUtils
+                .isNotBlank(mimeType) && !XML_MIME_TYPES.contains(mimeType)) {
             transformer = transformerManager
-                    .getTransformerByMimeType(recordCollection.getMimeType());
-        } else if (!CswConstants.CSW_OUTPUT_SCHEMA.equals(recordCollection.getOutputSchema())) {
-            transformer = transformerManager.getTransformerBySchema(recordCollection.getOutputSchema());
+                    .getTransformerByMimeType(mimeType);
         } else {
             transformer = transformerManager.getCswQueryResponseTransformer();
             if (recordCollection.getElementName() != null) {
                 arguments.put(CswConstants.ELEMENT_NAMES,
                         recordCollection.getElementName().toArray());
             }
+            arguments.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, recordCollection.getOutputSchema());
             arguments.put(CswConstants.ELEMENT_SET_TYPE, recordCollection.getElementSetType());
             arguments.put(CswConstants.IS_BY_ID_QUERY, recordCollection.isById());
             arguments.put(CswConstants.IS_VALIDATE_QUERY, recordCollection.isValidateQuery());
@@ -106,7 +112,7 @@ public class CswRecordCollectionMessageBodyWriter implements MessageBodyWriter<C
         try {
             content = transformer.transform(recordCollection.getSourceResponse(), arguments);
         } catch (CatalogTransformerException e) {
-            LOGGER.warn("Failed to Trasnform CswRecordCollection.", e);
+            LOGGER.warn("Failed to Transform CswRecordCollection.", e);
             throw new WebApplicationException(e);
         }
 

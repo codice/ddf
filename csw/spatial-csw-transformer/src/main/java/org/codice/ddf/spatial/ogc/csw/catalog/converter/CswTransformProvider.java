@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -167,7 +168,13 @@ public class CswTransformProvider implements Converter {
 
         Metacard metacard = null;
         try (InputStream is = readXml(reader, context)) {
-            metacard = transformer.transform(is);
+            InputStream inputStream = is;
+            if (LOGGER.isDebugEnabled()) {
+                String originalInputStream = IOUtils.toString(inputStream, "UTF-8");
+                LOGGER.debug("About to transform\n{}", originalInputStream);
+                inputStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));
+            }
+            metacard = transformer.transform(inputStream);
         } catch (IOException | CatalogTransformerException e) {
             throw new ConversionException("Unable to transform Metacard", e);
         }

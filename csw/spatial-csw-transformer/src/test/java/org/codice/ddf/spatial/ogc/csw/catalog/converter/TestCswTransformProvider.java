@@ -21,6 +21,8 @@ import com.thoughtworks.xstream.core.TreeMarshaller;
 import com.thoughtworks.xstream.core.TreeUnmarshaller;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import com.thoughtworks.xstream.io.naming.NoNameCoder;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import ddf.catalog.data.BinaryContent;
@@ -32,6 +34,8 @@ import ddf.catalog.transform.MetacardTransformer;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -155,6 +159,41 @@ public class TestCswTransformProvider {
     }
 
     @Test
+    public void testUnmarshalCopyPreservesNamespaces() throws Exception {
+        InputTransformer mockInputTransformer = mock(InputTransformer.class);
+        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(
+                mockInputTransformer);
+
+        StringReader stringReader = new StringReader(getRecord());
+        StaxDriver driver = new StaxDriver();
+        driver.setRepairingNamespace(true);
+        driver.getQnameMap().setDefaultNamespace(CswConstants.CSW_OUTPUT_SCHEMA);
+        driver.getQnameMap().setDefaultPrefix(CswConstants.CSW_NAMESPACE_PREFIX);
+
+        // Have to use XppReader in order to preserve the namespaces.
+        HierarchicalStreamReader reader = new XppReader(new StringReader(getRecord()),
+                XmlPullParserFactory.newInstance().newPullParser());
+        CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
+        UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
+        context.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, "http://example.com/schema");
+
+        ArgumentCaptor<InputStream> captor = ArgumentCaptor
+                .forClass(InputStream.class);
+
+        Metacard metacard = (Metacard) provider.unmarshal(reader, context);
+
+        // Verify the context arguments were set correctly
+        verify(mockInputTransformer, times(1)).transform(captor.capture());
+
+        InputStream inStream = captor.getValue();
+        String result = IOUtils.toString(inStream);
+        System.out.println("result = " + result);
+
+        XMLUnit.setIgnoreWhitespace(true);
+        XMLAssert.assertXMLEqual(getRecord(), result);
+    }
+
+    @Test
     public void testUnmarshalOtherSchema() throws Exception {
         InputTransformer mockInputTransformer = mock(InputTransformer.class);
         final String OTHER_SCHEMA = "http://example.com/scheam.xsd";
@@ -197,30 +236,29 @@ public class TestCswTransformProvider {
     }
 
     private String getRecord() {
-        return "<Record>\n"
+        return "<csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" \n"
+                + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" \n"
+                + "xmlns:dct=\"http://purl.org/dc/terms/\" \n"
+                + "xmlns:ows=\"http://www.opengis.net/ows\">\n"
                 + "  <dct:created>2014-11-01T00:00:00.000-05:00</dct:created>\n"
                 + "  <dc:title>This is my title</dc:title>\n"
                 + "  <dct:alternative>This is my title</dct:alternative>\n"
-                + "  <location>POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))</location>\n"
                 + "  <dc:date>2016-11-01T00:00:00.000-05:00</dc:date>\n"
                 + "  <dct:modified>2016-11-01T00:00:00.000-05:00</dct:modified>\n"
                 + "  <dct:dateSubmitted>2016-11-01T00:00:00.000-05:00</dct:dateSubmitted>\n"
                 + "  <dct:issued>2016-11-01T00:00:00.000-05:00</dct:issued>\n"
                 + "  <dc:identifier>ID</dc:identifier>\n"
                 + "  <dct:bibliographicCitation>ID</dct:bibliographicCitation>\n"
-                + "  <resource-size>123TB</resource-size>\n"
                 + "  <dct:dateAccepted>2015-11-01T00:00:00.000-05:00</dct:dateAccepted>\n"
                 + "  <dct:dateCopyrighted>2015-11-01T00:00:00.000-05:00</dct:dateCopyrighted>\n"
                 + "  <dc:type>I have some content type</dc:type>\n"
-                + "  <metadata>metadata a whole bunch of metadata</metadata>\n"
-                + "  <metadata-content-type-version>1.0.0</metadata-content-type-version>\n"
                 + "  <dc:source>http://host:port/my/product.pdf</dc:source>\n"
                 + "  <dc:publisher>sourceID</dc:publisher>\n"
                 + "  <ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
                 + "    <ows:LowerCorner>10.0 10.0</ows:LowerCorner>\n"
                 + "    <ows:UpperCorner>40.0 40.0</ows:UpperCorner>\n"
                 + "  </ows:BoundingBox>\n"
-                + "</Record>";
+                + "</csw:Record>";
     }
 
     private Metacard getMetacard() {

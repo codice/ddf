@@ -41,9 +41,13 @@
             <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2" />
         </service-properties>
         <bean class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.CswQueryResponseTransformer">
-            <argument ref="cswTransformProvider" />
+            <argument ref="getRecordsResponseConverter" />
         </bean>
     </service>
+
+    <bean id="getRecordsResponseConverter" class="org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter" >
+        <argument ref="cswTransformProvider" />
+    </bean>
 
 
     <!-- MetacardTransformer TransformerManager -->

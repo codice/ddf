@@ -120,6 +120,7 @@ public class GetRecordsResponseConverter implements Converter {
 
     @Override
     public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
+        LOGGER.debug("Entering GetRecordsResponseConverter.marshal()");
         if (source == null || !(source instanceof CswRecordCollection)) {
             LOGGER.warn("Failed to marshal CswRecordCollection: {}", source);
             return;
@@ -185,6 +186,7 @@ public class GetRecordsResponseConverter implements Converter {
         }
 
         if (!ResultType.HITS.equals(cswRecordCollection.getResultType())) {
+            LOGGER.debug("Transforming individual metacards.");
             for (Metacard mc : cswRecordCollection.getCswRecords()) {
                 context.convertAnother(mc, transformProvider);
             }
