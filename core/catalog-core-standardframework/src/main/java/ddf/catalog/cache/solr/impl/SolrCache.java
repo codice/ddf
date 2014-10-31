@@ -310,38 +310,36 @@ public class SolrCache {
                 LinearUnit.KILOMETER).getAs(LinearUnit.METER);
     }
 
-    public void create(List<Result> results) {
+    public void create(List<Metacard> metacards) {
 
-        if (results == null || results.size() == 0) {
+        if (metacards == null || metacards.size() == 0) {
             return;
         }
 
         List<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
 
-        for (Result result : results) {
-
-            Metacard metacard = result.getMetacard();
+        for (Metacard metacard : metacards) {
 
             if (metacard != null) {
                 boolean isSourceIdSet = (metacard.getSourceId() != null && !"".equals(metacard
                         .getSourceId()));
                 boolean isMetacardIdSet = (metacard.getId() != null && !metacard.getId().equals(""));
-    
+
                 if (isSourceIdSet && isMetacardIdSet) {
-    
+
                     SolrInputDocument solrInputDocument = new SolrInputDocument();
-    
+
                     try {
                         resolver.addFields(metacard, solrInputDocument);
                     } catch (MetacardCreationException e) {
                         LOGGER.warn("Metacard creation exception adding fields", e);
                         return;
                     }
-    
+
                     if (StringUtils.isNotBlank(metacard.getSourceId())) {
                         solrInputDocument.addField(SchemaFields.METACARD_SOURCE_NAME, metacard.getSourceId());
                     }
-    
+
                     docs.add(solrInputDocument);
                 }
             } else {
@@ -406,6 +404,7 @@ public class SolrCache {
         query.setRows(identifiers.size());
 
         QueryResponse solrResponse = null;
+
         try {
             solrResponse = server.query(query, METHOD.POST);
         } catch (SolrServerException e) {
@@ -433,6 +432,7 @@ public class SolrCache {
 
         try {
             if (Metacard.ID.equals(attributeName)) {
+                LOGGER.debug("identifiers to be deleted: " + StringUtils.join(identifiers, ","));
                 server.deleteById((List<String>) identifiers);
             } else {
                 // solr deleteByQuery(queryBuilder.toString()) does not work,
@@ -442,6 +442,7 @@ public class SolrCache {
                 for (Metacard deletedMetacard : deletedMetacards) {
                     metacardIdentfiers.add(deletedMetacard.getId());
                 }
+                LOGGER.debug("metacard identifiers to be deleted: " + StringUtils.join(metacardIdentfiers, ","));
                 server.deleteById(metacardIdentfiers);
             }
         } catch (SolrServerException e) {
@@ -451,7 +452,6 @@ public class SolrCache {
             LOGGER.error("IO exception deleting request message", e);
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         }
-
     }
 
     /**

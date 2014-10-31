@@ -172,6 +172,7 @@
 			<entry key="shortname" value="sorted" />
 		</service-properties>
 	</service>
+    <service ref="sorted" interface="ddf.catalog.plugin.PostIngestPlugin" />
 
     <reference-list id="resourceActionProviderList" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.resource)" availability="optional"/>
 
@@ -260,10 +261,8 @@
 		<registration-listener ref="sourcePoller"
 			registration-method="start" unregistration-method="cancel" />
 	</service>
-
 	<service ref="ddf" interface="org.codice.ddf.configuration.ConfigurationWatcher">
 	</service>
-
 
 	<!-- Events -->
 

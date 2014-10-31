@@ -17,19 +17,25 @@ package ddf.catalog.cache.solr.impl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.Update;
+import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostFederatedQueryPlugin;
+import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.DistanceResultComparator;
@@ -74,7 +80,7 @@ import java.util.concurrent.TimeoutException;
  * @see ddf.catalog.operation.Query
  * @see org.opengis.filter.sort.SortBy
  */
-public class CachingFederationStrategy implements FederationStrategy {
+public class CachingFederationStrategy implements FederationStrategy, PostIngestPlugin {
 
     /**
      * The default comparator for sorting by {@link ddf.catalog.data.Result.RELEVANCE}, {@link org.opengis.filter.sort.SortOrder.DESCENDING}
@@ -309,6 +315,44 @@ public class CachingFederationStrategy implements FederationStrategy {
         return offset + pageSize - 1;
     }
 
+    @Override
+    public CreateResponse process(CreateResponse input) throws PluginExecutionException {
+        return input;
+    }
+
+    @Override
+    public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
+
+        logger.debug("Post ingest processing of UpdateResponse.");
+        List<Metacard> metacards = new ArrayList<Metacard>(input.getUpdatedMetacards().size());
+
+        for(Update update : input.getUpdatedMetacards()) {
+            metacards.add(update.getNewMetacard());
+        }
+
+        logger.debug("Updating metacard(s) in cache.");
+        cache.create(metacards);
+        logger.debug("Updating metacard(s) in cache complete.");
+
+        return input;
+    }
+
+    @Override
+    public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
+
+        logger.debug("Post ingest processing of DeleteResponse.");
+
+        try {
+            logger.debug("Deleting metacard(s) in cache.");
+            cache.delete(input.getRequest());
+            logger.debug("Deletion of metacard(s) in cache complete.");
+        } catch(IngestException e) {
+            throw new PluginExecutionException("Error processing DeleteResponse.", e);
+        }
+
+        return input;
+    }
+
     private class CallableSourceResponse implements Callable<SourceResponse> {
 
         private final QueryRequest request;
@@ -329,19 +373,29 @@ public class CachingFederationStrategy implements FederationStrategy {
                 // block next phase
                 phaser.register();
                 // cache results
-                cache.create(sourceResponse.getResults());
+                cache.create(getMetacards(sourceResponse.getResults()));
                 // unblock phase and wait for all other parties to unblock phase
                 phaser.awaitAdvance(phaser.arriveAndDeregister());
             } else if (!NATIVE_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
                 cacheExecutorService.submit(new Runnable() {
                     @Override public void run() {
-                        cache.create(sourceResponse.getResults());
+                        cache.create(getMetacards(sourceResponse.getResults()));
                     }
                 });
             }
 
             return sourceResponse;
         };
+    }
+
+    private List<Metacard> getMetacards(List<Result> results) {
+        List<Metacard> metacards = new ArrayList<Metacard>(results.size());
+
+        for(Result result : results) {
+            metacards.add(result.getMetacard());
+        }
+
+        return metacards;
     }
 
     private static class OffsetResultHandler implements Runnable {
