@@ -17,6 +17,7 @@ package ddf.catalog.test;
 import com.jayway.restassured.http.ContentType;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -27,12 +28,14 @@ import org.slf4j.ext.XLogger;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -66,6 +69,8 @@ public class TestFederation extends TestCatalog {
 
     private static final String CSW_SOURCE_ID = "cswSource";
 
+    private static final String CSW_SOURCE_WITH_METACARD_XML_ID = "cswSource2";
+
     /*
      * The fields must be static if they are purposely used across all test methods.
      */
@@ -93,8 +98,16 @@ public class TestFederation extends TestCatalog {
                 CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
                 createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);
 
+                CswSourceProperties cswProperties2 = new CswSourceProperties(CSW_SOURCE_WITH_METACARD_XML_ID);
+                cswProperties2.put("outputSchema", "urn:catalog:metacard");
+                createManagedService(CswSourceProperties.FACTORY_PID, cswProperties2);
+
                 waitForFederatedSource(OPENSEARCH_SOURCE_ID);
                 waitForFederatedSource(CSW_SOURCE_ID);
+                waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
+
+                // Sleep for 1 minute to allow the SourcePoller to realize the CswSources are available
+                Thread.sleep(TimeUnit.MINUTES.toMillis(1));
 
                 File file = new File("sample.txt");
                 if (!file.createNewFile()) {
@@ -204,7 +217,7 @@ public class TestFederation extends TestCatalog {
     }
 
     @Test
-    public void testFederatedCwqQueryByWildCardSearchPhrase() throws Exception {
+    public void testCswQueryByWildCardSearchPhrase() throws Exception {
         String wildcardQuery = Library.getCswQuery("AnyText", "*");
 
         given().contentType(ContentType.XML).body(wildcardQuery).when().post(CSW_PATH)
@@ -218,7 +231,7 @@ public class TestFederation extends TestCatalog {
     }
 
     @Test
-    public void testFederatedCwqQueryByTitle() throws Exception {
+    public void testCswQueryByTitle() throws Exception {
         String titleQuery = Library.getCswQuery("title", "myTitle");
 
         given().contentType(ContentType.XML).body(titleQuery).when().post(CSW_PATH)
@@ -227,6 +240,49 @@ public class TestFederation extends TestCatalog {
                         is(metacardIds[GEOJSON_RECORD_INDEX])),
                 hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
                         is("1")));
+    }
+
+    @Test
+    public void testCswQueryForMetacardXml() throws Exception {
+        String titleQuery = Library.getCswQueryMetacardXml("title", "myTitle");
+
+        given().contentType(ContentType.XML).body(titleQuery).when().post(CSW_PATH)
+                .then().log().all().assertThat().body(
+                hasXPath("/GetRecordsResponse/SearchResults/metacard/@id",
+                        is(metacardIds[GEOJSON_RECORD_INDEX])),
+                hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned",
+                        is("1")),
+                hasXPath("/GetRecordsResponse/SearchResults/@recordSchema",
+                        is("urn:catalog:metacard")));
+    }
+
+    @Test
+    public void testCswQueryForJson() throws Exception {
+        String titleQuery = Library.getCswQueryJson("title", "myTitle");
+
+        given().headers("Accept", "application/json", "Content-Type", "application/xml")
+                .body(titleQuery).when().post(CSW_PATH).then().log().all().assertThat()
+                .contentType(ContentType.JSON);
+    }
+
+    @Test
+    public void testOpensearchToCswSourceToCswEndpointQuerywithCswRecordXml() throws Exception {
+
+        String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
+                + CSW_SOURCE_ID;
+
+        when().get(queryUrl).then().log().all().assertThat().body(containsString(RECORD_TITLE_1),
+                containsString(RECORD_TITLE_2));
+    }
+
+    @Test
+    public void testOpensearchToCswSourceToCswEndpointQuerywithMetacardXml() throws Exception {
+
+        String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&format=xml&src="
+                + CSW_SOURCE_WITH_METACARD_XML_ID;
+
+        when().get(queryUrl).then().log().all().assertThat().body(containsString(RECORD_TITLE_1),
+                containsString(RECORD_TITLE_2));
     }
 
     public class OpenSearchSourceProperties extends HashMap<String, Object> {
@@ -255,6 +311,7 @@ public class TestFederation extends TestCatalog {
 
             this.put("id", sourceId);
             this.put("cswUrl", CSW_PATH);
+            this.put("pollInterval", 1);
         }
 
     }
