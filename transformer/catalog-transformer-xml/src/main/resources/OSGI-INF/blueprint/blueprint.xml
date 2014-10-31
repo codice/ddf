@@ -17,6 +17,7 @@
 		<service-properties>
 			<entry key="id" value="xml" />
 			<entry key="mime-type" value="text/xml" />
+            <entry key="schema" value="urn:catalog:metacard" />
 		</service-properties>
 		<bean class="ddf.catalog.transformer.xml.XmlInputTransformer">
 			<property name="metacardTypes">
@@ -28,10 +29,11 @@
 	<service interface="ddf.catalog.transform.MetacardTransformer">
 		<service-properties>
 			<entry key="id" value="xml" />
-			<entry key="mime" value="text/xml" />
+			<entry key="mime-type" value="text/xml" />
 			<entry key="title" value="View as XML..." />
 			<!-- deprecated -->
 			<entry key="shortname" value="xml" />
+            <entry key="schema" value="urn:catalog:metacard" />
 		</service-properties>
 		<bean class="ddf.catalog.transformer.xml.XmlMetacardTransformer" />
 	</service>
@@ -41,6 +43,7 @@
 			<entry key="id" value="xml" />
 			<entry key="shortname" value="xml" />
 			<entry key="mime-type" value="text/xml" />
+            <entry key="schema" value="urn:catalog:metacard" />
 		</service-properties>
 		<bean class="ddf.catalog.transformer.xml.XmlResponseQueueTransformer" />
 	</service>
