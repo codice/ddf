@@ -17,7 +17,6 @@ package ddf.catalog.test;
 import com.jayway.restassured.http.ContentType;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -35,7 +34,6 @@ import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -93,7 +91,7 @@ public class TestFederation extends TestCatalog {
                         OPENSEARCH_SOURCE_ID);
                 createManagedService(OpenSearchSourceProperties.FACTORY_PID, openSearchProperties);
 
-                waitForCxfService("/csw");
+                waitForHttpEndpoint(CSW_PATH + "?_wadl");
                 get(CSW_PATH + "?_wadl").prettyPrint();
                 CswSourceProperties cswProperties = new CswSourceProperties(CSW_SOURCE_ID);
                 createManagedService(CswSourceProperties.FACTORY_PID, cswProperties);

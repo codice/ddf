@@ -357,25 +357,24 @@ public abstract class AbstractIntegrationTest {
         return source;
     }
 
-    protected void waitForCxfService(String servicePath) throws InterruptedException {
-        LOGGER.info("Waiting for CXF service with {} path.", servicePath);
+    protected void waitForHttpEndpoint(String path) throws InterruptedException {
+        LOGGER.info("Waiting for {}", path);
 
         long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
-        boolean isCxfReady = false;
+        boolean available = false;
 
-        while (!isCxfReady) {
-            Response response = get(SERVICE_ROOT);
-            isCxfReady = response.getStatusCode() == 200 && response.getBody().print().contains(
-                    servicePath);
-            if (!isCxfReady) {
+        while (!available) {
+            Response response = get(path);
+            available = response.getStatusCode() == 200 && response.getBody().print().length() > 0;
+            if (!available) {
                 if (System.currentTimeMillis() > timeoutLimit) {
-                    fail("CXF did not start in time.");
+                    fail(path + " did not start in time.");
                 }
                 Thread.sleep(100);
             }
         }
 
-        LOGGER.info("CXF service with {} path ready.", servicePath);
+        LOGGER.info("{} ready.", path);
     }
 
     protected Map<String, Object> getMetatypeDefaults(String symbolicName, String factoryPid) {

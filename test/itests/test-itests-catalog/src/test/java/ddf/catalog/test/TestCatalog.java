@@ -58,7 +58,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 configureBundles();
                 waitForAllBundles();
                 waitForCatalogProvider();
-                waitForCxfService("/catalog/query");
+                waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
                 ranBefore = true;
             } catch (Exception e) {
                 LOGGER.error("Failed to setup test", e);
