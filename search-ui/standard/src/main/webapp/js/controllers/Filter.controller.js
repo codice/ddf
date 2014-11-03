@@ -63,14 +63,14 @@ define([
             processSearch: function(searchToProcess){
                 // default all field
                 var array = [
-                    {name: 'anyText', type: 'string'},
-                    {name: 'anyGeo', type: 'anyGeo'}
+                    {name: 'anyText', type: 'string', displayName: 'Any Text'},
+                    {name: 'anyGeo', type: 'anyGeo', displayName: 'Any Geo'}
                 ];
                 var facetCounts = {};
 
                 // process the types returned in this query.
-                if(searchToProcess.has('types')){
-                    var types = searchToProcess.get('types');
+                if(searchToProcess.has('metacard-types')){
+                    var types = searchToProcess.get('metacard-types');
                     _.each(_.keys(types), function(type){
                         var pairs = _.pairs(types[type]);
                         var currentFieldNames = _.pluck(array, 'name');

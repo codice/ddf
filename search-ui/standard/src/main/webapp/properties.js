@@ -28,12 +28,14 @@ define(function (require) {
         filters: {
             METADATA_CONTENT_TYPE: 'metadata-content-type',
             SOURCE_ID: 'source-id',
+            ANY_GEO: 'anyGeo',
+            ANY_TEXT: 'anyText',
             OPERATIONS : {
                 'string': ['contains','equals'],
                 'xml': ['contains','equals'],
                 'date': ['before','after'],
                 'number': ['=','!=','>','>=','<','<='],
-                'anyGeo': ['intersects','contains']
+                'anyGeo': ['intersects']
             }
         },
 

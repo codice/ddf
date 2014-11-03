@@ -13,16 +13,22 @@ define([
     'backbone',
     'marionette',
     'properties',
+    'icanhaz',
     'js/model/Filter',
-    './FilterItem.view'
+    './FilterItem.view',
+    'text!templates/filter/filter.collection.handlebars'
 ],
-    function (Backbone, Marionette, Properties, Filter, FilterItemView) {
+    function (Backbone, Marionette, Properties, ich, Filter, FilterItemView, filterCollectionTemplate) {
         "use strict";
 
-        var FilterCollectionView = Marionette.CollectionView.extend({
+
+        ich.addTemplate('filterCollectionTemplate',filterCollectionTemplate);
+
+        var FilterCollectionView = Marionette.CompositeView.extend({
+            template: 'filterCollectionTemplate',
             itemView: FilterItemView,
             className: 'filter-collection-view',
-
+            itemViewContainer: '.filter-items',
             collectionEvents: {
                 'removePressed': 'removePressed'
             },

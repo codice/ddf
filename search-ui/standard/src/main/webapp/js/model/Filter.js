@@ -19,6 +19,9 @@ define([
 ], function(Backbone, _, moment,$, Properties, CQLFactory) {
     "use strict";
 
+
+    var excludeFromCQL = [Properties.filters.SOURCE_ID, Properties.filters.ANY_GEO];
+
     var Filter = {};
 
     Filter.Model = Backbone.Model.extend({
@@ -28,10 +31,35 @@ define([
             fieldOperator: null,
             stringValue1: '',
             dateValue1: '',
-            numberValue1: ''
+            numberValue1: '',
+            geoType: 'bbox'  // default to bbox.
         },
         toCQL: function(){
             return CQLFactory.toCQL(this);
+        },
+
+        isIgnoredFromCQL: function(){
+          return _.contains(excludeFromCQL, this.get('fieldName'));
+        },
+
+        isValidGeo: function(){
+            var north = this.get('north'),
+                south = this.get('south'),
+                west = this.get('west'),
+                east = this.get('east'),
+                lat = this.get('lat'),
+                lon = this.get('lon'),
+                radius = this.get('radius'),
+                geoType = this.get('geoType'),
+                polygon = this.get('polygon');
+            if (north && south && east && west && geoType === 'bbox') {
+                return true;
+            } else if (lat && lon && radius && geoType === 'circle') {
+                return true;
+            } else if(polygon && geoType === 'polygon'){
+                return true;
+            }
+            return false;
         }
     });
 
@@ -39,10 +67,24 @@ define([
         model: Filter.Model,
         toCQL: function(){
             var cqlArray = this.map(function(model){
-                return model.toCQL();
+                if(!model.isIgnoredFromCQL()){
+                    return model.toCQL();
+                }
             });
+
+            // anyGeo will be auto grouped together using the OR operator.
+            // this is a simple way to support multiple geo filtering.
+            var anyGeos = this.where({fieldName: 'anyGeo'});
+            var anyGeoCql = [];
+            _.each(anyGeos, function(anyGeo){
+                anyGeoCql.push(' ( ' + anyGeo.toCQL() + ' ) ');
+            });
+            if(!_.isEmpty(anyGeoCql)){
+                cqlArray.push(' ( ' + anyGeoCql.join(' OR ') + ' ) ');
+            }
+
             cqlArray = _.compact(cqlArray);
-            return cqlArray.join(' AND ');  // TODO this needs to support OR at some point for content type.
+            return cqlArray.join(' AND ');
         },
         trimUnfinishedFilters: function(){
             var unfinished = this.filter(function(filter){
@@ -52,11 +94,11 @@ define([
                 var stringValue1 = $.trim(filter.get('stringValue1'));
                 var dateValue1 = $.trim(filter.get('dateValue1'));
                 var numberValue1 = $.trim(filter.get('numberValue1'));
-                var geoValue1 = $.trim(filter.get('geoValue1'));
+                var geoType = filter.get('geoType');
                 var hasString = (type === 'string' || type === 'xml') && stringValue1 && stringValue1 !== '';
                 var hasNumber = type === 'number' && numberValue1 && numberValue1 !== '';
                 var hasDate = type === 'date' && dateValue1 && dateValue1 !== '';
-                var hasGeo = type === 'anyGeo' && geoValue1 && geoValue1 !== '';
+                var hasGeo = type === 'anyGeo' && geoType && filter.isValidGeo();
                 if(hasNumber || hasString || hasDate || hasGeo){
                     return false; // no value value.
                 }

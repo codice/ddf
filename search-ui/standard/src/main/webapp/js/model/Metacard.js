@@ -300,12 +300,14 @@ define([
             },
             cancel: function() {
                 this.unsubscribe();
-                var statuses = this.get('status');
-                statuses.forEach(function(status) {
-                    if(status.get('state') === "ACTIVE") {
-                        status.set({'canceled': true});
-                    }
-                });
+                if(this.has('status')){
+                    var statuses = this.get('status');
+                    statuses.forEach(function(status) {
+                        if(status.get('state') === "ACTIVE") {
+                            status.set({'canceled': true});
+                        }
+                    });
+                }
             }
         });
         return MetaCard;
