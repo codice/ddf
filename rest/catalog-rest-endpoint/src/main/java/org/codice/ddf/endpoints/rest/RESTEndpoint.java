@@ -14,6 +14,51 @@
  **/
 package org.codice.ddf.endpoints.rest;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
@@ -42,50 +87,11 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 @Path("/")
 public class RESTEndpoint implements RESTService {
 
-    private static final String DEFAULT_METACARD_TRANSFORMER = "xml";
+    static final String DEFAULT_METACARD_TRANSFORMER = "xml";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RESTEndpoint.class);
 
@@ -98,6 +104,10 @@ public class RESTEndpoint implements RESTService {
     private static final String HEADER_CONTENT_LENGTH = "Content-Length";
 
     private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
+
+    private static final String FILE_ATTACHMENT_CONTENT_ID = "file";
+
+    private static final String FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME = "filename";
 
     private static final String BYTES = "bytes";
 
@@ -504,6 +514,89 @@ public class RESTEndpoint implements RESTService {
         } else {
             throw new ServerErrorException("No ID specified.", Status.BAD_REQUEST);
         }
+        return response;
+    }
+    
+    @POST
+    @Path("/{metacard:.*}")
+    public Response createMetacard(MultipartBody multipartBody, 
+        @Context UriInfo requestUriInfo, 
+        @QueryParam("transform") String transformerParam) {
+        
+        LOGGER.trace("ENTERING: createMetacard");
+
+        String contentUri = multipartBody.getAttachmentObject("contentUri", String.class);
+        LOGGER.debug("contentUri = " + contentUri);
+
+        InputStream stream = null;
+        String filename = null;
+        String contentType = null;
+        Response response = null;
+        
+        String transformer = DEFAULT_METACARD_TRANSFORMER;
+        if (transformerParam != null) {
+            transformer = transformerParam;
+        }
+
+        Attachment contentPart = multipartBody.getAttachment(FILE_ATTACHMENT_CONTENT_ID);
+        if (contentPart != null) {
+            // Example Content-Type header:
+            // Content-Type: application/json;id=geojson
+            if (contentPart.getContentType() != null) {
+                contentType = contentPart.getContentType().toString();
+            }
+
+            filename = contentPart.getContentDisposition().getParameter(
+                    FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
+
+            // Only interested in attachments for file uploads
+            if (StringUtils.isBlank(filename)) {
+                throw new ServerErrorException("No filename provided - cannot create metacard", Status.BAD_REQUEST);
+            } else {
+                filename = FilenameUtils.getName(filename);
+            }
+
+            // Get the file contents as an InputStream and ensure the stream is positioned
+            // at the beginning
+            try {
+                stream = contentPart.getDataHandler().getInputStream();
+                if (stream != null && stream.available() == 0) {
+                    stream.reset();
+                }
+            } catch (IOException e) {
+                LOGGER.warn("IOException reading stream from file attachment in multipart body", e);
+            }
+        } else {
+            LOGGER.debug("No file contents attachment found");
+        }
+        
+        MimeType mimeType = null;
+        if (contentType != null) {
+            try {
+                mimeType = new MimeType(contentType);
+            } catch (MimeTypeParseException e) {
+                LOGGER.debug("Unable to create MimeType from raw data " + contentType);
+            }
+        } else {
+            LOGGER.debug("No content type specified in request");
+        }
+        
+        try {
+            Metacard metacard = generateMetacard(mimeType, "assigned-when-ingested", stream);
+            LOGGER.debug("metacard created");
+            LOGGER.debug("Transforming metacard to XML to be able to return it to client");
+            final BinaryContent content = catalogFramework.transform(metacard, transformer, null);
+            LOGGER.debug("Metacard to XML transform complete, preparing response.");
+
+            Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(),
+                    content.getMimeTypeValue());
+            response = responseBuilder.build();
+        } catch (MetacardCreationException | CatalogTransformerException e) {
+            throw new ServerErrorException("Unable to create metacard", Status.BAD_REQUEST);
+        }        
+
+        LOGGER.debug("EXITING: createMetacard");
+
         return response;
     }
 

@@ -14,6 +14,59 @@
  **/
 package org.codice.ddf.endpoints.rest;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.activation.MimeType;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.apache.tika.io.IOUtils;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
@@ -44,52 +97,13 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.mime.tika.TikaMimeTypeResolver;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.tika.io.IOUtils;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.activation.MimeType;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+//import org.apache.commons.httpclient.HttpClient;
+//import org.apache.commons.httpclient.methods.PostMethod;
+//import org.apache.commons.httpclient.methods.multipart.FilePart;
+//import org.apache.commons.httpclient.methods.multipart.FilePartSource;
+//import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+//import org.apache.commons.httpclient.methods.multipart.Part;
+//import org.apache.commons.httpclient.methods.multipart.StringPart;
 
 /**
  * Tests methods of the {@link RESTEndpoint}
@@ -666,7 +680,74 @@ public class TestRestEndpoint {
         assertEquals(OK, response.getStatus());
         assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
     }
+    
+    @Test
+    @Ignore
+    public void testGetMetacardAsXml() throws Exception {
+        String filename = "src/test/resources/ValidGeojson.json";
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        String transformer = mockTestSetup(framework, TestType.RESOURCE_TEST);
+        RESTEndpoint restEndpoint = new RESTEndpoint(framework);
+        restEndpoint.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
+        FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
+        restEndpoint.setFilterBuilder(filterBuilder);
+        
+        String json = "{\r\n" + 
+                "    \"properties\": {\r\n" + 
+                "        \"title\": \"myTitle\",\r\n" + 
+                "        \"thumbnail\": \"CA==\",\r\n" + 
+                "        \"resource-uri\": \"http://example.com\",\r\n" + 
+                "        \"created\": \"2012-09-01T00:09:19.368+0000\",\r\n" + 
+                "        \"metadata-content-type-version\": \"myVersion\",\r\n" + 
+                "        \"metadata-content-type\": \"myType\",\r\n" + 
+                "        \"metadata\": \"<xml>metadata goes here ...</xml>\",\r\n" + 
+                "        \"modified\": \"2012-09-01T00:09:19.368+0000\"\r\n" + 
+                "    },\r\n" + 
+                "    \"type\": \"Feature\",\r\n" + 
+                "    \"geometry\": {\r\n" + 
+                "        \"type\": \"Point\",\r\n" + 
+                "        \"coordinates\": [\r\n" + 
+                "            30.0,\r\n" + 
+                "            10.0\r\n" + 
+                "        ]\r\n" + 
+                "    }\r\n" + 
+                "} ";
+        
+//        Content-Disposition: form-data; name="file"; filename="C:\DDF\geojson_valid.json"
+//                Content-Type: application/json;id=geojson
+        
+        InputStream is = IOUtils.toInputStream(json);
+        List<Attachment> attachments = new ArrayList<>();
+        ContentDisposition contentDisposition = new ContentDisposition("form-data; name=file; filename=C:\\DDF\\geojson_valid.json");
+        Attachment attachment = new Attachment("file_part", is, contentDisposition);
+//        Attachment attachment = new Attachment("part1", 
+//                new DataHandler(new ByteArrayDataSource(new byte[]{1}, "application/octet-stream")),
+//                new MetadataMap<String, String>());
+        attachments.add(attachment);
+        MediaType mediaType = new MediaType(MediaType.APPLICATION_JSON, "id=geojson");
+        MultipartBody multipartBody = new MultipartBody(attachments, mediaType, true);
 
+        UriInfo uriInfo = createSpecificUriInfo(LOCAL_RETRIEVE_ADDRESS);
+        Response response = restEndpoint.createMetacard(multipartBody, uriInfo, RESTEndpoint.DEFAULT_METACARD_TRANSFORMER);
+        
+        
+//        InputStream is = IOUtils.toInputStream(json);
+//        String address = "http://localhost:8181/services/catalog/metacard";
+//        WebClient client = WebClient.create(address);
+//        client.type("multipart/form-data;type=application/json;id=geojson").accept("text/xml");
+//        String metacardXml = client.post(is, String.class);
+        
+//        File f = new File(filename);
+//        PostMethod filePost = new PostMethod("http://localhost:8181/services/content/");
+//        FilePartSource filePartSource = new FilePartSource(filename, f);
+//        Part[] parts = [
+//            new StringPart("directive", "STORE_AND_PROCESS"),
+//            new FilePart("file", filePartSource, "application/json;id=geojson", null);
+//        ]
+//        filePost.setRequestEntity(new MultipartRequestEntity(parts, filePost.getParams()));
+//        HttpClient client = new HttpClient();
+//        int status = client.executeMethod(filePost);
+    }
 
     /**
      * Test using a Head request to find out if Range headers are supported and to get resource size of a local
