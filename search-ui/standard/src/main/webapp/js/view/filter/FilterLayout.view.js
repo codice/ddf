@@ -58,7 +58,7 @@ define([
             },
             serializeData: function(){
                 return {
-                    filterCount: this.queryObject ? this.queryObject.filters.length : 0,
+                    filterCount: this.queryObject ? this.queryObject.filters.length : 0
                 };
             },
             onRender: function(){
@@ -86,8 +86,8 @@ define([
                 }));
             },
             applyPressed: function(){
-                this.collection.trimUnfinishedFilters();
-                this.queryObject.startSearch();
+                var view = this;
+                view.refreshSearch();
             },
             toggleFilterVisibility: function(){
                 this.$el.toggleClass('active');
@@ -97,19 +97,29 @@ define([
                 wreqr.vent.trigger('toggleFilterMenu');
             },
             addFacet: function(facet){
-                this.collection.addValueToGroupFilter(facet.fieldName, facet.fieldValue);
-                this.collection.trimUnfinishedFilters();
-                this.queryObject.startSearch();
+                var view = this;
+                view.collection.addValueToGroupFilter(facet.fieldName, facet.fieldValue);
+                view.refreshSearch();
             },
             removeFacet: function(facet){
-                this.collection.removeValueFromGroupFilter(facet.fieldName, facet.fieldValue);
-                this.collection.trimUnfinishedFilters();
-                this.queryObject.startSearch();
+                var view = this;
+                view.collection.removeValueFromGroupFilter(facet.fieldName, facet.fieldValue);
+                view.refreshSearch();
             },
             focusFacet: function(facet){
-                this.collection.replaceGroupFilter(facet.fieldName, facet.fieldValue);
-                this.collection.trimUnfinishedFilters();
-                this.queryObject.startSearch();
+                var view = this;
+                view.collection.replaceGroupFilter(facet.fieldName, facet.fieldValue);
+                view.refreshSearch();
+            },
+            refreshSearch: function(){
+                var view = this;
+                view.collection.trimUnfinishedFilters();
+                var progressFunction = function (value, model) {
+                    model.mergeLatest();
+                    wreqr.vent.trigger('map:clear');
+                    wreqr.vent.trigger('map:results', model, false);
+                };
+                view.queryObject.startSearch(progressFunction);
             }
 
         });
