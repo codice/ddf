@@ -172,7 +172,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     protected boolean contentTypeMappingUpdated;
 
 //    protected List<RecordConverterFactory> recordConverterFactories;
-    private Converter cswTransformProvider;
+    protected Converter cswTransformProvider;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswSource.class);
 
