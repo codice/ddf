@@ -13,12 +13,14 @@
 
 define([
         'marionette',
+        'backbone',
         'underscore',
         'icanhaz',
         'direction',
         'spin',
         'spinnerConfig',
         'wreqr',
+        './filter/FilterLayout.view',
         'text!templates/resultlist/resultListItem.handlebars',
         'text!templates/resultlist/resultList.handlebars',
         'text!templates/resultlist/countlow.handlebars',
@@ -27,7 +29,7 @@ define([
         'text!templates/resultlist/status.handlebars',
         'properties'
     ],
-    function (Marionette, _, ich, dir, Spinner, spinnerConfig, wreqr, resultListItemTemplate, resultListTemplate, countLowTemplate, countHighTemplate, statusItemTemplate, statusTemplate, properties) {
+    function (Marionette, Backbone, _, ich, dir, Spinner, spinnerConfig, wreqr, FilterLayoutView,resultListItemTemplate, resultListTemplate, countLowTemplate, countHighTemplate, statusItemTemplate, statusTemplate, properties) {
         "use strict";
 
         var List = {};
@@ -177,37 +179,84 @@ define([
         });
 
         List.StatusRow = Marionette.ItemView.extend({
+            events: {
+                'click .hit-count-text':'hitCountClicked',
+                'click .remove':'removedClicked'
+            },
             tagName: 'tr',
             template: 'statusItemTemplate',
             modelEvents: {
                 "change": "render"
+            },
+            hitCountClicked: function(){
+
+                var valueCount = this.model.get('hit-count');
+                var fieldValue = this.model.get('id');
+                var fieldName = 'source-id';
+
+                wreqr.vent.trigger('facetFocused', {
+                    valueCount: valueCount,
+                    fieldValue: fieldValue,
+                    fieldName: fieldName
+                });
+
+            },
+            removedClicked: function(){
+                wreqr.vent.trigger('facetDeSelected', {
+                    fieldName: properties.filters.SOURCE_ID,
+                    fieldValue: this.model.get('id')
+                });
             }
         });
     
         List.StatusTable = Marionette.CompositeView.extend({
             template: 'statusTemplate',
             itemView : List.StatusRow,
-            itemViewContainer: 'tbody',
+            itemViewContainer: '.included tbody',
             events: {
                 'click #status-icon': 'toggleStatus',
-                'click #refresh-icon': 'refreshResults'
+                'click #refresh-icon': 'refreshResults',
+                'click .add': 'addSourceClicked'
             },
             initialize: function() {
                 if (this.collection) {
                     this.listenTo(this.collection, 'change', this.setRefreshIcon);
                 }
             },
+            serializeData: function(){
+                var includedSourceIds = this.collection.pluck('id');
+                var excludedSources = new Backbone.Collection(this.options.sources.filter(function(source){
+                    return !_.contains(includedSourceIds, source.get('id'));
+                })).toJSON();
+
+
+                return {
+                    excludedSources: excludedSources
+                };
+            },
             toggleStatus: function() {
                 this.$('#status-table').toggleClass('shown hidden');
                 this.$('#status-icon').toggleClass('fa-caret-down fa-caret-right');
+                wreqr.vent.trigger('toggleFilterMenu');
+            },
+            initFromFilter: function(){
+                var showFilter = wreqr.reqres.request('getShowFilterFlag');
+                if(showFilter){
+                    this.toggleStatus();  // this should enable it.
+                    wreqr.vent.trigger('toggleFilterMenu', true);
+                }
             },
             refreshResults: function() {
                 if (!this.isSearchRunning()) {
                     this.collection.parents[0].parents[0].startSearch();
                 }
             },
+            toggleFilter: function(){
+                wreqr.vent.trigger('toggleFilterMenu');
+            },
             onRender: function() {
                 this.setRefreshIcon();
+                this.initFromFilter();
             },
             setRefreshIcon: function() {
                 if (this.isSearchRunning()) {
@@ -226,6 +275,13 @@ define([
                     }
                 });
                 return working;
+            },
+            addSourceClicked: function(evt){
+                var sourceIdToAdd = this.$(evt.currentTarget).attr('data-source-id');
+                wreqr.vent.trigger('facetSelected', {
+                    fieldName: properties.filters.SOURCE_ID,
+                    fieldValue: sourceIdToAdd
+                });
             }
         });
     
@@ -257,7 +313,8 @@ define([
             regions: {
                 countRegion: '.result-count',
                 listRegion: '#resultList',
-                statusRegion: '#result-status-list'
+                statusRegion: '#result-status-list',
+                filterRegion: '.filter-region'
             },
             modelEvents: {
                 'change': 'render'
@@ -267,16 +324,23 @@ define([
                 this.listenTo(wreqr.vent, 'search:resultssave', this.saveSelectedRecords);
             },
             onRender: function () {
-                this.listRegion.show(new List.MetacardTable({
-                    collection: this.model.get("results")
+                var view = this;
+                view.listRegion.show(new List.MetacardTable({
+                    collection: view.model.get("results")
                 }));
-                if(this.model.get("status")) {
-                    this.statusRegion.show(new List.StatusTable({
-                        collection: this.model.get("status")
-                    }));
+                if(view.model.get("status")) {
+                    wreqr.reqres.request('getSourcePromise').then(function(sources){
+                        view.statusRegion.show(new List.StatusTable({
+                            collection: view.model.get("status"),
+                            sources: sources
+                        }));
+                    }).done();
                 }
-                this.countRegion.show(new List.CountView({
-                    model: this.model
+                view.countRegion.show(new List.CountView({
+                    model: view.model
+                }));
+                view.filterRegion.show(new FilterLayoutView({
+                    model: view.model
                 }));
             },
             onShow: function(){

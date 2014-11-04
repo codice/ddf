@@ -12,20 +12,31 @@
  **/
  --}}
 <td>
+    <div class="pull-left margin-right-6">
+
+        {{#is state "SUCCEEDED"}}
+            <input class="remove" type="checkbox" checked="checked"/>
+        {{else}}
+            <input class="disabled" type="checkbox" checked="checked" read-only/>
+        {{/is}}
+
+    </div>
     <div class="pull-left result-source" title="{{id}}">{{id}}</div>
     <div class="pull-right">
     {{#is state "SUCCEEDED"}}
-        {{results}}<span class="hit-count">/{{hits}}</span> <span class="status-time">
-        {{#lt elapsed 60000}}
-            {{#lt elapsed 1000}}
-                ({{duration elapsed milliseconds=null}}ms)
+        <a href="#" class="hit-count-text">
+            {{results}}<span class="hit-count">/{{hits}}</span> <span class="status-time">
+            {{#lt elapsed 60000}}
+                {{#lt elapsed 1000}}
+                    ({{duration elapsed milliseconds=null}}ms)
+                {{else}}
+                    ({{duration elapsed seconds=null}}s)
+                {{/lt}}
             {{else}}
-                ({{duration elapsed seconds=null}}s)
+                ({{duration elapsed minutes=null}}m)
             {{/lt}}
-        {{else}}
-            ({{duration elapsed minutes=null}}m)
-        {{/lt}}
-        </span>
+            </span>
+        </a>
     {{else}}
         {{#is state "FAILED"}}
             <span class="label label-important">failed</span>

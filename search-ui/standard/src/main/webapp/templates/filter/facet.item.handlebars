@@ -1,0 +1,42 @@
+{{!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ --}}
+<h6>
+    {{fieldName}}
+</h6>
+<table class="table table-striped resultTable vertical-shrink-rows no-margin-bottom">
+    <tbody>
+    {{#each values}}
+        <tr>
+            <td>
+                <div class="pull-left margin-right-6">
+                    <input class="{{#is isInFilter true}} remove-facet {{else}} add-facet {{/is}}" type="checkbox"
+                        {{#is isInFilter true}} checked="checked" {{/is}} data-field-value="{{value}}" data-value-count="{{count}}" data-field-name="{{../fieldName}}"/>
+                </div>
+                <div class="pull-left" title="{{value}}">{{value}}</div>
+                <div class="field-value pull-right margin-left-3 focus-facet" data-field-value="{{value}}" data-value-count="{{count}}" data-field-name="{{../fieldName}}"><a href="#">({{count}})</a></div>
+            </td>
+        </tr>
+    {{/each}}
+    {{#is values.length 0}}
+        <tr>
+            <td>
+                <div class="pull-right">No Matches</div>
+            </td>
+        </tr>
+    {{/is}}
+    </tbody>
+</table>
+
+
+

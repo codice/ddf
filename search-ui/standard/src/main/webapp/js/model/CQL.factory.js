@@ -1,0 +1,129 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+define([
+    'underscore',
+    'moment',
+    'properties'
+],function (_, moment, Properties) {
+
+    var excludeFromCQL = [Properties.filters.SOURCE_ID];
+
+    var Filter = {};
+
+    Filter.CQLFactory = {
+        toCQL: function(filter){
+            var fieldName = filter.get('fieldName');
+            var fieldType = filter.get('fieldType');
+            var fieldOperator = filter.get('fieldOperator');
+            if(!_.contains(excludeFromCQL, fieldName) && Filter.CQLFactory[fieldType] && Filter.CQLFactory[fieldType][fieldOperator]){
+                return "(" + Filter.CQLFactory[fieldType][fieldOperator](filter) + ")"; // fun
+            }
+            return null;
+        },
+
+        getValue: function(value) {
+            switch (typeof value) {
+                case 'string':
+                    if(moment(value).isValid()){
+                        return moment(value).format(Properties.CQL_DATE_FORMAT);
+                    }
+                    return "'" + value.replace(/'/g, "''") + "'";
+                case 'number':
+                    return String(value);
+                case 'object':
+                    if (_.isDate(value)) {
+                        return moment(value).format(Properties.CQL_DATE_FORMAT);
+                    } else {
+                        throw new Error("Can't write object to CQL: " + value);
+                    }
+                    break;
+                default:
+                    throw new Error("Can't write value to CQL: " + value);
+            }
+        },
+
+        formatFieldName: function(fieldName){
+            if(fieldName === 'anyType'){
+                return fieldName;
+            }
+            return '"' + fieldName + '"';
+        },
+
+        string: {
+            'equals': function(filter){
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' = ' + Filter.CQLFactory.getValue(filter.get('stringValue1'));
+            },
+            'contains': function(filter){
+                if(filter.get('fieldName') === Properties.filters.METADATA_CONTENT_TYPE){
+                    var split = filter.get('stringValue1').split(',');
+                    var joinArray = [];
+                    _.each(split, function(subContentType){
+                        joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' ILIKE ' + Filter.CQLFactory.getValue(subContentType));
+                    });
+                    return joinArray.join(' OR ');
+                } else {
+                    return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' ILIKE ' + Filter.CQLFactory.getValue(filter.get('stringValue1'));
+                }
+
+            }
+        },
+        xml: {
+            'equals': function(filter){
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' = ' + Filter.CQLFactory.getValue(filter.get('stringValue1'));
+            },
+            'contains': function(filter){
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' ILIKE ' + Filter.CQLFactory.getValue(filter.get('stringValue1'));
+            }
+        },
+        date: {
+            'before': function(filter){
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' BEFORE ' + Filter.CQLFactory.getValue(filter.get('dateValue1'));
+            },
+            'after': function(filter){
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' AFTER ' + Filter.CQLFactory.getValue(filter.get('dateValue1'));
+            }
+        },
+        number: {
+            '=': function (filter) {
+                throw new Error("Not implemented yet." + filter);
+            },
+            '!=': function (filter) {
+                throw new Error("Not implemented yet." + filter);
+            },
+            '>': function (filter) {
+                throw new Error("Not implemented yet." + filter);
+            },
+            '>=': function (filter) {
+                throw new Error("Not implemented yet." + filter);
+            },
+            '<': function (filter) {
+                throw new Error("Not implemented yet." + filter);
+            },
+            '<=': function (filter) {
+                throw new Error("Not implemented yet." + filter);
+            }
+        },
+        anyGeo: {
+            'contains': function(filter) {
+                return 'DWITHIN(anyGeo, ' + filter.get('geoValue1') + ', meters)';
+            },
+            'intersects': function(filter) {
+                return 'INTERSECTS(anyGeo, ' + filter.get('geoValue1') + ')';
+            }
+        }
+    };
+
+    return Filter.CQLFactory;
+});
