@@ -81,7 +81,7 @@ public class SolrCache {
 
     public static final String METACARD_CACHE_CORE_NAME = "metacard_cache";
 
-    private static final long DEFAULT_CACHE_EXPIRATION_INTERVAL_IN_MINUTES = 10080;  // 7 days
+    private static final long DEFAULT_CACHE_EXPIRATION_INTERVAL_IN_MINUTES = TimeUnit.DAYS.toMinutes(7);
 
     private FilterAdapter filterAdapter;
 
