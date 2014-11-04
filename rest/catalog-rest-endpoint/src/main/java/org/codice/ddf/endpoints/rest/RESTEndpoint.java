@@ -189,10 +189,8 @@ public class RESTEndpoint implements RESTService {
         MultivaluedMap<String, String> map = uriInfo.getQueryParameters();
 
         if (id != null) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Got id: " + id);
-                LOGGER.debug("Map of query parameters: \n" + map.toString());
-            }
+            LOGGER.debug("Got id: {}", id);
+            LOGGER.debug("Map of query parameters: \n{}", map.toString());
 
             Map<String, Serializable> convertedMap = convert(map);
             convertedMap.put("url", absolutePath.toString());
@@ -404,11 +402,9 @@ public class RESTEndpoint implements RESTService {
         MultivaluedMap<String, String> map = uriInfo.getQueryParameters();
 
         if (id != null) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Got id: " + id);
-                LOGGER.debug("Got service: " + transformerParam);
-                LOGGER.debug("Map of query parameters: \n" + map.toString());
-            }
+            LOGGER.debug("Got id: {}", id);
+            LOGGER.debug("Got service: {}", transformerParam);
+            LOGGER.debug("Map of query parameters: \n{}", map.toString());
 
             Map<String, Serializable> convertedMap = convert(map);
             convertedMap.put("url", absolutePath.toString());
@@ -526,7 +522,7 @@ public class RESTEndpoint implements RESTService {
         LOGGER.trace("ENTERING: createMetacard");
 
         String contentUri = multipartBody.getAttachmentObject("contentUri", String.class);
-        LOGGER.debug("contentUri = " + contentUri);
+        LOGGER.debug("contentUri = {}", contentUri);
 
         InputStream stream = null;
         String filename = null;
@@ -575,7 +571,7 @@ public class RESTEndpoint implements RESTService {
             try {
                 mimeType = new MimeType(contentType);
             } catch (MimeTypeParseException e) {
-                LOGGER.debug("Unable to create MimeType from raw data " + contentType);
+                LOGGER.debug("Unable to create MimeType from raw data {}", contentType);
             }
         } else {
             LOGGER.debug("No content type specified in request");
@@ -673,9 +669,7 @@ public class RESTEndpoint implements RESTService {
 
                 String id = createResponse.getCreatedMetacards().get(0).getId();
 
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Create Response id [" + id + "]");
-                }
+                LOGGER.debug("Create Response id [{}]", id);
 
                 UriBuilder uriBuilder = requestUriInfo.getAbsolutePathBuilder().path("/" + id);
 
@@ -685,7 +679,7 @@ public class RESTEndpoint implements RESTService {
 
                 response = responseBuilder.build();
 
-                LOGGER.debug("Entry successfully saved, id: " + id);
+                LOGGER.debug("Entry successfully saved, id: {}", id);
 
             } else {
                 String errorMessage = "No content found, cannot do CREATE.";
@@ -770,9 +764,7 @@ public class RESTEndpoint implements RESTService {
         List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
                 InputTransformer.class, mimeType);
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("List of matches for mimeType [" + mimeType + "]:" + listOfCandidates);
-        }
+        LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
 
         Metacard generatedMetacard = null;
 
@@ -793,10 +785,8 @@ public class RESTEndpoint implements RESTService {
             try {
                 transformer = (InputTransformer) it.next();
                 generatedMetacard = transformer.transform(inputStreamMessageCopy);
-            } catch (CatalogTransformerException e) {
-                LOGGER.debug("Transformer [" + transformer + "] could not create metacard.", e);
-            } catch (IOException e) {
-                LOGGER.debug("Transformer [" + transformer + "] could not create metacard. ", e);
+            } catch (CatalogTransformerException | IOException e) {
+                LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);
             }
             if (generatedMetacard != null) {
                 break;
@@ -824,7 +814,7 @@ public class RESTEndpoint implements RESTService {
 
         if (contentTypeList != null && !contentTypeList.isEmpty()) {
             singleMimeType = contentTypeList.get(0);
-            LOGGER.debug("Encountered [" + singleMimeType + "] " + HttpHeaders.CONTENT_TYPE);
+            LOGGER.debug("Encountered [{}] {}", singleMimeType, HttpHeaders.CONTENT_TYPE);
         }
 
         MimeType mimeType = null;
