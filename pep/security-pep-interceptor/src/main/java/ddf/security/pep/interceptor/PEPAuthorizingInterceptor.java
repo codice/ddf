@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.security.pep.interceptor;
 
@@ -33,6 +33,9 @@ import org.apache.cxf.interceptor.security.AccessDeniedException;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import org.apache.cxf.transport.servlet.AbstractHTTPServlet;
+import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -45,10 +48,11 @@ import ddf.security.permission.ActionPermission;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.service.impl.SecurityAssertionStore;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Interceptor used to perform service authentication.
- * 
+ *
  */
 public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message> {
 
@@ -65,7 +69,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
 
     /**
      * Sets the security manager that will be used to create a subject.
-     * 
+     *
      * @param securityManager
      */
     public void setSecurityManager(SecurityManager securityManager) {
@@ -76,12 +80,20 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
     /**
      * Intercepts a message. Interceptors should NOT invoke handleMessage or handleFault on the next
      * interceptor - the interceptor chain will take care of this.
-     * 
+     *
      * @param message
      */
     @Override
     public void handleMessage(Message message) throws Fault {
         if (message != null) {
+            // see if this soap request has been whitelisted
+            HttpServletRequest request = (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
+            if ((null != request) && (request.getAttribute(ContextPolicy.NO_AUTH_POLICY) != null)) {
+                logger.debug("NO_AUTH_POLICY header was found, authorizing request.");
+                SecurityLogger.logInfo("NO_AUTH_POLICY header was found, authorizing request.");
+                return;
+            }
+
             // grab the SAML assertion associated with this Message from the
             // token store
             SecurityAssertion assertion = SecurityAssertionStore.getSecurityAssertion(message);

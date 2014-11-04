@@ -27,10 +27,6 @@
     <name>DDF :: Security :: Interceptor :: Anonymous :: Wrapper</name>
     <packaging>bundle</packaging>
 
-    <properties>
-        <powermock.version>1.5.4</powermock.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.shiro</groupId>

@@ -25,10 +25,6 @@
   <name>DDF :: Security :: PEP :: Interceptor</name>
   <packaging>bundle</packaging>
 
-  <properties>
-      <powermock.version>1.5.4</powermock.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.shiro</groupId>
@@ -45,6 +41,15 @@
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-ws-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ddf.security.policy</groupId>
+      <artifactId>security-policy-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
     </dependency>
 
     <!-- Test dependencies -->
