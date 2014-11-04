@@ -63,6 +63,7 @@
         <feature>content-core-filesystemstorageprovider</feature>
         <feature>content-core-directorymonitor</feature>
         <feature>content-catalogerplugin</feature>
+        <feature>content-rest-endpoint</feature>
     </feature>
 
 </features>
