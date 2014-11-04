@@ -17,14 +17,14 @@
          name="Backup Post-Ingest Plugin" id="plugin.backup">
 
         <AD
-                description="Root backup directory for Metacards."
+                description="Root backup directory for Metacards. Path is relative to ddf.home."
                 name="Root backup directory path" id="rootBackupDir" required="true" type="String"
-                default="" />
+                default="backup" />
 
         <AD
                 description="Number of subdirectory levels to create. Two characters from the ID will be used to name each subdirectory level."
                 name="Subdirectory levels" id="subDirLevels"
-                required="true" type="Integer" default="0" />
+                required="true" type="Integer" default="5" />
 
     </OCD>
 

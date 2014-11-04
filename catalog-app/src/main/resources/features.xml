@@ -208,6 +208,7 @@
         <feature>catalog-transformer-xml</feature>
         <feature>catalog-security-plugin</feature>
         <feature>catalog-admin-module-sources</feature>
+        <feature>catalog-core-backupplugin</feature>
     </feature>   
         
 </features>

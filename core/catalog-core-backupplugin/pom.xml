@@ -26,10 +26,6 @@
     <packaging>bundle</packaging>
 
     <dependencies>
-    <dependency>
-        <groupId>ddf.catalog.core</groupId>
-        <artifactId>catalog-core-api</artifactId>
-    </dependency>
 
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -50,9 +46,6 @@
                             ddf.catalog.backup,
                             ddf.catalog.data.impl
                         </Private-Package>
-                        <Import-Package>
-                            *
-                        </Import-Package>
                         <Export-Package>
                         </Export-Package>
                     </instructions>
