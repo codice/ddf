@@ -125,6 +125,10 @@ module.exports = function (grunt) {
             options: {
                 async: {
                     parallel: false
+                },
+                engines: {
+                    phantomjs: true,
+                    slimerjs: false
                 }
             },
             //this is where the tests would be called from
