@@ -62,8 +62,9 @@ import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.apache.tika.io.IOUtils;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,25 +98,14 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.mime.tika.TikaMimeTypeResolver;
-//import org.apache.commons.httpclient.HttpClient;
-//import org.apache.commons.httpclient.methods.PostMethod;
-//import org.apache.commons.httpclient.methods.multipart.FilePart;
-//import org.apache.commons.httpclient.methods.multipart.FilePartSource;
-//import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-//import org.apache.commons.httpclient.methods.multipart.Part;
-//import org.apache.commons.httpclient.methods.multipart.StringPart;
 
 /**
  * Tests methods of the {@link RESTEndpoint}
  */
 public class TestRestEndpoint {
-    private static final int BYTES_TO_SKIP = 16;
-
     private static final int OK = 200;
 
     private static final int NO_CONTENT = 204;
-
-    private static final int PARTIAL_CONTENT = 206;
 
     private static final int INTERNAL_SERVER_ERROR = 500;
 
@@ -681,13 +671,45 @@ public class TestRestEndpoint {
         assertEquals(GET_TYPE_OUTPUT, response.getMetadata().toString());
     }
     
+    /**
+     * Tests that a geojson input has its InputTransformer invoked by the REST endpoint to create
+     * a metacard that is then converted to XML and returned from the REST endpoint.
+     *  
+     * @throws Exception
+     */
     @Test
-    @Ignore
     public void testGetMetacardAsXml() throws Exception {
         String filename = "src/test/resources/ValidGeojson.json";
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
-        String transformer = mockTestSetup(framework, TestType.RESOURCE_TEST);
+        String metacardXml = "<metacard ns2:id=\"assigned-when-ingested\">\r\n" + 
+        		"<type>type.metacard</type>\r\n" + 
+        		"<string name=\"title\">\r\n" + 
+        		"<value>Title goes here ...</value>\r\n" + 
+        		"</string>\r\n" + 
+        		"<string name=\"metadata\">\r\n" + 
+        		"<value>metadata goes here ...</value>\r\n" +
+        		"</metacard>";
+        
+        // Mock XmlMetacardTransformer that CatalogFramework will call to convert generated
+        // metacard into XML to be returned from REST endpoint.
+        final BinaryContent content = mock(BinaryContent.class);
+        InputStream inputStream = new ByteArrayInputStream(metacardXml.getBytes(GET_OUTPUT_TYPE));
+        when(content.getInputStream()).thenReturn(inputStream);
+        when(content.getMimeTypeValue()).thenReturn("application/json;id=geojson");
+        when(framework.transform(isA(Metacard.class), anyString(), isNull(Map.class))).thenAnswer(
+                new Answer<BinaryContent>() {
+                    @Override
+                    public BinaryContent answer(InvocationOnMock invocation) throws Throwable {
+                        Object[] args = invocation.getArguments();
+                        Metacard metacard = (Metacard) args[0];
+                        return content;
+                    }
+                });
+        
         RESTEndpoint restEndpoint = new RESTEndpoint(framework);
+        
+        // Add a MimeTypeToINputTransformer that the REST endpoint will call to create the metacard
+        addMatchingService(restEndpoint, Arrays.asList(getSimpleTransformer()));
         restEndpoint.setTikaMimeTypeResolver(new TikaMimeTypeResolver());
         FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
         restEndpoint.setFilterBuilder(filterBuilder);
@@ -712,41 +734,24 @@ public class TestRestEndpoint {
                 "        ]\r\n" + 
                 "    }\r\n" + 
                 "} ";
-        
-//        Content-Disposition: form-data; name="file"; filename="C:\DDF\geojson_valid.json"
-//                Content-Type: application/json;id=geojson
-        
+
+        // Sample headers for a multipart body specifying a geojson file to have a metacard created for:
+        //    Content-Disposition: form-data; name="file"; filename="C:\DDF\geojson_valid.json"
+        //    Content-Type: application/json;id=geojson
         InputStream is = IOUtils.toInputStream(json);
         List<Attachment> attachments = new ArrayList<>();
         ContentDisposition contentDisposition = new ContentDisposition("form-data; name=file; filename=C:\\DDF\\geojson_valid.json");
         Attachment attachment = new Attachment("file_part", is, contentDisposition);
-//        Attachment attachment = new Attachment("part1", 
-//                new DataHandler(new ByteArrayDataSource(new byte[]{1}, "application/octet-stream")),
-//                new MetadataMap<String, String>());
         attachments.add(attachment);
         MediaType mediaType = new MediaType(MediaType.APPLICATION_JSON, "id=geojson");
         MultipartBody multipartBody = new MultipartBody(attachments, mediaType, true);
 
         UriInfo uriInfo = createSpecificUriInfo(LOCAL_RETRIEVE_ADDRESS);
         Response response = restEndpoint.createMetacard(multipartBody, uriInfo, RESTEndpoint.DEFAULT_METACARD_TRANSFORMER);
-        
-        
-//        InputStream is = IOUtils.toInputStream(json);
-//        String address = "http://localhost:8181/services/catalog/metacard";
-//        WebClient client = WebClient.create(address);
-//        client.type("multipart/form-data;type=application/json;id=geojson").accept("text/xml");
-//        String metacardXml = client.post(is, String.class);
-        
-//        File f = new File(filename);
-//        PostMethod filePost = new PostMethod("http://localhost:8181/services/content/");
-//        FilePartSource filePartSource = new FilePartSource(filename, f);
-//        Part[] parts = [
-//            new StringPart("directive", "STORE_AND_PROCESS"),
-//            new FilePart("file", filePartSource, "application/json;id=geojson", null);
-//        ]
-//        filePost.setRequestEntity(new MultipartRequestEntity(parts, filePost.getParams()));
-//        HttpClient client = new HttpClient();
-//        int status = client.executeMethod(filePost);
+        assertEquals(OK, response.getStatus());
+        InputStream responseEntity = (InputStream) response.getEntity();
+        String responseXml = IOUtils.toString(responseEntity);
+        assertEquals(metacardXml, responseXml);
     }
 
     /**
@@ -1020,6 +1025,7 @@ public class TestRestEndpoint {
 
         when(framework.create(isA(CreateRequest.class))).thenReturn(
                 new CreateResponseImpl(null, null, Arrays.asList(returnMetacard)));
+        
         return framework;
     }
 
