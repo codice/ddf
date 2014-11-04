@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 
 /**
@@ -229,7 +230,11 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     public void stop(String endpointName) throws Exception {
         LOGGER.debug("Stopping proxy route at endpoint: {}", endpointName);
+        LOGGER.debug("Route list before = {}", Arrays.toString(camelContext.getRoutes().toArray()));
+        camelContext.stopRoute(endpointName);
         camelContext.removeRoute(endpointName);
+        LOGGER.debug("Route list after = {}", Arrays.toString(camelContext.getRoutes().toArray()));
+
     }
 
     public void destroy() {

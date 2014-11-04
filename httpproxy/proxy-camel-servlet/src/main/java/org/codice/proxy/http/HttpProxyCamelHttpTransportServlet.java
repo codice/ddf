@@ -44,6 +44,7 @@ import org.apache.camel.component.servlet.HttpRegistry;
 import org.apache.camel.component.servlet.ServletEndpoint;
 import org.apache.camel.converter.ObjectConverter;
 import org.apache.camel.impl.DefaultExchange;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +53,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -131,9 +133,11 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
         // Is there a consumer registered for the request.
         HttpConsumer consumer = resolve(request);
 
-        if(consumer == null) {
-            String endpointName = request.getPathInfo().substring(1);
-            endpointName = endpointName.substring(0, endpointName.indexOf("/"));
+        if (consumer == null) {
+            String path = request.getPathInfo();
+            log.debug("Service Request Path = {}", path);
+            String endpointName = getEndpointNameFromPath(path);
+            log.debug("Endpoint Name = {}", endpointName);
 
             Route route = camelContext.getRoute(endpointName);
             try {
@@ -247,10 +251,13 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
 
     protected HttpConsumer resolve(HttpServletRequest request) {
         String path = request.getPathInfo();
-        path = path.substring(0, path.indexOf("/", 1));
-        HttpConsumer answer = consumers.get(path);
+        log.debug("Request path is: {}", path);
+        String endpointName = getEndpointNameFromPath(path);
+        log.debug("Looking up consumer for endpoint: {}", endpointName);
+        HttpConsumer answer = consumers.get(endpointName);
 
         if (answer == null) {
+            log.debug("Consumer Keys: {}", Arrays.toString(consumers.keySet().toArray()));
             for (String key : consumers.keySet()) {
                 if (consumers.get(key).getEndpoint().isMatchOnUriPrefix() && path.startsWith(key)) {
                     answer = consumers.get(key);
@@ -263,16 +270,21 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
 
     @Override
     public void connect(HttpConsumer consumer) {
+        log.debug("Getting ServletEndpoint for consumer: {}", consumer);
         ServletEndpoint endpoint = getServletEndpoint(consumer);
         if (endpoint.getServletName() != null) {
-            log.debug("Connecting consumer: {}", consumer);
-            consumers.put(consumer.getPath(), consumer);
+            String endpointName = getEndpointNameFromPath(consumer.getPath());
+            log.debug("Adding consumer for endpointName: {}", endpointName);
+            consumers.put(endpointName, consumer);
         }
     }
 
+    @Override
     public void disconnect(HttpConsumer consumer) {
-        log.debug("Disconnecting consumer: {}", consumer);
-        consumers.remove(consumer.getPath());
+        String path = consumer.getPath();
+        String endpointName = getEndpointNameFromPath(path);
+        log.debug("Disconnecting consumer: {}", endpointName);
+        consumers.remove(endpointName);
     }
 
     public boolean isIgnoreDuplicateServletName() {
@@ -287,6 +299,17 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
         } else {
             return "CamelHttpTransportServlet";
         }
+    }
+
+    private String getEndpointNameFromPath(String path) {
+        // path is like: "/example1/something/0/thing.html"
+        // or is like: "/example1"
+        // endpointName is: "example1"
+        String endpointName = (StringUtils.indexOf(path, "/", 1) != StringUtils.INDEX_NOT_FOUND) ?
+                StringUtils.substring(path, 0, StringUtils.indexOf(path, "/", 1)) :
+                path;
+        endpointName = StringUtils.remove(endpointName, "/");
+        return endpointName;
     }
 }
 
