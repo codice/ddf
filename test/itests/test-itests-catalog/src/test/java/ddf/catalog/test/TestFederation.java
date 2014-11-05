@@ -123,6 +123,7 @@ public class TestFederation extends TestCatalog {
                 ranBefore = true;
             } catch (Exception e) {
                 LOGGER.error("Failed to setup federation.", e);
+                setupFailed = true;
                 fail("Failed to setup federation: " + e.getMessage());
             }
         }

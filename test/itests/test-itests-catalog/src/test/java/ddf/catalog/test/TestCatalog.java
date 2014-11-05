@@ -49,8 +49,14 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     private static boolean ranBefore = false;
 
+    protected static boolean setupFailed = false;
+
     @Before
     public void beforeTest() {
+        if (setupFailed) {
+            fail("Setup failed");
+        }
+
         LOGGER.info("Before {}", testName.getMethodName());
         if (!ranBefore) {
             try {
@@ -62,6 +68,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 ranBefore = true;
             } catch (Exception e) {
                 LOGGER.error("Failed to setup test", e);
+                setupFailed = true;
                 fail("Failed to setup catalog: " + e.getMessage());
             }
         }
