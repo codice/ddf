@@ -238,7 +238,8 @@ define([
     //hard coded list of applications to disable selection for
     var disableList = [
         'platform-app',
-        'admin-app'
+        'admin-app',
+        'security-services-app'
     ];
 
     // Recursive tree view
