@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Dictionary;
@@ -136,7 +137,7 @@ public abstract class AbstractIntegrationTest {
      * @return list of pax exam options
      */
     @org.ops4j.pax.exam.Configuration
-    public Option[] config() {
+    public Option[] config() throws URISyntaxException {
         return options(
                 karafDistributionConfiguration(
                         maven().groupId("ddf.distribution").artifactId("ddf").type("zip")
@@ -176,8 +177,8 @@ public abstract class AbstractIntegrationTest {
                                 + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
                                 + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
                                 + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
-                replaceConfigurationFile("etc/hazelcast.xml", new File(
-                        "src/test/resources/hazelcast.xml")),
+                replaceConfigurationFile("etc/hazelcast.xml", new File(this.getClass()
+                        .getResource("/hazelcast.xml").toURI())),
                 when(Boolean.getBoolean("isDebugEnabled")).useOptions(
                         vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
                 when(System.getProperty("maven.repo.local") != null)
