@@ -27,7 +27,6 @@ import org.slf4j.ext.XLogger;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.get;
@@ -104,8 +103,8 @@ public class TestFederation extends TestCatalog {
                 waitForFederatedSource(CSW_SOURCE_ID);
                 waitForFederatedSource(CSW_SOURCE_WITH_METACARD_XML_ID);
 
-                // Sleep for 1 minute to allow the SourcePoller to realize the CswSources are available
-                Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+                waitForSourcesToBeAvailable(OPENSEARCH_SOURCE_ID, CSW_SOURCE_ID,
+                        CSW_SOURCE_WITH_METACARD_XML_ID);
 
                 File file = new File("sample.txt");
                 if (!file.createNewFile()) {

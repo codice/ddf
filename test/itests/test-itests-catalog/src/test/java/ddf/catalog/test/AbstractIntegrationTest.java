@@ -17,6 +17,7 @@ package ddf.catalog.test;
 import com.jayway.restassured.response.Response;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
+import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.osgi.BlueprintListener;
 import org.apache.karaf.shell.osgi.BlueprintListener.BlueprintState;
@@ -376,6 +377,41 @@ public abstract class AbstractIntegrationTest {
         }
 
         LOGGER.info("{} ready.", path);
+    }
+
+    protected void waitForSourcesToBeAvailable(String... sources) throws InterruptedException {
+        String path = REST_PATH + "sources";
+        LOGGER.info("Waiting for sources at {}", path);
+
+        long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
+        boolean available = false;
+
+        while (!available) {
+            Response response = get(path);
+            String body = response.getBody().asString();
+            if (StringUtils.isNotBlank(body)) {
+                available = response.getStatusCode() == 200 && body.length() > 0
+                        && !body.contains("false") && response.getBody().jsonPath().getList("id")
+                        != null;
+                if (available) {
+                    List<Object> ids = response.getBody().jsonPath().getList("id");
+                    for (String source : sources) {
+                        if (!ids.contains(source)) {
+                            available = false;
+                        }
+                    }
+                }
+            }
+            if (!available) {
+                if (System.currentTimeMillis() > timeoutLimit) {
+                    response.prettyPrint();
+                    fail("Sources at " + path + " did not start in time.");
+                }
+                Thread.sleep(1000);
+            }
+        }
+
+        LOGGER.info("Sources at {} ready.", path);
     }
 
     protected Map<String, Object> getMetatypeDefaults(String symbolicName, String factoryPid) {
