@@ -30,6 +30,11 @@
 	</organization>
 	<dependencies>
 		<dependency>
+			<groupId>ddf.security.encryption</groupId>
+			<artifactId>security-encryption-api</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>ddf.catalog.solr.embedded</groupId>
 			<artifactId>catalog-solr-embedded-provider</artifactId>
 		</dependency>
