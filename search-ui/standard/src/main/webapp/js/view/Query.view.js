@@ -60,7 +60,14 @@ define([
                 'change #offsetTimeUnits': 'onTimeUnitsChanged',
                 'click #scheduledNo': 'updateScheduling',
                 'click #scheduledYes': 'updateScheduling',
-                'click #saveButton': 'saveSearch'
+                'click #saveButton': 'saveSearch',
+                'click #ascendingSort': 'updateSortOrder',
+                'click #descendingSort': 'updateSortOrder',
+                'click #relevanceSort': 'updateSortField',
+                'click #distanceSort': 'updateSortField',
+                'click #createdSort': 'updateSortField',
+                'click #modifiedSort': 'updateSortField',
+                'click #effectiveSort': 'updateSortField'
             },
 
             modelEvents: {
@@ -209,6 +216,30 @@ define([
                 this.$('#eastdiv').hide();
                 this.$('#northdiv').hide();
                 this.$('#usngbbdiv').show();
+            },
+
+            updateSortField: function(e) {
+                switch(e.target.id) {
+                    case 'relevanceSort':
+                        this.model.set('sortField', 'RELEVANCE');
+                        break;
+                    case 'distanceSort':
+                        this.model.set('sortField', 'DISTANCE');
+                        break;
+                    case 'createdSort':
+                        this.model.set('sortField', 'created');
+                        break;
+                    case 'modifiedSort':
+                        this.model.set('sortField', 'modified');
+                        break;
+                    case 'effectiveSort':
+                        this.model.set('sortField', 'effective');
+                        break;
+                }
+            },
+
+            updateSortOrder: function(e) {
+                this.model.set('sortOrder', e.target.id === 'ascendingSort' ? 'asc' : 'desc');
             },
 
             updateScrollbar: function () {
@@ -501,6 +532,7 @@ define([
                 wreqr.vent.trigger('map:clear');
                 $('input[name=q]').focus();
                 this.zoomOnResults = false;
+                this.render();
             },
 
             onRadiusUnitsChanged: function () {

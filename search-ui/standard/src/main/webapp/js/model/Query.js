@@ -53,7 +53,9 @@ define([
                 locationType: 'latlon',
                 lat: undefined,
                 lon: undefined,
-                federation: 'enterprise'
+                federation: 'enterprise',
+                sortField: 'RELEVANCE',
+                sortOrder: 'desc'
             },
 
             drawing: false,
@@ -193,7 +195,8 @@ define([
                     east = this.get('east'),
                     lat = this.get('lat'),
                     lon = this.get('lon'),
-                    radius = this.get('radius');
+                    radius = this.get('radius'),
+                    polygon = this.get('polygon');
                 if (north && south && east && west) {
                     var bbox = 'POLYGON ((' +
                         west + ' ' + south +
@@ -211,6 +214,23 @@ define([
                         geoValue1: bbox
                     }));
 
+                } else if (polygon) {
+                    var poly = 'POLYGON ((';
+                    var polyPoint;
+                    for (var i = 0;i<polygon.length;i++) {
+                        polyPoint = polygon[i];
+                        poly += polyPoint[0] + ' ' + polyPoint[1];
+                        if (i < polygon.length - 1) {
+                            poly += ', ';
+                        }
+                    }
+                    poly += '))';
+                    filters.push(new Filter.Model({
+                        fieldName: 'anyGeo',
+                        fieldType: 'anyGeo',
+                        fieldOperator: 'intersects',
+                        geoValue1: poly
+                    }));
                 } else if (lat && lon && radius) {
                     var point = 'POINT(' + lon + ' ' + lat + ')';
                     filters.push(new Filter.Model({
@@ -420,6 +440,8 @@ define([
                     sources.push(sourceFilter.get('stringValue1'));
                 });
                 data.src = sources.join(',');
+
+                data.sort = this.get('sortField') + ':' + this.get('sortOrder');
 
                 return data;
             },

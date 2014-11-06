@@ -301,7 +301,7 @@ public class SearchService {
         if ("asc".equalsIgnoreCase(sortOrder)) {
             sort = new SortByImpl(sortField, SortOrder.ASCENDING);
         } else if ("desc".equalsIgnoreCase(sortOrder)) {
-            sort = new SortByImpl(sortField, SortOrder.ASCENDING);
+            sort = new SortByImpl(sortField, SortOrder.DESCENDING);
         } else {
             throw new IllegalArgumentException(
                     "Incorrect sort order received, must be 'asc' or 'desc'");
