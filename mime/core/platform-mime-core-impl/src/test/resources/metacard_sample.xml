@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<metacard xmlns="urn:catalog:metacard" xmlns:ns2="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" ns2:id="0c447f989f354e95b015944eefa457b4">
+    <type>ddf.metacard</type>
+    <source>ddf-2</source>
+    <string name="metadata-content-type-version">
+        <value>Resource</value>
+    </string>
+    <geometry name="location">
+        <value>
+            <ns2:Point>
+                <ns2:pos>-77.03637 38.89511</ns2:pos>
+            </ns2:Point>
+        </value>
+    </geometry>
+    <string name="title">
+        <value>MARK IV CORRECTS AGREEMENT WITH BAIRD &lt;BATM&gt;</value>
+    </string>
+    <dateTime name="effective">
+        <value>2014-09-30T11:33:30.554-07:00</value>
+    </dateTime>
+    <dateTime name="modified">
+        <value>2014-09-30T11:33:30.554-07:00</value>
+    </dateTime>
+    <dateTime name="created">
+        <value>2014-09-30T11:33:30.554-07:00</value>
+    </dateTime>
+    <string name="metadata-content-type">
+        <value>DIB20</value>
+    </string>
+    <stringxml name="metadata">
+        <value>
+            <REUTERS xmlns:ns6="urn:catalog:metacard" xmlns="" CGISPLIT="TRAINING-SET" LEWISSPLIT="TRAIN" NEWID="7824" OLDID="13345" TOPICS="YES">
+<DATE>20-MAR-1987 12:47:19.55</DATE>
+<TOPICS>
+                    <D>acq</D>
+                </TOPICS>
+<PLACES>
+                    <D>usa</D>
+                </PLACES>
+<PEOPLE/>
+<ORGS/>
+<EXCHANGES/>
+<COMPANIES/>
+<UNKNOWN> 
+F
+f1711reute
+u f BC-BAIRD   03-20 0109</UNKNOWN>
+<TEXT>
+<TITLE>MARK IV CORRECTS AGREEMENT WITH BAIRD &lt;BATM&gt;</TITLE>
+<DATELINE>    WASHINGTON, March 20 - </DATELINE>
+                    <BODY>Mark IV Industries Inc &lt;IV&gt;, which
+has said it may consider a bid to seek control of Baird Corp,
+said Baird has not agreed to hold off on any defensive measures
+without giving Mark IV at least 24 hours notice.
+    In a filing with the Securities and Exchange Commission,
+Mark IV corrected a statement it made yesterday in another SEC
+filing in which it listed several agreements reached with
+Baird, including that Baird would not take any anti-takeover
+steps without providing at least 24 hours notice.
+    Mark IV said it was later told by Baird that Baird had
+given no such assurance.
+ Reuter
+</BODY>
+                </TEXT>
+</REUTERS>
+        </value>
+    </stringxml>
+</metacard>
