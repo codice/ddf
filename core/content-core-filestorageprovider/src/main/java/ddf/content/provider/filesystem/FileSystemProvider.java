@@ -15,6 +15,7 @@
 package ddf.content.provider.filesystem;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import javax.activation.MimeType;
@@ -48,9 +49,6 @@ import ddf.mime.MimeTypeMapper;
  * {@link StorageProvider} interface. When installed, it is invoked by the @link{ContentFramework} to
  *                       create, update, or delete a file in the DDF Content Repository, which is
  *                       located in the <code>&lt;DDF_INSTALL_DIR&gt;/content/store directory</code>.
- * 
- * @author rodgersh
- * @author ddf.isgs@lmco.com
  * 
  */
 public class FileSystemProvider implements StorageProvider {
@@ -111,21 +109,20 @@ public class FileSystemProvider implements StorageProvider {
 
         String id = readRequest.getId();
         File file = getFileForContentId(id);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Reading file " + file.getName() + " from directory " + id);
-        }
+        LOGGER.debug("Reading file {} from directory {}", file.getName(), id);
 
         String extension = FilenameUtils.getExtension(file.getName());
 
         String mimeType = DEFAULT_MIME_TYPE;
         try {
-            mimeType = mimeTypeMapper.getMimeTypeForFileExtension(extension);
+//            mimeType = mimeTypeMapper.getMimeTypeForFileExtension(extension);
+            mimeType = mimeTypeMapper.guessMimeType(new FileInputStream(file), extension);
         } catch (Exception e) {
             LOGGER.warn("Could not determine mime type for file extension = " + extension
                     + "; defaulting to " + DEFAULT_MIME_TYPE);
         }
 
-        LOGGER.debug("mimeType = " + mimeType);
+        LOGGER.debug("mimeType = {}", mimeType);
         ContentFile returnItem = new ContentFile(file, id, mimeType);
         ReadResponse response = new ReadResponseImpl(readRequest, returnItem);
 
@@ -140,7 +137,7 @@ public class FileSystemProvider implements StorageProvider {
 
         ContentItem item = updateRequest.getContentItem();
         ContentItem updatedItem = null;
-        LOGGER.debug("Updating item with id = " + item.getId());
+        LOGGER.debug("Updating item with id = {}", item.getId());
 
         try {
             updatedItem = updateContentFile(item);
@@ -164,7 +161,7 @@ public class FileSystemProvider implements StorageProvider {
 
         boolean isDeleted = false;
 
-        LOGGER.debug("File to be deleted: " + id);
+        LOGGER.debug("File to be deleted: {}", id);
         File fileToBeDeleted = getFileForContentId(id);
         if (!fileToBeDeleted.exists()) {
             throw new StorageException("File doesn't exist for id: " + id);
@@ -182,12 +179,12 @@ public class FileSystemProvider implements StorageProvider {
                 try {
                     FileUtils.deleteDirectory(dirToBeDeleted);
                 } catch (IOException e) {
-                    LOGGER.info("Unable to delete directory " + dirToBeDeleted.getAbsolutePath()
-                            + " for id = " + id);
+                    LOGGER.info("Unable to delete directory {} for id = {}",
+                            dirToBeDeleted.getAbsolutePath(), id);
                 }
                 deletedContentItem = new ContentFile(null, id, itemToBeDeleted.getMimeTypeRawData());
                 String contentUri = CONTENT_URI_PREFIX + deletedContentItem.getId();
-                LOGGER.debug("contentUri = " + contentUri);
+                LOGGER.debug("contentUri = {}", contentUri);
                 deletedContentItem.setUri(contentUri);
             }
         } else {
@@ -208,15 +205,13 @@ public class FileSystemProvider implements StorageProvider {
         String mimeType = getMimeType(item.getMimeType());
 
         String fileId = item.getId();
-        if (!StringUtils.isEmpty(item.getFilename())) {
+        if (StringUtils.isNotEmpty(item.getFilename())) {
             fileId += File.separator + item.getFilename();
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("itemId = " + item.getId() + ",   mimeType = " + mimeType
-                    + ",   itemFilename = " + item.getFilename());
-            LOGGER.debug("fileId = " + fileId);
-        }
+        LOGGER.debug("itemId = " + item.getId() + ",   mimeType = " + mimeType
+                + ",   itemFilename = " + item.getFilename());
+        LOGGER.debug("fileId = {}", fileId);
 
         File createdFile = createFile(fileId);
         FileUtils.copyInputStreamToFile(item.getInputStream(), createdFile);
@@ -224,7 +219,7 @@ public class FileSystemProvider implements StorageProvider {
         ContentItem contentItem = new ContentFile(createdFile, item.getId(),
                 item.getMimeTypeRawData(), item.getFilename());
         String contentUri = CONTENT_URI_PREFIX + contentItem.getId();
-        LOGGER.debug("contentUri = " + contentUri);
+        LOGGER.debug("contentUri = {}", contentUri);
         contentItem.setUri(contentUri);
 
         LOGGER.trace("EXITING: generateContentFile");
@@ -236,7 +231,7 @@ public class FileSystemProvider implements StorageProvider {
         LOGGER.trace("ENTERING: updateContentFile");
 
         String fileId = item.getId();
-        LOGGER.debug("File ID: " + fileId);
+        LOGGER.debug("File ID: {}", fileId);
 
         File fileToUpdate = getFileForContentId(fileId);
         ContentItem contentItem = null;
@@ -245,7 +240,7 @@ public class FileSystemProvider implements StorageProvider {
 
             contentItem = new ContentFile(fileToUpdate, item.getId(), item.getMimeTypeRawData());
             String contentUri = CONTENT_URI_PREFIX + contentItem.getId();
-            LOGGER.debug("contentUri = " + contentUri);
+            LOGGER.debug("contentUri = {}", contentUri);
             contentItem.setUri(contentUri);
             LOGGER.debug("updated file length = " + contentItem.getSize());
         } else {
@@ -283,18 +278,17 @@ public class FileSystemProvider implements StorageProvider {
 
     private File getFileFromContentRepository(String id) {
         LOGGER.trace("ENTERING: getFileFromContentRepository");
-        LOGGER.debug("id = " + id);
+        LOGGER.debug("id = {}", id);
 
         File baseURIFile = null;
 
-        if (id != null && !id.isEmpty()) {
+        if (StringUtils.isNotEmpty(id)) {
             // Normalize and concatenate the paths
             String filepath = FilenameUtils.concat(baseContentDirectory, removeSlashPrefix(id));
-            LOGGER.debug("Full filepath = " + filepath);
+            LOGGER.debug("Full filepath = {}", filepath);
             baseURIFile = new File(filepath);
         } else {
-            LOGGER.warn("Could not obtain reference to content item. Possibly invalid content id: "
-                    + id);
+            LOGGER.warn("Could not obtain reference to content item. Possibly invalid content id: {}", id);
         }
 
         LOGGER.trace("EXITING: getFileFromContentRepository");
@@ -335,7 +329,7 @@ public class FileSystemProvider implements StorageProvider {
             // Create the directory if it doesn't exist
             if ((!directory.exists() && directory.mkdirs())
                     || (directory.isDirectory() && directory.canRead())) {
-                LOGGER.info("Setting base content directory to: " + path);
+                LOGGER.info("Setting base content directory to: {}", path);
                 newBaseDir = path;
             }
         }
@@ -352,13 +346,12 @@ public class FileSystemProvider implements StorageProvider {
 
                     // if directory does not exist, try to create it
                     if (fspDir.isDirectory() || fspDir.mkdirs()) {
-                        LOGGER.info("Setting base content directory to: "
-                                + fspDir.getAbsolutePath());
+                        LOGGER.info("Setting base content directory to: {}", fspDir.getAbsolutePath());
                         newBaseDir = fspDir.getAbsolutePath();
                     } else {
-                        LOGGER.warn("Unable to create FileSystemProvider folder: "
-                                + fspDir.getAbsolutePath()
-                                + ". Please check that DDF has permissions to create this folder.  Using default folder.");
+                        LOGGER.warn(
+                                "Unable to create FileSystemProvider folder: {}. Please check that DDF has permissions to create this folder.  Using default folder.",
+                                fspDir.getAbsolutePath());
                     }
                 } else {
                     LOGGER.warn("Karaf home folder defined by system property karaf.home is not a directory.  Using default folder.");
@@ -370,9 +363,7 @@ public class FileSystemProvider implements StorageProvider {
 
         this.baseContentDirectory = newBaseDir;
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Set base content directory to: " + this.baseContentDirectory);
-        }
+        LOGGER.debug("Set base content directory to: {}", this.baseContentDirectory);
     }
 
     private String getMimeType(MimeType mimeType) {
@@ -380,13 +371,11 @@ public class FileSystemProvider implements StorageProvider {
 
         String mimeTypeStr = mimeType.getBaseType();
         String mimeTypeIdValue = mimeType.getParameter(ID_PARAMETER);
-        if (!StringUtils.isEmpty(mimeTypeIdValue)) {
+        if (StringUtils.isNotEmpty(mimeTypeIdValue)) {
             mimeTypeStr += ";id=" + mimeTypeIdValue;
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("mimeTypeStr = " + mimeTypeStr);
-        }
+        LOGGER.debug("mimeTypeStr = {}", mimeTypeStr);
 
         LOGGER.trace("EXITING: getMimeType");
 
@@ -396,9 +385,7 @@ public class FileSystemProvider implements StorageProvider {
     private File getDirectoryForContentId(String contentId) throws StorageException {
         LOGGER.trace("ENTERING: getDirectoryForContentId");
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("contentId = " + contentId);
-        }
+        LOGGER.debug("contentId = {}", contentId);
 
         File dir = getFileFromContentRepository(contentId);
         if (!dir.exists() || !dir.isDirectory()) {
@@ -414,9 +401,7 @@ public class FileSystemProvider implements StorageProvider {
     private File getFileForContentId(String contentId) throws StorageException {
         LOGGER.trace("ENTERING: getFileFromContentId");
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("contentId = " + contentId);
-        }
+        LOGGER.debug("contentId = {}", contentId);
 
         File dir = getDirectoryForContentId(contentId);
         File[] files = dir.listFiles();

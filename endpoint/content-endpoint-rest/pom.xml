@@ -24,10 +24,15 @@
   <name>DDF :: Content :: REST :: Endpoint</name>
   <packaging>bundle</packaging>
 
+  <properties>
+      <cxf.servicemix.specs.version>2.2.0</cxf.servicemix.specs.version>
+  </properties>
+  
 	<dependencies>		
 		<dependency>
 			<groupId>org.apache.servicemix.specs</groupId>
 			<artifactId>org.apache.servicemix.specs.jsr311-api-1.1</artifactId>
+			<version>${cxf.servicemix.specs.version}</version>
 		</dependency>
 		
 		<dependency>
@@ -69,16 +74,9 @@
 		<dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <version>1.9.5</version>
             <scope>test</scope>
-        </dependency>
-		<!-- <dependency>
-		    <groupId>com.googlecode.jmockit</groupId>
-		    <artifactId>jmockit</artifactId>
-		    <version>1.7</version>
-		    <scope>test</scope>
-		</dependency>
-		-->            
-		
+        </dependency>		
 	</dependencies>
   
   <build>

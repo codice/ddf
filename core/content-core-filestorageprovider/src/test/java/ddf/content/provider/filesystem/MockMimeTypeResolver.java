@@ -14,17 +14,21 @@
  **/
 package ddf.content.provider.filesystem;
 
+import java.io.InputStream;
 import java.util.HashMap;
 
-// import org.apache.tika.mime.MimeTypeException;
+import org.apache.commons.lang.StringUtils;
 
 import ddf.mime.MimeTypeResolver;
+// import org.apache.tika.mime.MimeTypeException;
 
 public class MockMimeTypeResolver implements MimeTypeResolver {
     private HashMap<String, String> customFileExtensionsToMimeTypesMap;
 
     private HashMap<String, String> customMimeTypesToFileExtensionsMap;
 
+    private String schema;
+    
     private int priority;
 
     public MockMimeTypeResolver() {
@@ -57,7 +61,17 @@ public class MockMimeTypeResolver implements MimeTypeResolver {
     public void setPriority(int priority) {
         this.priority = priority;
     }
-
+        
+    @Override
+    public boolean hasSchema() {
+        return StringUtils.isNotBlank(this.schema);
+    }
+    
+    @Override
+    public String getSchema() {
+        return schema;
+    }
+    
     @Override
     public String getFileExtensionForMimeType(String contentType) // throws MimeTypeException
     {
@@ -71,11 +85,10 @@ public class MockMimeTypeResolver implements MimeTypeResolver {
     }
 
     @Override
-    public String getMimeTypeForFileExtension(String fileExtension) // throws MimeTypeException
+    public String getMimeTypeForFileExtension(String fileExtension)
     {
         String mimeType = customFileExtensionsToMimeTypesMap.get(fileExtension);
 
         return mimeType;
     }
-
 }

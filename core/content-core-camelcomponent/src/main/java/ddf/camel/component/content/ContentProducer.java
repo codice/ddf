@@ -26,9 +26,12 @@ import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.impl.DefaultProducer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.io.FileBackedOutputStream;
 
 import ddf.content.ContentFrameworkException;
 import ddf.content.data.ContentItem;
@@ -44,6 +47,12 @@ public class ContentProducer extends DefaultProducer {
     private ContentEndpoint endpoint;
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(ContentProducer.class);
+    
+    public static final int KB = 1024;
+
+    public static final int MB = 1024 * KB;
+    
+    private static final int DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD = 32 * MB;
 
     /**
      * Constructs the {@link Producer} for the custom Camel ContentComponent. This producer would
@@ -99,17 +108,16 @@ public class ContentProducer extends DefaultProducer {
 
         String contentUri = (String) in.getHeader(Request.CONTENT_URI, "");
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("operation = " + operation);
-            LOGGER.debug("directive = " + directive);
-            LOGGER.debug("contentUri = " + contentUri);
-        }
+        LOGGER.debug("operation = {}", operation);
+        LOGGER.debug("directive = {}", directive);
+        LOGGER.debug("contentUri = {}", contentUri);
 
         FileInputStream fis = null;
+        FileBackedOutputStream fbos = null;
         try {
             fis = FileUtils.openInputStream(ingestedFile);
         } catch (IOException e) {
-            throw new ContentComponentException("Unable to open file " + ingestedFile.getName());
+            throw new ContentComponentException("Unable to open file {}" + ingestedFile.getName());
         }
 
         Request.Directive requestDirective = Request.Directive.valueOf(directive);
@@ -121,8 +129,21 @@ public class ContentProducer extends DefaultProducer {
             MimeTypeMapper mimeTypeMapper = endpoint.getComponent().getMimeTypeMapper();
             if (mimeTypeMapper != null) {
                 try {
-                    mimeType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
-                } catch (MimeTypeResolutionException e) {
+                    // XML files are mapped to multiple mime types, e.g., CSW, XML Metacard, etc.
+                    // If processing a .xml file, then use a stream that allows multiple reads on it
+                    // i.e., FileBackedOutputStream, since the MimeTypeMapper will need to introspect
+                    // the xml file for its root element namespace and later the stream will need to
+                    // be read to persist it to the content store and/or create a metacard for ingest
+                    if (fileExtension.equals("xml")) {
+                        fbos = new FileBackedOutputStream(DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD);
+                        IOUtils.copy(fis, fbos);
+                        // Using fbos.asByteSource().openStream() allows us to pass in a copy of the InputStream
+                        mimeType = mimeTypeMapper.guessMimeType(fbos.asByteSource().openStream(), fileExtension);
+                    } else {
+                        mimeType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
+                    }
+                    
+                } catch (MimeTypeResolutionException | IOException e) {
                     throw new ContentComponentException(e);
                 }
             } else {
@@ -134,10 +155,19 @@ public class ContentProducer extends DefaultProducer {
         }
 
         try {
-            LOGGER.debug("Preparing content item for mimeType = " + mimeType);
+            LOGGER.debug("Preparing content item for mimeType = {}", mimeType);
 
-            if (!StringUtils.isEmpty(mimeType)) {
-                ContentItem newItem = new IncomingContentItem(fis, mimeType, ingestedFile.getName());
+            if (StringUtils.isNotEmpty(mimeType)) {
+                ContentItem newItem;
+                // If the FileBackedOutputStream (FBOS) was used, then must be processing an XML file and need to
+                // get a fresh InputStream from the FBOS to use in the content item
+                if (fbos != null) {
+                    newItem = new IncomingContentItem(fbos.asByteSource().openStream(), mimeType, ingestedFile.getName());
+                } else {
+                    // Otherwise, the InputStream created from the ingested file has never been read,
+                    // so can use it in the content item
+                    newItem = new IncomingContentItem(fis, mimeType, ingestedFile.getName());
+                }
                 newItem.setUri(contentUri);
 
                 LOGGER.debug("Creating content item.");
@@ -147,21 +177,23 @@ public class ContentProducer extends DefaultProducer {
                         .create(createRequest, requestDirective);
                 ContentItem contentItem = createResponse.getCreatedContentItem();
 
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("content item created with id = " + contentItem.getId());
-                    LOGGER.debug(contentItem.toString());
-                }
+                LOGGER.debug("content item created with id = {}", contentItem.getId());
+                LOGGER.debug(contentItem.toString());
             } else {
                 LOGGER.debug("mimeType is NULL");
                 throw new ContentComponentException("Unable to determine mime type for the file "
                         + ingestedFile.getName());
             }
+        } catch (IOException e) {
+            throw new ContentComponentException("Unable to determine mime type for the file "
+                    + ingestedFile.getName());
         } finally {
-            if (fis != null) {
+            IOUtils.closeQuietly(fis);
+            if (fbos != null) {
                 try {
-                    fis.close();
+                    fbos.reset();
                 } catch (IOException e) {
-                    LOGGER.warn("Unable to close file " + ingestedFile.getName());
+                    LOGGER.info("Unable to reset FileBackedOutputStream");
                 }
             }
         }
