@@ -749,10 +749,6 @@ public class TestCswEndpoint {
             fail("CswException caught during describeRecord GET request: " + e.getMessage());
         }
 
-        // spec does not say specifically it should throw an exception,
-        // and NSG interoperability tests require to skip the unknown ones, and
-        // potentially return an empty list if none are known
-
         assertNotNull(drrt);
         assertNotNull(drrt.getSchemaComponent());
         List<SchemaComponentType> schemaComponents = drrt.getSchemaComponent();
