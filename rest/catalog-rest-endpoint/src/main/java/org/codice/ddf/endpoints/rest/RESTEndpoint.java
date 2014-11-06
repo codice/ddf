@@ -514,7 +514,7 @@ public class RESTEndpoint implements RESTService {
     }
     
     @POST
-    @Path("/{metacard:.*}")
+    @Path("/metacard")
     public Response createMetacard(MultipartBody multipartBody, 
         @Context UriInfo requestUriInfo, 
         @QueryParam("transform") String transformerParam) {
@@ -580,9 +580,9 @@ public class RESTEndpoint implements RESTService {
         try {
             Metacard metacard = generateMetacard(mimeType, "assigned-when-ingested", stream);
             LOGGER.debug("metacard created");
-            LOGGER.debug("Transforming metacard to XML to be able to return it to client");
+            LOGGER.debug("Transforming metacard to {} to be able to return it to client", transformer);
             final BinaryContent content = catalogFramework.transform(metacard, transformer, null);
-            LOGGER.debug("Metacard to XML transform complete, preparing response.");
+            LOGGER.debug("Metacard to {} transform complete, preparing response.", transformer);
 
             Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(),
                     content.getMimeTypeValue());
