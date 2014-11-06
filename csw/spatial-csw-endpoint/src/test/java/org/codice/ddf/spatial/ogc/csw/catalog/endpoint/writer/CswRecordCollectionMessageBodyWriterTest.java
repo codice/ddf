@@ -92,11 +92,11 @@ public class CswRecordCollectionMessageBodyWriterTest {
         Map arguments = captor.getValue();
         assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(
                 EXAMPLE_SCHEMA));
-        assertThat(ResultType.HITS, is(arguments.get(CswConstants.RESULT_TYPE_PARAMETER)));
-        assertThat(true, is((Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY)));
-        assertThat(ElementSetType.BRIEF,
-                is((ElementSetType) arguments.get(CswConstants.ELEMENT_SET_TYPE)));
-        assertThat(example, is(((QName[]) arguments.get(CswConstants.ELEMENT_NAMES))[0]));
+        assertThat((ResultType)arguments.get(CswConstants.RESULT_TYPE_PARAMETER), is(ResultType.HITS));
+        assertThat((Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY), is(true));
+        assertThat((ElementSetType) arguments.get(CswConstants.ELEMENT_SET_TYPE),
+                is(ElementSetType.BRIEF));
+        assertThat(((QName[]) arguments.get(CswConstants.ELEMENT_NAMES))[0], is(example));
     }
 
     @Test
@@ -132,11 +132,11 @@ public class CswRecordCollectionMessageBodyWriterTest {
         Map arguments = captor.getValue();
         assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(
                 CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat(ResultType.VALIDATE, is(arguments.get(CswConstants.RESULT_TYPE_PARAMETER)));
-        assertThat(true, is((Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY)));
-        assertThat(ElementSetType.BRIEF,
-                is((ElementSetType) arguments.get(CswConstants.ELEMENT_SET_TYPE)));
-        assertThat(example, is(((QName[]) arguments.get(CswConstants.ELEMENT_NAMES))[0]));
+        assertThat((ResultType)arguments.get(CswConstants.RESULT_TYPE_PARAMETER), is(ResultType.VALIDATE));
+        assertThat((Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY), is(true));
+        assertThat((ElementSetType) arguments.get(CswConstants.ELEMENT_SET_TYPE),
+                is(ElementSetType.BRIEF));
+        assertThat(((QName[]) arguments.get(CswConstants.ELEMENT_NAMES))[0], is(example));
     }
 
     @Test
