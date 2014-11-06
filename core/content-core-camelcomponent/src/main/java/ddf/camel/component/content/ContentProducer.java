@@ -52,7 +52,7 @@ public class ContentProducer extends DefaultProducer {
 
     public static final int MB = 1024 * KB;
     
-    private static final int DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD = 32 * MB;
+    private static final int DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD = 1 * MB;
 
     /**
      * Constructs the {@link Producer} for the custom Camel ContentComponent. This producer would
@@ -131,10 +131,15 @@ public class ContentProducer extends DefaultProducer {
                 try {
                     // XML files are mapped to multiple mime types, e.g., CSW, XML Metacard, etc.
                     // If processing a .xml file, then use a stream that allows multiple reads on it
-                    // i.e., FileBackedOutputStream, since the MimeTypeMapper will need to introspect
+                    // i.e., FileBackedOutputStream (FBOS), since the MimeTypeMapper will need to introspect
                     // the xml file for its root element namespace and later the stream will need to
-                    // be read to persist it to the content store and/or create a metacard for ingest
+                    // be read to persist it to the content store and/or create a metacard for ingest.
+                    // The FBOS is not used for every ingested file because do not want the performance
+                    // hit of potentially reading in a 1 GB NITF file that does not need to be introspected
+                    // to determine the mime type.
                     if (fileExtension.equals("xml")) {
+                        // FBOS reads file into byte array in memory up to this threshold, then it transitions
+                        // to writing to a file.
                         fbos = new FileBackedOutputStream(DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD);
                         IOUtils.copy(fis, fbos);
                         // Using fbos.asByteSource().openStream() allows us to pass in a copy of the InputStream
