@@ -24,7 +24,7 @@
         <AD
                 description="Number of subdirectory levels to create. Two characters from the ID will be used to name each subdirectory level."
                 name="Subdirectory levels" id="subDirLevels"
-                required="true" type="Integer" default="5" />
+                required="true" type="Integer" default="2" />
 
     </OCD>
 

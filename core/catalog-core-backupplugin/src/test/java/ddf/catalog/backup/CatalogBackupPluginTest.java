@@ -436,17 +436,10 @@ public class CatalogBackupPluginTest {
         Metacard metacard = null;
 
         FileInputStream fis = new FileInputStream(file);
-        ObjectInputStream ois = null;
 
-        try {
-            ois = new ObjectInputStream(fis);
+        try(ObjectInputStream ois = new ObjectInputStream(fis)) {
             metacard = (Metacard) ois.readObject();
             ois.close();
-        } finally {
-            fis.close();
-            if (ois != null) {
-                ois.close();
-            }
         }
 
         return metacard;

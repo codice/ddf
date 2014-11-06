@@ -18,7 +18,7 @@
     <bean id="catalogBackupPlugin" class="ddf.catalog.backup.CatalogBackupPlugin">
         <cm:managed-properties persistent-id="plugin.backup" update-strategy="container-managed" />
         <property name="rootBackupDir" value="data/backup" />
-        <property name="subDirLevels" value="5" />
+        <property name="subDirLevels" value="2" />
     </bean>
 
     <service ref="catalogBackupPlugin" interface="ddf.catalog.plugin.PostIngestPlugin" />
