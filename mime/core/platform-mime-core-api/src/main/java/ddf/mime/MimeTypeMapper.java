@@ -51,6 +51,17 @@ public interface MimeTypeMapper {
     public String getMimeTypeForFileExtension(String fileExtension)
         throws MimeTypeResolutionException;
     
+    /**
+     * Attempts to guess the mime type for the specified file extension by
+     * introspecting the supplied InputStream if necessary.
+     * 
+     * @param is InputStream for the @File associated with the file extension
+     * @param fileExtension the file extension to look up the mime type for
+     * @return the mime type mapped for the specified file extension; returns null
+     *         if it cannot determine the mime type
+     * @throws MimeTypeResolutionException
+     *          if any problems encountered during mime type mapping
+     */
     public String guessMimeType(InputStream is, String fileExtension)
             throws MimeTypeResolutionException;
 }
