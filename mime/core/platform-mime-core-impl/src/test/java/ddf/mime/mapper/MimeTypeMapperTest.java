@@ -36,7 +36,7 @@ public class MimeTypeMapperTest {
 
     private static final String CSW_RECORD_FILE = "src/test/resources/csw_record.xml";
     
-    private static final String XML_METACARD_FILE = "src/test/resources/sample_metacard.xml";
+    private static final String XML_METACARD_FILE = "src/test/resources/metacard_sample.xml";
     
     private static final String NO_NAMESPACE_MATCHES_XML_FILE = "src/test/resources/no_namespace_matches.xml";
     
