@@ -46,7 +46,7 @@ public interface RESTService {
      * @throws ServerErrorException
      */
     @GET
-    @Path("/{id:.*}")
+    @Path("/{id}")
     public Response getDocument(@PathParam("id")
     String id, @QueryParam("transform")
     String transformerParam, @Context
@@ -78,7 +78,7 @@ public interface RESTService {
      * @return
      */
     @GET
-    @Path("/sources/{sourceid}/{id:.*}")
+    @Path("/sources/{sourceid}/{id}")
     public Response getDocument(@PathParam("sourceid")
     String sourceid, @PathParam("id")
     String id, @QueryParam("transform")
@@ -94,7 +94,7 @@ public interface RESTService {
      * @return
      */
     @PUT
-    @Path("/{id:.*}")
+    @Path("/{id}")
     public Response updateDocument(@PathParam("id")
     String id, @Context
     HttpHeaders headers, @Context HttpServletRequest httpRequest, InputStream message);
@@ -117,7 +117,7 @@ public interface RESTService {
      * @return
      */
     @DELETE
-    @Path("/{id:.*}")
+    @Path("/{id}")
     public Response deleteDocument(@PathParam("id")
     String id, @Context HttpServletRequest httpRequest);
 

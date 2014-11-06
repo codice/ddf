@@ -43,7 +43,7 @@ public class MockRestEndpoint {
     }
 
     @GET
-    @Path("/{id:.*}")
+    @Path("/{id}")
     public Response getDocument(@PathParam("id")
     String id, @QueryParam("transform")
     String transformerParam, @Context
@@ -52,7 +52,7 @@ public class MockRestEndpoint {
     }
 
     @PUT
-    @Path("/{id:.*}")
+    @Path("/{id}")
     public Response updateDocument(@PathParam("id")
     String id, @Context
     HttpHeaders headers, InputStream message) {
@@ -82,7 +82,7 @@ public class MockRestEndpoint {
      * @return
      */
     @DELETE
-    @Path("/{id:.*}")
+    @Path("/{id}")
     public Response deleteDocument(@PathParam("id")
     String id) {
         LOGGER.debug("DELETE");
