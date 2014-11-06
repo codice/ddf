@@ -70,10 +70,8 @@ import net.opengis.ows.v_1_0_0.DomainType;
 import net.opengis.ows.v_1_0_0.Operation;
 import net.opengis.ows.v_1_0_0.OperationsMetadata;
 
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
@@ -171,7 +169,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     protected boolean contentTypeMappingUpdated;
 
-//    protected List<RecordConverterFactory> recordConverterFactories;
     protected Converter cswTransformProvider;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswSource.class);

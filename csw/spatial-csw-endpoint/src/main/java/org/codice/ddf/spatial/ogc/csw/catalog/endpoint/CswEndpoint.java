@@ -89,6 +89,7 @@ import net.opengis.ows.v_1_0_0.ServiceIdentification;
 import net.opengis.ows.v_1_0_0.ServiceProvider;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -150,28 +151,29 @@ public class CswEndpoint implements Csw {
 
     private CapabilitiesType capabilitiesType;
 
-    private DatatypeFactory datatypeFactory;
-    
     protected static final String SERVICE_TITLE = "Catalog Service for the Web";
 
     protected static final String SERVICE_ABSTRACT = "DDF CSW Endpoint";
         
-    protected static final List<String> SERVICE_TYPE_VERSION = Arrays
-            .asList(CswConstants.VERSION_2_0_2);
+    protected static final List<String> SERVICE_TYPE_VERSION = Collections.unmodifiableList(Arrays
+            .asList(CswConstants.VERSION_2_0_2));
 
-    protected static final List<SpatialOperatorNameType> SPATIAL_OPERATORS = Arrays.asList(
-            SpatialOperatorNameType.BBOX, SpatialOperatorNameType.BEYOND,
-            SpatialOperatorNameType.CONTAINS, SpatialOperatorNameType.CROSSES,
-            SpatialOperatorNameType.DISJOINT, SpatialOperatorNameType.D_WITHIN,
-            SpatialOperatorNameType.INTERSECTS, SpatialOperatorNameType.OVERLAPS,
-            SpatialOperatorNameType.TOUCHES, SpatialOperatorNameType.WITHIN);
-    
-    protected static final List<ComparisonOperatorType> COMPARISON_OPERATORS = Arrays.asList(
-            ComparisonOperatorType.BETWEEN, ComparisonOperatorType.NULL_CHECK,
-            ComparisonOperatorType.LIKE, ComparisonOperatorType.EQUAL_TO,
-            ComparisonOperatorType.GREATER_THAN, ComparisonOperatorType.GREATER_THAN_EQUAL_TO,
-            ComparisonOperatorType.LESS_THAN, ComparisonOperatorType.LESS_THAN_EQUAL_TO,
-            ComparisonOperatorType.EQUAL_TO, ComparisonOperatorType.NOT_EQUAL_TO);
+    protected static final List<SpatialOperatorNameType> SPATIAL_OPERATORS = Collections
+            .unmodifiableList(Arrays.asList(
+                    SpatialOperatorNameType.BBOX, SpatialOperatorNameType.BEYOND,
+                    SpatialOperatorNameType.CONTAINS, SpatialOperatorNameType.CROSSES,
+                    SpatialOperatorNameType.DISJOINT, SpatialOperatorNameType.D_WITHIN,
+                    SpatialOperatorNameType.INTERSECTS, SpatialOperatorNameType.OVERLAPS,
+                    SpatialOperatorNameType.TOUCHES, SpatialOperatorNameType.WITHIN));
+
+    protected static final List<ComparisonOperatorType> COMPARISON_OPERATORS = Collections
+            .unmodifiableList(Arrays.asList(
+                    ComparisonOperatorType.BETWEEN, ComparisonOperatorType.NULL_CHECK,
+                    ComparisonOperatorType.LIKE, ComparisonOperatorType.EQUAL_TO,
+                    ComparisonOperatorType.GREATER_THAN,
+                    ComparisonOperatorType.GREATER_THAN_EQUAL_TO,
+                    ComparisonOperatorType.LESS_THAN, ComparisonOperatorType.LESS_THAN_EQUAL_TO,
+                    ComparisonOperatorType.EQUAL_TO, ComparisonOperatorType.NOT_EQUAL_TO));
 
     protected static final String PROVIDER_NAME = "DDF";
 
@@ -183,8 +185,10 @@ public class CswEndpoint implements Csw {
 
     protected static final String FILTER_CAPABILITIES = "Filter_Capabilities";
 
-    protected static final List<String> GET_CAPABILITIES_PARAMS = Arrays.asList(
-            SERVICE_IDENTIFICATION, SERVICE_PROVIDER, OPERATIONS_METADATA, FILTER_CAPABILITIES);
+    protected static final List<String> GET_CAPABILITIES_PARAMS = Collections
+            .unmodifiableList(Arrays.asList(
+                    SERVICE_IDENTIFICATION, SERVICE_PROVIDER, OPERATIONS_METADATA,
+                    FILTER_CAPABILITIES));
 
     private static Map<String, Element> documentElements = new HashMap<String, Element>();
 
@@ -206,11 +210,6 @@ public class CswEndpoint implements Csw {
         this.framework = ddf;
         this.builder = filterBuilder;
         this.transformerManager = manager;
-        try {
-            datatypeFactory = DatatypeFactory.newInstance();
-        } catch (DatatypeConfigurationException e) {
-            LOGGER.warn("Failed to construct datatypeFactory.  Exception {}", e);
-        }
     }
 
     /* Constructor for unit testing */
@@ -583,7 +582,6 @@ public class CswEndpoint implements Csw {
 
         DescribeRecordResponseType response = new DescribeRecordResponseType();
         List<SchemaComponentType> schemas = new ArrayList<SchemaComponentType>();
-        System.out.println("KCW: " + Arrays.toString(types.toArray()));
 
         if (types.isEmpty() || types.contains(
                 new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME))) {
@@ -618,35 +616,32 @@ public class CswEndpoint implements Csw {
         response.setRequest(request);
         response.setOutputSchema(request.getOutputSchema());
         response.setMimeType(request.getOutputFormat());
-        response.setResultType((request.getResultType() == null) ? ResultType.HITS : request.getResultType());
-        
-        if (ResultType.HITS.equals(request.getResultType()) || ResultType.RESULTS.equals(request.getResultType())) {
+        response.setElementName(query.getElementName());
+        response.setElementSetType(
+                (query.getElementSetName() != null) ? query.getElementSetName().getValue() : null);
+        response.setResultType(
+                (ResultType) ObjectUtils.defaultIfNull(request.getResultType(), ResultType.HITS));
+
+        if (ResultType.HITS.equals(request.getResultType()) || ResultType.RESULTS
+                .equals(request.getResultType())) {
             QueryImpl frameworkQuery = new QueryImpl(buildFilter(query));
             frameworkQuery.setSortBy(buildSort(query.getSortBy()));
-    
-            if (ResultType.HITS.equals(request.getResultType()) || request.getMaxRecords().intValue() < 1) {
+
+            if (ResultType.HITS.equals(request.getResultType())
+                    || request.getMaxRecords().intValue() < 1) {
                 frameworkQuery.setStartIndex(1);
                 frameworkQuery.setPageSize(1);
             } else {
                 frameworkQuery.setStartIndex(request.getStartPosition().intValue());
-                frameworkQuery.setPageSize(request.getMaxRecords().intValue());                
+                frameworkQuery.setPageSize(request.getMaxRecords().intValue());
             }
             boolean federated = (request.getDistributedSearch() != null)
                     && (request.getDistributedSearch().getHopCount().longValue() > 1);
-    
-            long count = 0;
-            List<Metacard> metacards = new LinkedList<Metacard>();
-            long hits = 0;
+
             try {
-                QueryResponse queryResponse = framework.query(new QueryRequestImpl(frameworkQuery, federated));
+                QueryResponse queryResponse = framework
+                        .query(new QueryRequestImpl(frameworkQuery, federated));
                 response.setSourceResponse(queryResponse);
-    
-//                hits = queryResponse.getHits();
-//                count = queryResponse.getResults().size();
-//                for (Result result : queryResponse.getResults()) {
-//                    metacards.add(result.getMetacard());
-//                }
-//
             } catch (UnsupportedQueryException e) {
                 LOGGER.warn("Unable to query", e);
                 throw new CswException(e);
@@ -657,15 +652,6 @@ public class CswEndpoint implements Csw {
                 LOGGER.warn("Unable to query", e);
                 throw new CswException(e);
             }
-
-            //response.setNumberOfRecordsMatched(hits);
-//            if (ResultType.HITS.equals(request.getResultType()) || request.getMaxRecords().intValue() < 1) {
-//                response.setNumberOfRecordsReturned(0);
-//
-//            } else {
-//                response.setNumberOfRecordsReturned(count);
-//                response.setCswRecords(metacards);
-//            }
         }
         
         return response;

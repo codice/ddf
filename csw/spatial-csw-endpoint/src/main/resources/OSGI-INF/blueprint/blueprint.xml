@@ -55,7 +55,7 @@
 
     <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList" />
     <reference-list id="queryResponseTransformerList" member-type="service-reference" interface="ddf.catalog.transform.QueryResponseTransformer" >
-        <reference-listener bind-method="bindService" unbind-method="bindService" ref="queryResponseTransformers" />
+        <reference-listener bind-method="bindService" unbind-method="unbindService" ref="queryResponseTransformers" />
     </reference-list>
 
     <bean id="cswExceptionMapperProvider" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswExceptionMapper" />

@@ -19,7 +19,6 @@ import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.xml.WstxDriver;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import ddf.catalog.data.Metacard;
@@ -27,7 +26,6 @@ import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +42,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
@@ -59,15 +56,9 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
 
     private DataHolder argumentHolder;
 
-//    private WstxDriver wstxDriver;
-
-    private XppDriver xppDriver;
-
     public GetRecordsMessageBodyReader(Converter provider,
             CswSourceConfiguration configuration) {
-        xppDriver = new XppDriver();
-//        wstxDriver = new WstxDriver();
-        xstream = new XStream(xppDriver);
+        xstream = new XStream(new XppDriver());
         xstream.setClassLoader(this.getClass().getClassLoader());
         GetRecordsResponseConverter converter = new GetRecordsResponseConverter(provider);
         xstream.registerConverter(converter);
@@ -115,8 +106,9 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
             HierarchicalStreamReader reader = new XppReader(new InputStreamReader(inStream),
                     XmlPullParserFactory.newInstance().newPullParser());
             cswRecords = (CswRecordCollection) xstream.unmarshal(reader, null, argumentHolder);
-            // TODO - seperate these exceptions.
-        } catch (XStreamException | XmlPullParserException e) {
+        } catch (XmlPullParserException e) {
+            LOGGER.error("Unable to create XmlPullParser, and cannot parse CSW Response.", e);
+        } catch (XStreamException e) {
             // If an ExceptionReport is sent from the remote CSW site it will be sent with an
             // JAX-RS "OK" status, hence the ErrorResponse exception mapper will not fire.
             // Instead the ExceptionReport will come here and be treated like a GetRecords

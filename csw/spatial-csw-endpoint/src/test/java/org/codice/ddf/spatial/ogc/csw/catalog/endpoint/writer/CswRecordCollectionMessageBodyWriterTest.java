@@ -77,7 +77,6 @@ public class CswRecordCollectionMessageBodyWriterTest {
         collection.setNumberOfRecordsReturned(6);
         final String EXAMPLE_SCHEMA = "http://example.com/schema";
         collection.setOutputSchema(EXAMPLE_SCHEMA);
-        collection.setValidateQuery(true);
         collection.setById(true);
         collection.setResultType(ResultType.HITS);
         QName example = new QName("example");
@@ -93,7 +92,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
         Map arguments = captor.getValue();
         assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(
                 EXAMPLE_SCHEMA));
-        assertThat(true, is((Boolean) arguments.get(CswConstants.IS_VALIDATE_QUERY)));
+        assertThat(ResultType.HITS, is(arguments.get(CswConstants.RESULT_TYPE_PARAMETER)));
         assertThat(true, is((Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY)));
         assertThat(ElementSetType.BRIEF,
                 is((ElementSetType) arguments.get(CswConstants.ELEMENT_SET_TYPE)));
@@ -117,7 +116,6 @@ public class CswRecordCollectionMessageBodyWriterTest {
         collection.setNumberOfRecordsMatched(22);
         collection.setNumberOfRecordsReturned(6);
         collection.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
-        collection.setValidateQuery(true);
         collection.setById(true);
         QName example = new QName("example");
 
@@ -134,7 +132,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
         Map arguments = captor.getValue();
         assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(
                 CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat(true, is((Boolean) arguments.get(CswConstants.IS_VALIDATE_QUERY)));
+        assertThat(ResultType.VALIDATE, is(arguments.get(CswConstants.RESULT_TYPE_PARAMETER)));
         assertThat(true, is((Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY)));
         assertThat(ElementSetType.BRIEF,
                 is((ElementSetType) arguments.get(CswConstants.ELEMENT_SET_TYPE)));
@@ -155,8 +153,6 @@ public class CswRecordCollectionMessageBodyWriterTest {
         CswRecordCollection collection = createCswRecordCollection(6);
         collection.setNumberOfRecordsMatched(22);
         collection.setNumberOfRecordsReturned(6);
-        //        collection.setOutputSchema("http://example.com/schema");
-        collection.setValidateQuery(true);
         collection.setById(true);
         collection.setResultType(ResultType.RESULTS);
         collection.setMimeType(MediaType.APPLICATION_JSON);
@@ -194,17 +190,5 @@ public class CswRecordCollectionMessageBodyWriterTest {
         }
 
         return list;
-    }
-
-    private JAXBContext getJaxBContext() throws JAXBException {
-        JAXBContext context = null;
-        String contextPath = StringUtils.join(new String[] {
-                CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
-                CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
-
-        context = JAXBContext.newInstance(contextPath,
-                CswJAXBElementProvider.class.getClassLoader());
-
-        return context;
     }
 }

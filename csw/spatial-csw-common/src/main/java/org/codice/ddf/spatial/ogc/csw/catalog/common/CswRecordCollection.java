@@ -51,8 +51,6 @@ public class CswRecordCollection {
 
     private String outputSchema;
 
-    private boolean isValidateQuery;
-
     private SourceResponse sourceResponse;
 
     private String mimeType;
@@ -143,14 +141,6 @@ public class CswRecordCollection {
 
     public void setOutputSchema(String outputSchema) {
         this.outputSchema = outputSchema;
-    }
-    
-    public void setValidateQuery(boolean isValidateQuery){
-        this.isValidateQuery = isValidateQuery;
-    }
-    
-    public boolean isValidateQuery(){
-        return isValidateQuery;
     }
 
     public SourceResponse getSourceResponse(){

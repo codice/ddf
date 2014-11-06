@@ -21,11 +21,9 @@ import com.thoughtworks.xstream.core.TreeMarshaller;
 import com.thoughtworks.xstream.core.TreeUnmarshaller;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
 import com.thoughtworks.xstream.io.xml.XppReader;
-import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -51,7 +49,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -123,7 +120,7 @@ public class TestCswTransformProvider {
         assertThat(outputSchema, is(OTHER_SCHEMA));
     }
 
-    @Test (expected = ConversionException.class)
+    @Test(expected = ConversionException.class)
     public void testMarshalNoTransformers() throws Exception {
         when(mockMetacardManager.getTransformerBySchema(anyString())).thenReturn(null);
 
@@ -141,7 +138,8 @@ public class TestCswTransformProvider {
         when(mockInputManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA)).thenReturn(
                 mockCswRecordConverter);
 
-        HierarchicalStreamReader reader = new WstxDriver().createReader(new StringReader(getRecord()));
+        HierarchicalStreamReader reader = new WstxDriver().createReader(
+                new StringReader(getRecord()));
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
         UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
 
@@ -223,11 +221,12 @@ public class TestCswTransformProvider {
         assertThat(outputSchema, is(OTHER_SCHEMA));
     }
 
-    @Test (expected = ConversionException.class)
+    @Test(expected = ConversionException.class)
     public void testUnmarshalNoTransformers() throws Exception {
         when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(null);
 
-        HierarchicalStreamReader reader = new WstxDriver().createReader(new StringReader(getRecord()));
+        HierarchicalStreamReader reader = new WstxDriver().createReader(
+                new StringReader(getRecord()));
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
         UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
 
@@ -267,24 +266,14 @@ public class TestCswTransformProvider {
 
         metacard.setContentTypeName("I have some content type");
         metacard.setContentTypeVersion("1.0.0");
-//        metacard.setCreatedDate(CREATED_DATE.getTime());
-//        metacard.setEffectiveDate(EFFECTIVE_DATE.getTime());
         metacard.setId("ID");
         metacard.setLocation("POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))");
         metacard.setMetadata("metadata a whole bunch of metadata");
-//        metacard.setModifiedDate(MODIFIED_DATE.getTime());
         metacard.setResourceSize("123TB");
         metacard.setSourceId("sourceID");
         metacard.setTitle("This is my title");
-//        try {
-//            metacard.setResourceURI(new URI(TEST_URI));
-//        } catch (URISyntaxException e) {
-//            LOGGER.debug("URISyntaxException", e);
-//        }
 
         return metacard;
     }
-
-
 
 }

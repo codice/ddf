@@ -1,39 +1,28 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.measure.converter.ConversionException;
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
-
-import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
-import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
-import com.thoughtworks.xstream.io.xml.XppReader;
-import com.thoughtworks.xstream.io.xml.xppdom.XppFactory;
-import ddf.catalog.data.BinaryContent;
-import net.opengis.cat.csw.v_2_0_2.ElementSetType;
-
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -42,20 +31,14 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import javax.measure.converter.ConversionException;
+import javax.xml.XMLConstants;
+import java.util.List;
+import java.util.Map.Entry;
 
 /**
- * Converts a {@link CSWRecordCollection} into a {@link GetRecordsResponse} with CSW records
+ * Converts a {@link org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection} into a
+ * {@link net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType} with CSW records
  */
 
 public class GetRecordsResponseConverter implements Converter {
@@ -64,23 +47,9 @@ public class GetRecordsResponseConverter implements Converter {
 
     private Converter transformProvider;
 
-//    private Converter unmarshalRecordConverter;
-
-//    private List<RecordConverterFactory> converterFactories;
-
     private DefaultCswRecordMap defaultCswRecordMap = new DefaultCswRecordMap();
 
     private String outputSchema = CswConstants.CSW_OUTPUT_SCHEMA;
-
-//    private Map<String, String> metacardAttributeMap;
-
-    private String productRetrievalMethod;
-
-    private String resourceUriMapping;
-
-    private String thumbnailMapping;
-
-    private boolean isLonLatOrder;
 
     private static final String SEARCH_STATUS_NODE_NAME = "SearchStatus";
 
@@ -102,13 +71,12 @@ public class GetRecordsResponseConverter implements Converter {
 
     /**
      * Creates a new GetRecordsResponseConverter Object
-     * 
-     * @param recordConverter
-     *            The converter which will transform a {@link Metacard} to a CSWRecord
+     *
+     * @param transformProvider The converter which will transform a {@link Metacard} to a the appropriate XML
+     *                          format and vice versa.
      */
     public GetRecordsResponseConverter(Converter transformProvider) {
         this.transformProvider = transformProvider;
-//        this.converterFactories = factories;
     }
 
     @Override
@@ -119,7 +87,8 @@ public class GetRecordsResponseConverter implements Converter {
     }
 
     @Override
-    public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
+    public void marshal(Object source, HierarchicalStreamWriter writer,
+            MarshallingContext context) {
         LOGGER.debug("Entering GetRecordsResponseConverter.marshal()");
         if (source == null || !(source instanceof CswRecordCollection)) {
             LOGGER.warn("Failed to marshal CswRecordCollection: {}", source);
@@ -199,7 +168,7 @@ public class GetRecordsResponseConverter implements Converter {
 
     /**
      * Parses GetRecordsResponse XML of this form:
-     * 
+     * <p/>
      * <pre>
      * {@code
      *  <csw:GetRecordsResponse xmlns:csw="http://www.opengis.net/cat/csw">
@@ -218,8 +187,6 @@ public class GetRecordsResponseConverter implements Converter {
      */
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-
-//        unmarshalRecordConverter = transformProvider;
         if (transformProvider == null) {
             throw new ConversionException("Unable to locate Converter for outputSchema: "
                     + outputSchema);
@@ -258,7 +225,7 @@ public class GetRecordsResponseConverter implements Converter {
                 LOGGER.trace("metacard {}: ", index);
                 LOGGER.trace("    id = {}", m.getId());
                 LOGGER.trace("    title = {}", m.getTitle());
-    
+
                 // Some CSW services return an empty bounding box, i.e., no lower
                 // and/or upper corner positions
                 Attribute boundingBoxAttr = m.getAttribute("BoundingBox");
@@ -282,34 +249,4 @@ public class GetRecordsResponseConverter implements Converter {
         cswRecords.setNumberOfRecordsReturned(Long.valueOf(numberOfRecordsReturned));
 
     }
-
-//    public void setUnmarshalConverterSchema(String schema,
-//            Map<String, String> metacardAttributeMap, String productRetrievalMethod,
-//            String resourceUriMapping, String thumbnailMapping, boolean isLonLatOrder) {
-//        if (StringUtils.isNotBlank(schema)) {
-//            this.outputSchema = schema;
-//        }
-//        this.metacardAttributeMap = metacardAttributeMap;
-//        this.productRetrievalMethod = productRetrievalMethod;
-//        this.resourceUriMapping = resourceUriMapping;
-//        this.thumbnailMapping = thumbnailMapping;
-//        this.isLonLatOrder = isLonLatOrder;
-////        this.unmarshalRecordConverter = createUnmarshalConverter();
-//    }
-
-//    private RecordConverter createUnmarshalConverter() {
-//        if (unmarshalRecordConverter == null) {
-//            for (RecordConverterFactory converterFactory : converterFactories) {
-//                if (StringUtils.equals(converterFactory.getOutputSchema(), outputSchema)) {
-//                    return converterFactory.createConverter(metacardAttributeMap,
-//                            productRetrievalMethod, resourceUriMapping, thumbnailMapping,
-//                            isLonLatOrder);
-//                }
-//            }
-//            return null;
-//        }
-//        return unmarshalRecordConverter;
-//    }
-
-
 }

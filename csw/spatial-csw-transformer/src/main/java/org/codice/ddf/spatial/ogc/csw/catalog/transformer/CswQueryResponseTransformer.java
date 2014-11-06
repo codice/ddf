@@ -33,7 +33,6 @@ import net.opengis.cat.csw.v_2_0_2.ResultType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,8 +105,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             } catch (XStreamException e) {
                 throw new CatalogTransformerException(e);
             }
-            // TODO - should use recordCollection.getResultType() here
-        } else if (recordCollection.isValidateQuery()) {
+        } else if (recordCollection.getResultType() != null && ResultType.VALIDATE.equals(
+                recordCollection.getResultType())) {
             LOGGER.debug("Transforming Acknowledgement");
             try {
                 writeAcknowledgement(recordCollection.getRequest(), os);
@@ -158,13 +157,9 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 recordCollection.setById((Boolean)isByIdQuery);
             }
 
-            Object isValidateQuery = arguments.get(CswConstants.IS_VALIDATE_QUERY);
-            if (isValidateQuery != null) {
-                recordCollection.setValidateQuery((Boolean)isValidateQuery);
-                Object arg = arguments.get((CswConstants.GET_RECORDS));
-                if (arg != null && arg instanceof GetRecordsType){
-                    recordCollection.setRequest((GetRecordsType) arg);
-                }
+            Object arg = arguments.get((CswConstants.GET_RECORDS));
+            if (arg != null && arg instanceof GetRecordsType){
+                recordCollection.setRequest((GetRecordsType) arg);
             }
 
             Object resultType = arguments.get(CswConstants.RESULT_TYPE_PARAMETER);

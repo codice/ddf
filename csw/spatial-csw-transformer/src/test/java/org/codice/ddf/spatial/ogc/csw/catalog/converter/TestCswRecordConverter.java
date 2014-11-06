@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
@@ -21,30 +21,20 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.core.TreeMarshaller;
 import com.thoughtworks.xstream.core.TreeUnmarshaller;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.DomReader;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
-import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.NamespaceContext;
-import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.joda.time.format.DateTimeFormatter;
@@ -54,7 +44,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -69,7 +58,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -79,29 +67,23 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 
-import static junit.framework.Assert.assertTrue;
 import static net.opengis.cat.csw.v_2_0_2.ElementSetType.BRIEF;
 import static net.opengis.cat.csw.v_2_0_2.ElementSetType.FULL;
 import static net.opengis.cat.csw.v_2_0_2.ElementSetType.SUMMARY;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -151,13 +133,6 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testConstruction() {
-        CswRecordConverter converter = new CswRecordConverter();
-//        assertDefaultDateMappings(converter.cswToMetacardAttributeNames);
-    }
-
-
-    @Test
     public void testUnmarshalSingleCswRecordToMetacard() {
         XStream xstream = new XStream(new WstxDriver());
 
@@ -178,7 +153,7 @@ public class TestCswRecordConverter {
         Date returned = (Date) mc.getAttribute(CswRecordMetacardType.CSW_DATE).getValue();
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         cal.clear();
-        cal.set(2003,  4,  9);
+        cal.set(2003, 4, 9);
         Date expected = new Date(cal.getTimeInMillis());
 
         assertThat(returned, equalTo(expected));
@@ -194,7 +169,7 @@ public class TestCswRecordConverter {
         metacardAttributeMappings.put(CswRecordMetacardType.CSW_FORMAT, Metacard.CONTENT_TYPE);
 
         CswRecordConverter converter = new CswRecordConverter();
-        
+
         xstream.registerConverter(converter);
 
         xstream.alias("csw:Record", MetacardImpl.class);
@@ -249,9 +224,9 @@ public class TestCswRecordConverter {
                 .getValue());
         assertThat(mc.getTitle(), equalTo("First title"));
         assertListStringAttribute(mc, CswRecordMetacardType.CSW_TITLE, new String[] {"First title",
-            "Second title"});
+                "Second title"});
         assertListStringAttribute(mc, CswRecordMetacardType.CSW_SUBJECT, new String[] {"Subject 1",
-            "Subject 2"});
+                "Subject 2"});
     }
 
     @Test
@@ -303,12 +278,13 @@ public class TestCswRecordConverter {
         assertDates(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED, mc);
     }
 
+    @Test
     public void testUnmarshalCswRecordMetacard_NoModifiedDate() {
         Metacard mc = buildMetacardFromCSW("/Csw_Record_without_ModifiedDate.xml");
         assertThat(mc, not(nullValue()));
 
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
-                startsWith("08976079-9c53-465f-c921-97d0717262f5"));
+                startsWith("08976079-9c53-465f-d921-97d0717262f5"));
         assertThat((String) mc.getAttribute(Metacard.ID).getValue(), equalTo((String) mc
                 .getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
 
@@ -322,12 +298,13 @@ public class TestCswRecordConverter {
         assertDates(Metacard.MODIFIED, CswRecordMetacardType.CSW_DATE_SUBMITTED, mc);
     }
 
+    @Test
     public void testUnmarshalCswRecordMetacard_NoDateSubmitted() {
         Metacard mc = buildMetacardFromCSW("/Csw_Record_without_DateSubmitted.xml");
         assertThat(mc, not(nullValue()));
 
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
-                startsWith("08976079-9c53-465f-d921-97d0717262f5"));
+                startsWith("08976079-9c53-465f-c921-97d0717262f5"));
         assertThat((String) mc.getAttribute(Metacard.ID).getValue(), equalTo((String) mc
                 .getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
 
@@ -341,7 +318,7 @@ public class TestCswRecordConverter {
         assertDates(Metacard.MODIFIED, CswRecordMetacardType.CSW_MODIFIED, mc);
     }
 
-    Metacard buildMetacardFromCSW(String cswFileName) {
+    private Metacard buildMetacardFromCSW(String cswFileName) {
         XStream xstream = new XStream(new WstxDriver());
 
         CswRecordConverter converter = new CswRecordConverter();
@@ -490,13 +467,13 @@ public class TestCswRecordConverter {
      */
     @Test
     public void testSetMetacardContentTypeToCswRecordType() throws ParserConfigurationException,
-        SAXException, IOException {
+            SAXException, IOException {
         // Setup
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
         Document doc = docBuilder.parse("src/test/resources/Csw_Record.xml");
         HierarchicalStreamReader reader = new DomReader(doc);
-        
+
         Map<String, String> metacardAttributeMappings = this.getMetacardAttributeMappings();
         metacardAttributeMappings.put(CswRecordMetacardType.CSW_TYPE, Metacard.CONTENT_TYPE);
         UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
@@ -511,7 +488,7 @@ public class TestCswRecordConverter {
         LOGGER.debug("metacard content type: {}", metacard.getContentTypeName());
         assertThat(metacard.getContentTypeName(), is("IMAGE-PRODUCT"));
     }
-    
+
     @Test
     public void testMarshalRecord() throws IOException, JAXBException, SAXException,
             XpathException {
@@ -589,8 +566,9 @@ public class TestCswRecordConverter {
 
         XMLUnit.setIgnoreWhitespace(true);
 
-        final String test1 = "<?xml version='1.0' encoding='UTF-8'?><csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"><source>"
-                + TEST_URI + "</source></csw:Record>";
+        final String test1 =
+                "<?xml version='1.0' encoding='UTF-8'?><csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"><source>"
+                        + TEST_URI + "</source></csw:Record>";
 
         assertXMLEqual(test1, xml);
 
@@ -603,8 +581,10 @@ public class TestCswRecordConverter {
 
         String xml2 = "<?xml version='1.0' encoding='UTF-8'?>" + stringWriter.toString();
 
-        final String test2 = "<?xml version='1.0' encoding='UTF-8'?><csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"><source>" + actionUrl
-                + "</source></csw:Record>";
+        final String test2 =
+                "<?xml version='1.0' encoding='UTF-8'?><csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"><source>"
+                        + actionUrl
+                        + "</source></csw:Record>";
 
         assertXMLEqual(test2, xml2);
     }
@@ -739,7 +719,8 @@ public class TestCswRecordConverter {
                 equalTo(Metacard.MODIFIED));
 
         assertThat(dateMappings.containsKey(CswRecordMetacardType.CSW_MODIFIED), is(true));
-        assertThat(dateMappings.get(CswRecordMetacardType.CSW_MODIFIED), equalTo(Metacard.MODIFIED));
+        assertThat(dateMappings.get(CswRecordMetacardType.CSW_MODIFIED),
+                equalTo(Metacard.MODIFIED));
     }
 
     private void assertDateMappings(Map<String, String> dateMappings) {
@@ -747,28 +728,30 @@ public class TestCswRecordConverter {
         assertThat(dateMappings.get(CswRecordMetacardType.CSW_TITLE), equalTo(Metacard.TITLE));
 
         assertThat(dateMappings.containsKey(CswRecordMetacardType.CSW_CREATED), is(true));
-        assertThat(dateMappings.get(CswRecordMetacardType.CSW_CREATED), equalTo(Metacard.EFFECTIVE));
+        assertThat(dateMappings.get(CswRecordMetacardType.CSW_CREATED),
+                equalTo(Metacard.EFFECTIVE));
 
         assertThat(dateMappings.containsKey(CswRecordMetacardType.CSW_DATE_SUBMITTED), is(true));
         assertThat(dateMappings.get(CswRecordMetacardType.CSW_DATE_SUBMITTED),
                 equalTo(Metacard.CREATED));
 
         assertThat(dateMappings.containsKey(CswRecordMetacardType.CSW_MODIFIED), is(true));
-        assertThat(dateMappings.get(CswRecordMetacardType.CSW_MODIFIED), equalTo(Metacard.MODIFIED));
+        assertThat(dateMappings.get(CswRecordMetacardType.CSW_MODIFIED),
+                equalTo(Metacard.MODIFIED));
     }
-    
+
     private void assertDateConversion(Serializable ser, Calendar expectedDate) {
         assertThat(ser, not(nullValue()));
         assertThat(Date.class.isAssignableFrom(ser.getClass()), is(true));
         Date date = (Date) ser;
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        // Calendar now = Calendar.getInstance();
         assertThat(cal.get(Calendar.MONTH), equalTo(expectedDate.get(Calendar.MONTH)));
         assertThat(cal.get(Calendar.YEAR), equalTo(expectedDate.get(Calendar.YEAR)));
-        assertThat(cal.get(Calendar.DAY_OF_MONTH), equalTo(expectedDate.get(Calendar.DAY_OF_MONTH)));
+        assertThat(cal.get(Calendar.DAY_OF_MONTH),
+                equalTo(expectedDate.get(Calendar.DAY_OF_MONTH)));
     }
-    
+
     private Map<String, String> getMetacardAttributeMappings() {
         Map<String, String> metacardAttributeMappings = new HashMap<String, String>();
         metacardAttributeMappings.put(CswRecordMetacardType.CSW_CREATED, Metacard.EFFECTIVE);

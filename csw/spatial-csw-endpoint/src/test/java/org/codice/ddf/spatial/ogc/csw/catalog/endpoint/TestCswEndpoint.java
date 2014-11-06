@@ -56,6 +56,8 @@ import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
 import net.opengis.cat.csw.v_2_0_2.DistributedSearchType;
+import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
+import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
@@ -1313,6 +1315,9 @@ public class TestCswEndpoint {
         constraint.setCqlText(CQL_CONTEXTUAL_LIKE_QUERY);
 
         query.setConstraint(constraint);
+        ElementSetNameType esnt = new ElementSetNameType();
+        esnt.setValue(ElementSetType.SUMMARY);
+        query.setElementSetName(esnt);
         JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
                 "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
@@ -1339,12 +1344,11 @@ public class TestCswEndpoint {
 
         CswRecordCollection collection = cswEndpoint.getRecords(grr);
 
-        // TODO - assert ElementSetType / ElementNames
-
         assertThat(collection.getMimeType(), is(EXAMPLE_MIME));
         assertThat(collection.getOutputSchema(), is(EXAMPLE_SCHEMA));
         assertThat(collection.getSourceResponse(), notNullValue());
-
+        assertThat(collection.getResultType(), is(ResultType.RESULTS));
+        assertThat(collection.getElementSetType(), is(ElementSetType.SUMMARY));
     }
 
 

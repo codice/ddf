@@ -205,9 +205,6 @@ public interface CswConstants {
 
     public static final String OUTPUT_FORMAT_XML = MediaType.APPLICATION_XML;
 
-//    public static final List<String> VALID_OUTPUT_FORMATS = new ArrayList<String>(Arrays.asList(
-//            MediaType.TEXT_XML, MediaType.APPLICATION_XML));
-
     public static final String SCHEMA_LANGUAGE_X_SCHEMA_2001 = "http://www.w3.org/2001/XMLSchema";
     public static final String SCHEMA_LANGUAGE_X_SCHEMA = "http://www.w3.org/XMLSchema";
     public static final String SCHEMA_LANGUAGE_XML_SCHEMA = "http://www.w3.org/XML/Schema";
@@ -229,8 +226,6 @@ public interface CswConstants {
     String ELEMENT_NAMES = "ELEMENT_NAMES";
 
     String IS_BY_ID_QUERY = "IS_BY_ID_QUERY";
-
-    String IS_VALIDATE_QUERY = "IS_VALIDATE_QUERY";
 
     String WRITE_NAMESPACES = "WRITE_NAMESPACES";
 

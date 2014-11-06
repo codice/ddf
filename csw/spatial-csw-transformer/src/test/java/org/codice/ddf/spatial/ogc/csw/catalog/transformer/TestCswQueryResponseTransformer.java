@@ -15,7 +15,6 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.transformer;
 
 import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Result;
@@ -27,8 +26,6 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordByIdResponseType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 import org.apache.commons.lang.StringUtils;
@@ -37,12 +34,9 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.GetRecordsResponseConverter;
-import org.hamcrest.Matchers;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.opengis.filter.Filter;
 
 import javax.ws.rs.WebApplicationException;
@@ -101,7 +95,8 @@ public class TestCswQueryResponseTransformer {
         args.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, CswConstants.CSW_OUTPUT_SCHEMA);
         args.put(CswConstants.RESULT_TYPE_PARAMETER, ResultType.RESULTS.value());
 
-        ArgumentCaptor<CswRecordCollection> captor = ArgumentCaptor.forClass(CswRecordCollection.class);
+        ArgumentCaptor<CswRecordCollection> captor = ArgumentCaptor
+                .forClass(CswRecordCollection.class);
 
         BinaryContent content = transformer.transform(sourceResponse, args);
 
@@ -131,7 +126,7 @@ public class TestCswQueryResponseTransformer {
         SourceResponse sourceResponse = createSourceResponse(query, 22);
 
         Map<String, Serializable> args = new HashMap<String, Serializable>();
-        args.put(CswConstants.IS_VALIDATE_QUERY, true);
+        args.put(CswConstants.RESULT_TYPE_PARAMETER, ResultType.VALIDATE.value());
         args.put(CswConstants.GET_RECORDS, query);
 
         BinaryContent content = transformer.transform(sourceResponse, args);
@@ -155,7 +150,8 @@ public class TestCswQueryResponseTransformer {
 
         Map<String, Serializable> args = new HashMap<String, Serializable>();
         args.put(CswConstants.IS_BY_ID_QUERY, true);
-        ArgumentCaptor<CswRecordCollection> captor = ArgumentCaptor.forClass(CswRecordCollection.class);
+        ArgumentCaptor<CswRecordCollection> captor = ArgumentCaptor
+                .forClass(CswRecordCollection.class);
 
         BinaryContent content = transformer.transform(sourceResponse, args);
 
