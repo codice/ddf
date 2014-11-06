@@ -146,7 +146,6 @@ public class ContentEndpointCreateTest {
         MimeTypeMapper mapper = mock(MimeTypeMapper.class);
         when(mapper.getFileExtensionForMimeType(isA(String.class))).thenReturn("txt");
         when(mapper.getMimeTypeForFileExtension(isA(String.class))).thenReturn("text/plain");
-        when(mapper.guessMimeType(isA(InputStream.class), isA(String.class))).thenReturn("text/plain");
         return mapper;
     }
 
