@@ -79,12 +79,6 @@
 			<version>2.2.0</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-		    <groupId>ddf.mime.tika</groupId>
-		    <artifactId>mime-tika-resolver</artifactId>
-		    <version>${project.version}</version>
-		    <scope>test</scope>
-		</dependency>
 
 	</dependencies>
 

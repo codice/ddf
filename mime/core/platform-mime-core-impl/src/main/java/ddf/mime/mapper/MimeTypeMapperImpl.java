@@ -193,8 +193,10 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
             try {
                 // If processing an XML file, then match the namespace extracted from the
                 // XML file to the MimeTypeResolver that supports that schema (namespace).
-                // If no MimeTypeResolvers support the namespace, then defer to the Tika
-                // MimeTypeResolver to process the XML file.
+                // If no MimeTypeResolvers support the namespace, then mime type will be null.
+                // Even if a MimeTypeResolver, such as the TikaMimeTypeResolver, were to handle
+                // XML files that have no "known" schema it is highly unlikely there would be
+                // an InputTransformer to create a metacard for that "generic" XML file.
                 if (fileExtension.equals(XML_FILE_EXTENSION)) {
                     if (namespace != null && resolver.hasSchema()) {
                         if (namespace.equals(resolver.getSchema())) {

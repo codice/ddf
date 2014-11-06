@@ -14,7 +14,6 @@
  **/
 package ddf.mime;
 
-import java.io.InputStream;
 
 /**
  * Interface defining an OSGi service that can map a list of file extensions to their corresponding
