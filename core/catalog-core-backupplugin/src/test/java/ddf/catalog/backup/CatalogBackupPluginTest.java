@@ -435,11 +435,9 @@ public class CatalogBackupPluginTest {
     private Metacard readMetacard(File file) throws ClassNotFoundException, IOException {
         Metacard metacard = null;
 
-        FileInputStream fis = new FileInputStream(file);
 
-        try(ObjectInputStream ois = new ObjectInputStream(fis)) {
+        try(FileInputStream fis = new FileInputStream(file); ObjectInputStream ois = new ObjectInputStream(fis)) {
             metacard = (Metacard) ois.readObject();
-            ois.close();
         }
 
         return metacard;
