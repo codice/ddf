@@ -32,10 +32,17 @@ public class TikaMimeTypeResolverTest {
     }
 
     @Test
-    public void testGetMimeTypeForFileExtension() throws Exception {
+    public void testGetMimeTypeForPdfFileExtension() throws Exception {
         TikaMimeTypeResolver resolver = new TikaMimeTypeResolver();
         String mimeType = resolver.getMimeTypeForFileExtension("pdf");
         assertEquals("application/pdf", mimeType);
+    }
+
+    @Test
+    public void testGetMimeTypeForXmlFileExtension() throws Exception {
+        TikaMimeTypeResolver resolver = new TikaMimeTypeResolver();
+        String mimeType = resolver.getMimeTypeForFileExtension("xml");
+        assertEquals("application/xml", mimeType);
     }
 
     @Test

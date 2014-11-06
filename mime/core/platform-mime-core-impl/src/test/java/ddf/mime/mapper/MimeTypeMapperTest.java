@@ -17,11 +17,12 @@ package ddf.mime.mapper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +64,24 @@ public class MimeTypeMapperTest {
         String fileExtension = mapper.getFileExtensionForMimeType("image/nitf");
         LOGGER.debug("fileExtension = {}", fileExtension);
         assertEquals(".nitf", fileExtension);
+    }
+
+    @Test
+    @Ignore
+    public void testGuesMimeTypeForCswXmlIngest() throws Exception {
+        
+        InputStream is = null;
+        
+        List<MimeTypeResolver> resolvers = new ArrayList<MimeTypeResolver>();
+        resolvers.add(new MockMimeTypeResolver("XmlMetacardResolver", 10, 
+                new String[] {"xml=text/xml"}, "urn:catalog:metacard"));
+        resolvers.add(new MockMimeTypeResolver("CswResolver", 10, 
+                new String[] {"xml=text/xml;id=csw"}, "http://www.opengis.net/cat/csw/2.0.2"));
+
+        MimeTypeMapper mapper = new MimeTypeMapperImpl(resolvers);
+        String mimeType = mapper.guessMimeType(is, "xml");
+        LOGGER.debug("mimeType = {}", mimeType);
+        assertEquals("text/xml;id=csw", mimeType);
     }
 
 }

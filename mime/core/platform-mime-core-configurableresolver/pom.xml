@@ -62,13 +62,15 @@
 						<Export-Package />
 						<Import-Package>
 							ddf.mime,
+							javax.xml.parsers,
 							org.apache.commons.io,
 							org.apache.commons.lang,
 							org.slf4j,
 							org.slf4j.ext,
 							org.osgi.service.blueprint,
 							org.osgi.service.cm,
-							org.xml.sax
+							org.xml.sax,
+							org.w3c.dom
 						</Import-Package>
 					</instructions>
 				</configuration>

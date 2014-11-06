@@ -33,6 +33,10 @@
 			<artifactId>commons-io</artifactId>
 		</dependency>
 		<dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
 		</dependency>
@@ -69,6 +73,7 @@
 							javax.xml.transform,
 							javax.xml.transform.dom,
 							javax.xml.transform.sax,
+							org.apache.commons.lang,
 							org.apache.commons.io,
 							org.slf4j,
 							org.slf4j.ext,

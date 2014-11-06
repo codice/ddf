@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.mime.MimeTypeResolver;
 
@@ -34,10 +34,12 @@ import ddf.mime.MimeTypeResolver;
  * 
  */
 public class CustomMimeTypeResolver implements MimeTypeResolver {
-    private static XLogger logger = new XLogger(
-            LoggerFactory.getLogger(CustomMimeTypeResolver.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomMimeTypeResolver.class);
 
     private String name;
+    
+    // Only applicable for text/xml mime types, e.g., XML Metacard, CSW
+    private String schema;
 
     private int priority;
 
@@ -53,11 +55,11 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
     }
 
     public void init() {
-        logger.trace("INSIDE: init");
+        LOGGER.trace("INSIDE: init");
     }
 
     public void destroy() {
-        logger.trace("INSIDE: destroy");
+        LOGGER.trace("INSIDE: destroy");
     }
 
     @Override
@@ -68,6 +70,21 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
     public void setName(String name) {
         this.name = name;
     }
+    
+    public void setSchema(String schema) {
+        LOGGER.debug("Setting schema = {}", schema);
+        this.schema = schema;
+    }
+    
+    @Override
+    public boolean hasSchema() {
+        return StringUtils.isNotBlank(this.schema);
+    }
+    
+    @Override
+    public String getSchema() {
+        return schema;
+    }
 
     @Override
     public int getPriority() {
@@ -75,7 +92,7 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
     }
 
     public void setPriority(int priority) {
-        logger.debug("Setting priority = {}", priority);
+        LOGGER.debug("Setting priority = {}", priority);
         this.priority = priority;
     }
 
@@ -84,14 +101,14 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
     }
 
     public void setCustomMimeTypes(String[] customMimeTypes) {
-        logger.trace("ENTERING: setCustomMimeTypes");
+        LOGGER.trace("ENTERING: setCustomMimeTypes");
 
         this.customMimeTypes = customMimeTypes.clone();
         this.customFileExtensionsToMimeTypesMap = new HashMap<String, String>();
         this.customMimeTypesToFileExtensionsMap = new HashMap<String, List<String>>();
 
         for (String mimeTypeMapping : this.customMimeTypes) {
-            logger.trace(mimeTypeMapping);
+            LOGGER.trace(mimeTypeMapping);
 
             // mimeTypeMapping is of the form <file extension>=<mime type>
             // Examples:
@@ -104,18 +121,18 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
             List<String> fileExtensions = (List<String>) customMimeTypesToFileExtensionsMap
                     .get(mimeType);
             if (fileExtensions == null) {
-                logger.debug("Creating fileExtensions array for mime type: {}", mimeType);
+                LOGGER.debug("Creating fileExtensions array for mime type: {}", mimeType);
                 fileExtensions = new ArrayList<String>();
             }
-            logger.debug("Adding file extension: {} for mime type: {}", fileExtensions, mimeType);
+            LOGGER.debug("Adding file extension: {} for mime type: {}", fileExtensions, mimeType);
             fileExtensions.add(fileExtension);
             customMimeTypesToFileExtensionsMap.put(mimeType, fileExtensions);
         }
 
-        logger.debug("customFileExtensionsToMimeTypesMap = {} ", customFileExtensionsToMimeTypesMap);
-        logger.debug("customMimeTypesToFileExtensionsMap = {}", customMimeTypesToFileExtensionsMap);
+        LOGGER.debug("customFileExtensionsToMimeTypesMap = {} ", customFileExtensionsToMimeTypesMap);
+        LOGGER.debug("customMimeTypesToFileExtensionsMap = {}", customMimeTypesToFileExtensionsMap);
 
-        logger.trace("EXITING: setCustomMimeTypes");
+        LOGGER.trace("EXITING: setCustomMimeTypes");
     }
 
     public HashMap<String, String> getCustomFileExtensionsToMimeTypesMap() {
@@ -139,14 +156,14 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
     @Override
     public String getFileExtensionForMimeType(String mimeType) // throws MimeTypeException
     {
-        logger.trace("ENTERING: getFileExtensionForMimeType");
-        logger.debug("contentType = {}", mimeType);
+        LOGGER.trace("ENTERING: getFileExtensionForMimeType");
+        LOGGER.debug("contentType = {}", mimeType);
 
         String fileExtension = null;
-        if (mimeType != null && !mimeType.isEmpty()) {
+        if (StringUtils.isNotEmpty(mimeType)) {
             List<String> fileExtensions = customMimeTypesToFileExtensionsMap.get(mimeType);
             if (fileExtensions != null && fileExtensions.size() > 0) {
-                logger.debug("{} file extensions found for mime type = {} ",
+                LOGGER.debug("{} file extensions found for mime type = {} ",
                         fileExtensions.size(), mimeType);
 
                 fileExtension = fileExtensions.get(0);
@@ -161,27 +178,27 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
             }
         }
 
-        logger.debug("fileExtension = {}", fileExtension);
+        LOGGER.debug("fileExtension = {}", fileExtension);
 
-        logger.trace("EXITING: getFileExtensionForMimeType");
+        LOGGER.trace("EXITING: getFileExtensionForMimeType");
 
         return fileExtension;
     }
 
     @Override
-    public String getMimeTypeForFileExtension(String fileExtension) // throws MimeTypeException
+    public String getMimeTypeForFileExtension(String fileExtension)
     {
-        logger.trace("ENTERING: getMimeTypeForFileExtension");
-        logger.debug("fileExtension = {}", fileExtension);
+        LOGGER.trace("ENTERING: getMimeTypeForFileExtension");
+        LOGGER.debug("fileExtension = {}", fileExtension);
 
         String mimeType = null;
-        if (fileExtension != null && !fileExtension.isEmpty()) {
+        if (StringUtils.isNotBlank(fileExtension)) {
             mimeType = customFileExtensionsToMimeTypesMap.get(fileExtension);
         }
 
-        logger.debug("mimeType = {}", mimeType);
+        LOGGER.debug("mimeType = {}", mimeType);
 
-        logger.trace("EXITING: getMimeTypeForFileExtension");
+        LOGGER.trace("EXITING: getMimeTypeForFileExtension");
 
         return mimeType;
     }

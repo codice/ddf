@@ -14,13 +14,23 @@
  **/
 package ddf.mime.mapper;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
@@ -34,12 +44,11 @@ import ddf.mime.MimeTypeResolver;
  * 
  * @since 2.1.0
  * 
- * @author Hugh Rodgers, Lockheed Martin
- * @author ddf.isgs@lmco.com
- * 
  */
 public class MimeTypeMapperImpl implements MimeTypeMapper {
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(MimeTypeMapperImpl.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(MimeTypeMapperImpl.class);
+    
+    private static final String XML_FILE_EXTENSION = "xml";
 
     private static Comparator<MimeTypeResolver> COMPARATOR = new Comparator<MimeTypeResolver>() {
         public int compare(MimeTypeResolver o1, MimeTypeResolver o2) {
@@ -62,17 +71,17 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
      *            the {@link List} of {@link MimeTypeResolver}s
      */
     public MimeTypeMapperImpl(List<MimeTypeResolver> mimeTypeResolvers) {
-        logger.debug("INSIDE: MimeTypeMapperImpl constructor");
+        LOGGER.debug("INSIDE: MimeTypeMapperImpl constructor");
         this.mimeTypeResolvers = mimeTypeResolvers;
     }
 
     @Override
     public String getFileExtensionForMimeType(String mimeType) throws MimeTypeResolutionException {
-        logger.trace("ENTERING: getFileExtensionForMimeType");
+        LOGGER.trace("ENTERING: getFileExtensionForMimeType()");
 
         String extension = null;
 
-        logger.debug("Looping through " + mimeTypeResolvers.size() + " MimeTypeResolvers");
+        LOGGER.debug("Looping through {} MimeTypeResolvers", mimeTypeResolvers.size());
 
         // Sort the mime type resolvers in descending order of priority. This should
         // insure custom mime type resolvers are called before the (default) Apache Tika
@@ -86,26 +95,24 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
         // resolvers that may override mime types supported by Tika to be invoked first.
         // Once a file extension is find for the given mime type, exit the loop.
         for (MimeTypeResolver resolver : sortedResolvers) {
-            logger.debug("Calling MimeTypeResolver " + resolver.getName());
+            LOGGER.debug("Calling MimeTypeResolver {}", resolver.getName());
             try {
                 extension = resolver.getFileExtensionForMimeType(mimeType);
             } catch (Exception e) {
-                logger.warn("Error resolving file extension for mime type: " + mimeType);
+                LOGGER.warn("Error resolving file extension for mime type: {}", mimeType);
                 throw new MimeTypeResolutionException(e);
             }
 
-            if (extension != null && !extension.isEmpty()) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("extension [" + extension + "] retrieved from MimeTypeResolver:  "
-                            + resolver.getName());
-                }
+            if (StringUtils.isNotEmpty(extension)) {
+                LOGGER.debug("extension [{}] retrieved from MimeTypeResolver:  {}", extension,
+                        resolver.getName());
                 break;
             }
         }
 
-        logger.debug("mimeType = " + mimeType + ",   file extension = [" + extension + "]");
+        LOGGER.debug("mimeType = {},   file extension = [{}]", mimeType, extension);
 
-        logger.trace("EXITING: getFileExtensionForMimeType");
+        LOGGER.trace("EXITING: getFileExtensionForMimeType()");
 
         return extension;
     }
@@ -113,13 +120,13 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
     @Override
     public String getMimeTypeForFileExtension(String fileExtension)
         throws MimeTypeResolutionException {
-        logger.trace("ENTERING: getMimeTypeForFileExtension");
+        LOGGER.trace("ENTERING: getMimeTypeForFileExtension()");
 
         String mimeType = null;
 
-        logger.debug("Looping through " + mimeTypeResolvers.size() + " MimeTypeResolvers");
+        LOGGER.debug("Looping through {} MimeTypeResolvers", mimeTypeResolvers.size());
 
-        // TODO: This is a KLUDGE to force the TikaMimeTypeResolver to be called
+        // TODO: This is to force the TikaMimeTypeResolver to be called
         // after the CustomMimeTypeResolvers to prevent Tika default mapping
         // from being used when a CustomMimeTypeResolver may be more appropriate.
         List<MimeTypeResolver> sortedResolvers = sortResolvers(mimeTypeResolvers);
@@ -131,29 +138,116 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
         // resolvers that may override mime types supported by Tika to be invoked first.
         // Once a file extension is find for the given mime type, exit the loop.
         for (MimeTypeResolver resolver : sortedResolvers) {
-            logger.debug("Calling MimeTypeResolver " + resolver.getName());
+            LOGGER.debug("Calling MimeTypeResolver {}", resolver.getName());
             try {
                 mimeType = resolver.getMimeTypeForFileExtension(fileExtension);
             } catch (Exception e) {
-                logger.warn("Error resolving mime type for file extension: " + fileExtension);
+                LOGGER.warn("Error resolving mime type for file extension: " + fileExtension);
                 throw new MimeTypeResolutionException(e);
             }
 
-            if (mimeType != null && !mimeType.isEmpty()) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("mimeType [" + mimeType + "] retrieved from MimeTypeResolver:  "
-                            + resolver.getName());
-                }
+            if (StringUtils.isNotEmpty(mimeType)) {
+                LOGGER.debug("mimeType [{}] retrieved from MimeTypeResolver:  ", mimeType,
+                        resolver.getName());
                 break;
             }
         }
 
-        logger.debug("mimeType = " + mimeType + ",   file extension = [" + fileExtension + "]");
+        LOGGER.debug("mimeType = {},   file extension = [{}]", mimeType, fileExtension);
 
-        logger.trace("EXITING: getMimeTypeForFileExtension");
+        LOGGER.trace("EXITING: getMimeTypeForFileExtension()");
 
         return mimeType;
     }
+
+    @Override
+    public String guessMimeType(InputStream is, String fileExtension)
+        throws MimeTypeResolutionException {
+        LOGGER.trace("ENTERING: guessMimeType()");
+
+        String mimeType = null;
+
+        LOGGER.debug("Looping through{} MimeTypeResolvers", mimeTypeResolvers.size());
+
+        // This is to force the TikaMimeTypeResolver to be called
+        // after the CustomMimeTypeResolvers to prevent Tika default mapping
+        // from being used when a CustomMimeTypeResolver may be more appropriate.
+        List<MimeTypeResolver> sortedResolvers = sortResolvers(mimeTypeResolvers);
+        
+        // If file has XML extension, then read root element namespace once so
+        // each MimeTypeResolver does not have to open the stream and read the namespace
+        String namespace = null;
+        if (fileExtension.equals(XML_FILE_EXTENSION)) {
+            namespace = getRootElementNamespace(is);
+            LOGGER.debug("namespace = {}", namespace);
+        }
+
+        // Loop through all of the configured MimeTypeResolvers. The order of their
+        // invocation is determined by their OSGi service ranking. The default
+        // TikaMimeTypeResolver should be called last, allowing any configured custom
+        // mime type resolvers to be invoked first - this allows custom mime type
+        // resolvers that may override mime types supported by Tika to be invoked first.
+        // Once a file extension is find for the given mime type, exit the loop.
+        for (MimeTypeResolver resolver : sortedResolvers) {
+            LOGGER.debug("Calling MimeTypeResolver {}", resolver.getName());
+            try {
+                // If processing an XML file, then match the namespace extracted from the
+                // XML file to the MimeTypeResolver that supports that schema (namespace).
+                // If no MimeTypeResolvers support the namespace, then defer to the Tika
+                // MimeTypeResolver to process the XML file.
+                if (fileExtension.equals(XML_FILE_EXTENSION)) {
+                    if (namespace != null && resolver.hasSchema()) {
+                        if (namespace.equals(resolver.getSchema())) {
+                            mimeType = resolver.getMimeTypeForFileExtension(fileExtension);
+                        }
+                    }
+                } else {
+                    mimeType = resolver.getMimeTypeForFileExtension(fileExtension);
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Error resolving mime type for file extension: " + fileExtension);
+                throw new MimeTypeResolutionException(e);
+            }
+
+            if (StringUtils.isNotEmpty(mimeType)) {
+                LOGGER.debug("mimeType [{}] retrieved from MimeTypeResolver:  ", mimeType,
+                        resolver.getName());
+                break;
+            }
+        }
+
+        LOGGER.debug("mimeType = {},   file extension = [{}]", mimeType, fileExtension);
+
+        LOGGER.trace("EXITING: guessMimeType()");
+
+        return mimeType;
+    }
+    
+    private String getRootElementNamespace(InputStream is) {
+        LOGGER.trace("ENTERING: getRootElementNamespace()");
+        
+        if (is == null) {
+            return null;
+        }
+        
+        String namespace = null;        
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+
+        try {
+            DocumentBuilder db = dbf.newDocumentBuilder();        
+            Document document = db.parse(is);
+            Node node = document.getDocumentElement();
+            namespace = node.getNamespaceURI();
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            LOGGER.debug("Unable to get root element namespace");
+        }
+        
+        LOGGER.trace("ENXITING: getRootElementNamespace() - namespace = {}", namespace);
+        
+        return namespace;
+    }
+
 
     /**
      * Sort the list of {@link MimeTypeResolver}s by their descending priority, i.e., the lower the
@@ -164,19 +258,18 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
      * @return the sorted list of {@link MimeTypeResolver}s by descending priority
      */
     private List<MimeTypeResolver> sortResolvers(List<MimeTypeResolver> resolvers) {
-        logger.debug("ENTERING: sortResolvers");
+        LOGGER.debug("ENTERING: sortResolvers()");
 
         List<MimeTypeResolver> sortedResolvers = null;
 
         if (resolvers != null) {
             // Log sorted list of PreIngestServices for debugging
-            if (logger.isDebugEnabled()) {
-                logger.debug("Unsorted services");
-                logger.debug("------------------");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Unsorted services");
+                LOGGER.debug("------------------");
 
                 for (MimeTypeResolver resolver : resolvers) {
-                    logger.debug(resolver.getName() + "   (priority: " + resolver.getPriority()
-                            + ")");
+                    LOGGER.debug("{}   (priority: {})", resolver.getName(), resolver.getPriority());
                 }
             }
 
@@ -188,30 +281,29 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
             Comparator<MimeTypeResolver> comparator = new Comparator<MimeTypeResolver>() {
                 @Override
                 public int compare(MimeTypeResolver arg0, MimeTypeResolver arg1) {
-                    logger.debug("INSIDE: Comparator");
+                    LOGGER.debug("INSIDE: Comparator");
                     return (arg0.getPriority() - arg1.getPriority());
                 }
             };
 
             if (sortedResolvers.size() > 1) {
-                logger.debug("Sorting resolvers");
+                LOGGER.debug("Sorting resolvers");
                 Collections.sort(sortedResolvers, comparator);
                 Collections.reverse(sortedResolvers);
             }
 
             // Log sorted list of PreIngestServices for debugging
-            if (logger.isDebugEnabled()) {
-                logger.debug("Sorted/prioritized services");
-                logger.debug("---------------------------");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Sorted/prioritized services");
+                LOGGER.debug("---------------------------");
 
                 for (MimeTypeResolver resolver : sortedResolvers) {
-                    logger.debug(resolver.getName() + "   (priority: " + resolver.getPriority()
-                            + ")");
+                    LOGGER.debug("{}   (priority: {})", resolver.getName(), resolver.getPriority());
                 }
             }
         }
 
-        logger.debug("EXITING: sortResolvers");
+        LOGGER.debug("EXITING: sortResolvers()");
 
         return sortedResolvers;
     }

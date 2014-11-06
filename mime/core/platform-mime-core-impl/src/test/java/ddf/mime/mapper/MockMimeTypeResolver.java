@@ -14,7 +14,12 @@
  **/
 package ddf.mime.mapper;
 
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 
 import ddf.mime.MimeTypeResolver;
 
@@ -23,27 +28,63 @@ import ddf.mime.MimeTypeResolver;
 public class MockMimeTypeResolver implements MimeTypeResolver {
     private HashMap<String, String> customFileExtensionsToMimeTypesMap;
 
-    private HashMap<String, String> customMimeTypesToFileExtensionsMap;
+    private HashMap<String, List<String>> customMimeTypesToFileExtensionsMap;
 
     private String name;
+    
+    private String schema;
 
     private int priority;
 
     public MockMimeTypeResolver(String name) {
         this(name, 10);
     }
-
+    
     public MockMimeTypeResolver(String name, int priority) {
         this.name = name;
         this.priority = priority;
-
-        this.customFileExtensionsToMimeTypesMap = new HashMap<String, String>();
-        customFileExtensionsToMimeTypesMap.put("nitf", "image/nitf");
-        customFileExtensionsToMimeTypesMap.put("ntf", "image/nitf");
-
-        this.customMimeTypesToFileExtensionsMap = new HashMap<String, String>();
-        customMimeTypesToFileExtensionsMap.put("image/nitf", "nitf");
+        
+        String[] customMimeTypes = new String[] {
+            "nitf=image/nitf",
+            "ntf=image/nitf"
+        };
+        
+        setCustomMimeTypes(customMimeTypes);
     }
+
+    public MockMimeTypeResolver(String name, int priority, String[] customMimeTypes, String schema) {
+        this.name = name;
+        this.priority = priority;
+        this.schema = schema;
+        
+        setCustomMimeTypes(customMimeTypes);
+    }
+
+    public void setCustomMimeTypes(String[] customMimeTypes) {
+//        this.customMimeTypes = customMimeTypes.clone();
+        this.customFileExtensionsToMimeTypesMap = new HashMap<String, String>();
+        this.customMimeTypesToFileExtensionsMap = new HashMap<String, List<String>>();
+
+        for (String mimeTypeMapping : customMimeTypes) {
+
+            // mimeTypeMapping is of the form <file extension>=<mime type>
+            // Examples:
+            // nitf=image/nitf
+
+            String fileExtension = StringUtils.substringBefore(mimeTypeMapping, "=");
+            String mimeType = StringUtils.substringAfter(mimeTypeMapping, "=");
+
+            customFileExtensionsToMimeTypesMap.put(fileExtension, mimeType);
+            List<String> fileExtensions = (List<String>) customMimeTypesToFileExtensionsMap
+                    .get(mimeType);
+            if (fileExtensions == null) {
+                fileExtensions = new ArrayList<String>();
+            }
+            fileExtensions.add(fileExtension);
+            customMimeTypesToFileExtensionsMap.put(mimeType, fileExtensions);
+        }
+    }
+
 
     @Override
     public String getName() {
@@ -54,25 +95,39 @@ public class MockMimeTypeResolver implements MimeTypeResolver {
     public int getPriority() {
         return priority;
     }
+    
+    
+    @Override
+    public boolean hasSchema() {
+        return StringUtils.isNotBlank(this.schema);
+    }
+    
+    @Override
+    public String getSchema() {
+        return schema;
+    }
 
     public void setPriority(int priority) {
         this.priority = priority;
     }
 
     @Override
-    public String getFileExtensionForMimeType(String contentType) // throws MimeTypeException
+    public String getFileExtensionForMimeType(String contentType)
     {
-        String fileExtension = customMimeTypesToFileExtensionsMap.get(contentType);
+        String fileExtension = null;
+        List<String> fileExtensions = customMimeTypesToFileExtensionsMap.get(contentType);
+        if (fileExtensions != null && fileExtensions.size() > 0) {
+            fileExtension = fileExtensions.get(0);
 
-        if (fileExtension != null && !fileExtension.isEmpty()) {
-            return "." + fileExtension;
+            if (StringUtils.isNotEmpty(fileExtension)) {
+                return "." + fileExtension;
+            }
         }
-
-        return null;
+        return fileExtension;
     }
 
     @Override
-    public String getMimeTypeForFileExtension(String fileExtension) // throws MimeTypeException
+    public String getMimeTypeForFileExtension(String fileExtension)
     {
         String mimeType = customFileExtensionsToMimeTypesMap.get(fileExtension);
 

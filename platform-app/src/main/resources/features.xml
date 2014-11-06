@@ -513,6 +513,18 @@
             priority = 10
             customMimeTypes = json=application/json;id=geojson
         </config>
+        <config name="DDF_Custom_Mime_Type_Resolver-XmlMetacardCustomMimeTypes">
+            name = XML Metacard Content Resolver
+            priority = 10
+            customMimeTypes = xml=text/xml
+            schema = urn:catalog:metacard
+        </config>
+        <config name="DDF_Custom_Mime_Type_Resolver-CswCustomMimeTypes">
+            name = CSW Content Resolver
+            priority = 10
+            customMimeTypes = xml=text/xml;id=csw
+            schema = http://www.opengis.net/cat/csw/2.0.2
+        </config>
     </feature>
 
     <feature name="mime-tika-resolver" install="manual" version="${project.version}"

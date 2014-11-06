@@ -14,6 +14,8 @@
  **/
 package ddf.mime;
 
+import java.io.InputStream;
+
 /**
  * Interface defining an OSGi service that can map a list of file extensions to their corresponding
  * mime types, and vice versa.
@@ -29,6 +31,23 @@ public interface MimeTypeResolver {
      * @return the name of the MimeTypeResolver
      */
     public String getName();
+    
+    /**
+     * Gets the schema (if one exists) of the MimeTypeResolver. The schema
+     * is set only for xml mime types, e.g., text/aml, and reflects the
+     * namespace of the root element.
+     * 
+     * @return the name of the MimeTypeResolver
+     */
+    public String getSchema();
+    
+    /**
+     * Returns true if the MimeTypeResolver has a schema, meaning it is for
+     * text/xml mime types and has a namespace to match on.
+     * 
+     * @return true if the MimeTypeResolver has a schema
+     */
+    public boolean hasSchema();
 
     /**
      * Gets the priority of the MimeTypeResolver. The higher the number the higher the priority,

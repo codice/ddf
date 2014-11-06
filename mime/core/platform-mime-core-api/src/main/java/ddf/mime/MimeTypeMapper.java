@@ -14,6 +14,8 @@
  **/
 package ddf.mime;
 
+import java.io.InputStream;
+
 /**
  * Interface defining a mapper that accesses {@link MimeTypeResolver}s to retieve file extension for
  * a given mime type, and vice versa.
@@ -48,4 +50,7 @@ public interface MimeTypeMapper {
      */
     public String getMimeTypeForFileExtension(String fileExtension)
         throws MimeTypeResolutionException;
+    
+    public String guessMimeType(InputStream is, String fileExtension)
+            throws MimeTypeResolutionException;
 }

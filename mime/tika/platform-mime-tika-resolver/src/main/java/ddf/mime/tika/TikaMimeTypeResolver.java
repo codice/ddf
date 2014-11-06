@@ -14,12 +14,15 @@
  **/
 package ddf.mime.tika;
 
+import java.io.InputStream;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypes;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import ddf.mime.MimeTypeResolver;
 
@@ -34,7 +37,7 @@ import ddf.mime.MimeTypeResolver;
  * 
  */
 public class TikaMimeTypeResolver implements MimeTypeResolver {
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(TikaMimeTypeResolver.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(TikaMimeTypeResolver.class);
 
     private TikaConfig config;
 
@@ -49,20 +52,20 @@ public class TikaMimeTypeResolver implements MimeTypeResolver {
         try {
             config = new TikaConfig(this.getClass().getClassLoader());
             if (config == null) {
-                logger.warn("Config = NULL");
+                LOGGER.warn("Config = NULL");
             }
             tika = new Tika(config);
         } catch (Exception e) {
-            logger.warn("Error creating TikaConfig with ClassLoader", e);
+            LOGGER.warn("Error creating TikaConfig with ClassLoader", e);
         }
     }
 
     public void init() {
-        logger.trace("INSIDE: init");
+        LOGGER.trace("INSIDE: init");
     }
 
     public void destroy() {
-        logger.trace("INSIDE: destroy");
+        LOGGER.trace("INSIDE: destroy");
     }
 
     @Override
@@ -74,6 +77,16 @@ public class TikaMimeTypeResolver implements MimeTypeResolver {
     public int getPriority() {
         return priority;
     }
+    
+    @Override
+    public boolean hasSchema() {
+        return false;
+    }
+    
+    @Override
+    public String getSchema() {
+        return null;
+    }    
 
     /**
      * Sets the priority of thie {@link MimeTypeResolver}. For the TikaMimeTypeResolver this
@@ -86,52 +99,52 @@ public class TikaMimeTypeResolver implements MimeTypeResolver {
      *            the priority
      */
     public void setPriority(int priority) {
-        logger.debug("Setting priority = " + priority);
+        LOGGER.debug("Setting priority = {}", priority);
         this.priority = priority;
     }
 
     @Override
     public String getFileExtensionForMimeType(String contentType) // throws MimeTypeException
     {
-        logger.trace("ENTERING: getFileExtensionForMimeType");
+        LOGGER.trace("ENTERING: getFileExtensionForMimeType()");
 
         MimeTypes mimeTypes = config.getMimeRepository();
         String extension = null;
-        if (contentType != null && !contentType.isEmpty()) {
+        if (StringUtils.isNotEmpty(contentType)) {
             try {
                 MimeType mimeType = mimeTypes.forName(contentType);
                 extension = mimeType.getExtension();
             } catch (Exception e) {
-                logger.warn("Exception caught getting file extension for mime type" + contentType,
+                LOGGER.warn("Exception caught getting file extension for mime type {}", contentType,
                         e);
             }
         }
-        logger.debug("mimeType = " + contentType + ",   file extension = [" + extension + "]");
+        LOGGER.debug("mimeType = {},   file extension = [{}]", contentType, extension);
 
-        logger.trace("EXITING: getFileExtensionForMimeType");
+        LOGGER.trace("EXITING: getFileExtensionForMimeType()");
 
         return extension;
     }
 
     @Override
-    public String getMimeTypeForFileExtension(String fileExtension) // throws MimeTypeException
+    public String getMimeTypeForFileExtension(String fileExtension)
     {
-        logger.trace("ENTERING: getMimeTypeForFileExtension");
+        LOGGER.trace("ENTERING: getMimeTypeForFileExtension()");
 
         String mimeType = null;
-        if (fileExtension != null && !fileExtension.isEmpty()) {
+        if (StringUtils.isNotEmpty(fileExtension)) {
             try {
                 String filename = "dummy." + fileExtension;
                 mimeType = tika.detect(filename);
             } catch (Exception e) {
-                logger.warn(
-                        "Exception caught getting mime type for file extension" + fileExtension, e);
+                LOGGER.warn(
+                        "Exception caught getting mime type for file extension {}", fileExtension, e);
             }
         }
 
-        logger.debug("mimeType = " + mimeType + ",   file extension = [" + fileExtension + "]");
+        LOGGER.debug("mimeType = {},   file extension = [{}]", mimeType, fileExtension);
 
-        logger.trace("EXITING: getMimeTypeForFileExtension");
+        LOGGER.trace("EXITING: getMimeTypeForFileExtension()");
 
         return mimeType;
     }
