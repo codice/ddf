@@ -79,7 +79,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         LOGGER.debug("Performing backup of metacards in CreateResponse.");
 
         if(rootBackupDir == null) {
-            throw new PluginExecutionException("No root backup directory configured in " + CatalogBackupPlugin.class.getName() + ".");
+            throw new PluginExecutionException("No root backup directory configured.");
         }
 
         List<String> errors = new ArrayList<String>();
@@ -114,7 +114,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         LOGGER.debug("Updating metacards contained in UpdateResponse in backup.");
 
         if(rootBackupDir == null) {
-            throw new PluginExecutionException("No root backup directory configured in " + CatalogBackupPlugin.class.getName() + ".");
+            throw new PluginExecutionException("No root backup directory configured.");
         }
 
         List<String> deleteErrors = new ArrayList<String>();
@@ -165,7 +165,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         LOGGER.debug("Deleting metacards contained in DeleteResponse from backup.");
 
         if(rootBackupDir == null) {
-            throw new PluginExecutionException("No root backup directory configured in " + CatalogBackupPlugin.class.getName() + ".");
+            throw new PluginExecutionException("No root backup directory configured.");
         }
 
         List<String> errors = new ArrayList<String>();
