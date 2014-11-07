@@ -583,7 +583,11 @@ public class CswEndpoint implements Csw {
         DescribeRecordResponseType response = new DescribeRecordResponseType();
         List<SchemaComponentType> schemas = new ArrayList<SchemaComponentType>();
 
-        schemas.add(getSchemaComponentType());
+        if (types.isEmpty() || types.contains(
+                new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CSW_RECORD_LOCAL_NAME))) {
+            schemas.add(getSchemaComponentType());
+        }
+
         response.setSchemaComponent(schemas);
         return response;
     }

@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
+import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -29,6 +30,7 @@ import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
+import com.thoughtworks.xstream.io.xml.XppReader;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -61,6 +63,9 @@ import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import javax.activation.MimeType;
 import javax.xml.XMLConstants;
@@ -70,7 +75,9 @@ import javax.xml.namespace.QName;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -449,17 +456,22 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     protected HierarchicalStreamReader copyXml(HierarchicalStreamReader hreader, StringWriter writer) {
         copier.copy(hreader, new CompactWriter(writer, noNameCoder));
 
-        StaxDriver driver = new WstxDriver();
+        XmlPullParser parser = null;
+        try {
+            parser = XmlPullParserFactory.newInstance().newPullParser();
+        } catch (XmlPullParserException e) {
+            throw new ConversionException("Unable to create XmlPullParser, cannot parse XML.", e);
+        }
+
         try {
             // NOTE: must specify encoding here, otherwise the platform default
-            // encoding will be used
-            // which will not always work, esp. with foreign languages (e.g.,
-            // Dutch from the geomatics site)
-            return driver.createReader(new ByteArrayInputStream(writer.toString().getBytes(
-                    UTF8_ENCODING)));
-        } catch (UnsupportedEncodingException e) {
+            // encoding will be used which will not always work
+            return new XppReader(new InputStreamReader(IOUtils.toInputStream(writer.toString(),
+                    UTF8_ENCODING)), parser);
+        } catch (IOException e) {
             LOGGER.warn("Unable create reader with UTF-8 encoding, Exception {}", e);
-            return driver.createReader(new ByteArrayInputStream(writer.toString().getBytes()));
+            return new XppReader(new InputStreamReader(IOUtils.toInputStream(writer.toString())),
+                    parser);
         }
     }
 
@@ -476,8 +488,14 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         while (reader.hasMoreChildren()) {
             reader.moveDown();
 
-            String name = reader.getNodeName();
-            LOGGER.debug("node name: {}.", name);
+            String nodeName = reader.getNodeName();
+            LOGGER.debug("node name: {}.", nodeName);
+
+            // Remove the prefix if it exists
+            String name = nodeName;
+            if (StringUtils.contains(nodeName, CswConstants.NAMESPACE_DELIMITER)) {
+                name = StringUtils.split(nodeName, CswConstants.NAMESPACE_DELIMITER)[1];
+            }
 
             // Some attribute names overlap with basic Metacard attribute names,
             // e.g., "title".

@@ -24,6 +24,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.DomReader;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
+import com.thoughtworks.xstream.io.xml.XppDriver;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.AttributeType.AttributeFormat;
@@ -158,6 +159,30 @@ public class TestCswRecordConverter {
 
         assertThat(returned, equalTo(expected));
         assertThat(mc.getResourceURI(), is(nullValue()));
+    }
+
+    @Test
+    public void testUnmarshalNoNamespaceDeclaration() throws IOException, SAXException {
+        XStream xstream = new XStream(new XppDriver());
+
+        CswRecordConverter converter = new CswRecordConverter();
+
+        xstream.registerConverter(converter);
+
+        xstream.alias("Record", MetacardImpl.class);
+        xstream.alias("csw:Record", MetacardImpl.class);
+        InputStream is = IOUtils.toInputStream(getRecordNoNamespaceDeclaration());
+        Metacard mc = (Metacard) xstream.fromXML(is);
+
+        Metacard expectedMetacard = getTestMetacard();
+        assertThat(mc, not(nullValue()));
+        assertThat(mc.getContentTypeName(), equalTo(expectedMetacard.getContentTypeName()));
+        assertThat(mc.getCreatedDate(), equalTo(expectedMetacard.getCreatedDate()));
+        assertThat(mc.getEffectiveDate(), equalTo(expectedMetacard.getEffectiveDate()));
+        assertThat(mc.getId(), equalTo(expectedMetacard.getId()));
+        assertThat(mc.getModifiedDate(), equalTo(expectedMetacard.getModifiedDate()));
+        assertThat(mc.getTitle(), equalTo(expectedMetacard.getTitle()));
+        assertThat(mc.getResourceURI(), equalTo(expectedMetacard.getResourceURI()));
     }
 
     @Test
@@ -607,6 +632,9 @@ public class TestCswRecordConverter {
         assertXMLEqual(getControlRecord(), xml);
     }
 
+
+
+
     @Test
     public void testTransform() throws IOException, JAXBException, SAXException,
             XpathException, CatalogTransformerException {
@@ -773,6 +801,29 @@ public class TestCswRecordConverter {
                 + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
                 + "xmlns:dct=\"http://purl.org/dc/terms/\" "
                 + "xmlns:ows=\"http://www.opengis.net/ows\">\n"
+                + "  <dct:created>" + CREATED + "</dct:created>\n"
+                + "  <dc:date>" + MODIFIED + "</dc:date>\n"
+                + "  <dct:modified>" + MODIFIED + "</dct:modified>\n"
+                + "  <dct:dateSubmitted>" + MODIFIED + "</dct:dateSubmitted>\n"
+                + "  <dct:issued>" + MODIFIED + "</dct:issued>\n"
+                + "  <dc:identifier>ID</dc:identifier>\n"
+                + "  <dct:bibliographicCitation>ID</dct:bibliographicCitation>\n"
+                + "  <dc:source>http://host:port/my/product.pdf</dc:source>\n"
+                + "  <dc:title>This is my title</dc:title>\n"
+                + "  <dct:alternative>This is my title</dct:alternative>\n"
+                + "  <dc:type>I have some content type</dc:type>\n"
+                + "  <dct:dateAccepted>" + EFFECTIVE + "</dct:dateAccepted>\n"
+                + "  <dct:dateCopyrighted>" + EFFECTIVE + "</dct:dateCopyrighted>\n"
+                + "  <dc:publisher>sourceID</dc:publisher>\n"
+                + "  <ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
+                + "    <ows:LowerCorner>10.0 10.0</ows:LowerCorner>\n"
+                + "    <ows:UpperCorner>40.0 40.0</ows:UpperCorner>\n"
+                + "  </ows:BoundingBox>\n"
+                + "</csw:Record>\n";
+    }
+
+    private String getRecordNoNamespaceDeclaration() {
+        return "<csw:Record>\n"
                 + "  <dct:created>" + CREATED + "</dct:created>\n"
                 + "  <dc:date>" + MODIFIED + "</dc:date>\n"
                 + "  <dct:modified>" + MODIFIED + "</dct:modified>\n"
