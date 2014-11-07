@@ -135,9 +135,9 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
 
         if (consumer == null) {
             String path = request.getPathInfo();
-            log.debug("Service Request Path = {}", path);
+            log.trace("Service Request Path = {}", path);
             String endpointName = getEndpointNameFromPath(path);
-            log.debug("Endpoint Name = {}", endpointName);
+            log.trace("Endpoint Name = {}", endpointName);
 
             Route route = camelContext.getRoute(endpointName);
             try {
@@ -251,9 +251,9 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
 
     protected HttpConsumer resolve(HttpServletRequest request) {
         String path = request.getPathInfo();
-        log.debug("Request path is: {}", path);
+        log.trace("Request path is: {}", path);
         String endpointName = getEndpointNameFromPath(path);
-        log.debug("Looking up consumer for endpoint: {}", endpointName);
+        log.trace("Looking up consumer for endpoint: {}", endpointName);
         HttpConsumer answer = consumers.get(endpointName);
 
         if (answer == null) {
