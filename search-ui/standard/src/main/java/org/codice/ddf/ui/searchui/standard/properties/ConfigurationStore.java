@@ -307,8 +307,7 @@ public class ConfigurationStore {
         proxiedImageryProviders.clear();
 
         for(String provider : imageryProviders) {
-            String proxiedProvider = getProxiedProvider(provider, true);
-            proxiedImageryProviders.add(proxiedProvider);
+            proxiedImageryProviders.add(getProxiedProvider(provider, true));
         }
     }
 
@@ -321,15 +320,13 @@ public class ConfigurationStore {
             }
         }
 
-        if (StringUtils.isNotBlank(terrainProvider)) {
-            String proxiedProvider = getProxiedProvider(terrainProvider, false);
-            proxiedTerrainProvider = proxiedProvider;
-        } else {
-            proxiedTerrainProvider = "";
-        }
+        proxiedTerrainProvider = getProxiedProvider(terrainProvider, false);
     }
 
     private String getProxiedProvider(String provider, boolean imagery) {
+        if (StringUtils.isBlank(provider)) {
+            return "";
+        }
         int firstPartIdx = provider.indexOf("{");
         int lastPartIdx = provider.indexOf("}");
         String innerPart = provider.substring(firstPartIdx, lastPartIdx);
