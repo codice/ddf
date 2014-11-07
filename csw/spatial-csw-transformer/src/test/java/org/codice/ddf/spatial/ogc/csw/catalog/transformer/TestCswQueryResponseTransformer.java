@@ -93,7 +93,7 @@ public class TestCswQueryResponseTransformer {
 
         Map<String, Serializable> args = new HashMap<>();
         args.put(CswConstants.OUTPUT_SCHEMA_PARAMETER, CswConstants.CSW_OUTPUT_SCHEMA);
-        args.put(CswConstants.RESULT_TYPE_PARAMETER, ResultType.RESULTS.value());
+        args.put(CswConstants.RESULT_TYPE_PARAMETER, ResultType.RESULTS);
 
         ArgumentCaptor<CswRecordCollection> captor = ArgumentCaptor
                 .forClass(CswRecordCollection.class);
@@ -126,7 +126,7 @@ public class TestCswQueryResponseTransformer {
         SourceResponse sourceResponse = createSourceResponse(query, 22);
 
         Map<String, Serializable> args = new HashMap<String, Serializable>();
-        args.put(CswConstants.RESULT_TYPE_PARAMETER, ResultType.VALIDATE.value());
+        args.put(CswConstants.RESULT_TYPE_PARAMETER, ResultType.VALIDATE);
         args.put(CswConstants.GET_RECORDS, query);
 
         BinaryContent content = transformer.transform(sourceResponse, args);

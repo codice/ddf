@@ -135,8 +135,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             CswRecordCollection recordCollection) {
         if (arguments != null) {
             Object elementSetTypeArg = arguments.get(CswConstants.ELEMENT_SET_TYPE);
-            if (elementSetTypeArg != null && StringUtils.isNotBlank((String) elementSetTypeArg)) {
-                ElementSetType elementSetType = ElementSetType.valueOf((String) elementSetTypeArg);
+            if (elementSetTypeArg instanceof ElementSetType) {
+                ElementSetType elementSetType = (ElementSetType) elementSetTypeArg;
                 recordCollection.setElementSetType(elementSetType);
             }
 
@@ -163,8 +163,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             }
 
             Object resultType = arguments.get(CswConstants.RESULT_TYPE_PARAMETER);
-            if (resultType != null) {
-                recordCollection.setResultType(ResultType.fromValue((String) resultType));
+            if (resultType instanceof ResultType) {
+                recordCollection.setResultType((ResultType) resultType);
             }
 
             Object outputSchema = arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER);
