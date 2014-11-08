@@ -14,26 +14,23 @@
  **/
 package ddf.catalog.security.filter.plugin.test;
 
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.plugin.PluginExecutionException;
+import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.security.filter.plugin.FilterPlugin;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.permission.KeyValueCollectionPermission;
 import junit.framework.Assert;
-
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
@@ -51,22 +48,16 @@ import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.MetacardTypeImpl;
-import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.security.filter.plugin.FilterPlugin;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
-import ddf.security.permission.KeyValueCollectionPermission;
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.Principal;
+import java.util.*;
+
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  */
@@ -112,11 +103,12 @@ public class FilterPluginTest {
         ResultImpl result2 = new ResultImpl(getMissingRolesMetacard());
         ResultImpl result3 = new ResultImpl(getExactRolesMetacard());
         ResultImpl result4 = new ResultImpl(getNoRolesMetacard());
+        ResultImpl result5 = new ResultImpl(getNoSecurityAttributeMetacard());
         incomingResponse.addResult(result1, false);
         incomingResponse.addResult(result2, false);
         incomingResponse.addResult(result3, false);
-        incomingResponse.addResult(result4, true);
-
+        incomingResponse.addResult(result4, false);
+        incomingResponse.addResult(result5, true);
     }
     
     public Answer<Boolean> makeDecision() {
@@ -166,10 +158,11 @@ public class FilterPluginTest {
         fail("Plugin should have thrown exception when no subject was sent in.");
     }
 
+
     public void verifyFilterResponse(QueryResponse response) {
-        logger.info("Filtered with " + response.getResults().size() + " out of 4 original.");
+        logger.info("Filtered with " + response.getResults().size() + " out of 5 original.");
         logger.info("Checking Results");
-        Assert.assertEquals(3, response.getResults().size());
+        Assert.assertEquals(4, response.getResults().size());
         logger.info("Filtering succeeded.");
     }
 
@@ -250,6 +243,27 @@ public class FilterPluginTest {
         metacard.setSecurity(security);
         return metacard;
     }
+
+    public Metacard getNoSecurityAttributeMetacard() {
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setResourceSize("100");
+        try {
+            metacard.setResourceURI(new URI("http://some.fancy.uri/goes/here"));
+        } catch (URISyntaxException e) {
+            logger.error("", e);
+        }
+        //Intentionally do not set the Metacard.SECURITY attribute
+        metacard.setContentTypeName("Resource");
+        metacard.setTitle("Metacard 1");
+        metacard.setContentTypeVersion("1");
+        metacard.setType(new MetacardTypeImpl(MetacardType.DEFAULT_METACARD_TYPE_NAME,
+                new HashSet<AttributeDescriptor>()));
+
+        return metacard;
+    }
+
+
+
 
     private class MockSubject extends DelegatingSubject implements Subject {
 
