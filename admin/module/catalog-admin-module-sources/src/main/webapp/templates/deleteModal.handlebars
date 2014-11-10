@@ -17,35 +17,15 @@
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title">
-                {{#is mode 'edit'}}
-                    Edit {{name}}
-                {{else}}
-                    Add Source
-                {{/is}}
+                Delete Source Configuration
             </h4>
         </div>
-        <div class="modal-body">
-            <form class="form-horizontal add-federated-source container-fluid">
-                <fieldset>
-                    <div class="sourceName"></div>
-                    <div class="bound-controls">
-                        <div class="control-group">
-                            <label class="control-label">Source Type</label>
-                            <select class="form-control input-sm sourceTypesSelect"></select>
-                        </div>
-                        <div class="modal-details"></div>
-                    </div>
-                </fieldset>
-            </form>
-        </div>
+        <div class="modal-body delete-modal-body">
 
+        </div>
         <div class="modal-footer">
             <div class="btn-group">
-                {{#is mode 'edit'}}
-	                <button type="button" class="btn btn-primary submit-button">Save</button>
-                {{else}}
-	                <button type="button" class="btn btn-primary submit-button">Add</button>
-                {{/is}}
+                <button type="button" class="btn btn-primary submit-button">Delete</button>
                 <button type="button" class="btn btn-default cancel-button" data-dismiss="modal">Cancel</button>
             </div>
         </div>

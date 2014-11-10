@@ -27,7 +27,8 @@
         "jquery-file-upload": "9.5.7",
         "lato": "0.2.0",
         "moment": "2.5.1",
-        "backbone-associations": "v0.6.2"
+        "backbone-associations": "v0.6.2",
+        "iframe-resizer": "2.6.2"
     },
     "resolutions": {
         "jquery": "1.11.0"

@@ -29,40 +29,44 @@ define(function (require) {
 
     Source.Model = Backbone.Model.extend({
         configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui",
-
-        addConfiguration: function(configuration) {
-            if(this.get("configurations")) {
-                this.get("configurations").add(configuration);
-                this.listenTo(configuration, 'remove', this.removeConfiguration);
-                this.trigger('change');
-            } else {
-                this.set({configurations: new Source.ConfigurationList()});
-                this.get("configurations").add(configuration);
-            }
+        idAttribute: 'name',
+        initialize: function() {
+            this.set('currentConfiguration', undefined);
+            this.set('disabledConfigurations', new Source.ConfigurationList());
         },
         addDisabledConfiguration: function(configuration) {
             if(this.get("disabledConfigurations")) {
                 this.get("disabledConfigurations").add(configuration);
-                this.listenTo(configuration, 'remove', this.removeConfiguration);
-            } else {
-                this.set({disabledConfigurations: new Source.ConfigurationList()});
-                this.get("disabledConfigurations").add(configuration);
             }
         },
         removeConfiguration: function(configuration) {
-            if(this.get("configurations").contains(configuration)) {
-                this.stopListening(configuration);
-                this.get("configurations").remove(configuration);
-                if(this.get("configurations").length === 0) {
-                    this.trigger('removeSource', this);
-                }
-            } else if(this.get("disabledConfigurations").contains(configuration)) {
+            if(this.get("disabledConfigurations").contains(configuration)) {
                 this.stopListening(configuration);
                 this.get("disabledConfigurations").remove(configuration);
+            } else if (configuration === this.get("currentConfiguration")) {
+                this.stopListening(configuration);
+                this.set("currentConfiguration", undefined);
             }
         },
         setCurrentConfiguration: function(configuration) {
             this.set({currentConfiguration: configuration});
+        },
+        hasConfiguration: function(configuration) {
+            var id = configuration.get('id');
+            var curConfig = this.get('currentConfiguration');
+            var hasConfig = false;
+
+            var found = this.get("disabledConfigurations").find(function(config) {
+                return config.get('fpid') === (id  + "_disabled");
+            });
+            if (_.isUndefined(found)) {
+                if (!_.isUndefined(curConfig)) {
+                    hasConfig = curConfig.get('fpid') === id;
+                }
+            } else {
+                hasConfig = true;
+            }
+            return hasConfig;
         },
         initializeFromMSF: function(msf) {
             this.set({"fpid":msf.get("id")});
@@ -78,42 +82,42 @@ define(function (require) {
                 var val = obj.defaultValue;
                 src.configuration.set(id, (val) ? val.toString() : null);
             });
+        },
+        size: function() {
+            var ct = _.isUndefined(this.get('currentConfiguration')) ? 0 : 1;
+            return ct + this.get('disabledConfigurations').length;
         }
     });
 
     Source.Collection = Backbone.Collection.extend({
         model: Source.Model,
-        sourceMap: {},
         addSource: function(configuration, enabled) {
             var source;
-            if(this.sourceMap[configuration.get("id")]) {
-                source = this.sourceMap[configuration.get("id")];
-                if(enabled) {
-                    source.addConfiguration(configuration);
-                } else {
-                    source.addDisabledConfiguration(configuration);
-                }
+            var sourceId = configuration.get("properties").get('shortname');
+            if(!sourceId){
+                sourceId = configuration.get("properties").get('id');
+            }
+            if(this.get(sourceId)) {
+                source = this.get(sourceId);
             } else {
-                source = new Source.Model();
-                this.sourceMap[configuration.get("id")] = source;
-                if(enabled) {
-                    source.setCurrentConfiguration(configuration);
-                    source.addConfiguration(configuration);
-                } else {
-                    source.addDisabledConfiguration(configuration);
-                }
+                source = new Source.Model({name: sourceId});
                 this.add(source);
             }
+            if(enabled) {
+                source.setCurrentConfiguration(configuration);
+            } else {
+                source.addDisabledConfiguration(configuration);
+            }
+            source.trigger('change');
         },
         removeSource: function(source) {
             this.stopListening(source);
             this.remove(source);
-            delete this.sourceMap[source.get('currentConfiguration').get('id')];
         },
-        comparator: function(model){
-            var id = model.get('currentConfiguration').id.replace('_disabled','');  // scrub the label of the _disable
-            return id;
-        }
+        comparator: function(model) {
+            var str = model.get('name') || '';
+            return str.toLowerCase();
+        },
     });
 
     Source.Response = Backbone.Model.extend({
@@ -127,17 +131,26 @@ define(function (require) {
         },
         parseServiceModel: function() {
             var resModel = this;
+            var collection = resModel.get('collection');
             if(this.model.get("value")) {
                 this.model.get("value").each(function(service) {
                     if(!_.isEmpty(service.get("configurations"))) {
                         service.get("configurations").each(function(configuration) {
-                            if(configuration.get('fpid') && configuration.get('id') && configuration.get('fpid').indexOf('Source') !== -1){
-                                resModel.get("collection").addSource(configuration, true);
+                            var cfgService = configuration.get('service');
+                            if(configuration.get('id') && (resModel.isSourceName(configuration.get('fpid')) || 
+                                    (cfgService && resModel.isSourceName(cfgService.get('name'))))){
+                                if(configuration.get('fpid').indexOf('_disabled') === -1){
+                                    collection.addSource(configuration, true);
+                                } else {
+                                    collection.addSource(configuration, false);
+                                }
                             }
                         });
                     }
                 });
             }
+            collection.sort();
+            collection.trigger('reset');
         },
         getSourceMetatypes: function() {
             var resModel = this;
@@ -146,30 +159,44 @@ define(function (require) {
                 resModel.model.get('value').each(function(service) {
                 var id = service.get('id');
                 var name = service.get('name');
-                if (!_.isUndefined(id) && id.indexOf('Source') !== -1 || !_.isUndefined(name) && name.indexOf('Source') !== -1) {
+                if (this.isSourceName(id) || this.isSourceName(name)) {
                     metatypes.push(service);
                 }
                 });
             }
             return metatypes;
         },
-        getSourceModelWithServices: function() {
+        isSourceName: function(val) {
+            return val && val.indexOf('Source') !== -1;
+        },
+        /**
+         * Returns a SourceModel that has all available source type configurations. Each source type configuration will be added as a 
+         * disabledConfiguration and returned as part of the model. If an initialModel is presented, it will be modified to include any
+         * missing configurations as part of its disabledConfigurations.
+         */
+        getSourceModelWithServices: function(initialModel) {
             var resModel = this;
             var serviceCollection = resModel.model.get('value');
-            var retModel = new Source.Model();
+            if (!initialModel) {
+                initialModel = new Source.Model();
+            }
             
             if(serviceCollection) {
                 serviceCollection.each(function(service) {
                     var id = service.get('id');
                     var name = service.get('name');
-                    if (!_.isUndefined(id) && id.indexOf('Source') !== -1 || !_.isUndefined(name) && name.indexOf('Source') !== -1) {
+                    if ((!_.isUndefined(id) && 
+                            (id.indexOf('Source') !== -1 || id.indexOf('Source') !== -1) || 
+                            !_.isUndefined(name) && (name.indexOf('Source') !== -1 || name.indexOf('Service') !== -1)) && 
+                            !initialModel.hasConfiguration(service)) {
                         var config = new Service.Configuration();
                         config.initializeFromService(service);
-                        retModel.addDisabledConfiguration(config);
+                        config.set('fpid', config.get('fpid') + '_disabled');
+                        initialModel.addDisabledConfiguration(config);
                     }
                 });
             }
-            return retModel;
+            return initialModel;
         },
         isSourceConfiguration: function(configuration) {
             return (configuration.get('fpid') && configuration.get('id') && configuration.get('fpid').indexOf('Source') !== -1);

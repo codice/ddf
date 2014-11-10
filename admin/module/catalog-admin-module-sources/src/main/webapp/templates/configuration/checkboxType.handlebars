@@ -11,23 +11,21 @@
  *
  **/
  --}}
- <div class='{{id}} metatype control-group'>
-    <label class='control-label' for='{{id}}'>{{name}}</label>
+<div class='{{id}} metatype control-group'>
+    <label class="control-label">{{name}}</label>
     {{#if description}}
         <a href='#' class='description' data-title='{{id}}'>
             <i class='glyphicon glyphicon-question-sign'></i>
         </a>
     {{/if}}
     <div class="controls">
-        {{#if optionValues}}
-            <select id="{{id}}" name="{{id}}" class="form-control input-sm">
-                {{#each optionLabels}}
-                    <option value="{{lookup ../optionValues @index}}" {{#is @index 0}}selected="selected" {{/is}}>{{.}}</option>
-                {{/each}}
-            </select>
-        {{else}}
-            <input type='text' class='{{id}} metatype form-control input-sm' name='{{id}}' id='{{id}}' value='{{#defaultValue}}{{.}}{{/defaultValue}}'>
-        {{/if}}
+        <div class="btn-group card-style-toggle" data-toggle="buttons">
+            <label class="btn btn-xs">
+                <input type="radio" name="{{id}}" id="{{id}}" value="true" {{#defaultValue}}{{#.}}checked="checked"{{/.}}{{/defaultValue}}>On</i>
+            </label>
+            <label class="btn btn-xs">
+                <input type="radio" name="{{id}}" id="{{id}}Off" value="false">Off</i>
+            </label>
+        </div>
     </div>
-    <p class='error-text help-block col-md-12'></p>
 </div>

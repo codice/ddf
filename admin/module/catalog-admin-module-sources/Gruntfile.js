@@ -37,7 +37,7 @@ module.exports = function (grunt) {
                     cleancss: true
                 },
                 files: {
-                    "target/webapp/css/style.css":"src/main/webapp/less/styles.less"
+                    "target/webapp/css/styles.css":"src/main/webapp/less/styles.less"
                 }
             }
         },
@@ -94,7 +94,7 @@ module.exports = function (grunt) {
                 port: 8282,
                 hostname: '*'
             },
-
+            
             server: {
                 options: {
                     server: './server.js'
@@ -147,5 +147,4 @@ module.exports = function (grunt) {
                 done();
             });
     });
-
 };

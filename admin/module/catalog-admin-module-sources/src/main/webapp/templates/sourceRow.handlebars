@@ -12,7 +12,7 @@
  **/
  --}}
 <td>
-    <a href='#{{id}}' class='newLink editLink' data-toggle="modal">
+    <a href='#{{id}}' class='newLink' data-toggle="modal">
         {{name}}
     </a>
     <div class="modal-container">
@@ -22,20 +22,24 @@
 <td>
     <div class="source-name">
         <b>
-        {{#if enabled}}
-            {{name}}
-        {{else}}
-            {{service.name}}
-        {{/if}}
+        <select class="input-sm configurationSelect">
+            {{#if currentConfiguration}}
+                <option value='Disabled'>Disabled</option>
+                <option value='{{currentConfiguration.id}}' selected>{{currentConfiguration.name}}</option>
+            {{else}}
+                <option value='Disabled' selected>Disabled</option>
+            {{/if}}
+            {{#disabledConfigurations}}
+                <option value='{{service.id}}'>{{service.name}}</option>
+            {{/disabledConfigurations}}
+        </select>
         </b>
     </div>
-    <div class="source-id">{{id}}</div>
 </td>
-<td colspan="3">
+<td colspan="4">
     {{#if available}}
         <span class='label label-success'>Available</span>
     {{else}}
-        <span class='label label-danger'>Not Available</span>
+        <span class='label label-warning'>Unavailable</span>
     {{/if}}
-
 </td>

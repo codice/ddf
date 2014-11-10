@@ -23,23 +23,27 @@ define([
     'text!templates/configuration/configurationEdit.handlebars',
     'text!templates/configuration/configurationItem.handlebars',
     'text!templates/configuration/textTypeListHeader.handlebars',
-    'text!templates/configuration/textTypeList.handlebars'
-    ], function (Marionette, ich, _, Backbone, wreqr, configurationEdit, configurationItem, textTypeListHeader, textTypeList ) {
-	
+    'text!templates/configuration/textTypeList.handlebars',
+    'text!templates/configuration/checkboxType.handlebars'
+    ], function (Marionette, ich, _, Backbone, wreqr, configurationEdit, configurationItem, textTypeListHeader, textTypeList, checkboxTemplate ) {
+
     var ConfigurationEditView = {};
 
 
-    if(!ich.configurationItem) {
+    if(!ich['configuration.configurationItem']) {
         ich.addTemplate('configuration.configurationItem', configurationItem);
     }
-    if(!ich.configurationEdit) {
+    if(!ich['configuration.configurationEdit']) {
         ich.addTemplate('configuration.configurationEdit', configurationEdit);
     }
-    if(!ich.textTypeListHeader) {
+    if(!ich['configuration.textTypeListHeader']) {
         ich.addTemplate('configuration.textTypeListHeader', textTypeListHeader);
     }
-    if(!ich.textTypeList) {
+    if(!ich['configuration.textTypeList']) {
         ich.addTemplate('configuration.textTypeList', textTypeList);
+    }
+    if(!ich['configuration.checkboxTypeTemplate']) {
+        ich.addPartial('configuration.checkboxTypeTemplate', checkboxTemplate);
     }
 
     ConfigurationEditView.ConfigurationMultiValuedEntry = Marionette.ItemView.extend({
@@ -84,7 +88,7 @@ define([
         },
         modelEvents: {
             "change": "updateValues"
-        },        
+        },
         initialize: function(options) {
             _.bindAll(this);
             this.configuration = options.configuration;
@@ -115,7 +119,7 @@ define([
         saveValues: function() {
             var values = [];
             _.each(this.collectionArray.models, function(model) {
-                values.push(model.get('value'));                
+                values.push(model.get('value'));
             });
             this.configuration.get('properties').set(this.model.get('id'), values.join());
         },
@@ -134,7 +138,7 @@ define([
          */
         plusButton: function() {
             this.addItem('');
-        }        
+        }
     });
 
     ConfigurationEditView.ConfigurationItem = Marionette.ItemView.extend({
