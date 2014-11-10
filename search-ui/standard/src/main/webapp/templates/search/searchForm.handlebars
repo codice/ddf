@@ -136,6 +136,10 @@
                         Polygon
                     </label>
                 {{else}}
+                    <label id="locationPolygon" class="btn btn-default location {{#if polygon}}active{{/if}}" data-target="#polygonTab" data-toggle="tab">
+                        <input type="radio" name="polygonButton">
+                        Polygon
+                    </label>
                     <label id="locationPoint" class="btn btn-default location {{#if radius}}active{{/if}}" data-target="#pointradius" data-toggle="tab">
                         <input type="radio" name="pointRadiusButton">
                         Point-Radius

@@ -30,8 +30,10 @@ define(['application',
                     onShow: function() {
                         require(['js/controllers/cesium.controller',
                             'js/widgets/cesium.bbox',
-                            'js/widgets/cesium.circle'
-                        ], function (GeoController, DrawBbox, DrawCircle) {
+                            'js/widgets/cesium.circle',
+                            'js/widgets/cesium.polygon'
+
+                        ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon) {
 
                             var geoController = new GeoController();
 
@@ -43,6 +45,13 @@ define(['application',
                             new DrawCircle.Controller({
                                 scene: geoController.scene,
                                 notificationEl: mapView.mapDrawingPopup.el
+                            });
+
+                            new DrawPolygon.Controller({
+                                scene: geoController.scene,
+                                notificationEl: mapView.mapDrawingPopup.el,
+                                drawHelper: geoController.drawHelper,
+                                geoController: geoController
                             });
                         });
                     }

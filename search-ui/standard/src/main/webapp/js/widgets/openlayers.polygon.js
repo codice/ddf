@@ -17,9 +17,10 @@ define([
         'openlayers',
         'underscore',
         'wreqr',
-        'maptype'
+        'maptype',
+        './notification.view'
     ],
-    function (Marionette, Backbone, ol, _, wreqr, maptype) {
+    function (Marionette, Backbone, ol, _, wreqr, maptype, NotificationView) {
         "use strict";
 
         var Draw = {};
@@ -204,7 +205,7 @@ define([
                     }
                     view.start();
                     this.view = view;
-                    this.notificationView = new Draw.NotificationView({
+                    this.notificationView = new NotificationView({
                         el: this.notificationEl
                     }).render();
                     polygonModel.trigger('BeginExtent');
@@ -232,27 +233,6 @@ define([
                         this.notificationView.close();
                     }
                 }
-            }
-        });
-
-        Draw.NotificationView = Backbone.View.extend({
-            render: function () {
-                if (this.rendered) {
-                    this.$el.hide('fast');
-                }
-                this.$el.empty();
-                // if it gets any more complicated than this, then we should move to templates
-                this.$el.append('<span>Please draw area of interest.</span>');
-                this.$el.animate({
-                    height: 'show'
-                }, 425);
-                this.rendered = true;
-                return this;
-            },
-            close: function () {
-                this.$el.animate({
-                    height: 'hide'
-                }, 425);
             }
         });
 
