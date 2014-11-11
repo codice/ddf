@@ -34,7 +34,6 @@
         <cxf.version>2.7.8</cxf.version>
         <shiro.version>1.2.1</shiro.version>
         <karaf.version>2.3.3</karaf.version>
-        <ch.qos.logback.version>0.9.24</ch.qos.logback.version>
         <powermock.version>1.5.4</powermock.version>
     </properties>
 
@@ -139,7 +138,23 @@
                 <artifactId>hazelcast</artifactId>
                 <version>3.2.1</version>
             </dependency>
-
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>0.9.24</version>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4</artifactId>
+                <version>${powermock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito</artifactId>
+                <version>${powermock.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
