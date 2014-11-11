@@ -442,8 +442,12 @@ public class SolrCache {
                 for (Metacard deletedMetacard : deletedMetacards) {
                     metacardIdentfiers.add(deletedMetacard.getId());
                 }
-                LOGGER.debug("metacard identifiers to be deleted: " + StringUtils.join(metacardIdentfiers, ","));
-                server.deleteById(metacardIdentfiers);
+                if (!metacardIdentfiers.isEmpty()) {
+                    LOGGER.debug("metacard identifiers to be deleted: " + StringUtils.join(metacardIdentfiers, ","));
+                    server.deleteById(metacardIdentfiers);
+                } else {
+                    LOGGER.debug("No metacard identifiers to be deleted");
+                }
             }
         } catch (SolrServerException e) {
             LOGGER.error("SOLR server exception deleting request message", e);
