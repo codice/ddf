@@ -322,7 +322,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                     LOGGER.warn("Policy is null");
                 }
             } else {
-                LOGGER.warn("SOAP message contains security header, ignore AnonymousInterceptor.");
+                LOGGER.debug("SOAP message contains security header, ignore AnonymousInterceptor.");
             }
         }  else {
             LOGGER.error("Incoming SOAP message is null.");
