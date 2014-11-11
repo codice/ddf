@@ -33,7 +33,7 @@ public interface MimeTypeResolver {
     
     /**
      * Gets the schema (if one exists) of the MimeTypeResolver. The schema
-     * is set only for xml mime types, e.g., text/aml, and reflects the
+     * is set only for xml mime types, e.g., text/xml, and reflects the
      * namespace of the root element.
      * 
      * @return the name of the MimeTypeResolver
