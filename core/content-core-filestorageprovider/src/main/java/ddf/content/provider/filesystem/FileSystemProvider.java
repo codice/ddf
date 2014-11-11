@@ -115,11 +115,10 @@ public class FileSystemProvider implements StorageProvider {
 
         String mimeType = DEFAULT_MIME_TYPE;
         try {
-//            mimeType = mimeTypeMapper.getMimeTypeForFileExtension(extension);
             mimeType = mimeTypeMapper.guessMimeType(new FileInputStream(file), extension);
         } catch (Exception e) {
-            LOGGER.warn("Could not determine mime type for file extension = " + extension
-                    + "; defaulting to " + DEFAULT_MIME_TYPE);
+            LOGGER.warn("Could not determine mime type for file extension = {}; defaulting to {}",
+                    extension, DEFAULT_MIME_TYPE);
         }
 
         LOGGER.debug("mimeType = {}", mimeType);
