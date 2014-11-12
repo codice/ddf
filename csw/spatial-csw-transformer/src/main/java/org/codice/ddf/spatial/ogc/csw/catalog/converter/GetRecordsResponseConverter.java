@@ -33,7 +33,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.measure.converter.ConversionException;
 import javax.xml.XMLConstants;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -194,6 +197,7 @@ public class GetRecordsResponseConverter implements Converter {
         CswRecordCollection cswRecords = new CswRecordCollection();
         List<Metacard> metacards = cswRecords.getCswRecords();
 
+        parseXmlNamespaceDeclarations(reader, context);
         while (reader.hasMoreChildren()) {
             reader.moveDown();
 
@@ -237,6 +241,22 @@ public class GetRecordsResponseConverter implements Converter {
         }
 
         return cswRecords;
+    }
+
+    private void parseXmlNamespaceDeclarations(HierarchicalStreamReader reader,
+            UnmarshallingContext context) {
+        Map<String, String> namespaces = new HashMap<>();
+        Iterator<String> attributeNames = reader.getAttributeNames();
+        while (attributeNames.hasNext()) {
+            String name = attributeNames.next();
+            if (StringUtils.startsWith(name, CswConstants.XMLNS)) {
+                String attributeValue = reader.getAttribute(name);
+                namespaces.put(name, attributeValue);
+            }
+        }
+        if (!namespaces.isEmpty()) {
+            context.put(CswConstants.WRITE_NAMESPACES, namespaces);
+        }
     }
 
     private void setSearchResults(HierarchicalStreamReader reader, CswRecordCollection cswRecords) {

@@ -16,10 +16,13 @@ package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
+import com.thoughtworks.xstream.io.xml.XppReader;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
@@ -51,6 +54,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -58,6 +63,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -247,6 +253,80 @@ public class TestGetRecordsResponseConverter {
         assertMetacard(mc, expectedValues);
 
         expectedValues.clear();
+    }
+
+    @Test
+    public void testUnmarshalParseXmlNamespaces() throws XmlPullParserException {
+
+        XStream xstream = new XStream(new WstxDriver());
+        xstream.setClassLoader(this.getClass().getClassLoader());
+
+
+
+
+        xstream.registerConverter(new GetRecordsResponseConverter(mockProvider));
+        xstream.alias("csw:GetRecordsResponse", CswRecordCollection.class);
+
+        String xml =
+                "<?xml version='1.0' encoding='UTF-8'?>"
+                        + "<csw:GetRecordsResponse "
+                        + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
+                        + "xmlns:dct=\"http://purl.org/dc/terms/\" "
+                        + "xmlns:ows=\"http://www.opengis.net/ows\" "
+                        + "xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" "
+                        + "version=\"2.0.2\"><csw:SearchStatus "
+                        + "timestamp=\"2014-11-11T10:53:32.152-06:00\"/>"
+                        + "<csw:SearchResults numberOfRecordsMatched=\"1\" "
+                        + "numberOfRecordsReturned=\"1\" nextRecord=\"0\" "
+                        + "recordSchema=\"http://www.opengis.net/cat/csw/2.0.2\">"
+                        + "<csw:Record>\n"
+                        + "<dc:identifier>0a2e1b1d2a3755e70a96d61e6bddbc5d</dc:identifier>"
+                        + "<dct:bibliographicCitation>0a2e1b1d2a3755e70a96d61e6bddbc5d</dct:bibliographicCitation>"
+                        + "<dc:title>US woman attacks Gauguin painting</dc:title>"
+                        + "<dct:alternative>US woman attacks Gauguin painting</dct:alternative>"
+                        + "<dc:type>video</dc:type><dc:date>2011-04-06T04:49:20.230-05:00</dc:date>"
+                        + "<dct:modified>2011-04-06T04:49:20.230-05:00</dct:modified>"
+                        + "<dct:created>2011-04-06T04:49:20.230-05:00</dct:created>"
+                        + "<dct:dateAccepted>2011-04-06T04:48:26.180-05:00</dct:dateAccepted>"
+                        + "<dct:dateCopyrighted>2011-04-06T04:48:26.180-05:00</dct:dateCopyrighted><"
+                        + "dct:dateSubmitted>2011-04-06T04:49:20.230-05:00</dct:dateSubmitted>"
+                        + "<dct:issued>2011-04-06T04:49:20.230-05:00</dct:issued>"
+                        + "<dc:publisher>ddf.distribution</dc:publisher>"
+                        + "<ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
+                        + "    <ows:LowerCorner>-50.5056430529222 84.0285103635943</ows:LowerCorner>"
+                        + "<ows:UpperCorner>-50.5056430529222 84.0285103635943</ows:UpperCorner>"
+                        + "</ows:BoundingBox></csw:Record><"
+                        + "/csw:SearchResults>"
+                        + "</csw:GetRecordsResponse>";
+        InputStream inStream = IOUtils.toInputStream(xml);
+
+        ArgumentCaptor<UnmarshallingContext> captor = ArgumentCaptor
+                .forClass(UnmarshallingContext.class);
+
+        HierarchicalStreamReader reader = new XppReader(new InputStreamReader(inStream),
+                XmlPullParserFactory.newInstance().newPullParser());
+        xstream.unmarshal(reader, null, null);
+        IOUtils.closeQuietly(inStream);
+
+        verify(mockProvider, times(1))
+                .unmarshal(any(HierarchicalStreamReader.class), captor.capture());
+
+        UnmarshallingContext context = captor.getValue();
+
+        assertThat(context, notNullValue());
+        assertThat(context.get(CswConstants.WRITE_NAMESPACES), is(Map.class));
+        Map<String, String> namespaces = (Map) context.get(CswConstants.WRITE_NAMESPACES);
+        assertThat(namespaces.get(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
+                + CswConstants.CSW_NAMESPACE_PREFIX), is(CswConstants.CSW_OUTPUT_SCHEMA));
+        assertThat(namespaces.get(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
+                + CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX), is(CswConstants.DUBLIN_CORE_SCHEMA));
+        assertThat(namespaces.get(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
+                + CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX),
+                is(CswConstants.DUBLIN_CORE_TERMS_SCHEMA));
+        assertThat(namespaces.get(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
+                + CswConstants.OWS_NAMESPACE_PREFIX), is(CswConstants.OWS_NAMESPACE));
+
+
     }
 
     @Test

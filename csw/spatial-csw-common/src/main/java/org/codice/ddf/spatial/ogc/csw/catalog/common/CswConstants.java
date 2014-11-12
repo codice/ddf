@@ -83,8 +83,10 @@ public interface CswConstants {
     QName GET = new QName(OWS_NAMESPACE, "Get");
 
     String POST_ENCODING = "PostEncoding";
+
+    String XMLNS = "xmlns";
     
-    String XMLNS_DEFINITION_PREFIX = "xmlns(";
+    String XMLNS_DEFINITION_PREFIX = XMLNS + "(";
 
     String XMLNS_DEFINITION_POSTFIX = ")";
 

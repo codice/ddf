@@ -25,6 +25,7 @@ import com.thoughtworks.xstream.io.xml.DomReader;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
 import com.thoughtworks.xstream.io.xml.XppDriver;
+import com.thoughtworks.xstream.io.xml.XppReader;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.AttributeType.AttributeFormat;
@@ -46,6 +47,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBException;
@@ -57,6 +60,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.net.URI;
@@ -183,6 +187,48 @@ public class TestCswRecordConverter {
         assertThat(mc.getModifiedDate(), equalTo(expectedMetacard.getModifiedDate()));
         assertThat(mc.getTitle(), equalTo(expectedMetacard.getTitle()));
         assertThat(mc.getResourceURI(), equalTo(expectedMetacard.getResourceURI()));
+    }
+
+    @Test
+    public void testUnmarshalWriteNamespaces()
+            throws IOException, SAXException, XmlPullParserException {
+        XStream xstream = new XStream(new XppDriver());
+
+        CswRecordConverter converter = new CswRecordConverter();
+
+        xstream.registerConverter(converter);
+
+        xstream.alias("Record", MetacardImpl.class);
+        xstream.alias("csw:Record", MetacardImpl.class);
+        InputStream is = IOUtils.toInputStream(getRecordNoNamespaceDeclaration());
+
+        HierarchicalStreamReader reader = new XppReader(new InputStreamReader(is), XmlPullParserFactory
+                .newInstance().newPullParser());
+        DataHolder args = xstream.newDataHolder();
+        Map<String, String> namespaces = new HashMap<>();
+        namespaces.put(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
+                + CswConstants.CSW_NAMESPACE_PREFIX, CswConstants.CSW_OUTPUT_SCHEMA);
+        namespaces.put(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
+                + CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX, CswConstants.DUBLIN_CORE_SCHEMA);
+        namespaces.put(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
+                        + CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX,
+                CswConstants.DUBLIN_CORE_TERMS_SCHEMA);
+        namespaces.put(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
+                + CswConstants.OWS_NAMESPACE_PREFIX, CswConstants.OWS_NAMESPACE);
+        args.put(CswConstants.WRITE_NAMESPACES, namespaces);
+        Metacard mc = (Metacard) xstream.unmarshal(reader, null, args);
+
+        Metacard expectedMetacard = getTestMetacard();
+        assertThat(mc, not(nullValue()));
+        assertThat(mc.getContentTypeName(), equalTo(expectedMetacard.getContentTypeName()));
+        assertThat(mc.getCreatedDate(), equalTo(expectedMetacard.getCreatedDate()));
+        assertThat(mc.getEffectiveDate(), equalTo(expectedMetacard.getEffectiveDate()));
+        assertThat(mc.getId(), equalTo(expectedMetacard.getId()));
+        assertThat(mc.getModifiedDate(), equalTo(expectedMetacard.getModifiedDate()));
+        assertThat(mc.getTitle(), equalTo(expectedMetacard.getTitle()));
+        assertThat(mc.getResourceURI(), equalTo(expectedMetacard.getResourceURI()));
+        XMLUnit.setIgnoreWhitespace(true);
+        assertXMLEqual(mc.getMetadata(), getControlRecord());
     }
 
     @Test
@@ -636,7 +682,7 @@ public class TestCswRecordConverter {
 
 
     @Test
-    public void testTransform() throws IOException, JAXBException, SAXException,
+    public void testMetacardTransform() throws IOException, JAXBException, SAXException,
             XpathException, CatalogTransformerException {
         CswRecordConverter cswRecordConverter = createRecordConverter();
         Metacard metacard = getTestMetacard();
@@ -654,7 +700,7 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testTransformOmitXmlDeclaration() throws IOException, JAXBException, SAXException,
+    public void testMetacardTransformOmitXmlDeclaration() throws IOException, JAXBException, SAXException,
             XpathException, CatalogTransformerException {
         CswRecordConverter cswRecordConverter = createRecordConverter();
         Metacard metacard = getTestMetacard();
@@ -670,6 +716,21 @@ public class TestCswRecordConverter {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>")));
         XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(getControlRecord(), xml);
+    }
+
+    @Test
+    public void testMetacardTransformOmitNamespaces() throws IOException, JAXBException, SAXException,
+            XpathException, CatalogTransformerException {
+        CswRecordConverter cswRecordConverter = createRecordConverter();
+        Metacard metacard = getTestMetacard();
+
+        Map<String, Serializable> args = new HashMap<>();
+        args.put(CswConstants.WRITE_NAMESPACES, false);
+
+        BinaryContent content = cswRecordConverter.transform(metacard, args);
+
+        String xml = IOUtils.toString(content.getInputStream());
+        assertThat(xml, containsString("<csw:Record>"));
     }
 
     // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

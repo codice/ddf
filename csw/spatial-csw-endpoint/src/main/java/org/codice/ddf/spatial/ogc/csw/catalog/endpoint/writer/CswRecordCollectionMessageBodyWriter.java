@@ -19,6 +19,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
@@ -99,6 +100,7 @@ public class CswRecordCollectionMessageBodyWriter
             arguments.put(CswConstants.IS_BY_ID_QUERY, recordCollection.isById());
             arguments.put(CswConstants.GET_RECORDS, recordCollection.getRequest());
             arguments.put(CswConstants.RESULT_TYPE_PARAMETER, recordCollection.getResultType());
+            arguments.put(CswConstants.WRITE_NAMESPACES, false);
         }
 
         if (transformer == null) {

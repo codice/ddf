@@ -90,6 +90,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
         verify(mockTransformer).transform(any(SourceResponse.class), captor.capture());
 
         Map arguments = captor.getValue();
+        assertThat((Boolean) arguments.get(CswConstants.WRITE_NAMESPACES), is(false));
         assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(
                 EXAMPLE_SCHEMA));
         assertThat((ResultType)arguments.get(CswConstants.RESULT_TYPE_PARAMETER), is(ResultType.HITS));
@@ -130,6 +131,7 @@ public class CswRecordCollectionMessageBodyWriterTest {
         verify(mockTransformer).transform(any(SourceResponse.class), captor.capture());
 
         Map arguments = captor.getValue();
+        assertThat((Boolean) arguments.get(CswConstants.WRITE_NAMESPACES), is(false));
         assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(
                 CswConstants.CSW_OUTPUT_SCHEMA));
         assertThat((ResultType)arguments.get(CswConstants.RESULT_TYPE_PARAMETER), is(ResultType.VALIDATE));

@@ -112,7 +112,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     private static final CswRecordMetacardType CSW_METACARD_TYPE = new CswRecordMetacardType();
 
-    protected HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
+    protected XStreamAttributeCopier copier = new XStreamAttributeCopier();
 
     protected NoNameCoder noNameCoder = new NoNameCoder();
 
@@ -420,18 +420,26 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 //                    field.getNamespaceURI());
 //        }
     }
-    
+
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        Map<String, String> cswAttrMap = DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames();
+        Map<String, String> cswAttrMap = DefaultCswRecordMap.getDefaultCswRecordMap()
+                .getCswToMetacardAttributeNames();
         Object mappingObj = context.get(CswConstants.CSW_MAPPING);
-        if (mappingObj instanceof Map<?, ?>){
+        if (mappingObj instanceof Map<?, ?>) {
             cswAttrMap = (Map<String, String>) mappingObj;
         }
 
-        String resourceUriMapping = (isString(context.get(Metacard.RESOURCE_URI)))?(String)context.get(Metacard.RESOURCE_URI):null;
-        String thumbnailMapping = (isString(context.get(Metacard.THUMBNAIL)))?(String)context.get(Metacard.THUMBNAIL):null;
-        String productRetrievalMethod = (isString(context.get(CswConstants.PRODUCT_RETRIEVAL_METHOD)))?(String)context.get(Metacard.RESOURCE_URI):null;
+        String resourceUriMapping = (isString(context.get(Metacard.RESOURCE_URI))) ?
+                (String) context.get(Metacard.RESOURCE_URI) :
+                null;
+        String thumbnailMapping = (isString(context.get(Metacard.THUMBNAIL))) ?
+                (String) context.get(Metacard.THUMBNAIL) :
+                null;
+        String productRetrievalMethod = (isString(
+                context.get(CswConstants.PRODUCT_RETRIEVAL_METHOD))) ?
+                (String) context.get(Metacard.RESOURCE_URI) :
+                null;
 
         boolean isLonLatOrder = false;
         Object lonLatObj = context.get(CswConstants.IS_LON_LAT_ORDER_PROPERTY);
@@ -439,11 +447,18 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             isLonLatOrder = (Boolean) lonLatObj;
         }
 
-        Metacard metacard = createMetacardFromCswRecord(reader, cswAttrMap, resourceUriMapping, thumbnailMapping, productRetrievalMethod, isLonLatOrder);
+        Map<String, String> namespaceMap = null;
+        Object namespaceObj = context.get(CswConstants.WRITE_NAMESPACES);
+        if (namespaceObj instanceof Map<?, ?>){
+            namespaceMap = (Map<String, String>) namespaceObj;
+        }
+
+        Metacard metacard = createMetacardFromCswRecord(reader, cswAttrMap, resourceUriMapping,
+                thumbnailMapping, productRetrievalMethod, isLonLatOrder, namespaceMap);
 
         Object sourceIdObj = context.get(Metacard.SOURCE_ID);
         if (sourceIdObj instanceof String) {
-            metacard.setSourceId((String)sourceIdObj);
+            metacard.setSourceId((String) sourceIdObj);
         }
 
         return metacard;
@@ -453,8 +468,9 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         return object instanceof String;
     }
 
-    protected HierarchicalStreamReader copyXml(HierarchicalStreamReader hreader, StringWriter writer) {
-        copier.copy(hreader, new CompactWriter(writer, noNameCoder));
+    protected HierarchicalStreamReader copyXml(HierarchicalStreamReader hreader,
+            StringWriter writer, Map<String, String> attributeMap) {
+        copier.copyAttributes(hreader, new CompactWriter(writer, noNameCoder), attributeMap);
 
         XmlPullParser parser = null;
         try {
@@ -477,10 +493,11 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     protected MetacardImpl createMetacardFromCswRecord(HierarchicalStreamReader hreader,
             Map<String, String> cswToMetacardAttributeNames, String resourceUriMapping,
-            String thumbnailMapping, String productRetrievalMethod, boolean isLatLonOrder) {
+            String thumbnailMapping, String productRetrievalMethod, boolean isLatLonOrder,
+            Map<String, String> namespaceMap) {
 
         StringWriter metadataWriter = new StringWriter();
-        HierarchicalStreamReader reader = copyXml(hreader, metadataWriter);
+        HierarchicalStreamReader reader = copyXml(hreader, metadataWriter, namespaceMap);
 
         MetacardImpl mc = new MetacardImpl(CSW_METACARD_TYPE);
         Map<String, Attribute> attributes = new HashMap<String, Attribute>();
