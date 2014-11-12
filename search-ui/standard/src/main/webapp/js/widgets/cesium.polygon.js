@@ -31,9 +31,9 @@ define([
                 'changed': 'updatePrimitive'
             },
             updatePrimitive: function(){
-                this.drawBorderedCircle(this.model);
+                this.drawPolygon(this.model);
             },
-            drawBorderedCircle: function (model) {
+            drawPolygon: function (model) {
                 var polygonPoints = model.toJSON().polygon;
                 if(!polygonPoints){
                     return;
@@ -87,13 +87,13 @@ define([
                 this.drawHelper = options.drawHelper;
                 this.geoController = options.geoController;
 
-                this.listenTo(wreqr.vent, 'search:polydisplay', this.showBox);
+                this.listenTo(wreqr.vent, 'search:polydisplay', this.showPolygon);
                 this.listenTo(wreqr.vent, 'search:drawpoly', this.draw);
                 this.listenTo(wreqr.vent, 'search:drawstop', this.stop);
                 this.listenTo(wreqr.vent, 'search:drawend', this.destroy);
 
             },
-            showBox: function(model) {
+            showPolygon: function(model) {
                 if (this.enabled) {
                     this.drawHelper.stopDrawing();
                     // remove old polygon

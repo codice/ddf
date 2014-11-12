@@ -31,11 +31,15 @@ define(['application',
                         require(['js/controllers/cesium.controller',
                             'js/widgets/cesium.bbox',
                             'js/widgets/cesium.circle',
-                            'js/widgets/cesium.polygon'
-
-                        ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon) {
+                            'js/widgets/cesium.polygon',
+                            'js/widgets/filter.cesium.geometry.group'
+                        ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon, FilterCesiumGeometryGroup) {
 
                             var geoController = new GeoController();
+
+                            new FilterCesiumGeometryGroup.Controller({
+                                geoController: geoController
+                            });
 
                             new DrawBbox.Controller({
                                 scene: geoController.scene,
@@ -68,10 +72,15 @@ define(['application',
                     onShow: function() {
                         require(['js/controllers/openlayers.controller',
                             'js/widgets/openlayers.bbox',
-                            'js/widgets/openlayers.polygon'
-                        ], function (GeoController, DrawBbox, DrawPolygon) {
+                            'js/widgets/openlayers.polygon',
+                            'js/widgets/filter.openlayers.geometry.group'
+                        ], function (GeoController, DrawBbox, DrawPolygon, FilterCesiumGeometryGroup) {
 
                             var geoController = new GeoController();
+
+                            new FilterCesiumGeometryGroup.Controller({
+                                geoController: geoController
+                            });
 
                             new DrawBbox.Controller({
                                 map: geoController.mapViewer,

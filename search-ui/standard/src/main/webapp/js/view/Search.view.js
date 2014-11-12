@@ -58,9 +58,7 @@ define([
 
                 this.query = new QueryModel.Model();
 
-                this.controller = new FilterController({
-                    query: this.query
-                });
+                this.controller = new FilterController();
 
                 this.listenTo(wreqr.vent, 'workspace:tabshown', this.setupWreqr);
             },
