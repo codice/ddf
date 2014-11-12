@@ -81,6 +81,8 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.hamcrest.text.pattern.PatternMatcher;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.filter.sort.SortOrder;
@@ -282,9 +284,9 @@ public class TestWfsFilterDelegate {
         when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper, WfsConstants.LAT_LON_ORDER);
-        DateTime startDate = new DateTime().minusDays(365);
-        DateTime endDate = new DateTime().minusDays(10);
-        
+        DateTime startDate = new DateTime(2014, 01, 01, 01, 01, 01, 123, DateTimeZone.forID("-07:00"));
+        DateTime endDate = new DateTime(2014, 01, 02, 01, 01, 01, 123, DateTimeZone.forID("-07:00"));
+
         // Perform Test
         FilterType filter = delegate.during(mockMetacardAttribute, startDate.toDate(), endDate.toDate());
 
@@ -295,9 +297,11 @@ public class TestWfsFilterDelegate {
         assertThat(binaryTemporalOpType.getValueReference(), is(mockFeatureProperty));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimePeriodType timePeriod = (TimePeriodType) binaryTemporalOpType.getExpression().getValue();
-        assertThat(timePeriod.getBeginPosition().getValue().get(0), is(startDate.toString()));
-        assertThat(timePeriod.getEndPosition().getValue().get(0), is(endDate.toString()));
+
+        assertThat(timePeriod.getBeginPosition().getValue().get(0), is("2014-01-01T08:01:01Z"));
+        assertThat(timePeriod.getEndPosition().getValue().get(0), is("2014-01-02T08:01:01Z"));
         assertThat(timePeriod.getId(), is(matchesPattern(new PatternMatcher(sequence(mockFeatureType, ".", oneOrMore(anyCharacterIn("0-9")))))));
+
     }
     
     @Test(expected=IllegalArgumentException.class)
@@ -376,9 +380,8 @@ public class TestWfsFilterDelegate {
          */
         DateTimeUtils.setCurrentMillisFixed(now.getMillis());
         
-        DateTime startDate = now.minus(duration);
-   
-        
+        String startDate = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(now.minus(duration));
+
         // Perform Test
         FilterType filter = delegate.relative(mockMetacardAttribute, duration);
 
@@ -390,7 +393,7 @@ public class TestWfsFilterDelegate {
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimePeriodType timePeriod = (TimePeriodType) binaryTemporalOpType.getExpression().getValue();
         assertThat(timePeriod.getBeginPosition().getValue().get(0), is(startDate.toString()));
-        assertThat(timePeriod.getEndPosition().getValue().get(0), is(now.toString()));
+        assertThat(timePeriod.getEndPosition().getValue().get(0), is(ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(now)));
         assertThat(timePeriod.getId(), is(matchesPattern(new PatternMatcher(sequence(mockFeatureType, ".", oneOrMore(anyCharacterIn("0-9")))))));
         
         // Reset the System time
@@ -471,7 +474,7 @@ public class TestWfsFilterDelegate {
         assertThat(binaryTemporalOpType.getValueReference(), is(mockFeatureProperty));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimeInstantType timeInstant = (TimeInstantType) binaryTemporalOpType.getExpression().getValue();
-        assertThat(timeInstant.getTimePosition().getValue().get(0), is(date.toString()));
+        assertThat(timeInstant.getTimePosition().getValue().get(0), is(ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(date)));
         assertThat(timeInstant.getId(), is(matchesPattern(new PatternMatcher(sequence(mockFeatureType, ".", oneOrMore(anyCharacterIn("0-9")))))));
     }
     
@@ -550,7 +553,8 @@ public class TestWfsFilterDelegate {
         assertThat(binaryTemporalOpType.getValueReference(), is(mockFeatureProperty));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
         TimeInstantType timeInstant = (TimeInstantType) binaryTemporalOpType.getExpression().getValue();
-        assertThat(timeInstant.getTimePosition().getValue().get(0), is(date.toString()));
+        assertThat(timeInstant.getTimePosition().getValue().get(0), is(ISODateTimeFormat.dateTimeNoMillis().withZone(
+                DateTimeZone.UTC).print(date)));
         assertThat(timeInstant.getId(), is(matchesPattern(new PatternMatcher(sequence(mockFeatureType, ".", oneOrMore(anyCharacterIn("0-9")))))));
     }
     

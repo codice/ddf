@@ -89,6 +89,9 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.CONFO
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.SPATIAL_OPERATORS;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants.TEMPORAL_OPERATORS;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -770,7 +773,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     public FilterType relative(String propertyName, long duration) {
         DateTime now = new DateTime();
         DateTime startDate = now.minus(duration);
-        return buildDuringFilterType(mapMetacardAttribute(propertyName), startDate, now);
+        return buildDuringFilterType(mapMetacardAttribute(propertyName), convertDateToIso8601Format(startDate), convertDateToIso8601Format(now));
     }
 
     @Override
@@ -837,7 +840,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         return filter;
     }
     
-    private FilterType buildDuringFilterType(String propertyName, DateTime startDate, DateTime endDate) {
+    private FilterType buildDuringFilterType(String propertyName, String startDate, String endDate) {
         
         if(!isTemporalOpSupported(TEMPORAL_OPERATORS.During)) {
             throw new UnsupportedOperationException(
@@ -878,7 +881,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         return filter;
     }
     
-    private FilterType buildAfterFilterType(String propertyName, DateTime date) {
+    private FilterType buildAfterFilterType(String propertyName, String date) {
         
         if(!isTemporalOpSupported(TEMPORAL_OPERATORS.After)) {
             throw new UnsupportedOperationException(
@@ -920,7 +923,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         
     }
     
-    private FilterType buildBeforeFilterType(String propertyName, DateTime date) {
+    private FilterType buildBeforeFilterType(String propertyName, String date) {
         
         if(!isTemporalOpSupported(TEMPORAL_OPERATORS.Before)) {
             throw new UnsupportedOperationException(
@@ -1125,28 +1128,28 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
     
     private JAXBElement<BinaryTemporalOpType> createDuring(String property, String type,
-            DateTime startDate, DateTime endDate) {
+            String startDate, String endDate) {
         JAXBElement<BinaryTemporalOpType> during = filterObjectFactory
                 .createDuring(createBinaryTemporalOpType(property, type, startDate, endDate));
         return during;
     }
 
     private JAXBElement<BinaryTemporalOpType> createAfter(String property, String type,
-            DateTime date) {
+            String date) {
         JAXBElement<BinaryTemporalOpType> after = filterObjectFactory
                 .createAfter(createBinaryTemporalOpType(property, type, date));
         return after;
     }
 
     private JAXBElement<BinaryTemporalOpType> createBefore(String property, String type,
-            DateTime date) {
+            String date) {
         JAXBElement<BinaryTemporalOpType> before = filterObjectFactory
                 .createBefore(createBinaryTemporalOpType(property, type, date));
         return before;
     }
 
     private BinaryTemporalOpType createBinaryTemporalOpType(String property, String type,
-            DateTime startDate, DateTime endDate) {
+            String startDate, String endDate) {
         BinaryTemporalOpType binaryTemporalOpType = filterObjectFactory
                 .createBinaryTemporalOpType();
         binaryTemporalOpType.setValueReference(property);
@@ -1157,7 +1160,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
 
     private BinaryTemporalOpType createBinaryTemporalOpType(String property, String type,
-            DateTime date) {
+            String date) {
         BinaryTemporalOpType binaryTemporalOpType = filterObjectFactory
                 .createBinaryTemporalOpType();
         binaryTemporalOpType.setValueReference(property);
@@ -1167,14 +1170,16 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         return binaryTemporalOpType;
     }
 
-    private TimePositionType createTimePositionType(DateTime dateTime) {
+    private TimePositionType createTimePositionType(String dateTime) {
+
         TimePositionType timePosition = gml320ObjectFactory.createTimePositionType();
-        timePosition.getValue().add(dateTime.toString());
+        timePosition.getValue().add(dateTime);
         return timePosition;
     }
 
-    private TimePeriodType createTimePeriodType(String property, String type, DateTime startDate,
-            DateTime endDate) {
+    private TimePeriodType createTimePeriodType(String property, String type, String startDate,
+            String endDate) {
+
         TimePeriodType timePeriodType = gml320ObjectFactory.createTimePeriodType();
         timePeriodType.setBeginPosition(createTimePositionType(startDate));
         timePeriodType.setEndPosition(createTimePositionType(endDate));
@@ -1182,7 +1187,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         return timePeriodType;
     }
 
-    private TimeInstantType createTimeInstantType(String property, String type, DateTime date) {
+    private TimeInstantType createTimeInstantType(String property, String type, String date) {
         TimeInstantType timeInstantType = gml320ObjectFactory.createTimeInstantType();
         timeInstantType.setTimePosition(createTimePositionType(date));
         timeInstantType.setId(type +  "." + System.currentTimeMillis());
@@ -1232,8 +1237,14 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         return featureMetacardType.getTemporalProperties().contains(propertyName);
     }
 
-    private DateTime convertDateToIso8601Format(Date inputDate) {
-        return new DateTime(inputDate);
+    private String convertDateToIso8601Format(DateTime inputDate) {
+        DateTimeFormatter dtf = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC);
+        return dtf.print(inputDate).toString();
+    }
+
+    private String convertDateToIso8601Format(Date inputDate) {
+        DateTimeFormatter dtf = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC);
+        return dtf.print(new DateTime(inputDate)).toString();
     }
 
     // spatial operators
