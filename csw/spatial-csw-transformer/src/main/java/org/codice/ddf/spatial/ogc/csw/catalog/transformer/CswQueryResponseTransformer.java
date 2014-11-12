@@ -172,6 +172,11 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 recordCollection.setOutputSchema((String)outputSchema);
             }
 
+            Object doWriteNamespaces = arguments.get(CswConstants.WRITE_NAMESPACES);
+            if (doWriteNamespaces instanceof Boolean) {
+                recordCollection.setDoWriteNamespaces((Boolean) doWriteNamespaces);
+            }
+
         }
     }
 

@@ -59,6 +59,8 @@ public class CswRecordCollection {
 
     private ResultType resultType;
 
+    private boolean doWriteNamespaces;
+
     /**
      * Retrieves the request made that generated this set of CSW Records, if applicable
      * 
@@ -173,5 +175,13 @@ public class CswRecordCollection {
 
     public ResultType getResultType() {
         return this.resultType;
+    }
+
+    public boolean isDoWriteNamespaces() {
+        return doWriteNamespaces;
+    }
+
+    public void setDoWriteNamespaces(boolean doWriteNamespaces) {
+        this.doWriteNamespaces = doWriteNamespaces;
     }
 }

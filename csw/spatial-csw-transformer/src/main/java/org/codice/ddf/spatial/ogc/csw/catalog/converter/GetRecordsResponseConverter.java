@@ -156,6 +156,7 @@ public class GetRecordsResponseConverter implements Converter {
                 writer.addAttribute(ELEMENT_SET_ATTRIBUTE, elementSet);
             }
         }
+        context.put(CswConstants.WRITE_NAMESPACES, cswRecordCollection.isDoWriteNamespaces());
 
         if (!ResultType.HITS.equals(cswRecordCollection.getResultType())) {
             LOGGER.debug("Transforming individual metacards.");
