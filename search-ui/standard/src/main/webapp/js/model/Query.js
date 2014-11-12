@@ -175,8 +175,6 @@ define([
                     }));
                 }
 
-
-
                 // type
                 var types = this.get('type');
                 if (types) {
@@ -198,47 +196,34 @@ define([
                     radius = this.get('radius'),
                     polygon = this.get('polygon');
                 if (north && south && east && west) {
-                    var bbox = 'POLYGON ((' +
-                        west + ' ' + south +
-                        ', ' + west + ' ' + north +
-                        ', ' + east + ' ' + north +
-                        ', ' + east + ' ' + south +
-                        ', ' + west + ' ' + south +
-                        '))';
-
                     filters.push(new Filter.Model({
                         fieldName: 'anyGeo',
                         fieldType: 'anyGeo',
                         fieldOperator: 'intersects',
-                        //geoValue1: 'INTERSECTS(anyGeo, ' + bbox + ')'
-                        geoValue1: bbox
+                        geoType: 'bbox',
+                        north: north,
+                        south: south,
+                        west: west,
+                        east: east
                     }));
 
                 } else if (polygon) {
-                    var poly = 'POLYGON ((';
-                    var polyPoint;
-                    for (var i = 0;i<polygon.length;i++) {
-                        polyPoint = polygon[i];
-                        poly += polyPoint[0] + ' ' + polyPoint[1];
-                        if (i < polygon.length - 1) {
-                            poly += ', ';
-                        }
-                    }
-                    poly += '))';
                     filters.push(new Filter.Model({
                         fieldName: 'anyGeo',
                         fieldType: 'anyGeo',
                         fieldOperator: 'intersects',
-                        geoValue1: poly
+                        geoType: 'polygon',
+                        polygon: polygon
                     }));
-                } else if (lat && lon && radius) {
-                    var point = 'POINT(' + lon + ' ' + lat + ')';
+                }else if (lat && lon && radius) {
                     filters.push(new Filter.Model({
                         fieldName: 'anyGeo',
                         fieldType: 'anyGeo',
-                        fieldOperator: 'contains',
-//                        geoValue1: 'DWITHIN(anyGeo, ' + point + ', ' + radius + ', meters)'
-                        geoValue1: point + ', ' + radius
+                        fieldOperator: 'intersects',
+                        geoType: 'circle',
+                        lon: lon,
+                        lat: lat,
+                        radius: radius
                     }));
                 }
 

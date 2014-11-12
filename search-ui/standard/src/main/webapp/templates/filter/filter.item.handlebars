@@ -11,67 +11,87 @@
  *
  **/
  --}}
-<div class="clearfix">
-    <div class="pull-left">
-        <div class="metadata-field-group">
-            <select class="ddf form-control" name="fieldName">
-                {{#each fields}}
-                    <option value="{{name}}">{{name}}</option>
-                {{/each}}
-            </select>
-        </div>
-        <div class="operator-group">
-            <select class="ddf form-control" name="fieldOperator">
+<td>
+    <div class="clearfix">
+        <div class="pull-left">
+            <div class="metadata-field-group">
+                <select class="ddf form-control" name="fieldName">
+                    {{#each fields}}
+                        {{#if displayName}}
+                            <option value="{{name}}">{{displayName}}</option>
+                        {{else}}
+                            <option value="{{name}}">{{name}}</option>
+                        {{/if}}
+                    {{/each}}
+                </select>
+            </div>
+            <div class="operator-group">
+                <select class="ddf form-control" name="fieldOperator">
+                    {{#is fieldType "string"}}
+                        {{#each operations.string}}
+                            <option value="{{.}}">{{.}}</option>
+                        {{/each}}
+                    {{/is}}
+                    {{#is fieldType "date"}}
+                        {{#each operations.date}}
+                            <option value="{{.}}">{{.}}</option>
+                        {{/each}}
+                    {{/is}}
+                    {{#is fieldType "number"}}
+                        {{#each operations.number}}
+                            <option value="{{.}}">{{.}}</option>
+                        {{/each}}
+                    {{/is}}
+                    {{#is fieldType "anyGeo"}}
+                        {{#each operations.anyGeo}}
+                            <option value="{{.}}">{{.}}</option>
+                        {{/each}}
+                    {{/is}}
+                    {{#is fieldType "xml"}}
+                        {{#each operations.xml}}
+                            <option value="{{.}}">{{.}}</option>
+                        {{/each}}
+                    {{/is}}
+                </select>
+            </div>
+            <div class="value-input-group">
                 {{#is fieldType "string"}}
-                    {{#each operations.string}}
-                        <option value="{{.}}">{{.}}</option>
-                    {{/each}}
-                {{/is}}
-                {{#is fieldType "date"}}
-                    {{#each operations.date}}
-                        <option value="{{.}}">{{.}}</option>
-                    {{/each}}
-                {{/is}}
-                {{#is fieldType "number"}}
-                    {{#each operations.number}}
-                        <option value="{{.}}">{{.}}</option>
-                    {{/each}}
-                {{/is}}
-                {{#is fieldType "anyGeo"}}
-                    {{#each operations.anyGeo}}
-                        <option value="{{.}}">{{.}}</option>
-                    {{/each}}
+                    <input class="string-field form-control" type="text" placeholder="Enter a value" name="stringValue1"/>
                 {{/is}}
                 {{#is fieldType "xml"}}
-                    {{#each operations.xml}}
-                        <option value="{{.}}">{{.}}</option>
-                    {{/each}}
+                    <input class="string-field form-control" type="text" placeholder="Enter a value" name="stringValue1"/>
                 {{/is}}
-            </select>
+                {{#is fieldType "date"}}
+                    <input class="date-field form-control" type="text" placeholder="Click to select Date" name="dateValue1"/>
+                {{/is}}
+                {{#is fieldType "number"}}
+                    <input class="number-field form-control" type="text" placeholder="Enter a number" name="numberValue1"/>
+                {{/is}}
+                {{#is fieldType "anyGeo"}}
+                    <select class="ddf form-control" name="geoType">
+                        <option value="circle">Circle</option>
+                        <option value="bbox">Bounding Box</option>
+                        <option value="polygon">Polygon</option>
+                    </select>
+                {{/is}}
+            </div>
+
         </div>
-        <div class="value-input-group">
-            {{#is fieldType "string"}}
-                <input class="string-field form-control" type="text" placeholder="Enter a value" name="stringValue1"/>
-            {{/is}}
-            {{#is fieldType "xml"}}
-                <input class="string-field form-control" type="text" placeholder="Enter a value" name="stringValue1"/>
-            {{/is}}
-            {{#is fieldType "date"}}
-                <input class="date-field form-control" type="text" placeholder="Click to select Date" name="dateValue1"/>
-            {{/is}}
-            {{#is fieldType "number"}}
-                <input class="number-field form-control" type="text" placeholder="Enter a number" name="numberValue1"/>
-            {{/is}}
+        <div class="pull-right">
             {{#is fieldType "anyGeo"}}
-                <input class="geo-field form-control" type="text" name="geoValue1"/>
+                <div class="geo-button-group">
+                    {{#if isValidGeo}}
+                        <div class="btn btn-primary btn-xs draw">Redraw</div>
+                    {{else}}
+                        <div class="btn btn-primary btn-xs draw">Draw</div>
+                    {{/if}}
+                </div>
             {{/is}}
+            <div class="button-group">
+                {{^isOnlyFilter}}
+                <i class="fa fa-times remove fa-lg" title="Remove Filter"></i>
+                {{/isOnlyFilter}}
+            </div>
         </div>
     </div>
-    <div class="pull-right">
-        <div class="button-group">
-            {{^isOnlyFilter}}
-            <i class="fa fa-times remove fa-lg" title="Remove Filter"></i>
-            {{/isOnlyFilter}}
-        </div>
-    </div>
-</div>
+</td>

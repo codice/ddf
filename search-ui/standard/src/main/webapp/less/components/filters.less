@@ -1,5 +1,9 @@
 .filter-view {
 
+  i {
+    .i-clickable();
+  }
+
   .filter-status {
     border-top: 1px solid @divider-hr-color;
     text-align: center;
@@ -10,42 +14,38 @@
     display: none;
   }
 
-  .add-filter {
-    .i-clickable();
-    font-size: 19px;
+  h6 {
+    text-transform: capitalize;
+    i {
+      font-size: 19px;
+    }
   }
 
-  .btn.add {
-    margin-left: 6px;
-  }
-
-  .item {
-    display: block;
-    border-top: 1px solid @divider-hr-color;
-    padding: 6px 0px;
-    overflow: auto; // float auto height magic.
-
-
+  .filter-table td {
 
     select, input {
       width: auto;
       border-radius: 4px;
       font-size: 12px;
       height: 28px;
+      margin-bottom: 0px;
     }
 
     select {
       padding: 0px;
     }
 
-
-
     .value-input-group,
     .operator-group,
     .metadata-field-group,
-    .button-group {
+    .button-group,
+    .geo-button-group{
       float: left;
       vertical-align: top;
+    }
+
+    .geo-button-group {
+      padding: 4px 6px 0px 6px;
     }
 
     .metadata-field-group {
@@ -69,6 +69,10 @@
     .value-input-group input {
       width: 180px;
       margin-bottom: 0px;
+
+      &.geo-field {
+        width: 159px;
+      }
     }
 
     .button-group {
@@ -77,15 +81,8 @@
       padding-right: 6px;
       padding-left: 6px;
       cursor: pointer;
-
-      i {
-        .i-clickable();
-      }
     }
 
-    &:last-child {
-      padding-bottom: 6px;
-    }
   }
 
   .field-value {
@@ -94,35 +91,10 @@
 
   &.active {
     .filter-menu {
-
       display: block;
-      transition: max-height 1s ease 0s;
-      transition-delay: 0s;
     }
   }
 }
-
-// this is in the latest bootstrap, once its upgraded we probably don't need this once we update to latest bootstrap.
-.has-feedback {
-  position: relative;
-
-  .form-control-feedback {
-    position: absolute;
-    top: 5px;
-    right: 0;
-    z-index: 2;
-    display: block;
-    width: 34px;
-    text-align: center;
-  }
-
-  &.has-value {
-    .form-control-feedback {
-      display: none;
-    }
-  }
-}
-
 
 @media (min-width: 700px){
   .full-screen-search {
@@ -153,6 +125,3 @@
   }
 }
 
-i.clickable {
-  .i-clickable();
-}

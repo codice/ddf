@@ -18,18 +18,20 @@
         Cometd = require('cometdinit');
 
     var cometdUnbind = function () {
-        Cometd.Comet.unsubscribe(this.subscription);
+        if(this && this.subscription){
+            Cometd.Comet.unsubscribe(this.subscription);
+        }
     };
 
     Backbone.Model.prototype.origDestroy = Backbone.Model.prototype.destroy;
     Backbone.Collection.prototype.origDestroy = Backbone.Collection.prototype.destroy;
     var destroyModel = function (options) {
         cometdUnbind();
-        Backbone.Model.prototype.origDestroy(options);
+        Backbone.Model.prototype.origDestroy.apply(this, arguments);
     };
     var destroyColl = function (options) {
         cometdUnbind();
-        Backbone.Collection.prototype.origDestroy(options);
+        Backbone.Collection.prototype.origDestroy.apply(this, arguments);
     };
     Backbone.Model.prototype.destroy = destroyModel;
     Backbone.Collection.prototype.destroy = destroyColl;

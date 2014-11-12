@@ -304,6 +304,9 @@ define([
                 if(str && typeof str === "string") {
                     return new Handlebars.SafeString(str);
                 }
+            },
+            splitDashes: function(str){
+                return str.split('-').join(' ');
             }
         };
 

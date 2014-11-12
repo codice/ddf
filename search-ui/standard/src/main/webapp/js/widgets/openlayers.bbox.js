@@ -69,7 +69,7 @@ define([
             updatePrimitive: function (model) {
                 var rectangle = this.modelToRectangle(model);
                 // make sure the current model has width and height before drawing
-                if (rectangle && !_.isUndefined(rectangle) && (rectangle.north !== rectangle.south && rectangle.east !== rectangle.west)) {
+                if (rectangle && !_.isUndefined(rectangle) && (model.get('north') !== model.get('south') && model.get('east') !== model.get('west'))) {
                     this.drawBorderedRectangle(rectangle);
                     //only call this if the mouse button isn't pressed, if we try to draw the border while someone is dragging
                     //the filled in shape won't show up

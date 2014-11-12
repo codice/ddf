@@ -18,16 +18,15 @@ define([
     'properties'
 ],function (_, moment, Properties) {
 
-    var excludeFromCQL = [Properties.filters.SOURCE_ID];
+
 
     var Filter = {};
 
     Filter.CQLFactory = {
         toCQL: function(filter){
-            var fieldName = filter.get('fieldName');
             var fieldType = filter.get('fieldType');
             var fieldOperator = filter.get('fieldOperator');
-            if(!_.contains(excludeFromCQL, fieldName) && Filter.CQLFactory[fieldType] && Filter.CQLFactory[fieldType][fieldOperator]){
+            if(Filter.CQLFactory[fieldType] && Filter.CQLFactory[fieldType][fieldOperator]){
                 return "(" + Filter.CQLFactory[fieldType][fieldOperator](filter) + ")"; // fun
             }
             return null;
@@ -116,11 +115,48 @@ define([
             }
         },
         anyGeo: {
-            'contains': function(filter) {
-                return 'DWITHIN(anyGeo, ' + filter.get('geoValue1') + ', meters)';
-            },
             'intersects': function(filter) {
-                return 'INTERSECTS(anyGeo, ' + filter.get('geoValue1') + ')';
+                var geoType = filter.get('geoType');
+                if(geoType === 'bbox'){
+                    // build the bbox value.
+                    var north = filter.get('north'),
+                        south = filter.get('south'),
+                        west = filter.get('west'),
+                        east = filter.get('east');
+
+                    var bbox = 'POLYGON ((' +
+                        west + ' ' + south +
+                        ', ' + west + ' ' + north +
+                        ', ' + east + ' ' + north +
+                        ', ' + east + ' ' + south +
+                        ', ' + west + ' ' + south +
+                        '))';
+
+                    return 'INTERSECTS(anyGeo, ' + bbox + ')';
+                } else if(geoType === 'polygon'){
+                    // build the polygon value.
+                    var polygon = filter.get('polygon');
+                    var poly = 'POLYGON ((';
+                    var polyPoint;
+                    for (var i = 0;i<polygon.length;i++) {
+                        polyPoint = polygon[i];
+                        poly += polyPoint[0] + ' ' + polyPoint[1];
+                        if (i < polygon.length - 1) {
+                            poly += ', ';
+                        }
+                    }
+                    poly += '))';
+                    return 'INTERSECTS(anyGeo, ' + poly + ')';
+                } else if(geoType === 'circle'){
+                    // build the circle cql value.
+                    var lon = filter.get('lon'),
+                        lat = filter.get('lat'),
+                        radius = filter.get('radius');
+                    var point = 'POINT(' + lon + ' ' + lat + ')';
+
+                    return 'DWITHIN(anyGeo, ' + point + ',' + radius + ', meters)';
+                }
+                return null;
             }
         }
     };

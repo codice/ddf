@@ -16,24 +16,29 @@ define([
     'backbone',
     'icanhaz',
     'properties',
+    'wreqr',
     'js/model/Filter',
     'text!templates/filter/filter.item.handlebars'
 ],
-    function ($,_, Marionette, Backbone, ich, Properties, Filter, filterItemTemplate) {
+    function ($,_, Marionette, Backbone, ich, Properties, wreqr, Filter, filterItemTemplate) {
         "use strict";
 
         ich.addTemplate('filterItemTemplate', filterItemTemplate);
 
         var FilteItemView = Marionette.ItemView.extend({
             className: 'item',
+            tagName: 'tr',
             template: 'filterItemTemplate',
             events: {
                 'click .remove': 'removePressed',
-                'change .hasDatepicker': 'dateChanged'
+                'change .hasDatepicker': 'dateChanged',
+                'click .draw' : 'drawClicked'
             },
             modelEvents: {
                 'change:fieldName': 'fieldNameChanged',
-                'change:fieldOperator': 'fieldOperatorChanged'
+                'change:fieldOperator': 'fieldOperatorChanged',
+                'change:geoType' : 'render',
+                'EndExtent': 'drawingStopped'
             },
             collectionEvents: {
                 'remove': 'render',
@@ -46,11 +51,16 @@ define([
                 return {
                     fields: this.options.fields,
                     operations: Properties.filters.OPERATIONS,
-                    isOnlyFilter: this.collection.length === 1
+                    isOnlyFilter: this.collection.length === 1,
+                    isValidGeo: this.model.isValidGeo()
                 };
             },
             removePressed: function(){
                 this.model.trigger('removePressed', this.model);
+                if(this.model.get('fieldName') === 'anyGeo'){
+                    // TODO when we add multishape support we need to adjust this.
+                    wreqr.vent.trigger('search:drawend');
+                }
             },
 
             onRender: function(){
@@ -73,6 +83,20 @@ define([
                     maxDate: new Date(9999, 11, 30)
                 });
 
+                var geoType = this.model.get('geoType'),
+                    fieldName = this.model.get('fieldName');
+                if(fieldName === 'anyGeo'){
+                    if(geoType === 'bbox'){
+                        wreqr.vent.trigger('search:drawend');
+                        wreqr.vent.trigger('search:bboxdisplay', this.model);
+                    } else if(geoType === 'circle'){
+                        wreqr.vent.trigger('search:drawend');
+                        wreqr.vent.trigger('search:circledisplay', this.model);
+                    } else if(geoType === 'polygon'){
+                        wreqr.vent.trigger('search:drawend');
+                        wreqr.vent.trigger('search:polygondisplay', this.model);
+                    }
+                }
             },
             onBeforeClose: function(){
                 this.unbindForm();
@@ -105,6 +129,24 @@ define([
             },
             toggleRemoveButton: function(removeButtonFlag){
                 this.$('.btn.remove').toggle(removeButtonFlag);
+            },
+            drawClicked: function(){
+                this.$('.draw').attr('disabled', 'disabled');
+                var geoType = this.model.get('geoType');
+                if(geoType === 'bbox'){
+                    wreqr.vent.trigger('search:drawend');
+                    wreqr.vent.trigger("search:drawbbox", this.model);
+                } else if(geoType === 'circle'){
+                    wreqr.vent.trigger('search:drawend');
+                    wreqr.vent.trigger("search:drawcircle", this.model);
+                } else if(geoType === 'polygon'){
+                    wreqr.vent.trigger('search:drawend');
+                    wreqr.vent.trigger("search:drawpolygon", this.model);
+                }
+            },
+            drawingStopped: function(){
+                this.$('.draw').removeAttr('disabled', false);
+                this.render();
             }
         });
 

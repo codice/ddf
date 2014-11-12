@@ -35,7 +35,8 @@ define([
             },
             regions: {
                 facetsRegion: '.facets-region',
-                filtersRegion: '.filter-region'
+                filtersRegion: '.filter-region',
+                geospatialRegion: '.geospatial-region'
             },
             initialize: function(){
                 var view = this;
@@ -53,6 +54,7 @@ define([
                 this.listenTo(wreqr.vent, 'facetSelected', this.addFacet);
                 this.listenTo(wreqr.vent, 'facetDeSelected', this.removeFacet);
                 this.listenTo(wreqr.vent, 'facetFocused', this.focusFacet);
+                this.listenTo(wreqr.vent, 'geoUpdated', this.geoUpdated);
 
                 wreqr.vent.trigger('processSearch', this.model);
             },
@@ -119,9 +121,11 @@ define([
                     wreqr.vent.trigger('map:clear');
                     wreqr.vent.trigger('map:results', model, false);
                 };
-                view.queryObject.startSearch(progressFunction);
+                this.queryObject.startSearch(progressFunction);
+            },
+            geoUpdated: function(){
+                this.refreshSearch();
             }
-
         });
 
         return FilterView;

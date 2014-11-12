@@ -6,6 +6,13 @@ table.table {
     }
   }
 
+  &.no-horizontal-padding {
+    td, th {
+      padding-left: 0px;
+      padding-right: 0px;
+    }
+  }
+
   &.no-bottom-margin{
     margin-bottom: 0px;
   }
@@ -14,5 +21,10 @@ table.table {
     margin-top: -21px;
   }
 
+  td, th {
+    &.middle {
+      vertical-align: middle;
+    }
+  }
 
 }
