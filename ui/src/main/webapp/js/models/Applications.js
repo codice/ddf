@@ -83,10 +83,18 @@ define([
                 this.get('parent').set({selected: true});
              }
          } else if (this.get('children').length){
-             this.get('children').forEach(function(child) {
-                 child.set({selected: false});
-             });
+             this.iterateDependencies(this);
          }
+       },
+
+       iterateDependencies: function(update) {
+           var that = this;
+           update.get('children').forEach(function(child) {
+               child.set({selected: false});
+               if(child.get('children').length) {
+                   that.iterateDependencies(child);
+               }
+           });
        },
 
        toggleRemoveFlag: function () {
