@@ -132,7 +132,35 @@ module.exports = function (grunt) {
                 }
             },
             //this is where the tests would be called from
-            files: ['src/test/js/*.js']
+            files: ['src/test/js/casper/*.js']
+        },
+        mochaWebdriver: {
+            options: {
+                autoInstall: true,
+                usePromises: true,
+                reporter: 'spec',
+                timeout: 1000 * 30
+            },
+            phantom: {
+                src: ['src/test/js/wd/*.js'],
+                options: {
+                    hostname: '127.0.0.1',
+                    usePhantom: true,
+                    phantomPort: 5555
+                }
+            },
+            selenium: {
+                src: ['src/test/js/wd/*.js'],
+                options: {
+                    hostname: '127.0.0.1',
+                    port: 4444,
+                    // mochaWebdriver always starts a selenium server so
+                    // starting phantomjs webdriver that will not be used
+                    phantomPort: 5555,
+                    usePhantom: true
+                    //browsers: [{browserName: 'phantomjs'}]
+                }
+            }
         },
         express: {
             options: {
@@ -172,9 +200,13 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-sed');
     grunt.loadNpmTasks('grunt-express');
     grunt.loadNpmTasks('grunt-casperjs');
+    grunt.loadNpmTasks('grunt-mocha-webdriver');
     grunt.loadNpmTasks('grunt-contrib-less');
 
-    grunt.registerTask('test', ['express:test', 'casperjs']);
+    //grunt.registerTask('test', ['express:test', 'check-python', 'casperjs']);
+
+    grunt.registerTask('test', ['express:test', 'mochaWebdriver:phantom']);
+    grunt.registerTask('test:selenium', ['express:test', 'mochaWebdriver:selenium']);
 
     grunt.registerTask('bower-offline-install', 'Bower offline install work-around', function() {
         var bower = require('bower');
@@ -208,18 +240,20 @@ module.exports = function (grunt) {
                done();
             });
     });
-    var buildTasks = ['clean', 'bower-offline-install', 'sed', 'copy', 'less','cssmin', 'jshint'];
+    var buildTasks = ['clean', 'bower-offline-install', 'sed', 'copy', 'less','cssmin', 'jshint', 'test'];
 
-    try {
-        grunt.log.writeln('Checking for python');
-        var pythonPath = which.sync('python');
-        if(pythonPath) {
-            grunt.log.writeln('Found python');
-            buildTasks.push('test');
+    grunt.registerTask('check-python', 'Check if Phython is installed', function() {
+        try {
+            grunt.log.writeln('Checking for python');
+            var pythonPath = which.sync('python');
+            if (pythonPath) {
+                grunt.log.writeln('Found python');
+                buildTasks.push('test');
+            }
+        } catch (e) {
+            grunt.log.writeln('Python is not installed. Please install Python and ensure that it is in your path to run tests.');
         }
-    } catch (e) {
-        grunt.log.writeln('Python is not installed. Please install Python and ensure that it is in your path to run tests.');
-    }
+    });
 
     grunt.registerTask('build', buildTasks);
     grunt.registerTask('default', ['build','express:server','watch']);

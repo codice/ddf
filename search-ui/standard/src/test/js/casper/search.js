@@ -1,5 +1,5 @@
 /*jshint strict:false*/
-/*global CasperError, console, phantom, require, casper*/
+/*global document, casper*/
 // NOTE: to enable debug uncomment the following 2 lines.
 //casper.options.verbose = true;
 //casper.options.logLevel = 'debug';
@@ -26,7 +26,7 @@ casper.test.begin('simple contextual query', 3, function(test) {
 
     casper.waitFor(function() {
         return this.evaluate(function() {
-            return document.querySelectorAll('#low-count').length != 0;
+            return document.querySelectorAll('#low-count').length !== 0;
         });
     }, function() {
         test.pass('Executed search');
@@ -37,7 +37,7 @@ casper.test.begin('simple contextual query', 3, function(test) {
     casper.waitFor(function(){
         return this.evaluate(function(){
             return document.querySelectorAll('a.metacard-link').length >= 10;
-        })
+        });
     }, function() {
         test.pass('Search for contextual query retrieves 10 or more results');
     }, function() {
