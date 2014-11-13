@@ -93,25 +93,8 @@ import java.util.UUID;
 public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnonymousInterceptor.class);
-    private static final String TRANSPORT_BINDING = "TransportBinding";
-    private static final String ASYMMETRIC_BINDING = "AsymmetricBinding";
-    private static final String SYMMETRIC_BINDING = "SymmetricBinding";
-    private static final String INCLUDE_TIMESTAMP = "IncludeTimestamp";
-    private static final String LAYOUT = "Layout";
-    private static final String TRANSPORT_TOKEN = "TransportToken";
-    private static final String HTTPS_TOKEN = "HttpsToken";
-    private static final String SIGNED_SUPPORTING_TOKENS = "SignedSupportingTokens";
-    private static final String WSS11 = "wss11";
-    private static final String ADDRESSING = "Addressing";
-    private static final String TRUST13 = "Trust13";
-    private static final String ISSUED_TOKEN = "IssuedToken";
     
-    //Token Assertions
-    private static final String TOKEN_ASSERTION_NEVER = "http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Never";
-    private static final String TOKEN_ASSERTION_ONCE = "http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Once";
-    private static final String TOKEN_ASSERTION_ALWAYSTORECIP = "http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient";
-    private static final String TOKEN_ASSERTION_ALWAYS = "http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/Always";
-    
+    //Token Assertions    
     private static final String TOKEN_SAML20 = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
     
     private final List<Realm> realms;
@@ -155,7 +138,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                 LOGGER.debug("Issue with getting security header", e1);
             }
             if (existingSecurityHeader == null) {
-                LOGGER.debug("Security Header returned null, execute AnonymousInterceptor");
+                LOGGER.debug("Security header returned null, execute AnonymousInterceptor");
           
                 
                 
@@ -186,9 +169,9 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                     if (soapFactory != null) {
                         //Create security header
                         try {
-                            securityHeader = soapFactory.createElement("Security", "wsse",
-                                    "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
-                            securityHeader.addAttribute(new QName("http://schemas.xmlsoap.org/soap/envelope/", "mustUnderstand"), "1");
+                            securityHeader = soapFactory.createElement(org.apache.ws.security.WSConstants.WSSE_LN, org.apache.ws.security.WSConstants.WSSE_PREFIX,
+                                    org.apache.ws.security.WSConstants.WSSE_NS);
+                            securityHeader.addAttribute(new QName(org.apache.ws.security.WSConstants.URI_SOAP11_ENV, org.apache.ws.security.WSConstants.ATTR_MUST_UNDERSTAND), "1");
                         } catch (SOAPException e) {
                             LOGGER.error("Unable to create security header for anonymous user.", e);
                         }
@@ -229,10 +212,10 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                 boolean layoutLaxTimestampFirst = false;
                 boolean layoutLaxTimestampLast = false;
                 boolean requireClientCert = false;
-                String secBindingAssertion = null;
+                QName secBindingAssertion = null;
                 
                 //Supporting Token Assertions
-                String supportingTokenAssertion = null;
+                QName supportingTokenAssertion = null;
                 
                 Policy policy = effectivePolicy.getPolicy();
                     if (policy != null) {
@@ -242,7 +225,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                         Collection<AssertionInfo> assetInfoList = infoMap.get(entryName);
                         for (AssertionInfo info : assetInfoList) {
                             LOGGER.debug("Assertion Name: {}", info.getAssertion().getName().getLocalPart());
-                            String localName = info.getAssertion().getName().getLocalPart();
+                            QName qName = info.getAssertion().getName();
                             StringWriter out = new StringWriter();
                             XMLStreamWriter writer = null;
                             try {
@@ -260,11 +243,12 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                             }
                             LOGGER.debug("Assertion XML: {}", out.toString());
                             String xml = out.toString();
-                            if (localName.equals(TRANSPORT_BINDING)) {
-                                secBindingAssertion = TRANSPORT_BINDING;
-                            } else if (localName.equals(INCLUDE_TIMESTAMP)) {
+                  
+                            if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.TRANSPORT_BINDING)) {
+                                secBindingAssertion = qName;
+                            } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.INCLUDE_TIMESTAMP)) {
                                 createIncludeTimestamp(soapFactory, securityHeader);
-                            } else if (localName.equals(LAYOUT)) {
+                            } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.LAYOUT)) {
                                 String xpathLax = "/Layout/Policy/Lax";
                                 String xpathStrict = "/Layout/Policy/Strict";
                                 String xpathLaxTimestampFirst = "/Layout/Policy/LaxTimestampFirst";
@@ -274,39 +258,35 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                                 layoutLaxTimestampFirst = evaluateExpression(xml, xpathLaxTimestampFirst);
                                 layoutLaxTimestampLast = evaluateExpression(xml, xpathLaxTimestampLast);
                                 
-                            } else if (localName.equals(TRANSPORT_TOKEN)) {
-                                
-                            } else if (localName.equals(HTTPS_TOKEN)) {
+                            } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.TRANSPORT_TOKEN)) {
+                            } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.HTTPS_TOKEN)) {
                                 String xpath = "/HttpsToken/Policy/RequireClientCertificate";
                                 requireClientCert = evaluateExpression(xml, xpath);
                                 
-                            } else if (localName.equals(SIGNED_SUPPORTING_TOKENS)) {
+                            } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.SIGNED_SUPPORTING_TOKENS)) {
                                 String xpath = "/SignedSupportingTokens/Policy/IssuedToken/RequestSecurityTokenTemplate/TokenType";
                                 tokenType = retrieveXmlValue(xml, xpath);
-                                supportingTokenAssertion = SIGNED_SUPPORTING_TOKENS;
+                                supportingTokenAssertion = qName;
                                 
-                            } else if (localName.equals(ADDRESSING)) {
+                            } else if (qName.equals(org.apache.cxf.ws.addressing.policy.MetadataConstants.ADDRESSING_ASSERTION_QNAME)) {
                                 createAddressing(message, soapMessage, soapFactory);
                                 
-                            } else if (localName.equals(TRUST13)) {
-                            } else if (localName.equals(ISSUED_TOKEN)) {
+                            } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.TRUST_13)) {
+                                
+                            } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.ISSUED_TOKEN)) {
                                 //Check Token Assertion
                                 String xpath = "/IssuedToken/@IncludeToken";
                                 tokenAssertion = retrieveXmlValue(xml, xpath);
                                 
-                            }  else if (localName.equals(WSS11)) {
+                            }  else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.WSS11)) {
                                 
                             }
                         }
                     }
                     
                     //Check security and token policies
-                    if (tokenAssertion.trim().equals(TOKEN_ASSERTION_ALWAYSTORECIP) &&
-                            tokenType.trim().equals(TOKEN_SAML20) &&
-                            layoutLax &&
-                            requireClientCert &&
-                            secBindingAssertion.trim().equals(TRANSPORT_BINDING)
-                            ) {
+                    if (tokenAssertion.trim().equals(org.apache.cxf.ws.security.policy.SP12Constants.INCLUDE_ALWAYS_TO_RECIPIENT) &&
+                            tokenType.trim().equals(TOKEN_SAML20)) {
                         createSecurityToken(version, soapFactory, securityHeader);
                     } else {
                         LOGGER.warn("AnonymousInterceptor does not support the policies presented by the endpoint.");
@@ -372,11 +352,11 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     private void createIncludeTimestamp(SOAPFactory soapFactory, SOAPElement securityHeader) {
         SOAPElement timestamp = null;
         try {
-            timestamp = soapFactory.createElement("Timestamp", "wsu", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-            SOAPElement created = soapFactory.createElement("Created", "wsu", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
+            timestamp = soapFactory.createElement(org.apache.ws.security.WSConstants.TIMESTAMP_TOKEN_LN, org.apache.ws.security.WSConstants.WSU_PREFIX, org.apache.ws.security.WSConstants.WSU_NS);
+            SOAPElement created = soapFactory.createElement(org.apache.ws.security.WSConstants.CREATED_LN, org.apache.ws.security.WSConstants.WSU_PREFIX, org.apache.ws.security.WSConstants.WSU_NS);
             DateTime dateTime = new DateTime();
             created.addTextNode(dateTime.toString());
-            SOAPElement expires = soapFactory.createElement("Expires", "wsu", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
+            SOAPElement expires = soapFactory.createElement(org.apache.ws.security.WSConstants.EXPIRES_LN, org.apache.ws.security.WSConstants.WSU_PREFIX, org.apache.ws.security.WSConstants.WSU_NS);
             expires.addTextNode(dateTime.plusMinutes(5).toString());
             timestamp.addChildElement(created);
             timestamp.addChildElement(expires);
@@ -388,15 +368,15 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     
     private void createAddressing(SoapMessage message, SOAPMessage soapMessage, SOAPFactory soapFactory) {
         
-        String addressingProperty = "javax.xml.ws.addressing.context.inbound";
+        String addressingProperty = org.apache.cxf.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
         AddressingPropertiesImpl addressingProperties = new AddressingPropertiesImpl();
         SOAPElement action = null;
         
         try {
-            action = soapFactory.createElement("Action", "wsa", "http://www.w3.org/2005/08/addressing");
-            action.addTextNode((String) message.get("org.apache.cxf.request.url"));
+            action = soapFactory.createElement(org.apache.cxf.ws.addressing.Names.WSA_ACTION_NAME, org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX, org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
+            action.addTextNode((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
             AttributedURIType attributedString = new AttributedURIType();
-            attributedString.setValue((String) message.get("org.apache.cxf.request.url"));
+            attributedString.setValue((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
             addressingProperties.setAction(attributedString);
         } catch (SOAPException e) {
             LOGGER.error("Unable to add addressing action.", e);
@@ -404,7 +384,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
         SOAPElement messageId = null;
         try {
-            messageId = soapFactory.createElement("MessageID", "wsa", "http://www.w3.org/2005/08/addressing");
+            messageId = soapFactory.createElement(org.apache.cxf.ws.addressing.Names.WSA_MESSAGEID_NAME, org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX, org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
             String uuid = "urn:uuid:" + UUID.randomUUID().toString();
             messageId.addTextNode(uuid);
             AttributedURIType attributedString = new AttributedURIType();
@@ -416,11 +396,11 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
         SOAPElement to = null;
         try {
-            to = soapFactory.createElement("To", "wsa", "http://www.w3.org/2005/08/addressing");
-            to.addTextNode((String) message.get("org.apache.cxf.request.url"));
+            to = soapFactory.createElement(org.apache.cxf.ws.addressing.Names.WSA_TO_NAME, org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX, org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
+            to.addTextNode((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
             EndpointReferenceType endpointReferenceType = new EndpointReferenceType();
             AttributedURIType attributedString = new AttributedURIType();
-            attributedString.setValue((String) message.get("org.apache.cxf.request.url"));
+            attributedString.setValue((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
             endpointReferenceType.setAddress(attributedString);
             addressingProperties.setTo(endpointReferenceType);
         } catch (SOAPException e) {
@@ -429,9 +409,9 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
         SOAPElement replyTo = null;
         try {
-            replyTo = soapFactory.createElement("ReplyTo", "wsa", "http://www.w3.org/2005/08/addressing");
-            SOAPElement address = soapFactory.createElement("Address", "wsa", "http://www.w3.org/2005/08/addressing");
-            address.addTextNode("http://www.w3.org/2005/08/addressing/anonymous");
+            replyTo = soapFactory.createElement(org.apache.cxf.ws.addressing.Names.WSA_REPLYTO_NAME, org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX, org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
+            SOAPElement address = soapFactory.createElement(org.apache.cxf.ws.addressing.Names.WSA_ADDRESS_NAME, org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX, org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
+            address.addTextNode(org.apache.cxf.ws.addressing.Names.WSA_ANONYMOUS_ADDRESS);
             replyTo.addChildElement(address);
             
             soapMessage.getSOAPHeader().addChildElement(messageId);
