@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -263,12 +264,15 @@ public class SchematronValidationService implements MetacardValidator {
             transformerFactory.setURIResolver(resolver);
 
             // Use Saxon-specific Configuration class to setup a dynamic class loader so we can
-            // search across
-            // bundles for imported XSLTs
+            // search across bundles for imported XSLTs
             Configuration config = ((TransformerFactoryImpl) transformerFactory).getConfiguration();
             DynamicLoader dynamicLoader = new DynamicLoader();
             dynamicLoader.setClassLoader(new BundleProxyClassLoader(bundle));
             config.setDynamicLoader(dynamicLoader);
+            
+            // DDF-855: set ErrorListener to catch any warnings/errors during loading of the 
+            // ruleset file and log (vs. Saxon default of writing to console) the warnings/errors
+            config.setErrorListener(new SaxonErrorListener(this.schematronSchemaFilename));
 
             // Retrieve the Schematron schema XML file (usually a .sch file)
             URL schUrl = bundle.getResource(schematronSchemaFilename);
@@ -528,11 +532,41 @@ public class SchematronValidationService implements MetacardValidator {
     }
 
     /**
+     * The Listener class which catches Saxon configuration errors.
+     * 
+     * DDF-855: These warnings and errors are logged so that they are 
+     * not displayed on the console.
+     */
+    private class SaxonErrorListener implements ErrorListener {
+        
+        private String schematronSchemaFilename;
+        
+        public SaxonErrorListener(String schematronSchemaFilename) {
+            this.schematronSchemaFilename = schematronSchemaFilename;
+        }
+        
+        @Override
+        public void warning(TransformerException e) throws TransformerException {
+            LOGGER.warn("Transformer warning (Schematron file = {}):", this.schematronSchemaFilename, e);
+        }
+
+        @Override
+        public void error(TransformerException e) throws TransformerException {
+            LOGGER.error("Transformer error (Schematron file = {}):", e);
+        }
+
+        @Override
+        public void fatalError(TransformerException e) throws TransformerException {
+            LOGGER.error("Transformer error (Schematron file = {}):", e);
+        }
+    }
+
+    /**
      * The Listener class which catches xsl:messages during the transformation/stages of the
      * Schematron schema.
      */
-    private class Listener implements javax.xml.transform.ErrorListener {
-        public void warning(TransformerException e) {
+    private class Listener implements ErrorListener {
+        public void warning(TransformerException e) throws TransformerException {
             warnings.add(e.getMessage());
         }
 
@@ -543,7 +577,6 @@ public class SchematronValidationService implements MetacardValidator {
         public void fatalError(TransformerException e) throws TransformerException {
             throw e;
         }
-
     }
 
     @Override
