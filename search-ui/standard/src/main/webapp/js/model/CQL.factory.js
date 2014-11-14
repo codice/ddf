@@ -37,8 +37,10 @@ define([
                 case 'string':
                     if(moment(value).isValid()){
                         return moment(value).format(Properties.CQL_DATE_FORMAT);
+                    } else {
+                        return "'" + value.replace(/'/g, "''") + "'";
                     }
-                    return "'" + value.replace(/'/g, "''") + "'";
+                    break;
                 case 'number':
                     return String(value);
                 case 'object':
@@ -96,22 +98,22 @@ define([
         },
         number: {
             '=': function (filter) {
-                throw new Error("Not implemented yet." + filter);
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' = ' + filter.get('numberValue1');
             },
-            '!=': function (filter) {
-                throw new Error("Not implemented yet." + filter);
+            '!=': function () {
+                throw new Error("!= is not supported for this filter.");
             },
             '>': function (filter) {
-                throw new Error("Not implemented yet." + filter);
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' > ' + filter.get('numberValue1');
             },
             '>=': function (filter) {
-                throw new Error("Not implemented yet." + filter);
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' >= ' + filter.get('numberValue1');
             },
             '<': function (filter) {
-                throw new Error("Not implemented yet." + filter);
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' < ' + filter.get('numberValue1');
             },
             '<=': function (filter) {
-                throw new Error("Not implemented yet." + filter);
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' <= ' + filter.get('numberValue1');
             }
         },
         anyGeo: {

@@ -93,9 +93,16 @@ define([
                         _.each(pairs, function(pair){
                             if(!_.contains(currentFieldNames, pair[0])){
                                 // doesn't exist.  lets add.
+
+                                var fieldType = pair[1].toLowerCase();
+                                // lets convert to a number type.
+                                if(_.contains(Properties.filters.numberTypes, fieldType)){
+                                    fieldType = 'number';
+                                }
+
                                 var fieldObj = {
                                     name: pair[0],
-                                    type: pair[1].toLowerCase()
+                                    type: fieldType
                                 };
                                 array.push(fieldObj);
                             }

@@ -34,9 +34,10 @@ define(function (require) {
                 'string': ['contains','equals'],
                 'xml': ['contains','equals'],
                 'date': ['before','after'],
-                'number': ['=','!=','>','>=','<','<='],
+                'number': ['=','>','>=','<','<='],
                 'anyGeo': ['intersects']
-            }
+            },
+            numberTypes : ['float','short', 'long','double', 'integer']
         },
 
         init : function(){
