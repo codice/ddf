@@ -77,7 +77,9 @@
             pnotify: 'lib/pnotify/jquery.pnotify.min',
 
             // map tools
-            usngs: 'lib/usng/usng'
+            usngs: 'lib/usng/usng',
+
+            drawHelper: 'lib/cesium-drawhelper/DrawHelper'
         },
 
 
@@ -141,8 +143,11 @@
 
             openlayers: {
                 exports: 'ol'
+            },
+            drawHelper: {
+                deps: ['cesium'],
+                exports: 'DrawHelper'
             }
-
         },
 
         waitSeconds: 200

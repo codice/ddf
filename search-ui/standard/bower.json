@@ -32,7 +32,8 @@
     "strapdown": "arturadib/strapdown#509f99f9c00e6b40f208a39e2a2c980331642fe5",
     "usng": "codice/usng.js#a09ec5a19dd432bc85317d9e99561bdaadd878a7",
     "openlayers3": "v3.0.0",
-    "jquery-file-upload": "9.5.7"
+    "jquery-file-upload": "9.5.7",
+    "cesium-drawhelper":"leforthomas/cesium-drawhelper#4fbe1776f50a8b9dee0252725eab93a8e68fb539"
   },
   "resolutions": {
     "jquery": "1.11.0"

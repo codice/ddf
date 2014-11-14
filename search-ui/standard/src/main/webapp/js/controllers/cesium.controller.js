@@ -19,8 +19,9 @@ define(['underscore',
         'wreqr',
         'properties',
         'js/view/cesium.metacard',
-        'jquery'
-    ], function (_, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard, $) {
+        'jquery',
+        'drawHelper'
+    ], function (_, Marionette, Cesium, Q, wreqr, properties, CesiumMetacard, $, DrawHelper) {
         "use strict";
 
         var imageryProviderTypes = {
@@ -104,6 +105,8 @@ define(['underscore',
                                 scene: viewer.scene
                             });
                         }
+
+                        this.drawHelper = new DrawHelper(viewer);
                     }
                 }
 

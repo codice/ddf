@@ -145,6 +145,12 @@ define([
                             poly += ', ';
                         }
                     }
+
+                    if(_.first(polygon)[0] !== _.last(polygon)[0] && _.first(polygon)[1] !== _.last(polygon)[1]){
+                        // first and last point must be the same.
+                        poly += ' , ' + _.first(polygon)[0] + ' ' + _.first(polygon)[1];
+                    }
+
                     poly += '))';
                     return 'INTERSECTS(anyGeo, ' + poly + ')';
                 } else if(geoType === 'circle'){

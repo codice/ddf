@@ -94,7 +94,7 @@ define([
                         wreqr.vent.trigger('search:circledisplay', this.model);
                     } else if(geoType === 'polygon'){
                         wreqr.vent.trigger('search:drawend');
-                        wreqr.vent.trigger('search:polygondisplay', this.model);
+                        wreqr.vent.trigger('search:polydisplay', this.model);
                     }
                 }
             },
@@ -141,7 +141,7 @@ define([
                     wreqr.vent.trigger("search:drawcircle", this.model);
                 } else if(geoType === 'polygon'){
                     wreqr.vent.trigger('search:drawend');
-                    wreqr.vent.trigger("search:drawpolygon", this.model);
+                    wreqr.vent.trigger("search:drawpoly", this.model);
                 }
             },
             drawingStopped: function(){

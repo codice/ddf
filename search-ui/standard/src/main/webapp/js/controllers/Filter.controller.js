@@ -22,9 +22,8 @@ define([
         var FilterController;
 
         FilterController = Marionette.Controller.extend({
-            initialize: function (options) {
+            initialize: function () {
                 _.bindAll(this);
-                this.query = options.query;
 
                 this.fields = [];
                 this.facetCounts = {};
@@ -61,6 +60,8 @@ define([
             },
 
             processSearch: function(searchToProcess){
+                // send out filters off to be displayed where ever.
+                wreqr.vent.trigger('mapfilter:showFilters', searchToProcess.parents[0].filters);
                 // default all field
                 var array = [
                     {name: 'anyText', type: 'string', displayName: 'Any Text'},

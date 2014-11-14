@@ -30,10 +30,16 @@ define(['application',
                     onShow: function() {
                         require(['js/controllers/cesium.controller',
                             'js/widgets/cesium.bbox',
-                            'js/widgets/cesium.circle'
-                        ], function (GeoController, DrawBbox, DrawCircle) {
+                            'js/widgets/cesium.circle',
+                            'js/widgets/cesium.polygon',
+                            'js/widgets/filter.cesium.geometry.group'
+                        ], function (GeoController, DrawBbox, DrawCircle, DrawPolygon, FilterCesiumGeometryGroup) {
 
                             var geoController = new GeoController();
+
+                            new FilterCesiumGeometryGroup.Controller({
+                                geoController: geoController
+                            });
 
                             new DrawBbox.Controller({
                                 scene: geoController.scene,
@@ -43,6 +49,13 @@ define(['application',
                             new DrawCircle.Controller({
                                 scene: geoController.scene,
                                 notificationEl: mapView.mapDrawingPopup.el
+                            });
+
+                            new DrawPolygon.Controller({
+                                scene: geoController.scene,
+                                notificationEl: mapView.mapDrawingPopup.el,
+                                drawHelper: geoController.drawHelper,
+                                geoController: geoController
                             });
                         });
                     }
@@ -59,10 +72,15 @@ define(['application',
                     onShow: function() {
                         require(['js/controllers/openlayers.controller',
                             'js/widgets/openlayers.bbox',
-                            'js/widgets/openlayers.polygon'
-                        ], function (GeoController, DrawBbox, DrawPolygon) {
+                            'js/widgets/openlayers.polygon',
+                            'js/widgets/filter.openlayers.geometry.group'
+                        ], function (GeoController, DrawBbox, DrawPolygon, FilterCesiumGeometryGroup) {
 
                             var geoController = new GeoController();
+
+                            new FilterCesiumGeometryGroup.Controller({
+                                geoController: geoController
+                            });
 
                             new DrawBbox.Controller({
                                 map: geoController.mapViewer,
