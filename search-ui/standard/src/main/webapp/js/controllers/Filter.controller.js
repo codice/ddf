@@ -12,12 +12,13 @@
 /*global define */
 define([
     'underscore',
+    'backbone',
     'marionette',
     'wreqr',
     'moment',
     'js/model/source',
     'properties'
-], function (_, Marionette, wreqr, moment, Source, Properties) {
+], function (_, Backbone, Marionette, wreqr, moment, Source, Properties) {
         'use strict';
         var FilterController;
 
@@ -25,7 +26,21 @@ define([
             initialize: function () {
                 _.bindAll(this);
 
-                this.fields = [];
+                this.fields = new Backbone.Collection([],{
+                    comparator: function(model){
+                        var name = model.get('name');
+                        if(name === 'anyText'){
+                            // anyText first
+                            return [1,name];
+                        } else if(name === 'anyGeo'){
+                            // anyGeo Second
+                            return [2,name];
+                        }
+
+                        // the rest order by name.
+                        return [3,name];
+                    }
+                });
                 this.facetCounts = {};
                 this.showFilterFlag = false;
 
@@ -47,7 +62,7 @@ define([
             },
 
             getFields: function(){
-                return this.fields;
+                return this.fields.toJSON();
             },
 
             filterFlagChanged: function(isFilterShown){
@@ -116,9 +131,9 @@ define([
             registerFields: function(newFields){
                 var that = this;
                 _.each(newFields, function(newField){
-                    var currentFieldNames = _.pluck(that.fields, 'name');
+                    var currentFieldNames = that.fields.pluck('name');
                     if(!_.contains(currentFieldNames, newField.name)){
-                        that.fields.push(newField);
+                        that.fields.add(new Backbone.Model(newField));
                     }
                 });
             },
