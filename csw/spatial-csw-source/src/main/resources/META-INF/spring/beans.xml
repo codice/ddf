@@ -62,14 +62,6 @@
             <beans:property name="isLonLatOrder" value="false"/>
             <beans:property name="usePosList" value="false"/>
             <beans:property name="contentTypeMapping" value="type"/>
-            <beans:property name="productRetrievalMethod" value=""/>
-            <beans:property name="wcsUrl" value=""/>
-            <beans:property name="wcsResourceReader">
-                <beans:bean id="wcsResourceReader"
-                            class="org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader">
-                    <beans:property name="mimeTypeMapper" ref="mimeTypeMapper"/>
-                </beans:bean>
-            </beans:property>
             <beans:property name="effectiveDateMapping" value=""/>
             <beans:property name="createdDateMapping" value=""/>
             <beans:property name="modifiedDateMapping" value=""/>
@@ -112,14 +104,6 @@
             <beans:property name="isLonLatOrder" value="false"/>
             <beans:property name="usePosList" value="false"/>
             <beans:property name="contentTypeMapping" value="type"/>
-            <beans:property name="productRetrievalMethod" value="SOURCE_URI"/>
-            <beans:property name="wcsUrl" value=""/>
-            <beans:property name="wcsResourceReader">
-                <beans:bean id="connectedWcsResourceReader"
-                            class="org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader">
-                    <beans:property name="mimeTypeMapper" ref="mimeTypeMapper"/>
-                </beans:bean>
-            </beans:property>
             <beans:property name="effectiveDateMapping" value=""/>
             <beans:property name="createdDateMapping" value=""/>
             <beans:property name="modifiedDateMapping" value=""/>

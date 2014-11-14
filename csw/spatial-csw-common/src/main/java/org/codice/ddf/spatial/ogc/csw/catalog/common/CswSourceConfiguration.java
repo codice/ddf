@@ -37,8 +37,6 @@ public class CswSourceConfiguration {
 
     private boolean disableCnCheck = false;
 
-    private String wcsUrl;
-
     private Map<String, String> metacardCswMappings = new HashMap<String, String>();
 
     private String resourceUriMapping;
@@ -54,8 +52,6 @@ public class CswSourceConfiguration {
     private Integer connectionTimeout;
 
     private Integer receiveTimeout;
-
-    private String productRetrievalMethod;
 
     private boolean isCqlForced;
 
@@ -174,14 +170,6 @@ public class CswSourceConfiguration {
         metacardCswMappings.put(Metacard.CONTENT_TYPE, contentTypeMapping);
     }
 
-    public String getProductRetrievalMethod() {
-        return productRetrievalMethod;
-    }
-
-    public void setProductRetrievalMethod(String productRetrievalMethod) {
-        this.productRetrievalMethod = productRetrievalMethod;
-    }
-
     public Integer getPollIntervalMinutes() {
         return pollIntervalMinutes;
     }
@@ -204,14 +192,6 @@ public class CswSourceConfiguration {
 
     public void setReceiveTimeout(Integer receiveTimeout) {
         this.receiveTimeout= receiveTimeout;
-    }
-
-    public String getWcsUrl() {
-        return wcsUrl;
-    }
-
-    public void setWcsUrl(String wcsUrl) {
-        this.wcsUrl = wcsUrl;
     }
 
     public void setIsCqlForced(boolean isForceCql) {

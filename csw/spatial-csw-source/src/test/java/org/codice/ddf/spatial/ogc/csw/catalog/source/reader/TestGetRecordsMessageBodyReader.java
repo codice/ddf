@@ -72,7 +72,6 @@ public class TestGetRecordsMessageBodyReader {
         CswSourceConfiguration config = new CswSourceConfiguration();
         config.setMetacardCswMappings(
                 DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
-        config.setProductRetrievalMethod(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL);
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         config.setIsLonLatOrder(false);
         config.setThumbnailMapping(CswRecordMetacardType.CSW_REFERENCES);
@@ -103,9 +102,6 @@ public class TestGetRecordsMessageBodyReader {
         assertThat(context.get(Metacard.THUMBNAIL), is(String.class));
         assertThat((String) context.get(Metacard.THUMBNAIL),
                 is(CswRecordMetacardType.CSW_REFERENCES));
-        assertThat(context.get(CswConstants.PRODUCT_RETRIEVAL_METHOD), is(String.class));
-        assertThat((String) context.get(CswConstants.PRODUCT_RETRIEVAL_METHOD),
-                is(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL));
         assertThat(context.get(CswConstants.IS_LON_LAT_ORDER_PROPERTY), is(Boolean.class));
         assertThat((Boolean) context.get(CswConstants.IS_LON_LAT_ORDER_PROPERTY), is(false));
 
@@ -125,7 +121,6 @@ public class TestGetRecordsMessageBodyReader {
         CswSourceConfiguration config = new CswSourceConfiguration();
         config.setMetacardCswMappings(
                 DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
-        config.setProductRetrievalMethod(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL);
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         config.setIsLonLatOrder(false);
         config.setThumbnailMapping(CswRecordMetacardType.CSW_REFERENCES);
@@ -214,7 +209,6 @@ public class TestGetRecordsMessageBodyReader {
         CswSourceConfiguration config = new CswSourceConfiguration();
         config.setMetacardCswMappings(
                 DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
-        config.setProductRetrievalMethod(CswConstants.SOURCE_URI_PRODUCT_RETRIEVAL);
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         GetRecordsMessageBodyReader reader = new GetRecordsMessageBodyReader(
                 mockProvider, config);

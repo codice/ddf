@@ -187,10 +187,6 @@ public interface CswConstants {
     
     String OWS_LOWER_CORNER = "LowerCorner";
     
-    String WCS_PRODUCT_RETRIEVAL = "WCS";
-    
-    String SOURCE_URI_PRODUCT_RETRIEVAL = "Source URI";
-
     double DEGREES_TO_RADIANS = Math.PI / 180.0;
 
     double RADIANS_TO_DEGREES = 1 / DEGREES_TO_RADIANS;

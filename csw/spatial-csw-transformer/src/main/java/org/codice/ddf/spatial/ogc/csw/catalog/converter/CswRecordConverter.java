@@ -436,10 +436,6 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         String thumbnailMapping = (isString(context.get(Metacard.THUMBNAIL))) ?
                 (String) context.get(Metacard.THUMBNAIL) :
                 null;
-        String productRetrievalMethod = (isString(
-                context.get(CswConstants.PRODUCT_RETRIEVAL_METHOD))) ?
-                (String) context.get(Metacard.RESOURCE_URI) :
-                null;
 
         boolean isLonLatOrder = false;
         Object lonLatObj = context.get(CswConstants.IS_LON_LAT_ORDER_PROPERTY);
@@ -454,7 +450,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         }
 
         Metacard metacard = createMetacardFromCswRecord(reader, cswAttrMap, resourceUriMapping,
-                thumbnailMapping, productRetrievalMethod, isLonLatOrder, namespaceMap);
+                thumbnailMapping, isLonLatOrder, namespaceMap);
 
         Object sourceIdObj = context.get(Metacard.SOURCE_ID);
         if (sourceIdObj instanceof String) {
@@ -493,7 +489,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     protected MetacardImpl createMetacardFromCswRecord(HierarchicalStreamReader hreader,
             Map<String, String> cswToMetacardAttributeNames, String resourceUriMapping,
-            String thumbnailMapping, String productRetrievalMethod, boolean isLatLonOrder,
+            String thumbnailMapping, boolean isLatLonOrder,
             Map<String, String> namespaceMap) {
 
         StringWriter metadataWriter = new StringWriter();
@@ -523,7 +519,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             }
 
             LOGGER.debug("Processing node {}", name);
-            AttributeDescriptor attributeDescriptor = CSW_METACARD_TYPE.getAttributeDescriptor(name);
+            AttributeDescriptor attributeDescriptor = CSW_METACARD_TYPE
+                    .getAttributeDescriptor(name);
 
             Serializable value = null;
 
@@ -536,7 +533,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             // corresponding metacard attribute's value
             if (attributeDescriptor != null
                     && (StringUtils.isNotBlank(reader.getValue()) || BasicTypes.GEO_TYPE
-                            .equals(attributeDescriptor.getType()))) {
+                    .equals(attributeDescriptor.getType()))) {
                 value = convertRecordPropertyToMetacardAttribute(attributeDescriptor.getType()
                         .getAttributeFormat(), reader, isLatLonOrder);
             }
@@ -571,14 +568,16 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             // value.
             if (cswToMetacardAttributeNames.containsKey(attrName)) {
                 String metacardAttrName = cswToMetacardAttributeNames.get(attrName);
-                AttributeFormat cswAttributeFormat = CSW_METACARD_TYPE.getAttributeDescriptor(attrName)
+                AttributeFormat cswAttributeFormat = CSW_METACARD_TYPE
+                        .getAttributeDescriptor(attrName)
                         .getType().getAttributeFormat();
                 AttributeDescriptor metacardAttributeDescriptor = CSW_METACARD_TYPE
                         .getAttributeDescriptor(metacardAttrName);
                 AttributeFormat metacardAttrFormat = metacardAttributeDescriptor.getType()
                         .getAttributeFormat();
                 LOGGER.debug("Setting overlapping Metacard attribute [{}] to value in "
-                        + "CSW attribute [{}] that has value [{}] and format {}", metacardAttrName,
+                                + "CSW attribute [{}] that has value [{}] and format {}",
+                        metacardAttrName,
                         attrName, attr.getValue(), metacardAttrFormat);
                 if (cswAttributeFormat.equals(metacardAttrFormat)) {
                     mc.setAttribute(metacardAttrName, attr.getValue());
@@ -620,31 +619,16 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             mc.setModifiedDate(genericDate);
         }
 
-        if (CswConstants.WCS_PRODUCT_RETRIEVAL.equals(productRetrievalMethod)) {
-
-            // Set resource URI for where metacard's product is, using the WCS protocol.
-            // Source ID will aid in looking up correct WcsResourceReader (which vary per CSW
-            // federated source),
-            // and metacard ID will be used as the coverage ID
-            String wcsUri = "wcs:" + mc.getId();
-            LOGGER.debug("wcsUri = {}", wcsUri);
+        // Determine the csw field mapped to the resource uri and set that value
+        // on the Metacard.RESOURCE_URI attribute
+        // Default is for <source> field to define URI for product to be downloaded
+        Attribute resourceUriAttr = mc.getAttribute(resourceUriMapping);
+        if (resourceUriAttr != null && resourceUriAttr.getValue() != null) {
+            String source = (String) resourceUriAttr.getValue();
             try {
-                mc.setResourceURI(new URI(wcsUri));
-            } catch (URISyntaxException e1) {
-                LOGGER.warn("Unable to set metacard resource URI to " + wcsUri, e1);
-            }
-        } else {
-            // Determine the csw field mapped to the resource uri and set that value
-            // on the Metacard.RESOURCE_URI attribute
-            // Default is for <source> field to define URI for product to be downloaded
-            Attribute resourceUriAttr = mc.getAttribute(resourceUriMapping);
-            if (resourceUriAttr != null && resourceUriAttr.getValue() != null) {
-                String source = (String) resourceUriAttr.getValue();
-                try {
-                    mc.setResourceURI(new URI(source));
-                } catch (URISyntaxException e) {
-                    LOGGER.info("Error setting resource URI on metacard: {}, Exception {}", source, e);
-                }
+                mc.setResourceURI(new URI(source));
+            } catch (URISyntaxException e) {
+                LOGGER.info("Error setting resource URI on metacard: {}, Exception {}", source, e);
             }
         }
 
@@ -661,9 +645,11 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
                 is = url.openStream();
                 mc.setThumbnail(IOUtils.toByteArray(url.openStream()));
             } catch (MalformedURLException e) {
-                LOGGER.info("Error setting thumbnail data on metacard: {}, Exception {}", thumbnail, e);
+                LOGGER.info("Error setting thumbnail data on metacard: {}, Exception {}", thumbnail,
+                        e);
             } catch (IOException e) {
-                LOGGER.info("Error setting thumbnail data on metacard: {}, Exception {}", thumbnail, e);
+                LOGGER.info("Error setting thumbnail data on metacard: {}, Exception {}", thumbnail,
+                        e);
             } finally {
                 IOUtils.closeQuietly(is);
             }

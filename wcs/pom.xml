@@ -31,8 +31,6 @@
     
   <modules>
         <module>spatial-wcs-common</module>
-        <module>spatial-wcs-catalog</module>
-        <module>spatial-wcs-resourcereader</module>
   </modules>
   
 </project>

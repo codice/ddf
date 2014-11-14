@@ -94,18 +94,6 @@
         </dependency>
         
         <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-wcs-catalog</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-wcs-resourcereader</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
             <exclusions>
@@ -178,10 +166,6 @@
                             ows-v_1_0_0-schema,
                             ogc-filter-v_1_1_0-schema,
                             jaxb2-basics-runtime,
-                            wcs-v_1_0_0-schema,
-                            spatial-wcs-common,
-                            spatial-wcs-catalog,
-                            spatial-wcs-resourcereader;scope=compile|runtime,
                             catalog-core-api-impl,
                             commons-collections4,
                             gt-cql,

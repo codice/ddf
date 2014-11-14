@@ -86,7 +86,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
-import org.codice.ddf.spatial.ogc.wcs.catalog.resource.reader.WcsResourceReader;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
@@ -146,8 +145,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
 
     private Map<String, ContentType> contentTypes;
-
-    protected WcsResourceReader wcsResourceReader;
 
     private List<ResourceReader> resourceReaders;
 
@@ -245,10 +242,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     protected ScheduledFuture<?> availabilityPollFuture;
 
     private AvailabilityTask availabilityTask;
-
-    protected static final String PRODUCT_RETRIEVAL_METHOD_PROPERTY = "productRetrievalMethod";
-
-    protected static final String WCSURL_PROPERTY = "wcsUrl";
 
     private boolean isConstraintCql;
     
@@ -348,11 +341,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
         updateTimeouts();
 
-        String wcsUrlProp = (String) configuration.get(WCSURL_PROPERTY);
-        if (StringUtils.isNotBlank(wcsUrlProp)) {
-            cswSourceConfiguration.setWcsUrl(wcsUrlProp);
-        }
-
         String schemaProp = (String) configuration.get(OUTPUT_SCHEMA_PROPERTY);
         if (StringUtils.isNotBlank(schemaProp)) {
             String oldOutputSchema = cswSourceConfiguration.getOutputSchema();
@@ -385,11 +373,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         Boolean posListProp = (Boolean) configuration.get(USE_POS_LIST_PROPERTY);
         if (posListProp != null) {
             cswSourceConfiguration.setUsePosList(posListProp);
-        }
-        
-        String prProp = (String) configuration.get(PRODUCT_RETRIEVAL_METHOD_PROPERTY);
-        if (StringUtils.isNotBlank(prProp)) {
-            cswSourceConfiguration.setProductRetrievalMethod(prProp);
         }
 
         String spatialFilter = (String) configuration.get(FORCE_SPATIAL_FILTER_PROPERTY);
@@ -495,37 +478,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                     trustStorePassword);
             remoteCsw.setTimeouts(cswSourceConfiguration.getConnectionTimeout(),
                     cswSourceConfiguration.getReceiveTimeout());
-            configureWcs();
         } catch (IllegalArgumentException iae) {
             LOGGER.error("Unable to create RemoteCsw.", iae);
             remoteCsw = null;
-        }
-    }
-
-    protected void configureWcs() {
-
-        if (CswConstants.WCS_PRODUCT_RETRIEVAL.equalsIgnoreCase(cswSourceConfiguration
-                .getProductRetrievalMethod())
-                && wcsResourceReader != null) {
-            LOGGER.debug("Configuring WcsResourceReader for CSW Source {}",
-                    cswSourceConfiguration.getId());
-            wcsResourceReader.setId(cswSourceConfiguration.getId() + "_WCS");
-            wcsResourceReader.setWcsUrl(cswSourceConfiguration.getWcsUrl());
-            wcsResourceReader.setUsername(cswSourceConfiguration.getUsername());
-            wcsResourceReader.setPassword(cswSourceConfiguration.getPassword());
-            wcsResourceReader.setDisableCnCheck(
-                    cswSourceConfiguration.getDisableCnCheck());
-            wcsResourceReader.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword);
-            wcsResourceReader.setTimeouts(cswSourceConfiguration.getConnectionTimeout(),
-                    cswSourceConfiguration.getReceiveTimeout());
-            wcsResourceReader.init();
-        } else {
-            LOGGER.debug(
-                    "CSW Source not configured for WCS product retrieval - no WcsResourceReader to configure");
-            if (wcsResourceReader != null) {
-                wcsResourceReader.destroy();
-            }
         }
     }
 
@@ -540,10 +495,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     public void updateTimeouts() {
         if (remoteCsw != null) {
             remoteCsw.setTimeouts(cswSourceConfiguration.getConnectionTimeout(),
-                    cswSourceConfiguration.getReceiveTimeout());
-        }
-        if (wcsResourceReader != null) {
-            wcsResourceReader.setTimeouts(cswSourceConfiguration.getConnectionTimeout(),
                     cswSourceConfiguration.getReceiveTimeout());
         }
     }
@@ -575,28 +526,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     public void setResourceReaders(List<ResourceReader> resourceReaders) {
         this.resourceReaders = resourceReaders;
-    }
-
-    public String getProductRetrievalMethod() {
-        return cswSourceConfiguration.getProductRetrievalMethod();
-    }
-
-    public void setProductRetrievalMethod(String productRetrievalMethod) {
-        cswSourceConfiguration.setProductRetrievalMethod(productRetrievalMethod);
-    }
-
-    public void setWcsUrl(String wcsUrl) {
-        LOGGER.debug("Setting wcsUrl to {}", wcsUrl);
-        cswSourceConfiguration.setWcsUrl(wcsUrl);
-    }
-
-    public WcsResourceReader getWcsResourceReader() {
-        return wcsResourceReader;
-    }
-
-    public void setWcsResourceReader(WcsResourceReader wcsResourceReader) {
-        LOGGER.debug("Setting WcsResourceReader");
-        this.wcsResourceReader = wcsResourceReader;
     }
 
     public void setOutputSchema(String outputSchema) {
@@ -760,44 +689,32 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         String scheme = resourceUri.getScheme();
         LOGGER.debug("Searching for ResourceReader that supports scheme = " + scheme);
 
-        // If retrieving products using WCS service, then use injected WcsResourceReader to retrieve
-        // product (vs. looking through registered ResourceReaders for one that matches
-        // resourceUri's
-        // scheme)
-        if (cswSourceConfiguration.getProductRetrievalMethod().equalsIgnoreCase(
-                CswConstants.WCS_PRODUCT_RETRIEVAL)
-                && scheme.equalsIgnoreCase(CswConstants.WCS_PRODUCT_RETRIEVAL)) {
-            LOGGER.debug("Retrieving resource using injected WcsResourceReader {}",
-                    wcsResourceReader.getId());
-            resource = wcsResourceReader.retrieveResource(resourceUri, properties);
-        } else {
-            LOGGER.debug("resourceReaders.size() = {}", resourceReaders.size());
-            Iterator<ResourceReader> iterator = resourceReaders.iterator();
-            while (iterator.hasNext() && resource == null) {
-                ResourceReader reader = iterator.next();
-                if (reader.getSupportedSchemes().contains(scheme)) {
-                    try {
-                        LOGGER.debug("Found an acceptable resource reader ({}) for URI {}",
-                                reader.getId(), resourceUri.toASCIIString());
-                        resource = reader.retrieveResource(resourceUri, properties);
-                        if (resource == null) {
-                            LOGGER.info(
-                                    "Resource returned from ResourceReader {} was null. Checking other readers for URI: {}",
-                                    reader.getId(), resourceUri);
-                        }
-                    } catch (ResourceNotFoundException e) {
-                        LOGGER.debug(
-                                "Enterprise Search: Product not found using resource reader with name {}",
-                                reader.getId(), e);
-                    } catch (ResourceNotSupportedException e) {
-                        LOGGER.debug(
-                                "Enterprise Search: Product not found using resource reader with name {}",
-                                reader.getId(), e);
-                    } catch (IOException ioe) {
-                        LOGGER.debug(
-                                "Enterprise Search: Product not found using resource reader with name {}",
-                                reader.getId(), ioe);
+        LOGGER.debug("resourceReaders.size() = {}", resourceReaders.size());
+        Iterator<ResourceReader> iterator = resourceReaders.iterator();
+        while (iterator.hasNext() && resource == null) {
+            ResourceReader reader = iterator.next();
+            if (reader.getSupportedSchemes().contains(scheme)) {
+                try {
+                    LOGGER.debug("Found an acceptable resource reader ({}) for URI {}",
+                            reader.getId(), resourceUri.toASCIIString());
+                    resource = reader.retrieveResource(resourceUri, properties);
+                    if (resource == null) {
+                        LOGGER.info(
+                                "Resource returned from ResourceReader {} was null. Checking other readers for URI: {}",
+                                reader.getId(), resourceUri);
                     }
+                } catch (ResourceNotFoundException e) {
+                    LOGGER.debug(
+                            "Enterprise Search: Product not found using resource reader with name {}",
+                            reader.getId(), e);
+                } catch (ResourceNotSupportedException e) {
+                    LOGGER.debug(
+                            "Enterprise Search: Product not found using resource reader with name {}",
+                            reader.getId(), e);
+                } catch (IOException ioe) {
+                    LOGGER.debug(
+                            "Enterprise Search: Product not found using resource reader with name {}",
+                            reader.getId(), ioe);
                 }
             }
         }
@@ -1062,7 +979,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         MetadataTransformer transformer = lookupMetadataTransformer(transformerId);
 
         if (transformer == null) {
-            LOGGER.info("{}: Transformer " + transformerId
+            LOGGER.debug("{}: Transformer " + transformerId
                     + " not found - returning original Metacard.", cswSourceConfiguration.getId());
             return metacard;
         } else {
@@ -1575,11 +1492,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
             remoteCsw.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
                     trustStorePassword);
         }
-        if (wcsResourceReader != null) {
-            wcsResourceReader.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword);
-        }
-
     }
 
     /**

@@ -35,23 +35,7 @@
             
         <AD description="Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing" 
         	name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean" default="false" />
-            
-        <AD name="Product Retrieval Method" id="productRetrievalMethod" required="true" type="String" default="SOURCE_URI"
-            description="How products are to be retrieved from the CSW Source: Source URI = CSW record will specify URI to product in its <source> element; WCS = use the CSW Source's Web Coverage Service (WCS)">
-            <Option label="Source URI" value="SOURCE_URI" />
-            <Option label="WCS" value="WCS" />
-        </AD>
-        
-        <!--
-        Rationale in putting WCS URL in the CSW Source configuration is that there is always a one-to-one
-        mapping between a CSW source and its WCS service, and this alleviates admin from having to configure
-        a separate WcsResourceReader managed service factory with same login info and it would be a WcsResourceReader
-        only used by a single CSW Source. 
-        Downside is this field becomes irrelevant if prodcutRetrievalMethod is not set to WCS.         
-        -->
-        <AD description="URL to the endpoint implementing the Web Coverage Service (WCS) spec - this is only used if the Product Retrieval Method is set to WCS"
-            name="WCS URL" id="wcsUrl" required="true" type="String" />
-            
+
         <AD description="CSW field to map to Metacard's effective date" name="Effective Date maps to" id="effectiveDateMapping"
             required="false" type="String"
             default="created" />
@@ -133,15 +117,6 @@
             
         <AD description="Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing" 
         	name="Use posList in LinearRing" id="usePosList" required="false" type="Boolean" default="false" />
-
-        <!--<AD name="Product Retrieval Method" id="productRetrievalMethod" required="true" type="String" default="Source URI"-->
-            <!--description="How products are to be retrieved from the CSW Source: Source URI = CSW record will specify URI to product in its <source> element; WCS = use the CSW Source's Web Coverage Service (WCS)">-->
-            <!--<Option label="Source URI" value="SOURCE_URI" />-->
-            <!--<Option label="WCS" value="WCS" />-->
-        <!--</AD>-->
-
-        <!--<AD description="URL to the endpoint implementing the Web Coverage Service (WCS) spec - this is only used if the Product Retrieval Method is set to WCS"-->
-            <!--name="WCS URL" id="wcsUrl" required="true" type="String"-->
 
         <AD description="CSW field to map to Metacard's effective date" name="Effective Date maps to" id="effectiveDateMapping"
             required="false" type="String"
