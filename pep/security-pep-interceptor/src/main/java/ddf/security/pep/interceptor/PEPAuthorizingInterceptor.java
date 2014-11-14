@@ -86,14 +86,6 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
     @Override
     public void handleMessage(Message message) throws Fault {
         if (message != null) {
-            // see if this soap request has been whitelisted
-            HttpServletRequest request = (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
-            if ((null != request) && (request.getAttribute(ContextPolicy.NO_AUTH_POLICY) != null)) {
-                logger.debug("NO_AUTH_POLICY header was found, authorizing request.");
-                SecurityLogger.logInfo("NO_AUTH_POLICY header was found, authorizing request.");
-                return;
-            }
-
             // grab the SAML assertion associated with this Message from the
             // token store
             SecurityAssertion assertion = SecurityAssertionStore.getSecurityAssertion(message);
