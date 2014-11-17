@@ -104,27 +104,6 @@
     <build>
         <plugins>
             <plugin>
-                <!-- there is a bug with bower and the server that you download cesium from not using a mime type for zips that bower recognized so it would not unpack -->
-                <groupId>com.googlecode.maven-download-plugin</groupId>
-                <artifactId>download-maven-plugin</artifactId>
-                <version>1.2.0</version>
-                <executions>
-                    <execution>
-                        <id>install-cesium</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>wget</goal>
-                        </goals>
-                        <configuration>
-                            <url>http://cesiumjs.org/releases/Cesium-1.2.zip</url>
-                            <unpack>true</unpack>
-                            <outputDirectory>${project.build.directory}/cesium</outputDirectory>
-                            <md5>e9ed38706d5e765f3d260fdcf222e5e1</md5>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>0.0.16</version>

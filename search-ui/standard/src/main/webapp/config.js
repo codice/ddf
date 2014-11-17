@@ -18,12 +18,12 @@
         paths: {
 
             bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
-            cesium: 'lib/cesium/Cesium',
+            cesium: 'lib/cesium/Build/Cesium/Cesium',
             openlayers: 'lib/openlayers3/build/ol',
             cometd: 'lib/cometd/org/cometd',
             jquerycometd: 'lib/cometd/jquery/jquery.cometd',
             moment: 'lib/moment/min/moment.min',
-            perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar.with-mousewheel.min',
+            perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar.min',
             spin: 'lib/spin.js/spin',
             q: 'lib/q/q',
             strapdown: 'lib/strapdown/v/0.2',
