@@ -69,7 +69,12 @@ define([
                     var split = filter.get('stringValue1').split(',');
                     var joinArray = [];
                     _.each(split, function(subContentType){
-                        joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' ILIKE ' + Filter.CQLFactory.getValue(subContentType));
+                        if(subContentType === 'no-value'){
+                            joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' IS NULL ');
+                        } else {
+                            joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' = ' + Filter.CQLFactory.getValue(subContentType));
+                        }
+
                     });
                     return joinArray.join(' OR ');
                 } else {

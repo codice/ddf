@@ -103,7 +103,7 @@ define([
                     });
                 }
 
-
+                var numberOfResults = searchToProcess.get('results').length;
                 // this give us our facet counts.
                 if(searchToProcess.get('results')){
                     searchToProcess.get('results').each(function(item){
@@ -124,8 +124,18 @@ define([
                         });
                     });
                 }
+
+                _.each(facetCounts, function(facetCount){
+                    var values = _.values(facetCount);
+                    var totalFacetCount = 0;
+                    _.each(values, function(value){
+                        totalFacetCount += value;
+                    });
+                    facetCount["no-value"] = numberOfResults - totalFacetCount;
+                });
+
                 this.registerFields(array);
-                this.registerFacetCounts(facetCounts);
+                this.registerFacetCounts(facetCounts,numberOfResults);
             },
 
             registerFields: function(newFields){
@@ -138,7 +148,7 @@ define([
                 });
             },
 
-            registerFacetCounts: function(facetCounts){
+            registerFacetCounts: function(facetCounts, numberOfResults){
                 var controller = this;
                 var contentTypes = wreqr.reqres.request("workspace:gettypes");
                 var contentTypeIds = contentTypes.pluck('name');
@@ -156,6 +166,17 @@ define([
                         });
                     }
                 });
+
+                // set the no value for content type.
+                if(!controller.facetCounts[Properties.filters.METADATA_CONTENT_TYPE]['no-value']){
+                    var values = _.values(controller.facetCounts[Properties.filters.METADATA_CONTENT_TYPE]);
+                    var totalFacetCount = 0;
+                    _.each(values, function(value){
+                        totalFacetCount += value;
+                    });
+                    controller.facetCounts[Properties.filters.METADATA_CONTENT_TYPE]["no-value"] = numberOfResults - totalFacetCount;
+                }
+
             }
         });
 

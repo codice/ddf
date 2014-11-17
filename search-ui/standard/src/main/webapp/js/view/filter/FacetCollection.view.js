@@ -46,6 +46,14 @@ define([
 
                     pairsMapped = _.compact(pairsMapped);
 
+                    // this will sort by item.value.  no-value will be pushed to the bottom.
+                    pairsMapped = _.sortBy(pairsMapped, function(item){
+                        if(item.value === 'no-value'){
+                            return [2,item.value.toLowerCase()].join('');
+                        }
+                        return [0,item.value.toLowerCase()].join('');
+                    });
+
                     return new Backbone.Model({
                         fieldName: pair[0],
                         values: pairsMapped
