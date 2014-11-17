@@ -211,6 +211,29 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     @Override
+    public SolrQuery during(String propertyName, Date startDate, Date endDate) {
+        String formattedStartDate = formatDate(startDate);
+        String formattedEndDate = formatDate(endDate);
+        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate,
+                formattedEndDate, SOLR_EXCLUSIVE_END);
+    }
+
+    @Override
+    public SolrQuery before(String propertyName, Date date) {
+        String formattedEndDate = formatDate(date);
+
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR,
+                formattedEndDate, SOLR_EXCLUSIVE_END);
+    }
+
+    @Override
+    public SolrQuery after(String propertyName, Date startDate) {
+        String formattedStartDate = formatDate(startDate);
+        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate,
+                SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
+    }
+
+    @Override
     public SolrQuery propertyIsFuzzy(String propertyName, String searchPhrase) {
         String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.STRING,
                 false);
@@ -225,6 +248,28 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         }
 
         return new SolrQuery(phraseBuilder.toString());
+    }
+
+    @Override
+    public SolrQuery propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
+        verifyInputData(propertyName, pattern);
+
+        String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.STRING,
+                false);
+        if (isCaseSensitive) {
+            mappedPropertyName = resolver.getCaseSensitiveField(mappedPropertyName);
+        }
+
+        String searchPhrase = escapeSpecialCharacters(pattern);
+        if (!searchPhrase.contains(SOLR_WILDCARD_CHAR)
+                && !searchPhrase.contains(SOLR_SINGLE_WILDCARD_CHAR)) {
+            // Not an exact phrase
+            searchPhrase = QUOTE + searchPhrase + QUOTE;
+        } else {
+            searchPhrase = "(" + searchPhrase + ")";
+        }
+
+        return new SolrQuery(mappedPropertyName + ":" + searchPhrase);
     }
 
     @Override
@@ -254,25 +299,35 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     @Override
-    public SolrQuery propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
-        verifyInputData(propertyName, pattern);
+    public SolrQuery propertyIsEqualTo(String propertyName, int literal) {
+        return getEqualToQuery(propertyName, AttributeFormat.INTEGER, literal);
+    }
 
-        String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.STRING,
-                false);
-        if (isCaseSensitive) {
-            mappedPropertyName = resolver.getCaseSensitiveField(mappedPropertyName);
-        }
+    @Override
+    public SolrQuery propertyIsEqualTo(String propertyName, short literal) {
+        return getEqualToQuery(propertyName, AttributeFormat.SHORT, literal);
+    }
 
-        String searchPhrase = escapeSpecialCharacters(pattern);
-        if (!searchPhrase.contains(SOLR_WILDCARD_CHAR)
-                && !searchPhrase.contains(SOLR_SINGLE_WILDCARD_CHAR)) {
-            // Not an exact phrase
-            searchPhrase = QUOTE + searchPhrase + QUOTE;
-        } else {
-            searchPhrase = "(" + searchPhrase + ")";
-        }
+    @Override
+    public SolrQuery propertyIsEqualTo(String propertyName, long literal) {
+        return getEqualToQuery(propertyName, AttributeFormat.LONG, literal);
+    }
+    
+    @Override
+    public SolrQuery propertyIsEqualTo(String propertyName, float literal) {
+        return getEqualToQuery(propertyName, AttributeFormat.FLOAT, literal);
+    }
+    
+    @Override
+    public SolrQuery propertyIsEqualTo(String propertyName, double literal) {
+        return getEqualToQuery(propertyName, AttributeFormat.FLOAT, literal);
+    }
 
-        return new SolrQuery(mappedPropertyName + ":" + searchPhrase);
+    @Override
+    public SolrQuery propertyIsGreaterThan(String propertyName, Date startDate) {
+        String formattedStartDate = formatDate(startDate);
+        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate,
+                SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
     }
 
     @Override
@@ -301,6 +356,13 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     @Override
+    public SolrQuery propertyIsGreaterThanOrEqualTo(String propertyName, Date startDate) {
+        String formattedStartDate = formatDate(startDate);
+        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate,
+                SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
+    }
+
+    @Override
     public SolrQuery propertyIsGreaterThanOrEqualTo(String propertyName, short literal) {
         return getGreaterThanOrEqualToQuery(propertyName, AttributeFormat.SHORT, literal);
     }
@@ -325,55 +387,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return getGreaterThanOrEqualToQuery(propertyName, AttributeFormat.DOUBLE, literal);
     }
 
-    private SolrQuery buildDateQuery(String propertyName, String startCondition, String startDate,
-            String endDate, String endCondition) {
-        SolrQuery query = new SolrQuery();
-        query.setQuery(" " + getMappedPropertyName(propertyName, AttributeFormat.DATE, false)
-                + startCondition + startDate + TO + endDate + endCondition);
-        return query;
-    }
-
-    private String formatDate(Date date) {
-        return dateFormat.format(date);
-    }
-
-    @Override
-    public SolrQuery during(String propertyName, Date startDate, Date endDate) {
-        String formattedStartDate = formatDate(startDate);
-        String formattedEndDate = formatDate(endDate);
-        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate,
-                formattedEndDate, SOLR_EXCLUSIVE_END);
-    }
-
-    @Override
-    public SolrQuery before(String propertyName, Date date) {
-        String formattedEndDate = formatDate(date);
-
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR,
-                formattedEndDate, SOLR_EXCLUSIVE_END);
-    }
-
-    @Override
-    public SolrQuery after(String propertyName, Date startDate) {
-        String formattedStartDate = formatDate(startDate);
-        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate,
-                SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
-    }
-
-    @Override
-    public SolrQuery propertyIsGreaterThan(String propertyName, Date startDate) {
-        String formattedStartDate = formatDate(startDate);
-        return buildDateQuery(propertyName, SOLR_EXCLUSIVE_START, formattedStartDate,
-                SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
-    }
-
-    @Override
-    public SolrQuery propertyIsGreaterThanOrEqualTo(String propertyName, Date startDate) {
-        String formattedStartDate = formatDate(startDate);
-        return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate,
-                SOLR_WILDCARD_CHAR, SOLR_INCLUSIVE_END);
-    }
-
     @Override
     public SolrQuery propertyIsLessThan(String propertyName, Date endDate) {
         String formattedEndDate = formatDate(endDate);
@@ -382,10 +395,60 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     @Override
+    public SolrQuery propertyIsLessThan(String propertyName, int literal) {
+        return getLessThanQuery(propertyName, AttributeFormat.INTEGER, literal);
+    }
+
+    @Override
+    public SolrQuery propertyIsLessThan(String propertyName, short literal) {
+        return getLessThanQuery(propertyName, AttributeFormat.SHORT, literal);
+    }
+
+    @Override
+    public SolrQuery propertyIsLessThan(String propertyName, long literal) {
+        return getLessThanQuery(propertyName, AttributeFormat.LONG, literal);
+    }
+
+    @Override
+    public SolrQuery propertyIsLessThan(String propertyName, float literal) {
+        return getLessThanQuery(propertyName, AttributeFormat.FLOAT, literal);
+    }
+
+    @Override
+    public SolrQuery propertyIsLessThan(String propertyName, double literal) {
+        return getLessThanQuery(propertyName, AttributeFormat.DOUBLE, literal);
+    }
+
+    @Override
     public SolrQuery propertyIsLessThanOrEqualTo(String propertyName, Date endDate) {
         String formattedEndDate = formatDate(endDate);
         return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, SOLR_WILDCARD_CHAR,
                 formattedEndDate, SOLR_INCLUSIVE_END);
+    }
+
+    @Override
+    public SolrQuery propertyIsLessThanOrEqualTo(String propertyName, short literal) {
+        return getLessThanOrEqualToQuery(propertyName, AttributeFormat.SHORT, literal);
+    }
+
+    @Override
+    public SolrQuery propertyIsLessThanOrEqualTo(String propertyName, int literal) {
+        return getLessThanOrEqualToQuery(propertyName, AttributeFormat.INTEGER, literal);
+    }
+
+    @Override
+    public SolrQuery propertyIsLessThanOrEqualTo(String propertyName, long literal) {
+        return getLessThanOrEqualToQuery(propertyName, AttributeFormat.LONG, literal);
+    }
+
+    @Override
+    public SolrQuery propertyIsLessThanOrEqualTo(String propertyName, float literal) {
+        return getLessThanOrEqualToQuery(propertyName, AttributeFormat.FLOAT, literal);
+    }
+
+    @Override
+    public SolrQuery propertyIsLessThanOrEqualTo(String propertyName, double literal) {
+        return getLessThanOrEqualToQuery(propertyName, AttributeFormat.DOUBLE, literal);
     }
 
     @Override
@@ -411,6 +474,18 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
         return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate,
                 formattedEndDate, SOLR_INCLUSIVE_END);
+    }
+
+    private SolrQuery buildDateQuery(String propertyName, String startCondition, String startDate,
+            String endDate, String endCondition) {
+        SolrQuery query = new SolrQuery();
+        query.setQuery(" " + getMappedPropertyName(propertyName, AttributeFormat.DATE, false)
+                + startCondition + startDate + TO + endDate + endCondition);
+        return query;
+    }
+
+    private String formatDate(Date date) {
+        return dateFormat.format(date);
     }
 
     @Override
@@ -613,12 +688,42 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return query;
     }
 
+    private SolrQuery getEqualToQuery(String propertyName, AttributeFormat format,
+            Number literal) {
+        String mappedPropertyName = getMappedPropertyName(propertyName, format, true);
+
+        SolrQuery query = new SolrQuery();
+        query.setQuery(" " + mappedPropertyName + ":{ " + literal.toString() + TO + "* ] ");
+
+        return query;
+    }
+    
     private SolrQuery getGreaterThanQuery(String propertyName, AttributeFormat format,
             Number literal) {
         String mappedPropertyName = getMappedPropertyName(propertyName, format, true);
 
         SolrQuery query = new SolrQuery();
         query.setQuery(" " + mappedPropertyName + ":{ " + literal.toString() + TO + "* ] ");
+
+        return query;
+    }
+
+    private SolrQuery getLessThanOrEqualToQuery(String propertyName, AttributeFormat format,
+            Number literal) {
+        String mappedPropertyName = getMappedPropertyName(propertyName, format, true);
+
+        SolrQuery query = new SolrQuery();
+        query.setQuery(" " + mappedPropertyName + ":[ * TO " + literal.toString() + " ] ");
+
+        return query;
+    }
+
+    private SolrQuery getLessThanQuery(String propertyName, AttributeFormat format,
+            Number literal) {
+        String mappedPropertyName = getMappedPropertyName(propertyName, format, true);
+
+        SolrQuery query = new SolrQuery();
+        query.setQuery(" " + mappedPropertyName + ":{ * TO " + literal.toString() + " ] ");
 
         return query;
     }
