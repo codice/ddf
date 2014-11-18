@@ -587,54 +587,64 @@ public class SchematronValidationService implements MetacardValidator {
         // Convert the metacard's metadata to a String
         String metadata = metacard.getMetadata();
         LOGGER.debug("metadata: {}", metadata);
+        if (metadata != null) {
+            // Create a Reader for the catalog entry's contents
+            StringReader metadataReader = new StringReader(metadata);
 
-        // Create a Reader for the catalog entry's contents
-        StringReader metadataReader = new StringReader(metadata);
+            try {
+                // Using the precompiled/stored Schematron validator, validate
+                // the catalog entry's
+                // contents
+                Transformer transformer = validator.newTransformer();
+                DOMResult schematronResult = new DOMResult();
+                transformer.transform(new StreamSource(metadataReader), schematronResult);
+                this.report = new SvrlReport(schematronResult);
 
-        try {
-            // Using the precompiled/stored Schematron validator, validate the catalog entry's
-            // contents
-            Transformer transformer = validator.newTransformer();
-            DOMResult schematronResult = new DOMResult();
-            transformer.transform(new StreamSource(metadataReader), schematronResult);
-            this.report = new SvrlReport(schematronResult);
+                LOGGER.trace("SVRL Report:\n\n{}", report.getReportAsText());
 
-            LOGGER.trace("SVRL Report:\n\n{}", report.getReportAsText());
+                // If the Schematron validation failed, then throw an exception
+                // with details of the
+                // errors
+                // and warnings from the Schematron report included in the
+                // exception that is thrown to
+                // the client.
+                if (!this.report.isValid(this.suppressWarnings)) {
+                    List<String> warnings = new ArrayList<String>();
 
-            // If the Schematron validation failed, then throw an exception with details of the
-            // errors
-            // and warnings from the Schematron report included in the exception that is thrown to
-            // the client.
-            if (!this.report.isValid(this.suppressWarnings)) {
-                List<String> warnings = new ArrayList<String>();
+                    StringBuffer errorMessage = new StringBuffer(
+                            "Schematron validation failed.\n\n");
+                    List<String> errors = this.report.getErrors();
 
-                StringBuffer errorMessage = new StringBuffer("Schematron validation failed.\n\n");
-                List<String> errors = this.report.getErrors();
-
-                LOGGER.debug("errors.size() = {}", errors.size());
-                for (String error : errors) {
-                    errorMessage.append(error);
-                    errorMessage.append("\n");
-                }
-                // If warnings are to be included from the Schematron report as part of the errors
-                // message
-                if (!this.suppressWarnings) {
-                    warnings = this.report.getWarnings();
-                    LOGGER.debug("warnings.size() = {}", warnings.size());
-                    for (String warning : warnings) {
-                        LOGGER.debug("warning = {}", warning);
-                        errorMessage.append(warning);
+                    LOGGER.debug("errors.size() = {}", errors.size());
+                    for (String error : errors) {
+                        errorMessage.append(error);
                         errorMessage.append("\n");
                     }
+                    // If warnings are to be included from the Schematron report
+                    // as part of the errors
+                    // message
+                    if (!this.suppressWarnings) {
+                        warnings = this.report.getWarnings();
+                        LOGGER.debug("warnings.size() = {}", warnings.size());
+                        for (String warning : warnings) {
+                            LOGGER.debug("warning = {}", warning);
+                            errorMessage.append(warning);
+                            errorMessage.append("\n");
+                        }
+                    }
+                    LOGGER.debug(errorMessage.toString());
+                    throw new SchematronValidationException(errorMessage.toString(), errors,
+                            warnings);
                 }
-                LOGGER.debug(errorMessage.toString());
-                throw new SchematronValidationException(errorMessage.toString(), errors, warnings);
-            }
 
-        } catch (TransformerException te) {
-            LOGGER.warn("Could not setup validator to perform validation", te);
+            } catch (TransformerException te) {
+                LOGGER.warn("Could not setup validator to perform validation", te);
+                throw new SchematronValidationException(
+                        "Could not setup validator to perform validation.");
+            }
+        } else {
             throw new SchematronValidationException(
-                    "Could not setup validator to perform validation.");
+                    "The Metacard.METADATA attribute must not be null to run shematron validation against the Metacard");
         }
     }
 
