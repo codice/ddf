@@ -684,7 +684,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         String mappedPropertyName = getMappedPropertyName(propertyName, format, true);
 
         SolrQuery query = new SolrQuery();
-        query.setQuery(" " + mappedPropertyName + ":{ " + literal.toString() + TO + "* ] ");
+        query.setQuery(" " + mappedPropertyName + ":" + literal.toString());
 
         return query;
     }
@@ -724,7 +724,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         String mappedPropertyName = getMappedPropertyName(propertyName, format, true);
 
         SolrQuery query = new SolrQuery();
-        query.setQuery(" " + mappedPropertyName + ":{ * TO " + literal.toString() + " ] ");
+        query.setQuery(" " + mappedPropertyName + ":[ * TO " + literal.toString() + " } ");
 
         return query;
     }
