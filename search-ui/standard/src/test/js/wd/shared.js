@@ -27,6 +27,8 @@ function debugLogging(browser) {
 
 var url = argv.url || 'http://localhost:8383/';
 
+exports.asserters = wd.asserters;
+
 exports.setup = function(mocha) {
     mocha.timeout(this.mochaOptions ? this.mochaOptions.timeout : 30000);
 
@@ -35,7 +37,7 @@ exports.setup = function(mocha) {
             this.browser = wd.promiseChainRemote();
         }
 
-        if (argv.debug) {
+        if (argv.verbose) {
             debugLogging(this.browser);
         }
 
@@ -43,7 +45,7 @@ exports.setup = function(mocha) {
             .init({browserName: argv.browser || 'chrome'})
             .setAsyncScriptTimeout(10000)
             //set window size for phantomjs
-            .setWindowSize(1200, 900)
+            .setWindowSize(1200, 1200)
             .get(url);
     });
 

@@ -220,7 +220,8 @@
             "successful":true,
             "status":[
                 {
-                    "id":"DDF-OS","state":"ACTIVE"
+                    "id":"DDF-OS",
+                    "state":"SUCCEEDED"
                 },
                 {
                     "elapsed":43,
