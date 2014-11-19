@@ -130,16 +130,21 @@ define([
 
             setNoFederation : function () {
                 this.model.set('src','local');
+                this.model.set('federation','local');
                 this.updateScrollbar();
             },
 
             setEnterpriseFederation : function () {
                 this.model.unset('src');
+                this.model.set('federation','enterprise');
                 this.updateScrollbar();
             },
 
             setSelectedFederation : function () {
-                this.model.unset('src');
+                if(this.model.get('src') === 'local') {
+                    this.model.unset('src');
+                }
+                this.model.set('federation','selected');
                 this.updateScrollbar();
             },
 
