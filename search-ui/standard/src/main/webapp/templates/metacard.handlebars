@@ -118,7 +118,9 @@
                         <tr>
                             <td>{{propertyTitle @key}}</td>
                             {{#is @key 'thumbnail'}}
-                            <td><img class='thumbnail pull-left' alt='Thumbnail' src='data:image/jpeg;charset=utf-8;base64, {{this}}' /></td>
+                                {{#if this}}
+                                    <td><img class='thumbnail pull-left' alt='Thumbnail' src='data:image/jpeg;charset=utf-8;base64, {{this}}' /></td>
+                                {{/if}}
                             {{else}}
                                 {{#is @key 'resource-size'}}
                                     <td>{{fileSize this}}</td>
