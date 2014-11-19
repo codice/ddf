@@ -52,32 +52,42 @@ define(['underscore',
                 if(properties.imageryProviders) {
                     var layers = [];
                     _.each(properties.imageryProviders, function(item) {
-                        var imageryProvider = $.parseJSON(item);
-                        var key = Object.keys(imageryProvider)[0];
-                        var type = imageryProviderTypes[key];
-                        var initObj = imageryProvider[key];
-
-                        if (key === 'OSM') {
-                            if (initObj.url && initObj.url.indexOf('/{z}/{x}/{y}') === -1) {
-                                initObj.url = initObj.url + '/{z}/{x}/{y}.png';
-                            }
-                        } else if (key === 'BM') {
-                            if (!initObj.imagerySet) {
-                                initObj.imagerySet = initObj.url;
-                            }
-                        } else if (key === 'WMS') {
-                            if (!initObj.params) {
-                                initObj.params = {
-                                    layers: initObj.layers
-                                };
+                        var imageryProvider;
+                        try {
+                            imageryProvider = $.parseJSON(item);
+                        } catch (e) {
+                            if (typeof console !== 'undefined') {
+                                console.error('Unable to parse imagery provider configuration:', item, e);
                             }
                         }
-                        layers.push(new ol.layer.Tile({
-                            visible: true,
-                            preload: Infinity,
-                            opacity: initObj.alpha,
-                            source: new type(initObj)
-                        }));
+
+                        if (imageryProvider) {
+                            var key = Object.keys(imageryProvider)[0];
+                            var type = imageryProviderTypes[key];
+                            var initObj = imageryProvider[key];
+
+                            if (key === 'OSM') {
+                                if (initObj.url && initObj.url.indexOf('/{z}/{x}/{y}') === -1) {
+                                    initObj.url = initObj.url + '/{z}/{x}/{y}.png';
+                                }
+                            } else if (key === 'BM') {
+                                if (!initObj.imagerySet) {
+                                    initObj.imagerySet = initObj.url;
+                                }
+                            } else if (key === 'WMS') {
+                                if (!initObj.params) {
+                                    initObj.params = {
+                                        layers: initObj.layers
+                                    };
+                                }
+                            }
+                            layers.push(new ol.layer.Tile({
+                                visible: true,
+                                preload: Infinity,
+                                opacity: initObj.alpha,
+                                source: new type(initObj)
+                            }));
+                        }
                     });
 
                     map = new ol.Map({
