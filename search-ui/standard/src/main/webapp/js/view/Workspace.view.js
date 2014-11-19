@@ -122,7 +122,7 @@ define([
                 if(this.model.get('result')) {
                     this.listenTo(this.model.get('result'), 'change', this.render);
                 }
-                this.updateInterval = setInterval(this.update.bind(this), 60000);
+                this.updateInterval = setInterval(_.bind(this.update, this), 60000);
             },
             serializeData: function() {
                 var working = false, result = this.model.get('result'), hits, initiated;
@@ -148,7 +148,7 @@ define([
                 if(! this.editing) {
                     this.render();
                 }
-            },            
+            },
             editMode: function() {
                 this.editing = true;
                 this.render();
