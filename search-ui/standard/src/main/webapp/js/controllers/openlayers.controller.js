@@ -33,7 +33,9 @@ define(['underscore',
 
         var Controller = Marionette.Controller.extend({
             initialize: function () {
-                this.geoCoder = new geocoder.View({el: $('#mapTools')});
+                if (properties.gazetteer) {
+                    this.geoCoder = new geocoder.View({el: $('#mapTools')});
+                }
                 this.mapViewer = this.createMap('cesiumContainer');
                 this.setupEvents();
 
@@ -49,9 +51,9 @@ define(['underscore',
             },
             createMap: function (mapDivId) {
                 var map;
-                if(properties.imageryProviders) {
+                if (properties.imageryProviders) {
                     var layers = [];
-                    _.each(properties.imageryProviders, function(item) {
+                    _.each(properties.imageryProviders, function (item) {
                         var imageryProvider;
                         try {
                             imageryProvider = $.parseJSON(item);
@@ -100,7 +102,9 @@ define(['underscore',
                     });
                 }
 
-                this.geoCoder.render();
+                if (this.geoCoder) {
+                    this.geoCoder.render();
+                }
 
                 return map;
             },
