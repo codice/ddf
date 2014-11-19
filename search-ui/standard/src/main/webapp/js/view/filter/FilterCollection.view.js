@@ -40,7 +40,7 @@ define([
             },
             initialize: function(){
                 var view = this;
-                if(this.model.parents.length === 0){
+                if (!this.model.parents || this.model.parents.length === 0) {
                     return; // just quit.  This is an invalid state.
                 }
                 view.queryObject = this.model.parents[0];

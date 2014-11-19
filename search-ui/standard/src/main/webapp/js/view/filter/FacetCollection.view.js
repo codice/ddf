@@ -28,11 +28,10 @@ define([
             template: 'facetCollectionTemplate',
             itemViewContainer: '.facet-items',
             initialize: function(options){
-
-                var queryObject = this.model.parents[0];
-                if(queryObject === undefined){
+                if (!this.model.parents || this.model.parents[0] === undefined) {
                     return; // just quit.
                 }
+                var queryObject = this.model.parents[0];
                 var filteredContentTypeIds = queryObject.filters.getGroupedFilterValues(Properties.filters.METADATA_CONTENT_TYPE);
                 var facetPairs = _.pairs(options.facetCounts);
                 var flattenedFacets = _.map(facetPairs, function(pair){
