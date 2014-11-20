@@ -41,7 +41,7 @@ import ddf.security.service.SecurityServiceException;
 import ddf.security.service.impl.SecurityAssertionStore;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ SecurityAssertionStore.class, SecurityLogger.class })
+@PrepareForTest({SecurityAssertionStore.class, SecurityLogger.class})
 public class TestPepInterceptorValidSubject {
 
     @Test
@@ -59,13 +59,14 @@ public class TestPepInterceptorValidSubject {
 
         PowerMockito.mockStatic(SecurityAssertionStore.class);
         PowerMockito.mockStatic(SecurityLogger.class);
-        when(SecurityAssertionStore.getSecurityAssertion(messageWithValidSecurityAssertion)).thenReturn(mockSecurityAssertion);
+        when(SecurityAssertionStore.getSecurityAssertion(messageWithValidSecurityAssertion))
+                .thenReturn(mockSecurityAssertion);
         // SecurityLogger is already stubbed out
         when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
         when(mockSecurityToken.getToken()).thenReturn(null);
 
         when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
-        
+
         QName op = new QName("urn:catalog:query", "search", "ns1");
         QName port = new QName("urn:catalog:query", "query-port", "ns1");
         when(messageWithValidSecurityAssertion.get("javax.xml.ws.wsdl.operation")).thenReturn(op);
@@ -76,9 +77,9 @@ public class TestPepInterceptorValidSubject {
         when(messageWithValidSecurityAssertion.getExchange()).thenReturn(mockExchange);
         when(mockExchange.get(BindingOperationInfo.class)).thenReturn(mockBOI);
         when(mockBOI.getExtensor(SoapOperationInfo.class)).thenReturn(null);
-        
+
         when(mockSubject.isPermitted(isA(ActionPermission.class))).thenReturn(true);
-        
+
         // This should work.
         interceptor.handleMessage(messageWithValidSecurityAssertion);
 

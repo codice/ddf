@@ -14,9 +14,12 @@
  **/
 package ddf.security.pep.interceptor;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +50,7 @@ import ddf.security.service.SecurityServiceException;
 import ddf.security.service.impl.SecurityAssertionStore;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ SecurityAssertionStore.class, SecurityLogger.class })
+@PrepareForTest({SecurityAssertionStore.class, SecurityLogger.class})
 public class TestPepInterceptorActions {
 
     @Test
@@ -65,13 +68,14 @@ public class TestPepInterceptorActions {
 
         PowerMockito.mockStatic(SecurityAssertionStore.class);
         PowerMockito.mockStatic(SecurityLogger.class);
-        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction)).thenReturn(mockSecurityAssertion);
+        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction)).thenReturn(
+                mockSecurityAssertion);
         // SecurityLogger is already stubbed out
         when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
         when(mockSecurityToken.getToken()).thenReturn(null);
 
         when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
-        
+
         QName op = new QName("urn:catalog:query", "search", "ns1");
         QName port = new QName("urn:catalog:query", "query-port", "ns1");
         when(messageWithAction.get("javax.xml.ws.wsdl.operation")).thenReturn(op);
@@ -82,22 +86,22 @@ public class TestPepInterceptorActions {
         when(messageWithAction.getExchange()).thenReturn(mockExchange);
         when(mockExchange.get(BindingOperationInfo.class)).thenReturn(mockBOI);
         when(mockBOI.getExtensor(SoapOperationInfo.class)).thenReturn(null);
-        
+
         doAnswer(new Answer<Boolean>() {
-			@Override
-			public Boolean answer(InvocationOnMock invocation) throws Throwable {
-				ActionPermission perm = (ActionPermission) invocation.getArguments()[0];
-				assertEquals("urn:catalog:query:query-port:searchRequest", perm.getAction());
-				return true;
-			}
-		}).when(mockSubject).isPermitted(isA(ActionPermission.class));
-        
+            @Override
+            public Boolean answer(InvocationOnMock invocation) throws Throwable {
+                ActionPermission perm = (ActionPermission) invocation.getArguments()[0];
+                assertEquals("urn:catalog:query:query-port:searchRequest", perm.getAction());
+                return true;
+            }
+        }).when(mockSubject).isPermitted(isA(ActionPermission.class));
+
         // This should work.
         interceptor.handleMessage(messageWithAction);
 
         PowerMockito.verifyStatic();
     }
-    
+
     @Test
     public void testMessageWithMessageAction() throws SecurityServiceException {
         PEPAuthorizingInterceptor interceptor = new PEPAuthorizingInterceptor();
@@ -113,35 +117,35 @@ public class TestPepInterceptorActions {
 
         PowerMockito.mockStatic(SecurityAssertionStore.class);
         PowerMockito.mockStatic(SecurityLogger.class);
-        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction)).thenReturn(mockSecurityAssertion);
+        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction)).thenReturn(
+                mockSecurityAssertion);
         // SecurityLogger is already stubbed out
         when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
         when(mockSecurityToken.getToken()).thenReturn(null);
 
         when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
-        
-		Map<QName, Object> extensionMap = new HashMap<>();
-		extensionMap.put(new QName(Names.WSA_NAMESPACE_WSDL_METADATA, Names.WSAW_ACTION_NAME),
-				"urn:catalog:query:query-port:search");
-		MessageInfo mockMessageInfo = mock(MessageInfo.class);
-		when(messageWithAction.get(MessageInfo.class.getName())).thenReturn(mockMessageInfo);
-		when(mockMessageInfo.getExtensionAttributes()).thenReturn(extensionMap);
-        
+
+        Map<QName, Object> extensionMap = new HashMap<QName, Object>();
+        extensionMap.put(new QName(Names.WSA_NAMESPACE_WSDL_METADATA, Names.WSAW_ACTION_NAME),
+                "urn:catalog:query:query-port:search");
+        MessageInfo mockMessageInfo = mock(MessageInfo.class);
+        when(messageWithAction.get(MessageInfo.class.getName())).thenReturn(mockMessageInfo);
+        when(mockMessageInfo.getExtensionAttributes()).thenReturn(extensionMap);
+
         doAnswer(new Answer<Boolean>() {
-			@Override
-			public Boolean answer(InvocationOnMock invocation) throws Throwable {
-				ActionPermission perm = (ActionPermission) invocation.getArguments()[0];
-				assertEquals("urn:catalog:query:query-port:search", perm.getAction());
-				return true;
-			}
-		}).when(mockSubject).isPermitted(isA(ActionPermission.class));
-        
+            @Override
+            public Boolean answer(InvocationOnMock invocation) throws Throwable {
+                ActionPermission perm = (ActionPermission) invocation.getArguments()[0];
+                assertEquals("urn:catalog:query:query-port:search", perm.getAction());
+                return true;
+            }
+        }).when(mockSubject).isPermitted(isA(ActionPermission.class));
+
         // This should work.
         interceptor.handleMessage(messageWithAction);
 
         PowerMockito.verifyStatic();
     }
-    
 
     @Test
     public void testMessageWithOperationAction() throws SecurityServiceException {
@@ -158,7 +162,8 @@ public class TestPepInterceptorActions {
 
         PowerMockito.mockStatic(SecurityAssertionStore.class);
         PowerMockito.mockStatic(SecurityLogger.class);
-        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction)).thenReturn(mockSecurityAssertion);
+        when(SecurityAssertionStore.getSecurityAssertion(messageWithAction)).thenReturn(
+                mockSecurityAssertion);
         // SecurityLogger is already stubbed out
         when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
         when(mockSecurityToken.getToken()).thenReturn(null);
@@ -172,16 +177,16 @@ public class TestPepInterceptorActions {
         when(mockExchange.get(BindingOperationInfo.class)).thenReturn(mockBOI);
         when(mockBOI.getExtensor(SoapOperationInfo.class)).thenReturn(mockSOI);
         when(mockSOI.getAction()).thenReturn("urn:catalog:query:query-port:search");
-        
+
         doAnswer(new Answer<Boolean>() {
-			@Override
-			public Boolean answer(InvocationOnMock invocation) throws Throwable {
-				ActionPermission perm = (ActionPermission) invocation.getArguments()[0];
-				assertEquals("urn:catalog:query:query-port:search", perm.getAction());
-				return true;
-			}
-		}).when(mockSubject).isPermitted(isA(ActionPermission.class));
-        
+            @Override
+            public Boolean answer(InvocationOnMock invocation) throws Throwable {
+                ActionPermission perm = (ActionPermission) invocation.getArguments()[0];
+                assertEquals("urn:catalog:query:query-port:search", perm.getAction());
+                return true;
+            }
+        }).when(mockSubject).isPermitted(isA(ActionPermission.class));
+
         // This should work.
         interceptor.handleMessage(messageWithAction);
 
