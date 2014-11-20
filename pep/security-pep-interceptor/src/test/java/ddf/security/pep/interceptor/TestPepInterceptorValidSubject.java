@@ -14,29 +14,20 @@
  **/
 package ddf.security.pep.interceptor;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import javax.xml.namespace.QName;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.isA;
-
-import org.apache.cxf.interceptor.security.AccessDeniedException;
-import org.apache.cxf.headers.Header;
+import org.apache.cxf.binding.soap.model.SoapOperationInfo;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-
-import org.w3c.dom.Element;
-
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -75,15 +66,19 @@ public class TestPepInterceptorValidSubject {
 
         when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
         
-        Header mockHeader = mock(Header.class);
-        when(mockHeader.getName()).thenReturn(new QName("http://www.w3.org/2005/08/addressing", "Action"));
-        Element mockElement = mock(Element.class);
-        when(mockHeader.getObject()).thenReturn(mockElement);
-        when(mockElement.getTextContent()).thenReturn("");
-        List<Header> headerList = new ArrayList<Header>();
-        headerList.add(mockHeader);
-        when(messageWithValidSecurityAssertion.get(Header.HEADER_LIST)).thenReturn(headerList);
+        QName op = new QName("urn:catalog:query", "search", "ns1");
+        QName port = new QName("urn:catalog:query", "query-port", "ns1");
+        when(messageWithValidSecurityAssertion.get("javax.xml.ws.wsdl.operation")).thenReturn(op);
+        when(messageWithValidSecurityAssertion.get("javax.xml.ws.wsdl.port")).thenReturn(port);
+
+        Exchange mockExchange = mock(Exchange.class);
+        BindingOperationInfo mockBOI = mock(BindingOperationInfo.class);
+        when(messageWithValidSecurityAssertion.getExchange()).thenReturn(mockExchange);
+        when(mockExchange.get(BindingOperationInfo.class)).thenReturn(mockBOI);
+        when(mockBOI.getExtensor(SoapOperationInfo.class)).thenReturn(null);
+        
         when(mockSubject.isPermitted(isA(ActionPermission.class))).thenReturn(true);
+        
         // This should work.
         interceptor.handleMessage(messageWithValidSecurityAssertion);
 
