@@ -15,7 +15,6 @@
 package ddf.security.pep.interceptor;
 
 import java.io.StringWriter;
-import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.OutputKeys;
@@ -26,16 +25,17 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.cxf.headers.Header;
-import org.apache.cxf.helpers.CastUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.security.AccessDeniedException;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.transport.http.AbstractHTTPDestination;
-import org.apache.cxf.transport.servlet.AbstractHTTPServlet;
-import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.ws.addressing.JAXWSAConstants;
+import org.apache.cxf.ws.addressing.Names;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -48,7 +48,6 @@ import ddf.security.permission.ActionPermission;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.service.impl.SecurityAssertionStore;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Interceptor used to perform service authentication.
@@ -57,9 +56,6 @@ import javax.servlet.http.HttpServletRequest;
 public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private Logger logger = LoggerFactory.getLogger(PEPAuthorizingInterceptor.class);
-
-    private static final QName SOAP_ACTION = new QName("http://www.w3.org/2005/08/addressing",
-            "Action");
 
     private SecurityManager securityManager;
 
@@ -95,6 +91,9 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
             if ((assertion != null) && (assertion.getSecurityToken() != null)) {
                 Subject user = null;
                 ActionPermission action = null;
+                
+                String actionURI = getActionUri(message);
+                
                 try {
                     user = securityManager.getSubject(assertion.getSecurityToken());
                     if (user == null) {
@@ -109,19 +108,18 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     logger.debug("Checking for permission");
                     SecurityLogger.logInfo("Is user [" + user.getPrincipal() + "] authenticated: "
                             + user.isAuthenticated());
-                    List<Header> headers = CastUtils
-                            .cast((List<?>) message.get(Header.HEADER_LIST));
-                    if (headers != null) {
-                        for (Header curHeader : headers) {
-                            if (curHeader.getName().equals(SOAP_ACTION)) {
-                                action = new ActionPermission(
-                                        ((Element) curHeader.getObject()).getTextContent());
-                                logger.debug("Action Permission: " + ((Element) curHeader.getObject()).getTextContent());
-                                break;
-                            }
-                        }
-                        isPermitted = user.isPermitted(action);
+                    
+                    if (StringUtils.isEmpty(actionURI)) {
+                        logger.info("Denying access : unable to determine action for {}", user.getPrincipal());
+                        SecurityLogger.logWarn("Denying access to [" + user.getPrincipal() + "] for unknown action.");
+                    	throw new AccessDeniedException("Unauthorized");
                     }
+                    
+                    action = new ActionPermission(actionURI);
+                    logger.debug("Action Permission: " + action);
+                    
+                    isPermitted = user.isPermitted(action);
+                    
                     logger.debug("Result of permission: {}", isPermitted);
                     SecurityLogger.logInfo("Is user [" + user.getPrincipal() + "] permitted: "
                             + isPermitted);
@@ -131,24 +129,14 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                             SecurityConstants.SAML_ASSERTION);
                 } catch (SecurityServiceException e) {
                     logger.warn("Caught exception when trying to perform AuthZ.", e);
-                    if (action != null) {
-                        SecurityLogger.logWarn(
-                            "Denying access : Caught exception when trying to perform AuthZ for user ["
-                            + user.getPrincipal() + "] for service " + action.getAction(), e);
-                    } else {
-                        SecurityLogger.logWarn(
-                            "Denying access : Caught exception when trying to perform AuthZ for user ["
-                            + user.getPrincipal() + "] for unknown service.", e);
-                    }
+                    SecurityLogger.logWarn(
+                            "Denying access : Caught exception when trying to authenticate user for service [" + actionURI + "]", e);
                     throw new AccessDeniedException("Unauthorized");
                 }
                 if (!isPermitted) {
                     if (action != null) {
                         logger.info("Denying access to {} for service {}", user.getPrincipal(), action.getAction());
                         SecurityLogger.logWarn("Denying access to [" + user.getPrincipal() + "] for service " + action.getAction());
-                    } else {
-                        logger.info("Denying access to {} for unknown service", user.getPrincipal());
-                        SecurityLogger.logWarn("Denying access to [" + user.getPrincipal() + "] for unknown service ");
                     }
                     throw new AccessDeniedException("Unauthorized");
                 }
@@ -161,7 +149,76 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
             throw new AccessDeniedException("Unauthorized");
         }
     }
+    
+    private String getActionUri(Message message) {
+    	String actionURI = null;
+    	
+        /**
+         *  See if the action is explicitly defined in the WSDL message service model.
+         *  Retrieves one of the Action attribute in the wsdl:input message.
+         */
+		MessageInfo msgInfo = (MessageInfo) message.get(MessageInfo.class.getName());
+		if (msgInfo != null && msgInfo.getExtensionAttributes() != null) {
+			Object attr = msgInfo.getExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME);
+			if (attr == null) {
+				attr = msgInfo.getExtensionAttributes().get(
+						new QName(Names.WSA_NAMESPACE_WSDL_METADATA, Names.WSAW_ACTION_NAME));
+			}
+			if (attr == null) {
+				attr = msgInfo.getExtensionAttributes().get(new QName(JAXWSAConstants.NS_WSA, Names.WSAW_ACTION_NAME));
+			}
+			if (attr == null) {
+				attr = msgInfo.getExtensionAttributes().get(
+						new QName(Names.WSA_NAMESPACE_WSDL_NAME_OLD, Names.WSAW_ACTION_NAME));
+			}
+			if (attr instanceof QName) {
+				actionURI = ((QName) attr).getLocalPart();
+			} else {
+				actionURI = attr == null ? null : attr.toString();
+			}
+		}
+        
+        /**
+         * See if the action is explicitly defined in the WSDL operation service model.
+         * Retrieves the operation soap:soapAction property.
+         */
+		if (StringUtils.isEmpty(actionURI)) {
+			BindingOperationInfo bindingOpInfo = message.getExchange().get(BindingOperationInfo.class);
+			SoapOperationInfo soi = bindingOpInfo.getExtensor(SoapOperationInfo.class);
+			if (soi == null && bindingOpInfo.isUnwrapped()) {
+				soi = bindingOpInfo.getWrappedOperation().getExtensor(SoapOperationInfo.class);
+			}
+			actionURI = soi == null ? null : soi.getAction();
+			actionURI = StringUtils.isEmpty(actionURI) ? null : actionURI;
+		}
+		
+		/**
+		 * If the service model doesn't explicitly defines the action,
+		 * we'll construct the standard URI string.
+		 */
+		if (StringUtils.isEmpty(actionURI)) {
+			QName op = (QName) message.get("javax.xml.ws.wsdl.operation");
+			QName port = (QName) message.get("javax.xml.ws.wsdl.port");
+			if (op != null && port != null) {
+				actionURI = port.getNamespaceURI();
+				actionURI = addPath(actionURI, port.getLocalPart());
+				actionURI = addPath(actionURI, op.getLocalPart() + "Request");
+			}
+		}
+		
+		return actionURI;
+    }
 
+    private String addPath(String uri, String path) {
+        StringBuilder builder = new StringBuilder(uri);
+        String delimiter = uri.startsWith("urn") ? ":" : "/";
+        if (!uri.endsWith(delimiter) && !path.startsWith(delimiter)) {
+            builder.append(delimiter);
+        }
+        builder.append(path);
+        return builder.toString();
+    }
+    
     private String format(Element unformattedXml) {
         if (unformattedXml == null) {
             logger.error("Unable to transform xml: null");
