@@ -141,6 +141,11 @@ define([
             this.poller.start();
         },
         onRender: function() {
+            this.model.get("value").comparator = function( model ) {
+                return model.get('name');
+            };
+
+            this.model.get("value").sort();
             this.collectionRegion.show(new ServiceView.ServiceTable({ collection: this.model.get("value"), showWarnings: this.showWarnings }));
         },
         refreshServices: function() {
