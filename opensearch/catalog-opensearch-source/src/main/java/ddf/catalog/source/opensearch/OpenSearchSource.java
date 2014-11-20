@@ -250,13 +250,14 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                 @SuppressWarnings("unchecked")
                 Dictionary<String, Object> propertyDictionary = (Dictionary<String, Object>) siteSecurityConfig
                         .getProperties();
-                Enumeration<String> propertyKeys = propertyDictionary.keys();
-                while (propertyKeys.hasMoreElements()) {
-                    String currKey = propertyKeys.nextElement();
-                    String currValue = propertyDictionary.get(currKey).toString();
-                    securityProps.put(currKey, currValue);
+                if (propertyDictionary != null) {
+                    Enumeration<String> propertyKeys = propertyDictionary.keys();
+                    while (propertyKeys.hasMoreElements()) {
+                        String currKey = propertyKeys.nextElement();
+                        String currValue = propertyDictionary.get(currKey).toString();
+                        securityProps.put(currKey, currValue);
+                    }
                 }
-
                 LOGGER.debug("security properties: {}", securityProps);
 
             } catch (Exception e) {
@@ -584,7 +585,8 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
         // category. maps to metadata-content-type
 
         String contentType = metacard.getContentTypeName();
-        if (contentType != null && !contentType.isEmpty()) {
+//DDF-893        if (contentType != null && !contentType.isEmpty()) {
+        if (StringUtils.isEmpty(contentType)) {
             ClassLoader tccl2 = Thread.currentThread().getContextClassLoader();
             try {
 
@@ -592,7 +594,11 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                         OpenSearchSource.class.getClassLoader());
                 List<Category> categories = entry.getCategories();
                 if (!categories.isEmpty() && categories.get(0) != null) {
-                    metacard.setContentTypeName(categories.get(0).toString());
+                    String term = categories.get(0).toString();
+                    //TODO Parse content type value from the <category> element's term attribute
+                    // <category> element is of the format:
+                    //     <category xmlns="http://www.w3.org/2005/Atom" term="collectorPosition" />
+                    metacard.setContentTypeName(term);
                 }
 
             } finally {
