@@ -560,6 +560,11 @@
         <bundle>mvn:ddf.metrics.interceptor/metrics-interceptor/${project.version}</bundle>
     </feature>
 
+    <feature name="compression-exi" install="manual" version="${project.version}"
+             description="Adds EXI compression support for CXF services.">
+        <bundle>mvn:ddf.compression/compression-exi/${project.version}</bundle>
+    </feature>
+
     <feature name="platform-delegate-filter" install="manual" version="${project.version}"
              description="Adds a filter delegate to every incoming servlet context.">
         <bundle start-level="30">mvn:ddf.platform/platform-filter-delegate/${project.version}</bundle>
