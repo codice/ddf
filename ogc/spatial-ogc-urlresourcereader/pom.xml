@@ -28,7 +28,7 @@
 
 
     <properties>
-        <tika.version>1.2</tika.version>
+        <tika.version>1.6</tika.version>
     </properties>
 
 	<dependencies>
