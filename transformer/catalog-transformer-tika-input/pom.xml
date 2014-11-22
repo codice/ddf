@@ -13,79 +13,86 @@
  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-        <groupId>ddf.catalog.transformer</groupId>
-        <artifactId>transformer</artifactId>
-        <version>2.6.0-SNAPSHOT</version>
-  </parent>
-  
-  <groupId>ddf.catalog.transformer</groupId>
-  <artifactId>tika-input-transformer</artifactId>
-  <name>DDF :: Catalog :: Transformer :: Input :: Tika</name>
-  <packaging>bundle</packaging>
 
-  <properties>
-    <poi.version>3.9</poi.version>
-  </properties>
-  
+	<parent>
+		<groupId>ddf.catalog.transformer</groupId>
+		<artifactId>transformer</artifactId>
+		<version>2.6.0-SNAPSHOT</version>
+	</parent>
+
+	<groupId>ddf.catalog.transformer</groupId>
+	<artifactId>tika-input-transformer</artifactId>
+	<name>DDF :: Catalog :: Transformer :: Input :: Tika</name>
+	<packaging>bundle</packaging>
+
+	<properties>
+		<poi.version>3.11-beta2</poi.version>
+	</properties>
+
 	<dependencies>
-	    <dependency>
+		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-core</artifactId>
-			<version>1.2</version>
+			<version>1.6</version>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parsers</artifactId>
+			<version>1.6</version>
+		</dependency>
+
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 		</dependency>
-			
+
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
 			<version>${poi.version}</version>
-	    </dependency>
-		
+		</dependency>
+
 		<dependency>
-	      <groupId>org.apache.poi</groupId>
-	      <artifactId>poi-scratchpad</artifactId>
-	      <version>${poi.version}</version>
-	    </dependency>
-    
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-scratchpad</artifactId>
+			<version>${poi.version}</version>
+		</dependency>
+
 		<dependency>
-	      <groupId>org.apache.poi</groupId>
-	      <artifactId>poi-ooxml</artifactId>
-	      <version>${poi.version}</version>
-	      <exclusions>
-	        <exclusion>
-	          <groupId>stax</groupId>
-	          <artifactId>stax-api</artifactId>
-	        </exclusion>
-	        <exclusion>
-	          <groupId>xml-apis</groupId>
-	          <artifactId>xml-apis</artifactId>
-	        </exclusion>
-	      </exclusions>
-	    </dependency>
-	    
-	    <dependency>
-	      <groupId>org.apache.commons</groupId>
-	      <artifactId>commons-compress</artifactId>
-	    </dependency>
-	    
-	    <dependency>
-	       <groupId>com.drewnoakes</groupId>
-	       <artifactId>metadata-extractor</artifactId>
-	       <version>2.6.2</version>
-	    </dependency>
-	    
-	    <dependency>
-	      <groupId>org.apache.pdfbox</groupId>
-	      <artifactId>pdfbox</artifactId>
-	      <version>1.7.1</version>
-	    </dependency>
-	    
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>${poi.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>stax</groupId>
+					<artifactId>stax-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.8.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.drewnoakes</groupId>
+			<artifactId>metadata-extractor</artifactId>
+			<version>2.6.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>1.8.6</version>
+		</dependency>
+
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
 			<artifactId>catalog-core-api-impl</artifactId>

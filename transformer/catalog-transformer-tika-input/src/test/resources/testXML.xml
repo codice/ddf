@@ -1,0 +1,44 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<oaidc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oaidc="http://www.openarchives.org/OAI/2.0/oai_dc/">
+
+	<dc:title>Test Document</dc:title>
+
+	<dc:creator>John Smith</dc:creator>
+
+	<dc:subject>Java</dc:subject>
+
+	<dc:subject>XML</dc:subject>
+
+	<dc:subject>XSLT</dc:subject>
+
+	<dc:subject>JDOM</dc:subject>
+ 
+	<dc:subject>Indexation</dc:subject>
+
+	<dc:description>Test Description</dc:description>
+
+	<dc:identifier>http://www.codice.com</dc:identifier>
+
+	<dc:date>2000-12-01T00:00:00.000Z</dc:date>
+
+	<dc:type>test</dc:type>
+
+	<dc:format>application/msword</dc:format>
+
+	<dc:language>En</dc:language>
+
+	<dc:rights>Codice</dc:rights>	
+
+</oaidc:dc>

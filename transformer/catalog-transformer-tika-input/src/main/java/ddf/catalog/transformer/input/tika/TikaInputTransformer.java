@@ -20,17 +20,20 @@ import java.net.URI;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.sax.BodyContentHandler;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.sax.ToXMLContentHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -44,70 +47,107 @@ public class TikaInputTransformer implements InputTransformer {
         return transform(input, null);
     }
 
-    @Override
-    public Metacard transform(InputStream input, String uri) throws IOException,
-        CatalogTransformerException {
-        if (input == null) {
-            throw new CatalogTransformerException("Cannot transform null input.");
-        }
+	@Override
+	public Metacard transform(InputStream input, String uri)
+			throws IOException, CatalogTransformerException {
+		
+		LOGGER.debug("Transforming input stream using Tika.");
 
-        MetacardImpl metacard = new MetacardImpl(BasicTypes.BASIC_METACARD);
-
-        Metadata metadata = new Metadata();
-        ContentHandler handler = new BodyContentHandler();
-        AutoDetectParser parser = new AutoDetectParser();
-
-        try {
-            parser.parse(input, handler, metadata);
-            String title = metadata.get(TikaCoreProperties.TITLE);
-            LOGGER.debug("Title: {}", title);
-            LOGGER.debug("Creator: {}", metadata.get(TikaCoreProperties.CREATOR));
-            LOGGER.debug("Author: {}", metadata.get(Metadata.AUTHOR));
-            LOGGER.debug("Creation Date: {}", metadata.get(TikaCoreProperties.CREATED));
-            LOGGER.debug("Modified Date: {}", metadata.get(TikaCoreProperties.MODIFIED));
-            LOGGER.debug("Content Type: {}", metadata.get(Metadata.CONTENT_TYPE));
-            // LOGGER.debug("content: {}", handler);
-            // int count = 1;
-            // for (String stringMetadata : metadata.names())
-            // {
-            // LOGGER.debug("Metadata " + count + " ----> name : "
-            // + stringMetadata + "&nbsp; value : " + metadata.get(stringMetadata));
-            // count++;
-            // }
-
-            // mc.setMetadata(convertNodeToString(getDocument(jaxbDoc)));
-            if (StringUtils.isEmpty(title)) {
-                title = "<No title provided>";
-            }
-            metacard.setTitle(title);
-
-            Date date = javax.xml.bind.DatatypeConverter.parseDateTime(
-                    metadata.get(TikaCoreProperties.CREATED)).getTime();
-            metacard.setCreatedDate(date);
-
-            date = javax.xml.bind.DatatypeConverter.parseDateTime(
-                    metadata.get(TikaCoreProperties.MODIFIED)).getTime();
-            metacard.setModifiedDate(date);
-
-            // metacard.setExpirationDate(getExpirationDate(resource));
-            // metacard.setEffectiveDate(getEffectiveDate(resource));
-            // metacard.setLocation(getLocation(resource));
-            // metacard.setSourceId(getSourceId());
-            // metacard.setResourceSize(getResourceSize(resource));
-            if (uri != null) {
-                metacard.setResourceURI(URI.create(uri));
-            } else {
-                metacard.setResourceURI(null);
-            }
-        } catch (SAXException e) {
-            LOGGER.warn("SAX exception parsing metacard", e);
-            throw new CatalogTransformerException(e);
+		if (input == null) {
+			throw new CatalogTransformerException(
+					"Cannot transform null input.");
+		}
+	
+		Parser parser = new AutoDetectParser();
+		Metadata metadata = new Metadata();
+		ToXMLContentHandler xmlHandler = new ToXMLContentHandler();
+		
+		try {
+			parser.parse(input, xmlHandler, metadata, new ParseContext());
+        
+		} catch (SAXException e) {
+            throw new CatalogTransformerException("SAX exception processing input.", e);
         } catch (TikaException e) {
-            LOGGER.warn("Tika exception parsing metacard", e);
-            throw new CatalogTransformerException(e);
+            throw new CatalogTransformerException("Tika exception processing input.", e);
         }
+		
+		Metacard metacard = createMetacard(metadata, uri, xmlHandler.toString());
+		
+		LOGGER.debug("Finished transforming input stream using Tika.");
+		return metacard;
+	}
+    
+	private Metacard createMetacard(Metadata metadata, String uri, String metacardMetadata) {
+		Metacard metacard = new MetacardImpl(BasicTypes.BASIC_METACARD);
+		
+		String contentType = metadata.get(Metadata.CONTENT_TYPE);
+		if(StringUtils.isNotBlank(contentType)) {
+			metacard.setAttribute(new AttributeImpl(Metacard.CONTENT_TYPE, contentType));
+		}
+		
+		String title = metadata.get(TikaCoreProperties.TITLE);
 
-        return metacard;
+		if (StringUtils.isNotBlank(title)) {
+			metacard.setAttribute(new AttributeImpl(Metacard.TITLE, title));
+		}
+		
+		String createdDateStr = metadata.get(TikaCoreProperties.CREATED);
+		Date createdDate = convertDate(createdDateStr);
+		if (createdDate != null) {
+			metacard.setAttribute(new AttributeImpl(Metacard.CREATED,
+					createdDate));
+		}
+
+		String modifiedDateStr = metadata.get(TikaCoreProperties.MODIFIED);
+		Date modifiedDate = convertDate(modifiedDateStr);
+		if (modifiedDate != null) {
+			metacard.setAttribute(new AttributeImpl(Metacard.MODIFIED,
+					modifiedDate));
+		}
+		
+		if (StringUtils.isNotBlank(uri)) {
+			metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, URI.create(uri)));
+		} else {
+			metacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, null));
+		}
+		
+		if(StringUtils.isNotBlank(metacardMetadata)) {
+			metacard.setAttribute(new AttributeImpl(Metacard.METADATA, metacardMetadata));
+		}
+		
+		String lat = metadata.get(Metadata.LATITUDE);
+		String lon = metadata.get(Metadata.LONGITUDE);
+		String wkt = toWkt(lon, lat);
+		
+		if(StringUtils.isNotBlank(wkt)) {
+			metacard.setAttribute(new AttributeImpl(Metacard.GEOGRAPHY, wkt));
+		}
+		
+		return metacard;
+	}
+    
+    private String toWkt(String lon, String lat) {
+    	
+    	if(StringUtils.isBlank(lon) || StringUtils.isBlank(lat)) {
+    		return null;
+    	}
+    	
+    	StringBuilder wkt = new StringBuilder();
+    	wkt.append("POINT(");
+    	wkt.append(lon);
+    	wkt.append(" ");
+    	wkt.append(lat);
+    	wkt.append(")");
+    	LOGGER.debug("wkt: {} ", wkt.toString());
+    	return wkt.toString();
     }
-
+    
+	private Date convertDate(String dateStr) {
+		if (StringUtils.isBlank(dateStr)) {
+			return null;
+		}
+		Date date = javax.xml.bind.DatatypeConverter.parseDateTime(dateStr)
+				.getTime();
+		return date;
+	}
 }

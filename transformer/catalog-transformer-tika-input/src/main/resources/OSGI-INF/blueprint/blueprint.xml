@@ -20,33 +20,296 @@
     custom, more specific transformers have been used, 
     -->
 	<service interface="ddf.catalog.transform.InputTransformer" ranking="-1">
-	
-		<service-properties>
-			<entry key="shortname" value="" />
-			<entry key="id" value="" />
-			<entry key="title" value="Tika Input Transformer" />
-			<entry key="description" value="Default Input Transformer for all mime types." />
-			<entry key="mime-type">
-			   <list>
-			      <value>application/pdf</value>
-			      
-			      <value>application/vnd.openxmlformats-officedocument.wordprocessingml.document</value>
-			      <value>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</value>
-			      
-			      <!-- PowerPoint -->
-			      <value>application/vnd.openxmlformats-officedocument.presentationml.presentation</value>
-			      <value>application/vnd.openxmlformats-officedocument.presentationml.presentation</value>
-                  <value>application/vnd.ms-powerpoint.presentation.macroenabled.12</value>
-                  <value>application/vnd.ms-powerpoint.slideshow.macroenabled.12</value>
-                  <value>application/vnd.openxmlformats-officedocument.presentationml.slideshow</value>
-                  <value>application/vnd.ms-powerpoint.template.macroenabled.12</value>
-                  
-                  <!-- OpenOffice -->
-                  <value>application/vnd.oasis.opendocument.text</value>
-			   </list>
-			</entry>
-			
-		</service-properties>
+
+	<service-properties>
+		<entry key="shortname" value="" />
+		<entry key="id" value="" />
+		<entry key="title" value="Tika Input Transformer" />
+		<entry key="description" value="Default Input Transformer for all mime types." />
+		<entry key="mime-type">
+			<list>
+				<value>application/java-vm</value>
+				<value>application/x-tika-java-web-archive</value>
+
+				<value>audio/x-wav</value>
+				<value>audio/x-aiff</value>
+				<value>audio/basic</value>
+				<value>application/x-midi</value>
+				<value>audio/midi</value>
+				<value>audio/x-oggpcm</value>
+				<value>audio/ogg</value>
+				<value>audio/mpeg</value>
+				<value>audio/mp4</value>
+				<value>audio/x-oggflac</value>
+				<value>audio/x-flac</value>
+				<value>audio/opus</value>
+				<value>audio/ogg; codecs=opus</value>
+				<value>audio/speex</value>
+				<value>audio/ogg; codecs=speex</value>
+				<value>audio/vorbis</value>
+				<value>audio/amr</value>
+
+				<value>application/vnd.ms-htmlhelp</value>
+				<value>application/chm</value>
+				<value>application/x-chm</value>
+
+				<value>application/pkcs7-signature</value>
+				<value>application/pkcs7-mime</value>
+
+				<value>text/x-java-source</value>
+				<value>text/x-c++src</value>
+				<value>text/x-groovy</value>
+
+				<value>image/jpeg</value>
+				<value>image/tiff</value>
+				<value>image/x-ms-bmp</value>
+				<value>image/gif</value>
+				<value>image/png</value>
+				<value>image/x-icon</value>
+				<value>image/vnd.wap.wbmp</value>
+				<value>image/x-xcf</value>
+				<value>image/vnd.dwg</value>
+				<value>image/svg+xml</value>
+
+				<value>application/x-ibooks+zip</value>
+				<value>application/epub+zip</value>
+
+				<value>application/x-elf</value>
+				<value>application/x-sharedlib</value>
+				<value>application/x-executable</value>
+				<value>application/x-msdownload</value>
+				<value>application/x-coredump</value>
+				<value>application/x-object</value>
+
+				<value>application/atom+xml</value>
+				<value>application/rss+xml</value>
+
+				<value>application/x-font-adobe-metric</value>
+				<value>application/x-font-ttf</value>
+
+				<value>application/x-hdf</value>
+
+				<value>application/x-asp</value>
+				<value>application/xhtml+xml</value>
+				<value>application/vnd.wap.xhtml+xml</value>
+				<value>text/html</value>
+
+				<value>image/vnd.adobe.photoshop</value>
+
+
+				<value>text/vnd.iptc.anpa</value>
+
+				<value>application/vnd.apple.iwork</value>
+				<value>application/vnd.apple.numbers</value>
+				<value>application/vnd.apple.keynote</value>
+				<value>application/vnd.apple.pages</value>
+
+				<value>message/rfc822</value>
+
+				<value>application/x-matlab-data</value>
+
+				<value>application/mbox</value>
+				<value>application/vnd.ms-outlook-pst</value>
+
+				<value>application/x-mspublisher</value>
+				<value>application/x-tika-msoffice</value>
+				<value>application/vnd.ms-excel</value>
+				<value>application/sldworks</value>
+				<value>application/x-tika-msworks-spreadsheet</value>
+				<value>application/vnd.ms-powerpoint</value>
+				<value>application/x-tika-msoffice-embedded; format=ole10_native</value>
+				<value>application/vnd.ms-project</value>
+				<value>application/x-tika-ooxml-protected</value>
+				<value>application/msword</value>
+				<value>application/vnd.ms-outlook</value>
+				<value>application/vnd.visio</value>
+				<value>application/x-tnef</value>
+				<value>application/ms-tnef</value>
+				<value>application/vnd.ms-tnef</value>
+				<value>application/vnd.ms-excel.sheet.macroenabled.12</value>
+				<value>application/vnd.ms-powerpoint.presentation.macroenabled.12</value>
+				<value>application/vnd.openxmlformats-officedocument.spreadsheetml.template</value>
+				<value>application/vnd.openxmlformats-officedocument.wordprocessingml.document</value>
+				<value>application/vnd.openxmlformats-officedocument.presentationml.template</value>
+				<value>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</value>
+				<value>application/vnd.openxmlformats-officedocument.presentationml.presentation</value>
+				<value>application/vnd.ms-excel.addin.macroenabled.12</value>
+				<value>application/vnd.ms-word.document.macroenabled.12</value>
+				<value>application/vnd.ms-excel.template.macroenabled.12</value>
+				<value>application/vnd.openxmlformats-officedocument.wordprocessingml.template</value>
+				<value>application/vnd.ms-powerpoint.slideshow.macroenabled.12</value>
+				<value>application/vnd.ms-powerpoint.addin.macroenabled.12</value>
+				<value>application/vnd.ms-word.template.macroenabled.12</value>
+
+				<value>video/3gpp2</value>
+				<value>video/mp4</value>
+				<value>video/quicktime</value>
+				<value>application/mp4</value>
+				<value>video/x-m4v</value>
+				<value>video/3gpp</value>
+				<value>video/x-flv</value>
+				<value>video/x-oggyuv</value>
+				<value>video/x-dirac</value>
+				<value>video/x-ogm</value>
+				<value>video/x-ogguvs</value>
+				<value>video/theora</value>
+				<value>video/x-oggrgb</value>
+				<value>video/ogg</value>
+				<value>video/webm</value>
+
+				<value>application/x-netcdf</value>
+
+				<value>application/x-vnd.oasis.opendocument.graphics-template</value>
+				<value>application/vnd.sun.xml.writer</value>
+				<value>application/x-vnd.oasis.opendocument.text</value>
+				<value>application/x-vnd.oasis.opendocument.text-web</value>
+				<value>application/x-vnd.oasis.opendocument.spreadsheet-template</value>
+				<value>application/vnd.oasis.opendocument.formula-template</value>
+				<value>application/vnd.oasis.opendocument.presentation</value>
+				<value>application/vnd.oasis.opendocument.image-template</value>
+				<value>application/x-vnd.oasis.opendocument.graphics</value>
+				<value>application/vnd.oasis.opendocument.chart-template</value>
+				<value>application/vnd.oasis.opendocument.presentation-template</value>
+				<value>application/x-vnd.oasis.opendocument.image-template</value>
+				<value>application/vnd.oasis.opendocument.formula</value>
+				<value>application/x-vnd.oasis.opendocument.image</value>
+				<value>application/vnd.oasis.opendocument.spreadsheet-template</value>
+				<value>application/x-vnd.oasis.opendocument.chart-template</value>
+				<value>application/x-vnd.oasis.opendocument.formula</value>
+				<value>application/x-vnd.oasis.opendocument.image</value>
+				<value>application/vnd.oasis.opendocument.spreadsheet-template</value>
+				<value>application/x-vnd.oasis.opendocument.chart-template</value>
+				<value>application/x-vnd.oasis.opendocument.formula</value>
+				<value>application/vnd.oasis.opendocument.spreadsheet</value>
+				<value>application/vnd.oasis.opendocument.text-web</value>
+				<value>application/vnd.oasis.opendocument.text-template</value>
+				<value>application/vnd.oasis.opendocument.text</value>
+				<value>application/x-vnd.oasis.opendocument.formula-template</value>
+				<value>application/x-vnd.oasis.opendocument.spreadsheet</value>
+				<value>application/x-vnd.oasis.opendocument.chart</value>
+				<value>application/vnd.oasis.opendocument.text-master</value>
+				<value>application/x-vnd.oasis.opendocument.text-master</value>
+				<value>application/x-vnd.oasis.opendocument.text-template</value>
+				<value>application/vnd.oasis.opendocument.graphics</value>
+				<value>application/vnd.oasis.opendocument.graphics-template</value>
+				<value>application/x-vnd.oasis.opendocument.presentation</value>
+				<value>application/vnd.oasis.opendocument.image</value>
+				<value>application/x-vnd.oasis.opendocument.presentation-template</value>
+				<value>application/vnd.oasis.opendocument.chart</value>
+				<value>application/vnd.stardivision.calc</value>
+				<value>application/vnd.stardivision.draw</value>
+				<value>application/vnd.stardivision.impress</value>
+				<value>application/vnd.stardivision.writer</value>
+				<value>application/x-staroffice-template</value>
+				<value>application/x-vnd.oasis.opendocument.text</value>
+				<value>application/x-vnd.oasis.opendocument.text-web</value>
+				<value>application/x-vnd.oasis.opendocument.spreadsheet-template</value>
+				<value>application/vnd.oasis.opendocument.formula-template</value>
+				<value>application/vnd.oasis.opendocument.presentation</value>
+				<value>application/vnd.oasis.opendocument.image-template</value>
+				<value>application/x-vnd.oasis.opendocument.graphics</value>
+				<value>application/vnd.oasis.opendocument.chart-template</value>
+				<value>application/vnd.oasis.opendocument.presentation-template</value>
+				<value>application/x-vnd.oasis.opendocument.image-template</value>
+				<value>application/vnd.oasis.opendocument.formula</value>
+				<value>application/x-vnd.oasis.opendocument.image</value>
+				<value>application/vnd.oasis.opendocument.spreadsheet-template</value>
+				<value>application/x-vnd.oasis.opendocument.chart-template</value>
+				<value>application/x-vnd.oasis.opendocument.formula</value>
+				<value>application/x-vnd.oasis.opendocument.image</value>
+				<value>application/vnd.oasis.opendocument.spreadsheet-template</value>
+				<value>application/x-vnd.oasis.opendocument.chart-template</value>
+				<value>application/x-vnd.oasis.opendocument.formula</value>
+				<value>application/vnd.oasis.opendocument.spreadsheet</value>
+				<value>application/vnd.oasis.opendocument.text-web</value>
+				<value>application/vnd.oasis.opendocument.text-template</value>
+				<value>application/vnd.oasis.opendocument.text</value>
+				<value>application/x-vnd.oasis.opendocument.formula-template</value>
+				<value>application/x-vnd.oasis.opendocument.spreadsheet</value>
+				<value>application/x-vnd.oasis.opendocument.chart</value>
+				<value>application/vnd.oasis.opendocument.text-master</value>
+				<value>application/x-vnd.oasis.opendocument.text-master</value>
+				<value>application/x-vnd.oasis.opendocument.text-template</value>
+				<value>application/vnd.oasis.opendocument.graphics</value>
+				<value>application/vnd.oasis.opendocument.graphics-template</value>
+				<value>application/x-vnd.oasis.opendocument.presentation</value>
+				<value>application/vnd.oasis.opendocument.image</value>
+				<value>application/x-vnd.oasis.opendocument.presentation-template</value>
+				<value>application/vnd.oasis.opendocument.chart</value>
+				<value>application/x-tika-ooxml</value>
+				<value>application/vnd.openxmlformats-officedocument.presentationml.slideshow</value>
+				<value>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</value>
+
+				<value>application/pdf</value>
+
+				<value>application/x-bzip</value>
+				<value>application/x-bzip2</value>
+				<value>application/gzip</value>
+				<value>application/x-gzip</value>
+				<value>application/x-xz</value>
+
+				<value>application/x-tar</value>
+				<value>application/x-tika-unix-dump</value>
+				<value>application/java-archive</value>
+				<value>application/x-7z-compressed</value>
+				<value>application/x-archive</value>
+				<value>application/x-cpio</value>
+				<value>application/zip</value>
+
+				<value>application/rtf</value>
+
+				<value>text/plain</value>
+
+				<value>application/xml</value>
+				<value>application/x-fictionbook+xml</value>
+
+				<value>application/kate</value>
+				<value>application/ogg</value>
+
+				<value>application/octet-stream</value>
+				<value>application/x-dosexec</value>
+
+				<value>application/x-webarchive</value>
+				<value>audio/x-ms-wma</value>
+				<value>application/x-msmetafile</value>
+				<value>video/x-ms-wmv</value>
+				<value>application/vnd.ms-works</value>
+				<value>application/x-rar-compressed</value>
+				<value>application/x-shockwave-flash</value>
+				<value>application/x-msaccess</value>
+				<value>application/vnd.android.package-archive</value>
+				<value>video/x-ms-asf</value>
+				<value>text/x-csrc</value>
+				<value>application/x-prt</value>
+				<value>application/x-corelpresentations</value>
+				<value>text/csv</value>
+				<value>text/css</value>
+				<value>application/dita+xml</value>
+				<value>application/x-emf</value>
+				<value>message/x-emlx</value>
+				<value>application/vnd.ms-excel.sheet.binary.macroenabled.12</value>
+				<value>application/fits</value>
+				<value>application/vnd.previewsystems.box</value>
+				<value>application/x-adobe-indesign</value>
+				<value>application/javascript</value>
+				<value>application/vnd.google-earth.kml+xml</value>
+				<value>application/vnd.google-earth.kmz</value>
+				<value>image/x-portable-bitmap</value>
+				<value>image/x-portable-graymap</value>
+				<value>image/x-pict</value>
+				<value>image/x-portable-pixmap</value>
+				<value>application/vnd.ms-powerpoint.template.macroenabled.12</value>
+				<value>application/vnd.ms-xpsdocument</value>
+				<value>application/x-quattro-pro</value>
+				<value>application/rdf+xml</value>
+				<value>application/x-tika-java-enterprise-archive</value>
+				<value>application/x-itunes-ipa</value>
+				<value>video/x-matroska</value>
+				<value>application/x-axcrypt</value>
+			</list>
+		</entry>
+
+	</service-properties>
 
 		<bean class="ddf.catalog.transformer.input.tika.TikaInputTransformer" />
 
