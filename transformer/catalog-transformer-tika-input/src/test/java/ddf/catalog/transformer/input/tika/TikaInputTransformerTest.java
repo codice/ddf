@@ -122,7 +122,7 @@ public class TikaInputTransformerTest {
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
         assertThat(metacard.getMetadata(), containsString("this is a comment"));
-        assertThat(metacard.getContentTypeName(), is("text/plain; charset=windows-1252"));
+        assertThat(metacard.getContentTypeName(), is("text/plain; charset=ISO-8859-1"));
     }
 
     @Test
