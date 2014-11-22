@@ -14,6 +14,47 @@
  **/
 package ddf.catalog.source.opensearch;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.ws.rs.client.ClientException;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.xml.namespace.QName;
+import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPathFactory;
+
+import org.apache.abdera.Abdera;
+import org.apache.abdera.ext.opensearch.OpenSearchConstants;
+import org.apache.abdera.model.Category;
+import org.apache.abdera.model.Element;
+import org.apache.abdera.model.Entry;
+import org.apache.abdera.model.Feed;
+import org.apache.abdera.parser.Parser;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.geotools.filter.FilterTransformer;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -41,54 +82,6 @@ import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.encryption.EncryptionService;
-import org.apache.abdera.Abdera;
-import org.apache.abdera.ext.opensearch.OpenSearchConstants;
-import org.apache.abdera.model.Category;
-import org.apache.abdera.model.Element;
-import org.apache.abdera.model.Entry;
-import org.apache.abdera.model.Feed;
-import org.apache.abdera.parser.Parser;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.client.Client;
-import org.apache.cxf.jaxrs.client.ClientConfiguration;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
-import org.geotools.filter.FilterTransformer;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.ws.rs.client.ClientException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import javax.xml.namespace.QName;
-import javax.xml.transform.TransformerException;
-import javax.xml.xpath.XPathFactory;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Federated site that talks via OpenSearch to the DDF platform. Communication is usually performed
@@ -119,10 +112,6 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
     private String endpointUrl;
 
-    private String classification = "U";
-
-    private String ownerProducer = "USA";
-
     private InputTransformer inputTransformer;
 
     private static final String ORGANIZATION = "DDF";
@@ -132,8 +121,6 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     private static final String DESCRIPTION = "Queries DDF using the synchronous federated OpenSearch query";
 
     private static final long AVAILABLE_TIMEOUT_CHECK = 60000; // 60 seconds, in milliseconds
-
-    private static final String DEFAULT_SITE_SECURITY_NAME = "ddf.DefaultSiteSecurity";
 
     private static final String URL_SRC_PARAMETER = "src";
 
@@ -152,10 +139,6 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     private static final String BYTES_EQUAL = "bytes=";
 
     private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(OpenSearchSource.class));
-
-    private javax.xml.xpath.XPath xpath;
-
-    private Configuration siteSecurityConfig;
 
     private FilterAdapter filterAdapter;
 
@@ -192,9 +175,6 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
      */
     public OpenSearchSource(FilterAdapter filterAdapter) {
         this.filterAdapter = filterAdapter;
-
-        XPathFactory xpFactory = XPathFactory.newInstance();
-        xpath = xpFactory.newXPath();
     }
 
     /**
@@ -212,72 +192,6 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
     protected void configureClient() {
         openSearchConnection = new OpenSearchConnection(endpointUrl, filterAdapter, keystorePassword, keystorePath, truststorePassword, truststorePath, username, password, encryptionService);
-    }
-
-    /**
-     * Sets the context that will be used to get a reference to the ConfigurationAdmin. This allows
-     * the security settings to be obtained.
-     * 
-     * @param context
-     *            BundleContext that can retrieve a ConfigurationAdmin.
-     */
-    public void setContext(BundleContext context) {
-        try {
-            ServiceReference configAdminServiceRef = context
-                    .getServiceReference(ConfigurationAdmin.class.getName());
-            if (configAdminServiceRef != null) {
-                ConfigurationAdmin ca = (ConfigurationAdmin) context
-                        .getService(configAdminServiceRef);
-                LOGGER.debug("configuration admin obtained: {}", ca);
-                if (ca != null) {
-                    siteSecurityConfig = ca.getConfiguration(DEFAULT_SITE_SECURITY_NAME);
-                    LOGGER.debug("site security config obtained: {}", siteSecurityConfig);
-                    // updateDefaultClassification();
-                }
-            }
-        } catch (IOException ioe) {
-            LOGGER.warn("Unable to obtain the configuration admin");
-        }
-    }
-
-    private Map<String, String> updateDefaultClassification() {
-        HashMap<String, String> securityProps = new HashMap<String, String>();
-        LOGGER.debug("Assigning default classification values");
-        if (siteSecurityConfig != null) {
-            LOGGER.debug("setting properties from config admin");
-            try {
-                // siteSecurityConfig.update();
-                @SuppressWarnings("unchecked")
-                Dictionary<String, Object> propertyDictionary = (Dictionary<String, Object>) siteSecurityConfig
-                        .getProperties();
-                if (propertyDictionary != null) {
-                    Enumeration<String> propertyKeys = propertyDictionary.keys();
-                    while (propertyKeys.hasMoreElements()) {
-                        String currKey = propertyKeys.nextElement();
-                        String currValue = propertyDictionary.get(currKey).toString();
-                        securityProps.put(currKey, currValue);
-                    }
-                }
-                LOGGER.debug("security properties: {}", securityProps);
-
-            } catch (Exception e) {
-                LOGGER.warn(
-                        "Exception thrown while trying to obtain default properties.  "
-                                + "Setting all default classifications and owner/producers to U and USA respectively as a last resort.",
-                        e);
-                securityProps.clear(); // this is being cleared, so the
-                                       // "last-resort" defaults specified in
-                                       // the xsl will be used.
-
-            }
-        } else {
-            LOGGER.info("site security config is null");
-            securityProps.clear(); // this is being cleared, so the
-                                   // "last-resort" defaults specified in the
-                                   // xsl will be used.
-
-        }
-        return securityProps;
     }
 
     @Override
@@ -487,8 +401,6 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
         }
 
         Feed feed = atomDoc.getRoot();
-
-        updateDefaultClassification();
 
         List<Entry> entries = feed.getEntries();
         for (Entry entry : entries) {
@@ -713,44 +625,6 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     @Override
     public String getVersion() {
         return "2.0";
-    }
-
-    /**
-     * Sets default classification in document from server.
-     * 
-     * @param classification
-     *            default classification in string format
-     */
-    public void setClassification(String classification) {
-        this.classification = classification;
-    }
-
-    /**
-     * Get default classification.
-     * 
-     * @return default classification
-     */
-    public String getClassification() {
-        return this.classification;
-    }
-
-    /**
-     * Sets default ownerProducer in document from server.
-     * 
-     * @param ownerProducer
-     *            default ownerProducer in string format
-     */
-    public void setOwnerProducer(String ownerProducer) {
-        this.ownerProducer = ownerProducer;
-    }
-
-    /**
-     * Get default ownerProducer.
-     * 
-     * @return default ownerProducer
-     */
-    public String getOwnerProducer() {
-        return this.ownerProducer;
     }
 
     public void setInputTransformer(InputTransformer inputTransformer) {

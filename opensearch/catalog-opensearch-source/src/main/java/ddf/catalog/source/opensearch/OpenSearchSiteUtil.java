@@ -14,15 +14,11 @@
  **/
 package ddf.catalog.source.opensearch;
 
-import ddf.catalog.data.Result;
-import ddf.catalog.impl.filter.SpatialDistanceFilter;
-import ddf.catalog.impl.filter.SpatialFilter;
-import ddf.catalog.impl.filter.TemporalFilter;
-import ddf.catalog.operation.Query;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
-import org.apache.commons.io.IOUtils;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.security.Principal;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.joda.time.format.DateTimeFormatter;
@@ -32,31 +28,15 @@ import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.security.Principal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import ddf.catalog.data.Result;
+import ddf.catalog.impl.filter.SpatialDistanceFilter;
+import ddf.catalog.impl.filter.SpatialFilter;
+import ddf.catalog.impl.filter.TemporalFilter;
+import ddf.catalog.operation.Query;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
 
 /**
  * Utility helper class that performs much of the translation logic used in CddaOpenSearchSite.
@@ -102,13 +82,6 @@ public final class OpenSearchSiteUtil {
 
     // only for async searches
     public static final String START_INDEX = "start";
-
-    // xpath operations
-    public static final String XPATH_TITLE = "/ddms:Resource/ddms:title";
-
-    public static final String XPATH_ID = "/ddms:Resource/ddms:identifier[@ddms:qualifier='http://metadata.dod.mil/mdr/ns/MDR/0.1/MDR.owl#URI']/@ddms:value";
-
-    public static final String XPATH_DATE = "/ddms:Resource/ddms:dates/@ddms:posted";
 
     // geospatial constants
     public static final double LAT_DEGREE_M = 111325;
@@ -429,130 +402,6 @@ public final class OpenSearchSiteUtil {
             }
         }
         return false;
-    }
-
-    /**
-     * Takes in an atom document and translates it to a DDMS document.
-     * 
-     * @param tf
-     *            TransformerFactory - passed in to prevent multiple instances from being created
-     * @param xmlDoc
-     *            atom document
-     * @param xsltDoc
-     *            xslt document that performs the atom->ddms translation
-     * @return new DDMS document.
-     * @throws UnsupportedQueryException
-     */
-    public static Document normalizeAtomToDDMS(TransformerFactory tf, Document xmlDoc,
-            Document xsltDoc, Map<String, String> classificationProperties)
-        throws ConversionException {
-        ByteArrayOutputStream baos = null;
-        ByteArrayInputStream bais = null;
-        try {
-            Transformer transformer = tf.newTransformer(new DOMSource(xsltDoc));
-            StreamResult resultOutput = null;
-            Source source = new DOMSource(xmlDoc);
-            baos = new ByteArrayOutputStream();
-            resultOutput = new StreamResult(baos);
-            // add the arguments from the caller
-
-            // logger.debug("classification properties: {}", classificationProperties);
-            if (classificationProperties != null && !classificationProperties.isEmpty()) {
-                for (Map.Entry<String, String> entry : classificationProperties.entrySet()) {
-                    // logger.debug("parameter key: " + entry.getKey() +
-                    // " value: " + entry.getValue());
-                    String key = entry.getKey();
-                    String value = entry.getValue();
-                    if (key != null && !key.isEmpty() && value != null && !value.isEmpty()) {
-                        transformer.setParameter(key, value);
-                    } else {
-                        logger.warn("Null or empty value for parameter: {}. Value will be set to U, USA.  Moving to next parameter.", entry.getKey());
-                    }
-                }
-            } else {
-                logger.warn("All properties were null.  Using \"last-resort\" defaults: U, USA");
-                transformer.setParameter("applyDefaultSecurity", Boolean.TRUE);
-            }
-            transformer.transform(source, resultOutput);
-            bais = new ByteArrayInputStream(baos.toByteArray());
-            return convertStreamToDocument(bais);
-        } catch (TransformerConfigurationException tce) {
-            throw new ConversionException(
-                    "Error while setting up transformation from atom document to ddms, could not configure transformer: "
-                            + tce.getMessage(), tce);
-        } catch (TransformerException te) {
-            throw new ConversionException(
-                    "Error while normalizing atom document to ddms, could not configure transform: "
-                            + te.getMessage(), te);
-        } finally {
-            IOUtils.closeQuietly(bais);
-            IOUtils.closeQuietly(baos);
-        }
-    }
-
-    /**
-     * This method converts an inputstream into a document.
-     * 
-     * @param input
-     * @return
-     * @throws ConversionException
-     */
-    public static Document convertStreamToDocument(InputStream input) throws ConversionException {
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            return builder.parse(input);
-        } catch (SAXException se) {
-            throw new ConversionException("Error parsing response from server.", se);
-        } catch (ParserConfigurationException pce) {
-            throw new ConversionException("Error configuring parser for response from server.", pce);
-        } catch (IOException ioe) {
-            throw new ConversionException("Error parsing response from server.", ioe);
-        }
-    }
-
-    /**
-     * Parses the datetime string out of ddms-formatted document and returns a date object.
-     * 
-     * @param date
-     * @return
-     */
-    public static Date parseDate(String date) {
-        Date returnDate = null;
-        if (date != null && !date.isEmpty()) {
-            try {
-                DateTimeFormatter dateFormatter = ISODateTimeFormat.date();
-                returnDate = dateFormatter.parseDateTime(date).toDate();
-            } catch (IllegalArgumentException iae) {
-                logger.warn("Could not parse out updated date in response, date will not be passed back from federated site.");
-            }
-        }
-        return returnDate;
-    }
-
-    /**
-     * A little gotcha in the normalization of the messages is that it's not a guarantee that the
-     * DDMS returned will be correctly populated. To mitigate this for users, the required atom data
-     * is added as attributes to the DDMS. This operation pops these attributes out of the DDMS as
-     * they are used.
-     * 
-     * @param ddmsNode
-     *            Node to take attributes out of
-     * @param attributeName
-     *            Name of attribute
-     * @return string representation of the attribute value
-     */
-    public static String popAttribute(Node ddmsNode, String attributeName) {
-        String attribute = "";
-        Node attributeNode;
-        NamedNodeMap osAttributes = ddmsNode.getAttributes();
-        attributeNode = osAttributes.getNamedItem(attributeName);
-        if (attributeNode != null) {
-            attribute = attributeNode.getNodeValue();
-            osAttributes.removeNamedItem(attributeName);
-        }
-        return attribute;
     }
 
     /**

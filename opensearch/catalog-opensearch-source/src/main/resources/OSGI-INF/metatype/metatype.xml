@@ -53,44 +53,6 @@
 
     </OCD>
 
-    <OCD description="CDDA OpenSearch Federated Source"
-         name="Catalog CDDA Opensearch Federated Source"
-         id="CDDAOpenSearchSource">
-
-        <AD name="Source Name" id="shortname" required="true" type="String"
-            default="CDDA-OS"/>
-
-        <AD name="OpenSearch service URL" id="endpointUrl" required="true"
-            type="String"
-            default="http://example.com"
-            description="The OpenSearch endpoint URL or DDF's OpenSearch endpoint (http://0.0.0.0:8181/services/catalog/query)"/>
-
-        <AD name="Username" id="username" required="false"
-            type="String"
-            default=""
-            description="Username to use with HTTP Basic Authentication. Only set this if the OpenSearch endpoint requires basic authentication."/>
-
-        <AD name="Password" id="password" required="false"
-            type="Password"
-            default=""
-            description="Password to use with HTTP Basic Authentication. Only set this if the OpenSearch endpoint requires basic authentication."/>
-
-        <AD name="OpenSearch query parameters" id="parameters" required="true"
-            type="String"
-            default="q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"
-            cardinality="100"
-            description="Query parameters to use with the OpenSearch connection."/>
-
-        <AD name="Always perform local query." id="localQueryOnly" required="true"
-            type="Boolean" default="false"
-            description="Always performs a local query by setting src=local OpenSearch parameter in endpoint URL. This must be set if federating to another DDF."/>
-
-        <AD name="Convert to BBox" id="shouldConvertToBBox" required="true"
-            type="Boolean" default="true"
-            description="Converts Polygon and Point-Radius searches to a Bounding Box for compatability with older interfaces. Generated bounding box is a very rough representation of the input geometry."/>
-
-    </OCD>
-
     <!--
         Due to documented bug in Apache Felix (FELIX-1865) where 2 configurations are listed in web admin console by the metatype
         mechanism, one with the Designate PID and its properties (correct) and the other with the OCD PID and no properties (incorrect).
@@ -102,7 +64,4 @@
         <Object ocdref="OpenSearchSource"/>
     </Designate>
 
-    <Designate pid="CDDAOpenSearchSource" factoryPid="CDDAOpenSearchSource">
-        <Object ocdref="CDDAOpenSearchSource"/>
-    </Designate>
 </metatype:MetaData>
