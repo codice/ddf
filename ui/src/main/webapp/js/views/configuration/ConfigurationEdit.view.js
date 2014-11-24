@@ -218,6 +218,8 @@ define([
         bind: function() {
             var view = this;
             var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
+            //this is done so that model binder wont watch these values. We need to handle this ourselves.
+            delete bindings.value;
             var bindObjs = _.values(bindings);
             _.each(bindObjs, function(value) {
                 if(view.$(value.selector).attr('type') === 'checkbox') {
