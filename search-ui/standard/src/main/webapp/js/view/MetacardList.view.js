@@ -378,7 +378,7 @@ define([
                 });
             },
             saveSelectedRecords: function() {
-                var records = this.model.get('results').where({'metacard.selectedForSave': true});
+                var records = this.model.get('results').where({'metacard>selectedForSave': true});
                 if(records && records.length) {
                     _.each(records, function (record) {
                         record.unset('metacard.selectedForSave');
