@@ -25,9 +25,15 @@ import java.net.URL;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.HttpClient;
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.request.CoreAdminRequest;
+import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.apache.solr.core.CoreContainer;
 import org.apache.solr.core.CoreDescriptor;
 import org.apache.solr.core.SolrConfig;
@@ -77,6 +83,24 @@ public final class SolrServerFactory {
     public static SolrServer getHttpSolrServer(String url) {
 
         return new HttpSolrServer(url);
+    }
+
+    public static SolrServer getHttpSolrServer(String url, String coreName) {
+        return getHttpSolrServer(url, coreName, null, null);
+    }
+
+    public static SolrServer getHttpSolrServer(String url, String coreName, String configFile) {
+        return getHttpSolrServer(url, coreName, configFile, null);
+    }
+
+    public static SolrServer getHttpSolrServer(String url, String coreName, String configFile, HttpClient client) {
+        createSolrCore(url, coreName, configFile);
+
+        if(client == null) {
+            return new HttpSolrServer(url + "/" + coreName);
+        } else {
+            return new HttpSolrServer(url + "/" + coreName, client);
+        }
     }
 
     /**
@@ -179,6 +203,49 @@ public final class SolrServerFactory {
             LOGGER.warn("URI exception loading configuration file", e);
         }
         return result;
+    }
+
+    private static void createSolrCore(String url, String coreName, String configFileName) {
+        HttpSolrServer solrServer = new HttpSolrServer(url);
+        if (!solrCoreExists(solrServer, coreName)) {
+            LOGGER.info("Creating Solr core {}", coreName);
+
+            String instanceDir = System.getProperty("karaf.home") + "/data/solr/" + coreName;
+            String configFile = StringUtils.defaultIfBlank(configFileName, "solrconfig.xml");
+            String schemaFile = "schema.xml";
+
+            try {
+                CoreAdminRequest
+                        .createCore(coreName, instanceDir, solrServer, configFile,
+                                schemaFile);
+            } catch (SolrServerException e) {
+                LOGGER.error("SolrServerException creating " + coreName + " core", e);
+            } catch (IOException e) {
+                LOGGER.error("IOException creating " + coreName + " core", e);
+            }
+        } else {
+            LOGGER.info("Solr core {} already exists - just reload it", coreName);
+            try {
+                CoreAdminRequest.reloadCore(coreName, solrServer);
+            } catch (SolrServerException e) {
+                LOGGER.error("SolrServerException reloading " + coreName + " core", e);
+            } catch (IOException e) {
+                LOGGER.error("IOException reloading " + coreName + " core", e);
+            }
+        }
+    }
+
+    private static boolean solrCoreExists(SolrServer solrServer, String coreName) {
+        try {
+            CoreAdminResponse response = CoreAdminRequest.getStatus(coreName, solrServer);
+            return response.getCoreStatus(coreName).get("instanceDir") != null;
+        } catch (SolrServerException e) {
+            LOGGER.info("SolrServerException getting " + coreName + " core status", e);
+            return false;
+        } catch (IOException e) {
+            LOGGER.info("IOException getting " + coreName + " core status", e);
+            return false;
+        }
     }
 
 }

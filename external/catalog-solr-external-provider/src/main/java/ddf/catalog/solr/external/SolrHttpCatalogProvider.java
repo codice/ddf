@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.solr.external;
 
@@ -32,18 +32,16 @@ import ddf.catalog.source.solr.ConfigurationStore;
 import ddf.catalog.source.solr.DynamicSchemaResolver;
 import ddf.catalog.source.solr.SolrCatalogProvider;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
+import ddf.catalog.source.solr.SolrServerFactory;
 import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.encryption.EncryptionService;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.slf4j.Logger;
@@ -52,7 +50,6 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -66,7 +63,6 @@ import java.util.Set;
 
 /**
  * Catalog Provider that interfaces with a Standalone external (HTTP) Solr Server
- * 
  */
 public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProvider,
         ConfigurationWatcher {
@@ -76,6 +72,8 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
     private static final String OK_STATUS = "OK";
 
     private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
+
+    private static final String SOLR_CATALOG_CORE_NAME = "catalog";
 
     private static final String DEFAULT_SOLR_URL = "http://localhost:8181/solr";
 
@@ -101,6 +99,8 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrHttpCatalogProvider.class);
 
+    private static final String SOLR_CATALOG_CONFIG_FILE = "solrCatalogConfig.xml";
+
     private static Properties describableProperties = new Properties();
 
     static {
@@ -115,10 +115,9 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     /**
      * Simple constructor
-     * 
+     *
      * @param filterAdapter
-     * @param server
-     *            - {@link SolrServer} to handle requests
+     * @param server        - {@link SolrServer} to handle requests
      */
     public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrServer server,
             SolrFilterDelegateFactory solrFilterDelegateFactory, DynamicSchemaResolver resolver) {
@@ -137,7 +136,10 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrFilterDelegateFactory
             solrFilterDelegateFactory) {
-        this(filterAdapter, new HttpSolrServer(SolrHttpCatalogProvider.getSolrUrl()),
+        this(filterAdapter, SolrServerFactory
+                        .getHttpSolrServer(SolrHttpCatalogProvider.getSolrUrl(),
+                                SOLR_CATALOG_CORE_NAME,
+                                SOLR_CATALOG_CONFIG_FILE),
                 solrFilterDelegateFactory, null);
     }
 
@@ -160,20 +162,20 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
     }
 
     /**
-	 * Used to signal to the Solr server to commit on every transaction. Updates
-	 * the underlying ConfigurationStore so that the property is propagated
-	 * throughout the Solr Catalog Provider code
-	 * 
-	 * @param forceAutoCommit
-	 */
+     * Used to signal to the Solr server to commit on every transaction. Updates
+     * the underlying ConfigurationStore so that the property is propagated
+     * throughout the Solr Catalog Provider code
+     *
+     * @param forceAutoCommit
+     */
     public void setForceAutoCommit(boolean forceAutoCommit) {
         ConfigurationStore.getInstance().setForceAutoCommit(forceAutoCommit);
     }
 
     public void setDisableTextPath(boolean disableTextPath) {
-    	ConfigurationStore.getInstance().setDisableTextPath(disableTextPath);
+        ConfigurationStore.getInstance().setDisableTextPath(disableTextPath);
     }
-    
+
     @Override
     public Set<ContentType> getContentTypes() {
         return getProvider().getContentTypes();
@@ -247,7 +249,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
      * This method exists only as a workaround to a Aries Blueprint bug. If Blueprint is upgraded or
      * fixed, this method should be removed and a different update(Map properties) method should be
      * called directly.
-     * 
+     *
      * @param url
      */
     public void setUrl(String url) {
@@ -260,10 +262,8 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     /**
      * Updates the configuration of the Solr Server if necessary
-     * 
-     * @param urlValue
-     *            - url to the Solr Server
-     * 
+     *
+     * @param urlValue - url to the Solr Server
      */
     public void updateServer(String urlValue) {
         updateServer(urlValue, false);
@@ -277,7 +277,8 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
                 url = urlValue.trim();
 
                 if (server != null) {
-                    LOGGER.info("Shutting down the connection manager to the Solr Server and releasing allocated resources.");
+                    LOGGER.info(
+                            "Shutting down the connection manager to the Solr Server and releasing allocated resources.");
                     server.shutdown();
                     LOGGER.info("Shutdown complete.");
                 }
@@ -286,9 +287,11 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
                         && StringUtils.isNotBlank(truststorePass)
                         && StringUtils.isNotBlank(keystoreLoc)
                         && StringUtils.isNotBlank(keystorePass)) {
-                    server = new HttpSolrServer(url, getHttpClient());
+                    server = SolrServerFactory.getHttpSolrServer(url, SOLR_CATALOG_CORE_NAME,
+                            SOLR_CATALOG_CONFIG_FILE, getHttpClient());
                 } else {
-                    server = new HttpSolrServer(url);
+                    server = SolrServerFactory.getHttpSolrServer(url, SOLR_CATALOG_CORE_NAME,
+                            SOLR_CATALOG_CONFIG_FILE);
                 }
 
                 firstUse = true;
@@ -427,7 +430,8 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
                 this.keystorePass = keystorePassword;
                 keystoresUpdated = true;
             } else {
-                LOGGER.debug("Keystore file does not exist at location {}, not updating keystore values.");
+                LOGGER.debug(
+                        "Keystore file does not exist at location {}, not updating keystore values.");
             }
         }
         if (StringUtils.isNotBlank(truststoreLocation)
@@ -439,7 +443,8 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
                 this.truststorePass = truststorePassword;
                 keystoresUpdated = true;
             } else {
-                LOGGER.debug("Truststore file does not exist at location {}, not updating truststore values.");
+                LOGGER.debug(
+                        "Truststore file does not exist at location {}, not updating truststore values.");
             }
         }
 
@@ -453,10 +458,9 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
      * This class is used to signify an unconfigured CatalogProvider instance. If a user tries to
      * unsuccessfully connect to a Solr Server, then a message will be displayed to check the
      * connection.
-     * 
+     *
      * @author Ashraf Barakat, Lockheed Martin
      * @author ddf.isgs@lmco.com
-     * 
      */
     private static class UnconfiguredCatalogProvider implements CatalogProvider {
 
