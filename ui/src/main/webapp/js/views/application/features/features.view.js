@@ -43,7 +43,7 @@ define([
                 };
 
                 return returnValue;
-            },
+            }
         });
 
         return FeaturesView;

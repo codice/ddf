@@ -18,7 +18,7 @@ define([
     'icanhaz',
     'text!pluginTabItemView',
     'text!pluginTabCollectionView',
-    'js/wreqr.js',
+    'js/wreqr.js'
     ],function (Marionette, ich, pluginTabItemView, pluginTabCollectionView, wreqr) {
 
     ich.addTemplate('pluginTabItemView',pluginTabItemView);

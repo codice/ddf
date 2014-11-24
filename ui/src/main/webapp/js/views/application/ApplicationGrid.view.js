@@ -13,6 +13,7 @@
  *
  **/
 /*global define*/
+/* jshint -W024*/
 /** Main view page for add. **/
 define([
     'require',

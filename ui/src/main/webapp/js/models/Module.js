@@ -26,7 +26,7 @@ define([
                 key: 'value',
                 relatedModel: module,
                 collectionType: moduleCollection,
-                includeInJSON: false,
+                includeInJSON: false
             }
         ]
     });

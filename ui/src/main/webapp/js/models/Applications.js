@@ -334,7 +334,7 @@ define([
                     childModel.setSelectedBasedOnProfile(installProfile);
                 });
             }
-        },
+        }
 
     });
 

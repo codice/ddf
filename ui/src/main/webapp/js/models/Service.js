@@ -13,6 +13,7 @@
  *
  **/
 /*global define*/
+/* jshint -W024*/
 define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
 
 
