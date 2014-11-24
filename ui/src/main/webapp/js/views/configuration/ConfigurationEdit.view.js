@@ -27,6 +27,7 @@ define([
     ], function (Marionette, ich, _, Backbone, wreqr, configurationEdit, configurationItem, textTypeListHeader, textTypeList ) {
 	
     var ConfigurationEditView = {};
+    var passwordType = 12;
 
     if(!ich['configuration.configurationItem']) {
         ich.addTemplate('configuration.configurationItem', configurationItem);
@@ -208,6 +209,15 @@ define([
         },
 
         onRender: function() {
+            var view = this;
+            this.service.get('metatype').each(function(value) {
+                if (value.get('type') === passwordType) {
+                    var password = view.model.get('properties').get(value.get('id'));
+                    if (password === "" || password === null) {
+                        view.model.get('properties').set(value.get('id'), 'unmodified');
+                    }
+                }
+            });
             this.configurationItems.show(new ConfigurationEditView.ConfigurationCollection({
                 collection: this.service.get('metatype'),
                 configuration: this.model}));
@@ -246,16 +256,27 @@ define([
          */
         submitData: function() {
             wreqr.vent.trigger('beforesave');
+            var view = this;
+
             if(this.service) {
                 if (!this.model.get('properties').has('service.pid')) {
                     this.model.get('properties').set('service.pid', this.service.get('id'));
                 }
+
+                this.service.get('metatype').each(function(value) {
+                    if (value.get('type') === passwordType) {
+                        var password = view.model.get('properties').get(value.get('id'));
+                        if (password === "unmodified") {
+                            view.model.get('properties').set(value.get('id'), '');
+                        }
+                    }
+                });
             }
+
             this.model.save();
             wreqr.vent.trigger('sync');
             wreqr.vent.trigger('poller:start');
 
-            var view = this;
             _.defer(function() {
                 view.close();
                 wreqr.vent.trigger('refreshConfigurations');
