@@ -14,6 +14,57 @@
  **/
 package ddf.catalog.source.opensearch;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.ws.rs.client.ClientException;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.xml.namespace.QName;
+import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.apache.abdera.Abdera;
+import org.apache.abdera.ext.opensearch.OpenSearchConstants;
+import org.apache.abdera.model.Category;
+import org.apache.abdera.model.Element;
+import org.apache.abdera.model.Entry;
+import org.apache.abdera.model.Feed;
+import org.apache.abdera.parser.Parser;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.geotools.filter.FilterTransformer;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+import org.xml.sax.InputSource;
+
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -41,54 +92,6 @@ import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.encryption.EncryptionService;
-import org.apache.abdera.Abdera;
-import org.apache.abdera.ext.opensearch.OpenSearchConstants;
-import org.apache.abdera.model.Category;
-import org.apache.abdera.model.Element;
-import org.apache.abdera.model.Entry;
-import org.apache.abdera.model.Feed;
-import org.apache.abdera.parser.Parser;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.client.Client;
-import org.apache.cxf.jaxrs.client.ClientConfiguration;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
-import org.geotools.filter.FilterTransformer;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.ws.rs.client.ClientException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import javax.xml.namespace.QName;
-import javax.xml.transform.TransformerException;
-import javax.xml.xpath.XPathFactory;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Federated site that talks via OpenSearch to the DDF platform. Communication is usually performed
@@ -598,7 +601,15 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                     //TODO Parse content type value from the <category> element's term attribute
                     // <category> element is of the format:
                     //     <category xmlns="http://www.w3.org/2005/Atom" term="collectorPosition" />
-                    metacard.setContentTypeName(term);
+                    XPath xpath = XPathFactory.newInstance().newXPath();
+                    InputSource inputSource = new InputSource(new StringReader(term));
+                    try {
+                        contentType = xpath.evaluate("//*[local-name()='category']/@term", inputSource);
+                        metacard.setContentTypeName(contentType);
+                    } catch (XPathExpressionException e) {
+                        LOGGER.info("Unable to parse categories for contentType");
+                    }
+                    
                 }
 
             } finally {

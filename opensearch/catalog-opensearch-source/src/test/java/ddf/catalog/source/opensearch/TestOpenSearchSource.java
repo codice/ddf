@@ -14,38 +14,16 @@
  **/
 package ddf.catalog.source.opensearch;
 
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BinaryContentImpl;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-import ddf.catalog.operation.Query;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.InputTransformer;
-import junit.framework.Assert;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.util.ParameterParser;
-import org.apache.cxf.jaxrs.client.Client;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.opengis.filter.Filter;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,15 +39,41 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
+import junit.framework.Assert;
+
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.util.ParameterParser;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.opengis.filter.Filter;
+
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.InputTransformer;
 
 /**
  * Tests parts of the {@link OpenSearchSource}
@@ -134,7 +138,6 @@ public class TestOpenSearchSource {
 
         // then
         Assert.assertEquals(1, response.getHits());
-
     }
 
     @Test
@@ -172,6 +175,9 @@ public class TestOpenSearchSource {
         when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
 
         when(client.get()).thenReturn(clientResponse);
+        
+        when(clientResponse.getEntity()).thenReturn(
+                new BinaryContentImpl(getSampleAtomStream()).getInputStream());
 
         OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
         source.setInputTransformer(getMockInputTransformer());
@@ -187,8 +193,66 @@ public class TestOpenSearchSource {
         // when
         SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-        Assert.assertEquals(0, response.getHits());
+        Assert.assertEquals(1, response.getHits());
+        List<Result> results = response.getResults();
+        Assert.assertTrue(results.size() == 1);
+        Result result = results.get(0);
+        Metacard metacard = result.getMetacard();
+        Assert.assertNotNull(metacard);
+        Assert.assertEquals("Resource", metacard.getContentTypeName());
+    }
 
+    @Test
+    public void testQuery_BySearchPhrase_ContentTypeSet() throws UnsupportedQueryException, URISyntaxException,
+        IOException {
+        WebClient client = mock(WebClient.class);
+
+        Response clientResponse = mock(Response.class);
+
+        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
+
+        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
+
+        when(client.get()).thenReturn(clientResponse);
+        
+        when(clientResponse.getEntity()).thenReturn(
+                new BinaryContentImpl(getSampleAtomStream()).getInputStream());
+
+        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        InputTransformer inputTransformer = mock(InputTransformer.class);
+
+        MetacardImpl generatedMetacard = new MetacardImpl();
+        generatedMetacard.setMetadata(getSample());
+        generatedMetacard.setId(SAMPLE_ID);
+        generatedMetacard.setContentTypeName("myType");
+
+        try {
+            when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
+            when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
+                    generatedMetacard);
+        } catch (IOException e) {
+            fail();
+        } catch (CatalogTransformerException e) {
+            fail();
+        }
+        source.setInputTransformer(inputTransformer);
+        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
+        source.init();
+        source.setParameters("q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+
+        source.openSearchConnection = openSearchConnection;
+
+        Filter filter = filterBuilder.attribute(Metacard.METADATA).like()
+                .text(SAMPLE_SEARCH_PHRASE);
+        SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+        
+        Assert.assertEquals(1, response.getHits());
+        List<Result> results = response.getResults();
+        Assert.assertTrue(results.size() == 1);
+        Result result = results.get(0);
+        Metacard metacard = result.getMetacard();
+        Assert.assertNotNull(metacard);
+        Assert.assertEquals("myType", metacard.getContentTypeName());
     }
 
     @Test
