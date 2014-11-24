@@ -52,7 +52,7 @@ define([
             template : 'resultListItem',
             events: {
                 'click .metacard-link': 'viewMetacard',
-                'click #select-record-checkbox': 'changeRecordSelection'
+                'click .select-record-checkbox': 'changeRecordSelection'
             },
 
             resultSelect: false,
