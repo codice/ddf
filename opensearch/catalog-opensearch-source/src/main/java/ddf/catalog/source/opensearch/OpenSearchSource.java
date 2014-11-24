@@ -588,7 +588,6 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
         // category. maps to metadata-content-type
 
         String contentType = metacard.getContentTypeName();
-//DDF-893        if (contentType != null && !contentType.isEmpty()) {
         if (StringUtils.isEmpty(contentType)) {
             ClassLoader tccl2 = Thread.currentThread().getContextClassLoader();
             try {
@@ -598,7 +597,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                 List<Category> categories = entry.getCategories();
                 if (!categories.isEmpty() && categories.get(0) != null) {
                     String term = categories.get(0).toString();
-                    //TODO Parse content type value from the <category> element's term attribute
+                    // Parse content type value from the <category> element's term attribute
                     // <category> element is of the format:
                     //     <category xmlns="http://www.w3.org/2005/Atom" term="collectorPosition" />
                     XPath xpath = XPathFactory.newInstance().newXPath();
