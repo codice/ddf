@@ -223,6 +223,5 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', buildTasks);
     grunt.registerTask('default', ['build','express:server','watch']);
-    grunt.registerTask('dev',[ 'less','cssmin', 'jshint','express:server','watch']);
 
 };
