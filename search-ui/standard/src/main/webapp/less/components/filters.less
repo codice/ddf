@@ -1,5 +1,9 @@
 .filter-view {
 
+  .facet-selector-toggle{
+    margin-top: -3px;
+  }
+
   i {
     .i-clickable();
   }
@@ -121,6 +125,16 @@
     .filter-menu {
       width: 1000px;
       margin: 0 auto;
+    }
+  }
+}
+
+table.facet-values {
+  tbody {
+    display: none;
+
+    &[role=specific]{
+      display: table-row-group;
     }
   }
 }

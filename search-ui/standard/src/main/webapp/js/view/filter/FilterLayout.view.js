@@ -55,6 +55,7 @@ define([
                 this.listenTo(wreqr.vent, 'facetDeSelected', this.removeFacet);
                 this.listenTo(wreqr.vent, 'facetFocused', this.focusFacet);
                 this.listenTo(wreqr.vent, 'geoUpdated', this.geoUpdated);
+                this.listenTo(wreqr.vent, 'anyFacetClicked', this.anyFacetClicked);
 
                 wreqr.vent.trigger('processSearch', this.model);
             },
@@ -63,6 +64,13 @@ define([
                     filterCount: this.queryObject ? this.queryObject.filters.length : 0
                 };
             },
+
+            anyFacetClicked: function(fieldName){
+                var view = this;
+                view.collection.removeAllFromGroupFilter(fieldName);
+                view.refreshSearch();
+            },
+
             onRender: function(){
                 var view = this;
                 var facetCounts = wreqr.reqres.request('getFacetCounts');
