@@ -51,4 +51,11 @@ export JAVA_MAX_PERM_MEM=512M
 # export KARAF_HOME # Karaf home folder
 # export KARAF_DATA # Karaf data folder
 # export KARAF_BASE # Karaf base folder
-export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME"
+
+# Check for SOLR_CATALOG_DATA_DIR
+if env | grep ^SOLR_CATALOG_DATA_DIR= > /dev/null
+then
+    export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME -Dsolr.catalog.data.dir=$SOLR_CATALOG_DATA_DIR"
+else
+    export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME"
+fi

@@ -57,5 +57,9 @@ rem SET KARAF_BASE
 rem Additional available Karaf options
 rem SET KARAF_OPTS=-Dderby.system.home="..\data\derby"  -Dderby.storage.fileSyncTransactionLog=true -Dcom.sun.management.jmxremote -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME%
 
+if "%SOLR_CATALOG_DATA_DIR%" == "" (
 set JAVA_OPTS=-server -XX:PermSize=128m -XX:MaxPermSize=512m -Xmx2048M -Dderby.system.home="%DDF_HOME%\data\derby"  -Dderby.storage.fileSyncTransactionLog=true -Dcom.sun.management.jmxremote -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME%
 :: set JAVA_OPTS=-server -XX:PermSize=128m -XX:MaxPermSize=512m -Xmx2048M -Dfile.encoding=UTF8 -Djavax.net.ssl.keyStore=../etc/keystores/serverKeystore.jks -Djavax.net.ssl.keyStorePassword=changeit -Djavax.net.ssl.trustStore=../etc/keystores/serverTruststore.jks -Djavax.net.ssl.trustStorePassword=changeit -Dddf.home=%DDF_HOME%
+) else (
+set JAVA_OPTS=-server -XX:PermSize=128m -XX:MaxPermSize=512m -Xmx2048M -Dderby.system.home="%DDF_HOME%\data\derby"  -Dderby.storage.fileSyncTransactionLog=true -Dcom.sun.management.jmxremote -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dsolr.catalog.data.dir=%SOLR_CATALOG_DATA_DIR%
+)
