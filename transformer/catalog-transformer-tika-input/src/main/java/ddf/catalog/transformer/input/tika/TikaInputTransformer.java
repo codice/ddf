@@ -20,7 +20,6 @@ import java.net.URI;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
@@ -146,6 +145,7 @@ public class TikaInputTransformer implements InputTransformer {
 		if (StringUtils.isBlank(dateStr)) {
 			return null;
 		}
+			
 		Date date = javax.xml.bind.DatatypeConverter.parseDateTime(dateStr)
 				.getTime();
 		return date;

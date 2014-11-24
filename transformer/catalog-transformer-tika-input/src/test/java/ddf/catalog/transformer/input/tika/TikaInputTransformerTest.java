@@ -170,22 +170,43 @@ public class TikaInputTransformerTest {
     public void testGeoTaggedJpeg() throws Exception {
         InputStream stream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("testJPEG_GEO.jpg");
+        
+        /*
+         * The dates in testJPED_GEO.jpg do not contain timezones. If no timezone is specified, 
+         * the Tika input transformer assumes the local time zone.  Set the system timezone to UTC 
+         * so we can do assertions.
+         */
+        TimeZone defaultTimeZone = TimeZone.getDefault();
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
         assertThat(metacard.getMetadata(),
                 containsString("<meta name=\"Model\" content=\"Canon EOS 40D\" />"));
         assertThat(metacard.getContentTypeName(), is("image/jpeg"));
-        assertThat(convertDate(metacard.getCreatedDate()), is("2009-08-11 16:09:45 UTC"));
-        assertThat(convertDate(metacard.getModifiedDate()), is("2009-10-03 06:02:49 UTC"));
+        assertThat(convertDate(metacard.getCreatedDate()), is("2009-08-11 09:09:45 UTC"));
+        assertThat(convertDate(metacard.getModifiedDate()), is("2009-10-02 23:02:49 UTC"));
         assertThat((String) metacard.getAttribute(Metacard.GEOGRAPHY).getValue(),
                 is("POINT(-54.1234 12.54321)"));
+        
+        // Reset timezone back to local time zone.
+        TimeZone.setDefault(defaultTimeZone);
     }
 
     @Test
     public void testCommentedJpeg() throws Exception {
         InputStream stream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("testJPEG_commented.jpg");
+        
+        /*
+         * The dates in testJPEG_commented.jpg do not contain timezones. If no timezone is specified, 
+         * the Tika input transformer assumes the local time zone.  Set the system timezone to UTC 
+         * so we can do assertions.
+         */
+        TimeZone defaultTimeZone = TimeZone.getDefault();
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertThat(metacard.getTitle(), is("Tosteberga \u00C4ngar"));
@@ -193,7 +214,10 @@ public class TikaInputTransformerTest {
         assertThat(metacard.getMetadata(),
                 containsString("<meta name=\"Keywords\" content=\"bird watching\" />"));
         assertThat(metacard.getContentTypeName(), is("image/jpeg"));
-        assertThat(convertDate(metacard.getCreatedDate()), is("2010-07-28 18:02:00 UTC"));
+        assertThat(convertDate(metacard.getCreatedDate()), is("2010-07-28 11:02:00 UTC"));
+        
+        // Reset timezone back to local time zone.
+        TimeZone.setDefault(defaultTimeZone);
     }
 
     @Test
@@ -345,15 +369,28 @@ public class TikaInputTransformerTest {
     public void testOpenOffice() throws Exception {
         InputStream stream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("testOpenOffice2.odt");
+
+        /*
+         * The dates in testJPED_GEO.jpg do not contain timezones. If no timezone is specified, 
+         * the Tika input transformer assumes the local time zone.  Set the system timezone to UTC 
+         * so we can do assertions.
+         */
+        TimeZone defaultTimeZone = TimeZone.getDefault();
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertThat(metacard.getTitle(), is("Test OpenOffice2 Document"));
-        assertThat(convertDate(metacard.getCreatedDate()), is("2007-09-14 18:06:08 UTC"));
-        assertThat(convertDate(metacard.getModifiedDate()), is("2013-02-13 13:52:10 UTC"));
+        assertThat(convertDate(metacard.getCreatedDate()), is("2007-09-14 11:06:08 UTC"));
+        assertThat(convertDate(metacard.getModifiedDate()), is("2013-02-13 06:52:10 UTC"));
         assertNotNull(metacard.getMetadata());
         assertThat(metacard.getMetadata(),
                 containsString("This is a sample Open Office document, written in NeoOffice 2.2.1"));
         assertThat(metacard.getContentTypeName(), is("application/vnd.oasis.opendocument.text"));
+
+        // Reset timezone back to local time zone.
+        TimeZone.setDefault(defaultTimeZone);
+
     }
     
     private String convertDate(Date date) {
