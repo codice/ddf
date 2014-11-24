@@ -371,7 +371,7 @@ public class TikaInputTransformerTest {
                 .getResourceAsStream("testOpenOffice2.odt");
 
         /*
-         * The dates in testJPED_GEO.jpg do not contain timezones. If no timezone is specified, 
+         * The dates in testOpenOffice2.odt do not contain timezones. If no timezone is specified, 
          * the Tika input transformer assumes the local time zone.  Set the system timezone to UTC 
          * so we can do assertions.
          */
