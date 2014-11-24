@@ -52,7 +52,7 @@ public class PersistentStoreImpl implements PersistentStore {
 
     private static final String DEFAULT_SOLR_URL = "http://localhost:8181/solr";
 
-    private String solrUrl;
+    private String solrUrl = DEFAULT_SOLR_URL;
     private SolrServer solrServer;
     private ConcurrentHashMap<String, SolrServer> coreSolrServers = new ConcurrentHashMap<String,
             SolrServer>();
@@ -88,6 +88,9 @@ public class PersistentStoreImpl implements PersistentStore {
                 }
                 LOGGER.debug("Connecting to solr URL {}", this.solrUrl);
                 this.solrServer = new HttpSolrServer(this.solrUrl);
+                if (solrServer == null) {
+                    LOGGER.warn("SolrServer is null, please configure the Solr URL in the \"Persistent Store\" configuration.");
+                }
             }
         } else {
             // sets to null
@@ -111,6 +114,9 @@ public class PersistentStoreImpl implements PersistentStore {
         
         // Set Solr Core name to type and create/connect to Solr Core
         SolrServer coreSolrServer = getSolrCore(type);
+        if (coreSolrServer == null) {
+            return;
+        }
         
         Date now = new Date();
         //DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
@@ -185,6 +191,9 @@ public class PersistentStoreImpl implements PersistentStore {
         
         // Set Solr Core name to type and create/connect to Solr Core
         SolrServer coreSolrServer = getSolrCore(type);
+        if (coreSolrServer == null) {
+            return results;
+        }
         
         SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(coreSolrServer, type);
 
@@ -238,6 +247,9 @@ public class PersistentStoreImpl implements PersistentStore {
     public int delete(String type, String cql) throws PersistenceException {
         List<Map<String, Object>> itemsToDelete = this.get(type, cql);
         SolrServer coreSolrServer = getSolrCore(type);
+        if (coreSolrServer == null) {
+            return 0;
+        }
         List<String> idsToDelete = new ArrayList<String>();
         for (Map<String, Object> item : itemsToDelete) {
             String uuid = (String) item.get(PersistentItem.ID);
@@ -273,6 +285,13 @@ public class PersistentStoreImpl implements PersistentStore {
             LOGGER.info("Returning core {} from map of coreSolrServers", storeName);
             return coreSolrServers.get(storeName);
         }
+
+        if (solrServer == null) {
+            LOGGER.warn(
+                    "Unable to create Solr Core '{}', please configure the Solr URL in the \"Persistent Store\" configuration.",
+                    storeName);
+            return null;
+        }
         
         // Must specify shard in URL so proper core is used
         HttpSolrServer coreSolrServer = new HttpSolrServer(this.solrUrl + "/" + storeName);
@@ -298,9 +317,9 @@ public class PersistentStoreImpl implements PersistentStore {
         return coreSolrServer;
     }
 
-    private boolean solrCoreExists(SolrServer solrServer, String coreName) {
+    private boolean solrCoreExists(SolrServer server, String coreName) {
         try {
-            CoreAdminResponse response = CoreAdminRequest.getStatus(coreName,  solrServer);
+            CoreAdminResponse response = CoreAdminRequest.getStatus(coreName,  server);
             return response.getCoreStatus(coreName).get("instanceDir") != null;
         } catch (SolrServerException e) {
             LOGGER.info("SolrServerException getting " + coreName + " core status", e);

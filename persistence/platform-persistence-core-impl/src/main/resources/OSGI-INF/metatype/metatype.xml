@@ -15,13 +15,13 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Persistent Store" id="persistentStore">
-        <AD description="HTTP URL of Solr 4.x Server." name="Solr URL" id="url"
+    <OCD name="Persistent Store" id="org.codice.ddf.persistence.internal.PersistentStoreImpl">
+        <AD description="HTTP URL of Solr 4.x Server." name="Solr URL" id="solrUrl"
             required="true" type="String" default="http://localhost:8181/solr" />
     </OCD>
 
-    <Designate pid="persistentStore">
-        <Object ocdref="persistentStore" />
+    <Designate pid="org.codice.ddf.persistence.internal.PersistentStoreImpl">
+        <Object ocdref="org.codice.ddf.persistence.internal.PersistentStoreImpl" />
     </Designate>
 
 </metatype:MetaData>
