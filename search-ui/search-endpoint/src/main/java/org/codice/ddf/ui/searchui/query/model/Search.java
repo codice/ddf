@@ -43,6 +43,16 @@ public class Search {
 
     public static final String METACARD = "metacard";
 
+    public static final String ACTIONS = "actions";
+
+    public static final String ACTIONS_ID = "id";
+
+    public static final String ACTIONS_TITLE = "title";
+
+    public static final String ACTIONS_DESCRIPTION = "description";
+
+    public static final String ACTIONS_URL = "url";
+
     public static final String RESULTS = "results";
 
     public static final String METACARD_TYPES = "metacard-types";

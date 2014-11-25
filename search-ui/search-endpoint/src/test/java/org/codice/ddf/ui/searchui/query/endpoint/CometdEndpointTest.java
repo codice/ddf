@@ -14,16 +14,10 @@
  **/
 package org.codice.ddf.ui.searchui.query.endpoint;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.filter.FilterBuilder;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.ui.searchui.query.actions.ActionRegistryImpl;
 import org.codice.ddf.ui.searchui.query.controller.NotificationController;
 import org.cometd.bayeux.ChannelId;
 import org.cometd.bayeux.MarkedReference;
@@ -36,9 +30,14 @@ import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.BayeuxServerImpl;
 import org.cometd.server.CometdServlet;
 import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
@@ -46,8 +45,9 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.filter.FilterBuilder;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import java.util.Collections;
 
 public class CometdEndpointTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CometdEndpointTest.class);
@@ -127,7 +127,8 @@ public class CometdEndpointTest {
         // Create the CometdEndpoint, passing in the mocked CometdServlet
         cometdEndpoint = new CometdEndpoint(cometdServlet,
                 mock(CatalogFramework.class), mock(FilterBuilder.class), mock(PersistentStore.class),
-                mock(BundleContext.class), mock(EventAdmin.class));
+                mock(BundleContext.class), mock(EventAdmin.class), new ActionRegistryImpl(
+                Collections.EMPTY_LIST));
     }
 
     /**

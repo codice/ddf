@@ -125,6 +125,11 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.action.core</groupId>
+            <artifactId>action-core-api</artifactId>
+            <version>2.5.0</version>
+        </dependency>
     </dependencies>
 
     <build>

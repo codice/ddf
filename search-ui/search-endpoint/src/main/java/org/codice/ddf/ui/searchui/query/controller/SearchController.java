@@ -14,8 +14,11 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
+import ddf.action.Action;
+import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
@@ -73,6 +76,8 @@ public class SearchController {
 
     private CatalogFramework framework;
 
+    private ActionRegistry actionRegistry;
+
     private BayeuxServer bayeuxServer;
 
     /**
@@ -81,8 +86,9 @@ public class SearchController {
      * @param framework
      *            - CatalogFramework that will be handling the actual queries
      */
-    public SearchController(CatalogFramework framework) {
+    public SearchController(CatalogFramework framework, ActionRegistry actionRegistry) {
         this.framework = framework;
+        this.actionRegistry = actionRegistry;
     }
 
     /**
@@ -350,14 +356,34 @@ public class SearchController {
 
         addObject(rootObject, Search.DISTANCE, result.getDistanceInMeters());
         addObject(rootObject, Search.RELEVANCE, result.getRelevanceScore());
-        addObject(rootObject, Search.METACARD,
-                GeoJsonMetacardTransformer.convertToJSON(result.getMetacard()));
+
+        org.json.simple.JSONObject metacardJson =
+                GeoJsonMetacardTransformer.convertToJSON(result.getMetacard());
+        metacardJson.put(Search.ACTIONS, getActions(result.getMetacard()));
+        addObject(rootObject, Search.METACARD, metacardJson);
+
+
         if (result.getMetacard().getMetacardType() != null &&
                 !StringUtils.isBlank(result.getMetacard().getMetacardType().getName())) {
             metaTypes.put(result.getMetacard().getMetacardType().getName(),
                     result.getMetacard().getMetacardType());
         }
         return rootObject;
+    }
+
+    private JSONArray getActions(Metacard metacard) {
+        JSONArray actionsJson = new JSONArray();
+
+        List<Action> actions = actionRegistry.list(metacard);
+        for(Action action : actions) {
+            JSONObject actionJson = new JSONObject();
+            actionJson.put(Search.ACTIONS_ID, action.getId());
+            actionJson.put(Search.ACTIONS_TITLE, action.getTitle());
+            actionJson.put(Search.ACTIONS_DESCRIPTION, action.getDescription());
+            actionJson.put(Search.ACTIONS_URL, action.getUrl());
+            actionsJson.add(actionJson);
+        }
+        return actionsJson;
     }
 
     private JSONObject getMetacardTypes(Collection<MetacardType> types)

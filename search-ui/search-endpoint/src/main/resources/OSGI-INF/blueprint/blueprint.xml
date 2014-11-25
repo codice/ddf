@@ -34,6 +34,12 @@
     <reference-list id="requestHandlerList" interface="ddf.security.service.TokenRequestHandler"
                     availability="optional"/>
 
+    <reference-list id="actionProviders" interface="ddf.action.ActionProvider" />
+
+    <bean id="actionRegistry" class="org.codice.ddf.ui.searchui.query.actions.ActionRegistryImpl">
+        <argument ref="actionProviders"/>
+    </bean>
+
     <bean class="org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint"
           depends-on="defaultCometdServlet" init-method="init" destroy-method="destroy">
         <argument ref="comet"/>
@@ -42,6 +48,7 @@
         <argument ref="persistentStore" />
         <argument ref="blueprintBundleContext" />
         <argument ref="eventAdmin" />
+        <argument ref="actionRegistry" />
     </bean>
 
 

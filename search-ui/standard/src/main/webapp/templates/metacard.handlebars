@@ -26,6 +26,9 @@
             <li {{#is hash "#full"}} class="active" {{/is}}>
                 <a href="#full" data-toggle="tab">Details</a>
             </li>
+            <li {{#is hash "#actions"}} class="active" {{/is}}>
+                <a href="#actions" data-toggle="tab">Actions</a>
+            </li>
         </ul>
 
 
@@ -151,6 +154,27 @@
                         </tr>
                     {{/if}}
                     </tbody>
+                </table>
+            </div>
+            <div class="tab-pane vertical-scroll table-pane {{#is hash "#actions"}} active{{/is}}" id="actions">
+                <h4 class="title" title="Title">
+                    {{#if properties.title}}
+                        {{properties.title}}
+                    {{else}}
+                        [No Title]
+                    {{/if}}
+                </h4>
+                <hr/>
+                <table class="table table-striped metacard-table">
+                    {{#each actions}}
+                         <tr>
+                             <td>
+                                 <a target='_blank' title="{{description}}" href='{{safeString url}}'>{{title}}</a>
+                             </td>
+                         </tr>
+                    {{else}}
+                        <h4 class="title">No Actions Available</h4>
+                    {{/each}}
                 </table>
             </div>
         </div>

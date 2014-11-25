@@ -14,8 +14,9 @@
  **/
 package org.codice.ddf.ui.searchui.query.endpoint;
 
-import javax.servlet.ServletException;
-
+import ddf.action.ActionRegistry;
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.filter.FilterBuilder;
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.ui.searchui.query.controller.ActivityController;
 import org.codice.ddf.ui.searchui.query.controller.NotificationController;
@@ -35,8 +36,7 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.filter.FilterBuilder;
+import javax.servlet.ServletException;
 
 /**
  * The CometdEndpoint binds the SearchService and the CometdServlet together. 
@@ -75,10 +75,11 @@ public class CometdEndpoint {
      *            - FilterBuilder for the SearchService to use
      */
     public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework, 
-            FilterBuilder filterBuilder, PersistentStore persistentStore, BundleContext bundleContext, EventAdmin eventAdmin) {
+            FilterBuilder filterBuilder, PersistentStore persistentStore,
+            BundleContext bundleContext, EventAdmin eventAdmin, ActionRegistry actionRegistry) {
         this.cometdServlet = cometdServlet;
         this.filterBuilder = filterBuilder;
-        this.searchController = new SearchController(framework);
+        this.searchController = new SearchController(framework, actionRegistry);
         this.persistentStore = persistentStore;
         this.notificationController = new NotificationController(persistentStore, bundleContext, eventAdmin);
         this.activityController = new ActivityController(persistentStore, bundleContext, eventAdmin);
