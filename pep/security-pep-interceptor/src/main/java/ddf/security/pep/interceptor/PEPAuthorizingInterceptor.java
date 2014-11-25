@@ -24,6 +24,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.ws.handler.MessageContext;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
@@ -118,7 +119,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     }
 
                     action = new ActionPermission(actionURI);
-                    logger.debug("Action Permission: " + action);
+                    logger.debug("Action Permission: {}", action);
 
                     isPermitted = user.isPermitted(action);
 
@@ -155,6 +156,18 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
         }
     }
 
+    /**
+     * This method is an implementation of the WSA-M and WSA-W specs for determining the action URI.<br>
+     * <ul>
+     * <li>http://www.w3.org/TR/ws-addr-metadata/#actioninwsdl</li>
+     * <li>http://www.w3.org/TR/ws-addr-wsdl/#actioninwsdl</li>
+     * </ul>
+     * Adapted from {@link org.apache.cxf.ws.addressing.impl.MAPAggregatorImpl} and
+     * {@link org.apache.cxf.ws.addressing.impl.InternalContextUtils}
+     * 
+     * @param message
+     * @return
+     */
     private String getActionUri(Message message) {
         String actionURI = null;
 
@@ -164,11 +177,13 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
          */
         MessageInfo msgInfo = (MessageInfo) message.get(MessageInfo.class.getName());
         if (msgInfo != null && msgInfo.getExtensionAttributes() != null) {
+            // wsaw:Action
             Object attr = msgInfo.getExtensionAttribute(JAXWSAConstants.WSAW_ACTION_QNAME);
+            // wsam:Action
             if (attr == null) {
-                attr = msgInfo.getExtensionAttributes().get(
-                        new QName(Names.WSA_NAMESPACE_WSDL_METADATA, Names.WSAW_ACTION_NAME));
+                attr = msgInfo.getExtensionAttribute(JAXWSAConstants.WSAM_ACTION_QNAME);
             }
+            // support for older usages
             if (attr == null) {
                 attr = msgInfo.getExtensionAttributes().get(
                         new QName(JAXWSAConstants.NS_WSA, Names.WSAW_ACTION_NAME));
@@ -200,12 +215,12 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
         }
 
         /**
-         * If the service model doesn't explicitly defines the action, we'll construct the standard
+         * If the service model doesn't explicitly defines the action, we'll construct the default
          * URI string.
          */
         if (StringUtils.isEmpty(actionURI)) {
-            QName op = (QName) message.get("javax.xml.ws.wsdl.operation");
-            QName port = (QName) message.get("javax.xml.ws.wsdl.port");
+            QName op = (QName) message.get(MessageContext.WSDL_OPERATION);
+            QName port = (QName) message.get(MessageContext.WSDL_PORT);
             if (op != null && port != null) {
                 actionURI = port.getNamespaceURI();
                 actionURI = addPath(actionURI, port.getLocalPart());
@@ -240,7 +255,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
 
         try {
             transformer = transformerFactory.newTransformer();
-            logger.trace("transformer class: " + transformer.getClass());
+            logger.trace("transformer class: {}", transformer.getClass());
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             transformer.transform(new DOMSource(unformattedXml), xmlOutput);
