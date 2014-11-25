@@ -21,6 +21,7 @@
         <property name="accessRoleList">
             <list>
                 <value>admin</value>
+                <value>anonymous</value>
             </list>
         </property>
     </bean>

@@ -16,7 +16,7 @@
 
 	<OCD description="Anonymous Claims Handler Configuration" name="Security STS Anonymous Claims Handler" id="ddf.security.sts.anonymousclaims">
 	    <AD name="Attributes" id="attributes" required="true" type="String"
-	      default="uid=Anonymous"
+	      default="uid=Anonymous,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=anonymous"
           cardinality="1000"
 	      description="The attributes to be returned for any Anonymous user.">
 	    </AD>

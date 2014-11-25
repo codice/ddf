@@ -219,6 +219,7 @@
         <feature>security-handler-anonymous</feature>
         <feature>security-sts-anonymousvalidator</feature>
         <feature>security-sts-anonymousclaimshandler</feature>
+        <feature>security-interceptor-anonymous</feature>
     </feature>
 
     <feature name="security-servlet-logout" install="manual" version="${project.version}"

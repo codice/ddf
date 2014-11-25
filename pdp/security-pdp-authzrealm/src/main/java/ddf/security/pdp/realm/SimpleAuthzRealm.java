@@ -224,7 +224,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      *         indicates otherwise.
      */
     @Override
-    public boolean[] isPermitted(PrincipalCollection subjectPrincipal, List<Permission> permissions) {
+    public boolean[] isPermitted(PrincipalCollection subjectPrincipal, List<Permission> permissions) {    
         boolean[] results = new boolean[permissions.size()];
         AuthorizationInfo info = getAuthorizationInfo(subjectPrincipal);
         int i = 0;
@@ -349,6 +349,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
             // it must be a restricted action, so check if the user has the correct role
             if (accessRoleList != null) {
                 for (String accessRole : accessRoleList) {
+                    
                     if (info.getRoles().contains(accessRole)) {
                         SecurityLogger.logInfo("User has access role " + accessRole);
                         return true;
@@ -470,10 +471,17 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
      * @see SimpleAuthzRealm#setAccessRoleList(List)
      * @param commaStr
      */
+
     public void setAccessRoleList(String commaStr) {
         setAccessRoleList(convertToList(commaStr));
     }
 
+    public String getAccessRoleList() {
+        String accessRoleCsv = accessRoleList.toString().replace("[", "").replace("]", "")
+                .replace(", ", ",");
+        return accessRoleCsv;
+    }
+    
     /**
      * Sets the list of SOAP actions that are open for users in any role to access. Each string is
      * the action corresponding to the SOAP action presented in the SOAP request. If the specified

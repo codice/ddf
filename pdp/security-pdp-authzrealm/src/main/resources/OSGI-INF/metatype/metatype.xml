@@ -18,10 +18,10 @@
     <OCD description="AuthZ Security Settings"
     	 name="Security Simple AuthZ Realm"
     	 id="ddf.security.pdp.realm.SimpleAuthzRealm">
-        <AD description="Comma-delimited list of roles that a user could have in order to be permitted for restricted actions. Defaults to admin."
+        <AD description="Comma-delimited list of roles that a user could have in order to be permitted for restricted actions. Defaults to admin,anonymous."
             name="Roles" id="accessRoleList" required="true"
-            type="String" default="admin" />
-
+            type="String" default="admin,anonymous"/>
+            
         <AD description="Comma-delimited list of actions that are open for any role to access. No actions are set by default."
             name="Open Action List" id="openAccessActionList" required="true"
             type="String" default="" />

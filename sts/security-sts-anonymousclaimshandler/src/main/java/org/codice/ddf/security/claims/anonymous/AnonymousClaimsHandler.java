@@ -40,29 +40,47 @@ import java.util.Map;
 public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnonymousClaimsHandler.class);
+    
+    public static final String ATTRIBUTES = "attributes";
 
     private Map<URI, List<String>> claimsMap = new HashMap<URI, List<String>>();
+    private Map<String, Object> attributeProperties = new HashMap<String, Object>();
 
     private List<String> supportedRealms;
 
     private String realm;
+    
+    public AnonymousClaimsHandler() {
+        LOGGER.debug("Starting AnonymousClaimsHandler");
+    }
 
     public void setAttributes(List<String> attributes) {
-        List<String> attrs = new ArrayList<String>(attributes.size());
-        for(String attr : attributes) {
-            if(attr.contains(",")) {
-                String[] tmpAttrs = attr.split(",");
-                attrs.addAll(Arrays.asList(tmpAttrs));
-            } else {
-                attrs.add(attr);
+        if (attributes != null) {
+            LOGGER.debug("Attribute value list was set.");
+            //attributeProperties.put(ATTRIBUTES, attributes.toArray(new String[attributes.size()]));
+            List<String> attrs = new ArrayList<String>(attributes.size());
+            for(String attr : attributes) {
+                if(attr.contains(",")) {
+                    String[] tmpAttrs = attr.split(",");
+                    attrs.addAll(Arrays.asList(tmpAttrs));
+                } else {
+                    attrs.add(attr);
+                }
             }
+            initClaimsMap(attrs);
+        } else {
+            LOGGER.warn("Set attribute value list was null");
         }
-        initClaimsMap(attrs);
     }
 
     public void setAttributes(String attributes) {
-        String[] attrs = attributes.split(",");
-        setAttributes(Arrays.asList(attrs));
+        if (attributes != null) {
+            //attributeProperties.put(ATTRIBUTES, attributes);
+            String[] attrs = attributes.split(",");
+            setAttributes(Arrays.asList(attrs));
+        } else {
+            LOGGER.warn("Set attribute value was null");
+        }
     }
 
     public Map<URI, List<String>> getClaimsMap() {
@@ -140,4 +158,5 @@ public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
     public void setHandlerRealm(String realm) {
         this.realm = realm;
     }
+    
 }
