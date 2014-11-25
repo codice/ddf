@@ -97,23 +97,25 @@ define(['application',
 
                 mapView = new Map2d();
             }
-            MapModule.addInitializer(function(){
-                MapModule.contentController = new Controller({
-                    region: Application.App.mapRegion
+            if (mapView) {
+                MapModule.addInitializer(function () {
+                    MapModule.contentController = new Controller({
+                        region: Application.App.mapRegion
+                    });
+                    MapModule.contentController.show();
                 });
-                MapModule.contentController.show();
-            });
-            var Controller = Marionette.Controller.extend({
+                var Controller = Marionette.Controller.extend({
 
-                initialize: function(options){
-                    this.region = options.region;
-                },
+                    initialize: function (options) {
+                        this.region = options.region;
+                    },
 
-                show: function(){
-                    this.region.show(mapView);
-                }
+                    show: function () {
+                        this.region.show(mapView);
+                    }
 
-            });
+                });
+            }
         });
 
     });
