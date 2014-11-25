@@ -41,7 +41,7 @@
         <AD description="Username for tge WFS Service (optional)" name="Username" id="username"
             required="false" type="String"/>
         <AD description="Password for the WFS Service (optional)" name="Password" id="password"
-            required="false" type="String"/>
+            required="false" type="Password"/>
         <AD name="Non Queryable Properties" id="nonQueryableProperties" required="false"
             type="String"
             cardinality="100"
@@ -102,7 +102,7 @@
         <AD description="Username for the WFS Service (optional)" name="Username" id="username"
             required="false" type="String"/>
         <AD description="Password for the WFS Service (optional)" name="Password" id="password"
-            required="false" type="String"/>
+            required="false" type="Password"/>
         <AD name="Non Queryable Properties" id="nonQueryableProperties" required="false"
             type="String"
             cardinality="100"
