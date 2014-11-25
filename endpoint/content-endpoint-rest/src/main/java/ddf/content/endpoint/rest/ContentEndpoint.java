@@ -40,6 +40,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
@@ -75,7 +76,7 @@ import ddf.mime.MimeTypeResolutionException;
  */
 @Path("/")
 public class ContentEndpoint {
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(ContentEndpoint.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentEndpoint.class);
 
     static final String CONTENT_DISPOSITION = "Content-Disposition";
 
@@ -114,12 +115,12 @@ public class ContentEndpoint {
     private MimeTypeMapper mimeTypeMapper;
 
     public ContentEndpoint(ContentFramework framework, MimeTypeMapper mimeTypeMapper) {
-        logger.debug("ENTERING: ContentEndpoint constructor");
+        LOGGER.debug("ENTERING: ContentEndpoint constructor");
 
         this.contentFramework = framework;
         this.mimeTypeMapper = mimeTypeMapper;
 
-        logger.debug("EXITING: ContentEndpoint constructor");
+        LOGGER.debug("EXITING: ContentEndpoint constructor");
     }
 
     /**
@@ -151,14 +152,14 @@ public class ContentEndpoint {
     @Path("/")
     public Response create(MultipartBody multipartBody, @Context
     UriInfo requestUriInfo) throws ContentEndpointException {
-        logger.trace("ENTERING: create");
+        LOGGER.trace("ENTERING: create");
 
         String directive = multipartBody.getAttachmentObject(DIRECTIVE_ATTACHMENT_CONTENT_ID,
                 String.class);
-        logger.debug("directive = " + directive);
+        LOGGER.debug("directive = {}", directive);
 
         String contentUri = multipartBody.getAttachmentObject("contentUri", String.class);
-        logger.debug("contentUri = " + contentUri);
+        LOGGER.debug("contentUri = {}", contentUri);
 
         InputStream stream = null;
         String filename = null;
@@ -176,13 +177,13 @@ public class ContentEndpoint {
             filename = createInfo.getFilename();
             contentType = createInfo.getContentType();
         } else {
-            logger.debug("No file contents attachment found");
+            LOGGER.debug("No file contents attachment found");
         }
 
         Response response = doCreate(stream, contentType, directive, filename, contentUri,
                 requestUriInfo);
 
-        logger.trace("EXITING: create");
+        LOGGER.trace("EXITING: create");
 
         return response;
     }
@@ -204,7 +205,7 @@ public class ContentEndpoint {
             }
             createInfo.setStream(stream);
         } catch (IOException e) {
-            logger.warn("IOException reading stream from file attachment in multipart body", e);
+            LOGGER.warn("IOException reading stream from file attachment in multipart body", e);
         }
         
         // Example Content-Type header:
@@ -221,7 +222,7 @@ public class ContentEndpoint {
         // If the filename was not specified, then generate a default filename based on the
         // specified content type.
         if (StringUtils.isEmpty(filename)) {
-            logger.debug("No filename parameter provided - generating default filename");
+            LOGGER.debug("No filename parameter provided - generating default filename");
             String fileExtension = DEFAULT_FILE_EXTENSION;
             try {
                 fileExtension = mimeTypeMapper.getFileExtensionForMimeType(contentType); // DDF-2307
@@ -229,11 +230,11 @@ public class ContentEndpoint {
                     fileExtension = DEFAULT_FILE_EXTENSION;
                 }
             } catch (MimeTypeResolutionException e) {
-                logger.debug("Exception getting file extension for contentType = "
-                        + contentType);
+                LOGGER.debug("Exception getting file extension for contentType = {}",
+                        contentType);
             }
             filename = DEFAULT_FILE_NAME + "." + fileExtension; // DDF-2263
-            logger.debug("No filename parameter provided - default to " + filename);
+            LOGGER.debug("No filename parameter provided - default to {}", filename);
         } else {
             filename = FilenameUtils.getName(filename);
             
@@ -242,7 +243,7 @@ public class ContentEndpoint {
             // by determining the mime type based on the filename's extension.
             if (StringUtils.isEmpty(contentType) || REFINEABLE_MIME_TYPES.contains(contentType)) {
                 String fileExtension = FilenameUtils.getExtension(filename);
-                logger.debug("fileExtension = {}, contentType before refinement = {}", fileExtension, contentType);
+                LOGGER.debug("fileExtension = {}, contentType before refinement = {}", fileExtension, contentType);
                 if (fileExtension.equals("xml")) {
                     // FBOS reads file into byte array in memory up to this threshold, then it transitions
                     // to writing to a file.
@@ -253,16 +254,16 @@ public class ContentEndpoint {
                         contentType = mimeTypeMapper.guessMimeType(fbos.asByteSource().openStream(), fileExtension);
                         createInfo.setStream(fbos.asByteSource().openStream());
                     } catch (IOException | MimeTypeResolutionException e) {
-                        logger.debug("Unable to refine contentType {} based on filename extension {}", contentType, fileExtension);
+                        LOGGER.debug("Unable to refine contentType {} based on filename extension {}", contentType, fileExtension);
                     }
                 } else {
                     try {
                         contentType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
                     } catch (MimeTypeResolutionException e) {
-                        logger.debug("Unable to refine contentType {} based on filename extension {}", contentType, fileExtension);
+                        LOGGER.debug("Unable to refine contentType {} based on filename extension {}", contentType, fileExtension);
                     }
                 }
-                logger.debug("Refined contentType = {}", contentType);
+                LOGGER.debug("Refined contentType = {}", contentType);
             }
         }
         
@@ -276,11 +277,11 @@ public class ContentEndpoint {
     @Path("/{id}")
     public Response read(@PathParam("id")
     String id) throws ContentEndpointException {
-        logger.trace("ENTERING: read");
+        LOGGER.trace("ENTERING: read");
 
         Response response = doRead(id);
 
-        logger.trace("EXITING: read");
+        LOGGER.trace("EXITING: read");
 
         return response;
     }
@@ -292,12 +293,12 @@ public class ContentEndpoint {
     String contentType, @HeaderParam("directive")
     @DefaultValue("STORE_AND_PROCESS")
     String directive) throws ContentEndpointException {
-        logger.trace("ENTERING: update");
-        logger.debug("directive = " + directive);
+        LOGGER.trace("ENTERING: update");
+        LOGGER.debug("directive = {}", directive);
 
         Response response = doUpdate(stream, id, contentType, directive, null);
 
-        logger.trace("EXITING: update");
+        LOGGER.trace("EXITING: update");
 
         return response;
     }
@@ -309,13 +310,13 @@ public class ContentEndpoint {
     public Response updateCatalogOnly(InputStream stream, @HeaderParam("Content-Type")
     String contentType, @HeaderParam("contentUri")
     String contentUri) throws ContentEndpointException {
-        logger.trace("ENTERING: update");
-        logger.debug("contentUri = " + contentUri);
+        LOGGER.trace("ENTERING: update");
+        LOGGER.debug("contentUri = {}", contentUri);
 
         Response response = doUpdate(stream, null, contentType,
                 Request.Directive.PROCESS.toString(), contentUri);
 
-        logger.trace("EXITING: update");
+        LOGGER.trace("EXITING: update");
 
         return response;
     }
@@ -326,12 +327,12 @@ public class ContentEndpoint {
     String id, @HeaderParam("directive")
     @DefaultValue("STORE_AND_PROCESS")
     String directive) throws ContentEndpointException {
-        logger.trace("ENTERING: delete");
-        logger.debug("directive = " + directive);
+        LOGGER.trace("ENTERING: delete");
+        LOGGER.debug("directive = {}", directive);
 
-        Response response = doDelete(id, directive, null);
+        Response response = executeDelete(id, directive, null);
 
-        logger.trace("EXITING: delete");
+        LOGGER.trace("EXITING: delete");
 
         return response;
     }
@@ -342,19 +343,19 @@ public class ContentEndpoint {
     @Path("/")
     public Response deleteCatalogOnly(@HeaderParam("contentUri")
     String contentUri) throws ContentEndpointException {
-        logger.trace("ENTERING: delete");
-        logger.debug("contentUri = " + contentUri);
+        LOGGER.trace("ENTERING: delete");
+        LOGGER.debug("contentUri = {}", contentUri);
 
-        Response response = doDelete(null, Request.Directive.PROCESS.toString(), contentUri);
+        Response response = executeDelete(null, Request.Directive.PROCESS.toString(), contentUri);
 
-        logger.trace("EXITING: delete");
+        LOGGER.trace("EXITING: delete");
 
         return response;
     }
 
     protected Response doCreate(InputStream stream, String contentType, String directive,
             String filename, String contentUri, UriInfo uriInfo) throws ContentEndpointException {
-        logger.trace("ENTERING: doCreate");
+        LOGGER.trace("ENTERING: doCreate");
 
         if (stream == null) {
             throw new ContentEndpointException("Cannot create content. InputStream is null.",
@@ -381,11 +382,11 @@ public class ContentEndpoint {
         Response response = null;
 
         try {
-            logger.debug("Preparing content item for contentType = " + contentType);
+            LOGGER.debug("Preparing content item for contentType = {}", contentType);
 
             ContentItem newItem = new IncomingContentItem(stream, contentType, filename); // DDF-1856
             newItem.setUri(contentUri);
-            logger.debug("Creating content item.");
+            LOGGER.debug("Creating content item.");
 
             CreateRequest createRequest = new CreateRequestImpl(newItem, null);
             CreateResponse createResponse = contentFramework
@@ -408,7 +409,7 @@ public class ContentEndpoint {
                 uriBuilder = uriBuilder.path("/" + createdContentId);
                 responseBuilder.location(uriBuilder.build());
                 responseBuilder.header(CONTENT_ID_HTTP_HEADER, createdContentId);
-                logger.debug("Content-URI = " + contentItem.getUri());
+                LOGGER.debug("Content-URI = {}", contentItem.getUri());
                 responseBuilder.header(CONTENT_URI_HTTP_HEADER, contentItem.getUri());
             }
 
@@ -416,20 +417,20 @@ public class ContentEndpoint {
 
             response = responseBuilder.build();
         } catch (Exception e) {
-            logger.warn("Exception caught during create", e);
+            LOGGER.warn("Exception caught during create", e);
             throw new ContentEndpointException("Bad request, could not create content",
                     Response.Status.BAD_REQUEST);
         }
 
-        logger.debug("createdContentId = [" + createdContentId + "]");
+        LOGGER.debug("createdContentId = [{}]", createdContentId);
 
-        logger.trace("EXITING: doCreate");
+        LOGGER.trace("EXITING: doCreate");
 
         return response;
     }
 
     protected Response doRead(String id) throws ContentEndpointException {
-        logger.trace("ENTERING: doRead");
+        LOGGER.trace("ENTERING: doRead");
 
         if (id == null) {
             throw new ContentEndpointException("Cannot read content. ID is null.",
@@ -456,15 +457,14 @@ public class ContentEndpoint {
             if (mimeType != null) {
                 builder.type(mimeType);
             } else {
-                logger.warn("Unable to determine mime type, defaulting to " + DEFAULT_MIME_TYPE
-                        + ".");
+                LOGGER.warn("Unable to determine mime type, defaulting to {}.", DEFAULT_MIME_TYPE);
                 builder.type(DEFAULT_MIME_TYPE);
             }
 
             try {
                 builder.header(HttpHeaders.CONTENT_LENGTH, item.getSize());
             } catch (IOException e) {
-                logger.debug(
+                LOGGER.debug(
                         "Total number of bytes is unknown, not sending a length with the response: ",
                         e);
             }
@@ -472,19 +472,19 @@ public class ContentEndpoint {
             response = builder.build();
 
         } catch (Exception e) {
-            logger.error("Error retrieving item from content framework.", e);
+            LOGGER.error("Error retrieving item from content framework.", e);
             throw new ContentEndpointException("Content Item " + id + " not found.",
                     Response.Status.NOT_FOUND);
         }
 
-        logger.trace("EXITING: doRead");
+        LOGGER.trace("EXITING: doRead");
 
         return response;
     }
 
     protected Response doUpdate(InputStream stream, String id, String contentType,
             String directive, String contentUri) throws ContentEndpointException {
-        logger.trace("ENTERING: doUpdate");
+        LOGGER.trace("ENTERING: doUpdate");
 
         Request.Directive requestDirective = Request.Directive.valueOf(directive);
 
@@ -510,7 +510,7 @@ public class ContentEndpoint {
 
         Response response = null;
 
-        logger.debug("Preparing content item");
+        LOGGER.debug("Preparing content item");
 
         ContentItem itemToUpdate = new IncomingContentItem(id, stream, contentType);
         itemToUpdate.setUri(contentUri);
@@ -526,19 +526,19 @@ public class ContentEndpoint {
             addHttpHeaders(updateResponse, responseBuilder);
             response = responseBuilder.build();
         } catch (Exception e) {
-            logger.error("Error updating item in content framework", e);
+            LOGGER.error("Error updating item in content framework", e);
             throw new ContentEndpointException("Content Item " + id + " not found.",
                     Response.Status.NOT_FOUND);
         }
 
-        logger.trace("EXITING: doUpdate");
+        LOGGER.trace("EXITING: doUpdate");
 
         return response;
     }
 
-    protected Response doDelete(String id, String directive, String contentUri)
+    protected Response executeDelete(String id, String directive, String contentUri)
         throws ContentEndpointException {
-        logger.trace("ENTERING: doDelete");
+        LOGGER.trace("ENTERING: executeDelete");
 
         Request.Directive requestDirective = Request.Directive.valueOf(directive);
 
@@ -561,14 +561,13 @@ public class ContentEndpoint {
             DeleteRequest deleteRequest = new DeleteRequestImpl(itemToDelete, null);
             DeleteResponse deleteResponse = contentFramework
                     .delete(deleteRequest, requestDirective);
-            if (logger.isDebugEnabled()) {
-                if (requestDirective == Request.Directive.PROCESS) {
-                    logger.debug("Deleted content item with URI = " + contentUri);
-                } else {
-                    logger.debug("Deleted content item with id = " + id);
-                }
+            
+            if (requestDirective == Request.Directive.PROCESS) {
+                LOGGER.debug("Deleted content item with URI = {}", contentUri);
+            } else {
+                LOGGER.debug("Deleted content item with id = {}", id);
             }
-
+            
             if (deleteResponse.isFileDeleted()) {
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder.status(Response.Status.NO_CONTENT);
@@ -583,13 +582,13 @@ public class ContentEndpoint {
                 response = responseBuilder.build();
             }
         } catch (ContentFrameworkException e) {
-            logger.error("Error deleting item from content framework", e);
+            LOGGER.error("Error deleting item from content framework", e);
             throw new ContentEndpointException("Content Item " + id + " not found.",
                     Response.Status.NOT_FOUND);
 
         }
 
-        logger.trace("EXITING: doDelete");
+        LOGGER.trace("EXITING: executeDelete");
 
         return response;
     }
@@ -604,10 +603,7 @@ public class ContentEndpoint {
             for (String propertyName : (Set<String>) response.getResponsePropertyNames()) {
                 String propertyValue = response.getResponsePropertyValue(propertyName);
                 if (propertyValue != null && !propertyValue.isEmpty()) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("propertyName = [" + propertyName + "] has value ["
-                                + propertyValue + "]");
-                    }
+                    LOGGER.debug("propertyName = [{}] has value [{}]", propertyName, propertyValue);
                     responseBuilder.header(propertyName, propertyValue);
                 }
             }
