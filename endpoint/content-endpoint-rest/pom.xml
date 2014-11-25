@@ -64,7 +64,11 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
-
+	   <dependency>
+	        <groupId>com.google.guava</groupId>
+	        <artifactId>guava</artifactId>
+	        <version>16.0.1</version>
+	    </dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -87,6 +91,9 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <Embed-Dependency>
+                guava
+            </Embed-Dependency>
             <DynamicImport-Package>javax.ws.rs.*</DynamicImport-Package>
             <Export-Package />
           </instructions>

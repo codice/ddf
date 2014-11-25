@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -34,12 +35,18 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import junit.framework.Assert;
+
 import org.apache.commons.io.IOUtils;
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
+import org.apache.cxf.jaxrs.impl.MetadataMap;
 import org.junit.Test;
 
 import ddf.content.ContentFramework;
 import ddf.content.ContentFrameworkException;
 import ddf.content.data.ContentItem;
+import ddf.content.endpoint.rest.ContentEndpoint.CreateInfo;
 import ddf.content.operation.ReadRequest;
 import ddf.content.operation.ReadResponse;
 import ddf.mime.MimeTypeMapper;
@@ -47,7 +54,136 @@ import ddf.mime.MimeTypeResolutionException;
 
 public class ContentEndpointCreateTest {
     private static final String CONTENT_DISPOSITION = "Content-Disposition";
+    
+    private static final String CONTENT_TYPE = "Content-Type";
+    
+    private static final String TEST_JSON = 
+            "{\r\n" + 
+            "    \"properties\": {\r\n" + 
+            "        \"title\": \"myTitle\",\r\n" + 
+            "        \"thumbnail\": \"CA==\",\r\n" + 
+            "        \"resource-uri\": \"http://example.com\",\r\n" + 
+            "        \"created\": \"2012-09-01T00:09:19.368+0000\",\r\n" + 
+            "        \"metadata-content-type-version\": \"myVersion\",\r\n" + 
+            "        \"metadata-content-type\": \"myType\",\r\n" + 
+            "        \"metadata\": \"<xml>metadata goes here ...</xml>\",\r\n" + 
+            "        \"modified\": \"2012-09-01T00:09:19.368+0000\"\r\n" + 
+            "    },\r\n" + 
+            "    \"type\": \"Feature\",\r\n" + 
+            "    \"geometry\": {\r\n" + 
+            "        \"type\": \"Point\",\r\n" + 
+            "        \"coordinates\": [\r\n" + 
+            "            30.0,\r\n" + 
+            "            10.0\r\n" + 
+            "        ]\r\n" + 
+            "    }\r\n" + 
+            "} ";
 
+    @Test
+    public void testParseAttachment_ContentTypeSpecified() throws Exception {  
+        InputStream is = IOUtils.toInputStream(TEST_JSON);
+        MetadataMap<String, String> headers = new MetadataMap<String, String>();
+        headers.add(CONTENT_DISPOSITION, "form-data; name=file; filename=C:\\DDF\\geojson_valid.json");
+        headers.add(CONTENT_TYPE, "application/json;id=geojson");
+        Attachment attachment = new Attachment(is, headers);
+        
+        ContentFramework framework = mock(ContentFramework.class);
+        ContentEndpoint endpoint = new ContentEndpoint(framework, getMockMimeTypeMapper());
+        CreateInfo createInfo = endpoint.parseAttachment(attachment);
+        Assert.assertNotNull(createInfo);
+        Assert.assertEquals("application/json;id=geojson", createInfo.getContentType());
+        Assert.assertEquals("geojson_valid.json", createInfo.getFilename());
+    }
+
+    /**
+     * No Content-Type specified by client, so it should default to text/plain
+     * and be refined by ContentEndpoint to application/json;id=geojson based on the filename's
+     * extension of "json".
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testParseAttachment_ContentTypeNotSpecified() throws Exception {  
+        InputStream is = IOUtils.toInputStream(TEST_JSON);
+        MetadataMap<String, String> headers = new MetadataMap<String, String>();
+        headers.add(ContentEndpoint.CONTENT_DISPOSITION, "form-data; name=file; filename=C:\\DDF\\geojson_valid.json");
+        Attachment attachment = new Attachment(is, headers);
+        
+        ContentFramework framework = mock(ContentFramework.class);
+        ContentEndpoint endpoint = new ContentEndpoint(framework, getMockMimeTypeMapper());
+        CreateInfo createInfo = endpoint.parseAttachment(attachment);
+        Assert.assertNotNull(createInfo);
+        Assert.assertEquals("application/json;id=geojson", createInfo.getContentType());
+        Assert.assertEquals("geojson_valid.json", createInfo.getFilename());
+    }
+
+    /**
+     * Content-Type specified by client as one of the defaults (e.g., application/octet-stream)
+     * simulating what a browser might do, and should be refined by ContentEndpoint to 
+     * application/json;id=geojson based on the filename's extension of "json".
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testParseAttachment_ContentTypeSetToBrowserDefault() throws Exception {  
+        InputStream is = IOUtils.toInputStream(TEST_JSON);
+        MetadataMap<String, String> headers = new MetadataMap<String, String>();
+        headers.add(ContentEndpoint.CONTENT_DISPOSITION, "form-data; name=file; filename=C:\\DDF\\geojson_valid.json");
+        headers.add(CONTENT_TYPE, "application/octet-stream");
+        Attachment attachment = new Attachment(is, headers);
+        
+        ContentFramework framework = mock(ContentFramework.class);
+        ContentEndpoint endpoint = new ContentEndpoint(framework, getMockMimeTypeMapper());
+        CreateInfo createInfo = endpoint.parseAttachment(attachment);
+        Assert.assertNotNull(createInfo);
+        Assert.assertEquals("application/json;id=geojson", createInfo.getContentType());
+        Assert.assertEquals("geojson_valid.json", createInfo.getFilename());
+    }
+
+    /**
+     * No filename specified by client, so ContentEndpoint generates default filename. 
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testParseAttachment_NoFilenameSpecified() throws Exception {  
+        InputStream is = IOUtils.toInputStream(TEST_JSON);
+        MetadataMap<String, String> headers = new MetadataMap<String, String>();
+        headers.add(ContentEndpoint.CONTENT_DISPOSITION, "form-data; name=file");
+        headers.add(CONTENT_TYPE, "application/json;id=geojson");
+        Attachment attachment = new Attachment(is, headers);
+        
+        ContentFramework framework = mock(ContentFramework.class);
+        ContentEndpoint endpoint = new ContentEndpoint(framework, getMockMimeTypeMapper());
+        CreateInfo createInfo = endpoint.parseAttachment(attachment);
+        Assert.assertNotNull(createInfo);
+        Assert.assertEquals("application/json;id=geojson", createInfo.getContentType());
+        Assert.assertEquals(ContentEndpoint.DEFAULT_FILE_NAME + "." + ContentEndpoint.DEFAULT_FILE_EXTENSION, createInfo.getFilename());
+    }
+
+    /**
+     * No filename or Content-Type specified by client, so ContentEndpoint sets the Content-Type
+     * to text/plain (per CXF JAXRS default in Attachment.getContentType()) andgenerates default filename
+     * of file.txt ("file" is default filename and ".txt" extension due to Content-Type of text/plain). 
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testParseAttachment_NoFilenameOrContentTypeSpecified() throws Exception {  
+        InputStream is = IOUtils.toInputStream(TEST_JSON);
+        MetadataMap<String, String> headers = new MetadataMap<String, String>();
+        headers.add(ContentEndpoint.CONTENT_DISPOSITION, "form-data; name=file");
+        Attachment attachment = new Attachment(is, headers);
+        
+        ContentFramework framework = mock(ContentFramework.class);
+        ContentEndpoint endpoint = new ContentEndpoint(framework, getMockMimeTypeMapper());
+        CreateInfo createInfo = endpoint.parseAttachment(attachment);
+        Assert.assertNotNull(createInfo);
+        // Content-Type of text/plain is the default returned from CXF JAXRS
+        Assert.assertEquals("text/plain", createInfo.getContentType());
+        Assert.assertEquals(ContentEndpoint.DEFAULT_FILE_NAME + ".txt", createInfo.getFilename());
+    }
+    
     @Test
     public void read_Valid() throws ContentFrameworkException, IOException, MimeTypeParseException,
         MimeTypeResolutionException {
@@ -144,8 +280,12 @@ public class ContentEndpointCreateTest {
 
     protected MimeTypeMapper getMockMimeTypeMapper() throws MimeTypeResolutionException {
         MimeTypeMapper mapper = mock(MimeTypeMapper.class);
-        when(mapper.getFileExtensionForMimeType(isA(String.class))).thenReturn("txt");
-        when(mapper.getMimeTypeForFileExtension(isA(String.class))).thenReturn("text/plain");
+//        when(mapper.getFileExtensionForMimeType(isA(String.class))).thenReturn("txt");
+//        when(mapper.getMimeTypeForFileExtension(isA(String.class))).thenReturn("text/plain");
+        when(mapper.getFileExtensionForMimeType(eq("text/plain"))).thenReturn("txt");
+        when(mapper.getMimeTypeForFileExtension(eq("txt"))).thenReturn("text/plain");
+        when(mapper.getFileExtensionForMimeType(eq("application/json"))).thenReturn("json");
+        when(mapper.getMimeTypeForFileExtension(eq("json"))).thenReturn("application/json;id=geojson");
         return mapper;
     }
 

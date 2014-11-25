@@ -16,6 +16,8 @@ package ddf.content.endpoint.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.DELETE;
@@ -33,12 +35,15 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
+
+import com.google.common.io.FileBackedOutputStream;
 
 import ddf.content.ContentFramework;
 import ddf.content.ContentFrameworkException;
@@ -72,9 +77,15 @@ import ddf.mime.MimeTypeResolutionException;
 public class ContentEndpoint {
     private static XLogger logger = new XLogger(LoggerFactory.getLogger(ContentEndpoint.class));
 
-    private static final String CONTENT_DISPOSITION = "Content-Disposition";
+    static final String CONTENT_DISPOSITION = "Content-Disposition";
 
-    private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+    static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+    
+    /**
+     * Basic mime types that will be attempted to refine to a more accurate mime type
+     * based on the file extension of the filename specified in the create request.
+     */
+    static final List<String> REFINEABLE_MIME_TYPES = Arrays.asList(DEFAULT_MIME_TYPE, "text/plain");
 
     private static final String DEFAULT_DIRECTIVE = "STORE_AND_PROCESS";
 
@@ -84,13 +95,19 @@ public class ContentEndpoint {
 
     private static final String FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME = "filename";
 
-    private static final String DEFAULT_FILE_NAME = "file";
+    static final String DEFAULT_FILE_NAME = "file";
 
-    private static final String DEFAULT_FILE_EXTENSION = ".bin";
+    static final String DEFAULT_FILE_EXTENSION = "bin";
 
     private static final String CONTENT_ID_HTTP_HEADER = "Content-ID";
 
     private static final String CONTENT_URI_HTTP_HEADER = "Content-URI";
+    
+    public static final int KB = 1024;
+
+    public static final int MB = 1024 * KB;
+    
+    private static final int DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD = 1 * MB;
 
     private ContentFramework contentFramework;
 
@@ -154,45 +171,10 @@ public class ContentEndpoint {
         // just another parameter to the name="file" Content-Disposition?
         Attachment contentPart = multipartBody.getAttachment(FILE_ATTACHMENT_CONTENT_ID);
         if (contentPart != null) {
-            // Example Content-Type header:
-            // Content-Type: application/json;id=geojson
-            if (contentPart.getContentType() != null) {
-                contentType = contentPart.getContentType().toString();
-            }
-
-            filename = contentPart.getContentDisposition().getParameter(
-                    FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
-
-            // Only interested in attachments for file uploads. Any others should be covered by
-            // the FormParam arguments.
-            if (StringUtils.isEmpty(filename)) {
-                logger.debug("No filename parameter provided - generating default filename");
-                String fileExtension = DEFAULT_FILE_EXTENSION;
-                try {
-                    fileExtension = mimeTypeMapper.getFileExtensionForMimeType(contentType); // DDF-2307
-                    if (StringUtils.isEmpty(fileExtension)) {
-                        fileExtension = DEFAULT_FILE_EXTENSION;
-                    }
-                } catch (MimeTypeResolutionException e) {
-                    logger.debug("Exception getting file extension for contentType = "
-                            + contentType);
-                }
-                filename = DEFAULT_FILE_NAME + fileExtension; // DDF-2263
-                logger.debug("No filename parameter provided - default to " + filename);
-            } else {
-                filename = FilenameUtils.getName(filename);
-            }
-
-            // Get the file contents as an InputStream and ensure the stream is positioned
-            // at the beginning
-            try {
-                stream = contentPart.getDataHandler().getInputStream();
-                if (stream != null && stream.available() == 0) {
-                    stream.reset();
-                }
-            } catch (IOException e) {
-                logger.warn("IOException reading stream from file attachment in multipart body", e);
-            }
+            CreateInfo createInfo = parseAttachment(contentPart);
+            stream = createInfo.getStream();
+            filename = createInfo.getFilename();
+            contentType = createInfo.getContentType();
         } else {
             logger.debug("No file contents attachment found");
         }
@@ -203,6 +185,91 @@ public class ContentEndpoint {
         logger.trace("EXITING: create");
 
         return response;
+    }
+    
+    CreateInfo parseAttachment(Attachment contentPart) {
+        CreateInfo createInfo = new CreateInfo();
+        
+        InputStream stream = null;
+        FileBackedOutputStream fbos = null;
+        String filename = null;
+        String contentType = null;
+        
+        // Get the file contents as an InputStream and ensure the stream is positioned
+        // at the beginning
+        try {
+            stream = contentPart.getDataHandler().getInputStream();
+            if (stream != null && stream.available() == 0) {
+                stream.reset();
+            }
+            createInfo.setStream(stream);
+        } catch (IOException e) {
+            logger.warn("IOException reading stream from file attachment in multipart body", e);
+        }
+        
+        // Example Content-Type header:
+        // Content-Type: application/json;id=geojson
+        if (contentPart.getContentType() != null) {
+            contentType = contentPart.getContentType().toString();
+        }
+
+        filename = contentPart.getContentDisposition().getParameter(
+                FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
+
+        // Only interested in attachments for file uploads. Any others should be covered by
+        // the FormParam arguments.
+        // If the filename was not specified, then generate a default filename based on the
+        // specified content type.
+        if (StringUtils.isEmpty(filename)) {
+            logger.debug("No filename parameter provided - generating default filename");
+            String fileExtension = DEFAULT_FILE_EXTENSION;
+            try {
+                fileExtension = mimeTypeMapper.getFileExtensionForMimeType(contentType); // DDF-2307
+                if (StringUtils.isEmpty(fileExtension)) {
+                    fileExtension = DEFAULT_FILE_EXTENSION;
+                }
+            } catch (MimeTypeResolutionException e) {
+                logger.debug("Exception getting file extension for contentType = "
+                        + contentType);
+            }
+            filename = DEFAULT_FILE_NAME + "." + fileExtension; // DDF-2263
+            logger.debug("No filename parameter provided - default to " + filename);
+        } else {
+            filename = FilenameUtils.getName(filename);
+            
+            // DDF-908: filename with extension was specified by the client. If the
+            // contentType is null or the browser default, try to refine the contentType
+            // by determining the mime type based on the filename's extension.
+            if (StringUtils.isEmpty(contentType) || REFINEABLE_MIME_TYPES.contains(contentType)) {
+                String fileExtension = FilenameUtils.getExtension(filename);
+                logger.debug("fileExtension = {}, contentType before refinement = {}", fileExtension, contentType);
+                if (fileExtension.equals("xml")) {
+                    // FBOS reads file into byte array in memory up to this threshold, then it transitions
+                    // to writing to a file.
+                    fbos = new FileBackedOutputStream(DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD);
+                    try {
+                        IOUtils.copy(stream, fbos);
+                        // Using fbos.asByteSource().openStream() allows us to pass in a copy of the InputStream
+                        contentType = mimeTypeMapper.guessMimeType(fbos.asByteSource().openStream(), fileExtension);
+                        createInfo.setStream(fbos.asByteSource().openStream());
+                    } catch (IOException | MimeTypeResolutionException e) {
+                        logger.debug("Unable to refine contentType {} based on filename extension {}", contentType, fileExtension);
+                    }
+                } else {
+                    try {
+                        contentType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
+                    } catch (MimeTypeResolutionException e) {
+                        logger.debug("Unable to refine contentType {} based on filename extension {}", contentType, fileExtension);
+                    }
+                }
+                logger.debug("Refined contentType = {}", contentType);
+            }
+        }
+        
+        createInfo.setContentType(contentType);
+        createInfo.setFilename(filename);      
+        
+        return createInfo;
     }
 
     @GET
@@ -544,6 +611,32 @@ public class ContentEndpoint {
                     responseBuilder.header(propertyName, propertyValue);
                 }
             }
+        }
+    }
+    
+    protected class CreateInfo {
+        InputStream stream = null;
+        String filename = null;
+        String contentType = null;
+        
+        
+        public InputStream getStream() {
+            return stream;
+        }
+        public void setStream(InputStream stream) {
+            this.stream = stream;
+        }
+        public String getFilename() {
+            return filename;
+        }
+        public void setFilename(String filename) {
+            this.filename = filename;
+        }
+        public String getContentType() {
+            return contentType;
+        }
+        public void setContentType(String contentType) {
+            this.contentType = contentType;
         }
     }
 
