@@ -476,9 +476,15 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
         setAccessRoleList(convertToList(commaStr));
     }
 
+    /**
+     * Returns a comma-delimited string of privileged access roles.
+     * @return comma delimited String of access roles
+     */
     public String getAccessRoleList() {
-        String accessRoleCsv = accessRoleList.toString().replace("[", "").replace("]", "")
-                .replace(", ", ",");
+        String accessRoleCsv = null;
+        if (accessRoleList != null) {
+            accessRoleCsv = StringUtils.join(accessRoleList, ",");
+        }
         return accessRoleCsv;
     }
     
