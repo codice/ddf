@@ -5,3 +5,7 @@ jdk:
   - oraclejdk7
   - openjdk7
   - oraclejdk8
+before_install:
+	sudo pip install codecov
+after_success:
+  codecov
