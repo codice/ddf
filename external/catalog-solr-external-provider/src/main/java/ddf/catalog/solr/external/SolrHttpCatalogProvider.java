@@ -99,7 +99,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrHttpCatalogProvider.class);
 
-    private static final String SOLR_CATALOG_CONFIG_FILE = "solrCatalogConfig.xml";
+    private static final String SOLR_CATALOG_CONFIG_FILE = "solrcatalogconfig.xml";
 
     private static Properties describableProperties = new Properties();
 
