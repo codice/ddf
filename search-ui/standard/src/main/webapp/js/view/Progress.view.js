@@ -22,9 +22,10 @@ define([
         'spin',
         'spinnerConfig',
         'text!templates/search/progress.handlebars',
+        'direction',
         'progressbar'
     ],
-    function ($, Backbone, Marionette, wreqr, ich, Q, _, Spinner, spinnerConfig, progressTemplate) {
+    function ($, Backbone, Marionette, wreqr, ich, Q, _, Spinner, spinnerConfig, progressTemplate, dir) {
         "use strict";
 
         var Progress = {};
@@ -148,7 +149,8 @@ define([
             },
             cancel: function() {
                 this.resultList.cancel();
-                this.close();
+                wreqr.vent.trigger('search:show', dir.backward);
+                wreqr.vent.trigger('search:clear');
             }
         });
 
