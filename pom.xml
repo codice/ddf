@@ -37,6 +37,7 @@
         <shiro.version>1.2.1</shiro.version>
         <org.geotools.version>8.4</org.geotools.version>
         <karaf.version>2.3.3</karaf.version>
+        <tika.version>1.6</tika.version>
     </properties>
 
     <dependencyManagement>
@@ -264,6 +265,11 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
                 <version>2.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-core</artifactId>
+                <version>${tika.version}</version>
             </dependency>
 
         </dependencies>
