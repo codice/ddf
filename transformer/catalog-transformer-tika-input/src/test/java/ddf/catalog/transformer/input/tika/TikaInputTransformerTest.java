@@ -390,7 +390,6 @@ public class TikaInputTransformerTest {
 
         // Reset timezone back to local time zone.
         TimeZone.setDefault(defaultTimeZone);
-
     }
     
     private String convertDate(Date date) {
@@ -401,7 +400,7 @@ public class TikaInputTransformerTest {
     }
 
     private Metacard transform(InputStream stream) throws Exception {
-        TikaInputTransformer tikaInputTransformer = new TikaInputTransformer();
+        TikaInputTransformer tikaInputTransformer = new TikaInputTransformer(null);
         Metacard metacard = tikaInputTransformer.transform(stream);
         return metacard;
     }

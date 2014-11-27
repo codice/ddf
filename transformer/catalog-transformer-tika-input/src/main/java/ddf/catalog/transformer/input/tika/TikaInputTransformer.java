@@ -17,16 +17,25 @@ package ddf.catalog.transformer.input.tika;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.SortedSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
+import org.apache.tika.mime.MediaType;
+import org.apache.tika.mime.MediaTypeRegistry;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.ToXMLContentHandler;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -41,6 +50,15 @@ import ddf.catalog.transform.InputTransformer;
 public class TikaInputTransformer implements InputTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaInputTransformer.class);
 
+    public TikaInputTransformer(BundleContext bundleContext) {
+        if(bundleContext == null) {
+            LOGGER.error("Bundle context is null. Unable to register {} as an osgi service.", TikaInputTransformer.class.getSimpleName());
+            return;
+        }
+        
+        registerService(bundleContext);
+    }
+    
     @Override
     public Metacard transform(InputStream input) throws IOException, CatalogTransformerException {
         return transform(input, null);
@@ -150,4 +168,39 @@ public class TikaInputTransformer implements InputTransformer {
 				.getTime();
 		return date;
 	}
+	
+    private void registerService(BundleContext bundleContext) {
+        LOGGER.debug("Registering {} as an osgi service.",
+                TikaInputTransformer.class.getSimpleName());
+        bundleContext.registerService(ddf.catalog.transform.InputTransformer.class, this,
+                getServiceProperties());
+    }
+
+    private Hashtable<String, Object> getServiceProperties() {
+        Hashtable<String, Object> properties = new Hashtable<String, Object>();
+        properties.put(ddf.catalog.Constants.SERVICE_ID, "tika");
+        properties.put(ddf.catalog.Constants.SERVICE_TITLE, "Tika Input Transformer");
+        properties.put(ddf.catalog.Constants.SERVICE_DESCRIPTION, "Tika Input Transformer");
+        properties.put("mime-type", getSupportedMimeTypes());
+        // Set service ranking to be -1 so that this default transformer is used after any other
+        // custom, more specific transformers have been used.
+        properties.put(Constants.SERVICE_RANKING, -1);
+
+        return properties;
+    }
+
+    private List<String> getSupportedMimeTypes() {
+        SortedSet<MediaType> mediaTypes = MediaTypeRegistry.getDefaultRegistry().getTypes();
+        List<String> mimeTypes = new ArrayList<String>(mediaTypes.size());
+
+        if (mediaTypes != null) {
+            for (MediaType mediaType : mediaTypes) {
+                String mimeType = mediaType.getType() + "/" + mediaType.getSubtype();
+                mimeTypes.add(mimeType);
+            }
+        }
+
+        LOGGER.debug("supported mime types: {}", mimeTypes);
+        return mimeTypes;
+    }
 }
