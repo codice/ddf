@@ -23,8 +23,6 @@ import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.saml.ext.AssertionWrapper;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
 import org.opensaml.xml.XMLObject;
@@ -61,7 +59,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
      *             if the token cannot be processed successfully.
      */
     @Override
-    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
+    protected synchronized AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         LOGGER.debug("Retrieving authorizationinfo for {}",
                 principalCollection.getPrimaryPrincipal());
@@ -71,41 +69,33 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
             LOGGER.warn(msg);
             throw new AuthorizationException(msg);
         }
-        try {
-            AssertionWrapper wrapper = new AssertionWrapper(assertion.getSecurityToken().getToken());
-            List<AttributeStatement> attributeStatements = wrapper.getSaml2()
-                    .getAttributeStatements();
-            List<Attribute> attributes;
-            Set<Permission> permissions = new HashSet<Permission>();
-            Set<String> roles = new HashSet<String>();
-            Set<String> attributeSet;
-            KeyValuePermission curPermission;
-            for (AttributeStatement curStatement : attributeStatements) {
-                attributes = curStatement.getAttributes();
+        List<AttributeStatement> attributeStatements = assertion.getAttibuteStatements();
+        List<Attribute> attributes;
+        Set<Permission> permissions = new HashSet<Permission>();
+        Set<String> roles = new HashSet<String>();
+        Set<String> attributeSet;
+        KeyValuePermission curPermission;
+        for (AttributeStatement curStatement : attributeStatements) {
+            attributes = curStatement.getAttributes();
 
-                for (Attribute curAttribute : attributes) {
-                    attributeSet = expandAttributes(curAttribute);
-                    curPermission = new KeyValuePermission(curAttribute.getName());
-                    if (attributeSet != null) {
-                        for (String attr : attributeSet) {
-                            curPermission.addValue(attr);
-                            if (SAML_ROLE.equals(curAttribute.getName())) {
-                                LOGGER.debug("Adding role to authorization info: {}", attr);
-                                roles.add(attr);
-                            }
+            for (Attribute curAttribute : attributes) {
+                attributeSet = expandAttributes(curAttribute);
+                curPermission = new KeyValuePermission(curAttribute.getName());
+                if (attributeSet != null) {
+                    for (String attr : attributeSet) {
+                        curPermission.addValue(attr);
+                        if (SAML_ROLE.equals(curAttribute.getName())) {
+                            LOGGER.debug("Adding role to authorization info: {}", attr);
+                            roles.add(attr);
                         }
                     }
-                    LOGGER.debug("Adding permission: {}", curPermission.toString());
-                    permissions.add(curPermission);
                 }
+                LOGGER.debug("Adding permission: {}", curPermission.toString());
+                permissions.add(curPermission);
             }
-            info.setObjectPermissions(permissions);
-            info.setRoles(roles);
-        } catch (WSSecurityException e) {
-            String msg = "Error Processing Token.";
-            LOGGER.warn(msg);
-            throw new AuthorizationException(msg, e);
         }
+        info.setObjectPermissions(permissions);
+        info.setRoles(roles);
 
         return info;
     }

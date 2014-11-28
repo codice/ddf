@@ -14,9 +14,12 @@
  **/
 package ddf.security.service.impl;
 
-import java.util.Collection;
-import java.util.UUID;
-
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.assertion.impl.SecurityAssertionImpl;
+import ddf.security.impl.SubjectImpl;
+import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -26,16 +29,11 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.subject.SimplePrincipalCollection;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.saml.ext.AssertionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.Subject;
-import ddf.security.assertion.impl.SecurityAssertionImpl;
-import ddf.security.impl.SubjectImpl;
-import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
+import java.util.Collection;
+import java.util.UUID;
 
 public class SecurityManagerImpl implements SecurityManager {
 
@@ -129,18 +127,19 @@ public class SecurityManagerImpl implements SecurityManager {
     private SimplePrincipalCollection createPrincipalFromToken(SecurityToken token) {
         SimplePrincipalCollection principals = new SimplePrincipalCollection();
         for (Realm curRealm : realms) {
+            logger.debug("Configuring settings for realm name: {} type: {}",
+                    curRealm.getName(), curRealm.getClass().toString());
+            logger.debug("Is authorizer: {}, is AuthorizingRealm: {}",
+                    curRealm instanceof Authorizer, curRealm instanceof AuthorizingRealm);
+            SecurityAssertion securityAssertion = null;
             try {
-                logger.debug("Configuring settings for realm name: {} type: {}",
-                        curRealm.getName(), curRealm.getClass().toString());
-                logger.debug("Is authorizer: {}, is AuthorizingRealm: {}",
-                        curRealm instanceof Authorizer, curRealm instanceof AuthorizingRealm);
-                principals.add(new AssertionWrapper(token.getToken()).getSaml2().getSubject()
-                        .getNameID().getValue(), curRealm.getName());
-                principals.add(new SecurityAssertionImpl(token), curRealm.getName());
-            } catch (WSSecurityException wsse) {
-                logger.warn(
-                        "Could not add principal for realm ({}). This may cause an authorization failure when the realm is called.",
-                        curRealm.getName());
+                securityAssertion = new SecurityAssertionImpl(token);
+                principals.add(securityAssertion.getPrincipal().getName(), curRealm.getName());
+            } catch (Exception e) {
+                logger.warn("Encountered error while trying to get the Principal for the SecurityToken. Security functions may not work properly.", e);
+            }
+            if (securityAssertion != null) {
+                principals.add(securityAssertion, curRealm.getName());
             }
         }
         return principals;

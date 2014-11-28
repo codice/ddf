@@ -20,9 +20,9 @@ import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.cxf.helpers.XMLUtils;
 import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.components.crypto.Crypto;
 import org.apache.ws.security.components.crypto.CryptoFactory;
@@ -197,7 +197,7 @@ public class LoginFilter implements Filter {
             if (token.isReference()) {
                 wasReference = true;
                 LOGGER.trace("Converting SAML reference to assertion");
-                SecurityToken savedToken = (SecurityToken) httpRequest.getSession().getAttribute(
+                SecurityToken savedToken = (SecurityToken) httpRequest.getSession(false).getAttribute(
                         SecurityConstants.SAML_ASSERTION);
                 if (savedToken != null) {
                     token.replaceReferenece(savedToken);
@@ -209,7 +209,7 @@ public class LoginFilter implements Filter {
                 }
             }
 
-            renewSecurityToken(httpRequest.getSession(), token);
+            renewSecurityToken(httpRequest.getSession(false), token);
 
             synchronized (lock) {
                 SecurityToken securityToken = (SecurityToken) token.getCredentials();
@@ -449,7 +449,7 @@ public class LoginFilter implements Filter {
                     assertion = new AssertionWrapper(securityToken.getToken());
                     after = assertion.getSaml2().getConditions().getNotOnOrAfter();
                     session.setAttribute(SAML_EXPIRATION, after.getMillis());
-                } catch (WSSecurityException e) {
+                } catch (Exception e) {
                     LOGGER.warn("Unable to set expiration date.", e);
                 }
             }

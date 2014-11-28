@@ -93,9 +93,9 @@ public class CasHandler implements AuthenticationHandler {
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
                 //update cache with new information
                 LOGGER.debug("Adding new CAS assertion for session {}",
-                        httpRequest.getSession().getId());
-                cache.put(httpRequest.getSession().getId(), assertion);
-                httpRequest.getSession()
+                        httpRequest.getSession(false).getId());
+                cache.put(httpRequest.getSession(false).getId(), assertion);
+                httpRequest.getSession(false)
                         .setAttribute(AbstractCasFilter.CONST_CAS_ASSERTION, assertion);
                 LOGGER.debug("Successfully set authentication token, returning result with token.");
             } else {
