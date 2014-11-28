@@ -14,12 +14,17 @@
 -->
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
-    
+
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
+
     <bean id="persistentStore" class="org.codice.ddf.persistence.internal.PersistentStoreImpl">
         <cm:managed-properties persistent-id="org.codice.ddf.persistence.internal.PersistentStoreImpl" update-strategy="container-managed" />
+        <property name="encryptService" ref="encryptionService" />
     </bean>
     
     <service ref="persistentStore" id="persistentStoreService" interface="org.codice.ddf.persistence.PersistentStore">
     </service>
+
+    <service ref="persistentStore" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
 
 </blueprint>

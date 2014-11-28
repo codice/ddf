@@ -14,7 +14,13 @@
  **/
 package org.codice.ddf.persistence.internal;
 
+import ddf.security.encryption.EncryptionService;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServer;
@@ -27,6 +33,8 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
@@ -37,7 +45,16 @@ import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -46,13 +63,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PersistentStoreImpl implements PersistentStore {
+public class PersistentStoreImpl implements PersistentStore, ConfigurationWatcher {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistentStoreImpl.class);
 
-    private static final String DEFAULT_SOLR_URL = "http://localhost:8181/solr";
+    private static final String DEFAULT_SOLR_URL = "https://localhost:8993/solr";
 
     private String solrUrl = DEFAULT_SOLR_URL;
+    private String keystoreLoc, keystorePass;
+
+    private String truststoreLoc, truststorePass;
+
+    private EncryptionService encryptService;
+    
     private SolrServer solrServer;
     private ConcurrentHashMap<String, SolrServer> coreSolrServers = new ConcurrentHashMap<String,
             SolrServer>();
@@ -75,11 +98,15 @@ public class PersistentStoreImpl implements PersistentStore {
         LOGGER.trace("INSIDE: PersistentStoreImpl constructor with solrUrl = {}", solrUrl);
         setSolrUrl(solrUrl);
     }
-    
+
     public void setSolrUrl(String solrUrl) {
+        setSolrUrl(solrUrl, false);
+    }
+    
+    public void setSolrUrl(String solrUrl, boolean keystoreUpdate) {
         LOGGER.debug("Setting solrUrl to {}", solrUrl);
         if (solrUrl != null) {
-            if (!StringUtils.equalsIgnoreCase(solrUrl.trim(), this.solrUrl)) {
+            if (!StringUtils.equalsIgnoreCase(solrUrl.trim(), this.solrUrl) || this.solrServer == null || keystoreUpdate) {
                 this.solrUrl = solrUrl.trim();
                 if (this.solrServer != null) {
                     LOGGER.debug("Shutting down the connection manager to the Solr Server at {} and releasing allocated resources.", this.solrUrl);
@@ -87,9 +114,14 @@ public class PersistentStoreImpl implements PersistentStore {
                     LOGGER.debug("Shutdown complete.");
                 }
                 LOGGER.debug("Connecting to solr URL {}", this.solrUrl);
-                this.solrServer = new HttpSolrServer(this.solrUrl);
-                if (solrServer == null) {
-                    LOGGER.warn("SolrServer is null, please configure the Solr URL in the \"Persistent Store\" configuration.");
+
+                if (StringUtils.startsWith(this.solrUrl, "https") && StringUtils.isNotBlank(truststoreLoc)
+                        && StringUtils.isNotBlank(truststorePass)
+                        && StringUtils.isNotBlank(keystoreLoc)
+                        && StringUtils.isNotBlank(keystorePass)) {
+                    this.solrServer = new HttpSolrServer(this.solrUrl, getHttpClient());
+                } else if(!StringUtils.startsWith(this.solrUrl, "https")) {
+                    this.solrServer = new HttpSolrServer(this.solrUrl);
                 }
             }
         } else {
@@ -287,14 +319,12 @@ public class PersistentStoreImpl implements PersistentStore {
         }
 
         if (solrServer == null) {
-            LOGGER.warn(
-                    "Unable to create Solr Core '{}', please configure the Solr URL in the \"Persistent Store\" configuration.",
-                    storeName);
+            LOGGER.warn("Unable to create Solr Core '{}', please configure the Solr URL in the \"Persistent Store\" configuration.", storeName);
             return null;
         }
         
         // Must specify shard in URL so proper core is used
-        HttpSolrServer coreSolrServer = new HttpSolrServer(this.solrUrl + "/" + storeName);
+        HttpSolrServer coreSolrServer = new HttpSolrServer(this.solrUrl + "/" + storeName, getHttpClient());
         CoreAdminResponse response = null;
         if (!solrCoreExists(this.solrServer, storeName)) {
             //LOGGER.info("writing solr conf XML files from bundle to disk");
@@ -330,5 +360,118 @@ public class PersistentStoreImpl implements PersistentStore {
         }
     }
 
+    private CloseableHttpClient getHttpClient() {
+        // Allow TLS protocol and secure ciphers only
+        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
+                getSslContext(),
+                new String[] {
+                        "TLSv1",
+                        "TLSv1.1",
+                        "TLSv1.2"
+                },
+                new String[] {
+                        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                        "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+                        "TLS_RSA_WITH_AES_128_CBC_SHA"
+                },
+                SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+
+        return HttpClients.custom()
+                .setSSLSocketFactory(sslConnectionSocketFactory)
+                .setDefaultCookieStore(new BasicCookieStore())
+                .setMaxConnTotal(128)
+                .setMaxConnPerRoute(32)
+                .build();
+    }
+
+    private SSLContext getSslContext() {
+        KeyStore trustStore = getKeyStore(truststoreLoc, truststorePass);
+        KeyStore keyStore = getKeyStore(keystoreLoc, keystorePass);
+
+        SSLContext sslContext = null;
+
+        try {
+            sslContext = SSLContexts.custom()
+                    .loadKeyMaterial(keyStore, keystorePass.toCharArray())
+                    .loadTrustMaterial(trustStore)
+                    .useTLS()
+                    .build();
+        } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException |
+                KeyManagementException e) {
+            LOGGER.error("Unable to create secure HttpClient", e);
+            return null;
+        }
+
+        sslContext.getDefaultSSLParameters().setNeedClientAuth(true);
+        sslContext.getDefaultSSLParameters().setWantClientAuth(true);
+
+        return sslContext;
+    }
+
+    private KeyStore getKeyStore(String location, String password) {
+        LOGGER.debug("Loading keystore from {}", location);
+        KeyStore keyStore = null;
+
+        try (FileInputStream storeStream = new FileInputStream(location)) {
+            keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keyStore.load(storeStream, password.toCharArray());
+        } catch (CertificateException | IOException
+                | NoSuchAlgorithmException | KeyStoreException e) {
+            LOGGER.error("Unable to load keystore at " + location, e);
+        }
+
+        return keyStore;
+    }
+
+    public void setEncryptService(EncryptionService encryptService) {
+        this.encryptService = encryptService;
+    }
+
+    @Override
+    public void configurationUpdateCallback(Map<String, String> props) {
+        LOGGER.debug("Got a new configuration.");
+        String keystoreLocation = props.get(ConfigurationManager.KEY_STORE);
+        String keystorePassword = encryptService.decryptValue(props
+                .get(ConfigurationManager.KEY_STORE_PASSWORD));
+
+        String truststoreLocation = props.get(ConfigurationManager.TRUST_STORE);
+        String truststorePassword = encryptService.decryptValue(props
+                .get(ConfigurationManager.TRUST_STORE_PASSWORD));
+
+        boolean keystoresUpdated = false;
+
+        if (StringUtils.isNotBlank(keystoreLocation)
+                && (!StringUtils.equals(this.keystoreLoc, keystoreLocation) || !StringUtils.equals(
+                this.keystorePass, keystorePassword))) {
+            if (new File(keystoreLocation).exists()) {
+                LOGGER.debug("Detected a change in the values for the keystore.");
+                this.keystoreLoc = keystoreLocation;
+                this.keystorePass = keystorePassword;
+                keystoresUpdated = true;
+            } else {
+                LOGGER.debug(
+                        "Keystore file does not exist at location {}, not updating keystore values.");
+            }
+        }
+        if (StringUtils.isNotBlank(truststoreLocation)
+                && (!StringUtils.equals(this.truststoreLoc, truststoreLocation) || !StringUtils
+                .equals(this.truststorePass, truststorePassword))) {
+            if (new File(truststoreLocation).exists()) {
+                LOGGER.debug("Detected a change in the values for the truststore.");
+                this.truststoreLoc = truststoreLocation;
+                this.truststorePass = truststorePassword;
+                keystoresUpdated = true;
+            } else {
+                LOGGER.debug(
+                        "Truststore file does not exist at location {}, not updating truststore values.");
+            }
+        }
+
+        if (keystoresUpdated) {
+            setSolrUrl(this.solrUrl, keystoresUpdated);
+        }
+
+    }
 }
 
