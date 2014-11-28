@@ -37,7 +37,7 @@
             description="Solr Cache expiration interval in minutes."/>
 
         <AD description="HTTP URL of Solr 4.x Server" name="Solr URL" id="url"
-            required="true" type="String" default="http://localhost:8181/solr"/>
+            required="true" type="String" default="https://localhost:8993/solr"/>
     </OCD>
 
     <Designate pid="ddf.catalog.federation.impl.CachingFederationStrategy">
