@@ -11,8 +11,10 @@ describe('Contextual', function () {
     describe('wildcard query', function () {
         it("should allow search", function () {
             return this.browser
-                .waitForElementByCssSelector('form#searchForm input[name="q"]', 10000)
+                .waitForElementByCssSelector('form#searchForm input[name="q"]', 20000)
                 .elementByCssSelector('input[name="q"]').type('*')
+                // getLocationInView does not work in Firefox and IE
+                .safeExecute('document.querySelectorAll("#searchButton")[0].scrollIntoView(true)')
                 .elementById('searchButton').click();
         });
 

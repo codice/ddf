@@ -12,7 +12,7 @@ maven clean install
 ###Building
 An Express application has been included to allow rapid development without having to build with Maven and deploy bundles for every change.
 
-* Install `node` and `npm` locally or use [these helper scripts](https://github.com/eirslett/frontend-maven-plugin/tree/master/frontend-maven-plugin/src/it/example/helper-scripts) to use the node and npm downloaded by Maven
+* Install `node` and `npm` locally or use [helper scripts](https://github.com/eirslett/frontend-maven-plugin#helper-scripts) to use the node and npm downloaded by Maven
 * Install package.json with `npm`
 
 ```
@@ -27,7 +27,14 @@ grunt
 * Open http://localhost:8282 to test and debug
 
 ###Testing
-Automated tests are executed as part of the build but it is possible to manually run the tests against a local Selenium or Webdriver server.
+Automated tests are executed as part of the build but it is also possible to manually run the tests.
+
+####Headless
+Run `grunt test` to execute the automated tests against PhantomJS.
+
+####Selenium
+Automated tests can execute against a local Selenium server and target locally installed browsers.
+
 * Install and start a local Selenium server.  [Webdrvr](https://www.npmjs.org/package/webdrvr) can automate this process.
 
 ```
@@ -38,4 +45,13 @@ webdrvr
 
 ```
 grunt test:selenium --browser=chrome
+```
+
+####Sauce Labs
+Additionally, tests can execute against [Sauce Labs](https://saucelabs.com/opensauce).
+
+* Use the `test:sauce` task and provide Sauce Lab credentials as `SAUCE_USERNAME` and `SAUCE_ACCESS_KEY` environment variables.
+
+```
+SAUCE_USERNAME=<username> SAUCE_ACCESS_KEY=<key> grunt test:sauce
 ```

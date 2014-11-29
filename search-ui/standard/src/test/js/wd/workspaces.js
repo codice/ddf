@@ -10,7 +10,7 @@ describe('Workspace', function () {
 
     it("should show workspace list", function () {
         return this.browser
-            .waitForElementByLinkText('Workspaces', asserters.isDisplayed).click()
+            .waitForElementByLinkText('Workspaces', asserters.isDisplayed, 20000).click()
             .waitForElementByClassName('workspace-table');
     });
 
@@ -30,7 +30,7 @@ describe('Workspace', function () {
             .waitForElementById('addSearch').click()
             .waitForElementById('queryName').type('bar')
             .elementByCssSelector('input[name="q"]').type('*')
-            .elementByClassName('search-buttons').getLocationInView()
+            .safeExecute('document.querySelectorAll(".search-buttons")[0].scrollIntoView(true)')
             .elementById('workspaceSearchButton').click()
             .waitForElementByClassName('workspace-name')
             .text().should.eventually.equal('bar');
@@ -39,7 +39,8 @@ describe('Workspace', function () {
     it("should allow viewing search in workspace", function () {
         return this.browser
             .waitForElementByClassName('workspace-row').click()
-            .waitForElementByCssSelector('#workspaces .result-count i', asserters.textInclude('results'), 10000);
+            .waitForElementByCssSelector('#workspaces .result-count i', asserters.textInclude('results'), 10000)
+            .waitForConditionInBrowser('document.querySelectorAll("a.metacard-link").length >= 10', 10000);
     });
 
     it("should allow saving results", function () {

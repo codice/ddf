@@ -25,16 +25,16 @@ function debugLogging(browser) {
     });
 }
 
-var url = argv.url || 'http://localhost:8383/';
+var url = argv.url || 'http://localhost:8888/';
 
 exports.asserters = wd.asserters;
 
-exports.setup = function(mocha) {
-    mocha.timeout(this.mochaOptions ? this.mochaOptions.timeout : 30000);
+exports.setup = function() {
 
     before(function () {
         if (argv.browser) {
-            this.browser = wd.promiseChainRemote();
+            this.browser = wd.promiseChainRemote()
+                .init({browserName: argv.browser || 'chrome'});
         }
 
         if (argv.verbose) {
@@ -42,10 +42,9 @@ exports.setup = function(mocha) {
         }
 
         return this.browser
-            .init({browserName: argv.browser || 'chrome'})
             .setAsyncScriptTimeout(10000)
-            //set window size for phantomjs
-            .setWindowSize(1200, 1200)
+            // size based on default sauce labs vm resolution
+            .setWindowSize(1024, 768)
             .get(url);
     });
 

@@ -127,6 +127,20 @@ module.exports = function (grunt) {
                     phantomPort: 5555,
                     usePhantom: true
                 }
+            },
+            sauce: {
+                src: ['src/test/js/wd/*.js'],
+                options: {
+                    autoInstall: false,
+                    testName: 'Search UI',
+                    concurrency: 3,
+                    timeout: 1000 * 60 * 3,
+                    browsers: [
+                        {platform: 'Windows 7', browserName: 'internet explorer', version: '9'},
+                        {platform: 'Windows 7', browserName: 'chrome', version: '38'},
+                        {platform: 'Windows 7', browserName: 'firefox', version: '31'}
+                    ]
+                }
             }
         },
         express: {
@@ -136,7 +150,7 @@ module.exports = function (grunt) {
             },
             test: {
                 options: {
-                    port: 8383,
+                    port: 8888,
                     server: './test.js'
                 }
             },
@@ -176,7 +190,8 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test', ['express:test', 'mochaWebdriver:phantom']);
     grunt.registerTask('test:selenium', ['express:test', 'mochaWebdriver:selenium']);
-    grunt.registerTask('casper-test', ['express:test', 'casper']);
+    grunt.registerTask('test:sauce', ['express:test', 'mochaWebdriver:sauce']);
+    grunt.registerTask('test:casper', ['express:test', 'casper']);
 
     grunt.registerTask('build', ['bower-offline-install', 'sed', 'newer:less',
         'newer:cssmin', 'newer:jshint', 'test']);

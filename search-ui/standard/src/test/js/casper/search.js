@@ -4,7 +4,7 @@
 //casper.options.verbose = true;
 //casper.options.logLevel = 'debug';
 casper.test.begin('simple contextual query', 3, function(test) {
-    casper.start('http://localhost:8383/');
+    casper.start('http://localhost:8888/');
 
     casper.waitFor(function() {
         return this.evaluate(function() {
