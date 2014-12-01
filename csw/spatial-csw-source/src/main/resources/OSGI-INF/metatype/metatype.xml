@@ -25,7 +25,7 @@
         <AD description="Username for CSW Service (optional)" name="Username" id="username"
             required="false" type="String" />
         <AD description="Password for CSW Service (optional)" name="Password" id="password"
-            required="false" type="String" />
+            required="false" type="Password" />
             
         <AD description="Disable CN check for the server certificate. This should only be used when testing." name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false" />
