@@ -19,13 +19,14 @@ define([
     'marionette',
     'js/models/Service',
     './ConfigurationEdit.view',
+    'js/views/EmptyView',
     'js/wreqr.js',
     'text!templates/configuration/serviceList.handlebars',
     'text!templates/configuration/serviceRow.handlebars',
     'text!templates/configuration/configurationRow.handlebars',
     'text!templates/configuration/servicePage.handlebars',
     'text!templates/configuration/configurationList.handlebars'
-    ],function (ich, _, Marionette, Service, ConfigurationEdit, wreqr, serviceList, serviceRow, configurationRow, servicePage, configurationList) {
+    ],function (ich, _, Marionette, Service, ConfigurationEdit, EmptyView, wreqr, serviceList, serviceRow, configurationRow, servicePage, configurationList) {
 
     var ServiceView = {};
 
@@ -99,6 +100,7 @@ define([
         template: 'serviceList',
         itemView: ServiceView.ServiceRow,
         itemViewContainer: 'tbody',
+        emptyView: EmptyView.services,
 
         initialize: function(options) {
             this.showWarnings = options.showWarnings;
@@ -145,8 +147,8 @@ define([
                 return model.get('name');
             };
 
-            this.model.get("value").sort();
-            this.collectionRegion.show(new ServiceView.ServiceTable({ collection: this.model.get("value"), showWarnings: this.showWarnings }));
+            var collection = this.model.get("value").sort();
+            this.collectionRegion.show(new ServiceView.ServiceTable({ collection: collection, showWarnings: this.showWarnings }));
         },
         refreshServices: function() {
             wreqr.vent.trigger('refreshConfigurations');

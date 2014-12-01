@@ -15,13 +15,13 @@
 /*global define*/
 define([
         'marionette',
+        'icanhaz',
         'underscore',
         'jquery',
         './featureRow.view',
-        'text!featureTemplate',
-        'icanhaz'
+        'text!featureTemplate'
 ],
-    function(Marionette, _, $, FeatureRowView, FeaturesTemplate, ich){
+    function(Marionette, ich, _, $, FeatureRowView, FeaturesTemplate){
         'use strict';
 
         if(!ich.featureTemplate) {
