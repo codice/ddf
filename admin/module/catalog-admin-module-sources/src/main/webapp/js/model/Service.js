@@ -13,6 +13,7 @@
  *
  **/
 /*global define*/
+/*jshint -W024*/
 define(function (require) {
 
     var Backbone = require('backbone'),

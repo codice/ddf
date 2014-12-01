@@ -117,7 +117,7 @@ define(function (require) {
         comparator: function(model) {
             var str = model.get('name') || '';
             return str.toLowerCase();
-        },
+        }
     });
 
     Source.Response = Backbone.Model.extend({
