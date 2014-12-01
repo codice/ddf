@@ -19,39 +19,44 @@ define(function (require) {
         $ = require('jquery'),
         _ = require('underscore');
 
-    require('backbonerelational');
+    require('backboneassociation');
 
     var Service = {};
 
-    Service.Metatype = Backbone.RelationalModel.extend({
+    Service.Metatype = Backbone.AssociatedModel.extend({
 
     });
 
-    Service.Properties = Backbone.RelationalModel.extend({
+    Service.Properties = Backbone.AssociatedModel.extend({
 
     });
 
-    Service.Configuration = Backbone.RelationalModel.extend({
+    Service.MetatypeList = Backbone.Collection.extend({
+        model: Service.Metatype
+    });
+
+    Service.Configuration = Backbone.AssociatedModel.extend({
         configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
 
-        
         defaults: {
             properties: new Service.Properties()
         },
-        
         relations: [
             {
-                type: Backbone.HasOne,
+                type: Backbone.One,
                 key: 'properties',
                 relatedModel: Service.Properties,
-                includeInJSON: true,
-                reverseRelation: {
-                    key: 'configuration',
-                    includeInJSON: false
-                }
+                includeInJSON: true
             }
         ],
 
+        initialize: function(options) {
+            if (options.service) {
+                this.initializeFromService(options.service);
+            } else {
+                this.set('service', this.getService());
+            }
+        },
         /**
          * Collect all the data to save.
          * @param pid The pid id.
@@ -137,11 +142,11 @@ define(function (require) {
         },
 
         getServicePid: function(){
-            var model = this;
-            if(model.get('properties') && model.get('properties').get("service.pid")){
-                var pid = model.get('properties').get("service.pid");
-                if(pid){
-                    return pid;
+            var props = this.get('properties');
+            if (props) {
+                var config = props.parents[0];
+                if (config) {
+                    return config.id;
                 }
             }
             return null;
@@ -158,9 +163,8 @@ define(function (require) {
                 model = this,
                 addUrl = [model.configUrl, "add"].join("/");
             //if it has a pid we are editing an existing record
-            if(model.get('properties') && model.get('properties').get("service.pid"))
-            {
-                var collect = model.collectedData(model.get('properties').get("service.pid"));
+            if(model.parents.length > 0 && model.parents[0].get('id')) {
+                var collect = model.parents[0].get('id');
                 var jData = JSON.stringify(collect);
 
                 return $.ajax({
@@ -220,9 +224,12 @@ define(function (require) {
         },
         destroy: function() {
             var deferred = $.Deferred(),
-                model = this;
-            var deleteUrl = [model.configUrl, "delete", model.get('properties').get("service.pid")].join("/");
+                model = this,
+                deleteUrl = [model.configUrl, "delete", model.id].join("/");
 
+            if (!model.id) {
+                throw "No ID defined for model '" + model.get('name') + "'.";
+            }
             return $.ajax({
                 type: 'GET',
                 url: deleteUrl
@@ -264,11 +271,14 @@ define(function (require) {
                     model.get('properties').set(id, (val) ? val.toString() : null);
                 }
             });
+        },
+        /**
+         * Returns the Service.Model used to create this configuration. If the 'service' property is set, that value 
+         * is returned. Otherwise, the service is retrieved by looking it up from the configuration collection relation. 
+         */
+        getService: function() {
+            return this.get('service') || this.collection.parents[0];
         }
-    });
-
-    Service.MetatypeList = Backbone.Collection.extend({
-        model: Service.Metatype
     });
 
     Service.ConfigurationList = Backbone.Collection.extend({
@@ -278,25 +288,24 @@ define(function (require) {
         }
     });
 
-    Service.Model = Backbone.RelationalModel.extend({
+    Service.Model = Backbone.AssociatedModel.extend({
         configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
 
+        defaults: {
+            configurations: new Service.ConfigurationList()
+        },
         relations: [
             {
-                type: Backbone.HasMany,
+                type: Backbone.Many,
                 key: 'configurations',
                 relatedModel: Service.Configuration,
                 collectionType: Service.ConfigurationList,
-                includeInJSON: true,
-                reverseRelation: {
-                    key: 'service'
-                }
+                includeInJSON: true
             },
             {
-                type: Backbone.HasMany,
+                type: Backbone.Many,
                 key: 'metatype',
                 relatedModel: Service.Metatype,
-                collectionType: Service.MetatypeList,
                 includeInJSON: false
             }
         ],
@@ -324,22 +333,14 @@ define(function (require) {
         }
     });
 
-    Service.Collection = Backbone.Collection.extend({
-        model: Service.Model
-    });
-
-    Service.Response = Backbone.RelationalModel.extend({
+    Service.Response = Backbone.AssociatedModel.extend({
         url: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices",
         relations: [
             {
-                type: Backbone.HasMany,
+                type: Backbone.Many,
                 key: 'value',
                 relatedModel: Service.Model,
-                collectionType: Service.Collection,
-                includeInJSON: false,
-                reverseRelation: {
-                    key: 'response'
-                }
+                includeInJSON: false
             }
         ]
     });

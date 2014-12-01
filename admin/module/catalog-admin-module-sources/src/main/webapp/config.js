@@ -24,6 +24,7 @@
             // backbone
             backbone: '../admin/lib/components-backbone/backbone-min',
             backbonerelational: '../admin/lib/backbone-relational/backbone-relational',
+            backboneassociation: '../admin/lib/backbone-associations/backbone-associations-min',
             underscore: '../admin/lib/lodash/dist/lodash.underscore.min',
             marionette: '../admin/lib/marionette/lib/backbone.marionette.min',
             // TODO test combining
@@ -68,7 +69,7 @@
             },
 
             backbonerelational: ['backbone'],
-
+            backboneassociation: ['backbone'],
             marionette: {
                 deps: ['jquery', 'underscore', 'backbone'],
                 exports: 'Marionette'

@@ -19,7 +19,7 @@ define(function (require) {
         Service = require('js/model/Service.js'),
         _ = require('underscore');
 
-    require('backbonerelational');
+    require('backboneassociation');
 
     var Source = {};
 
@@ -189,8 +189,7 @@ define(function (require) {
                             (id.indexOf('Source') !== -1 || id.indexOf('Source') !== -1) || 
                             !_.isUndefined(name) && (name.indexOf('Source') !== -1 || name.indexOf('Service') !== -1)) && 
                             !initialModel.hasConfiguration(service)) {
-                        var config = new Service.Configuration();
-                        config.initializeFromService(service);
+                        var config = new Service.Configuration({service: service});
                         config.set('fpid', config.get('fpid') + '_disabled');
                         initialModel.addDisabledConfiguration(config);
                     }

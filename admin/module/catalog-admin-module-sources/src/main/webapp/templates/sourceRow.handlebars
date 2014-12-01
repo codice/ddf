@@ -30,7 +30,7 @@
                 <option value='Disabled' selected>Disabled</option>
             {{/if}}
             {{#disabledConfigurations}}
-                <option value='{{service.id}}'>{{service.name}}</option>
+                <option value='{{service.attributes.id}}'>{{service.attributes.name}}</option>
             {{/disabledConfigurations}}
         </select>
         </b>
