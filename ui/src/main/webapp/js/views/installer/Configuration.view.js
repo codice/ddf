@@ -91,7 +91,7 @@ define([
                 return view;
             }
             return new Marionette.ItemView();
-        },
+        }
     });
 
     var validateFunction = function(attrs) {

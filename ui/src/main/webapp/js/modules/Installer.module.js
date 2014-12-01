@@ -15,7 +15,7 @@ define([
     'js/application',
     'js/views/installer/InstallerMain.view',
     'js/models/Installer',
-    'js/controllers/InstallerMain.controller',
+    'js/controllers/InstallerMain.controller'
     ], function(Application, InstallerMainView, InstallerModel, InstallerMainController) {
 
     Application.App.module('Installation', function(AppModule, App, Backbone, Marionette, $, _) {
