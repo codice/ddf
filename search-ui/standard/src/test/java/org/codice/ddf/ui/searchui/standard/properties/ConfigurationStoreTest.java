@@ -96,4 +96,31 @@ public class ConfigurationStoreTest {
                 "omega")));
     }
 
+    @Test
+    public void testContentTypeMappingsList() throws Exception {
+        // Setup
+        ConfigurationStore configurationStore =  new ConfigurationStore();
+        configurationStore.setTypeNameMapping(Arrays.asList("foo=bar,foo=baz", "foo=qux",
+                "alpha=beta, alpha = omega ", "=,=,", "bad,input", "name=,=type"));
+
+        // Verify
+        assertThat(configurationStore.getTypeNameMapping().size(), is(2));
+        assertThat(configurationStore.getTypeNameMapping(), hasEntry("foo", Sets.newSet("bar", "baz", "qux")));
+        assertThat(configurationStore.getTypeNameMapping(), hasEntry("alpha", Sets.newSet("beta",
+                "omega")));
+    }
+
+    @Test
+    public void testContentTypeMappingsListString() throws Exception {
+        // Setup
+        ConfigurationStore configurationStore =  new ConfigurationStore();
+        configurationStore.setTypeNameMapping("foo=bar,foo=baz,foo=qux,alpha=beta, alpha = omega , =,=,bad,input,name=,=type");
+
+        // Verify
+        assertThat(configurationStore.getTypeNameMapping().size(), is(2));
+        assertThat(configurationStore.getTypeNameMapping(), hasEntry("foo", Sets.newSet("bar", "baz", "qux")));
+        assertThat(configurationStore.getTypeNameMapping(), hasEntry("alpha", Sets.newSet("beta",
+                "omega")));
+    }
+
 }
