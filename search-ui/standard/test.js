@@ -28,12 +28,11 @@ app.use(express.static(__dirname + '/src/main/webapp'));
 
 //if we're mocking, it is being run by grunt
 console.log('setting up mock query endpoint');
-app.all('/services/catalog/query', server.mockQueryServer);
-app.all('/services/catalog/sources', server.mockSources);
-app.all('/services/store/config', server.mockConfigStore);
-app.all('/services/user', server.mockUser);
-app.all('/cometd/connect', server.mockConnect);
-app.all('/cometd/handshake', server.mockHandshake);
+app.all('/services/catalog/sources', server.mockRequest);
+app.all('/services/store/config', server.mockRequest);
+app.all('/services/user', server.mockRequest);
+app.all('/cometd/handshake', server.mockRequest);
+app.all('/cometd/connect', server.mockCometD);
 app.all('/cometd/', server.mockCometD);
 
 

@@ -56,11 +56,11 @@
     "yargs": "^1.3.3"
   },
   "dependencies": {
-    "http-proxy": "0.10.0",
     "express": "~3.3.4",
     "lodash": "2.4.1",
     "node-fs": "0.1.7",
     "node-options": "0.0.3",
-    "path": "0.4.9"
+    "path": "0.4.9",
+    "request": "2.49.0"
   }
 }

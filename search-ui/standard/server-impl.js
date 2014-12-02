@@ -10,79 +10,15 @@
  *
  **/
 var URL = require('url'),
-    httpProxy = require('http-proxy'),
-    proxy = new httpProxy.RoutingProxy(),
+    request = require('request'),
     fs = require('node-fs'),
     path = require('path'),
     _ = require('lodash');
 
-function stringFormat(format /* arg1, arg2... */) {
-    if (arguments.length === 0) {
-        return undefined;
-    }
-    if (arguments.length === 1) {
-        return format;
-    }
-    var args = Array.prototype.slice.call(arguments, 1);
-    return format.replace(/\{\{|\}\}|\{(\d+)\}/g, function (m, n) {
-        if (m === "{{") {
-            return "{";
-        }
-        if (m === "}}") {
-            return "}";
-        }
-        return args[n];
-    });
-}
-
 var server = {};
 
 server.requestProxy = function (req, res) {
-    "use strict";
-
-    req.url = "http://localhost:8181" + req.url;
-    var urlObj = URL.parse(req.url);
-    req.url = urlObj.path;
-    // Buffer requests so that eventing and async methods still work
-    // https://github.com/nodejitsu/node-http-proxy#post-requests-and-buffering
-    var buffer = httpProxy.buffer(req);
-    console.log('Proxying Request "' + req.url + '"');
-
-    proxy.proxyRequest(req, res, {
-        host: urlObj.hostname,
-        port: urlObj.port || 80,
-        buffer: buffer,
-        changeOrigin: true
-    });
-
-};
-
-server.mockQueryServer = function (req, res) {
-    var keyword = req.query.q;
-    var resourceDir = path.resolve('.', 'src/test/resources');
-
-    if (fs.existsSync(resourceDir)) {
-        var files = fs.readdirSync(resourceDir);
-        if (files.length === 0) {
-            var message = stringFormat('There was no file in the resource path \'{0}\'', resourceDir);
-            res.status(404).send(message);
-            res.end();
-        } else if (files.length > 1) {
-            var fileIdx = _.indexOf(files, keyword+".json");
-            if (fileIdx !== -1) {
-                var resourcePath = path.resolve(resourceDir, files[fileIdx]);
-                sendJson(fs.readFileSync(resourcePath), res);
-            } else {
-                var message = stringFormat('The specified query does not map to a cached file: \'{0}\'', keyword);
-                res.status(404).send(message);
-                res.end();
-            }
-        } else {
-            var message = stringFormat('The specified resource does not exist.');
-            res.status(404).send(message);
-            res.end();
-        }
-    }
+    req.pipe(request("http://localhost:8181" + req.url)).pipe(res);
 };
 
 function getTestResource(name) {
@@ -99,8 +35,7 @@ function mockTestResource (name, res) {
     if (resource) {
         sendJson(resource, res);
     } else {
-        var message = stringFormat('The specified resource does not exist.');
-        res.status(404).send(message);
+        res.status(404).send('The specified resource does not exist.');
         res.end();
     }
 }
@@ -110,43 +45,28 @@ function sendJson (data, res) {
     res.status(200).send(data);
 }
 
-server.mockConfigStore = function (req, res) {
-    mockTestResource('config.json', res);
-}
-
-server.mockUser = function (req, res) {
-    mockTestResource('user.json', res);
-}
-
-server.mockSources = function (req, res) {
-    mockTestResource('sources.json', res);
-}
-
-server.mockHandshake = function (req, res) {
-    mockTestResource('handshake.json', res);
-}
-
-server.mockConnect = function (req, res) {
-    var resource = getTestResource('connect.json');
-    resource = resource.replace('/e863f023-3b6f-4575-badf-a1f114e7b378', server.clientChannel);
-    sendJson(resource, res);
-}
+server.mockRequest = function (req, res) {
+    mockTestResource(_.last(URL.parse(req.url).pathname.split('/')) + '.json', res);
+};
 
 server.mockCometD = function (req, res) {
 	//parse req body to figure out how to respond
-        var dat = req.body[0];
-        var json = [{'id':dat.id, 'successful':true, 'channel':dat.channel}];
-        if (dat.subscription) {
-            json[0].subscription = dat.subscription;
-            if (dat.subscription.match(/[a-f0-9]*-/)) {
-                server.clientChannel = dat.subscription;
-            }
-        } else if (dat.channel === '/service/user') {
-            json.unshift({'data':{'successful':'false'}, 'channel':'/service/user'});
-        } else if (dat.channel === '/service/query') {
-            json.unshift({'successful':'true'});
+    var dat = req.body[0];
+    var json = [{'id':dat.id, 'successful':true, 'channel':dat.channel}];
+    if (dat.subscription) {
+        json[0].subscription = dat.subscription;
+        if (dat.subscription.match(/[a-f0-9]*-/)) {
+            server.clientChannel = dat.subscription;
         }
-        sendJson(json, res);
-}
+    } else if (dat.channel === '/service/user') {
+        json.unshift({'data':{'successful':'false'}, 'channel':'/service/user'});
+    } else if (dat.channel === '/service/query') {
+        json.unshift({'successful':'true'});
+    } else if (dat.channel === '/meta/connect') {
+        json = getTestResource('connect.json')
+            .replace('/e863f023-3b6f-4575-badf-a1f114e7b378', server.clientChannel);
+    }
+    sendJson(json, res);
+};
 
 module.exports = server;
