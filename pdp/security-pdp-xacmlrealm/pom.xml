@@ -45,8 +45,6 @@
       <groupId>org.wso2.balana</groupId>
       <artifactId>balana</artifactId>
       <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/balana-1.0.0.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
