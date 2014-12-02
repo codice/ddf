@@ -43,8 +43,8 @@
     </dependency>
     <dependency>
       <groupId>org.wso2.balana</groupId>
-      <artifactId>balana</artifactId>
-      <version>1.0.0</version>
+      <artifactId>org.wso2.balana</artifactId>
+      <version>1.0.0-wso2v7</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
