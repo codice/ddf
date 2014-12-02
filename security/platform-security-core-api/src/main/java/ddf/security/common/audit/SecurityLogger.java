@@ -157,6 +157,14 @@ public final class SecurityLogger {
         LOGGER.error("{}{}", log, requestIpAndPortMessage(message));
     }
 
+    public static boolean isDebugEnabled() {
+        return LOGGER.isDebugEnabled();
+    }
+
+    public static boolean isInfoEnabled() {
+        return LOGGER.isInfoEnabled();
+    }
+
     private static SecurityToken getToken(Message message) {
         TokenStore tokenStore = getTokenStore(message);
         SAMLTokenPrincipal principal = (SAMLTokenPrincipal) message
