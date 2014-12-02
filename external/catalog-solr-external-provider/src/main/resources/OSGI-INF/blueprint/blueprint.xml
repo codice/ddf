@@ -25,6 +25,7 @@
 			<bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
 		</argument>
 		<property name="encryptService" ref="encryptionService" />
+		<property name="url" value="https://localhost:8993/solr" />
 	</bean>
 
 	<service ref="solrCatalogProvider" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
