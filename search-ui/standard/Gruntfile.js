@@ -88,19 +88,6 @@ module.exports = function (grunt) {
                 }
             }
         },
-        casperjs: {
-            options: {
-                async: {
-                    parallel: false
-                },
-                engines: {
-                    phantomjs: true,
-                    slimerjs: false
-                }
-            },
-            //this is where the tests would be called from
-            files: ['src/test/js/casper/*.js']
-        },
         mochaWebdriver: {
             options: {
                 autoInstall: true,
@@ -191,7 +178,6 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['express:test', 'mochaWebdriver:phantom']);
     grunt.registerTask('test:selenium', ['express:test', 'mochaWebdriver:selenium']);
     grunt.registerTask('test:sauce', ['express:test', 'mochaWebdriver:sauce']);
-    grunt.registerTask('test:casper', ['express:test', 'casper']);
 
     grunt.registerTask('build', ['bower-offline-install', 'sed', 'newer:less',
         'newer:cssmin', 'newer:jshint', 'test']);
