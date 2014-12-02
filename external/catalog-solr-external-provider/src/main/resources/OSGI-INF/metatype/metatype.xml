@@ -17,7 +17,7 @@
 
 	<OCD name="Catalog External Solr Catalog Provider" id="ddf.catalog.solr.external.SolrHttpCatalogProvider">
 		<AD description="HTTP URL of standalone Solr 4.x Server." name="HTTP URL" id="url"
-			required="true" type="String" default="http://localhost:8181/solr" />
+			required="true" type="String" default="https://localhost:8993/solr" />
 		<AD
 			description="WARNING: Performance Impact. Only in special cases should auto-commit be forced. Forcing auto-commit makes the search results visible immediately."
 			name="Force Auto Commit" id="forceAutoCommit" required="true" type="Boolean" default="" />				

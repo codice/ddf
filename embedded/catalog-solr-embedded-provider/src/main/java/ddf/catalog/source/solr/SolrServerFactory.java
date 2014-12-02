@@ -14,18 +14,7 @@
  **/
 package ddf.catalog.source.solr;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.solr.client.solrj.SolrServer;
@@ -43,6 +32,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * Factory that creates {@link SolrServer} instances. Currently will create a
@@ -94,7 +92,7 @@ public final class SolrServerFactory {
     }
 
     public static SolrServer getHttpSolrServer(String url, String coreName, String configFile, HttpClient client) {
-        createSolrCore(url, coreName, configFile);
+        createSolrCore(url, coreName, configFile, client);
 
         if(client == null) {
             return new HttpSolrServer(url + "/" + coreName);
@@ -205,8 +203,14 @@ public final class SolrServerFactory {
         return result;
     }
 
-    private static void createSolrCore(String url, String coreName, String configFileName) {
-        HttpSolrServer solrServer = new HttpSolrServer(url);
+    private static void createSolrCore(String url, String coreName, String configFileName, HttpClient client) {
+        HttpSolrServer solrServer;
+        if (client != null) {
+            solrServer = new HttpSolrServer(url, client);
+        } else {
+            solrServer = new HttpSolrServer(url);
+        }
+
         if (!solrCoreExists(solrServer, coreName)) {
             LOGGER.info("Creating Solr core {}", coreName);
 

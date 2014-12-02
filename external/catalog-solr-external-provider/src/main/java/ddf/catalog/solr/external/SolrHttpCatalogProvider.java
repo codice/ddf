@@ -75,7 +75,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     private static final String SOLR_CATALOG_CORE_NAME = "catalog";
 
-    private static final String DEFAULT_SOLR_URL = "http://localhost:8181/solr";
+    private static final String DEFAULT_SOLR_URL = "https://localhost:8993/solr";
 
     private String url;
 
@@ -273,7 +273,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
         LOGGER.info("New url {}", urlValue);
 
         if (urlValue != null) {
-            if (!StringUtils.equalsIgnoreCase(urlValue.trim(), url) || keystoreUpdate) {
+            if (!StringUtils.equalsIgnoreCase(urlValue.trim(), url) || keystoreUpdate || server == null) {
                 url = urlValue.trim();
 
                 if (server != null) {
@@ -289,7 +289,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
                         && StringUtils.isNotBlank(keystorePass)) {
                     server = SolrServerFactory.getHttpSolrServer(url, SOLR_CATALOG_CORE_NAME,
                             SOLR_CATALOG_CONFIG_FILE, getHttpClient());
-                } else {
+                } else if (!StringUtils.startsWith(url, "https")) {
                     server = SolrServerFactory.getHttpSolrServer(url, SOLR_CATALOG_CORE_NAME,
                             SOLR_CATALOG_CONFIG_FILE);
                 }
@@ -448,7 +448,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
             }
         }
 
-        if (keystoresUpdated && StringUtils.startsWith(url, "https")) {
+        if (keystoresUpdated) {
             updateServer(url, true);
         }
 
