@@ -78,7 +78,6 @@ define([
                     }
                 });
             },
-
             onFeatureAction: function (view, model){
                 var self = this;
                 var status = model.get("status");

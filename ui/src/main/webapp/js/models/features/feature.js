@@ -51,6 +51,9 @@ define(['backbone','jquery','underscore'], function (Backbone,$,_) {
 
     Feature.Collection = Backbone.Collection.extend({
         model: Feature.Model,
+        comparator: function(item) {
+          return item.get('name');
+        },
         initialize: function(options){
             this.type = options.type;
             this.appName = options.appName;
