@@ -252,7 +252,9 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
         if (subjectPrincipal != null && subjectPrincipal.getPrimaryPrincipal() != null) {
             curUser = subjectPrincipal.getPrimaryPrincipal().toString();
         }
-        SecurityLogger.logInfo("Starting permissions check for user [" + curUser + "]");
+        if (SecurityLogger.isDebugEnabled()) {
+            SecurityLogger.logDebug("Starting permissions check for user [" + curUser + "]");
+        }
         if (perms != null && !perms.isEmpty()) {
             if (permission instanceof KeyValuePermission) {
                 permission = new KeyValueCollectionPermission((KeyValuePermission) permission);
@@ -267,16 +269,18 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
                     String metacardKey = metacardPermission.getKey();
                     // user specificied this metacard key in the match all list - remap key
                     if (matchAllMap.containsKey(metacardKey)) {
-                        SecurityLogger.logInfo("Mapping metacard key " + metacardKey + " to "
-                                + matchAllMap.get(metacardKey));
+                        if (SecurityLogger.isDebugEnabled()) {
+                            SecurityLogger.logDebug("Mapping metacard key " + metacardKey + " to " + matchAllMap.get(metacardKey));
+                        }
                         KeyValuePermission kvp = new KeyValuePermission(
                                 matchAllMap.get(metacardKey), metacardPermission.getValues());
                         matchAllPermissions.add(kvp);
                     }
                     // user specified this metacard key in the match one list - remap key
                     else if (matchOneMap.containsKey(metacardKey)) {
-                        SecurityLogger.logInfo("Mapping metacard key " + metacardKey + " to "
-                                + matchOneMap.get(metacardKey));
+                        if (SecurityLogger.isDebugEnabled()) {
+                            SecurityLogger.logDebug("Mapping metacard key " + metacardKey + " to " + matchOneMap.get(metacardKey));
+                        }
                         KeyValuePermission kvp = new KeyValuePermission(
                                 matchOneMap.get(metacardKey), metacardPermission.getValues());
                         matchOnePermissions.add(kvp);
@@ -284,7 +288,6 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
                     // this metacard key was not specified in either - default to match all with the
                     // same key value
                     else {
-                        SecurityLogger.logInfo("Using original metacard key of " + metacardKey);
                         matchAllPermissions.add(metacardPermission);
                     }
                 }
@@ -299,12 +302,12 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
 
                 boolean matchAll = subjectAllCollection.implies(matchAllCollection);
                 boolean matchOne = subjectOneCollection.implies(matchOneCollection);
-                if (matchAll && matchOne) {
-                    SecurityLogger.logInfo(PERMISSION_FINISH_1_MSG + curUser
-                            + PERMISSION_FINISH_2_MSG + permission + "] is implied.");
-                } else {
-                    SecurityLogger.logInfo(PERMISSION_FINISH_1_MSG + curUser
-                            + PERMISSION_FINISH_2_MSG + permission + "] is not implied.");
+                if (SecurityLogger.isDebugEnabled()) {
+                    if (matchAll && matchOne) {
+                        SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is implied.");
+                    } else {
+                        SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is not implied.");
+                    }
                 }
                 return (matchAll && matchOne);
             }
@@ -312,23 +315,27 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
             for (Permission perm : perms) {
                 if (permission instanceof ActionPermission
                         && isPermitted((ActionPermission) permission, info)) {
-                    SecurityLogger.logInfo(PERMISSION_FINISH_1_MSG + curUser
-                            + PERMISSION_FINISH_2_MSG + permission + "] is implied.");
+                    if (SecurityLogger.isDebugEnabled()) {
+                        SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is implied.");
+                    }
                     return true;
                 } else if (perm.implies(permission)) {
-                    SecurityLogger.logInfo(PERMISSION_FINISH_1_MSG + curUser
-                            + PERMISSION_FINISH_2_MSG + permission + "] is implied.");
+                    if (SecurityLogger.isDebugEnabled()) {
+                        SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is implied.");
+                    }
                     return true;
                 }
             }
         } else if (permission instanceof ActionPermission
                 && isPermitted((ActionPermission) permission, info)) {
-            SecurityLogger.logInfo(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
-                    + permission + "] is implied.");
+            if (SecurityLogger.isDebugEnabled()) {
+                SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is implied.");
+            }
             return true;
         }
-        SecurityLogger.logInfo(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG
-                + permission + "] is not implied.");
+        if (SecurityLogger.isDebugEnabled()) {
+            SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is not implied.");
+        }
         return false;
     }
 
@@ -339,8 +346,9 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
             if (openAccessActionList != null) {
                 for (String openAction : openAccessActionList) {
                     if (action.indexOf(openAction) != -1) {
-                        SecurityLogger.logInfo("Action permission [" + actionPermission
-                                + "] implied as an open action.");
+                        if (SecurityLogger.isDebugEnabled()) {
+                            SecurityLogger.logDebug("Action permission [" + actionPermission + "] implied as an open action.");
+                        }
                         return true;
                     }
                 }
@@ -351,13 +359,17 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
                 for (String accessRole : accessRoleList) {
                     
                     if (info.getRoles().contains(accessRole)) {
-                        SecurityLogger.logInfo("User has access role " + accessRole);
+                        if (SecurityLogger.isDebugEnabled()) {
+                            SecurityLogger.logDebug("User has access role " + accessRole);
+                        }
                         return true;
                     }
                 }
             }
         }
-        SecurityLogger.logInfo("Action permission [" + actionPermission + "] not implied.");
+        if (SecurityLogger.isDebugEnabled()) {
+            SecurityLogger.logDebug("Action permission [" + actionPermission + "] not implied.");
+        }
         return false;
     }
 

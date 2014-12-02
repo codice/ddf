@@ -253,22 +253,24 @@ public class LoginFilter implements Filter {
     }
 
     private void renewSecurityToken(HttpSession session, SAMLAuthenticationToken savedToken) throws WSSecurityException {
-        synchronized (lock) {
-            Long afterMil = (Long) session.getAttribute(SAML_EXPIRATION);
-            if (afterMil == null) {
-                AssertionWrapper assertion = new AssertionWrapper(
-                        ((SecurityToken) savedToken.getCredentials()).getToken());
+        long timeoutSeconds = -1;
+        Long afterMil = (Long) session.getAttribute(SAML_EXPIRATION);
+        long beforeMil = System.currentTimeMillis();
+        if (afterMil == null) {
+            synchronized (lock) {
+                AssertionWrapper assertion = new AssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
                 if (assertion.getSaml2() != null) {
                     DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
                     afterMil = after.getMillis();
                 }
             }
-            long timeoutSeconds = -1;
-            if (afterMil != null) {
-                long beforeMil = System.currentTimeMillis();
-                timeoutSeconds = (afterMil - beforeMil) / 1000;
-            }
-            if (timeoutSeconds <= 60) {
+        }
+
+        if (afterMil != null) {
+            timeoutSeconds = (afterMil - beforeMil) / 1000;
+        }
+        if (timeoutSeconds <= 60) {
+            synchronized (lock) {
                 try {
                     LOGGER.debug("Attempting to refresh user's SAML assertion.");
 
@@ -276,16 +278,12 @@ public class LoginFilter implements Filter {
                     LOGGER.debug("Refresh of user assertion successful");
                     for (Object principal : subject.getPrincipals()) {
                         if (principal instanceof SecurityAssertion) {
-                            savedToken.replaceReferenece(
-                                    ((SecurityAssertion) principal).getSecurityToken());
-                            session.setAttribute(SecurityConstants.SAML_ASSERTION,
-                                    ((SecurityAssertion) principal).getSecurityToken());
+                            savedToken.replaceReferenece(((SecurityAssertion) principal).getSecurityToken());
+                            session.setAttribute(SecurityConstants.SAML_ASSERTION, ((SecurityAssertion) principal).getSecurityToken());
 
-                            AssertionWrapper assertion = new AssertionWrapper(
-                                    ((SecurityToken) savedToken.getCredentials()).getToken());
+                            AssertionWrapper assertion = new AssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
                             if (assertion.getSaml2() != null) {
-                                DateTime after = assertion.getSaml2().getConditions()
-                                        .getNotOnOrAfter();
+                                DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
                                 afterMil = after.getMillis();
                             }
 
@@ -295,9 +293,7 @@ public class LoginFilter implements Filter {
                     }
 
                 } catch (SecurityServiceException e) {
-                    LOGGER.warn(
-                            "Unable to refresh user's SAML assertion. User will log out prematurely.",
-                            e);
+                    LOGGER.warn("Unable to refresh user's SAML assertion. User will log out prematurely.", e);
                     session.invalidate();
                 } catch (Exception e) {
                     LOGGER.warn("Unhandled exception occurred.", e);

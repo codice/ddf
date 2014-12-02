@@ -21,17 +21,17 @@
 
         <AD description="List of realms supporting each context. Provided realms are: DDF, karaf. Example: /=DDF"
             name="Context Realms" id="realms" required="true" cardinality="100"
-            type="String" default="/=DDF,/admin=karaf,/system=karaf"/>
+            type="String" default="/=DDF,/admin=karaf,/system=karaf,/solr=karaf"/>
 
         <AD description="List of authentication types required for each context. List of default valid authentication types are: SAML, BASIC, PKI, ANON. Example: /context=AUTH1|AUTH2|AUTH3"
             name="Authentication Types" id="authenticationTypes" required="true" cardinality="100"
             type="String"
-            default="/=SAML|ANON,/admin=SAML|basic,/jolokia=SAML|basic,/system=basic"/>
+            default="/=SAML|ANON,/admin=SAML|basic,/jolokia=SAML|basic,/system=basic,/solr=SAML|PKI|basic"/>
 
         <AD description="List of attributes required for each Web Context. Example: /context={role=role1|role2;type=type1}"
             name="Required Attributes" id="requiredAttributes" required="true" cardinality="100"
             type="String"
-            default="/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}"/>
+            default="/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}"/>
 
         <AD description="List of contexts that will not use security. Note that sub-contexts to ones listed here will also skip security, unless authentication types are provided for it. For example: if /foo is listed here, then /foo/bar will also not require any sort of authentication. However, if /foo is listed and /foo/bar has authentication types provided in the 'Authentication Types' field, then that more specific policy will be used."
             name="White Listed Contexts" id="whiteListContexts" required="true" cardinality="100"
