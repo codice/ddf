@@ -133,7 +133,7 @@
                             <goal>grunt</goal>
                         </goals>
                         <configuration>
-                            <arguments>build</arguments>
+                            <arguments>build test</arguments>
                         </configuration>
                     </execution>
                 </executions>

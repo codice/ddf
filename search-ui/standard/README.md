@@ -27,7 +27,8 @@ grunt
 * Open http://localhost:8282 to test and debug
 
 ###Testing
-Automated tests are executed as part of the build but it is also possible to manually run the tests.
+Automated tests are executed as part of the maven build but it is also possible to manually run 
+the tests.
 
 ####Headless
 Run `grunt test` to execute the automated tests against PhantomJS.
