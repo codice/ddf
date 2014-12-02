@@ -14,18 +14,33 @@
  **/
 
 /*global define*/
-define(function(require) {
-
-    var Application = require('js/application'),
-        SourceView = require('js/view/Source.view.js'),
-        Source = require('js/model/Source.js');
+define([
+    'wreqr',
+    'js/application',
+    'js/view/Source.view.js',
+    'poller',
+    'js/model/Source.js',
+    'js/model/Status.js',
+    'js/model/Service.js'
+],
+function(wreqr, Application, SourceView, poller, Source, Status, Service) {
 
     Application.App.module('Sources', function(SourceModule, App, Backbone, Marionette)  {
 
-        var Service = require('js/model/Service.js');
-
         var serviceModel = new Service.Response();
         serviceModel.fetch();
+
+        var statusModel = new Status.List();
+        statusModel.on('sync', function() {
+            wreqr.vent.trigger('status:update', statusModel);
+        });
+
+        var options = {
+            delay: 30000
+        };
+
+        var statusPoller = poller.get(statusModel, options);
+        statusPoller.start();
 
         var sourceResponse = new Source.Response({model: serviceModel});
 
