@@ -39,7 +39,6 @@ import junit.framework.Assert;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
-import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.apache.cxf.jaxrs.impl.MetadataMap;
 import org.junit.Test;
 
@@ -280,8 +279,6 @@ public class ContentEndpointCreateTest {
 
     protected MimeTypeMapper getMockMimeTypeMapper() throws MimeTypeResolutionException {
         MimeTypeMapper mapper = mock(MimeTypeMapper.class);
-//        when(mapper.getFileExtensionForMimeType(isA(String.class))).thenReturn("txt");
-//        when(mapper.getMimeTypeForFileExtension(isA(String.class))).thenReturn("text/plain");
         when(mapper.getFileExtensionForMimeType(eq("text/plain"))).thenReturn("txt");
         when(mapper.getMimeTypeForFileExtension(eq("txt"))).thenReturn("text/plain");
         when(mapper.getFileExtensionForMimeType(eq("application/json"))).thenReturn("json");
