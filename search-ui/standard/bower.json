@@ -15,6 +15,7 @@
     "handlebars": "v1.2.1",
     "html5shiv": "3.7.2",
     "jquery": "components/jquery#1.11.0",
+    "jquery-cookie": "1.4.1",
     "jquery-ui": "1.10.4",
     "jqueryui-timepicker-addon": "v1.4.5",
     "lodash": "2.4.1",

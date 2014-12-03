@@ -16,51 +16,6 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
 	<OCD name="Standard Search UI" id="org.codice.ddf.ui.search.standard.properties">
-		<AD
-			description="Specifies the header text to be rendered on the generated Query Page"
-			name="Header" id="header" required="true" type="String" 
-			default="" 
-		/>
-		<AD
-			description="Specifies the footer text to be rendered on the generated Query Page"
-			name="Footer" id="footer" required="true" type="String" 
-			default="" 
-		/>
-		<AD
-			description="Specifies the style of the Header and Footer."
-			name="Style" id="style" required="true" type="String"
-			default="Green">
-            <Option label="Green" value="green" />
-            <Option label="Blue" value="blue" />
-            <Option label="Red" value="red" />
-            <Option label="Yellow" value="yellow" />
-            <Option label="Light Green" value="light-green" />
-            <Option label="Light Blue" value="light-blue" />
-            <Option label="Light Red" value="light-red" />
-            <Option label="Light Yellow" value="light-yellow" />
-            <Option label="White" value="white" />
-            <Option label="Black" value="black" />
-        </AD>
-        <AD
-            description="Specifies the text color of the Header and Footer."
-            name="Text Color" id="textColor" required="true" type="String"
-            default="White">
-            <Option label="Green" value="banner-text-green" />
-            <Option label="Blue" value="banner-text-blue" />
-            <Option label="Red" value="banner-text-red" />
-            <Option label="Yellow" value="banner-text-yellow" />
-            <Option label="Light Green" value="banner-text-light-green" />
-            <Option label="Light Blue" value="banner-text-light-blue" />
-            <Option label="Light Red" value="banner-text-light-red" />
-            <Option label="Light Yellow" value="banner-text-light-yellow" />
-            <Option label="White" value="banner-text-white" />
-            <Option label="Black" value="banner-text-black" />
-        </AD>
-        <AD
-        	description="Specifies the number of results to request from each source" 
-        	name="Result Count" id="resultCount" required="true" type="Integer"
-        	default="250">
-        </AD>
 
         <AD name="Imagery Providers" id="imageryProviders"
             required="false" type="String" cardinality="10000"

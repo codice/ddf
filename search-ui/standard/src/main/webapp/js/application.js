@@ -25,6 +25,7 @@ define(['jquery',
         'text!templates/footer.layout.handlebars',
         'js/controllers/application.controller',
         'js/controllers/Modal.controller',
+        'js/controllers/SystemUsage.controller',
         // Load non attached libs and plugins
         'bootstrap',
         'backboneassociations',
@@ -32,7 +33,8 @@ define(['jquery',
         'jquerycometd',
         'modelbinder',
         'collectionbinder'
-    ], function ($, _, Marionette, Backbone, ich, properties, maptype, map, header, footer, ApplicationController, ModalController) {
+    ], function ($, _, Marionette, Backbone, ich, properties, maptype, map, header, footer,
+                 ApplicationController, ModalController, SystemUsageController) {
         'use strict';
 
         var Application = {};
@@ -106,6 +108,11 @@ define(['jquery',
         //get rid of the loading screen
         Application.App.addInitializer(function() {
             Application.App.loadingRegion.show(new Backbone.View());
+        });
+
+        // show System Notification Banner
+        Application.App.addInitializer(function() {
+            new SystemUsageController();
         });
 
         // Once the application has been initialized (i.e. all initializers have completed), start up

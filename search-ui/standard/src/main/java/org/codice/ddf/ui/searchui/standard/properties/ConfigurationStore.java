@@ -62,14 +62,6 @@ public class ConfigurationStore {
 
     public static final String QUOTE = "\"";
 
-    private String header;
-
-    private String footer;
-
-    private String style;
-
-    private String textColor;
-
     private String format;
 
     private List<String> imageryProviders = new ArrayList<String>();
@@ -156,10 +148,7 @@ public class ConfigurationStore {
 
         Response response;
         JSONObject configObj = new JSONObject();
-        configObj.put("header", header);
-        configObj.put("footer", footer);
-        configObj.put("style", style);
-        configObj.put("textColor", textColor);
+
         configObj.put("branding", getProductName());
         configObj.put("version", getProductVersion());
         configObj.put("showWelcome", isSignIn);
@@ -179,38 +168,6 @@ public class ConfigurationStore {
         response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
 
         return response;
-    }
-
-    public String getHeader() {
-        return header;
-    }
-
-    public void setHeader(String header) {
-        this.header = header;
-    }
-
-    public String getFooter() {
-        return footer;
-    }
-
-    public void setFooter(String footer) {
-        this.footer = footer;
-    }
-
-    public String getStyle() {
-        return style;
-    }
-
-    public void setStyle(String style) {
-        this.style = style;
-    }
-
-    public String getTextColor() {
-        return textColor;
-    }
-
-    public void setTextColor(String textColor) {
-        this.textColor = textColor;
     }
 
     public String getProductName() {

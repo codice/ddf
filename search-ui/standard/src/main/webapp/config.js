@@ -54,6 +54,7 @@
 
             // jquery
             jquery: 'lib/jquery/jquery.min',
+            jqueryCookie: 'lib/jquery-cookie/jquery.cookie',
             jqueryuiCore: 'lib/jquery-ui/ui/minified/jquery.ui.core.min',
             datepicker: 'lib/jquery-ui/ui/minified/jquery.ui.datepicker.min',
             progressbar: 'lib/jquery-ui/ui/minified/jquery.ui.progressbar.min',
