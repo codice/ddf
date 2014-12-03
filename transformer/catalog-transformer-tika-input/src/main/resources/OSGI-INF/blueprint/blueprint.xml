@@ -13,6 +13,7 @@
  **/
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+        <!-- The tika input transformer programmatically registers itself as a service -->
 		<bean class="ddf.catalog.transformer.input.tika.TikaInputTransformer">
 		    <argument ref="blueprintBundleContext" />
 		</bean>

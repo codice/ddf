@@ -173,6 +173,10 @@ public class TikaInputTransformer implements InputTransformer {
         return date;
     }
 
+    /**
+     *  We programmatically register the Tika Input Transformer so we can programmatically build the 
+     *  list of supported mime types.
+     */
     private void registerService(BundleContext bundleContext) {
         LOGGER.debug("Registering {} as an osgi service.", TikaInputTransformer.class.getSimpleName());
         bundleContext.registerService(ddf.catalog.transform.InputTransformer.class, this, getServiceProperties());
@@ -182,10 +186,9 @@ public class TikaInputTransformer implements InputTransformer {
         Hashtable<String, Object> properties = new Hashtable<String, Object>();
         properties.put(ddf.catalog.Constants.SERVICE_ID, "tika");
         properties.put(ddf.catalog.Constants.SERVICE_TITLE, "Tika Input Transformer");
-        properties.put(ddf.catalog.Constants.SERVICE_DESCRIPTION, "Tika Input Transformer");
+        properties.put(ddf.catalog.Constants.SERVICE_DESCRIPTION, "The Tika Input Transformer detects and extracts metadata and text content from various documents.");
         properties.put("mime-type", getSupportedMimeTypes());
-        // Set service ranking to be -1 so that this default transformer is used after any other
-        // custom, more specific transformers have been used.
+        // The Tika Input Transformer should be tried last, so we set the service ranking to -1
         properties.put(Constants.SERVICE_RANKING, -1);
 
         return properties;
