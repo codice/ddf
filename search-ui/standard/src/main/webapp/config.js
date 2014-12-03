@@ -18,7 +18,7 @@
         paths: {
 
             bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
-            cesium: 'lib/cesium/Build/Cesium/Cesium',
+            cesium: 'lib/cesiumjs/Build/Cesium/Cesium',
             openlayers: 'lib/openlayers3/build/ol',
             cometd: 'lib/cometd/org/cometd',
             jquerycometd: 'lib/cometd/jquery/jquery.cometd',

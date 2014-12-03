@@ -7,7 +7,7 @@
     "backbone-associations": "v0.6.2",
     "backbone.modelbinder": "v1.0.5",
     "bootswatch": "v3.2.0",
-    "cesium": "http://cesiumjs.org/releases/Cesium-1.2.zip",
+    "cesiumjs": "v1.2.0",
     "components-backbone": "1.1.0",
     "components-bootstrap": "3.2.0",
     "components-font-awesome": "4.1.0",
