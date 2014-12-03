@@ -74,7 +74,7 @@ define([
                 return sources.fetchPromise();
             },
 
-            processSearch: function(searchToProcess){
+            processSearch: function(searchToProcess) {
                 // send out filters off to be displayed where ever.
                 wreqr.vent.trigger('mapfilter:showFilters', searchToProcess.parents[0].filters);
                 // default all field
@@ -85,18 +85,18 @@ define([
                 var facetCounts = {};
 
                 // process the types returned in this query.
-                if(searchToProcess.has('metacard-types')){
+                if (searchToProcess.has('metacard-types')) {
                     var types = searchToProcess.get('metacard-types');
-                    _.each(_.keys(types), function(type){
+                    _.each(_.keys(types), function (type) {
                         var pairs = _.pairs(types[type]);
                         var currentFieldNames = _.pluck(array, 'name');
-                        _.each(pairs, function(pair){
-                            if(!_.contains(currentFieldNames, pair[0])){
+                        _.each(pairs, function (pair) {
+                            if (!_.contains(currentFieldNames, pair[0])) {
                                 // doesn't exist.  lets add.
 
                                 var fieldType = pair[1].toLowerCase();
                                 // lets convert to a number type.
-                                if(_.contains(Properties.filters.numberTypes, fieldType)){
+                                if (_.contains(Properties.filters.numberTypes, fieldType)) {
                                     fieldType = 'number';
                                 }
 
@@ -110,7 +110,10 @@ define([
                     });
                 }
 
-                var numberOfResults = searchToProcess.get('results').length;
+                var numberOfResults = 0;
+                if (searchToProcess.get('results')) {
+                    numberOfResults = searchToProcess.get('results').length;
+                }
                 // this give us our facet counts.
                 if(searchToProcess.get('results')){
                     searchToProcess.get('results').each(function(item){
