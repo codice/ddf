@@ -52,7 +52,7 @@
             required="true" type="Integer" default="5"/>
         <AD description="Force only the selected Spatial Filter Type as the only available Spatial Filter."
             name="Forced Spatial Filter Type" id="forceSpatialFilter"
-            required="false" type="String" default="">
+            required="false" type="String" default="NO_FILTER">
             <Option label="None" value="NO_FILTER"/>
             <Option label="BBOX" value="BBOX"/>
             <Option label="Beyond" value="Beyond"/>
@@ -113,7 +113,7 @@
             required="true" type="Integer" default="5"/>
         <AD description="Force only the selected Spatial Filter Type as the only available Spatial Filter."
             name="Forced Spatial Filter Type" id="forceSpatialFilter"
-            required="false" type="String" default="">
+            required="false" type="String" default="NO_FILTER">
             <Option label="None" value="NO_FILTER"/>
             <Option label="BBOX" value="BBOX"/>
             <Option label="Beyond" value="Beyond"/>
