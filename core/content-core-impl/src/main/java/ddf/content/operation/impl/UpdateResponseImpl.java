@@ -14,12 +14,13 @@
  **/
 package ddf.content.operation.impl;
 
-import java.io.Serializable;
-import java.util.Map;
-
+import ddf.catalog.data.Metacard;
 import ddf.content.data.ContentItem;
 import ddf.content.operation.UpdateRequest;
 import ddf.content.operation.UpdateResponse;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * UpdateResponseImpl contains the {@link UpdateResponse} information (updated {@link ContentItem})
@@ -27,6 +28,7 @@ import ddf.content.operation.UpdateResponse;
  */
 public class UpdateResponseImpl extends ResponseImpl<UpdateRequest> implements UpdateResponse {
     private ContentItem contentItem;
+    private Metacard metacard;
 
     /**
      * Instantiates a UpdateResponseImpl object with {@link UpdateResponse} object. This is useful
@@ -94,5 +96,14 @@ public class UpdateResponseImpl extends ResponseImpl<UpdateRequest> implements U
     @Override
     public ContentItem getUpdatedContentItem() {
         return contentItem;
+    }
+
+    @Override
+    public Metacard getUpdatedMetacard() {
+        return metacard;
+    }
+
+    public void setUpdatedMetacard(Metacard metacard) {
+        this.metacard = metacard;
     }
 }

@@ -14,12 +14,13 @@
  **/
 package ddf.content.operation.impl;
 
-import java.io.Serializable;
-import java.util.Map;
-
+import ddf.catalog.data.Metacard;
 import ddf.content.data.ContentItem;
 import ddf.content.operation.CreateRequest;
 import ddf.content.operation.CreateResponse;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * CreateResponseImpl contains the {@link CreateResponse} information (created {@link ContentItem})
@@ -28,6 +29,7 @@ import ddf.content.operation.CreateResponse;
  */
 public class CreateResponseImpl extends ResponseImpl<CreateRequest> implements CreateResponse {
     private ContentItem contentItem;
+    private Metacard metacard;
 
     /**
      * Instantiates a CreateResponseImpl object with {@link CreateResponse} object. This is useful
@@ -92,5 +94,14 @@ public class CreateResponseImpl extends ResponseImpl<CreateRequest> implements C
     @Override
     public ContentItem getCreatedContentItem() {
         return contentItem;
+    }
+
+    @Override
+    public Metacard getCreatedMetacard() {
+        return metacard;
+    }
+
+    public void setCreatedMetacard(Metacard metacard) {
+        this.metacard = metacard;
     }
 }

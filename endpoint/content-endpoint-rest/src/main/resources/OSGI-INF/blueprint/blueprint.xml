@@ -21,6 +21,8 @@
   ">
 
 	<reference id="contentFramework" interface="ddf.content.ContentFramework" />
+
+	<reference id="catalogFramework" interface="ddf.catalog.CatalogFramework" />
 	
 	<reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper" />
 
@@ -32,6 +34,7 @@
 
 	<bean id="restSvc" class="ddf.content.endpoint.rest.ContentEndpoint">
 		<argument ref="contentFramework" />
+		<argument ref="catalogFramework" />
 		<argument ref="mimeTypeMapper" />
 	</bean>
 

@@ -14,6 +14,7 @@
  **/
 package ddf.content.operation;
 
+import ddf.catalog.data.Metacard;
 import ddf.content.data.ContentItem;
 
 /**
@@ -31,4 +32,11 @@ public interface CreateResponse extends Response<CreateRequest> {
      * @return the created {@link ContentItem}
      */
     public ContentItem getCreatedContentItem();
+
+    /**
+     * Get the {@link ddf.catalog.data.Metacard} returned from an create operation.
+     *
+     * @return the created {@link ddf.catalog.data.Metacard}
+     */
+    public Metacard getCreatedMetacard();
 }

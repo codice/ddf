@@ -14,18 +14,6 @@
  **/
 package ddf.content.plugin.cataloger;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-
-import javax.activation.MimeType;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
@@ -42,6 +30,17 @@ import ddf.content.operation.impl.UpdateResponseImpl;
 import ddf.content.plugin.ContentPlugin;
 import ddf.content.plugin.PluginExecutionException;
 import ddf.mime.MimeTypeToTransformerMapper;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+
+import javax.activation.MimeType;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 public class CatalogContentPlugin implements ContentPlugin {
     private static final XLogger LOGGER = new XLogger(
@@ -81,12 +80,13 @@ public class CatalogContentPlugin implements ContentPlugin {
         }
 
         try {
-            Metacard metacard = generateMetacard(mimeType, createdContentItem.getUri(), stream);
+            Metacard metacard = generateMetacard(createdContentItem, mimeType, createdContentItem.getUri(), stream);
             String catalogId = cataloger.createMetacard(metacard);
             LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
             properties.put(CATALOG_ID, catalogId);
             response.setResponseProperties(properties);
+            response.setCreatedMetacard(metacard);
         } catch (MetacardCreationException e) {
             LOGGER.warn(e.getMessage(), e);
             throw new PluginExecutionException(e.getMessage(), e);
@@ -124,12 +124,13 @@ public class CatalogContentPlugin implements ContentPlugin {
         }
 
         try {
-            Metacard metacard = generateMetacard(mimeType, updatedContentItem.getUri(), stream);
+            Metacard metacard = generateMetacard(updatedContentItem, mimeType, updatedContentItem.getUri(), stream);
             String catalogId = cataloger.updateMetacard(updatedContentItem.getUri(), metacard);
             LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
             properties.put(CATALOG_ID, catalogId);
             response.setResponseProperties(properties);
+            response.setUpdatedMetacard(metacard);
         } catch (MetacardCreationException e) {
             LOGGER.warn(e.getMessage(), e);
             throw new PluginExecutionException(e.getMessage(), e);
@@ -170,7 +171,7 @@ public class CatalogContentPlugin implements ContentPlugin {
         return response;
     }
 
-    private Metacard generateMetacard(MimeType mimeType, String uri, InputStream message)
+    private Metacard generateMetacard(ContentItem contentItem, MimeType mimeType, String uri, InputStream message)
         throws MetacardCreationException {
         LOGGER.trace("ENTERING: generateMetacard");
 
@@ -213,6 +214,10 @@ public class CatalogContentPlugin implements ContentPlugin {
                 } else {
                     LOGGER.debug("Metacard had a null uri");
                 }
+                if (StringUtils.isBlank(generatedMetacard.getTitle())) {
+                    LOGGER.debug("Metacard title was blank. Setting title to filename.");
+                    generatedMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, contentItem.getFilename()));
+                }
                 break;
             }
         }
@@ -221,7 +226,6 @@ public class CatalogContentPlugin implements ContentPlugin {
             throw new MetacardCreationException("Could not create metacard with mimeType "
                     + mimeType + ". No valid transformers found.");
         }
-
 
         LOGGER.trace("EXITING: generateMetacard");
 
