@@ -95,6 +95,12 @@
 			<groupId>ddf.catalog.core</groupId>
 			<artifactId>catalog-core-api-impl</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.imgscalr</groupId>
+			<artifactId>imgscalr-lib</artifactId>
+			<version>4.2</version>
+		</dependency>
 		
 	</dependencies>
 
@@ -106,6 +112,10 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Embed-Dependency>
+							imgscalr-lib,
+							xuggle-video
+						</Embed-Dependency>
 						<Private-Package>
 							ddf.catalog.transformer.input.tika,
 							ddf.catalog.data.impl
