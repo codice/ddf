@@ -154,9 +154,35 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
             var view = this;
             var model = view.model.get('editConfig');
             if (model) {
+                var fpid = model.get("fpid");
+                var idx = fpid.indexOf("_disabled");
+                if (idx > 0) {
+                    model.set("fpid", fpid.substring(0, idx));
+                }
                 model.save().then(function() {
-                    view.closeAndUnbind();
+                    var needsRefresh = true;
+                    var existingSource = view.parentModel.get('collection').find(function(item) {
+                        return item.get('name') === view.getId(model);
+                    });
+                    if (existingSource) {
+                        var toDisable = existingSource.get('currentConfiguration');
+                        if (toDisable) {
+                            $.when(toDisable.makeDisableCall()).then(function() {
+                                wreqr.vent.trigger('refreshSources');
+                                view.closeAndUnbind();
+                            });
+                            needsRefresh = false;
+                        }
+                    }
+                    if (needsRefresh) {
+                        wreqr.vent.trigger('refreshSources');
+                        view.closeAndUnbind();
+                    }
+                },
+                function() {
                     wreqr.vent.trigger('refreshSources');
+                }).always(function() {
+                    view.closeAndUnbind();
                 });
             }
         },

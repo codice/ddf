@@ -58,7 +58,6 @@ module.exports = function (grunt) {
 
                 // Relaxing Options
                 scripturl: true,      // This option suppresses warnings about the use of script-targeted URLsâ€”such as
-                es5: true,             // Tells JSHint that your code uses ECMAScript 5 specific features such as getters and setters.
 
                 // options here to override JSHint defaults
                 globals: {
