@@ -29,8 +29,9 @@ describe('Workspace', function () {
         return this.browser
             .waitForElementById('addSearch').click()
             .waitForElementById('queryName').type('bar')
-            .elementByCssSelector('input[name="q"]').type('*')
-            .safeExecute('document.querySelectorAll(".search-buttons")[0].scrollIntoView(true)')
+            .waitForElementByCssSelector('#workspaces input[name="q"]').type('*')
+            .waitForElementById('workspaceSearchButton')
+            .safeExecute('document.querySelectorAll("#workspaceSearchButton")[0].scrollIntoView(true)')
             .elementById('workspaceSearchButton').click()
             .waitForElementByClassName('workspace-name')
             .text().should.eventually.equal('bar');
@@ -48,7 +49,7 @@ describe('Workspace', function () {
             .waitForElementById('Save').click()
             .waitForElementByCssSelector('#workspaces input.select-record-checkbox', 10000).click()
             .waitForElementById('Done').click()
-            .waitForElementByCssSelector('input[value="foo"]').click()
+            .waitForElementByCssSelector('input[value="foo"]', asserters.isDisplayed).click()
             .waitForElementByCssSelector('a.submit').click()
             .waitForElementById('Workspace').click()
             .waitForElementById('view-records').click()
