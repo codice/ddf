@@ -54,7 +54,7 @@ define([
                 lat: undefined,
                 lon: undefined,
                 federation: 'enterprise',
-                sortField: 'RELEVANCE',
+                sortField: 'modified',
                 sortOrder: 'desc'
             },
 

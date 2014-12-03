@@ -265,6 +265,18 @@
         </li>
         <li>
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
+                <label id="modifiedSort" class="btn btn-default {{#is sortField 'modified'}}active{{/is}}">
+                    <input type="radio" name="modifiedSortButton" value="modified">
+                    Modified
+                </label>
+                <label id="createdSort" class="btn btn-default {{#is sortField 'created'}}active{{/is}}" >
+                    <input type="radio" name="createdSortButton" value="created">
+                    Created
+                </label>
+                <label id="effectiveSort" class="btn btn-default {{#is sortField 'effective'}}active{{/is}}">
+                    <input type="radio" name="effectiveSortButton" value="effective">
+                    Effective
+                </label>
                 <label id="relevanceSort" class="btn btn-default {{#is sortField 'RELEVANCE'}}active{{/is}}" >
                     <input type="radio" name="relevanceSortButton" value="RELEVANCE">
                     Relevance
@@ -272,18 +284,6 @@
                 <label id="distanceSort" class="btn btn-default {{#is sortField 'DISTANCE'}}active{{/is}}" >
                     <input type="radio" name="distanceSortButton" value="DISTANCE">
                     Distance
-                </label>
-                <label id="createdSort" class="btn btn-default {{#is sortField 'created'}}active{{/is}}" >
-                    <input type="radio" name="createdSortButton" value="created">
-                    Created
-                </label>
-                <label id="modifiedSort" class="btn btn-default {{#is sortField 'modified'}}active{{/is}}">
-                    <input type="radio" name="modifiedSortButton" value="modified">
-                    Modified
-                </label>
-                <label id="effectiveSort" class="btn btn-default {{#is sortField 'effective'}}active{{/is}}">
-                    <input type="radio" name="effectiveSortButton" value="effective">
-                    Effective
                 </label>
             </div>
             <div class="btn-group btn-group-xs margin-bottom-large" data-toggle="buttons">
