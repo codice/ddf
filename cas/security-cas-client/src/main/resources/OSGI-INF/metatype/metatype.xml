@@ -27,7 +27,7 @@
 	    
 	    <AD name="CAS Server Login URL:" id="casServerLoginUrl" required="true" type="String"
 	      default="https://localhost:8443/cas/login"
-	      description="Suffix to the login page of CAS, appended to the server URL.">
+	      description="URL to the login page of CAS (generally ends in /login).">
 	    </AD>
 	    
 	    <AD name="Proxy Callback URL:" id="proxyCallbackUrl" required="true" type="String"
