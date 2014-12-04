@@ -53,6 +53,7 @@ function (ich,Marionette,_,$,Q,ModalSource,Service,wreqr,deleteModal,deleteSourc
         initialize: function(){
             _.bindAll(this);
             this.listenTo(this.model, 'change', this.render);
+            this.listenTo(wreqr.vent, 'status:update', this.updateStatus);
         },
         serializeData: function(){
             var data = {};
@@ -63,6 +64,7 @@ function (ich,Marionette,_,$,Q,ModalSource,Service,wreqr,deleteModal,deleteSourc
             if(this.model && this.model.has('disabledConfigurations')){
                 data.disabledConfigurations = this.model.get('disabledConfigurations').toJSON();
             }
+            data.available = this.model.get('available');
             data.name = this.model.get('name');
 
             return data;
@@ -107,6 +109,18 @@ function (ich,Marionette,_,$,Q,ModalSource,Service,wreqr,deleteModal,deleteSourc
             }
             wreqr.vent.trigger('refreshSources');
             evt.stopPropagation();
+        },
+        updateStatus: function(statusList) {
+            var model = this.model;
+            var currentStatus = statusList.find(function(status) {
+                return status.id === model.id;
+            });
+            var available = model.get('available');
+            var curAvail = currentStatus.get('available');
+            if (available !== curAvail) {
+                model.set('available', curAvail);
+                this.render();
+            }
         }
     });
 
