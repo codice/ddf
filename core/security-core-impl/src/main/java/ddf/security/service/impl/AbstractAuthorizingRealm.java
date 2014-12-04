@@ -59,7 +59,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
      *             if the token cannot be processed successfully.
      */
     @Override
-    protected synchronized AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         LOGGER.debug("Retrieving authorizationinfo for {}",
                 principalCollection.getPrimaryPrincipal());
