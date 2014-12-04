@@ -946,9 +946,15 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         LOGGER.debug("Found {} metacard(s) in the CswRecordCollection.", cswRecordCollection
                 .getCswRecords().size());
 
+        String transformerId = getMetadataTransformerId();
+
+        MetadataTransformer transformer = lookupMetadataTransformer(transformerId);
+
         for (Metacard metacard : cswRecordCollection.getCswRecords()) {
             metacard.setSourceId(getId());
-            metacard = transform(metacard);
+            if (transformer != null) {
+                metacard = transform(metacard, transformer);
+            }
             Result result = new ResultImpl(metacard);
             results.add(result);
         }
@@ -967,31 +973,21 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
      * @param metacard
      * @return
      */
-    protected Metacard transform(Metacard metacard) {
+    protected Metacard transform(Metacard metacard, MetadataTransformer transformer) {
 
         if (metacard == null) {
             throw new IllegalArgumentException(cswSourceConfiguration.getId()
                     + ": Metacard is null.");
         }
 
-        String transformerId = getMetadataTransformerId();
-
-        MetadataTransformer transformer = lookupMetadataTransformer(transformerId);
-
-        if (transformer == null) {
-            LOGGER.debug("{}: Transformer " + transformerId
-                    + " not found - returning original Metacard.", cswSourceConfiguration.getId());
-            return metacard;
-        } else {
-            try {
-                return transformer.transform(metacard);
-            } catch (CatalogTransformerException e) {
-                LOGGER.warn(cswSourceConfiguration.getId()
-                        + ":Transformation Failed for transformer: " + transformerId, e);
-                throw new IllegalArgumentException(cswSourceConfiguration.getId()
-                        + ": Transformation Failed for transformer: " + transformerId);
-            }
+        try {
+            return transformer.transform(metacard);
+        } catch (CatalogTransformerException e) {
+            LOGGER.warn("{} :Metadata Transformation Failed for metacard: {}",
+                    cswSourceConfiguration.getId(), metacard.getId(), e);
         }
+        return metacard;
+
     }
 
     private MetadataTransformer lookupMetadataTransformer(String transformerId) {
@@ -1006,7 +1002,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         }
 
         if (refs == null || refs.length == 0) {
-            LOGGER.info("{}: Transformer " + transformerId + " not found.",
+            LOGGER.info("{}: Metadata Transformer " + transformerId + " not found.",
                     cswSourceConfiguration.getId());
             return null;
         } else {

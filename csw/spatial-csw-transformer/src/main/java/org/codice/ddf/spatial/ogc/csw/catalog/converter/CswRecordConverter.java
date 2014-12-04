@@ -53,6 +53,8 @@ import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
@@ -90,9 +92,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -423,11 +427,23 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        Map<String, String> cswAttrMap = DefaultCswRecordMap.getDefaultCswRecordMap()
-                .getCswToMetacardAttributeNames();
+        Map<String, String> cswAttrMap = new CaseInsensitiveMap(
+                DefaultCswRecordMap.getDefaultCswRecordMap()
+                        .getCswToMetacardAttributeNames());
         Object mappingObj = context.get(CswConstants.CSW_MAPPING);
         if (mappingObj instanceof Map<?, ?>) {
-            cswAttrMap = (Map<String, String>) mappingObj;
+            // If we got mappings passed in, remove the existing mappings for that attribute
+            Map<String, String> newMappings = new CaseInsensitiveMap((Map<String, String>) mappingObj);
+            Iterator<Entry<String, String>> iter = cswAttrMap.entrySet().iterator();
+            while (iter.hasNext()) {
+                Entry<String, String> entry = iter.next();
+                for (Entry<String, String> newEntry : newMappings.entrySet()) {
+                    if (newEntry.getValue().equalsIgnoreCase(entry.getValue())) {
+                        iter.remove();
+                    }
+                }
+            }
+            cswAttrMap.putAll(newMappings);
         }
 
         String resourceUriMapping = (isString(context.get(Metacard.RESOURCE_URI))) ?
@@ -550,7 +566,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
                     attributes.put(name, new AttributeImpl(name, value));
                 }
 
-                if (attributeDescriptor.getType().equals(BasicTypes.GEO_TYPE)) {
+                if (BasicTypes.GEO_TYPE.getAttributeFormat().equals(
+                        attributeDescriptor.getType().getAttributeFormat())) {
                     mc.setLocation((String) value);
                 }
             }

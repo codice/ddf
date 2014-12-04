@@ -421,10 +421,31 @@ public class CswRecordMetacardType extends MetacardTypeImpl {
         descriptors.add(new AttributeDescriptorImpl(Metacard.CONTENT_TYPE, QUERYABLE /* indexed */,
                 false /* stored */, false /* tokenized */, false /* multivalued */,
                 BasicTypes.STRING_TYPE));
-        
+
         descriptors.add(new AttributeDescriptorImpl(Metacard.THUMBNAIL, NON_QUERYABLE /* indexed */,
                 false /* stored */, false /* tokenized */, false /* multivalued */,
                 BasicTypes.BINARY_TYPE));
+
+        descriptors.add(new AttributeDescriptorImpl(Metacard.GEOGRAPHY, QUERYABLE /* indexed */,
+                true /* stored */, false /* tokenized */, false /* multivalued */,
+                BasicTypes.GEO_TYPE));
+
+        descriptors.add(new AttributeDescriptorImpl(Metacard.EXPIRATION, QUERYABLE /* indexed */,
+                true /* stored */, false /* tokenized */, false /* multivalued */,
+                BasicTypes.DATE_TYPE));
+
+        descriptors.add(new AttributeDescriptorImpl(Metacard.CONTENT_TYPE_VERSION,
+                NON_QUERYABLE /* indexed */, true /* stored */, false /* tokenized */,
+                false /* multivalued */, BasicTypes.STRING_TYPE));
+
+        descriptors
+                .add(new AttributeDescriptorImpl(Metacard.TARGET_NAMESPACE, QUERYABLE /* indexed */,
+                        true /* stored */, false /* tokenized */, false /* multivalued */,
+                        BasicTypes.STRING_TYPE));
+
+        descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_SIZE, NON_QUERYABLE /* indexed */,
+                true /* stored */, false /* tokenized */, false /* multivalued */,
+                BasicTypes.STRING_TYPE));
     }
 
     private void addCswBriefRecordAttributes() {

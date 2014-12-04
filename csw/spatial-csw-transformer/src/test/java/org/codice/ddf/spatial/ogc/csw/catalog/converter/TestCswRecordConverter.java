@@ -86,6 +86,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.Matchers.any;
@@ -270,7 +271,7 @@ public class TestCswRecordConverter {
         Metacard mc = (Metacard) xstream.fromXML(is);
 
         assertThat(mc, not(nullValue()));
-
+        assertThat(mc.getLocation(), not(nullValue()));
     }
 
     /**

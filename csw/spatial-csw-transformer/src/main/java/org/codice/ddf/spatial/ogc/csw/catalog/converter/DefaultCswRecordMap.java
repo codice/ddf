@@ -125,6 +125,9 @@ public class DefaultCswRecordMap {
         return mapping;
     }
 
+    /**
+     * NOTE: This is a {@link CaseInsensitiveMap}.
+     */
     public Map<String, String> getCswToMetacardAttributeNames() {
         return cswRecordLocalNameMapping;
     }
