@@ -962,7 +962,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         return results;
     }
 
-    private String getMetadataTransformerId() {
+    protected String getMetadataTransformerId() {
         return DEFAULT_CSW_TRANSFORMER_ID;
     }
 
@@ -990,7 +990,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     }
 
-    private MetadataTransformer lookupMetadataTransformer(String transformerId) {
+    protected MetadataTransformer lookupMetadataTransformer(String transformerId) {
         ServiceReference<?>[] refs = null;
 
         try {
