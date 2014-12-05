@@ -1,0 +1,2 @@
+V	171124234359Z		C69C8B62B6AC2A84	unknown	/C=US/ST=AZ/O=DDF/OU=Dev/CN=DDF Demo Root CA/emailAddress=rootca@ddf.org
+V	151204195655Z		C69C8B62B6AC2A85	unknown	/C=US/ST=AZ/L=Goodyear/O=DDF/OU=Dev/CN=localhost/emailAddress=localhost@ddf.org
