@@ -16,9 +16,9 @@
 define([
     'marionette',
     'icanhaz',
-    'js/controllers/UnfilteredConfiguration.controller',
+    'js/controllers/Configuration.controller',
     'text!templates/application/plugins/config/pluginView.handlebars'
-], function (Marionette, ich, UnfilteredConfigurationController, configModulePluginViewTemplate) {
+], function (Marionette, ich, ConfigurationController, configModulePluginViewTemplate) {
 
     ich.addTemplate('configModulePluginViewTemplate',configModulePluginViewTemplate);
     var PluginView = Marionette.Layout.extend({
@@ -28,7 +28,7 @@ define([
             configurationRegion: '.region'
         },
         initialize: function(){
-            this.controller = new UnfilteredConfigurationController({
+            this.controller = new ConfigurationController({
                 region : this.configurationRegion
             });
         },
