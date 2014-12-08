@@ -14,6 +14,17 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
+import static net.opengis.filter.v_1_1_0.ComparisonOperatorType.BETWEEN;
+import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.BBOX;
+import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.BEYOND;
+import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.CONTAINS;
+import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.CROSSES;
+import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.DISJOINT;
+import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.D_WITHIN;
+import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.INTERSECTS;
+import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.OVERLAPS;
+import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.TOUCHES;
+import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.WITHIN;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
 import static org.junit.Assert.assertEquals;
@@ -22,17 +33,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.BBOX;
-import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.BEYOND;
-import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.CONTAINS;
-import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.CROSSES;
-import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.D_WITHIN;
-import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.DISJOINT;
-import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.INTERSECTS;
-import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.OVERLAPS;
-import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.TOUCHES;
-import static net.opengis.filter.v_1_1_0.SpatialOperatorNameType.WITHIN;
-import static net.opengis.filter.v_1_1_0.ComparisonOperatorType.BETWEEN;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -192,6 +192,8 @@ public class TestCswFilterDelegate {
     private static final String REPLACE_START_DATE = "REPLACE_START_DATE";
 
     private static final String REPLACE_END_DATE = "REPLACE_END_DATE";
+    
+    private static final String REPLACE_DATE = "REPLACE_DATE";
 
     private static final String REPLACE_TEMPORAL_PROPERTY = "REPLACE_TEMPORAL_PROPERTY";
     
@@ -730,6 +732,14 @@ public class TestCswFilterDelegate {
     private final String duringXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_BETWEEN, REPLACE_TEMPORAL_PROPERTY, 
             REPLACE_START_DATE, REPLACE_END_DATE);
+    
+    private final String afterXml = createComparisonFilterString(
+            ComparisonOperator.PROPERTY_IS_GREATER_THAN, REPLACE_TEMPORAL_PROPERTY,
+            REPLACE_DATE);
+    
+    private final String beforeXml = createComparisonFilterString(
+            ComparisonOperator.PROPERTY_IS_LESS_THAN, REPLACE_TEMPORAL_PROPERTY,
+            REPLACE_DATE);
 
     private final String propertyIsEqualToXml = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_EQUAL_TO, DEFAULT_PROPERTY_NAME, "1");
@@ -1210,6 +1220,50 @@ public class TestCswFilterDelegate {
         String testResponse = duringXml.replace(REPLACE_START_DATE, startDateStr).replace(REPLACE_END_DATE, endDateStr).replace(REPLACE_TEMPORAL_PROPERTY, modifiedDateMapping);
         assertXMLEqual(testResponse, xml);
 
+    }
+
+    @Test
+    public void testAfter() throws Exception {
+        // Setup  
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(
+                false, false, CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, 
+                createdDateMapping, modifiedDateMapping);
+        
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        String dateStr = fmt.print(testStartDate);
+        String controlFilterAsXml = afterXml.replace(REPLACE_TEMPORAL_PROPERTY, createdDateMapping)
+                .replace(REPLACE_DATE, dateStr);
+        
+        CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration);
+        
+        // Perform Test
+        FilterType filterType = localCswFilterDelegate.after(propertyNameCreated,
+                testStartDate.toDate());
+        
+        // Verify
+        assertXMLEqual(controlFilterAsXml, getXmlFromMarshaller(filterType));
+    }
+
+    @Test
+    public void testBefore() throws Exception {
+        // Setup
+        CswSourceConfiguration cswSourceConfiguration = initCswSourceConfiguration(
+                false, false, CswRecordMetacardType.CSW_TYPE, effectiveDateMapping, 
+                createdDateMapping, modifiedDateMapping);
+        
+        DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        String dateStr = fmt.print(testStartDate);
+        String controlFilterAsXml = beforeXml.replace(REPLACE_TEMPORAL_PROPERTY, createdDateMapping)
+                .replace(REPLACE_DATE, dateStr);
+        
+        CswFilterDelegate localCswFilterDelegate = createCswFilterDelegate(cswSourceConfiguration);
+        
+        // Perform Test
+        FilterType filterType = localCswFilterDelegate.before(propertyNameCreated,
+                testStartDate.toDate());
+       
+        // Verify
+        assertXMLEqual(controlFilterAsXml, getXmlFromMarshaller(filterType));
     }
 
     @Test

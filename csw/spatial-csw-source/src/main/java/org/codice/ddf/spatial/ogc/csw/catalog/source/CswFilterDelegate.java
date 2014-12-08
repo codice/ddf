@@ -1099,6 +1099,16 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
         Date currentDate = new Date();
         return during(propertyName, new Date(currentDate.getTime() - duration), currentDate);
     }
+    
+    @Override
+    public FilterType before(String propertyName, Date date) {
+        return cswFilterFactory.buildPropertyIsLessThanFilter(mapPropertyName(propertyName), convertDateToIso8601Format(date));
+    }
+    
+    @Override
+    public FilterType after(String propertyName, Date date) {
+        return cswFilterFactory.buildPropertyIsGreaterThanFilter(mapPropertyName(propertyName), convertDateToIso8601Format(date));
+    }
 
     private DateTime convertDateToIso8601Format(Date inputDate) {
         return new DateTime(inputDate);
