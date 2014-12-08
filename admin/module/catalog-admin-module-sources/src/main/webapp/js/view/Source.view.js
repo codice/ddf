@@ -24,13 +24,14 @@ define([
     'js/model/Service.js',
     'js/model/Status.js',
     'wreqr',
+    'js/view/Utils.js',
     'text!templates/deleteModal.handlebars',
     'text!templates/deleteSource.handlebars',
     'text!templates/sourcePage.handlebars',
     'text!templates/sourceList.handlebars',
     'text!templates/sourceRow.handlebars'
 ],
-function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,deleteModal,deleteSource,sourcePage,sourceList,sourceRow) {
+function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,deleteModal,deleteSource,sourcePage,sourceList,sourceRow) {
 
     var SourceView = {};
 
@@ -147,11 +148,11 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,delete
     SourceView.SourcePage = Marionette.Layout.extend({
         template: 'sourcePage',
         events: {
-            'click .refreshButton' : 'refreshSources',
             'click .removeSourceLink' : 'removeSource',
             'click .addSourceLink' : 'addSource'
         },
         initialize: function(){
+            _.bindAll(this);
             this.listenTo(wreqr.vent, 'editSource', this.editSource);
             this.listenTo(wreqr.vent, 'refreshSources', this.refreshSources);
             this.listenTo(wreqr.vent, 'changeConfiguration', this.changeConfiguration);
@@ -163,20 +164,27 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,delete
             collectionRegion: '#sourcesRegion',
             sourcesModal: '#sources-modal'
         },
+        onShow: function() {
+            this.refreshButton = Utils.refreshButton('.refreshButton', this.refreshSources);
+        },
+        onDestroy: function() {
+            this.refreshButton.cleanUp();
+        },
         onRender: function() {
             var collection = this.model.get('collection');
             this.collectionRegion.show(new SourceView.SourceTable({ model: this.model, collection: collection }));
         },
         refreshSources: function() {
             var view = this;
+            
             view.model.get('model').fetch({
                 success: function(){
                     view.model.get('collection').sort();
                     view.model.get('collection').trigger('reset');
-                    view.onRender();
+                    view.refreshButton.done();
                 }
             });
-        }, 
+        },
         editSource: function(model) {
             wreqr.vent.trigger("showModal", 
                 new ModalSource.View({
