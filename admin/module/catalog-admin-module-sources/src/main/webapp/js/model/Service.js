@@ -259,11 +259,10 @@ define(function (require) {
             var model = this;
 
             var idModel = _.find(metatype.models, function(item) {
-                return item.get('id') === 'id';
+                return item.get('id') === 'id' || item.get('id') === 'shortname';
             });
             if (!_.isUndefined(idModel)) {
-                model.set('properties', 
-                        Service.Properties.findOrCreate(idModel.get('defaultValue')));
+                model.set('properties', new Service.Properties(idModel.get('defaultValue')));
             }
             metatype.forEach(function(obj){
                 var id = obj.get('id');
