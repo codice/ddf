@@ -170,7 +170,7 @@ define([
                     filters.push(new Filter.Model({
                         fieldName: timeType,
                         fieldType: 'date',
-                        fieldOperator: 'before',
+                        fieldOperator: 'after',
                         dateValue1: moment().subtract(offset, 'milliseconds').toDate()
                     }));
                 }
