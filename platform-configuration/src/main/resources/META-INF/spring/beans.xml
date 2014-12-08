@@ -12,27 +12,26 @@
  **/
 -->
 
-	<!--  WARNING DO NOT CONVERT TO BLUEPRINT
-	  There is an issue with injecting the configuration when using blueprint.
-	  Meaning, overriding the default metatype settings (see metatype.xml, ConfigurationManager)
-	  will not be overridden. So it has been determined to leave this as spring.
-	-->
-	 
-<beans:beans xmlns="http://www.springframework.org/schema/osgi"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
-        xmlns:beans="http://www.springframework.org/schema/beans"
-        xsi:schemaLocation="http://www.springframework.org/schema/osgi  
-               http://www.springframework.org/schema/osgi/spring-osgi.xsd
-     http://www.springframework.org/schema/osgi-compendium                                    
-               http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd      
-     http://www.springframework.org/schema/beans   
-               http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!--  WARNING DO NOT CONVERT TO BLUEPRINT
+  There is an issue with injecting the configuration when using blueprint.
+  Meaning, overriding the default metatype settings (see metatype.xml, ConfigurationManager)
+  will not be overridden. So it has been determined to leave this as spring.
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+             xmlns:osgi="http://www.springframework.org/schema/osgi"
+             xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+             xsi:schemaLocation="
+                http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd
+                http://www.springframework.org/schema/osgi-compendium http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd
+                http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
 
 
-    <reference id="configurationAdmin"
-                interface="org.osgi.service.cm.ConfigurationAdmin" />
-                
-                
+    <osgi:reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+
     <!-- 
     The list of managedServices that are interested in updates to the DDF System Settings. 
     These managedServices register their interest in updates to the DDF System Settings as they
@@ -41,17 +40,29 @@
     in blueprint. This attribute also helped address a BeanCurrentlyInCreationException was getting as
     DDF started up.
     -->
-        <list id="listenerList" interface="org.codice.ddf.configuration.ConfigurationWatcher" cardinality="0..N">
-                <listener bind-method="bind" ref="ConfigurationManager" />
-    </list>
-        
-    <list id="managedServiceList" interface="org.codice.ddf.configuration.ConfigurationWatcher" cardinality="0..N"/>
-        
-        <beans:bean name="ConfigurationManager"  class="org.codice.ddf.configuration.ConfigurationManager">
-                <osgix:managed-properties persistent-id="ddf.platform.config" 
-                                        update-strategy="bean-managed" update-method="updated"/>
-                <beans:constructor-arg ref="managedServiceList" />
-                <beans:constructor-arg ref="configurationAdmin" />
-         </beans:bean>
-        
-</beans:beans>
+    <osgi:list id="listenerList" interface="org.codice.ddf.configuration.ConfigurationWatcher" cardinality="0..N">
+        <osgi:listener bind-method="bind" ref="ConfigurationManager"/>
+    </osgi:list>
+
+    <osgi:list id="managedServiceList" interface="org.codice.ddf.configuration.ConfigurationWatcher" cardinality="0..N"/>
+
+    <bean name="ConfigurationManager" class="org.codice.ddf.configuration.ConfigurationManager">
+        <osgix:managed-properties persistent-id="ddf.platform.config"
+                                  update-strategy="bean-managed" update-method="updated"/>
+        <constructor-arg ref="managedServiceList"/>
+        <constructor-arg ref="configurationAdmin"/>
+    </bean>
+
+    <bean id="PlatformUiConfiguration" class="org.codice.ddf.configuration.PlatformUiConfiguration">
+        <osgix:managed-properties persistent-id="ddf.platform.ui.config" update-strategy="container-managed"/>
+    </bean>
+
+    <jaxrs:server id="platformConfigurationService" address="/platform">
+        <jaxrs:serviceBeans>
+            <ref bean="PlatformUiConfiguration"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+
+
+</beans>

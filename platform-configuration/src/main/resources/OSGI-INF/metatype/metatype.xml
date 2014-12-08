@@ -50,10 +50,40 @@
 
         <AD name="Site contact" id="contact" required="true" type="String" description="The email address of the site contact" />
     </OCD>
-    <Designate
-            pid="ddf.platform.config">
-        <Object
-                ocdref="ddf.platform.config" />
+
+
+    <OCD name="Platform UI Configuration"
+         description="Global User Interface configurations used across the applications.  Contains configuration for banners and other generic ui components."
+         id="ddf.platform.ui.config">
+
+        <AD
+                description="Specifies the header text to be rendered on all pages."
+                name="Header" id="header" required="true" type="String"
+                default=""
+                />
+        <AD
+                description="Specifies the footer text to be rendered on all pages."
+                name="Footer" id="footer" required="true" type="String"
+                default=""
+                />
+        <AD
+                description="Specifies the Text Color of the Header and Footer.  Use html css colors or #rrggbb."
+                name="Text Color" id="color" required="true" type="String"
+                default=""
+                />
+        <AD
+                description="Specifies the Background Color of the Header and Footer.  Use html css colors or #rrggbb."
+                name="Background Color" id="background" required="true" type="String"
+                default=""
+                />
+    </OCD>
+
+    <Designate pid="ddf.platform.config">
+        <Object ocdref="ddf.platform.config" />
+    </Designate>
+
+    <Designate pid="ddf.platform.ui.config">
+        <Object ocdref="ddf.platform.ui.config" />
     </Designate>
 
 
