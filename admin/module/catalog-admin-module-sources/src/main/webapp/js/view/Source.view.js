@@ -20,6 +20,7 @@ define([
     'jquery',
     'q',
     'js/view/ModalSource.view.js',
+    'js/view/EmptyView.js',
     'js/model/Service.js',
     'wreqr',
     'text!templates/deleteModal.handlebars',
@@ -28,7 +29,7 @@ define([
     'text!templates/sourceList.handlebars',
     'text!templates/sourceRow.handlebars'
 ],
-function (ich,Marionette,_,$,Q,ModalSource,Service,wreqr,deleteModal,deleteSource,sourcePage,sourceList,sourceRow) {
+function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,wreqr,deleteModal,deleteSource,sourcePage,sourceList,sourceRow) {
 
     var SourceView = {};
 
@@ -127,6 +128,7 @@ function (ich,Marionette,_,$,Q,ModalSource,Service,wreqr,deleteModal,deleteSourc
     SourceView.SourceTable = Marionette.CompositeView.extend({
         template: 'sourceList',
         itemView: SourceView.SourceRow,
+        emptyView: EmptyView.sources,
         itemViewContainer: 'tbody'
     });
 
@@ -150,7 +152,8 @@ function (ich,Marionette,_,$,Q,ModalSource,Service,wreqr,deleteModal,deleteSourc
             sourcesModal: '#sources-modal'
         },
         onRender: function() {
-            this.collectionRegion.show(new SourceView.SourceTable({ model: this.model, collection: this.model.get("collection") }));
+            var collection = this.model.get('collection');
+            this.collectionRegion.show(new SourceView.SourceTable({ model: this.model, collection: collection }));
         },
         refreshSources: function() {
             var view = this;
