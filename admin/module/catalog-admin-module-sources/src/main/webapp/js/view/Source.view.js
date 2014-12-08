@@ -22,6 +22,7 @@ define([
     'js/view/ModalSource.view.js',
     'js/view/EmptyView.js',
     'js/model/Service.js',
+    'js/model/Status.js',
     'wreqr',
     'text!templates/deleteModal.handlebars',
     'text!templates/deleteSource.handlebars',
@@ -29,7 +30,7 @@ define([
     'text!templates/sourceList.handlebars',
     'text!templates/sourceRow.handlebars'
 ],
-function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,wreqr,deleteModal,deleteSource,sourcePage,sourceList,sourceRow) {
+function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,deleteModal,deleteSource,sourcePage,sourceList,sourceRow) {
 
     var SourceView = {};
 
@@ -55,6 +56,15 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,wreqr,deleteModal,d
             _.bindAll(this);
             this.listenTo(this.model, 'change', this.render);
             this.listenTo(wreqr.vent, 'status:update', this.updateStatus);
+            this.getInitialStatuses();
+        },
+        getInitialStatuses: function() {
+            var statusModel = new Status.List();
+            statusModel.fetch({
+                success: function() {
+                    wreqr.vent.trigger('status:update', statusModel);
+                }
+            });
         },
         serializeData: function(){
             var data = {};
@@ -117,10 +127,12 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,wreqr,deleteModal,d
                 return status.id === model.id;
             });
             var available = model.get('available');
-            var curAvail = currentStatus.get('available');
-            if (available !== curAvail) {
-                model.set('available', curAvail);
-                this.render();
+            if (currentStatus) {
+                var curAvail = currentStatus.get('available');
+                if (available !== curAvail) {
+                    model.set('available', curAvail);
+                    this.render();
+                }
             }
         }
     });
