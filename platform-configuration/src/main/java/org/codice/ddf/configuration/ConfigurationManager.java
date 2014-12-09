@@ -203,8 +203,8 @@ public class ConfigurationManager {
         if (updatedConfig != null && !updatedConfig.isEmpty()) {
             configuration.clear();
             
-            for(Map.Entry<String, ?> entry : updatedConfig.entrySet()) {
-                if(entry.getValue() != null) {
+            for (Map.Entry<String, ?> entry : updatedConfig.entrySet()) {
+                if (entry.getValue() != null) {
                     configuration.put(entry.getKey(), entry.getValue().toString());
                 }
             }
