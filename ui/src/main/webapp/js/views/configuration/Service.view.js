@@ -21,12 +21,13 @@ define([
     './ConfigurationEdit.view',
     'js/views/EmptyView',
     'js/wreqr.js',
+    'js/views/Utils.js',
     'text!templates/configuration/serviceList.handlebars',
     'text!templates/configuration/serviceRow.handlebars',
     'text!templates/configuration/configurationRow.handlebars',
     'text!templates/configuration/servicePage.handlebars',
     'text!templates/configuration/configurationList.handlebars'
-    ],function (ich, _, Marionette, Service, ConfigurationEdit, EmptyView, wreqr, serviceList, serviceRow, configurationRow, servicePage, configurationList) {
+    ],function (ich, _, Marionette, Service, ConfigurationEdit, EmptyView, wreqr, Utils, serviceList, serviceRow, configurationRow, servicePage, configurationList) {
 
     var ServiceView = {};
 
@@ -117,21 +118,27 @@ define([
 
     ServiceView.ServicePage = Marionette.Layout.extend({
         template: 'servicePage',
-        events: {
-            'click .refreshButton' : 'refreshServices'
-        },
         regions: {
             collectionRegion: '#servicesRegion'
         },
         initialize: function(options) {
+            _.bindAll(this);
             this.poller = options.poller;
+            this.listenTo(this.model, 'services:refresh', this.stopRefreshSpin);
             if(this.poller){
                 this.listenTo(wreqr.vent, 'poller:stop', this.stopPoller);
                 this.listenTo(wreqr.vent, 'poller:start', this.startPoller);
                 this.listenTo(this.model, 'sync', this.triggerSync);
             }
+            this.refreshButton = Utils.refreshButton('.refreshButton', this.refreshServices, this);
             this.showWarnings = options.showWarnings;
             this.url = options.url;
+        },
+        onShow: function() {
+            this.refreshButton.init();
+        },
+        onDestroy: function() {
+            this.refreshButton.cleanUp();
         },
         triggerSync: function() {
             wreqr.vent.trigger('sync');
@@ -152,9 +159,13 @@ define([
         },
         refreshServices: function() {
             wreqr.vent.trigger('refreshConfigurations');
+        },
+        stopRefreshSpin: function(source) {
+            if (this.cid === source.view.cid) {
+                this.refreshButton.done();
+            }
         }
     });
-
     return ServiceView;
 
 });

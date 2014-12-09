@@ -16,7 +16,7 @@
 define([
     'marionette',
     'icanhaz',
-    'js/controllers/FilteredConfiguration.controller',
+    'js/controllers/Configuration.controller',
     'text!templates/application/plugins/config/pluginView.handlebars'
     ], function (Marionette, ich, ConfigurationController, configPluginViewTemplate) {
 
@@ -29,11 +29,12 @@ define([
         },
         initialize: function(){
             this.controller = new ConfigurationController({
-                region : this.configurationRegion
+                region : this.configurationRegion,
+                url: "/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getServices/" + this.model.get('appId')
             });
         },
         onRender: function(){
-            this.controller.show(this.model.get('appId'));
+            this.controller.show();
         },
         onClose: function() {
             this.controller.close();

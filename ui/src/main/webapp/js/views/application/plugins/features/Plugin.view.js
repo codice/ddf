@@ -30,7 +30,8 @@ define([
         },
         initialize: function(){
             this.controller = new FeatureController({
-                region : this.featureRegion
+                region : this.featureRegion,
+                url: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices"
             });
         },
         onRender: function(){
