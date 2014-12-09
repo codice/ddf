@@ -538,12 +538,14 @@ public class DynamicSchemaResolver {
 
         StringBuilder builder = new StringBuilder();
 
-        XMLStreamReader xmlStreamReader;
+        XMLStreamReader xmlStreamReader = null;
+        StringReader sr = null;
         long starttime = System.currentTimeMillis();
         try {
             // xml parser does not handle leading whitespace
+            sr = new StringReader(xmlData);
             xmlStreamReader = xmlInputFactory
-                    .createXMLStreamReader(new StringReader(xmlData));
+                    .createXMLStreamReader(sr);
 
             while (xmlStreamReader.hasNext()) {
                 int event = xmlStreamReader.next();
@@ -572,6 +574,15 @@ public class DynamicSchemaResolver {
             LOGGER.warn(
                     "Failure occurred in parsing the xml data. No data has been stored or indexed.",
                     e1);
+        } finally {
+            IOUtils.closeQuietly(sr);
+            if (xmlStreamReader != null) {
+                try {
+                    xmlStreamReader.close();
+                } catch (XMLStreamException e) {
+                    LOGGER.debug("Exception closing XMLStreamReader", e);
+                }
+            }
         }
         long endTime = System.currentTimeMillis();
 
