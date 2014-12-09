@@ -15,8 +15,6 @@
 package ddf.content.endpoint.rest;
 
 import com.google.common.io.FileBackedOutputStream;
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.BinaryContent;
 import ddf.content.ContentFramework;
 import ddf.content.ContentFrameworkException;
 import ddf.content.data.ContentItem;
@@ -58,6 +56,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -101,8 +100,6 @@ public class ContentEndpoint {
 
     private static final String CONTENT_URI_HTTP_HEADER = "Content-URI";
 
-    private static final String DEFAULT_METACARD_TRANSFORMER = "geojson";
-
     public static final int KB = 1024;
 
     public static final int MB = 1024 * KB;
@@ -111,15 +108,12 @@ public class ContentEndpoint {
 
     private ContentFramework contentFramework;
 
-    private CatalogFramework catalogFramework;
-
     private MimeTypeMapper mimeTypeMapper;
 
-    public ContentEndpoint(ContentFramework framework, CatalogFramework catalogFramework, MimeTypeMapper mimeTypeMapper) {
+    public ContentEndpoint(ContentFramework framework, MimeTypeMapper mimeTypeMapper) {
         LOGGER.debug("ENTERING: ContentEndpoint constructor");
 
         this.contentFramework = framework;
-        this.catalogFramework = catalogFramework;
         this.mimeTypeMapper = mimeTypeMapper;
 
         LOGGER.debug("EXITING: ContentEndpoint constructor");
@@ -382,9 +376,9 @@ public class ContentEndpoint {
             }
 
             Response.ResponseBuilder responseBuilder;
-            if (createResponse.getCreatedMetacard() != null) {
-                BinaryContent binaryContent = catalogFramework.transform(createResponse.getCreatedMetacard(), DEFAULT_METACARD_TRANSFORMER, null);
-                responseBuilder = Response.ok(binaryContent.getInputStream(), binaryContent.getMimeTypeValue());
+            if (createResponse.getCreatedMetadata() != null) {
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(createResponse.getCreatedMetadata());
+                responseBuilder = Response.ok(byteArrayInputStream, createResponse.getCreatedMetadataMimeType());
             } else {
                 responseBuilder = Response.ok();
             }
@@ -504,9 +498,9 @@ public class ContentEndpoint {
             UpdateResponse updateResponse = contentFramework.update(updateRequest, requestDirective);
             updatedItem = updateResponse.getUpdatedContentItem();
             Response.ResponseBuilder responseBuilder;
-            if (updateResponse.getUpdatedMetacard() != null) {
-                BinaryContent binaryContent = catalogFramework.transform(updateResponse.getUpdatedMetacard(), DEFAULT_METACARD_TRANSFORMER, null);
-                responseBuilder = Response.ok(binaryContent.getInputStream(), binaryContent.getMimeTypeValue());
+            if (updateResponse.getUpdatedMetadata() != null) {
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(updateResponse.getUpdatedMetadata());
+                responseBuilder = Response.ok(byteArrayInputStream, updateResponse.getUpdatedMetadataMimeType());
             } else {
                 responseBuilder = Response.ok();
             }

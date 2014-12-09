@@ -15,6 +15,7 @@
 package ddf.content.plugin.cataloger;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -48,6 +49,10 @@ public class CatalogContentPlugin implements ContentPlugin {
 
     private static final String CATALOG_ID = "Catalog-ID";
 
+    private static final String DEFAULT_METACARD_TRANSFORMER = "geojson";
+
+    private final CatalogFramework catalogFramework;
+
     private Cataloger cataloger;
 
     private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
@@ -56,6 +61,7 @@ public class CatalogContentPlugin implements ContentPlugin {
             MimeTypeToTransformerMapper mimeTypeToTransformerMapper) {
         LOGGER.trace("INSIDE: CatalogContentPlugin constructor");
 
+        this.catalogFramework = catalogFramework;
         this.cataloger = new Cataloger(catalogFramework);
         this.mimeTypeToTransformerMapper = mimeTypeToTransformerMapper;
     }
@@ -86,7 +92,15 @@ public class CatalogContentPlugin implements ContentPlugin {
             Map<String, String> properties = response.getResponseProperties();
             properties.put(CATALOG_ID, catalogId);
             response.setResponseProperties(properties);
-            response.setCreatedMetacard(metacard);
+            if (metacard != null) {
+                try {
+                    BinaryContent binaryContent = catalogFramework.transform(metacard, DEFAULT_METACARD_TRANSFORMER, null);
+                    response.setCreatedMetadata(binaryContent.getByteArray());
+                    response.setCreatedMetadataMimeType(binaryContent.getMimeType().toString());
+                } catch (IOException | CatalogTransformerException e) {
+                    LOGGER.warn("Unable to transform metacard to readable metadata.", e);
+                }
+            }
         } catch (MetacardCreationException e) {
             LOGGER.warn(e.getMessage(), e);
             throw new PluginExecutionException(e.getMessage(), e);
@@ -130,7 +144,15 @@ public class CatalogContentPlugin implements ContentPlugin {
             Map<String, String> properties = response.getResponseProperties();
             properties.put(CATALOG_ID, catalogId);
             response.setResponseProperties(properties);
-            response.setUpdatedMetacard(metacard);
+            if (metacard != null) {
+                try {
+                    BinaryContent binaryContent = catalogFramework.transform(metacard, DEFAULT_METACARD_TRANSFORMER, null);
+                    response.setUpdatedMetadata(binaryContent.getByteArray());
+                    response.setUpdatedMetadataMimeType(binaryContent.getMimeType().toString());
+                } catch (IOException | CatalogTransformerException e) {
+                    LOGGER.warn("Unable to transform metacard to readable metadata.", e);
+                }
+            }
         } catch (MetacardCreationException e) {
             LOGGER.warn(e.getMessage(), e);
             throw new PluginExecutionException(e.getMessage(), e);

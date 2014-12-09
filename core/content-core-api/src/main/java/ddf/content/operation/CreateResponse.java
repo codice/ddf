@@ -14,7 +14,6 @@
  **/
 package ddf.content.operation;
 
-import ddf.catalog.data.Metacard;
 import ddf.content.data.ContentItem;
 
 /**
@@ -34,9 +33,16 @@ public interface CreateResponse extends Response<CreateRequest> {
     public ContentItem getCreatedContentItem();
 
     /**
-     * Get the {@link ddf.catalog.data.Metacard} returned from an create operation.
+     * Get the metadata returned from an create operation.
      *
-     * @return the created {@link ddf.catalog.data.Metacard}
+     * @return the updated metadata
      */
-    public Metacard getCreatedMetacard();
+    public byte[] getCreatedMetadata();
+
+    /**
+     * Get the mime type returned from an create operation.
+     *
+     * @return the updated mime type
+     */
+    public String getCreatedMetadataMimeType();
 }

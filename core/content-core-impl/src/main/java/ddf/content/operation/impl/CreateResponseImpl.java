@@ -14,7 +14,6 @@
  **/
 package ddf.content.operation.impl;
 
-import ddf.catalog.data.Metacard;
 import ddf.content.data.ContentItem;
 import ddf.content.operation.CreateRequest;
 import ddf.content.operation.CreateResponse;
@@ -29,7 +28,8 @@ import java.util.Map;
  */
 public class CreateResponseImpl extends ResponseImpl<CreateRequest> implements CreateResponse {
     private ContentItem contentItem;
-    private Metacard metacard;
+    private byte[] metadata;
+    private String mimeType;
 
     /**
      * Instantiates a CreateResponseImpl object with {@link CreateResponse} object. This is useful
@@ -97,11 +97,20 @@ public class CreateResponseImpl extends ResponseImpl<CreateRequest> implements C
     }
 
     @Override
-    public Metacard getCreatedMetacard() {
-        return metacard;
+    public byte[] getCreatedMetadata() {
+        return metadata;
     }
 
-    public void setCreatedMetacard(Metacard metacard) {
-        this.metacard = metacard;
+    public void setCreatedMetadata(byte[] metadata) {
+        this.metadata = metadata;
+    }
+
+    @Override
+    public String getCreatedMetadataMimeType() {
+        return mimeType;
+    }
+
+    public void setCreatedMetadataMimeType(String mimeType) {
+        this.mimeType = mimeType;
     }
 }

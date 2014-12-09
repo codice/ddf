@@ -14,7 +14,6 @@
  **/
 package ddf.content.endpoint.rest;
 
-import ddf.catalog.CatalogFramework;
 import ddf.content.ContentFramework;
 import ddf.content.ContentFrameworkException;
 import ddf.content.data.ContentItem;
@@ -83,10 +82,9 @@ public class ContentEndpointCreateTest {
         headers.add(CONTENT_DISPOSITION, "form-data; name=file; filename=C:\\DDF\\geojson_valid.json");
         headers.add(CONTENT_TYPE, "application/json;id=geojson");
         Attachment attachment = new Attachment(is, headers);
-        
+
         ContentFramework framework = mock(ContentFramework.class);
-        CatalogFramework catalogFramework = mock(CatalogFramework.class);
-        ContentEndpoint endpoint = new ContentEndpoint(framework, catalogFramework, getMockMimeTypeMapper());
+        ContentEndpoint endpoint = new ContentEndpoint(framework, getMockMimeTypeMapper());
         CreateInfo createInfo = endpoint.parseAttachment(attachment);
         Assert.assertNotNull(createInfo);
         Assert.assertEquals("application/json;id=geojson", createInfo.getContentType());
@@ -108,8 +106,7 @@ public class ContentEndpointCreateTest {
         Attachment attachment = new Attachment(is, headers);
         
         ContentFramework framework = mock(ContentFramework.class);
-        CatalogFramework catalogFramework = mock(CatalogFramework.class);
-        ContentEndpoint endpoint = new ContentEndpoint(framework, catalogFramework, getMockMimeTypeMapper());
+        ContentEndpoint endpoint = new ContentEndpoint(framework, getMockMimeTypeMapper());
         CreateInfo createInfo = endpoint.parseAttachment(attachment);
         Assert.assertNotNull(createInfo);
         Assert.assertEquals("application/json;id=geojson", createInfo.getContentType());
@@ -132,8 +129,7 @@ public class ContentEndpointCreateTest {
         Attachment attachment = new Attachment(is, headers);
         
         ContentFramework framework = mock(ContentFramework.class);
-        CatalogFramework catalogFramework = mock(CatalogFramework.class);
-        ContentEndpoint endpoint = new ContentEndpoint(framework, catalogFramework, getMockMimeTypeMapper());
+        ContentEndpoint endpoint = new ContentEndpoint(framework, getMockMimeTypeMapper());
         CreateInfo createInfo = endpoint.parseAttachment(attachment);
         Assert.assertNotNull(createInfo);
         Assert.assertEquals("application/json;id=geojson", createInfo.getContentType());
@@ -154,8 +150,7 @@ public class ContentEndpointCreateTest {
         Attachment attachment = new Attachment(is, headers);
         
         ContentFramework framework = mock(ContentFramework.class);
-        CatalogFramework catalogFramework = mock(CatalogFramework.class);
-        ContentEndpoint endpoint = new ContentEndpoint(framework, catalogFramework, getMockMimeTypeMapper());
+        ContentEndpoint endpoint = new ContentEndpoint(framework, getMockMimeTypeMapper());
         CreateInfo createInfo = endpoint.parseAttachment(attachment);
         Assert.assertNotNull(createInfo);
         Assert.assertEquals("application/json;id=geojson", createInfo.getContentType());
@@ -177,8 +172,7 @@ public class ContentEndpointCreateTest {
         Attachment attachment = new Attachment(is, headers);
         
         ContentFramework framework = mock(ContentFramework.class);
-        CatalogFramework catalogFramework = mock(CatalogFramework.class);
-        ContentEndpoint endpoint = new ContentEndpoint(framework, catalogFramework, getMockMimeTypeMapper());
+        ContentEndpoint endpoint = new ContentEndpoint(framework, getMockMimeTypeMapper());
         CreateInfo createInfo = endpoint.parseAttachment(attachment);
         Assert.assertNotNull(createInfo);
         // Content-Type of text/plain is the default returned from CXF JAXRS
@@ -210,11 +204,10 @@ public class ContentEndpointCreateTest {
     public void read_ContentEndpointExceptionException_Expected() throws ContentEndpointException,
         ContentFrameworkException, MimeTypeResolutionException {
         ContentFramework framework = mock(ContentFramework.class);
-        CatalogFramework catalogFramework = mock(CatalogFramework.class);
         when(framework.read(isA(ReadRequest.class))).thenThrow(
                 new ContentEndpointException("Content Item not found.", Response.Status.NOT_FOUND));
 
-        ContentEndpoint endpoint = new ContentEndpoint(framework, catalogFramework, getMockMimeTypeMapper());
+        ContentEndpoint endpoint = new ContentEndpoint(framework, getMockMimeTypeMapper());
         endpoint.read(anyString());
     }
 
@@ -223,7 +216,6 @@ public class ContentEndpointCreateTest {
         MimeTypeResolutionException {
 
         ContentFramework framework = mock(ContentFramework.class);
-        CatalogFramework catalogFramework = mock(CatalogFramework.class);
         ReadResponse readResponse = mock(ReadResponse.class);
 
         ContentItem contentItem = getMockGoodContentItem(content, fileName, "contentIdValue", size,
@@ -232,7 +224,7 @@ public class ContentEndpointCreateTest {
 
         when(framework.read(isA(ReadRequest.class))).thenReturn(readResponse);
 
-        ContentEndpoint endpoint = new ContentEndpoint(framework, catalogFramework, getMockMimeTypeMapper());
+        ContentEndpoint endpoint = new ContentEndpoint(framework, getMockMimeTypeMapper());
         Response response = endpoint.read(anyString());
 
         // Assertions for all valid headers returned

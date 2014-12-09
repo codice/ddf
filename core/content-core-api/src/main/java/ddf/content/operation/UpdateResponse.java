@@ -14,7 +14,6 @@
  **/
 package ddf.content.operation;
 
-import ddf.catalog.data.Metacard;
 import ddf.content.data.ContentItem;
 
 /**
@@ -34,9 +33,16 @@ public interface UpdateResponse extends Response<UpdateRequest> {
     public ContentItem getUpdatedContentItem();
 
     /**
-     * Get the {@link ddf.catalog.data.Metacard} returned from an update operation.
+     * Get the metadata returned from an update operation.
      *
-     * @return the updated {@link ddf.catalog.data.Metacard}
+     * @return the updated metadata
      */
-    public Metacard getUpdatedMetacard();
+    public byte[] getUpdatedMetadata();
+
+    /**
+     * Get the mime type returned from an update operation.
+     *
+     * @return the updated mime type
+     */
+    public String getUpdatedMetadataMimeType();
 }
