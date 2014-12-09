@@ -17,8 +17,9 @@ define([
         'marionette',
         'underscore',
         'js/views/application/features/features.view',
+        'js/views/EmptyView',
         'js/models/features/feature'
-    ], function(Marionette, _, FeaturesView, FeatureModel){
+    ], function(Marionette, _, FeaturesView, EmptyView, FeatureModel){
         "use strict";
 
         var FeatureController = Marionette.Controller.extend({
@@ -36,7 +37,7 @@ define([
                 });
                 features.fetch({
                     success: function(collection) {
-                        var featureView = new FeaturesView({
+                        var featureView = self.getFeatureView({
                             collection: collection
                         });
                         self.region.show(featureView);
@@ -54,7 +55,7 @@ define([
                 });
                 features.fetch({
                     success: function(collection) {
-                        var featureView = new FeaturesView({
+                        var featureView = self.getFeatureView({
                             collection: collection
                         });
                         self.region.show(featureView);
@@ -70,7 +71,7 @@ define([
                 });
                 features.fetch({
                     success: function(collection) {
-                        var featureView = new FeaturesView({
+                        var featureView = view.getFeatureView({
                             collection: collection,
                             showWarnings: true
                         });
@@ -78,6 +79,14 @@ define([
                     }
                 });
             },
+
+            getFeatureView: function(options) {
+                if (options.collection && options.collection.length) {
+                    return new FeaturesView(options);
+                }
+                return new EmptyView.view({message: 'No features are available for the "' + this.appName + '" application.'});
+            },
+
             onFeatureAction: function (view, model){
                 var self = this;
                 var status = model.get("status");
