@@ -23,14 +23,17 @@
             'icanhaz',
             'js/application',
             'js/views/Module.view',
+            'properties',
             'js/HandlebarsHelpers',
             'modelbinder',
             'bootstrap',
             'templateConfig'
 
-        ], function ($, Backbone, Marionette, ich, Application, ModuleView) {
+        ], function ($, Backbone, Marionette, ich, Application, ModuleView, Properties) {
 
             var app = Application.App;
+
+            Application.AppModel = new Backbone.Model(Properties);
 
             //setup the area that the modules will load into and asynchronously require in each module
             //so that it can render itself into the area that was just constructed for it
@@ -40,6 +43,9 @@
 
             //setup the header
             app.addInitializer(function() {
+                if(Properties.ui.header && Properties.ui.header !== ''){
+                    $('html').addClass('has-header');
+                }
                 Application.App.headerRegion.show(new Marionette.ItemView({
                     template: 'headerLayout',
                     className: 'header-layout',
@@ -49,6 +55,9 @@
 
             //setup the footer
             app.addInitializer(function() {
+                if(Properties.ui.footer && Properties.ui.footer !== ''){
+                    $('html').addClass('has-footer');
+                }
                 Application.App.footerRegion.show(new Marionette.ItemView({
                     template: 'footerLayout',
                     className: 'footer-layout',
