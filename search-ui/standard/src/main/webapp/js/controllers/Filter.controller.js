@@ -127,9 +127,37 @@ define([
                             // lets increment the facet value.  If none exist, create one with value of 1.
                             var curValue = pair[1];
                             if(_.has(facetCounts[pair[0]],curValue)){
+                                // facet value exists already.  increment.
                                 facetCounts[pair[0]][curValue]++;
                             } else {
-                                facetCounts[pair[0]][curValue] = 1;
+                                if(pair[0] === Properties.filters.METADATA_CONTENT_TYPE){
+                                    // new facet value for metadata-content-type.  lets find the custom field it belongs to.
+                                    // note: the target facet value may not be mapped.
+                                    var customFields = [];  // using array to support for a single content type to be assigned to multiple groups.
+                                    _.each(_.keys(Properties.typeNameMapping), function(key){
+                                        _.each(Properties.typeNameMapping[key], function(value){
+                                            if(value === curValue){
+                                                customFields.push(key);
+                                            }
+                                        });
+                                    });
+                                    if(!_.isEmpty(customFields)){
+                                        _.each(customFields, function(customField){
+                                            // its a custom field, determine if it needs to be created or incremented.
+                                            if(_.has(facetCounts[pair[0]],customField)){
+                                                facetCounts[pair[0]][customField]++;
+                                            } else {
+                                                // create custom facet value.
+                                                facetCounts[pair[0]][customField] = 1;
+                                            }
+                                        });
+                                    } else {
+                                        // create non-custom facet value.
+                                        facetCounts[pair[0]][curValue] = 1;
+                                    }
+                                } else {
+                                    facetCounts[pair[0]][curValue] = 1;
+                                }
                             }
                         });
                     });

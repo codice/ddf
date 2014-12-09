@@ -74,9 +74,17 @@ define([
                         if(subContentType === 'no-value'){
                             joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' IS NULL ');
                         } else {
-                            joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' = ' + Filter.CQLFactory.getValue(subContentType));
+                            // lets check if its a mapped value
+                            if(Properties.typeNameMapping && Properties.typeNameMapping[subContentType]){
+                                // for each content type mapped to this value, create a expression for it.
+                                _.each(Properties.typeNameMapping[subContentType], function(customContentType){
+                                    joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' = ' + Filter.CQLFactory.getValue(customContentType));
+                                });
+                            } else {
+                                // not a custom value.  just add normally.
+                                joinArray.push(Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' = ' + Filter.CQLFactory.getValue(subContentType));
+                            }
                         }
-
                     });
                     return joinArray.join(' OR ');
                 } else {

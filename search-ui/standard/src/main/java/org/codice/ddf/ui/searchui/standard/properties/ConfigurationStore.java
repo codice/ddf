@@ -453,6 +453,18 @@ public class ConfigurationStore {
         }
     }
 
+    public void setTypeNameMapping(List<String> mappings) {
+        if (mappings != null) {
+            this.setTypeNameMapping(mappings.toArray(new String[mappings.size()]));
+        }
+    }
+
+    public void setTypeNameMapping(String string) {
+        if (string != null) {
+            this.setTypeNameMapping(new String[]{string});
+        }
+    }
+
     public Map<String, Set<String>> getTypeNameMapping() {
         return typeNameMapping;
     }
