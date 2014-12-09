@@ -78,7 +78,7 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Embed-Dependency>balana</Embed-Dependency>
+            <Embed-Dependency>org.wso2.balana</Embed-Dependency>
             <Import-Package>
               javax.servlet.http; version="[2.5.0,3.0.0)",
               org.apache.commons.io; version="[1.4.0,3.0.0)",
