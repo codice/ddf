@@ -51,8 +51,9 @@
                                 <span class="attribute-value">{{properties.source-id}}</span>
                             </li>
 
-                            {{#isNotBlank properties.created}}
+
                             <li class="attribute" title="Created Date">
+                            {{#isNotBlank properties.created}}
                                 <span class="attribute-label muted">
                                     <span class="fa-stack">
                                       <i class="fa fa-file-o fa-stack-2x"></i>
@@ -60,14 +61,16 @@
                                     </span>
                                 </span>
                                 <span class="attribute-value">{{momentHelp properties.created fromNow=function}}</span>
-                            </li>
                             {{/isNotBlank}}
+                            </li>
+
                         </ul>
                     </div>
                     <div class="col-sm-5 pull-right">
                         <ul class="list-group">
-                            {{#isNotBlank properties.modified}}
+
                             <li class="attribute" title="Modified Date">
+                                {{#isNotBlank properties.modified}}
                                 <span class="attribute-label muted">
                                     <span class="fa-stack">
                                       <i class="fa fa-file-o fa-stack-2x"></i>
@@ -75,15 +78,17 @@
                                     </span>
                                 </span>
                                 <span class="attribute-value">{{momentHelp properties.modified fromNow=function}}</span>
+                                {{/isNotBlank}}
                             </li>
-                            {{/isNotBlank}}
 
-                            {{#isNotBlank geometry}}
+
                             <li class="attribute" title="Location">
+                            {{#isNotBlank geometry}}
                                 <span class="attribute-label muted"><i class='fa fa-compass fa-2x'></i></span>
                                 <span class="attribute-value">{{#if mapAvailable}}<a href="#" class="location-link">Locate</a>{{else}}<a href="/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=kml" target="_blank">KML</a>{{/if}}</span>
-                            </li>
                             {{/isNotBlank}}
+                            </li>
+
                         </ul>
                     </div>
 

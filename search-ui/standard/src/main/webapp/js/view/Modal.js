@@ -37,7 +37,10 @@ define([
                 this.hide();
             },
             show: function () {
-                this.$el.modal('show');
+                this.$el.modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
             },
             hide: function () {
                 this.$el.modal('hide');

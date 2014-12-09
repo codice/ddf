@@ -21,9 +21,12 @@ define([
         'jquery',
         'js/view/Modal',
         './IngestUploadList.view',
-        'text!templates/ingest/ingestModal.handlebars'
+        'text!templates/ingest/ingestModal.handlebars',
+        'js/model/Metacard',
+        'wreqr',
+        'js/view/ingest/MetacardEdit.view'
     ],
-    function (ich,_,Marionette,Backbone,$,Modal,UploadList, ingestModalTemplate) {
+    function (ich,_,Marionette,Backbone,$,Modal,UploadList, ingestModalTemplate, Metacard, wreqr, MetacardEdit) {
         ich.addTemplate('ingestModalTemplate',ingestModalTemplate);
         var IngestModal = Modal.extend({
             template: 'ingestModalTemplate',
@@ -39,9 +42,12 @@ define([
                 this.collection = new Backbone.Collection();
                 this.listenTo(this.collection, "add", this.checkIfDialogComplete);
                 this.listenTo(this.collection, "remove", this.checkIfDialogComplete);
+                this.listenTo(wreqr.vent, 'ingest:metacard', this.metacardIngested);
+                this.listenTo(wreqr.vent, 'ingest:metacardEditDone', this.enableButtons);
             },
             regions: {
-                fileUploadListRegion:'.file-upload-region'
+                fileUploadListRegion:'.file-upload-region',
+                metacardEditRegion: '.metacard-edit-region'
             },
             onRender: function(){
                 var view = this;
@@ -57,7 +63,7 @@ define([
                     maxFileSize: 5000000,
                     maxNumberOfFiles: 1,
                     add: function(e, data){
-// this overrides the add to use our own model to controll when the upload actually happens.
+// this overrides the add to use our own model to control when the upload actually happens.
                         var that = this;
                         var model = view.buildModelFromFileData(data);
 // we need to pass the parameters along to the model so it knows what to do when it submits.
@@ -77,6 +83,9 @@ define([
                         view.checkIfDialogComplete();
                         view.stateModel.set('state','done');
                         view.checkIfDialogComplete();
+
+                        var metacard = new Metacard.Metacard(data.result);
+                        wreqr.vent.trigger('ingest:metacard', metacard);
                     },
                     fail: function(e, data){
                         var attrs = {};
@@ -141,7 +150,6 @@ define([
                 this.collection.each(function(item) {
                     if (item.get('state') !== 'done') {
                         complete = false;
-                        return;
                     }
                 });
 
@@ -153,6 +161,15 @@ define([
             toggleModalButtons: function(showUpload) {
                 this.$('.uploadFields').toggleClass('hideButtonGroup', showUpload);
                 this.$('.okCancelFields').toggleClass('hideButtonGroup', !showUpload);
+            },
+            metacardIngested: function(metacard) {
+                this.metacardEditRegion.show(new MetacardEdit.MetacardEditView({model: metacard}));
+                this.$('button').prop('disabled', true);
+                this.$('.fileinput-button').attr('disabled', 'disabled');
+            },
+            enableButtons: function() {
+                this.$('button').prop('disabled', false);
+                this.$('.fileinput-button').removeAttr('disabled');
             }
         });
         return IngestModal;
