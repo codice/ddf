@@ -25,6 +25,8 @@ define(function (require) {
 
         CQL_DATE_FORMAT : 'YYYY-MM-DD[T]HH:mm:ss[Z]',
 
+        ui: {},
+
         filters: {
             METADATA_CONTENT_TYPE: 'metadata-content-type',
             SOURCE_ID: 'source-id',
@@ -50,10 +52,24 @@ define(function (require) {
                 url: "/services/store/config"
             }).success(function(data) {
                     props = _.extend(props, data);
+
+                $.ajax({
+                    async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
+                    cache: false,
+                    dataType: 'json',
+                    url: "/services/platform/config/ui"
+                }).success(function(uiConfig){
+                    props.ui = uiConfig;
                     return props;
-                }).fail(function(jqXHR, status, errorThrown) {
-                    throw new Error('Configuration could not be loaded: (status: ' + status + ', message: ' + errorThrown.message + ')');
+                }).fail(function(jqXHR, status, errorThrown){
+                    if(console){
+                        console.log('Platform UI Configuration could not be loaded: (status: ' + status + ', message: ' + errorThrown.message + ')');
+                    }
                 });
+
+            }).fail(function(jqXHR, status, errorThrown) {
+                throw new Error('Configuration could not be loaded: (status: ' + status + ', message: ' + errorThrown.message + ')');
+            });
 
             return props;
         }
