@@ -206,6 +206,7 @@
         <feature>catalog-transformer-atom</feature>
         <feature>catalog-transformer-geoformatter</feature>
         <feature>catalog-transformer-xml</feature>
+        <feature>catalog-transformer-tika</feature>
         <feature>catalog-security-plugin</feature>
         <feature>catalog-admin-module-sources</feature>
         <feature>catalog-core-backupplugin</feature>

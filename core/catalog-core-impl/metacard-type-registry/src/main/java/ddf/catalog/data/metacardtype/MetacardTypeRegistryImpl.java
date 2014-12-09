@@ -15,17 +15,18 @@
 
 package ddf.catalog.data.metacardtype;
 
+import ddf.catalog.data.MetacardTypeRegistry;
+import ddf.catalog.data.MetacardTypeUnregistrationException;
+import ddf.catalog.data.QualifiedMetacardType;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.QualifiedMetacardTypeImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ddf.catalog.data.MetacardTypeRegistry;
-import ddf.catalog.data.MetacardTypeUnregistrationException;
-import ddf.catalog.data.QualifiedMetacardType;
 
 /**
  * Default implementation of the MetacardTypeRegistry.
@@ -44,6 +45,7 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
 
     private MetacardTypeRegistryImpl() {
         this.registeredMetacardTypes = new CopyOnWriteArraySet<QualifiedMetacardType>();
+        register(new QualifiedMetacardTypeImpl(BasicTypes.BASIC_METACARD));
     }
 
     public static MetacardTypeRegistry getInstance() {

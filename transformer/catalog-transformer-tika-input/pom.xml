@@ -113,8 +113,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Embed-Dependency>
-							imgscalr-lib,
-							xuggle-video
+							imgscalr-lib
 						</Embed-Dependency>
 						<Private-Package>
 							ddf.catalog.transformer.input.tika,

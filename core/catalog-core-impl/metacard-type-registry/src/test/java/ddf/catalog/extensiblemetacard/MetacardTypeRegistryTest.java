@@ -15,19 +15,6 @@
 
 package ddf.catalog.extensiblemetacard;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.osgi.framework.InvalidSyntaxException;
-
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardTypeRegistry;
@@ -37,6 +24,18 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.QualifiedMetacardTypeImpl;
 import ddf.catalog.data.metacardtype.MetacardTypeRegistryImpl;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.osgi.framework.InvalidSyntaxException;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class MetacardTypeRegistryTest {
 
@@ -257,10 +256,10 @@ public class MetacardTypeRegistryTest {
     @Test
     public void registerMetacardType() throws InvalidSyntaxException, IllegalArgumentException,
         MetacardTypeUnregistrationException {
-        assertEquals(3, mtr.getRegisteredTypes().size());
+        assertEquals(4, mtr.getRegisteredTypes().size());
         mtr.register(sampleMetacardTypeA());
         mtr.register(sampleMetacardTypeB());
-        assertEquals(5, mtr.getRegisteredTypes().size());
+        assertEquals(6, mtr.getRegisteredTypes().size());
 
         QualifiedMetacardType metacardTypeAFromRegistry = mtr.lookup(
                 QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE, SAMPLE_A_METACARD_TYPE_NAME);
@@ -337,7 +336,7 @@ public class MetacardTypeRegistryTest {
     public void testRegisteredTypes() {
         Set<QualifiedMetacardType> registeredTypes = mtr.getRegisteredTypes();
 
-        assertEquals(3, registeredTypes.size());
+        assertEquals(4, registeredTypes.size());
 
         QualifiedMetacardTypeImpl test0 = new QualifiedMetacardTypeImpl(
                 QUALIFIED_METACARD_TYPE_NAMESPACE_1, QUALIFIED_METACARD_TYPE_NAME_1, qmtAttributes);
@@ -356,10 +355,10 @@ public class MetacardTypeRegistryTest {
     @Test
     public void testUnregister() throws IllegalArgumentException,
         MetacardTypeUnregistrationException {
-        assertEquals(3, mtr.getRegisteredTypes().size());
+        assertEquals(4, mtr.getRegisteredTypes().size());
         mtr.register(sampleMetacardTypeA());
         mtr.register(sampleMetacardTypeB());
-        assertEquals(5, mtr.getRegisteredTypes().size());
+        assertEquals(6, mtr.getRegisteredTypes().size());
 
         QualifiedMetacardType metacardTypeAFromRegistry = mtr.lookup(
                 QualifiedMetacardType.DEFAULT_METACARD_TYPE_NAMESPACE, SAMPLE_A_METACARD_TYPE_NAME);
@@ -378,7 +377,7 @@ public class MetacardTypeRegistryTest {
 
         mtr.unregister(sampleMetacardTypeA());
 
-        assertEquals(4, mtr.getRegisteredTypes().size());
+        assertEquals(5, mtr.getRegisteredTypes().size());
         assertTrue(mtr.getRegisteredTypes().contains(sampleMetacardTypeB()));
         assertFalse(mtr.getRegisteredTypes().contains(sampleMetacardTypeA()));
 

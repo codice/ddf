@@ -14,15 +14,15 @@
  **/
 package ddf.catalog.data.impl;
 
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
+import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
-
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeType;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.AttributeType.AttributeFormat;
 
 /**
  * Constants for basic types, both {@link MetacardType} and {@link AttributeType}
@@ -320,5 +320,5 @@ public class BasicTypes {
      * Constructor - does nothing
      */
     public BasicTypes() {
-    };
+    }
 }
