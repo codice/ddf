@@ -1,19 +1,20 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.admin.application.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.bundle.core.BundleStateService;
 import org.apache.karaf.features.BundleInfo;
@@ -70,9 +71,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     private static final String POST_CONFIG_STOP = "admin-modules-installer";
 
     private static final String INSTALLATION_PROFILE_PREFIX = "profile-";
-    
+
     private static final String INSTALLED = "Installed";
-    
+
     private static final String UNINSTALLED = "Uninstalled";
 
     /**
@@ -82,15 +83,11 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     /**
      * Creates a new instance of Application Service.
-     * 
-     * @param featureService
-     *            The internal features service exposed by Karaf.
-     * @param context
-     *            BundleContext for this bundle.
-     * @param bundleStateServices
-     *            List of BundleStateServices that allow fine-grained
-     *            information about bundle status for deployment services (like
-     *            blueprint and spring).
+     *
+     * @param context             BundleContext for this bundle.
+     * @param bundleStateServices List of BundleStateServices that allow fine-grained
+     *                            information about bundle status for deployment services (like
+     *                            blueprint and spring).
      */
     public ApplicationServiceImpl(BundleContext context,
             List<BundleStateService> bundleStateServices) {
@@ -194,10 +191,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     /**
      * Sets the names of applications that this service should ignore when
      * checking status.
-     * 
-     * @param applicationNames
-     *            Comma delimited list of application names, these names must
-     *            exactly match the name of the application to ignore.
+     *
+     * @param applicationNames Comma delimited list of application names, these names must
+     *                         exactly match the name of the application to ignore.
      */
     public void setIgnoredApplications(String applicationNames) {
         String[] names = applicationNames.split(",");
@@ -209,10 +205,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     /**
      * Sets the configuration file used for initial installation and starts the
      * installation.
-     * 
-     * @param configFileName
-     *            Absolute path name of the file containing the application
-     *            list.
+     *
+     * @param configFileName Absolute path name of the file containing the application
+     *                       list.
      */
     public void setConfigFileName(String configFileName) {
         try {
@@ -278,18 +273,15 @@ public class ApplicationServiceImpl implements ApplicationService {
      * Finds a parent and children dependencies for each app.  Needs to be run twice
      * in order to get full dependency correlations.
      *
-     * @param appMap
-     *            Application Map containing all the application nodes.
-     * @param filteredApplications
-     *            Set containing all the application nodes minus those in the ignored list
-     * @param reportDebug
-     *            Boolean that allows debug statements to be output or not.  Only reason
-     *            why this exists is because this function will be called twice and only
-     *            the second set of statements will be relevant
+     * @param appMap               Application Map containing all the application nodes.
+     * @param filteredApplications Set containing all the application nodes minus those in the ignored list
+     * @param reportDebug          Boolean that allows debug statements to be output or not.  Only reason
+     *                             why this exists is because this function will be called twice and only
+     *                             the second set of statements will be relevant
      */
     private void traverseDependencies(Map<Application, ApplicationNodeImpl> appMap,
-                                      Set<Application> filteredApplications,
-                                      boolean reportDebug) {
+            Set<Application> filteredApplications,
+            boolean reportDebug) {
         // find dependencies in each app and add them into correct node
         for (Entry<Application, ApplicationNodeImpl> curAppNode : appMap.entrySet()) {
             try {
@@ -373,14 +365,12 @@ public class ApplicationServiceImpl implements ApplicationService {
     /**
      * Finds a common parent that contains all other applications as parent
      * dependencies.
-     * 
-     * @param applicationSet
-     *            Set of applications that should be found in a single parent.
-     * @param appMap
-     *            Application Map containing all the application nodes.
+     *
+     * @param applicationSet Set of applications that should be found in a single parent.
+     * @param appMap         Application Map containing all the application nodes.
      * @return A single application that is the parent which contains all of the
-     *         required applications as dependencies or null if no parent is
-     *         found.
+     * required applications as dependencies or null if no parent is
+     * found.
      */
     private Application findCommonParent(Set<Application> applicationSet,
             Map<Application, ApplicationNodeImpl> appMap) {
@@ -420,15 +410,15 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public List<Feature> getInstallationProfiles() {
-    	logger.debug("Looking for installation profile features");
+        logger.debug("Looking for installation profile features");
         List<Feature> profiles = new ArrayList<Feature>();
-        try{
+        try {
             for (Feature feature : featuresService.listFeatures()) {
                 if (feature.getName().contains(INSTALLATION_PROFILE_PREFIX)) {
                     profiles.add(feature);
                 }
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             logger.error(
                     "Encountered an error while trying to obtain the installation profile features.",
                     e);
@@ -439,13 +429,11 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     /**
      * Locates a given feature within the specified set of applications.
-     * 
-     * @param feature
-     *            Feature to look for.
-     * @param applications
-     *            Set of applications to check for the feature.
+     *
+     * @param feature      Feature to look for.
+     * @param applications Set of applications to check for the feature.
      * @return The first application that contains the feature or null if no
-     *         application contains the feature.
+     * application contains the feature.
      */
     protected Application findFeature(Feature feature, Set<Application> applications) {
         logger.debug("Looking for feature {} - {}", feature.getName(), feature.getVersion());
@@ -468,9 +456,8 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     /**
      * Retrieves all of the dependencies for a given feature.
-     * 
-     * @param feature
-     *            Feature to look for dependencies on.
+     *
+     * @param feature Feature to look for dependencies on.
      * @return A set of all features that are dependencies
      */
     private Set<Feature> getAllDependencyFeatures(Feature feature) throws Exception {
@@ -496,10 +483,10 @@ public class ApplicationServiceImpl implements ApplicationService {
      * Evaluates the bundles contained in a set of {@link Feature}s and
      * determines if each bundle is currently in an active, inactive, or failed
      * state.
-     * 
+     *
      * @param features
      * @return {@link BundleStateSet} containing information on the state of
-     *         each bundle
+     * each bundle
      */
     private final BundleStateSet getCurrentBundleStates(Set<Feature> features) {
         BundleStateSet bundleStateSet = new BundleStateSet();
@@ -507,8 +494,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         for (Feature curFeature : features) {
             for (BundleInfo curBundleInfo : curFeature.getBundles()) {
                 Bundle curBundle = context.getBundle(curBundleInfo.getLocation());
-                if (curBundle != null && 
-                    curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
+                if (curBundle != null &&
+                        curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
 
                     // check if bundle is inactive
                     int bundleState = curBundle.getState();
@@ -555,7 +542,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                             default:
                                 logger.trace("{} is in an active state. Current State: {}",
                                         curBundle.getSymbolicName(), curState.toString());
-                                
+
                                 bundleStateSet.addActiveBundle(curBundle);
                                 break;
                             }
@@ -575,14 +562,12 @@ public class ApplicationServiceImpl implements ApplicationService {
     /**
      * Given a {@code Set} of {@code Feature}s, returns the subset of
      * {@code Features}s that are not installed
-     * 
-     * @param features
-     *            The {@code Set} of {@link Feature}s from which to construct
-     *            the subset of {@code Feature}s that are not installed
-     * 
+     *
+     * @param features The {@code Set} of {@link Feature}s from which to construct
+     *                 the subset of {@code Feature}s that are not installed
      * @return A {@code Set} of {@code Feature}s that are not installed that is
-     *         a sub-set of the <i>features</i> {@code Feature}s {@code Set}
-     *         parameter
+     * a sub-set of the <i>features</i> {@code Feature}s {@code Set}
+     * parameter
      */
     private Set<Feature> getNotInstalledFeatures(Set<Feature> features) {
         Set<Feature> notInstalledFeatures = new HashSet<Feature>();
@@ -750,7 +735,11 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public void removeApplication(URI applicationURL) throws ApplicationServiceException {
         try {
-            featuresService.removeRepository(applicationURL, true);
+            //This is a workaround for the Karaf FeaturesService
+            //To remove the repository, it attempts to uninstall all features
+            //whether they are uninstalled or not.
+            uninstallAllFeatures(applicationURL);
+            featuresService.removeRepository(applicationURL, false);
         } catch (Exception e) {
             logger.warn("Could not remove application due to error.", e);
             throw new ApplicationServiceException(e);
@@ -759,9 +748,16 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public void removeApplication(Application application) throws ApplicationServiceException {
+     try {
         if (application != null) {
-            removeApplication(application.getURI());
+            uninstallAllFeatures(application);
+            featuresService.removeRepository(application.getURI(), false);
         }
+     } catch (Exception e) {
+         logger.warn("Could not remove application due to error.", e);
+         throw new ApplicationServiceException(e);
+     }
+
     }
 
     @Override
@@ -770,6 +766,53 @@ public class ApplicationServiceImpl implements ApplicationService {
             removeApplication(getApplication(applicationName));
         }
     }
+
+    /**
+     * This method takes in an Application's URI and finds the application
+     * that needs to have all features uninstalled
+     *
+     * @param applicationURL - application to have all its features uninstalled
+     */
+    private void uninstallAllFeatures(URI applicationURL) {
+        if (applicationURL != null) {
+            Set<Application> applications = getApplications();
+
+            //Loop through all the applications for a match
+            for (Application application : applications) {
+                URI applicationURI = application.getURI();
+                if(applicationURI != null)
+                {
+                  if (StringUtils.equals(applicationURL.toString(), applicationURI.toString())) {
+                    uninstallAllFeatures(application);
+                    break;
+                  }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param application - application to have all its features uninstalled
+     */
+    private void uninstallAllFeatures(Application application) {
+        try {
+            Set<Feature> features = application.getFeatures();
+            for (Feature feature : features) {
+                if (featuresService.isInstalled(feature)) {
+                    try {
+                        featuresService.uninstallFeature(feature.getName(), feature.getVersion());
+                    } catch (Exception e) {
+                        //if there is an issue uninstalling a feature try to keep uninstalling the other features
+                        logger.warn("Could not uninstall feature: {} version: {}", feature.getName(), feature.getVersion(), e);
+                    }
+                }
+            }
+        } catch (ApplicationServiceException ase) {
+            logger.error("Error obtaining feature list from application", ase);
+        }
+    }
+
+
 
     @Override
     public List<FeatureDetails> getAllFeatures() {
@@ -797,7 +840,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         return feature2repo;
     }
-    
+
     private FeatureDetails getFeatureView(Feature feature) {
         String status = featuresService.isInstalled(feature) ? INSTALLED
                 : UNINSTALLED;

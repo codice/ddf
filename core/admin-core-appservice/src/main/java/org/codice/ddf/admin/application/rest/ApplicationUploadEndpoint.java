@@ -109,7 +109,7 @@ public class ApplicationUploadEndpoint {
                                 "No Application details could be extracted from the provided file.");
                     }
                 } else {
-                    throw new ApplicationServiceException("No file attachement provided.");
+                    throw new ApplicationServiceException("No file attachment provided.");
                 }
 
                 // we need to output valid JSON to the client so fileupload can correctly call
