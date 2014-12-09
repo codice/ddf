@@ -28,12 +28,12 @@
 	    
 	    <AD name="Signature Username:" id="signatureUsername" required="true" type="String"
 	      default="localhost"
-	      description="Username of the key used to sign messages.">
+	      description="Alias of the private key in the STS Server's keystore used to sign messages.">
 	    </AD>
 
         <AD name="Encryption Username:" id="encryptionUsername" required="true" type="String"
             default="localhost"
-            description="Username of the key used to encrypt messages.">
+            description="Alias of the private key in the STS Server's keystore used to encrypt messages.">
         </AD>
         
 	</OCD>
