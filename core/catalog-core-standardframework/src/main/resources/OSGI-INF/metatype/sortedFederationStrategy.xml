@@ -23,6 +23,9 @@
     <OCD description="Catalog Caching Federation Strategy"
          name="Catalog Federation Strategy"
          id="ddf.catalog.federation.impl.CachingFederationStrategy">
+        <AD name="Enable Caching of Query Results" id="queryResultCachingEnabled" required="true" type="Boolean"
+            default="true"
+            description="When enabled all unique query results are cached for faster retrieval for future queries with the same search criteria."/> 
         <AD name="Maximum start index" id="maxStartIndex" required="true" type="Integer"
             default="50000"
             description="Sets a limit on the number of results this sorted federation strategy can handle from each federated source. A large start index
