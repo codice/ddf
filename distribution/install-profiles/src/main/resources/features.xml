@@ -19,6 +19,7 @@
         <feature>admin-app</feature>
         <feature>platform-app</feature>
         <feature>catalog-app</feature>
+        <feature>content-app</feature>
         <!-- Security Services App will be installed with the Post Install Features so it is NOT included here
             <feature>security-services-app</feature>-->
         <feature>search-ui-app</feature>
