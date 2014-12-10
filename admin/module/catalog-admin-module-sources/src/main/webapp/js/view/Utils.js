@@ -14,9 +14,49 @@
  **/
 /*global define, setTimeout*/
 define(['jquery', 
-        'underscore'
+        'underscore',
+        'marionette'
 ], 
-function ($,_) {
+function ($,_, Marionette) {
+
+
+    var RefreshController = Marionette.Controller.extend({
+        expectedCalls: 2, //number of calls to done expected before stopping
+        initialize: function(options) {
+            var self = this;
+            this.callback = options.callback;
+            this.$button = $(options.anchorSelector);
+            this.counter--;
+            this.$button.click(function(){
+                self.startSpinner();
+            });
+        },
+        startSpinner: function() {
+            var self = this;
+            if (!this.$button.hasClass('fa-spin')) {
+                this.counter = this.expectedCalls;
+                this.$button.addClass('fa-spin');
+                setTimeout(function(){
+                    self.stopSpinner();
+                }, 2000);
+                this.callback();
+            }
+        },
+        stopSpinner: function() {
+            this.$button.removeClass('fa-spin');
+        },
+        done: function() {
+            this.counter--;
+            if (this.counter <= 0) {
+                this.stopSpinner();
+            }
+        },
+        onClose: function() {
+            this.$button.off('click');
+        }
+    });
+
+
     var Utils = {
         /**
          * Set up the popovers based on if the selector has a description.
@@ -40,37 +80,11 @@ function ($,_) {
          * @returns A utility for managing the spinning of the refresh button.
          */
         refreshButton : function(anchorSelector, toExec) {
-            var self = this;
-            _.extend(self, {
-                expectedCalls: 2, //number of calls to done expected before stopping
-                init: function() {
-                    self.$button = $(anchorSelector);
-                    self.counter--;
-                    self.$button.on('click', self.startSpinner);
-                },
-                startSpinner: function() {
-                    if (!self.$button.hasClass('fa-spin')) {
-                        self.counter = self.expectedCalls;
-                        self.$button.addClass('fa-spin');
-                        setTimeout(self.done, 2000);
-                        toExec();
-                    }
-                },
-                stopSpinner: function() {
-                    self.$button.removeClass('fa-spin');
-                },
-                done: function() {
-                    self.counter--;
-                    if (self.counter <= 0) {
-                        self.stopSpinner();
-                    }
-                },
-                cleanUp: function() {
-                    self.$button.off('click');
-                }
+
+            return new RefreshController({
+                anchorSelector: anchorSelector,
+                callback: toExec
             });
-            self.init();
-            return self;
         }
     };
 

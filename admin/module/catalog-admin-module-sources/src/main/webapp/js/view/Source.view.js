@@ -164,11 +164,11 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
             collectionRegion: '#sourcesRegion',
             sourcesModal: '#sources-modal'
         },
-        onShow: function() {
+        onShow: function(){
             this.refreshButton = Utils.refreshButton('.refreshButton', this.refreshSources);
         },
         onDestroy: function() {
-            this.refreshButton.cleanUp();
+            this.refreshButton.close();
         },
         onRender: function() {
             var collection = this.model.get('collection');
@@ -176,7 +176,8 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
         },
         refreshSources: function() {
             var view = this;
-            
+            view.model.get('model').clear();
+
             view.model.get('model').fetch({
                 success: function(){
                     view.model.get('collection').sort();
@@ -288,7 +289,7 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
                     });
                     wreqr.vent.trigger('refreshSources');
                     view.$el.modal("hide");
-                });
+                }).done();
             }
         },
         createDeletePromise: function(source, config) {
