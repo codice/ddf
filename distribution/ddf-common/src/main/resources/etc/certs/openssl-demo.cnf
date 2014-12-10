@@ -151,7 +151,7 @@ organizationalUnitName		= Organizational Unit Name (eg, section)
 organizationalUnitName_default	= Dev
 
 emailAddress			= Email Address
-emailAddress_default		= localhost@ddf.org
+emailAddress_default		= localhost@example.org
 emailAddress_max		= 64
 
 # SET-ex3			= SET extension number 3

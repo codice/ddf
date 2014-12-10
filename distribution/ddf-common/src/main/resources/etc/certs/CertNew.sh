@@ -19,7 +19,7 @@ $CN
 
 
 
-${CN}@ddf.org
+${CN}@example.org
 EOF
 
 if [[ ! -r newkey.pem && ! -r newreq.pem ]]; then
