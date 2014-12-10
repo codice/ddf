@@ -282,6 +282,10 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         return result.toString();
     }
 
+    /**
+     * Represents the String values parsed out of the SAML assertion.
+     * This class only has the value field implemented for performance reasons.
+     */
     private class XMLString implements XSString {
         private String value;
 
@@ -456,6 +460,10 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
     }
 
+    /**
+     * This class represents an attribute that has been specified in the SAML assertion.
+     * Only the required minimum methods are implemented for performance reasons.
+     */
     private class Attr implements Attribute {
 
         private String name;
@@ -674,6 +682,10 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
     }
 
+    /**
+     * This class represents an attribute statement within a SAML assertion.
+     * Only the required minimum methods are implemented for performance reasons.
+     */
     private class AttrStatement implements AttributeStatement {
 
         private List<Attribute> attributes = new ArrayList<>();
