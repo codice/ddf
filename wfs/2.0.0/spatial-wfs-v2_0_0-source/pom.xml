@@ -129,6 +129,12 @@
             <artifactId>gml-v_3_2_1-schema</artifactId>
             <version>1.1.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>17.0</version>
+        </dependency>
         
     </dependencies>
     <build>
@@ -160,7 +166,8 @@
                             spatial-wfs-v2_0_0-converter;scope=compile|runtime,
                             catalog-core-api-impl,
                             jaxb2-basics-runtime,
-                            gml-v_3_2_1-schema
+                            gml-v_3_2_1-schema,
+                            guava
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

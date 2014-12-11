@@ -105,6 +105,12 @@
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-ogc-api</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>17.0</version>
+        </dependency>
         
     </dependencies>
     <build>
@@ -131,7 +137,9 @@
                             spatial-ogc-common,
                             spatial-wfs-converter;scope=compile|runtime,
                             spatial-wfs-v1_0_0-converter;scope=compile|runtime,
-                            catalog-core-api-impl</Embed-Dependency>
+                            catalog-core-api-impl,
+                            guava
+                        </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>
