@@ -224,7 +224,7 @@ define([
                 return _.map(geometries, function (geometry) {
                     return new MetaCard.Geometry(geometry);
                 });
-            },
+            }
 
         });
 
