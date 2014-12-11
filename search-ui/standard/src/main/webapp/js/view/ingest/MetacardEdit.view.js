@@ -311,7 +311,7 @@ define([
                         canvas1.width = img.width;
                         canvas1.height = img.height;
                         var canvas2 = document.createElement('canvas');
-                        var size = scaleSize(100, 100, img.width, img.height);
+                        var size = scaleSize(200, 200, img.width, img.height);
                         canvas2.width = size[0];
                         canvas2.height = size[1];
                         var ctx1 = canvas1.getContext('2d');
