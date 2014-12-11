@@ -16,6 +16,7 @@ package org.codice.ddf.commands.catalog;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
@@ -280,6 +281,10 @@ public class IngestCommand extends CatalogCommands {
             } else {
                 fis = new FileInputStream(file);
                 result = generateMetacard(fis);
+                if (StringUtils.isBlank(result.getTitle())) {
+                    LOGGER.debug("Metacard title was blank. Setting title to filename.");
+                    result.setAttribute(new AttributeImpl(Metacard.TITLE, file.getName()));
+                }
                 fis.close();
             }
         } catch (IOException e) {

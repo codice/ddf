@@ -14,12 +14,14 @@
  **/
 package ddf.catalog.transformer.input.tika;
 
+import com.google.common.io.FileBackedOutputStream;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.CloseShieldInputStream;
@@ -76,13 +78,20 @@ public class TikaInputTransformer implements InputTransformer {
         if (input == null) {
             throw new CatalogTransformerException("Cannot transform null input.");
         }
+        FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000);
+
+        try {
+            IOUtils.copy(input, fileBackedOutputStream);
+        } catch (IOException e) {
+            throw new CatalogTransformerException("Could not copy bytes of content message.", e);
+        }
 
         Parser parser = new AutoDetectParser();
         Metadata metadata = new Metadata();
         ToXMLContentHandler xmlHandler = new ToXMLContentHandler();
 
-        try {
-            parser.parse(input, xmlHandler, metadata, new ParseContext());
+        try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
+            parser.parse(inputStreamMessageCopy, xmlHandler, metadata, new ParseContext());
 
         } catch (SAXException e) {
             throw new CatalogTransformerException("SAX exception processing input.", e);
@@ -90,7 +99,10 @@ public class TikaInputTransformer implements InputTransformer {
             throw new CatalogTransformerException("Tika exception processing input.", e);
         }
 
-        Metacard metacard = createMetacard(input, metadata, uri, xmlHandler.toString());
+        Metacard metacard = null;
+        try  (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
+            metacard = createMetacard(inputStreamMessageCopy, metadata, uri, xmlHandler.toString());
+        }
 
         LOGGER.debug("Finished transforming input stream using Tika.");
         return metacard;
@@ -223,7 +235,7 @@ public class TikaInputTransformer implements InputTransformer {
             graphics.drawImage(image, null, null);
             graphics.dispose();
 
-            BufferedImage thumb = Scalr.resize(bufferedImage, 100);
+            BufferedImage thumb = Scalr.resize(bufferedImage, 200);
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
 

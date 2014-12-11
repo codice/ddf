@@ -14,51 +14,7 @@
  **/
 package org.codice.ddf.endpoints.rest;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
-import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.google.common.io.FileBackedOutputStream;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
@@ -87,6 +43,48 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 @Path("/")
 public class RESTEndpoint implements RESTService {
@@ -768,9 +766,10 @@ public class RESTEndpoint implements RESTService {
 
         Metacard generatedMetacard = null;
 
-        byte[] messageBytes;
+        FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000);
+
         try {
-            messageBytes = IOUtils.toByteArray(message);
+            IOUtils.copy(message, fileBackedOutputStream);
         } catch (IOException e) {
             throw new MetacardCreationException("Could not copy bytes of content message.", e);
         }
@@ -778,12 +777,9 @@ public class RESTEndpoint implements RESTService {
         Iterator<InputTransformer> it = listOfCandidates.iterator();
 
         while (it.hasNext()) {
+            InputTransformer transformer = it.next();
 
-            InputStream inputStreamMessageCopy = new ByteArrayInputStream(messageBytes);
-            InputTransformer transformer = null;
-
-            try {
-                transformer = (InputTransformer) it.next();
+            try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
                 generatedMetacard = transformer.transform(inputStreamMessageCopy);
             } catch (CatalogTransformerException | IOException e) {
                 LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);

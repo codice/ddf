@@ -14,20 +14,7 @@
  **/
 package ddf.camel.component.catalog.inputtransformer;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-
-import org.apache.camel.Message;
-import org.apache.camel.Producer;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.google.common.io.FileBackedOutputStream;
 import ddf.camel.component.catalog.CatalogEndpoint;
 import ddf.camel.component.catalog.transformer.TransformerProducer;
 import ddf.catalog.data.Metacard;
@@ -35,6 +22,17 @@ import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
+import org.apache.camel.Message;
+import org.apache.camel.Producer;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * Producer for the custom Camel CatalogComponent. This {@link org.apache.camel.Producer} would map
@@ -100,9 +98,10 @@ public class InputTransformerProducer extends TransformerProducer {
 
         Metacard generatedMetacard = null;
 
-        byte[] messageBytes;
+        FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000);
+
         try {
-            messageBytes = IOUtils.toByteArray(message);
+            IOUtils.copy(message, fileBackedOutputStream);
         } catch (IOException e) {
             throw new MetacardCreationException("Could not copy bytes of content message.", e);
         }
@@ -113,14 +112,10 @@ public class InputTransformerProducer extends TransformerProducer {
         // can create the metacard, then do not need to try any remaining InputTransformers.
         for (InputTransformer transformer : listOfCandidates) {
 
-            InputStream inputStreamMessageCopy = new ByteArrayInputStream(messageBytes);
-
-            try {
+            try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
                 generatedMetacard = transformer.transform(inputStreamMessageCopy);
-            } catch (CatalogTransformerException e) {
+            } catch (IOException | CatalogTransformerException e) {
                 LOGGER.debug("Transformer [" + transformer + "] could not create metacard.", e);
-            } catch (IOException e) {
-                LOGGER.debug("Transformer [" + transformer + "] could not create metacard. ", e);
             }
             if (generatedMetacard != null) {
                 break;

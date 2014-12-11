@@ -100,6 +100,11 @@
               </exclusion>
           </exclusions>
       </dependency>
+      <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+          <version>17.0</version>
+      </dependency>
   </dependencies>
 
   <build>
@@ -110,6 +115,7 @@
             <configuration>
                 <instructions>
                     <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                    <Embed-Dependency>guava</Embed-Dependency>
                     <Private-Package>                     
                         ddf.catalog.data.impl,                      
                         ddf.catalog.operation.impl,

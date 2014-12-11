@@ -101,7 +101,12 @@
 			<artifactId>imgscalr-lib</artifactId>
 			<version>4.2</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>17.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -113,7 +118,8 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Embed-Dependency>
-							imgscalr-lib
+							imgscalr-lib,
+							guava
 						</Embed-Dependency>
 						<Private-Package>
 							ddf.catalog.transformer.input.tika,

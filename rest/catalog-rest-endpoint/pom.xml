@@ -105,7 +105,12 @@
             <version>4.3.2</version>
             <scope>test</scope>
         </dependency>
-		
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>17.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -116,7 +121,7 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Embed-Dependency>json-smart,catalog-core-api-impl</Embed-Dependency>
+						<Embed-Dependency>json-smart,catalog-core-api-impl,guava</Embed-Dependency>
 						<Import-Package>
 						    org.apache.cxf.jaxrs.utils,
 							*
