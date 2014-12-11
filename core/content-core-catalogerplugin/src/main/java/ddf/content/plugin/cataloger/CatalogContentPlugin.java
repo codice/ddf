@@ -220,7 +220,7 @@ public class CatalogContentPlugin implements ContentPlugin {
         for (InputTransformer transformer : listOfCandidates) {
 
             try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
-                int available = inputStreamMessageCopy.available();
+                long available = fileBackedOutputStream.asByteSource().size();
                 generatedMetacard = transformer.transform(inputStreamMessageCopy);
                 if (generatedMetacard != null) {
                     if (uri != null) {
