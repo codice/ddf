@@ -42,10 +42,9 @@
                 window.app = app;
                 if(!window.console){
                     window.console = {
-                        log: function(string){
-                            window.logArray.push(string);
-                        },
-                        logArray: []
+                        log: function(){
+                            // no op
+                        }
                     };
                 }
             }
