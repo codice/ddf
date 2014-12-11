@@ -223,7 +223,7 @@ define([
                         fieldName: 'anyText',
                         fieldType: 'string',
                         fieldOperator: 'contains',
-                        stringValue1: '*'
+                        stringValue1: '%'
                     }));
                 }
 
@@ -336,7 +336,7 @@ define([
 
                 var cql = this.logicalCql(filters, 'AND');
                 if (!cql) {
-                    cql = "anyText LIKE '*'";
+                    cql = "anyText LIKE '%'";
                 }
 
                 return cql;
