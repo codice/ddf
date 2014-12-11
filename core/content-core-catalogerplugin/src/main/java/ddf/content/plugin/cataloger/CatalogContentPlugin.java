@@ -14,6 +14,7 @@
  **/
 package ddf.content.plugin.cataloger;
 
+import com.google.common.io.FileBackedOutputStream;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -37,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import javax.activation.MimeType;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -205,10 +205,10 @@ public class CatalogContentPlugin implements ContentPlugin {
         }
 
         Metacard generatedMetacard = null;
+        FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000);
 
-        byte[] messageBytes;
         try {
-            messageBytes = IOUtils.toByteArray(message);
+            IOUtils.copy(message, fileBackedOutputStream);
         } catch (IOException e) {
             throw new MetacardCreationException("Could not copy bytes of content message.", e);
         }
@@ -219,29 +219,27 @@ public class CatalogContentPlugin implements ContentPlugin {
         // can create the metacard, then do not need to try any remaining InputTransformers.
         for (InputTransformer transformer : listOfCandidates) {
 
-            InputStream inputStreamMessageCopy = new ByteArrayInputStream(messageBytes);
-
-            try {
+            try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
+                int available = inputStreamMessageCopy.available();
                 generatedMetacard = transformer.transform(inputStreamMessageCopy);
-            } catch (CatalogTransformerException e) {
+                if (generatedMetacard != null) {
+                    if (uri != null) {
+                        //Setting the non-transformer specific information not including creation and modification dates/times
+                        generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, uri));
+                        generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(available)));
+                    } else {
+                        LOGGER.debug("Metacard had a null uri");
+                    }
+                    if (StringUtils.isBlank(generatedMetacard.getTitle())) {
+                        LOGGER.debug("Metacard title was blank. Setting title to filename.");
+                        generatedMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, contentItem.getFilename()));
+                    }
+                    break;
+                }
+            } catch (IOException | CatalogTransformerException e) {
                 LOGGER.debug("Transformer [" + transformer + "] could not create metacard.", e);
-            } catch (IOException e) {
-                LOGGER.debug("Transformer [" + transformer + "] could not create metacard. ", e);
             }
-            if (generatedMetacard != null) {
-                if (uri != null) {
-                    //Setting the non-transformer specific information not including creation and modification dates/times
-                    generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, uri));
-                    generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(messageBytes.length)));
-                } else {
-                    LOGGER.debug("Metacard had a null uri");
-                }
-                if (StringUtils.isBlank(generatedMetacard.getTitle())) {
-                    LOGGER.debug("Metacard title was blank. Setting title to filename.");
-                    generatedMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, contentItem.getFilename()));
-                }
-                break;
-            }
+
         }
         
         if (generatedMetacard == null) {

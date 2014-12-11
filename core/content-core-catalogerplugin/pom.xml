@@ -64,7 +64,12 @@
 			<version>0.9.24</version>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+	  <dependency>
+		  <groupId>com.google.guava</groupId>
+		  <artifactId>guava</artifactId>
+		  <version>17.0</version>
+	  </dependency>
+  </dependencies>
 
 	<build>
 		<plugins>
@@ -74,6 +79,7 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Embed-Dependency>guava</Embed-Dependency>
 						<Private-Package>
 							ddf.content.resource.impl,
 							ddf.catalog.data.impl,
