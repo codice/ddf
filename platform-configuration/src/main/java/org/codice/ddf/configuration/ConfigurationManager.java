@@ -131,6 +131,14 @@ public class ConfigurationManager {
     private static final String PAX_WEB_SERVICE_PID = "org.ops4j.pax.web";
 
     private static final String JETTY_HTTP_PORT = "org.osgi.service.http.port";
+    
+    private static final String SSL_KEYSTORE_JAVA_PROPERTY = "javax.net.ssl.keyStore";
+    
+    private static final String SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.keyStorePassword";
+    
+    private static final String SSL_TRUSTSTORE_JAVA_PROPERTY = "javax.net.ssl.trustStore";
+    
+    private static final String SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.trustStorePassword";
 
     /**
      * List of DdfManagedServices to push the DDF system settings to.
@@ -177,6 +185,14 @@ public class ConfigurationManager {
                 .put(HTTP_PORT, getConfigurationValue(PAX_WEB_SERVICE_PID, JETTY_HTTP_PORT));
         readOnlySettings.put(SERVICES_CONTEXT_ROOT,
                 getConfigurationValue(CXF_SERVICE_PID, CXF_SERVLET_CONTEXT));
+        
+        readOnlySettings.put(KEY_STORE, System.getProperty(SSL_KEYSTORE_JAVA_PROPERTY));
+        readOnlySettings.put(KEY_STORE_PASSWORD,
+                System.getProperty(SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY));
+        readOnlySettings.put(TRUST_STORE, System.getProperty(SSL_TRUSTSTORE_JAVA_PROPERTY));
+        readOnlySettings.put(TRUST_STORE_PASSWORD,
+                System.getProperty(SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY));
+        
 
         this.configuration = new HashMap<String, String>();
 
