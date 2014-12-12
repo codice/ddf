@@ -88,7 +88,9 @@ define([
                     });
                     return joinArray.join(' OR ');
                 } else {
-                    return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' ILIKE ' + Filter.CQLFactory.getValue(filter.get('stringValue1'));
+                    var value = Filter.CQLFactory.getValue(filter.get('stringValue1'));
+                    value = value.replace(/\*/g,"%");  // replace * with %.
+                    return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' ILIKE ' + value;
                 }
 
             }
