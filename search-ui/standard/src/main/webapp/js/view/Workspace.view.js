@@ -75,11 +75,11 @@ define([
                 this.collection.add(workspace);
 
                 this.collection.parents[0].save();
-                wreqr.vent.trigger('workspace:list', this.model);
+                wreqr.vent.trigger('workspace:list', this.model, true);
             },
             cancel: function() {
                 this.close();
-                wreqr.vent.trigger('workspace:list', this.model);
+                wreqr.vent.trigger('workspace:list', this.model, false);
             }
         });
 
@@ -118,6 +118,7 @@ define([
             editing: false,
             initialize: function() {
                 this.listenTo(wreqr.vent, 'workspace:edit', this.editMode);
+                this.listenTo(wreqr.vent, 'workspace:searcheditcancel', this.doneMode);
                 this.listenTo(wreqr.vent, 'workspace:save', this.doneMode);
                 if(this.model.get('result')) {
                     this.listenTo(this.model.get('result'), 'change', this.render);
@@ -195,6 +196,12 @@ define([
         WorkspaceView.Workspace = Marionette.Layout.extend({
             template: 'workspace',
             className: 'search-form',
+            initialize: function() {
+                this.realModel = this.model;
+                this.model = this.realModel.clone();
+                this.listenTo(wreqr.vent, 'workspace:searcheditcancel', this.cancelMode);
+                this.listenTo(wreqr.vent, 'workspace:save', this.doneMode);
+            },
             regions: {
                 workspaceSearchPanelRegion: '#workspaceSearchPanel',
                 workspaceMetacardPanelRegion: '#workspaceMetacardPanel'
@@ -214,6 +221,13 @@ define([
             onRender: function() {
                 this.workspaceSearchPanelRegion.show(new WorkspaceView.SearchList({collection: this.model.get('searches')}));
                 this.workspaceMetacardPanelRegion.show(new WorkspaceView.MetacardList({collection: this.model.get('metacards')}));
+            },
+            doneMode: function() {
+                this.realModel.set(this.model.attributes);
+            },
+            cancelMode: function() {
+                this.model.set(this.realModel.attributes);
+                this.render();
             }
         });
 
@@ -325,9 +339,14 @@ define([
             initialize: function() {
                 _.bindAll(this);
 
+                this.realModel = this.model;
+                this.model = this.realModel.clone();
+
                 this.listenTo(wreqr.vent, 'workspace:tabshown', this.setupEvents);
                 this.listenTo(wreqr.vent, 'workspace:save', this.workspaceSave);
                 this.listenTo(wreqr.vent, 'workspace:saveall', this.workspaceSave);
+                this.listenTo(wreqr.vent, 'workspace:editcancel', this.cancelEditWorkspaceList);
+                this.listenTo(wreqr.vent, 'workspace:searcheditcancel', this.workspaceCancelEdit);
             },
 
             setupEvents: function(tabHash) {
@@ -346,8 +365,9 @@ define([
                     this.listenTo(wreqr.vent, 'metacard:selected', this.showWorkspaceMetacard);
                     this.listenTo(wreqr.vent, 'workspace:new', this.showWorkspaceAdd);
                     this.listenTo(wreqr.vent, 'workspace:searchedit', this.showWorkspaceSearchEdit);
+                    this.listenTo(wreqr.vent, 'workspace:editcancel', this.cancelEditWorkspaceList);
                     this.listenTo(wreqr.vent, 'workspace:list', this.showWorkspaceList);
-                    this.listenTo(wreqr.vent, 'workspace:cancel', this.workspaceCancel);
+                    this.listenTo(wreqr.vent, 'workspace:cancel', this.workspaceCancelAdd);
                     this.listenTo(wreqr.vent, 'workspace:saveresults', this.saveResultsToWorkspace);
                     this.listenTo(wreqr.vent, 'workspace:resultssavecancel', this.cancelResultsToWorkspace);
                     this.workspaceRegion.show(undefined, dir.none);
@@ -357,6 +377,7 @@ define([
                     this.stopListening(wreqr.vent, 'metacard:selected');
                     this.stopListening(wreqr.vent, 'workspace:new');
                     this.stopListening(wreqr.vent, 'workspace:searchedit');
+                    this.stopListening(wreqr.vent, 'workspace:editcancel');
                     this.stopListening(wreqr.vent, 'workspace:list');
                     this.stopListening(wreqr.vent, 'workspace:cancel');
                     this.stopListening(wreqr.vent, 'workspace:saveresults');
@@ -373,7 +394,8 @@ define([
                 this.showWorkspaceResults(dir.backward);
             },
 
-            workspaceCancel: function(model) {
+            workspaceCancelAdd: function(model) {
+                this.model.set(this.realModel.attributes);
                 if(model && !model.get('name')) {
                     if(this.currentWorkspace) {
                         this.currentWorkspace.get('searches').remove(model);
@@ -382,14 +404,35 @@ define([
                 wreqr.vent.trigger('workspace:show', dir.backward, this.currentWorkspace);
             },
 
-            workspaceSave: function() {
+            workspaceSave: function(search) {
+                var view = this;
+                if(view.currentWorkspace) {
+                    if(search) {
+                        view.currentWorkspace.get('searches').add(search);
+                    }
+                    wreqr.reqres.setHandler('workspace:getCurrent', function () {
+                        return view.currentWorkspace;
+                    });
+                }
+                this.realModel.set(this.model.attributes);
+                this.model.save();
+            },
+            workspaceCancelEdit: function() {
                 var view = this;
                 if(view.currentWorkspace) {
                     wreqr.reqres.setHandler('workspace:getCurrent', function () {
                         return view.currentWorkspace;
                     });
                 }
-                this.model.save();
+                wreqr.vent.trigger('workspace:show', dir.backward, this.currentWorkspace);
+            },
+
+            workspaceRemove: function(workspace) {
+                this.workspaces.remove(workspace);
+            },
+
+            cancelEditWorkspaceList: function() {
+                this.showWorkspaceList(dir.backward, false);
             },
 
             showWorkspace: function(direction, model) {
@@ -399,7 +442,12 @@ define([
                 this.workspaceRegion.show(new WorkspaceView.Workspace({model: this.currentWorkspace}), direction);
             },
 
-            showWorkspaceList: function(direction) {
+            showWorkspaceList: function(direction, updated) {
+                if(updated) {
+                    this.realModel.set(this.model.attributes);
+                } else {
+                     this.model.set(this.realModel.attributes);
+               }
                 this.workspaceRegion.show(new WorkspaceView.WorkspaceList({collection: this.model.get('workspaces')}), direction);
             },
 

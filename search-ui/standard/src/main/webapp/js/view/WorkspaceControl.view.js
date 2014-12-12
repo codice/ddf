@@ -44,7 +44,7 @@ define([
             },
             setWorkspaceListEditState: function() {
                 this.set({
-                    back: 'Add',
+                    back: 'Cancel',
                     forward: 'Done',
                     title: 'Workspaces',
                     currentState: 'list',
@@ -72,11 +72,11 @@ define([
                     model = wreqr.reqres.request('workspace:getCurrent');
                 }
                 this.set({
-                    back: 'Workspaces',
+                    back: 'Cancel',
                     title: model ? model.get('name') : 'Edit Workspace',
                     forward: 'Done',
                     currentState: 'view',
-                    showChevronBack: true,
+                    showChevronBack: false,
                     showChevronForward: false
                 });
             },
@@ -86,7 +86,7 @@ define([
                     title: 'Add Workspace',
                     forward: '',
                     currentState: 'add',
-                    showChevronBack: true,
+                    showChevronBack: false,
                     showChevronForward: false
                 });
             },
@@ -156,7 +156,7 @@ define([
             },
 
             initialize: function() {
-                this.setupEvents();
+                this.setupEvents('#workspaces');
                 this.listenTo(wreqr.vent, 'workspace:tabshown', this.setupEvents);
             },
 
@@ -171,6 +171,7 @@ define([
                     this.listenTo(wreqr.vent, 'workspace:list', _.bind(this.model.setWorkspaceListState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:editall', _.bind(this.model.setWorkspaceListEditState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:save', _.bind(this.model.setWorkspaceViewState, this.model));
+                    this.listenTo(wreqr.vent, 'workspace:searcheditcancel', _.bind(this.model.setWorkspaceViewState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:saveresults', _.bind(this.model.setSelectWorkspaceState, this.model));
                     this.listenTo(wreqr.vent, 'workspace:resultssavecancel', _.bind(this.model.revertToPrevious, this.model));
                     this.listenTo(wreqr.vent, 'workspace:searchsavecancel', _.bind(this.model.revertToPrevious, this.model));
@@ -186,6 +187,7 @@ define([
                     this.stopListening(wreqr.vent, 'workspace:list');
                     this.stopListening(wreqr.vent, 'workspace:editall');
                     this.stopListening(wreqr.vent, 'workspace:save');
+                    this.stopListening(wreqr.vent, 'workspace:searcheditcancel');
                     this.stopListening(wreqr.vent, 'workspace:saveresults');
                     this.stopListening(wreqr.vent, 'workspace:resultssavecancel');
                     this.stopListening(wreqr.vent, 'workspace:searchsavecancel');
@@ -219,6 +221,10 @@ define([
                         if(id === 'Edit') {
                             wreqr.vent.trigger('workspace:editall');
                         }
+                        if(id === 'Cancel') {
+                            this.model.setWorkspaceListState();
+                            wreqr.vent.trigger('workspace:editcancel');
+                        }
                         if(id === 'Done') {
                             this.model.setWorkspaceListState();
                             wreqr.vent.trigger('workspace:saveall');
@@ -230,6 +236,9 @@ define([
                         }
                         break;
                     case 'edit':
+                        if(id === 'Workspace') {
+                            wreqr.vent.trigger('workspace:show', dir.backward);
+                        }
                         break;
                     case 'view':
                         if(id === 'Workspaces') {
@@ -237,6 +246,9 @@ define([
                         }
                         if(id === 'Edit') {
                             wreqr.vent.trigger('workspace:edit');
+                        }
+                        if(id === 'Cancel') {
+                            wreqr.vent.trigger('workspace:searcheditcancel');
                         }
                         if(id === 'Done') {
                             wreqr.vent.trigger('workspace:save');
