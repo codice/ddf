@@ -1,6 +1,6 @@
 {
-  "footer": "UNCLASSIFIED",
+  "footer": "FOOTER",
   "color": "white",
   "background": "green",
-  "header": "UNCLASSIFIED"
+  "header": "HEADER"
 }
