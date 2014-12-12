@@ -19,10 +19,9 @@ define([
         'js/model/Metacard',
         'usngs',
         'js/model/Filter',
-        'wreqr',
         'backboneassociations'
     ],
-    function (Backbone, _, properties, moment, Metacard, usngs, Filter,wreqr) {
+    function (Backbone, _, properties, moment, Metacard, usngs, Filter) {
         "use strict";
         var Query = {};
 
@@ -235,17 +234,6 @@ define([
                         fieldType: 'string',
                         fieldOperator: 'contains',
                         stringValue1: types  // this should already be common delimited for us.
-                    }));
-                } else {
-                    // fill in all content types and the no value type.
-                    var contentTypes = wreqr.reqres.request('workspace:gettypes');
-                    var allTypes = contentTypes.pluck('name');
-                    allTypes.push('no-value');
-                    filters.push(new Filter.Model({
-                        fieldName: properties.filters.METADATA_CONTENT_TYPE,
-                        fieldType: 'string',
-                        fieldOperator: 'contains',
-                        stringValue1: allTypes.join(',')
                     }));
                 }
 
