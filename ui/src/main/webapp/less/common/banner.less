@@ -1,0 +1,33 @@
+html.has-header {
+  header {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    left: 0px;
+    height: 20px;
+    text-align: center;
+    z-index: 2;  // higher than .main-content
+  }
+
+  .main-content {
+    padding-top: 20px;
+    z-index: 1;
+  }
+}
+
+html.has-footer {
+  footer {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    height: 20px;
+    text-align: center;
+    z-index: 2; // higher than .main-content
+  }
+
+  .main-content {
+    padding-bottom: 20px;
+    z-index: 1;
+  }
+}
