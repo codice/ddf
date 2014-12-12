@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import ddf.catalog.data.Metacard;
 
@@ -143,7 +144,11 @@ public class CswSourceConfiguration {
     }
 
     public Map<String, String> getMetacardCswMappings() {
-        return metacardCswMappings;
+        Map<String, String> newMap = new HashMap<>();
+        for (Entry<String, String> entry : metacardCswMappings.entrySet()) {
+            newMap.put(entry.getValue(), entry.getKey());
+        }
+        return newMap;
     }
 
     public void setMetacardCswMappings(Map<String, String> metacardCswMappings) {

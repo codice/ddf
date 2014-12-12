@@ -35,8 +35,11 @@
     </dct:spatial>
     <dc:creator>UnitTester</dc:creator>
     <dct:modified>2013-05-15T19:15:15Z</dct:modified>
+    <dct:date>2013-05-15T19:15:15Z</dct:date>
     <dct:created>2003-01-28T07:09:16Z</dct:created>
     <dct:dateSubmitted>2003-05-14T19:15:15Z</dct:dateSubmitted>
+    <dct:dateAccepted>2013-07-12T16:16:16Z</dct:dateAccepted>
+    <dct:dateCopyrighted>2013-07-12T16:16:16Z</dct:dateCopyrighted>
     <dct:abstract>The abstract goes here.</dct:abstract>
     <dc:format>PDF</dc:format>
     <dct:extent>32175104</dct:extent>

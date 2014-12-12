@@ -119,8 +119,14 @@ public class TestGetRecordsMessageBodyReader {
                 .thenReturn(new CswRecordConverter());
 
         CswSourceConfiguration config = new CswSourceConfiguration();
-        config.setMetacardCswMappings(
-                DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
+        Map<String, String> mappings = new HashMap<>();
+        mappings.put(Metacard.CREATED, "dateSubmitted");
+        mappings.put(Metacard.EFFECTIVE, "created");
+        mappings.put(Metacard.MODIFIED, "modified");
+        mappings.put(Metacard.CONTENT_TYPE, "type");
+        config.setMetacardCswMappings(mappings);
+//        config.setMetacardCswMappings(
+//                DefaultCswRecordMap.getDefaultCswRecordMap().getCswToMetacardAttributeNames());
         config.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         config.setIsLonLatOrder(false);
         config.setThumbnailMapping(CswRecordMetacardType.CSW_REFERENCES);

@@ -340,14 +340,29 @@ public class TestCswRecordConverter {
                 equalTo("IMAGE-PRODUCT"));
 
         // Verify extensible CSW attributes in metacard were populated
+        // CREATED
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
                 equalTo("2003-01-28T07:09:16Z"));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_SUBMITTED).getValue(),
-                equalTo("2003-05-14T19:15:15Z"));
-        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_MODIFIED).getValue(),
-                equalTo("2013-05-15T19:15:15Z"));
+
 
         assertDates(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED, mc);
+
+        // EFFECTIVE
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED).getValue(),
+                equalTo("2013-07-12T16:16:16Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_COPYRIGHTED).getValue(),
+                equalTo("2013-07-12T16:16:16Z"));
+
+        assertDates(Metacard.EFFECTIVE, CswRecordMetacardType.CSW_DATE_ACCEPTED, mc);
+
+        // MODIFIED
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_MODIFIED).getValue(),
+                equalTo("2013-05-15T19:15:15Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_SUBMITTED).getValue(),
+                equalTo("2003-05-14T19:15:15Z"));
+
+        assertDates(Metacard.MODIFIED, CswRecordMetacardType.CSW_MODIFIED, mc);
+
     }
 
     @Test
@@ -387,6 +402,59 @@ public class TestCswRecordConverter {
                 equalTo("2013-05-15T19:15:15Z"));
 
         assertDates(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED, mc);
+        assertDates(Metacard.MODIFIED, CswRecordMetacardType.CSW_MODIFIED, mc);
+    }
+
+    @Test
+    public void testUnmarshalCswRecordMetacard_DateMappings() throws XmlPullParserException {
+        XStream xstream = new XStream(new WstxDriver());
+
+        CswRecordConverter converter = new CswRecordConverter();
+        xstream.registerConverter(converter);
+
+        xstream.alias("csw:Record", MetacardImpl.class);
+        InputStream is = TestCswRecordConverter.class.getResourceAsStream("/Csw_Record.xml");
+
+        HierarchicalStreamReader reader = new XppReader(new InputStreamReader(is), XmlPullParserFactory
+                .newInstance().newPullParser());
+        DataHolder args = xstream.newDataHolder();
+        Map<String, String> dateMappings = new HashMap<>();
+        dateMappings.put(CswRecordMetacardType.CSW_DATE_SUBMITTED, Metacard.EFFECTIVE);
+        dateMappings.put(CswRecordMetacardType.CSW_CREATED, Metacard.CREATED);
+        dateMappings.put(CswRecordMetacardType.CSW_MODIFIED, Metacard.MODIFIED);
+        dateMappings.put(CswRecordMetacardType.CSW_TYPE, Metacard.CONTENT_TYPE);
+        args.put(CswConstants.CSW_MAPPING, dateMappings);
+        Metacard mc = (Metacard) xstream.unmarshal(reader, null, args);
+
+        assertThat(mc, not(nullValue()));
+
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
+                is(equalTo("08976079-9c53-465f-b921-97d0717262f5")));
+        assertThat((String) mc.getAttribute(Metacard.ID).getValue(), equalTo((String) mc
+                .getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
+
+        // Verify extensible CSW attributes in metacard were populated
+        // CREATED
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
+                equalTo("2003-01-28T07:09:16Z"));
+
+
+        assertDates(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED, mc);
+
+        // EFFECTIVE
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED).getValue(),
+                equalTo("2013-07-12T16:16:16Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_COPYRIGHTED).getValue(),
+                equalTo("2013-07-12T16:16:16Z"));
+
+        assertDates(Metacard.EFFECTIVE, CswRecordMetacardType.CSW_DATE_SUBMITTED, mc);
+
+        // MODIFIED
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_MODIFIED).getValue(),
+                equalTo("2013-05-15T19:15:15Z"));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_SUBMITTED).getValue(),
+                equalTo("2003-05-14T19:15:15Z"));
+
         assertDates(Metacard.MODIFIED, CswRecordMetacardType.CSW_MODIFIED, mc);
     }
 

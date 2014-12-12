@@ -433,17 +433,25 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         Object mappingObj = context.get(CswConstants.CSW_MAPPING);
         if (mappingObj instanceof Map<?, ?>) {
             // If we got mappings passed in, remove the existing mappings for that attribute
-            Map<String, String> newMappings = new CaseInsensitiveMap((Map<String, String>) mappingObj);
-            Iterator<Entry<String, String>> iter = cswAttrMap.entrySet().iterator();
-            while (iter.hasNext()) {
-                Entry<String, String> entry = iter.next();
-                for (Entry<String, String> newEntry : newMappings.entrySet()) {
-                    if (newEntry.getValue().equalsIgnoreCase(entry.getValue())) {
-                        iter.remove();
+            Map<String, String> customMappings = new CaseInsensitiveMap((Map<String, String>) mappingObj);
+            Map<String, String> convertedMappings = new CaseInsensitiveMap();
+            for (Entry<String, String> customMapEntry : customMappings.entrySet()) {
+                Iterator<Entry<String, String>> existingMapIter = cswAttrMap.entrySet().iterator();
+                while (existingMapIter.hasNext()) {
+                    Entry<String, String> existingMapEntry = existingMapIter.next();
+                    if (existingMapEntry.getValue().equalsIgnoreCase(customMapEntry.getValue())) {
+                        existingMapIter.remove();
                     }
                 }
+                String key = convertToCswField(customMapEntry.getKey());
+                String value = customMapEntry.getValue();
+                LOGGER.debug("Adding key: {} & value: {}", key, value);
+                convertedMappings.put(key, value);
             }
-            cswAttrMap.putAll(newMappings);
+            cswAttrMap.putAll(convertedMappings);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Map contents: {}", Arrays.toString(cswAttrMap.entrySet().toArray()));
+            }
         }
 
         String resourceUriMapping = (isString(context.get(Metacard.RESOURCE_URI))) ?
@@ -530,9 +538,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             // e.g., "title".
             // So if this is one of those attribute names, get the CSW
             // attribute for the name to be looked up.
-            if (CSW_OVERLAPPING_ATTRIBUTE_NAMES.contains(name)) {
-                name = CswRecordMetacardType.CSW_ATTRIBUTE_PREFIX + name;
-            }
+            name = convertToCswField(name);
 
             LOGGER.debug("Processing node {}", name);
             AttributeDescriptor attributeDescriptor = CSW_METACARD_TYPE
@@ -675,6 +681,13 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         return mc;
     }
 
+    private String convertToCswField(String name) {
+        if (CSW_OVERLAPPING_ATTRIBUTE_NAMES.contains(name)) {
+            return CswRecordMetacardType.CSW_ATTRIBUTE_PREFIX + name;
+        }
+        return name;
+    }
+
     /**
      * Converts properties in CSW records that overlap with same name as a basic Metacard attribute,
      * e.g., title. This conversion method is needed mainly because CSW records express all dates as
@@ -686,7 +699,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
      */
     public Serializable convertStringValueToMetacardValue(
             AttributeFormat attributeFormat, String value) {
-        LOGGER.debug("converting csw record overlapping property {}", value);
+        LOGGER.debug("converting csw record property {}", value);
         Serializable ser = null;
         
         if (attributeFormat == null) {
