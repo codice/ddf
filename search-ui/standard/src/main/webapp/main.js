@@ -39,10 +39,10 @@ define(['config'], function () {
         //remove this code when the correct way to get the div to resize is discovered
         $(window).resize(function () {
             var height = $('body').height();
-            if (properties.header && properties.header !== '') {
+            if (properties.ui.header && properties.ui.header !== '') {
                 height = height - 20;
             }
-            if (properties.footer && properties.footer !== '') {
+            if (properties.ui.footer && properties.ui.footer !== '') {
                 height = height - 20;
             }
             $('#content').height(height);
