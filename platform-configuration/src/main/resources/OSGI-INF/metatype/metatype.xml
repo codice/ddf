@@ -57,6 +57,26 @@
          id="ddf.platform.ui.config">
 
         <AD
+                description="Turns on a system usage message, which is shown when the Search Application is opened"
+                name="Enable System Usage Message" id="systemUsageEnabled" required="true" type="Boolean"
+                default=""
+                />
+        <AD
+                description="A title for the system usage Message when the application is opened"
+                name="System Usage Message Title" id="systemUsageTitle" required="true" type="String"
+                default=""
+                />
+        <AD
+                description="A system usage message to be displayed to the user each time the user opens the application"
+                name="System Usage Message" id="systemUsageMessage" required="true" type="String"
+                default=""
+                />
+        <AD
+                description="With this selected, the system usage message will be shown once for each browser session.  Uncheck this to have the usage message appear every time the search window is opened or refreshed."
+                name="Show System Usage Message once per session" id="systemUsageOncePerSession" required="true" type="Boolean"
+                default="true"
+                />
+        <AD
                 description="Specifies the header text to be rendered on all pages."
                 name="Header" id="header" required="true" type="String"
                 default=""

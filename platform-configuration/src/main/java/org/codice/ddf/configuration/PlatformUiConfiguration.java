@@ -29,10 +29,18 @@ import javax.ws.rs.Produces;
 @Path("/")
 public class PlatformUiConfiguration {
 
+    public static final String SYSTEM_USAGE_TITLE = "systemUsageTitle";
+    public static final String SYSTEM_USAGE_MESSAGE = "systemUsageMessage";
+    public static final String SYSTEM_USAGE_ONCE_PER_SESSION = "systemUsageOncePerSession";
     public static final String HEADER = "header";
     public static final String FOOTER = "footer";
     public static final String COLOR = "color";
     public static final String BACKGROUND = "background";
+
+    private boolean systemUsageEnabled;
+    private String systemUsageTitle;
+    private String systemUsageMessage;
+    private boolean systemUsageOncePerSession;
     private String header;
     private String footer;
     private String color;
@@ -43,12 +51,52 @@ public class PlatformUiConfiguration {
     @Produces("application/json")
     public String getConfig() {
         JSONObject jsonObject = new JSONObject();
+
+        if(systemUsageEnabled) {
+            jsonObject.put(SYSTEM_USAGE_TITLE, systemUsageTitle);
+            jsonObject.put(SYSTEM_USAGE_MESSAGE, systemUsageMessage);
+            jsonObject.put(SYSTEM_USAGE_ONCE_PER_SESSION, systemUsageOncePerSession);
+        }
+
         jsonObject.put(HEADER, this.header);
         jsonObject.put(FOOTER, this.footer);
         jsonObject.put(COLOR, this.color);
         jsonObject.put(BACKGROUND, this.background);
         return jsonObject.toJSONString();
     }
+
+    public boolean getSystemUsageEnabled() {
+        return systemUsageEnabled;
+    }
+
+    public void setSystemUsageEnabled(boolean systemUsageEnabled) {
+        this.systemUsageEnabled = systemUsageEnabled;
+    }
+
+    public String getSystemUsageTitle() {
+        return systemUsageTitle;
+    }
+
+    public void setSystemUsageTitle(String systemUsageTitle) {
+        this.systemUsageTitle = systemUsageTitle;
+    }
+
+    public String getSystemUsageMessage() {
+        return systemUsageMessage;
+    }
+
+    public void setSystemUsageMessage(String systemUsageMessage) {
+        this.systemUsageMessage = systemUsageMessage;
+    }
+
+    public boolean getSystemUsageOncePerSession() {
+        return systemUsageOncePerSession;
+    }
+
+    public void setSystemUsageOncePerSession(boolean systemUsageOncePerSession) {
+        this.systemUsageOncePerSession = systemUsageOncePerSession;
+    }
+
 
     public String getHeader() {
         return header;
@@ -81,4 +129,5 @@ public class PlatformUiConfiguration {
     public void setBackground(String background) {
         this.background = background;
     }
+
 }
