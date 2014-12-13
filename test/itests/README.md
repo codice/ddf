@@ -16,3 +16,13 @@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 9101 admin@lo
 
 ## Rerun an Instance After Test Failure
 The runtime folder used during the test is available under `target/exam/<GUID>`.  It is possible to rerun the instance and verify that all bundles (excluding the test probe) are installed and working properly.  You can also inspect the logs under `target/exam/<GUID>/data/logs`.
+
+## Debug a Single Test
+The Pax Exam tests support Maven Surefire Plugin properties.  One useful property is the `test` property to select a single test class or method to execute.
+
+```
+mvn clean test –Dtest=TestFederation
+mvn clean test –Dtest=TestFederation#<testMethodName>
+```
+
+This can be combined with the `isDebugEnabled` property.
