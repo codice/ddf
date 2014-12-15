@@ -183,8 +183,7 @@ public class TikaInputTransformer implements InputTransformer {
             return null;
         }
 
-        Date date = javax.xml.bind.DatatypeConverter.parseDateTime(dateStr).getTime();
-        return date;
+        return javax.xml.bind.DatatypeConverter.parseDateTime(dateStr).getTime();
     }
 
     /**
@@ -212,11 +211,9 @@ public class TikaInputTransformer implements InputTransformer {
         SortedSet<MediaType> mediaTypes = MediaTypeRegistry.getDefaultRegistry().getTypes();
         List<String> mimeTypes = new ArrayList<String>(mediaTypes.size());
 
-        if (mediaTypes != null) {
-            for (MediaType mediaType : mediaTypes) {
-                String mimeType = mediaType.getType() + "/" + mediaType.getSubtype();
-                mimeTypes.add(mimeType);
-            }
+        for (MediaType mediaType : mediaTypes) {
+            String mimeType = mediaType.getType() + "/" + mediaType.getSubtype();
+            mimeTypes.add(mimeType);
         }
 
         LOGGER.debug("supported mime types: {}", mimeTypes);
@@ -224,11 +221,6 @@ public class TikaInputTransformer implements InputTransformer {
     }
 
     private void createThumbnail(InputStream input, Metacard metacard) {
-        try {
-            input.reset();
-        } catch (IOException e) {
-            LOGGER.warn("Unable to reset input stream.", e);
-        }
         try {
             Image image = ImageIO.read(new CloseShieldInputStream(input));
 
@@ -239,13 +231,12 @@ public class TikaInputTransformer implements InputTransformer {
 
             BufferedImage thumb = Scalr.resize(bufferedImage, 200);
 
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                ImageIO.write(thumb, "jpeg", out);
 
-            ImageIO.write(thumb, "jpeg", out);
-
-            byte[] thumbBytes = out.toByteArray();
-            metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, thumbBytes));
-            out.close();
+                byte[] thumbBytes = out.toByteArray();
+                metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, thumbBytes));
+            }
         } catch (Exception e) {
             LOGGER.warn("Unable to read image from input stream to create thumbnail.", e);
         }
