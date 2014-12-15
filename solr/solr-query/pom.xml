@@ -33,7 +33,6 @@
       <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>
-            <version>${solr.version}</version>
             <!-- exclusions from LuxDB -->
             <exclusions>
                 <exclusion>
@@ -57,7 +56,6 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>${solr.version}</version>
             <exclusions>
                 <!-- exclusion for LuxDB -->
                 <exclusion>

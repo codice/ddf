@@ -33,6 +33,16 @@
   
   <dependencyManagement>
 	<dependencies>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-core</artifactId>
+            <version>${solr.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-solrj</artifactId>
+            <version>${solr.version}</version>
+        </dependency>
 	    <dependency>
 			<groupId>org.luxdb</groupId>
 			<artifactId>lux</artifactId>
@@ -43,6 +53,7 @@
 
   
   <modules>
+      <module>solr-factory</module>
       <module>solr-query</module>
       <module>solr-xpath</module>
       <module>platform-solr-server-standalone</module>

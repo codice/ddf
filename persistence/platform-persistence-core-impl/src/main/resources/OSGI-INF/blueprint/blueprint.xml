@@ -19,12 +19,9 @@
 
     <bean id="persistentStore" class="org.codice.ddf.persistence.internal.PersistentStoreImpl">
         <cm:managed-properties persistent-id="org.codice.ddf.persistence.internal.PersistentStoreImpl" update-strategy="container-managed" />
-        <property name="encryptService" ref="encryptionService" />
     </bean>
     
     <service ref="persistentStore" id="persistentStoreService" interface="org.codice.ddf.persistence.PersistentStore">
     </service>
-
-    <service ref="persistentStore" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
 
 </blueprint>

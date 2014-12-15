@@ -31,9 +31,38 @@
 
     <dependencies>
         <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-factory</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.persistence.core</groupId>
             <artifactId>persistence-core-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr-core</artifactId>
+            <version>${solr.version}</version>
+            <!-- exclusions for LuxDB -->
+            <exclusions>
+                <exclusion>
+                    <artifactId>wstx-asl</artifactId>
+                    <groupId>org.codehaus.woodstox</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-jdk14</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>velocity-tools</artifactId>
+                    <groupId>org.apache.velocity</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hadoop-annotations</artifactId>
+                    <groupId>org.apache.hadoop</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -114,8 +143,10 @@
                             httpclient,
                             httpcore,
                             httpmime,
+                            solr-core,
                             solr-solrj,
                             solr-query,
+                            solr-factory,
                             noggit,
                             zookeeper
                         </Embed-Dependency>
