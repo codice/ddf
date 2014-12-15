@@ -22,6 +22,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.solr.factory.ConfigurationFileProxy;
+import org.codice.solr.factory.ConfigurationStore;
+import org.codice.solr.factory.SolrServerFactory;
 import org.joda.time.DateTime;
 import org.junit.BeforeClass;
 import org.opengis.filter.Filter;

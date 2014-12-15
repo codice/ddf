@@ -14,16 +14,16 @@
  **/
 package ddf.catalog.solr.external;
 
+import org.codice.solr.factory.ConfigurationStore;
+import org.codice.solr.factory.SolrServerFactory;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import ddf.catalog.source.solr.ConfigurationStore;
 import ddf.catalog.source.solr.SolrCatalogProvider;
 import ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl;
-import ddf.catalog.source.solr.SolrServerFactory;
 import ddf.catalog.source.solr.TestSolrProvider;
 
 /**

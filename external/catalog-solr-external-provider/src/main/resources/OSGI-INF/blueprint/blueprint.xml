@@ -14,7 +14,6 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
 	<reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter" />
-	<reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
 
 	<bean id="solrCatalogProvider" class="ddf.catalog.solr.external.SolrHttpCatalogProvider" destroy-method="shutdown">
 		<!-- Aries does not call my object on startup if set to component-managed. Therefore, we will use container-managed
@@ -24,11 +23,9 @@
 		<argument>
 			<bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
 		</argument>
-		<property name="encryptService" ref="encryptionService" />
 		<property name="url" value="https://localhost:8993/solr" />
 	</bean>
 
-	<service ref="solrCatalogProvider" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
 	<service ref="solrCatalogProvider" interface="ddf.catalog.source.CatalogProvider" />
 
 </blueprint>

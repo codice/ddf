@@ -29,7 +29,7 @@
 
 	<properties>
 	    <commons-io.version>2.1</commons-io.version>
-	    <ddf.platform.app.version>2.5.0</ddf.platform.app.version>
+	    <ddf.platform.app.version>2.6.0-SNAPSHOT</ddf.platform.app.version>
 	    <ddf.catalog.app.version>2.3.1.ALPHA1</ddf.catalog.app.version>
 	    <joda-time.version>1.6.2</joda-time.version>
 	    <jts.version>1.12</jts.version>
@@ -54,8 +54,13 @@
                <version>2.6</version>
            </dependency>
             <dependency>
-                <groupId>ddf.security.encryption</groupId>
-                <artifactId>security-encryption-api</artifactId>
+                <groupId>ddf.platform.solr</groupId>
+                <artifactId>solr-factory</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.platform.solr</groupId>
+                <artifactId>solr-xpath</artifactId>
                 <version>${ddf.platform.app.version}</version>
             </dependency>
             <dependency>
@@ -87,11 +92,6 @@
                 <groupId>org.luxdb</groupId>
                 <artifactId>lux</artifactId>
                 <version>${lux.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ddf.catalog.solr</groupId>
-                <artifactId>solr-xpath</artifactId>
-                <version>${ddf.platform.app.version}</version>
             </dependency>
             <!-- Version for Solr -->
             <dependency>

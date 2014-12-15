@@ -32,6 +32,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.util.NamedList;
+import org.codice.solr.factory.ConfigurationStore;
 import org.junit.Test;
 
 import ddf.catalog.operation.CreateRequest;
@@ -41,7 +42,7 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.source.solr.ConfigurationStore;
+
 
 /**
  * Unit tests for {@link SolrHttpCatalogProvider}

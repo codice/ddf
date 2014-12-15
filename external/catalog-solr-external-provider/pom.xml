@@ -29,10 +29,10 @@
 		<url>http://www.codice.org/</url>
 	</organization>
 	<dependencies>
-		<dependency>
-			<groupId>ddf.security.encryption</groupId>
-			<artifactId>security-encryption-api</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-factory</artifactId>
+        </dependency>
 
 		<dependency>
 			<groupId>ddf.catalog.solr.embedded</groupId>
@@ -51,7 +51,6 @@
 			<artifactId>filter-proxy</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -78,8 +77,9 @@
                             commons-fileupload,
                             commons-codec,
                             spatial4j,
+                            solr-core,
 							solr-solrj,
-							solr-core,
+                            solr-factory,
 							commons-io,
 							commons-lang,
 							joda-time,

@@ -54,6 +54,7 @@ import java.util.UUID;
 import javax.swing.border.BevelBorder;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.codice.solr.factory.ConfigurationStore;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.SortByImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;

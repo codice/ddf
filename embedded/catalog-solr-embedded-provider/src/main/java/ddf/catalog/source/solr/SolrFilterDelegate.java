@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.schema.DateField;
+import org.codice.solr.factory.ConfigurationStore;
 import org.joda.time.DateTime;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;

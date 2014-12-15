@@ -15,20 +15,20 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
 	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 	
-	<bean id="configurationStore" class="ddf.catalog.source.solr.ConfigurationStore"
+	<bean id="configurationStore" class="org.codice.solr.factory.ConfigurationStore"
 		factory-method="getInstance">
 		<cm:managed-properties persistent-id="ddf.catalog.source.solr.SolrCatalogProvider"
 			update-strategy="container-managed" />
 	</bean>
 
 	<!-- Used to tell where to lay down data directory on the disk -->
-	<bean id="configFileProxy" class="ddf.catalog.source.solr.ConfigurationFileProxy">
+	<bean id="configFileProxy" class="org.codice.solr.factory.ConfigurationFileProxy">
 		<argument ref="blueprintBundleContext" />
 		<argument ref="configurationStore" />
 	</bean>
 
 	<!-- The Solr Server that will be handling the requests -->
-	<bean id="solrServer" class="ddf.catalog.source.solr.SolrServerFactory"
+	<bean id="solrServer" class="org.codice.solr.factory.SolrServerFactory"
 		factory-method="getEmbeddedSolrServer">
 		<argument value="solrconfig.xml" />
 		<argument value="schema.xml" />

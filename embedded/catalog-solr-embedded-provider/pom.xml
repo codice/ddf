@@ -31,11 +31,15 @@
         <url>http://www.codice.org/</url>
     </organization>
 
-    <dependencies>  
+    <dependencies>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-factory</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-xpath</artifactId>
-            <version>${ddf.platform.app.version}</version>
         </dependency>
         
         <dependency>
@@ -316,8 +320,9 @@
                             commons-fileupload,
                             commons-codec,
                             spatial4j,
-                            solr-solrj,
                             solr-core,
+                            solr-solrj,
+                            solr-factory,
                             commons-io,
                             commons-lang,
                             joda-time,

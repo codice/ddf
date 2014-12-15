@@ -28,44 +28,25 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.source.solr.ConfigurationStore;
 import ddf.catalog.source.solr.DynamicSchemaResolver;
 import ddf.catalog.source.solr.SolrCatalogProvider;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
-import ddf.catalog.source.solr.SolrServerFactory;
 import ddf.catalog.util.impl.MaskableImpl;
-import ddf.security.encryption.EncryptionService;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.solr.client.solrj.SolrServer;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.solr.factory.ConfigurationStore;
+import org.codice.solr.factory.SolrServerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLContext;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 /**
  * Catalog Provider that interfaces with a Standalone external (HTTP) Solr Server
  */
-public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProvider,
-        ConfigurationWatcher {
+public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProvider {
 
     private static final String PING_ERROR_MESSAGE = "Solr Server ping failed.";
 
@@ -75,9 +56,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     private static final String SOLR_CATALOG_CORE_NAME = "catalog";
 
-    private static final String DEFAULT_SOLR_URL = "https://localhost:8993/solr";
-
-    private String url;
+    private String url = SolrServerFactory.DEFAULT_HTTPS_ADDRESS;
 
     private CatalogProvider provider = new UnconfiguredCatalogProvider();
 
@@ -90,12 +69,6 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
     private SolrFilterDelegateFactory solrFilterDelegateFactory;
 
     private DynamicSchemaResolver resolver;
-
-    private String keystoreLoc, keystorePass;
-
-    private String truststoreLoc, truststorePass;
-
-    private EncryptionService encryptService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrHttpCatalogProvider.class);
 
@@ -136,21 +109,11 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrFilterDelegateFactory
             solrFilterDelegateFactory) {
-        this(filterAdapter, SolrServerFactory
-                        .getHttpSolrServer(SolrHttpCatalogProvider.getSolrUrl(),
-                                SOLR_CATALOG_CORE_NAME,
-                                SOLR_CATALOG_CONFIG_FILE),
-                solrFilterDelegateFactory, null);
-    }
-
-    private static String getSolrUrl() {
-        String url = DEFAULT_SOLR_URL;
-        if (System.getProperty("host") != null && System.getProperty("jetty.port") != null && System
-                .getProperty("hostContext") != null) {
-            url = "http://" + System.getProperty("host") + ":" + System.getProperty("jetty.port") +
-                    "/" + StringUtils.stripStart(System.getProperty("hostContext"), "/");
-        }
-        return url;
+        this(filterAdapter, null, solrFilterDelegateFactory, null);
+        server = SolrServerFactory
+                .getHttpSolrServer(url,
+                        SOLR_CATALOG_CORE_NAME,
+                        SOLR_CATALOG_CONFIG_FILE);
     }
 
     @Override
@@ -266,14 +229,10 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
      * @param urlValue - url to the Solr Server
      */
     public void updateServer(String urlValue) {
-        updateServer(urlValue, false);
-    }
-
-    public void updateServer(String urlValue, boolean keystoreUpdate) {
         LOGGER.info("New url {}", urlValue);
 
         if (urlValue != null) {
-            if (!StringUtils.equalsIgnoreCase(urlValue.trim(), url) || keystoreUpdate || server == null) {
+            if (!StringUtils.equalsIgnoreCase(urlValue.trim(), url) || server == null) {
                 url = urlValue.trim();
 
                 if (server != null) {
@@ -283,16 +242,8 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
                     LOGGER.info("Shutdown complete.");
                 }
 
-                if (StringUtils.startsWith(url, "https") && StringUtils.isNotBlank(truststoreLoc)
-                        && StringUtils.isNotBlank(truststorePass)
-                        && StringUtils.isNotBlank(keystoreLoc)
-                        && StringUtils.isNotBlank(keystorePass)) {
-                    server = SolrServerFactory.getHttpSolrServer(url, SOLR_CATALOG_CORE_NAME,
-                            SOLR_CATALOG_CONFIG_FILE, getHttpClient());
-                } else if (!StringUtils.startsWith(url, "https")) {
-                    server = SolrServerFactory.getHttpSolrServer(url, SOLR_CATALOG_CORE_NAME,
-                            SOLR_CATALOG_CONFIG_FILE);
-                }
+                server = SolrServerFactory.getHttpSolrServer(url, SOLR_CATALOG_CORE_NAME,
+                        SOLR_CATALOG_CONFIG_FILE);
 
                 firstUse = true;
             }
@@ -338,120 +289,6 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
             LOGGER.warn(PING_ERROR_MESSAGE, e);
         }
         return false;
-    }
-
-    private CloseableHttpClient getHttpClient() {
-        // Allow TLS protocol and secure ciphers only
-        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
-                getSslContext(),
-                new String[] {
-                        "TLSv1",
-                        "TLSv1.1",
-                        "TLSv1.2"
-                },
-                new String[] {
-                        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-                        "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-                        "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
-                        "TLS_RSA_WITH_AES_128_CBC_SHA"
-                },
-                SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
-
-        return HttpClients.custom()
-                .setSSLSocketFactory(sslConnectionSocketFactory)
-                .setDefaultCookieStore(new BasicCookieStore())
-                .setMaxConnTotal(128)
-                .setMaxConnPerRoute(32)
-                .build();
-    }
-
-    private SSLContext getSslContext() {
-        KeyStore trustStore = getKeyStore(truststoreLoc, truststorePass);
-        KeyStore keyStore = getKeyStore(keystoreLoc, keystorePass);
-
-        SSLContext sslContext = null;
-
-        try {
-            sslContext = SSLContexts.custom()
-                    .loadKeyMaterial(keyStore, keystorePass.toCharArray())
-                    .loadTrustMaterial(trustStore)
-                    .useTLS()
-                    .build();
-        } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException |
-                KeyManagementException e) {
-            LOGGER.error("Unable to create secure HttpClient", e);
-            return null;
-        }
-
-        sslContext.getDefaultSSLParameters().setNeedClientAuth(true);
-        sslContext.getDefaultSSLParameters().setWantClientAuth(true);
-
-        return sslContext;
-    }
-
-    private KeyStore getKeyStore(String location, String password) {
-        LOGGER.debug("Loading keystore from {}", location);
-        KeyStore keyStore = null;
-
-        try (FileInputStream storeStream = new FileInputStream(location)) {
-            keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyStore.load(storeStream, password.toCharArray());
-        } catch (CertificateException | IOException
-                | NoSuchAlgorithmException | KeyStoreException e) {
-            LOGGER.error("Unable to load keystore at " + location, e);
-        }
-
-        return keyStore;
-    }
-
-    public void setEncryptService(EncryptionService encryptService) {
-        this.encryptService = encryptService;
-    }
-
-    @Override
-    public void configurationUpdateCallback(Map<String, String> props) {
-        LOGGER.debug("Got a new configuration.");
-        String keystoreLocation = props.get(ConfigurationManager.KEY_STORE);
-        String keystorePassword = encryptService.decryptValue(props
-                .get(ConfigurationManager.KEY_STORE_PASSWORD));
-
-        String truststoreLocation = props.get(ConfigurationManager.TRUST_STORE);
-        String truststorePassword = encryptService.decryptValue(props
-                .get(ConfigurationManager.TRUST_STORE_PASSWORD));
-
-        boolean keystoresUpdated = false;
-
-        if (StringUtils.isNotBlank(keystoreLocation)
-                && (!StringUtils.equals(this.keystoreLoc, keystoreLocation) || !StringUtils.equals(
-                this.keystorePass, keystorePassword))) {
-            if (new File(keystoreLocation).exists()) {
-                LOGGER.debug("Detected a change in the values for the keystore.");
-                this.keystoreLoc = keystoreLocation;
-                this.keystorePass = keystorePassword;
-                keystoresUpdated = true;
-            } else {
-                LOGGER.debug(
-                        "Keystore file does not exist at location {}, not updating keystore values.");
-            }
-        }
-        if (StringUtils.isNotBlank(truststoreLocation)
-                && (!StringUtils.equals(this.truststoreLoc, truststoreLocation) || !StringUtils
-                .equals(this.truststorePass, truststorePassword))) {
-            if (new File(truststoreLocation).exists()) {
-                LOGGER.debug("Detected a change in the values for the truststore.");
-                this.truststoreLoc = truststoreLocation;
-                this.truststorePass = truststorePassword;
-                keystoresUpdated = true;
-            } else {
-                LOGGER.debug(
-                        "Truststore file does not exist at location {}, not updating truststore values.");
-            }
-        }
-
-        if (keystoresUpdated) {
-            updateServer(url, true);
-        }
-
     }
 
     /**
