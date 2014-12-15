@@ -13,9 +13,26 @@
  --}}
 <h6>
     {{splitDashes fieldName}}
+    <div class="pull-right margin-right-6">
+        <div class="btn-group facet-selector-toggle" role="group" aria-label="...">
+    {{#is isAny true}}
+        {{#is state 'any'}}
+            <button type="button" class="btn btn-default btn-xs active any toggle-button">Any</button>
+            <button type="button" class="btn btn-default btn-xs specific toggle-button">Specific</button>
+        {{else}}
+            <button type="button" class="btn btn-default btn-xs any toggle-button">Any</button>
+            <button type="button" class="btn btn-default btn-xs active specific toggle-button">Specific</button>
+        {{/is}}
+    {{else}}
+        <button type="button" class="btn btn-default btn-xs any any-button">Any</button>
+        <button type="button" class="btn btn-default active btn-xs specific">Specific</button>
+    {{/is}}
+        </div>
+    </div>
 </h6>
-<table class="table table-striped resultTable vertical-shrink-rows no-margin-bottom">
-    <tbody>
+
+<table class="table table-striped resultTable vertical-shrink-rows no-margin-bottom facet-values">
+    <tbody role="{{state}}">
     {{#each values}}
         <tr>
             <td>

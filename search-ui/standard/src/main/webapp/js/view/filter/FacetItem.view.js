@@ -11,12 +11,13 @@
  **/
 define([
     'underscore',
+    'backbone',
     'marionette',
     'icanhaz',
     'wreqr',
     'text!templates/filter/facet.item.handlebars'
 ],
-    function (_, Marionette, ich, wreqr, facetItemTemplate) {
+    function (_, Backbone,Marionette, ich, wreqr, facetItemTemplate) {
         "use strict";
 
 
@@ -28,7 +29,29 @@ define([
             events: {
                 'click .remove-facet': 'removeClicked',
                 'click .add-facet': 'addClicked',
-                'click .focus-facet': 'focusClicked'
+                'click .focus-facet': 'focusClicked',
+                'click .any-button':'anyButtonClicked',
+                'click .toggle-button':'toggleState'
+            },
+            initialize: function(){
+                this.stateModel = new Backbone.Model({
+                    state: this.options.isAny ? 'any' : 'specific'
+                });
+                this.listenTo(this.stateModel, 'change', this.render);
+            },
+            templateHelpers: function(){
+                return {
+                    isAny: this.options.isAny,
+                    state: this.stateModel.get('state')
+                };
+            },
+            anyButtonClicked: function(){
+                wreqr.vent.trigger('anyFacetClicked', this.model.get('fieldName'));
+            },
+            toggleState: function(){
+                this.stateModel.set({
+                    state: this.stateModel.get('state') === 'any' ? 'specific' : 'any'
+                });
             },
             removeClicked: function(evt){
                 var element = this.$(evt.currentTarget);

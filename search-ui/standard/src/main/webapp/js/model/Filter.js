@@ -146,6 +146,11 @@ define([
             }));
         },
 
+        removeAllFromGroupFilter: function(fieldName){
+            var existingFilters = this.where({fieldName: fieldName});
+            this.remove(existingFilters);
+        },
+
         removeValueFromGroupFilter: function(fieldName, value){
             var existingFilters = this.where({fieldName: fieldName});
             var groupedFilterValues = [];
