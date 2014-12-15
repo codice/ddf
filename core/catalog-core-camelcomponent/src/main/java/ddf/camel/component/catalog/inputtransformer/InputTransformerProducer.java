@@ -98,36 +98,38 @@ public class InputTransformerProducer extends TransformerProducer {
 
         Metacard generatedMetacard = null;
 
-        FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000);
+        try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
 
-        try {
-            IOUtils.copy(message, fileBackedOutputStream);
+            try {
+                IOUtils.copy(message, fileBackedOutputStream);
+            } catch (IOException e) {
+                throw new MetacardCreationException("Could not copy bytes of content message.", e);
+            }
+
+            // Multiple InputTransformers may be found that match the mime type.
+            // Need to try each InputTransformer until we find one that can successfully transform
+            // the input stream's data into a metacard. Once an InputTransformer is found that
+            // can create the metacard, then do not need to try any remaining InputTransformers.
+            for (InputTransformer transformer : listOfCandidates) {
+
+                try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
+                    generatedMetacard = transformer.transform(inputStreamMessageCopy);
+                } catch (IOException | CatalogTransformerException e) {
+                    LOGGER.debug("Transformer [" + transformer + "] could not create metacard.", e);
+                }
+                if (generatedMetacard != null) {
+                    break;
+                }
+            }
+
+            if (generatedMetacard == null) {
+                throw new MetacardCreationException("Could not create metacard with mimeType " + mimeType + ". No valid transformers found.");
+            }
+
+            LOGGER.trace("EXITING: generateMetacard");
         } catch (IOException e) {
-            throw new MetacardCreationException("Could not copy bytes of content message.", e);
+            throw new MetacardCreationException("Could not create metacard.", e);
         }
-
-        // Multiple InputTransformers may be found that match the mime type.
-        // Need to try each InputTransformer until we find one that can successfully transform
-        // the input stream's data into a metacard. Once an InputTransformer is found that
-        // can create the metacard, then do not need to try any remaining InputTransformers.
-        for (InputTransformer transformer : listOfCandidates) {
-
-            try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
-                generatedMetacard = transformer.transform(inputStreamMessageCopy);
-            } catch (IOException | CatalogTransformerException e) {
-                LOGGER.debug("Transformer [" + transformer + "] could not create metacard.", e);
-            }
-            if (generatedMetacard != null) {
-                break;
-            }
-        }
-
-        if (generatedMetacard == null) {
-            throw new MetacardCreationException("Could not create metacard with mimeType "
-                    + mimeType + ". No valid transformers found.");
-        }
-
-        LOGGER.trace("EXITING: generateMetacard");
 
         return generatedMetacard;
     }

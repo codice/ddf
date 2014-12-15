@@ -78,30 +78,32 @@ public class TikaInputTransformer implements InputTransformer {
         if (input == null) {
             throw new CatalogTransformerException("Cannot transform null input.");
         }
-        FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000);
+        Metacard metacard;
+        try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
 
-        try {
-            IOUtils.copy(input, fileBackedOutputStream);
-        } catch (IOException e) {
-            throw new CatalogTransformerException("Could not copy bytes of content message.", e);
-        }
+            try {
+                IOUtils.copy(input, fileBackedOutputStream);
+            } catch (IOException e) {
+                throw new CatalogTransformerException("Could not copy bytes of content message.", e);
+            }
 
-        Parser parser = new AutoDetectParser();
-        Metadata metadata = new Metadata();
-        ToXMLContentHandler xmlHandler = new ToXMLContentHandler();
+            Parser parser = new AutoDetectParser();
+            Metadata metadata = new Metadata();
+            ToXMLContentHandler xmlHandler = new ToXMLContentHandler();
 
-        try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
-            parser.parse(inputStreamMessageCopy, xmlHandler, metadata, new ParseContext());
+            try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
+                parser.parse(inputStreamMessageCopy, xmlHandler, metadata, new ParseContext());
 
-        } catch (SAXException e) {
-            throw new CatalogTransformerException("SAX exception processing input.", e);
-        } catch (TikaException e) {
-            throw new CatalogTransformerException("Tika exception processing input.", e);
-        }
+            } catch (SAXException e) {
+                throw new CatalogTransformerException("SAX exception processing input.", e);
+            } catch (TikaException e) {
+                throw new CatalogTransformerException("Tika exception processing input.", e);
+            }
 
-        Metacard metacard = null;
-        try  (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
-            metacard = createMetacard(inputStreamMessageCopy, metadata, uri, xmlHandler.toString());
+
+            try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
+                metacard = createMetacard(inputStreamMessageCopy, metadata, uri, xmlHandler.toString());
+            }
         }
 
         LOGGER.debug("Finished transforming input stream using Tika.");

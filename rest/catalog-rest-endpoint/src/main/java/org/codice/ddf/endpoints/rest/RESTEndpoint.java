@@ -766,38 +766,40 @@ public class RESTEndpoint implements RESTService {
 
         Metacard generatedMetacard = null;
 
-        FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000);
+        try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
 
-        try {
-            IOUtils.copy(message, fileBackedOutputStream);
+            try {
+                IOUtils.copy(message, fileBackedOutputStream);
+            } catch (IOException e) {
+                throw new MetacardCreationException("Could not copy bytes of content message.", e);
+            }
+
+            Iterator<InputTransformer> it = listOfCandidates.iterator();
+
+            while (it.hasNext()) {
+                InputTransformer transformer = it.next();
+
+                try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
+                    generatedMetacard = transformer.transform(inputStreamMessageCopy);
+                } catch (CatalogTransformerException | IOException e) {
+                    LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);
+                }
+                if (generatedMetacard != null) {
+                    break;
+                }
+            }
+
+            if (generatedMetacard == null) {
+                throw new MetacardCreationException("Could not create metacard with mimeType " + mimeType + ". No valid transformers found.");
+            }
+
+            if (id != null) {
+                generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
+            } else {
+                LOGGER.debug("Metacard had a null id");
+            }
         } catch (IOException e) {
-            throw new MetacardCreationException("Could not copy bytes of content message.", e);
-        }
-
-        Iterator<InputTransformer> it = listOfCandidates.iterator();
-
-        while (it.hasNext()) {
-            InputTransformer transformer = it.next();
-
-            try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
-                generatedMetacard = transformer.transform(inputStreamMessageCopy);
-            } catch (CatalogTransformerException | IOException e) {
-                LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);
-            }
-            if (generatedMetacard != null) {
-                break;
-            }
-        }
-
-        if (generatedMetacard == null) {
-            throw new MetacardCreationException("Could not create metacard with mimeType "
-                    + mimeType + ". No valid transformers found.");
-        }
-
-        if (id != null) {
-            generatedMetacard.setAttribute(new AttributeImpl(Metacard.ID, id));
-        } else {
-            LOGGER.debug("Metacard had a null id");
+            throw new MetacardCreationException("Could not create metacard.", e);
         }
         return generatedMetacard;
 
