@@ -200,54 +200,55 @@ public class CatalogContentPlugin implements ContentPlugin {
         List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
                 InputTransformer.class, mimeType);
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("List of matches for mimeType [" + mimeType + "]:" + listOfCandidates);
-        }
+        LOGGER.debug("List of matches for mimeType [ {} ]: {}", mimeType, listOfCandidates);
 
         Metacard generatedMetacard = null;
-        FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000);
+        try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
 
-        try {
-            IOUtils.copy(message, fileBackedOutputStream);
-        } catch (IOException e) {
-            throw new MetacardCreationException("Could not copy bytes of content message.", e);
-        }
-
-        // Multiple InputTransformers may be found that match the mime type.
-        // Need to try each InputTransformer until we find one that can successfully transform
-        // the input stream's data into a metacard. Once an InputTransformer is found that
-        // can create the metacard, then do not need to try any remaining InputTransformers.
-        for (InputTransformer transformer : listOfCandidates) {
-
-            try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
-                long available = fileBackedOutputStream.asByteSource().size();
-                generatedMetacard = transformer.transform(inputStreamMessageCopy);
-                if (generatedMetacard != null) {
-                    if (uri != null) {
-                        //Setting the non-transformer specific information not including creation and modification dates/times
-                        generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, uri));
-                        generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(available)));
-                    } else {
-                        LOGGER.debug("Metacard had a null uri");
-                    }
-                    if (StringUtils.isBlank(generatedMetacard.getTitle())) {
-                        LOGGER.debug("Metacard title was blank. Setting title to filename.");
-                        generatedMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, contentItem.getFilename()));
-                    }
-                    break;
-                }
-            } catch (IOException | CatalogTransformerException e) {
-                LOGGER.debug("Transformer [" + transformer + "] could not create metacard.", e);
+            long size;
+            try {
+                size = IOUtils.copyLarge(message, fileBackedOutputStream);
+                LOGGER.debug("Copied {} bytes of file in content framework", size);
+            } catch (IOException e) {
+                throw new MetacardCreationException("Could not copy bytes of content message.", e);
             }
 
-        }
-        
-        if (generatedMetacard == null) {
-            throw new MetacardCreationException("Could not create metacard with mimeType "
-                    + mimeType + ". No valid transformers found.");
-        }
+            // Multiple InputTransformers may be found that match the mime type.
+            // Need to try each InputTransformer until we find one that can successfully transform
+            // the input stream's data into a metacard. Once an InputTransformer is found that
+            // can create the metacard, then do not need to try any remaining InputTransformers.
+            for (InputTransformer transformer : listOfCandidates) {
 
-        LOGGER.trace("EXITING: generateMetacard");
+                try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
+                    generatedMetacard = transformer.transform(inputStreamMessageCopy);
+                    if (generatedMetacard != null) {
+                        if (uri != null) {
+                            //Setting the non-transformer specific information not including creation and modification dates/times
+                            generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, uri));
+                            generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(size)));
+                        } else {
+                            LOGGER.debug("Metacard had a null uri");
+                        }
+                        if (StringUtils.isBlank(generatedMetacard.getTitle())) {
+                            LOGGER.debug("Metacard title was blank. Setting title to filename.");
+                            generatedMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, contentItem.getFilename()));
+                        }
+                        break;
+                    }
+                } catch (IOException | CatalogTransformerException e) {
+                    LOGGER.debug("Transformer [" + transformer + "] could not create metacard.", e);
+                }
+
+            }
+
+            if (generatedMetacard == null) {
+                throw new MetacardCreationException("Could not create metacard with mimeType " + mimeType + ". No valid transformers found.");
+            }
+
+            LOGGER.trace("EXITING: generateMetacard");
+        } catch (IOException e) {
+            LOGGER.debug("Error encountered while using filed backed stream.", e);
+        }
 
         return generatedMetacard;
     }
