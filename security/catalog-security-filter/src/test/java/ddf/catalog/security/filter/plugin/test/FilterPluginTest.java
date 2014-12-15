@@ -271,6 +271,10 @@ public class FilterPluginTest {
             super(principals, true, null, new SimpleSession(UUID.randomUUID().toString()), manager);
         }
 
+        @Override
+        public boolean isAnonymous() {
+            return false;
+        }
     }
       
     private QueryRequestImpl getSampleRequest() {

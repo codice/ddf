@@ -146,18 +146,13 @@
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter" />
 
     <!-- Create the SolrCache -->
-	<reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
-
     <bean id="solrCatalogCache" class="ddf.catalog.cache.solr.impl.SolrCache"
           destroy-method="shutdown">
         <argument ref="filterAdapter" />
         <argument>
             <bean class="ddf.catalog.cache.solr.impl.SolrFilterDelegateFactoryImpl"/>
         </argument>
-		<property name="encryptService" ref="encryptionService" />
     </bean>
-
-	<service ref="solrCatalogCache" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
 
 	<bean id="sorted" class="ddf.catalog.cache.solr.impl.CachingFederationStrategy"
           destroy-method="shutdown">

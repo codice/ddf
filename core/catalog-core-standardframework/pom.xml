@@ -99,6 +99,11 @@
         </dependency>
 
         <!-- Start of Solr cache dependencies -->
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-factory</artifactId>
+            <version>${ddf.platform.app.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>ddf.platform.solr</groupId>
@@ -309,8 +314,9 @@
                             commons-fileupload,
                             commons-codec,
                             spatial4j,
-                            solr-solrj,
                             solr-core,
+                            solr-solrj,
+                            solr-factory,
                             commons-io,
                             commons-lang,
                             joda-time,
