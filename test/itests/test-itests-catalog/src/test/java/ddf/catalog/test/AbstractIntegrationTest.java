@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.test;
 
@@ -45,6 +45,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Dictionary;
@@ -76,7 +77,6 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExa
 
 /**
  * Abstract integration test with helper methods and configuration at the container level.
- * 
  */
 public abstract class AbstractIntegrationTest {
 
@@ -88,7 +88,7 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String LOGGER_PREFIX = "log4j.logger.";
 
-    private static final String KARAF_VERSION = "2.3.8";
+    protected static final String KARAF_VERSION = "2.3.8";
 
     protected static final int ONE_MINUTE_MILLIS = 60000;
 
@@ -134,30 +134,59 @@ public abstract class AbstractIntegrationTest {
 
     /**
      * Configures the pax exam test container
-     * 
+     *
      * @return list of pax exam options
      */
     @org.ops4j.pax.exam.Configuration
     public Option[] config() throws URISyntaxException {
+        return combineOptions(configureCustom(), configureDistribution(), configurePaxExam(),
+                configureAdditionalBundles(), configureConfigurationPorts(), configureMavenRepos(),
+                configureSystemSettings(), configureVmOptions(), configureStartScript());
+    }
+
+    private Option[] combineOptions(Option[]... options) {
+        List<Option> optionList = new ArrayList<>();
+        for (Option[] array : options) {
+            if (array != null && array.length > 0) {
+                optionList.addAll(Arrays.asList(array));
+            }
+        }
+        Option[] finalArray = new Option[optionList.size()];
+        optionList.toArray(finalArray);
+        return finalArray;
+    }
+
+    protected Option[] configureDistribution() {
         return options(
                 karafDistributionConfiguration(
                         maven().groupId("ddf.distribution").artifactId("ddf").type("zip")
                                 .versionAsInProject().getURL(), "ddf", KARAF_VERSION)
                         .unpackDirectory(new
-                                File("target/exam")).useDeployFolder(false),
+                                File("target/exam")).useDeployFolder(false));
+
+    }
+
+    protected Option[] configurePaxExam() {
+        return options(
                 logLevel(LogLevelOption.LogLevel.INFO),
                 keepRuntimeFolder(),
                 useOwnExamBundlesStartLevel(100),
                 // increase timeout for TravisCI
-                systemTimeout(TimeUnit.MINUTES.toMillis(10)),
+                systemTimeout(TimeUnit.MINUTES.toMillis(10)));
+    }
+
+    protected Option[] configureAdditionalBundles() {
+        return options(
                 junitBundles(),
                 // HACK: incorrect version exported to override hamcrest-core from exam
                 // feature which causes a split package issue for rest-assured
                 wrappedBundle(mavenBundle("org.hamcrest", "hamcrest-all").versionAsInProject())
                         .exports("*;version=1.3.0.10"),
-                mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject(),
-                editConfigurationFileExtend("etc/org.apache.karaf.features.cfg", "featuresBoot",
-                        "catalog-app,solr-app,spatial-app"),
+                mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject());
+    }
+
+    protected Option[] configureConfigurationPorts() throws URISyntaxException {
+        return options(
                 editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", SSH_PORT),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "port", HTTP_PORT),
                 editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
@@ -168,6 +197,12 @@ public abstract class AbstractIntegrationTest {
                         "rmiRegistryPort", RMI_REG_PORT),
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg",
                         "rmiServerPort", RMI_SERVER_PORT),
+                replaceConfigurationFile("etc/hazelcast.xml", new File(this.getClass()
+                        .getResource("/hazelcast.xml").toURI())));
+    }
+
+    protected Option[] configureMavenRepos() {
+        return options(
                 editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
                         "org.ops4j.pax.url.mvn.repositories",
                         "https://repo1.maven.org/maven2@id=central,"
@@ -177,9 +212,11 @@ public abstract class AbstractIntegrationTest {
                                 + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
                                 + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
                                 + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
-                                + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
-                replaceConfigurationFile("etc/hazelcast.xml", new File(this.getClass()
-                        .getResource("/hazelcast.xml").toURI())),
+                                + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"));
+    }
+
+    protected Option[] configureSystemSettings() {
+        return options(
                 when(Boolean.getBoolean("isDebugEnabled")).useOptions(
                         vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
                 when(System.getProperty("maven.repo.local") != null)
@@ -187,25 +224,38 @@ public abstract class AbstractIntegrationTest {
                                 .value(System.getProperty("maven.repo.local", ""))),
                 systemProperty("host").value("localhost"),
                 systemProperty("jetty.port").value(HTTP_PORT),
-                systemProperty("hostContext").value("/solr"),
+                systemProperty("hostContext").value("/solr"));
+    }
+
+    protected Option[] configureVmOptions() {
+        return options(
                 vmOption("-Xmx2048M"),
                 vmOption("-XX:PermSize=128M"),
                 vmOption("-XX:MaxPermSize=512M"),
                 // avoid integration tests stealing focus on OS X
-                vmOption("-Djava.awt.headless=true")
-        );
+                vmOption("-Djava.awt.headless=true"));
+    }
+
+    protected Option[] configureStartScript() {
+        return options(
+                editConfigurationFileExtend("etc/org.apache.karaf.features.cfg", "featuresBoot",
+                        "catalog-app,solr-app,spatial-app"));
+    }
+
+    /**
+     * Allows extending classes to add any custom options to the configuration.
+     */
+    protected Option[] configureCustom() {
+        return null;
     }
 
     /**
      * Creates a Managed Service that is created from a Managed Service Factory. Waits for the
      * asynchronous call that the properties have been updated and the service can be used.
-     * 
-     * @param factoryPid
-     *            the factory pid of the Managed Service Factory
-     * @param properties
-     *            the service properties for the Managed Service
-     * @throws IOException
-     *             if access to persistent storage fails
+     *
+     * @param factoryPid the factory pid of the Managed Service Factory
+     * @param properties the service properties for the Managed Service
+     * @throws IOException          if access to persistent storage fails
      * @throws InterruptedException
      */
     public void createManagedService(String factoryPid, Map<String,
@@ -226,7 +276,8 @@ public abstract class AbstractIntegrationTest {
                 Thread.sleep(CONFIG_UPDATE_WAIT_INTERVAL);
                 millis += CONFIG_UPDATE_WAIT_INTERVAL;
             } catch (InterruptedException e) {
-                LOGGER.info("Interrupted exception while trying to sleep for configuration update", e);
+                LOGGER.info("Interrupted exception while trying to sleep for configuration update",
+                        e);
             }
             LOGGER.info("Waiting for configuration to be updated...{}ms", millis);
         }
@@ -269,12 +320,14 @@ public abstract class AbstractIntegrationTest {
                         if (BlueprintState.Failure.toString().equals(blueprintState)) {
                             fail("The blueprint for " + bundleName + " failed.");
                         } else if (!BlueprintState.Created.toString().equals(blueprintState)) {
-                            LOGGER.info("{} blueprint not ready with state {}", bundleName, blueprintState);
+                            LOGGER.info("{} blueprint not ready with state {}", bundleName,
+                                    blueprintState);
                             ready = false;
                         }
                     }
 
-                    if (!((bundle.getHeaders().get("Fragment-Host") != null && bundle.getState() == Bundle.RESOLVED) || bundle
+                    if (!((bundle.getHeaders().get("Fragment-Host") != null
+                            && bundle.getState() == Bundle.RESOLVED) || bundle
                             .getState() == Bundle.ACTIVE)) {
                         LOGGER.info("{} bundle not ready yet", bundleName);
                         ready = false;
