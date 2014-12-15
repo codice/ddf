@@ -307,6 +307,11 @@ define([
             },
             splitDashes: function(str){
                 return str.split('-').join(' ');
+            },
+            encodeString: function (str) {
+                if(str && typeof str === "string") {
+                    return encodeURIComponent(str);
+                }
             }
         };
 

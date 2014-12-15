@@ -85,7 +85,7 @@
                             <li class="attribute" title="Location">
                             {{#isNotBlank geometry}}
                                 <span class="attribute-label muted"><i class='fa fa-compass fa-2x'></i></span>
-                                <span class="attribute-value">{{#if mapAvailable}}<a href="#" class="location-link">Locate</a>{{else}}<a href="/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=kml" target="_blank">KML</a>{{/if}}</span>
+                                <span class="attribute-value">{{#if mapAvailable}}<a href="#" class="location-link">Locate</a>{{else}}<a href="/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=kml" target="_blank">KML</a>{{/if}}</span>
                             {{/isNotBlank}}
                             </li>
 
@@ -94,14 +94,14 @@
 
                     {{#if properties.thumbnail}}
                         <div class="holder-row">
-                            <a href="/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=thumbnail" target="_blank"><img class='thumbnail' alt='{{properties.title}}' src='data:image/jpeg;charset=utf-8;base64, {{properties.thumbnail}}' /> </a>
+                            <a href="/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=thumbnail" target="_blank"><img class='thumbnail' alt='{{properties.title}}' src='data:image/jpeg;charset=utf-8;base64, {{properties.thumbnail}}' /> </a>
                         </div>
                     {{/if}}
 
                     {{#if properties.resource-uri}}
                     <div class="holder-row text-center">
                         <a target='blank' title="Download Product"
-                           href='/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=resource&session={{clientId}}'>
+                           href='/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=resource&session={{clientId}}'>
                             <i class='fa fa-download fa-2x metacard-action'></i>
                             <p> {{fileSize properties.resource-size}}</p></a>
                     </div>
@@ -146,8 +146,8 @@
                         <tr>
                             <td>Metadata</td>
                             <td>
-                                <a target='blank' title="Download Product"
-                                   href='/services/catalog/sources/{{properties.source-id}}/{{properties.id}}?transform=metadata'>
+                                <a target='blank' title="Download Metadata"
+                                   href='/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=metadata'>
                                     View</a>
                             </td>
                         </tr>
