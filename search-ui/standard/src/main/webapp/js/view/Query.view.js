@@ -96,7 +96,7 @@ define([
 
                 var typesBindings = {
                     value: [ { selector: '',
-                        elAttribute: 'value'
+                        elAttribute: 'name'
                         } ],
                     name: [ { selector: ''} ]
                 };
