@@ -58,6 +58,17 @@
         <reference-listener bind-method="bindService" unbind-method="unbindService" ref="queryResponseTransformers" />
     </reference-list>
 
+    <!-- MetacardTransformer Manager -->
+    <bean id="metacardTransformerManager" class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager" >
+        <argument ref="blueprintBundleContext" />
+        <argument ref="metacardTransformers" />
+    </bean>
+
+    <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList" />
+    <reference-list id="metacardTransformerList" member-type="service-reference" interface="ddf.catalog.transform.MetacardTransformer" >
+        <reference-listener bind-method="bindService" unbind-method="unbindService" ref="metacardTransformers" />
+    </reference-list>
+
     <bean id="cswExceptionMapperProvider" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswExceptionMapper" />
     <bean id="cswRecordCollectionWriter" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer.CswRecordCollectionMessageBodyWriter">
     	<argument ref="queryResponseTransformerManager" />
@@ -71,6 +82,7 @@
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
         <argument ref="queryResponseTransformerManager" />
+        <argument ref="metacardTransformerManager" />
     </bean>
 
     <jaxrs:server id="CswService" address="/csw">

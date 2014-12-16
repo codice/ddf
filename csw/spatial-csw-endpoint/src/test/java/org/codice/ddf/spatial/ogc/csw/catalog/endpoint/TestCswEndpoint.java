@@ -102,7 +102,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.styling.UomOgcMapping;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -265,7 +264,9 @@ public class TestCswEndpoint {
     private static net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory;
     private static ObjectFactory filterObjectFactory;
 
-    private static TransformerManager mockManager = mock(TransformerManager.class);
+    private static TransformerManager mockMimeTypeManager = mock(TransformerManager.class);
+
+    private static TransformerManager mockSchemaManager = mock(TransformerManager.class);
 
     private static QueryResponseTransformer mockTransformer = mock(QueryResponseTransformer.class);
 
@@ -290,14 +291,18 @@ public class TestCswEndpoint {
         when(exprBuilder.like()).thenReturn(likeExprBuilder);
         when(attrBuilder.is()).thenReturn(exprBuilder);
         when(filterBuilder.attribute(Metacard.ID)).thenReturn(attrBuilder);
-        csw = new CswEndpoint(mockContext, catalogFramework, filterBuilder, mockUriInfo, mockManager);
+        csw = new CswEndpoint(mockContext, catalogFramework, filterBuilder, mockUriInfo,
+                mockMimeTypeManager, mockSchemaManager);
 
         POLYGON = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
         filterObjectFactory = new ObjectFactory();
-        when(mockManager.getAvailableMimeTypes()).thenReturn(Arrays.asList(MediaType.APPLICATION_XML));
-        when(mockManager.getAvailableSchemas()).thenReturn(Arrays.asList(CswConstants.CSW_OUTPUT_SCHEMA));
-        when(mockManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA)).thenReturn(mockTransformer);
+        when(mockMimeTypeManager.getAvailableMimeTypes()).thenReturn(
+                Arrays.asList(MediaType.APPLICATION_XML));
+        when(mockSchemaManager.getAvailableSchemas()).thenReturn(
+                Arrays.asList(CswConstants.CSW_OUTPUT_SCHEMA));
+        when(mockSchemaManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA)).thenReturn(
+                mockTransformer);
     }
 
     @Test
@@ -1157,7 +1162,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
         assertThat(argument.getValue().isEnterprise(), is(false));
@@ -1189,7 +1194,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
     }
@@ -1211,7 +1216,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
         assertThat(argument.getValue().isEnterprise(), is(false));
@@ -1235,7 +1240,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
         assertThat(argument.getValue().isEnterprise(), is(true));
@@ -1286,7 +1291,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
@@ -1336,7 +1341,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         CswRecordCollection collection = cswEndpoint.getRecords(grr);
 
@@ -1381,7 +1386,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         CswRecordCollection collection = cswEndpoint.getRecords(grr);
 
@@ -1421,7 +1426,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         CswRecordCollection collection = cswEndpoint.getRecords(grr);
 
@@ -1458,7 +1463,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
 
@@ -1496,7 +1501,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
     }
@@ -1853,7 +1858,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
@@ -1904,7 +1909,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
@@ -2033,7 +2038,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
@@ -2085,7 +2090,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
@@ -2137,7 +2142,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
@@ -2245,7 +2250,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
@@ -2277,7 +2282,7 @@ public class TestCswEndpoint {
         when(framework.query(argument.capture())).thenReturn(response);
 
         CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
-                mockUriInfo, mockManager);
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
 
         cswEndpoint.getRecords(grr);
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();

@@ -25,9 +25,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -41,14 +43,11 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import ddf.catalog.transform.QueryResponseTransformer;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
@@ -141,7 +140,9 @@ public class CswEndpoint implements Csw {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswEndpoint.class);
 
-    private final TransformerManager transformerManager;
+    private final TransformerManager mimeTypeTransformerManager;
+
+    private final TransformerManager schemaTransformerManager;
 
     private FilterBuilder builder;
 
@@ -205,17 +206,18 @@ public class CswEndpoint implements Csw {
      * JAX-RS Server that represents a CSW v2.0.2 Server.
      */
     public CswEndpoint(BundleContext context, CatalogFramework ddf, FilterBuilder filterBuilder,
-            TransformerManager manager) {
+            TransformerManager mimeTypeManager, TransformerManager schemaManager) {
         this.context = context;
         this.framework = ddf;
         this.builder = filterBuilder;
-        this.transformerManager = manager;
+        this.mimeTypeTransformerManager = mimeTypeManager;
+        this.schemaTransformerManager = schemaManager;
     }
 
     /* Constructor for unit testing */
     public CswEndpoint(BundleContext context, CatalogFramework ddf, FilterBuilder filterBuilder,
-            UriInfo uri, TransformerManager manager) {
-        this(context, ddf, filterBuilder, manager);
+            UriInfo uri, TransformerManager manager, TransformerManager schemaManager) {
+        this(context, ddf, filterBuilder, manager, schemaManager);
         this.uri = uri;
     }
 
@@ -899,9 +901,10 @@ public class CswEndpoint implements Csw {
         Operation describeRecordOp = buildOperation(CswConstants.DESCRIBE_RECORD, getAndPost);
         addOperationParameter(CswConstants.TYPE_NAME_PARAMETER,
                 Arrays.asList(CswConstants.CSW_RECORD), describeRecordOp);
-        List<String> mimeTypes = new ArrayList();
-        mimeTypes.add(DEFAULT_OUTPUT_FORMAT);
-        mimeTypes.addAll(transformerManager.getAvailableMimeTypes());
+        Set<String> mimeTypeSet = new HashSet<>();
+        mimeTypeSet.add(DEFAULT_OUTPUT_FORMAT);
+        mimeTypeSet.addAll(mimeTypeTransformerManager.getAvailableMimeTypes());
+        List<String> mimeTypes = new ArrayList<>(mimeTypeSet);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, describeRecordOp);
         addOperationParameter("schemaLanguage", CswConstants.VALID_SCHEMA_LANGUAGES,
                 describeRecordOp);
@@ -912,7 +915,7 @@ public class CswEndpoint implements Csw {
                 Arrays.asList("hits", "results", "validate"), getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER,
-                transformerManager.getAvailableSchemas(),
+                schemaTransformerManager.getAvailableSchemas(),
                 getRecordsOp);
         addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER,
                 Arrays.asList(CswConstants.CSW_RECORD), getRecordsOp);
@@ -924,7 +927,7 @@ public class CswEndpoint implements Csw {
         // Builds GetRecordById operation metadata
         Operation getRecordByIdOp = buildOperation(CswConstants.GET_RECORD_BY_ID, getAndPost);
         addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER,
-                transformerManager.getAvailableSchemas(),
+                schemaTransformerManager.getAvailableSchemas(),
                 getRecordByIdOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordByIdOp);
         addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
@@ -1066,7 +1069,7 @@ public class CswEndpoint implements Csw {
     }
 
     private void validateOutputSchema(String schema) throws CswException {
-        if (schema == null || transformerManager.getTransformerBySchema(schema) != null) {
+        if (schema == null || schemaTransformerManager.getTransformerBySchema(schema) != null) {
             return;
         }
         throw createUnknownSchemaException(schema);
@@ -1083,7 +1086,7 @@ public class CswEndpoint implements Csw {
 
     private void validateOutputFormat(String format) throws CswException {
         if (!StringUtils.isEmpty(format)) {
-            if (!DEFAULT_OUTPUT_FORMAT.equals(format) && !transformerManager.getAvailableMimeTypes().contains(format)){
+            if (!DEFAULT_OUTPUT_FORMAT.equals(format) && !mimeTypeTransformerManager.getAvailableMimeTypes().contains(format)){
                 throw new CswException("Invalid output format '"
                         + format + "'", CswConstants.INVALID_PARAMETER_VALUE, "outputformat");
             }
