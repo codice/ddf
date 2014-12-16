@@ -127,13 +127,13 @@ public class ReliableResourceInputStream extends InputStream {
     public int read() throws IOException {
         LOGGER.trace("ENTERING: read()");
         int byteRead = 0;
-        InputStream is = fbosByteSource.openStream();
-        if (countingFbos.getCount() > fbosBytesRead) {
-            is.skip(fbosBytesRead);
-            byteRead = is.read();
-            fbosBytesRead++;
+        try (InputStream is = fbosByteSource.openStream()) {
+            if (countingFbos.getCount() > fbosBytesRead) {
+                is.skip(fbosBytesRead);
+                byteRead = is.read();
+                fbosBytesRead++;
+            }
         }
-        is.close();
         return byteRead;
     }
 
@@ -227,15 +227,15 @@ public class ReliableResourceInputStream extends InputStream {
     }
 
     private int readFromFbosInputStream(byte[] b, int off, int len) throws IOException {
-        InputStream is = fbosByteSource.openStream();
-        is.skip(fbosBytesRead);
-        int numBytesRead = is.read(b, off, len);
-        LOGGER.trace("numBytesRead = {}", numBytesRead);
-        if (numBytesRead > 0) {
-            fbosBytesRead += numBytesRead;
+        int numBytesRead;
+        try (InputStream is = fbosByteSource.openStream()) {
+            is.skip(fbosBytesRead);
+            numBytesRead = is.read(b, off, len);
+            LOGGER.trace("numBytesRead = {}", numBytesRead);
+            if (numBytesRead > 0) {
+                fbosBytesRead += numBytesRead;
+            }
         }
-
-        is.close();
 
         return numBytesRead;
     }
