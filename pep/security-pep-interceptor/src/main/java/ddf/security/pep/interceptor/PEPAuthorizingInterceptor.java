@@ -62,6 +62,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
 
     public PEPAuthorizingInterceptor() {
         super(Phase.PRE_INVOKE);
+        addAfter(org.apache.cxf.ws.policy.PolicyVerificationInInterceptor.class.getName());
     }
 
     /**
