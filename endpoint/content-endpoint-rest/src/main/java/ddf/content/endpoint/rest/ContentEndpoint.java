@@ -369,39 +369,43 @@ public class ContentEndpoint {
 
             CreateRequest createRequest = new CreateRequestImpl(newItem, null);
             CreateResponse createResponse = contentFramework.create(createRequest, requestDirective);
-            ContentItem contentItem = createResponse.getCreatedContentItem();
+            if (createResponse != null) {
+                ContentItem contentItem = createResponse.getCreatedContentItem();
 
-            if (contentItem != null) {
-                createdContentId = contentItem.getId();
-            }
-
-            Response.ResponseBuilder responseBuilder;
-            if (createResponse.getCreatedMetadata() != null) {
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(createResponse.getCreatedMetadata());
-                responseBuilder = Response.ok(byteArrayInputStream, createResponse.getCreatedMetadataMimeType());
-            } else {
-                responseBuilder = Response.ok();
-            }
-
-            // If content was stored in content repository, i.e., STORE or STORE_AND_PROCESS,
-            // then set location URI in HTTP header. However, the location URI is not the
-            // physical location in the content repository as ths is hidden from the client.
-            if (requestDirective != Request.Directive.PROCESS) {
-                responseBuilder.status(Response.Status.CREATED);
-                // responseBuilder.location( new URI( "/" + createdContentId ) );
-                UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri());
-                uriBuilder = uriBuilder.path("/" + createdContentId);
-                responseBuilder.location(uriBuilder.build());
-                responseBuilder.header(CONTENT_ID_HTTP_HEADER, createdContentId);
                 if (contentItem != null) {
-                    LOGGER.debug("Content-URI = {}", contentItem.getUri());
-                    responseBuilder.header(CONTENT_URI_HTTP_HEADER, contentItem.getUri());
+                    createdContentId = contentItem.getId();
                 }
+
+                Response.ResponseBuilder responseBuilder;
+                if (createResponse.getCreatedMetadata() != null) {
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(createResponse.getCreatedMetadata());
+                    responseBuilder = Response.ok(byteArrayInputStream, createResponse.getCreatedMetadataMimeType());
+                } else {
+                    responseBuilder = Response.ok();
+                }
+
+                // If content was stored in content repository, i.e., STORE or STORE_AND_PROCESS,
+                // then set location URI in HTTP header. However, the location URI is not the
+                // physical location in the content repository as ths is hidden from the client.
+                if (requestDirective != Request.Directive.PROCESS) {
+                    responseBuilder.status(Response.Status.CREATED);
+                    // responseBuilder.location( new URI( "/" + createdContentId ) );
+                    UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri());
+                    uriBuilder = uriBuilder.path("/" + createdContentId);
+                    responseBuilder.location(uriBuilder.build());
+                    responseBuilder.header(CONTENT_ID_HTTP_HEADER, createdContentId);
+                    if (contentItem != null) {
+                        LOGGER.debug("Content-URI = {}", contentItem.getUri());
+                        responseBuilder.header(CONTENT_URI_HTTP_HEADER, contentItem.getUri());
+                    }
+                }
+
+                addHttpHeaders(createResponse, responseBuilder);
+                response = responseBuilder.build();
+            } else {
+                Response.ResponseBuilder responseBuilder = Response.notModified();
+                response = responseBuilder.build();
             }
-
-            addHttpHeaders(createResponse, responseBuilder);
-
-            response = responseBuilder.build();
         } catch (Exception e) {
             LOGGER.warn("Exception caught during create", e);
             throw new ContentEndpointException("Bad request, could not create content", Response.Status.BAD_REQUEST);
@@ -496,17 +500,22 @@ public class ContentEndpoint {
         try {
             UpdateRequest updateRequest = new UpdateRequestImpl(itemToUpdate, null);
             UpdateResponse updateResponse = contentFramework.update(updateRequest, requestDirective);
-            updatedItem = updateResponse.getUpdatedContentItem();
-            Response.ResponseBuilder responseBuilder;
-            if (updateResponse.getUpdatedMetadata() != null) {
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(updateResponse.getUpdatedMetadata());
-                responseBuilder = Response.ok(byteArrayInputStream, updateResponse.getUpdatedMetadataMimeType());
+            if (updateResponse != null) {
+                updatedItem = updateResponse.getUpdatedContentItem();
+                Response.ResponseBuilder responseBuilder;
+                if (updateResponse.getUpdatedMetadata() != null) {
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(updateResponse.getUpdatedMetadata());
+                    responseBuilder = Response.ok(byteArrayInputStream, updateResponse.getUpdatedMetadataMimeType());
+                } else {
+                    responseBuilder = Response.ok();
+                }
+                responseBuilder.header(CONTENT_ID_HTTP_HEADER, updatedItem.getId());
+                addHttpHeaders(updateResponse, responseBuilder);
+                response = responseBuilder.build();
             } else {
-                responseBuilder = Response.ok();
+                Response.ResponseBuilder responseBuilder = Response.notModified();
+                response = responseBuilder.build();
             }
-            responseBuilder.header(CONTENT_ID_HTTP_HEADER, updatedItem.getId());
-            addHttpHeaders(updateResponse, responseBuilder);
-            response = responseBuilder.build();
         } catch (Exception e) {
             LOGGER.error("Error updating item in content framework", e);
             throw new ContentEndpointException("Content Item " + id + " not found.", Response.Status.NOT_FOUND);
@@ -545,7 +554,7 @@ public class ContentEndpoint {
                 LOGGER.debug("Deleted content item with id = {}", id);
             }
 
-            if (deleteResponse.isFileDeleted()) {
+            if (deleteResponse != null && deleteResponse.isFileDeleted()) {
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder.status(Response.Status.NO_CONTENT);
                 responseBuilder.header(CONTENT_ID_HTTP_HEADER, deleteResponse.getContentItem().getId());

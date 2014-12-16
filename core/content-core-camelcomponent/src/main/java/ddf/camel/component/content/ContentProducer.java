@@ -14,10 +14,16 @@
  **/
 package ddf.camel.component.content;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
+import com.google.common.io.FileBackedOutputStream;
+import ddf.content.ContentFrameworkException;
+import ddf.content.data.ContentItem;
+import ddf.content.data.impl.IncomingContentItem;
+import ddf.content.operation.CreateRequest;
+import ddf.content.operation.CreateResponse;
+import ddf.content.operation.Request;
+import ddf.content.operation.impl.CreateRequestImpl;
+import ddf.mime.MimeTypeMapper;
+import ddf.mime.MimeTypeResolutionException;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.Message;
@@ -31,17 +37,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.FileBackedOutputStream;
-
-import ddf.content.ContentFrameworkException;
-import ddf.content.data.ContentItem;
-import ddf.content.data.impl.IncomingContentItem;
-import ddf.content.operation.CreateRequest;
-import ddf.content.operation.CreateResponse;
-import ddf.content.operation.Request;
-import ddf.content.operation.impl.CreateRequestImpl;
-import ddf.mime.MimeTypeMapper;
-import ddf.mime.MimeTypeResolutionException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public class ContentProducer extends DefaultProducer {
     private ContentEndpoint endpoint;
@@ -149,7 +147,18 @@ public class ContentProducer extends DefaultProducer {
                     }
                     
                 } catch (MimeTypeResolutionException | IOException e) {
-                    throw new ContentComponentException(e);
+                    try {
+                        fis.close();
+                    } catch (IOException ignore) {
+                        //ignore
+                    }
+                    try {
+                        if (fbos != null) {
+                            fbos.close();
+                        }
+                    } catch (IOException ignore) {
+                        //ignore
+                    } throw new ContentComponentException(e);
                 }
             } else {
                 LOGGER.error("Did not find a MimeTypeMapper service");
@@ -180,10 +189,12 @@ public class ContentProducer extends DefaultProducer {
                 CreateRequest createRequest = new CreateRequestImpl(newItem, null);
                 CreateResponse createResponse = endpoint.getComponent().getContentFramework()
                         .create(createRequest, requestDirective);
-                ContentItem contentItem = createResponse.getCreatedContentItem();
+                if (createResponse != null) {
+                    ContentItem contentItem = createResponse.getCreatedContentItem();
 
-                LOGGER.debug("content item created with id = {}", contentItem.getId());
-                LOGGER.debug(contentItem.toString());
+                    LOGGER.debug("content item created with id = {}", contentItem.getId());
+                    LOGGER.debug(contentItem.toString());
+                }
             } else {
                 LOGGER.debug("mimeType is NULL");
                 throw new ContentComponentException("Unable to determine mime type for the file "

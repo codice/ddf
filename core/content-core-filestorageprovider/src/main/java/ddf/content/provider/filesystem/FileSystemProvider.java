@@ -14,18 +14,6 @@
  **/
 package ddf.content.provider.filesystem;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
-import javax.activation.MimeType;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
 import ddf.content.data.ContentItem;
 import ddf.content.operation.CreateRequest;
 import ddf.content.operation.CreateResponse;
@@ -42,6 +30,16 @@ import ddf.content.operation.impl.UpdateResponseImpl;
 import ddf.content.storage.StorageException;
 import ddf.content.storage.StorageProvider;
 import ddf.mime.MimeTypeMapper;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+
+import javax.activation.MimeType;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 /**
  * The File System Provider provides the implementation to create/update/delete content items as
@@ -258,10 +256,13 @@ public class FileSystemProvider implements StorageProvider {
         LOGGER.trace("ENTERING: createFile");
 
         File file = getFileFromContentRepository(newFileID);
+        if (file == null) {
+            throw new IOException("Error getting file: " + newFileID);
+        }
 
         // create directories
         File directory = file.getParentFile();
-        if (!directory.exists() && !directory.mkdirs()) {
+        if (directory == null || (!directory.exists() && !directory.mkdirs())) {
             throw new IOException("Error creating directory structure to save file.");
         }
 
@@ -387,7 +388,7 @@ public class FileSystemProvider implements StorageProvider {
         LOGGER.debug("contentId = {}", contentId);
 
         File dir = getFileFromContentRepository(contentId);
-        if (!dir.exists() || !dir.isDirectory()) {
+        if (dir == null || !dir.exists() || !dir.isDirectory()) {
             throw new StorageException("Directory does not exist in content repository with id = "
                     + contentId);
         }
@@ -404,7 +405,7 @@ public class FileSystemProvider implements StorageProvider {
 
         File dir = getDirectoryForContentId(contentId);
         File[] files = dir.listFiles();
-        if (files.length == 0) {
+        if (files == null || files.length == 0) {
             throw new StorageException("No files in directory " + contentId);
         } else if (files.length > 1) {
             throw new StorageException("More than one file in directory " + contentId
