@@ -14,22 +14,20 @@
  **/
 package ddf.catalog.resource.data;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-
-import javax.activation.MimeType;
-
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.resource.Resource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.resource.Resource;
+import javax.activation.MimeType;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
 
 /**
  * The resource that will be stored in the @ResourceCache cache map.
@@ -78,11 +76,13 @@ public class ReliableResource implements Resource, Serializable {
     public String getKey() {
         return key;
     }
-    
+
+    @Deprecated
     @Override
     public byte[] getByteArray() throws IOException {
-
-        return IOUtils.toByteArray(getProduct());
+        try (InputStream product = getProduct()) {
+            return IOUtils.toByteArray(product);
+        }
     }
 
     /**
