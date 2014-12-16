@@ -14,33 +14,11 @@
  **/
 package ddf.security.realm.sts;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-
+import ddf.security.PropertiesLoader;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.util.CommonSSLFactory;
+import ddf.security.encryption.EncryptionService;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
@@ -80,11 +58,31 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-import ddf.security.PropertiesLoader;
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.encryption.EncryptionService;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * The STS Realm is the main piece of the security framework responsible for exchanging a binary
@@ -757,18 +755,24 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                 writer.writeEndElement();
 
                 claimsElement = writer.getDocument().getDocumentElement();
-            } catch (ParserConfigurationException e) {
+            } catch (ParserConfigurationException | XMLStreamException e) {
                 String msg = "Unable to create claims.";
                 LOGGER.error(msg, e);
                 claimsElement = null;
-            } catch (XMLStreamException e) {
-                String msg = "Unable to create claims.";
-                LOGGER.error(msg, e);
-                claimsElement = null;
+            } finally {
+                if (writer != null) {
+                    try {
+                        writer.close();
+                    } catch (XMLStreamException ignore) {
+                        //ignore
+                    }
+                }
             }
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("\nClaims:\n" + getFormattedXml(claimsElement));
+                if (claimsElement != null) {
+                    LOGGER.debug("\nClaims:\n" + getFormattedXml(claimsElement));
+                }
             }
         } else {
             LOGGER.debug("There are no claims to process.");
