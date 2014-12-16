@@ -49,6 +49,8 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
 
     private static final String SER = ".ser";
 
+    private static final String SER_REGEX = "\\.ser";
+
     private static final String PERSISTENCE_PATH = "data/";
 
     private String mapName = "default";
@@ -184,8 +186,8 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         if (files == null)
             return keys;
 
-        for (int i = 0; i < files.length; i++) {
-            keys.add(files[i].getName().replaceFirst(SER, ""));
+        for (File file : files) {
+            keys.add(file.getName().replaceFirst(SER_REGEX, ""));
         }
 
         LOGGER.debug("Leaving loadAllKeys");
