@@ -14,6 +14,21 @@
  **/
 package org.codice.ddf.commands.catalog;
 
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceUnavailableException;
+import org.apache.commons.lang.StringUtils;
+import org.apache.felix.gogo.commands.Option;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -30,22 +45,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Option;
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.CreateRequest;
-import ddf.catalog.operation.CreateResponse;
-import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.catalog.source.IngestException;
-import ddf.catalog.source.SourceUnavailableException;
 
 public abstract class DuplicateCommands extends CatalogCommands {
 
@@ -176,15 +175,10 @@ public abstract class DuplicateCommands extends CatalogCommands {
             try {
                 createResponse = provider.create(createRequest);
                 createdMetacards.addAll(createResponse.getCreatedMetacards());
-            } catch (IngestException e) {
+            } catch (IngestException | SourceUnavailableException e) {
                 LOGGER.warn("Error during ingest:", e);
-                continue;
-            } catch (SourceUnavailableException e) {
-                LOGGER.warn("Error during ingest:", e);
-                continue;
             } catch (Exception e) {
                 LOGGER.warn("Unexpected Exception during ingest:", e);
-                continue;
             }
         }
         return createdMetacards;
@@ -230,7 +224,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
     }
 
     protected String getInput(String message) throws IOException {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         console.print(String.format(message));
         console.flush();
         for (;;) {
@@ -271,13 +265,9 @@ public abstract class DuplicateCommands extends CatalogCommands {
         }
         for (Metacard metacard : failedMetacards) {
 
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(
-                    directory.getAbsolutePath(), metacard.getId())));
-            try {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(directory.getAbsolutePath(), metacard.getId())))) {
                 oos.writeObject(new MetacardImpl(metacard));
-            } finally {
                 oos.flush();
-                oos.close();
             }
         }
     }
