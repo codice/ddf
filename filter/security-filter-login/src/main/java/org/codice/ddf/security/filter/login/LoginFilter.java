@@ -113,7 +113,9 @@ public class LoginFilter implements Filter {
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
         docBuilderFactory.setNamespaceAware(true);
         try {
-            docBuilder = docBuilderFactory.newDocumentBuilder();
+            synchronized (lock) {
+                docBuilder = docBuilderFactory.newDocumentBuilder();
+            }
         } catch (ParserConfigurationException e) {
             LOGGER.error("Unable to create doc builder.", e);
         }
