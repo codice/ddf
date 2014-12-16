@@ -146,8 +146,8 @@ public final class PropertiesLoader {
                     }
                 }
                 properties = new Properties();
-                try {
-                    properties.load(new FileReader(propFile));
+                try (FileReader reader = new FileReader(propFile)) {
+                    properties.load(reader);
                 } catch (FileNotFoundException e) {
                     error = true;
                     logger.error("Could not find properties file: " + propFile.getAbsolutePath(), e);
