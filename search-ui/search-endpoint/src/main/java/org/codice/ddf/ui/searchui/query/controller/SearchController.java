@@ -436,7 +436,7 @@ public class SearchController {
         return framework;
     }
 
-    public void setBayeuxServer(BayeuxServer bayeuxServer) {
+    public synchronized void setBayeuxServer(BayeuxServer bayeuxServer) {
         this.bayeuxServer = bayeuxServer;
     }
 }
