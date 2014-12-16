@@ -52,6 +52,8 @@ public class Configuration {
 
     private String textColor = "";
 
+    private String disabledInstallerApps = "";
+
     private BrandingPlugin branding;
 
     private static String JSON_MIME_TYPE_STRING = "application/json";
@@ -73,6 +75,7 @@ public class Configuration {
         footer = "";
         style = "";
         textColor = "";
+        disabledInstallerApps = "";
     }
 
     @GET
@@ -84,6 +87,7 @@ public class Configuration {
         configObj.put("footer", footer);
         configObj.put("style", style);
         configObj.put("textColor", textColor);
+        configObj.put("disabledInstallerApps", disabledInstallerApps);
         configObj.put("branding", getProductName());
 
         String configString = JSONValue.toJSONString(configObj);
@@ -134,6 +138,14 @@ public class Configuration {
 
     public void setTextColor(String textColor) {
         this.textColor = textColor;
+    }
+
+    public String getDisabledInstallerApps() {
+        return disabledInstallerApps;
+    }
+
+    public void setDisabledInstallerApps(String disabledInstallerApps) {
+        this.disabledInstallerApps = disabledInstallerApps;
     }
 
     public String getProductName() {

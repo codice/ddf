@@ -15,16 +15,16 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-	<OCD name="Standard Search UI" id="org.codice.ddf.ui.search.standard.properties">
+	<OCD name="Admin UI Configuration" id="org.codice.admin.ui.configuration">
 		<AD
 			description="Specifies the header text to be rendered on the Administrator Console"
-			name="Header" id="header" required="true" type="String" 
-			default="" 
+			name="Header" id="header" required="true" type="String"
+			default=""
 		/>
 		<AD
 			description="Specifies the footer text to be rendered on the Administrator Console"
-			name="Footer" id="footer" required="true" type="String" 
-			default="" 
+			name="Footer" id="footer" required="true" type="String"
+			default=""
 		/>
 		<AD
 			description="Specifies the style of the Header and Footer."
@@ -56,7 +56,13 @@
             <Option label="White" value="banner-text-white" />
             <Option label="Black" value="banner-text-black" />
         </AD>
-	    </OCD>
+
+
+        <AD id="disabledInstallerApps" type="String" name="Ignored Installer Applications"
+            description="Comma delimited list (appName,appName2,...appNameN) of applications that will be disabled in the installer" default="admin-app,platform-app,security-services-app">
+        </AD>
+
+    </OCD>
 
 	<Designate 	pid="org.codice.admin.ui.configuration">
 		<Object ocdref="org.codice.admin.ui.configuration" />
