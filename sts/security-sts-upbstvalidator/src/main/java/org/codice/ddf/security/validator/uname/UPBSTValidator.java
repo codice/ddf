@@ -59,8 +59,9 @@ import org.apache.ws.security.handler.RequestData;
 import org.apache.ws.security.message.token.UsernameToken;
 import org.apache.ws.security.validate.Credential;
 import org.apache.ws.security.validate.Validator;
-import org.slf4j.LoggerFactory;
+import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -73,8 +74,6 @@ import java.security.Principal;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-
-import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 
 /**
  * DDFUsername BST validator for the STS.
@@ -209,6 +208,9 @@ public class UPBSTValidator implements TokenValidator {
         }
 
         UPAuthenticationToken usernameToken = UPAuthenticationToken.parse(binarySecurityType.getValue(), true);
+        if (usernameToken == null) {
+            return response;
+        }
         UsernameTokenType usernameTokenType = getUsernameTokenType(usernameToken);
         // Marshall the received JAXB object into a DOM Element
         Element usernameTokenElement = null;
