@@ -13,6 +13,7 @@
 <img src="https://tools.codice.org/wiki/download/attachments/3047458/ddf.jpg"/>
 # [Distributed Data Framework \(DDF\)](http://ddf.codice.org/)
 [![Build Status](https://travis-ci.org/codice/ddf.png)](https://travis-ci.org/codice/ddf?branch=master)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/3703/badge.svg)](https://scan.coverity.com/projects/3703)
 
 
 Distributed Data Framework (DDF) is an open source, modular integration framework. 
