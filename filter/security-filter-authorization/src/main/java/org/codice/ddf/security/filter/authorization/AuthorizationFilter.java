@@ -37,8 +37,7 @@ import java.util.Collection;
  */
 public class AuthorizationFilter implements Filter {
 
-    private static final Logger LOGGER = LoggerFactory
-      .getLogger(AuthorizationFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationFilter.class);
 
     private final ContextPolicyManager contextPolicyManager;
 
@@ -58,8 +57,7 @@ public class AuthorizationFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response,
-      FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
@@ -75,14 +73,16 @@ public class AuthorizationFilter implements Filter {
                 LOGGER.debug("Unable to retrieve user from request.", e);
             }
 
+            boolean permitted = true;
             ContextPolicy policy = contextPolicyManager.getContextPolicy(httpRequest.getContextPath());
 
-            Collection<CollectionPermission> permissions = policy.getAllowedAttributePermissions();
+            if (policy != null) {
+                Collection<CollectionPermission> permissions = policy.getAllowedAttributePermissions();
 
-            boolean permitted = true;
-            for (CollectionPermission permission : permissions) {
-                if (subject == null || !subject.isPermittedAll(permission.getPermissionList())) {
-                    permitted = false;
+                for (CollectionPermission permission : permissions) {
+                    if (subject == null || !subject.isPermittedAll(permission.getPermissionList())) {
+                        permitted = false;
+                    }
                 }
             }
 
