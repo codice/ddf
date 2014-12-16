@@ -13,6 +13,7 @@
 <img src="https://tools.codice.org/wiki/download/attachments/3047458/ddf.jpg"/>
 # [Distributed Data Framework Solr \(DDF-Solr\)](https://tools.codice.org/wiki/display/DDF/DDF+Solr+Catalog+Application)
 [![Build Status](https://travis-ci.org/codice/ddf-solr.png?branch=master)](https://travis-ci.org/codice/ddf-solr)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/3717/badge.svg)](https://scan.coverity.com/projects/3717)
 
 
 DDF-Solr is an open source app integrated with the DDF integration framework. 
