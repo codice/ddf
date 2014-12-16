@@ -233,9 +233,7 @@ public class DumpCommand extends CatalogCommands {
                             Metacard metacard = result.getMetacard();
                             try {
                                 exportMetacard(dumpDir, metacard);
-                            } catch (IOException e) {
-                                executorService.shutdownNow();
-                            } catch (CatalogTransformerException e) {
+                            } catch (IOException | CatalogTransformerException e) {
                                 executorService.shutdownNow();
                             }
                             printStatus(resultCount.incrementAndGet());
@@ -282,20 +280,14 @@ public class DumpCommand extends CatalogCommands {
             CatalogTransformerException {
 
         if (DEFAULT_TRANSFORMER_ID.matches(transformerId)) {
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(
-                    getOutputFile(dumpLocation, metacard)));
-            try {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getOutputFile(dumpLocation, metacard)))) {
                 oos.writeObject(new MetacardImpl(metacard));
-
-            } finally {
                 oos.flush();
-                oos.close();
             }
         } else {
 
-            FileOutputStream fos = new FileOutputStream(getOutputFile(dumpLocation, metacard));
             BinaryContent binaryContent;
-            try {
+            try (FileOutputStream fos = new FileOutputStream(getOutputFile(dumpLocation, metacard))) {
                 if (metacard != null) {
                     for (MetacardTransformer transformer : transformers) {
                         binaryContent = transformer.transform(metacard, null);
@@ -305,8 +297,6 @@ public class DumpCommand extends CatalogCommands {
                         }
                     }
                 }
-            } finally {
-                fos.close();
             }
         }
     }
