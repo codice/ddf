@@ -14,6 +14,16 @@
  **/
 package ddf.catalog.operation.impl;
 
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.operation.ProcessingDetails;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.SourceProcessingDetails;
+import ddf.catalog.operation.SourceResponse;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,17 +33,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.operation.ProcessingDetails;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.SourceProcessingDetails;
-import ddf.catalog.operation.SourceResponse;
 
 public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements QueryResponse {
 
@@ -209,10 +208,8 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
                         "Cannot add new Results after the Queue has been closed");
             } else {
                 if (closeQueue) {
-                    synchronized (queue) {
-                        queue.add(result);
-                        closeResultQueue();
-                    }
+                    queue.add(result);
+                    closeResultQueue();
                 } else {
                     queue.add(result);
                 }
@@ -238,10 +235,8 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
                         "Cannot add new Results after the Queue has been closed");
             } else {
                 if (closeQueue) {
-                    synchronized (queue) {
-                        queue.addAll(results);
-                        closeResultQueue();
-                    }
+                    queue.addAll(results);
+                    closeResultQueue();
                 } else {
                     queue.addAll(results);
                 }
