@@ -56,14 +56,16 @@ public final class SecurityAssertionStore {
                 // Try to find the SAMLTokenPrincipal if it exists
                 List<?> wsResults = List.class.cast(message.get(WSHandlerConstants.RECV_RESULTS));
                 for (Object wsResult : wsResults) {
-                    List<WSSecurityEngineResult> wsseResults = ((WSHandlerResult) wsResult)
-                            .getResults();
-                    for (WSSecurityEngineResult wsseResult : wsseResults) {
-                        Principal principalResult = (Principal) wsseResult
-                                .get(WSSecurityEngineResult.TAG_PRINCIPAL);
-                        if (principalResult instanceof SAMLTokenPrincipal) {
-                            principal = principalResult;
-                            break;
+                    if (wsResult instanceof WSHandlerResult) {
+                        List<WSSecurityEngineResult> wsseResults = ((WSHandlerResult) wsResult)
+                                .getResults();
+                        for (WSSecurityEngineResult wsseResult : wsseResults) {
+                            Object principalResult = wsseResult
+                                    .get(WSSecurityEngineResult.TAG_PRINCIPAL);
+                            if (principalResult instanceof SAMLTokenPrincipal) {
+                                principal = (SAMLTokenPrincipal) principalResult;
+                                break;
+                            }
                         }
                     }
                 }
