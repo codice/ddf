@@ -311,7 +311,7 @@ public class ConfigurationStore {
                 if(parts.length == 2) {
                     StringBuilder valuePart = new StringBuilder();
                     if (parts[1].contains("|")) {
-                        String[] valueParts = parts[1].split("|");
+                        String[] valueParts = parts[1].split("\\|");
                         valuePart.append("[");
                         for (String value : valueParts) {
                             valuePart.append(value + ",");
