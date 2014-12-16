@@ -12,12 +12,20 @@
  *
  **/
  -->
-<html>
+<html xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
 <head>
     <meta charset="utf-8">
     <title>Standard Search UI Help</title>
 
     <link href="lib/bootswatch/flatly/bootstrap.min.css" rel="stylesheet">
+	<link href="css/help.css" rel="stylesheet">
+
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_SharedWithUsers msdt:dt="string">Jason Smith</mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_SharedWithUsers>
+<mso:SharedWithUsers msdt:dt="string">8;#Jason Smith</mso:SharedWithUsers>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
 </head>
 <body class="container">
 <div class="page-header">
@@ -75,196 +83,272 @@
 
 <h3><a id="searchcriteria"></a>Search Criteria</h3>
 <p>The Search UI queries a Catalog using the following criteria.</p>
-<table class="table table-striped table-bordered">
-    <thead>
-    <tr>
-        <th>Criteria</th>
-        <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>KEYWORDS</td>
-        <td>Search by free text using the grammar of the underlying endpoint/Catalog.</td>
-    </tr>
-    <tr>
-        <td>TIME</td>
-        <td>Search based on relative or absolute time of the modified (default) or effective date.</td>
-    </tr>
-    <tr>
-        <td>LOCATION</td>
-        <td>Search using a point-radius or bounding box.</td>
-    </tr>
-    <tr>
-        <td>TYPE</td>
-        <td>Search for specific Metacard.CONTENT_TYPE values.</td>
-    </tr>
-    <tr>
-        <td>ADDITIONAL SOURCES</td>
-        <td>Select <b>All Sources</b> or <b>Specific Sources</b>.</td>
-    </tr>
-    <tr>
-        <td>All Sources</td>
-        <td>Create an enterprise search. All federations are queried.</td>
-    </tr>
-    <tr>
-        <td>Specific Sources</td>
-        <td>Search a specific source(s). If a source is unavailable, it is displayed in red text.</td>
-    </tr>
-    </tbody>
-</table>
-
-<h3><a id="results"></a>Results</h3>
-<p>After a query is executed, the records matching the search criteria are automatically displayed in the Results pane.</p>
-<table class="table table-striped table-bordered">
-    <thead>
-    <tr>
-        <th>Item</th>
-        <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Results</td>
-        <td>The number of records that were returned as a result of the query. Only the top 250 results are
-            displayed, with the most relevant records displayed at the top of the list. If more than 250 results
-            are returned, try narrowing the search criteria.</td>
-    </tr>
-    <tr>
-        <td>Search button</td>
-        <td>Navigates back to the Search pane.</td>
-    </tr>
-    <tr>
-        <td>Save button</td>
-        <td>Allows the user to select individual records to save.</td>
-    </tr>
-    <tr>
-        <td>Records list</td>
-        <td>Shows the results of the search. The following information is displayed for each record:<br />
-            Title – The title of the record is displayed in blue text (e.g., INDIA REPORTED BUYING TWO WHITE SUGAR
-            CARGOES). Select the title of the record to view more details.<br />
-            Source – The gray text displayed below the record title is the data source (e.g., ddf.distribution) and
-            the amount of time that has passed since the record was created (e.g., an hour ago).</td>
-    </tr>
-    <tr>
-        <td>Refresh button</td>
-        <td>Refreshes the list of results. The most relevant records continue to be displayed at the top of the
-            results list.</td>
-    </tr>
-    </tbody>
-</table>
-
-<h3><a id="summary"></a>Record Summary</h3>
-<p>When an individual record is selected in the results list, the Record pane opens. When the Summary button is
-    selected in the Record pane, the following information is displayed.</p>
-<table class="table table-striped table-bordered">
-    <thead>
-    <tr>
-        <th>Item</th>
-        <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Results button</td>
-        <td>Navigates back to the original query results list.</td>
-    </tr>
-    <tr>
-        <td>Up and down arrows</td>
-        <td>Navigate through the records that were returned in the search. When the end or the beginning of the
-            search results list is reached, the respective up or down arrow is disabled.</td>
-    </tr>
-    <tr>
-        <td>Details button</td>
-        <td>Opens the <a href="#details">Details tab</a>, which displays more information about the record.</td>
-    </tr>
-    <tr>
-        <td>Title</td>
-        <td>The title of the record is displayed in uppercase white font.</td>
-    </tr>
-    <tr>
-        <td>Source</td>
-        <td>The location that the metadata came from, which could be the local provider or a federated source.</td>
-    </tr>
-    <tr>
-        <td>Created time</td>
-        <td>When the record was created.</td>
-    </tr>
-    <tr>
-        <td>Modified time</td>
-        <td>How long ago the record was last modified.</td>
-    </tr>
-    <tr>
-        <td>Locate button</td>
-        <td>Centers the map on the record's originating location.</td>
-    </tr>
-    </tbody>
-</table>
-
-<h3><a id="details"></a>Record Details</h3>
-<p>When an individual record is selected in the results list, the Record pane opens. When the Details button is
-    selected in the Record pane, the following information is displayed.</p>
-<table class="table table-striped table-bordered">
-    <thead>
-    <tr>
-        <th>Item</th>
-        <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Results button</td>
-        <td>Navigates back to the original query results list.</td>
-    </tr>
-    <tr>
-        <td>Up and down arrows</td>
-        <td>Navigate through the records that were returned in the search. When the end or the beginning of the
-            search results list is reached, the respective up or down arrow is disabled.</td>
-    </tr>
-    <tr>
-        <td>Summary button</td>
-        <td>Opens the <a href="#summary">Summary tab</a>, which provides a high level overview of the result set.</td>
-    </tr>
-    <tr>
-        <td>Id</td>
-        <td>The record's unique identifier.</td>
-    </tr>
-    <tr>
-        <td>Source Id</td>
-        <td>Where the metadata was retrieved from, which could be the local provider or a federated source.</td>
-    </tr>
-    <tr>
-        <td>Title</td>
-        <td>The title of the record is displayed in uppercase white font.</td>
-    </tr>
-    <tr>
-        <td>Created time</td>
-        <td>When the record was created.</td>
-    </tr>
-    <tr>
-        <td>Metacard Type</td>
-        <td>The type of metacard associated with the record.</td>
-    </tr>
-    <tr>
-        <td>Modified</td>
-        <td>How long ago the record was last modified.</td>
-    </tr>
-    <tr>
-        <td>Thumbnail</td>
-        <td>Depicts a reduced size image of the original artifact for the current record, if available.</td>
-    </tr>
-    <tr>
-        <td>Download</td>
-        <td>When applicable, a download link for the product associated with the record is displayed. The size of
-            the product is also displayed, if available. If the size is not available, N/A is displayed.</td>
-    </tr>
-    <tr>
-        <td>Metadata</td>
-        <td>Shows a representation of the metadata XML, if available.</td>
-    </tr>
-    </tbody>
-</table>
-
+<div class="section">
+	<img src="images/searchUI0001t.png" class="tnail">
+	<table class="table table-striped table-bordered">
+		<thead>
+		<tr>
+			<th>Criteria</th>
+			<th>Description</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td>Keywords</td>
+			<td>Search by free text using the grammar of the underlying endpoint/Catalog.</td>
+		</tr>
+		<tr>
+			<td>Time</td>
+			<td>Search based on relative or absolute time of the created, modified, or effective date.</td>
+		</tr>
+		<tr>
+			<td>Location</td>
+			<td>Search by latitude/longitude or the USNG using a point-radius or bounding box.</td>
+		</tr>
+		<tr>
+			<td>Type</td>
+			<td>Search for specific Metacard.CONTENT_TYPE values.</td>
+		</tr>
+		<tr>
+			<td>Sorting</td>
+			<td>Sort results by relevance, distance, created time, modified time or effective time.</td>
+		</tr>
+		<tr>
+			<td>ADDITIONAL SOURCES</td>
+			<td>Select <b>All Sources</b> or <b>Specific Sources</b>.</td>
+		</tr>
+		<tr>
+			<td>All Sources</td>
+			<td>Create an enterprise search. All federations are queried.</td>
+		</tr>
+		<tr>
+			<td>Specific Sources</td>
+			<td>Search a specific source(s). If a source is unavailable, it is displayed in red text.</td>
+		</tr>
+		</tbody>
+	</table>
+</div>
+<div class="section">
+	<h3><a id="results"></a>Results</h3>
+	<p>After a query is executed, the records matching the search criteria are automatically displayed in the Results pane.</p>
+	<img src="images/searchUI0002t.png" class="tnail">
+	<table class="table table-striped table-bordered">
+		<thead>
+		<tr>
+			<th>Item</th>
+			<th>Description</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td><img src="images/searchUI00021.png"></td>
+			<td>Enhanced search toggle. Enables the enhanced search menu (see below). Allows users to filter and refine search and build more sophisticated queries.</td>
+		</tr>
+		<tr>
+			<td>Results</td>
+			<td>The number of records that were returned as a result of the query. Only the top 250 results are
+				displayed, with the most relevant records displayed at the top of the list. If more than 250 results
+				are returned, try narrowing the search criteria.</td>
+		</tr>
+		<tr>
+			<td>Search button</td>
+			<td>Navigates back to the Search pane.</td>
+		</tr>
+		<tr>
+			<td>Save button</td>
+			<td>Allows the user to select individual records to save.</td>
+		</tr>
+		<tr>
+			<td>Records list</td>
+			<td>Shows the results of the search. The following information is displayed for each record:<br />
+				Title – The title of the record is displayed in blue text (e.g., INDIA REPORTED BUYING TWO WHITE SUGAR
+				CARGOES). Select the title of the record to view more details.<br />
+				Source – The gray text displayed below the record title is the data source (e.g., ddf.distribution) and
+				the amount of time that has passed since the record was created (e.g., an hour ago).</td>
+		</tr>
+		<tr>
+			<td>Refresh button</td>
+			<td>Refreshes the list of results. The most relevant records continue to be displayed at the top of the
+				results list.</td>
+		</tr>
+		</tbody>
+	</table>
+</div>
+<div class="section">
+	<h3><a id="enhancedsearch"></a>Enhanced Search</h3>
+	<p>The enhanced search menu allows more granular filtering of results and the ability to construct sophisticated queries.</p>
+	<img src="images/searchUI0004t.png" class="tnail">
+	<table class="table table-striped table-bordered">
+		<thead>
+		<tr>
+			<th>Item</th>
+			<th>Description</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td>Source</td>
+			<td>List of all sources searched with check boxes to allow users to refine searches to the most relevant sources.</td>
+		<tr>
+			<td>Metadata Content Type</td>
+			<td>List of metadata content types found in the search, with the ability to select and deselect content type</td>
+		</tr>
+		<tr>
+			<td>Query</td>
+			<td>The Query builder enables users to construct a very granular search query.<br>The first drop down menu contains the metadata elements in the search results, and the second contains operators based on the field selected (greater than, equals, contains, before, after, etc.)<br>Click the + to add further constraints to the query, or x to remove.<br>Click Search to use the new query.
+			</td>
+		</tr>
+		<tr>
+			<td>Search button</td>
+			<td>Executes enhanced search on new parameters specified or query built above.</td>
+		</tr>
+		</tbody>
+	</table>
+</div>
+<div class="section">
+	<h3><a id="summary"></a>Record Summary</h3>
+	<p>When an individual record is selected in the results list, the Record pane opens. When the Summary button is
+		selected in the Record pane, the following information is displayed.</p>
+	<img src="images/searchUI0003t.png" class="tnail">
+	<table class="table table-striped table-bordered">
+		<thead>
+		<tr>
+			<th>Item</th>
+			<th>Description</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td>Results button</td>
+			<td>Navigates back to the original query results list.</td>
+		</tr>
+		<tr>
+			<td>Up and down arrows</td>
+			<td>Navigate through the records that were returned in the search. When the end or the beginning of the
+				search results list is reached, the respective up or down arrow is disabled.</td>
+		</tr>
+		<tr>
+			<td>Details button</td>
+			<td>Opens the <a href="#details">Details tab</a>, which displays more information about the record.</td>
+		</tr>
+		<tr>
+			<td>Title</td>
+			<td>The title of the record is displayed in white font.</td>
+		</tr>
+		<tr>
+			<td>Source</td>
+			<td>The location that the metadata came from, which could be the local provider or a federated source.</td>
+		</tr>
+		<tr>
+			<td>Created time</td>
+			<td>When the record was created.</td>
+		</tr>
+		<tr>
+			<td>Modified time</td>
+			<td>How long ago the record was last modified.</td>
+		</tr>
+		<tr>
+			<td>Locate button</td>
+			<td>Centers the map on the record's originating location.</td>
+		</tr>
+		<tr>
+			<td>Thumbnail</td>
+			<td>Depicts a reduced-size image of the original artifact for the current record, if available.</td>
+		</tr>
+		<tr>
+			<td>Download</td>
+			<td>A link to download the record. The size, if known, is indicated.</td>
+		</tr>
+		</tbody>
+	</table>
+</div>
+<div class="section">
+	<h3><a id="details"></a>Record Details</h3>
+	<p>When an individual record is selected in the results list, the Record pane opens. When the Details button is
+		selected in the Record pane, the following information is displayed.</p>
+	<img src="images/searchUI0005t.png" class="tnail">
+	<table class="table table-striped table-bordered">
+		<thead>
+		<tr>
+			<th>Item</th>
+			<th>Description</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr>
+			<td>Results button</td>
+			<td>Navigates back to the original query results list.</td>
+		</tr>
+		<tr>
+			<td>Up and down arrows</td>
+			<td>Navigate through the records that were returned in the search. When the end or the beginning of the
+				search results list is reached, the respective up or down arrow is disabled.</td>
+		</tr>
+		<tr>
+			<td>Summary button</td>
+			<td>Opens the <a href="#summary">Summary tab</a>, which provides a high level overview of the result set.</td>
+		</tr>
+		<tr>
+			<td>Id</td>
+			<td>The record's unique identifier.</td>
+		</tr>
+		<tr>
+			<td>Source Id</td>
+			<td>Where the metadata was retrieved from, which could be the local provider or a federated source.</td>
+		</tr>
+		<tr>
+			<td>Title</td>
+			<td>The title of the record is displayed in white font.</td>
+		</tr>
+		<tr>
+			<td>Thumbnail</td>
+			<td>Depicts a reduced size image of the original artifact for the current record, if available.</td>
+		</tr>
+		<tr>
+			<td>Resource URI</td>
+			<td>Identifies the stored resource within the server.</td>
+		</tr>
+			<td>Created time</td>
+			<td>When the record was created.</td>
+		</tr>
+		<tr>
+			<td>Metacard Content Type version</td>
+			<td>The version of the metadata associated with the record.</td>
+		</tr>
+		<tr>
+			<td>Metacard Type</td>
+			<td>The type of metacard associated with the record.</td>
+		</tr>
+		<tr>
+			<td>Metacard Content Type</td>
+			<td>The type of the metadata associated with the record.</td>
+		</tr>
+		<tr>
+			<td>Resource size</td>
+			<td>The size of the resource, if available.</td>
+		</tr>
+		<tr>
+			<td>Modified</td>
+			<td>How long ago the record was last modified.</td>
+		</tr>
+		<tr>
+			<td>Download</td>
+			<td>When applicable, a download link for the product associated with the record is displayed. The size of
+				the product is also displayed, if available. If the size is not available, N/A is displayed.</td>
+		</tr>
+		<tr>
+			<td>Metadata</td>
+			<td>Shows a representation of the metadata XML, if available.</td>
+		</tr>
+		</tbody>
+	</table>
+</div>
+<div class="section">
+<h3><a id="actions"></a>Actions</h3>
+	<img src="images/searchUI0009.png" class="tnail">
+	<p>Depending on the contents of the metacard, various actions will be available to perform on the metadata.</p>
+	<p>Troubleshooting: if no actions are available, ensure IP address is configured correctly under global configuration in Admin Console.</p>
+</div>
 <h3><a id="savedsearch"></a>Save a Search</h3>
 <p>Saved searches are search criteria that are created and saved by a user. Each saved search has a name that
     was defined by the user, and the search  can be executed at a later time or be scheduled for execution. Saved records (metacards)
@@ -275,10 +359,12 @@
     <li>Select the Search tab at the bottom of the left pane.</li>
     <li>Use the fields provided to define the <a href="#searchcriteria">search criteria</a> for the query to be saved.
     </li>
+	<img src="images/searchUI0011.png">
     <li>Select the <b>Save</b> button. The Select Workspace pane opens.</li>
     <li>Type a name for the query in the <b>ENTER NAME FOR SEARCH</b> field.</li>
     <li>Select a workspace in which to save the query, or create a workspace by typing a title for the new workspace in
         the <b>New Workspace</b> field.</li>
+	<img src="images/searchUI0012.png">
     <li>Select the <b>Save</b> button.</li>
 </ol>
 <table class="table table-striped table-bordered">
@@ -314,24 +400,28 @@
         option to <b>Edit</b> are displayed.</li>
     <li>Select the <b>Add</b> button at the top of the left pane. A new workspace is created.</li>
     <li>In the <b>Workspace Name</b> field, enter a descriptive name for the workspace.</li>
+	<img src="images/searchUI0013.png">
     <li>Select the <b>Add</b> button. The Workspaces pane opens, which now displays the new workspace and any existing
         workspaces.</li>
     <li>Select the name of the new workspace. The data (i.e., saved searches and records) for the selected workspace is displayed in the Workspace pane.</li>
     <li>Select the + icon near the top of the Workspace pane to begin adding queries to the workspace. The Add/Edit Search pane opens.</li>
     <li>Enter a name for the new query to be saved in the <b>QUERY NAME</b> field.</li>
     <li>Complete the rest of the <a href="#searchcriteria">search criteria</a>.</li>
+	<img src="images/searchUI0007.png">
     <li>Select the <b>Save & Search</b> button. The Search UI begins searching for records matching the criteria,
         and the new query is saved to the workspace. When the search is complete, the Workspace pane opens.</li>
     <li>Select the name of the search to view the query results.</li>
-    <li>If necessary, in the Workspace pane, select the <b>Edit</b> button then select the pencil icon next to the name of a query to change the search
+	<img src="images/searchUI0014.png">
+    <li>If necessary, in the Workspace pane, select the <b>Edit</b> button then select the pencil (<img src="images/searchUI0015.png">) icon next to the name of a query to change the search
         criteria.
     </li>
-    <li>If necessary, in the Workspace pane, select the delete icon next to the name of a query to delete the query from the workspace.</li>
+    <li>If necessary, in the Workspace pane, select the delete (<img src="images/searchUI0016.png">) icon next to the name of a query to delete the query from the workspace.</li>
+	<img src="images/searchUI0017.png">
 </ol>
 
 <h2><a id="notifications"></a>Notifications</h2>
 <p>The Standard Search UI receives all notifications from DDF.  These notifications appear as pop-up windows inside the
-    Search UI to alert the user of an event of interest. To view all notifications, select the notification (bell)
+    Search UI to alert the user of an event of interest. To view all notifications, select the notification (<img src="images/searchUI0018.png">)
     icon.</p>
 <p>Currently, the notifications provide information about product retrieval only.  After a user initiates a resource
     download, they receive periodic notifications that provide the progress of the download (e.g., the download
@@ -355,7 +445,7 @@
 <h2><a id="activities"></a>Activities</h2>
 <p>Similar to notifications, activities appear as pop-up windows inside the Search UI. Activity events include the
     status and progress of actions that are being performed by the user, such as searches and downloads. To view all
-    activities, select the activity icon in the top-right corner of the window. A list of all activities opens in a
+    activities, select the activity (<img src="images/searchUI0019.png">) icon in the top-right corner of the window. A list of all activities opens in a
     drop-down menu, from which activities can be read and deleted. If a download activity is being performed, the
     Activity drop-down menu provides the link to retrieve the product.</p>
 <p>If caching is enabled, a progress bar is displayed in the Activity (Product Retrieval) drop-down menu until the
@@ -435,5 +525,17 @@
 <h2><a id="downloads"></a>Downloads</h2>
 <p>Downloads from the UI are currently managed by the user-specific browser's download manager.  The UI itself does not
     have a built-in download manager utility.</p>
+	
+<h2><a id="maps"></a>Maps</h2>
+<p>The right side of the Search UI contains a map to locate search results on. There are three views for this map, 3D, 2D, and Columbus View. To choose a different view, select the map icon in the upper right corner. (The icon will change depending on current view selected: 3D - <img src="images/searchUI0021.png">, 2D - <img src="images/searchUI0022.png">, Columbus <img src="images/searchUI0023.png"></p>
+<h3>3D View</h3>
+<p>The 3D view is a fully interactive globe view. </p>
+<img src="images/searchUI0024t.png">
+<h3>2D View</h3>
+<p>The 2D view is a flattened map view. It is preferable in environments that do not support the more resource-intensive globe view.  </p>
+<img src="images/searchUI0025t.png">
+<h3>Columbus View</h3>
+<p>This view is another alternative format for viewing search results' locations.</p>
+<img src="images/searchUI0026t.png">
 </body>
 </html>
