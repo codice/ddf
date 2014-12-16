@@ -15,6 +15,7 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -191,9 +192,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
     static {
-        try {
-            describableProperties.load(CswSource.class
-                    .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE));
+        try (InputStream properties = CswSource.class.getResourceAsStream(
+                DESCRIBABLE_PROPERTIES_FILE)) {
+            describableProperties.load(properties);
         } catch (IOException e) {
             LOGGER.info("Failed to load properties", e);
         }
@@ -693,7 +694,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         Iterator<ResourceReader> iterator = resourceReaders.iterator();
         while (iterator.hasNext() && resource == null) {
             ResourceReader reader = iterator.next();
-            if (reader.getSupportedSchemes().contains(scheme)) {
+            if (reader.getSupportedSchemes() != null && reader.getSupportedSchemes().contains(
+                    scheme)) {
                 try {
                     LOGGER.debug("Found an acceptable resource reader ({}) for URI {}",
                             reader.getId(), resourceUri.toASCIIString());

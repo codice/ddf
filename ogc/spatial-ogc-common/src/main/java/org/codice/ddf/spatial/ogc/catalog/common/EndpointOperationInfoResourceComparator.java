@@ -120,10 +120,10 @@ public class EndpointOperationInfoResourceComparator extends OperationResourceIn
             }
         } else if (HTTP_POST.equalsIgnoreCase(httpMethod)) {
             // Get the payload
-            InputStream is = message.getContent(InputStream.class);
-            if (is != null) {
-                CachedOutputStream bos = new CachedOutputStream();
-                try {
+            try (InputStream is = message.getContent(InputStream.class)) {
+                if (is != null) {
+
+                    CachedOutputStream bos = new CachedOutputStream();
                     // We need to make a copy and put it back for later
                     // processing
                     IOUtils.copy(is, bos);
@@ -136,13 +136,13 @@ public class EndpointOperationInfoResourceComparator extends OperationResourceIn
 
                     requestName = xml.getValue("local-name(/*)");
                     requestedService = xml.getValue("/*/@service");
-                    
+
                     LOGGER.debug("ROOT NODE = {}", requestName);
                     LOGGER.debug("Service Name = {}", requestedService);
                     bos.close();
-                } catch (IOException ioe) {
-                    LOGGER.warn("Unable to read message contents", ioe);
                 }
+            } catch (IOException ioe) {
+                LOGGER.warn("Unable to read message contents", ioe);
             }
 
         } else {

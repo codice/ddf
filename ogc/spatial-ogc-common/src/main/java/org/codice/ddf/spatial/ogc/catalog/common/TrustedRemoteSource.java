@@ -128,6 +128,10 @@ public abstract class TrustedRemoteSource {
         ClientConfiguration clientConfiguration = WebClient.getConfig(client);
 
         HTTPConduit httpConduit = clientConfiguration.getHttpConduit();
+        if (httpConduit == null) {
+            LOGGER.info("HTTPConduit was null for {}. Unable to configure timeouts", client);
+            return;
+        }
         HTTPClientPolicy httpClientPolicy = httpConduit.getClient();
 
         if (httpClientPolicy == null) {
@@ -177,6 +181,10 @@ public abstract class TrustedRemoteSource {
         ClientConfiguration clientConfiguration = WebClient.getConfig(client);
 
         HTTPConduit httpConduit = clientConfiguration.getHttpConduit();
+        if (httpConduit == null) {
+            LOGGER.info("HTTPConduit was null for {}. Unable to configure keystores.", client);
+            return;
+        }
         configureKeystores(httpConduit, keyStorePath, keyStorePassword, trustStorePath, trustStorePassword);
     }
     
@@ -404,7 +412,11 @@ public abstract class TrustedRemoteSource {
 
     private void disableCnCheck(Object client) {
         ClientConfiguration config = WebClient.getConfig(client);
-        HTTPConduit conduit = (HTTPConduit) config.getConduit();
+        HTTPConduit conduit = config.getHttpConduit();
+        if (conduit == null) {
+            LOGGER.info("HTTPConduit was null for {}. Unable to disable CN Check", client);
+            return;
+        }
 
         TLSClientParameters params = conduit.getTlsClientParameters();
 
@@ -426,6 +438,10 @@ public abstract class TrustedRemoteSource {
     protected void setSubjectOnRequest(Client client, Subject subject) {
         if(subject != null) {
             Cookie cookie = createSamlCookie(subject);
+            if (cookie == null) {
+                LOGGER.info("SAML Cookie was null. Unable to set the cookie for the client.");
+                return;
+            }
             client.reset();
             client.cookie(cookie);
         }
@@ -567,8 +583,12 @@ public abstract class TrustedRemoteSource {
             try {
                 LOGGER.debug("Setting up SSL on the STSClient HTTP Conduit");
                 HTTPConduit httpConduit = (HTTPConduit) stsClient.getClient().getConduit();
-                this.configureKeystores(httpConduit, keyStorePath, keyStorePassword,
-                        trustStorePath, trustStorePassword);
+                if (httpConduit == null) {
+                    LOGGER.info("HTTPConduit was null for stsClient. Unable to configure keystores for stsClient.");
+                } else {
+                    this.configureKeystores(httpConduit, keyStorePath, keyStorePassword,
+                            trustStorePath, trustStorePassword);
+                }
             } catch (BusException e) {
                 LOGGER.error("Unable to create sts client.", e);
             } catch (EndpointException e) {

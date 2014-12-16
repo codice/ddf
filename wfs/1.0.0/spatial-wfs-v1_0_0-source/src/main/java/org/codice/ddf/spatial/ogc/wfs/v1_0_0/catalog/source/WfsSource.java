@@ -81,6 +81,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.math.BigInteger;
@@ -171,9 +172,9 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
     private static final String DEFAULT_WFS_TRANSFORMER_ID = "wfs";
 
     static {
-        try {
-            describableProperties.load(WfsSource.class
-                    .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE));
+        try (InputStream properties = WfsSource.class.getResourceAsStream(
+                DESCRIBABLE_PROPERTIES_FILE)) {
+            describableProperties.load(properties);
         } catch (IOException e) {
             LOGGER.info(e.getMessage(), e);
         }

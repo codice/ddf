@@ -450,14 +450,15 @@ public class KmlEndpoint implements ConfigurationWatcher {
 
         if (StringUtils.isBlank(iconLoc)) {
             String icon = ICONS_RESOURCE_LOC + id;
-            InputStream iconStream = this.getClass().getClassLoader().getResourceAsStream(icon);
+            try (InputStream iconStream = this.getClass().getClassLoader()
+                    .getResourceAsStream(icon)) {
 
-            if (iconStream == null) {
-                LOGGER.warn("Resource not found for icon {}", icon);
-                throw new WebApplicationException(new FileNotFoundException(
-                        "Resource not found for icon " + icon), Status.NOT_FOUND);
-            }
-            try {
+                if (iconStream == null) {
+                    LOGGER.warn("Resource not found for icon {}", icon);
+                    throw new WebApplicationException(new FileNotFoundException(
+                            "Resource not found for icon " + icon), Status.NOT_FOUND);
+                }
+
                 iconBytes = IOUtils.toByteArray(iconStream);
             } catch (IOException e) {
                 LOGGER.warn("Failed to read resource for icon " + icon, e);
@@ -466,8 +467,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
         } else {
             String icon = iconLoc + FORWARD_SLASH + id;
 
-            try {
-                InputStream message = new FileInputStream(icon);
+            try (InputStream message = new FileInputStream(icon)) {
                 iconBytes = IOUtils.toByteArray(message);
             } catch (FileNotFoundException e) {
                 LOGGER.warn("File not found for icon " + icon, e);
