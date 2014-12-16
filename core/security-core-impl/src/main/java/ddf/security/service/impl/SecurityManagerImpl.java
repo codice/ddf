@@ -32,6 +32,7 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -134,7 +135,10 @@ public class SecurityManagerImpl implements SecurityManager {
             SecurityAssertion securityAssertion = null;
             try {
                 securityAssertion = new SecurityAssertionImpl(token);
-                principals.add(securityAssertion.getPrincipal().getName(), curRealm.getName());
+                Principal principal = securityAssertion.getPrincipal();
+                if (principal != null) {
+                    principals.add(securityAssertion.getPrincipal().getName(), curRealm.getName());
+                }
             } catch (Exception e) {
                 logger.warn("Encountered error while trying to get the Principal for the SecurityToken. Security functions may not work properly.", e);
             }
