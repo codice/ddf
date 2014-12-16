@@ -28,10 +28,21 @@ define([
     'text!applicationNew',
     'text!mvnItemTemplate',
     'text!fileProgress',
+    'properties',
     'fileupload',
     'perfectscrollbar'
-], function(require, Backbone, Marionette, ich, _, $, applicationTemplate, applicationNodeTemplate, detailsTemplate, applicationNew, mvnItemTemplate, fileProgress) {
+], function(require, Backbone, Marionette, ich, _, $, applicationTemplate, applicationNodeTemplate, detailsTemplate, applicationNew, mvnItemTemplate, fileProgress, Properties) {
     "use strict";
+
+    // assume hard-coded apps unless configuration is set.  then we use that.
+    var disableList = [
+        'platform-app',
+        'admin-app',
+        'security-services-app'
+    ];
+    if(Properties.admin.disabledInstallerApps && Properties.admin.disabledInstallerApps !== ""){
+        disableList = Properties.admin.disabledInstallerApps.split(",");
+    }
 
     if(!ich.applicationTemplate) {
         ich.addTemplate('applicationTemplate', applicationTemplate);
@@ -236,12 +247,6 @@ define([
         }
     });
 
-    //hard coded list of applications to disable selection for
-    var disableList = [
-        'platform-app',
-        'admin-app',
-        'security-services-app'
-    ];
 
     // Recursive tree view
     var AppTreeView = Marionette.CompositeView.extend({

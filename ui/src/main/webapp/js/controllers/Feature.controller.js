@@ -76,9 +76,19 @@ define([
                             showWarnings: true
                         });
                         view.region.show(featureView);
+                        view.listenTo(featureView,"itemview:selected", view.onFeatureAction);
                     }
                 });
             },
+
+            showAppFeatures: function(){
+                if(this.appName){
+                    this.show(this.appName);
+                } else {
+                    this.showAll();
+                }
+            },
+
 
             getFeatureView: function(options) {
                 if (options.collection && options.collection.length) {
@@ -98,7 +108,7 @@ define([
                     var install = featureModel.install();
                     if(install){
                         install.success(function() {
-                            self.show(self.appName);
+                           self.showAppFeatures();
                         }).fail(function() {
                             if(console) {
                                 console.log("install failed for feature: " + featureModel.name + " app: " + self.appName);
@@ -109,7 +119,7 @@ define([
                     var uninstall = featureModel.uninstall();
                     if(uninstall){
                         uninstall.success(function() {
-                            self.show(self.appName);
+                            self.showAppFeatures();
                         }).fail(function() {
                             if(console) {
                                 console.log("uninstall failed for feature: " + featureModel.name + " app: " + self.appName);

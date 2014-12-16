@@ -11,17 +11,22 @@
  **/
 /*global define*/
 
-define(function (require) {
+define([
+    'jquery'
+],function ($) {
     'use strict';
-    var $ = require('jquery');
 
     var properties = {
 
-        ui: { /* empty until loaded from ajax */},
+        /* these are empty until loaded from ajax */
+        ui: { },
+        admin: {},
 
         init : function(){
             // use this function to initialize variables that rely on others
+
             var props = this;
+
             $.ajax({
                 async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
                 cache: false,
@@ -34,6 +39,21 @@ define(function (require) {
             }).fail(function(jqXHR, status, errorThrown) {
                 if(console){
                     console.log('Platform UI Configuration could not be loaded: (status: ' + status + ', message: ' + errorThrown.message + ')');
+                }
+            });
+
+            $.ajax({
+                async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
+                cache: false,
+                dataType: 'json',
+                url: "/services/admin/config"
+            }).success(function(adminConfig) {
+                props.admin = adminConfig;
+                return props;
+
+            }).fail(function(jqXHR, status, errorThrown) {
+                if(console){
+                    console.log('Admin UI Configuration could not be loaded: (status: ' + status + ', message: ' + errorThrown.message + ')');
                 }
             });
 
