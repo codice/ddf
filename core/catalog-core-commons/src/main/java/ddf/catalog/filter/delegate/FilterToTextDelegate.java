@@ -14,10 +14,10 @@
  **/
 package ddf.catalog.filter.delegate;
 
+import ddf.catalog.filter.FilterDelegate;
+
 import java.util.Date;
 import java.util.List;
-
-import ddf.catalog.filter.FilterDelegate;
 
 public class FilterToTextDelegate extends FilterDelegate<String> {
 
@@ -405,15 +405,16 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
     }
 
     private String bytesToString(byte[] literal) {
-        String bytes = "{";
+        StringBuilder bytes = new StringBuilder();
+        bytes.append("{");
         for (int i = 0; i < literal.length; i++) {
             if (i > 0) {
-                bytes += ",";
+                bytes.append(",");
             }
-            bytes += literal[i];
+            bytes.append(literal[i]);
         }
-        bytes += "}";
-        return bytes;
+        bytes.append("}");
+        return bytes.toString();
     }
 
     // XpathExists
