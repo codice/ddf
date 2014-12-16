@@ -14,6 +14,7 @@
 # [Distributed Data Framework Spatial \(DDF-Spatial\)](https://tools.codice.org/wiki/display/DDF/DDF+Spatial+Application)
 [![Build Status](https://travis-ci.org/codice/ddf-spatial.png?branch=master)](https://travis-ci.org/codice/ddf-spatial)
 [![codecov.io](https://codecov.io/github/codice/ddf-spatial/coverage.svg?branch=master)](https://codecov.io/github/codice/ddf-spatial?branch=master)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/3464/badge.svg)](https://scan.coverity.com/projects/3464)
 ![codecov.io](https://codecov.io/github/codice/ddf-spatial/branch.svg?branch=master)
 
 
