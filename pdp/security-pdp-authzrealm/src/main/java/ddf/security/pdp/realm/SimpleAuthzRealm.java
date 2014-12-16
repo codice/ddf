@@ -319,7 +319,7 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
                         SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is implied.");
                     }
                     return true;
-                } else if (perm.implies(permission)) {
+                } else if (permission != null && perm.implies(permission)) {
                     if (SecurityLogger.isDebugEnabled()) {
                         SecurityLogger.logDebug(PERMISSION_FINISH_1_MSG + curUser + PERMISSION_FINISH_2_MSG + permission + "] is implied.");
                     }
