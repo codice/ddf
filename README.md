@@ -13,6 +13,7 @@
 <img src="https://tools.codice.org/wiki/download/attachments/3047458/ddf.jpg"/>
 # [Distributed Data Framework Admin \(DDF-Admin\)](https://tools.codice.org/wiki/display/DDF/DDF+Admin+UI)
 [![Build Status](https://travis-ci.org/codice/ddf-admin.png?branch=master)](https://travis-ci.org/codice/ddf-admin)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/3719/badge.svg)](https://scan.coverity.com/projects/3719)
 
 
 DDF-Admin is an open source app integrated with the DDF integration framework. 
