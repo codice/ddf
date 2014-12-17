@@ -39,7 +39,6 @@
         <xalan.version>2.7.1</xalan.version>
         <xerces.version>2.9.1</xerces.version>
         <saxon.version>9.1.0.8</saxon.version>
-        <httpcomponents.version>4.3.5</httpcomponents.version>
         <karaf.version>2.3.3</karaf.version>
         <camel.version>2.12.1</camel.version>
     </properties>
@@ -252,17 +251,17 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
-                <version>${httpcomponents.version}</version>
+                <version>4.3.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>${httpcomponents.version}</version>
+                <version>4.3.5</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
-                <version>${httpcomponents.version}</version>
+                <version>4.3.5</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
