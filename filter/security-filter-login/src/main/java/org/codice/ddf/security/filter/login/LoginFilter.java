@@ -197,8 +197,12 @@ public class LoginFilter implements Filter {
             if (token.isReference()) {
                 wasReference = true;
                 LOGGER.trace("Converting SAML reference to assertion");
-                SecurityToken savedToken = (SecurityToken) httpRequest.getSession(false).getAttribute(
-                        SecurityConstants.SAML_ASSERTION);
+                Object sessionToken = httpRequest.getSession(false).getAttribute(SecurityConstants.SAML_ASSERTION);
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("Http Session assertion - class: {}  loader: {}", sessionToken.getClass().getName(), sessionToken.getClass().getClassLoader());
+                    LOGGER.trace("SecurityToken class: {}  loader: {}", SecurityToken.class.getName(), SecurityToken.class.getClassLoader());
+                }
+                SecurityToken savedToken = (SecurityToken) sessionToken;
                 if (savedToken != null) {
                     token.replaceReferenece(savedToken);
                 }
@@ -278,8 +282,12 @@ public class LoginFilter implements Filter {
                     LOGGER.debug("Refresh of user assertion successful");
                     for (Object principal : subject.getPrincipals()) {
                         if (principal instanceof SecurityAssertion) {
-                            savedToken.replaceReferenece(((SecurityAssertion) principal).getSecurityToken());
-                            session.setAttribute(SecurityConstants.SAML_ASSERTION, ((SecurityAssertion) principal).getSecurityToken());
+                            SecurityToken token = ((SecurityAssertion) principal).getSecurityToken();
+                            savedToken.replaceReferenece(token);
+                            if (LOGGER.isTraceEnabled()) {
+                                LOGGER.trace("Setting session token - class: {}  classloader: {}", token.getClass().getName(), token.getClass().getClassLoader());
+                            }
+                            session.setAttribute(SecurityConstants.SAML_ASSERTION, token);
 
                             AssertionWrapper assertion = new AssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
                             if (assertion.getSaml2() != null) {
@@ -438,6 +446,9 @@ public class LoginFilter implements Filter {
         synchronized (lock) {
             HttpSession session = httpRequest.getSession(true);
             if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("Creating token in session - class: {}  classloader: {}", securityToken.getClass().getName(), securityToken.getClass().getClassLoader());
+                }
                 session.setAttribute(SecurityConstants.SAML_ASSERTION, securityToken);
                 AssertionWrapper assertion = null;
                 DateTime after = null;

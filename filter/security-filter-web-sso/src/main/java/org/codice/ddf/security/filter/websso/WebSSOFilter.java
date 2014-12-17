@@ -177,7 +177,7 @@ public class WebSSOFilter implements Filter {
                     return;
                 }
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Attaching result handler to the http request - token is instance of {}", result.getToken().getClass().getSimpleName());
+                    LOGGER.debug("Attaching result handler to the http request - token is instance of {} from classloader {}", result.getToken().getClass().getName(), result.getToken().getClass().getClassLoader());
                 }
                 httpRequest.setAttribute(DDF_AUTHENTICATION_TOKEN, result);
                 break;
