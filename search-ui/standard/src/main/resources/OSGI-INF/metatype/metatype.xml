@@ -16,7 +16,11 @@
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
 	<OCD name="Standard Search UI" id="org.codice.ddf.ui.search.standard.properties">
-
+        <AD
+            description="Specifies the number of results to request from each source"
+            name="Result Count" id="resultCount" required="true" type="Integer"
+            default="250">
+        </AD>
         <AD name="Imagery Providers" id="imageryProviders"
             required="false" type="String" cardinality="10000"
             description="List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). Example: TYPE={url=http://url;layers=layer1|layer2;alpha=0.5}"
