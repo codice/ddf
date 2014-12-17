@@ -71,7 +71,7 @@ public class ActivityListener implements EventHandler {
         String timestamp = (String) event.getProperty(ActivityEvent.TIMESTAMP_KEY);
         Map<String, String> operations = (Map<String, String>) event
                 .getProperty(ActivityEvent.OPERATIONS_KEY);
-        String progress = (String) event.getProperty(ActivityEvent.PROGRESS_KEY);
+        String progress = event.getProperty(ActivityEvent.PROGRESS_KEY).toString();
         String user = (String) event.getProperty(ActivityEvent.USER_ID_KEY);
         String category = (String) event.getProperty(ActivityEvent.CATEGORY_KEY);
         Long bytes = (Long) event.getProperty(ActivityEvent.BYTES_READ_KEY);
