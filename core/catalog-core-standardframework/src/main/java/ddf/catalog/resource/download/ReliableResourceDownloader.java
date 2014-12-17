@@ -102,6 +102,8 @@ public class ReliableResourceDownloader implements Runnable {
 
     private ResourceRetriever retriever;
 
+    private final Object lock = new Object();
+
     /**
      * Only set to true if cacheEnabled is true *AND* product being downloaded is not already
      * pending caching, e.g., another client has already started downloading and caching it.
@@ -199,7 +201,7 @@ public class ReliableResourceDownloader implements Runnable {
 
         try {
             reliableResourceCallable = new ReliableResourceCallable(resourceInputStream,
-                    countingFbos, fos, downloaderConfig.getChunkSize());
+                    countingFbos, fos, downloaderConfig.getChunkSize(), lock);
             downloadFuture = null;
             ResourceRetrievalMonitor resourceRetrievalMonitor = null;
             this.downloadState.setDownloadState(DownloadManagerState.DownloadState.IN_PROGRESS);
@@ -307,7 +309,7 @@ public class ReliableResourceDownloader implements Runnable {
                     // FileBackedOutputStream and cache file (need to keep both of these in sync
                     // with number of bytes
                     // written to each of them).
-                    synchronized (reliableResourceCallable) {
+                    synchronized (lock) {
 
                         // Simply doing Future.cancel(true) or a plain shutdown() is not enough.
                         // The downloadExecutor (or its underlying Future/thread) is holding on
@@ -358,7 +360,7 @@ public class ReliableResourceDownloader implements Runnable {
                             downloadState.setContinueCaching(doCaching);
                         }
                         reliableResourceCallable = new ReliableResourceCallable(
-                                resourceInputStream, countingFbos, downloaderConfig.getChunkSize());
+                                resourceInputStream, countingFbos, downloaderConfig.getChunkSize(), lock);
                         reliableResourceCallable.setBytesRead(bytesRead);
 
                     } else if (DownloadStatus.CLIENT_OUTPUT_STREAM_EXCEPTION
@@ -377,7 +379,7 @@ public class ReliableResourceDownloader implements Runnable {
                         LOGGER.debug("Cancelling resourceRetrievalMonitor");
                         resourceRetrievalMonitor.cancel();
                         reliableResourceCallable = new ReliableResourceCallable(
-                                resourceInputStream, fos, downloaderConfig.getChunkSize());
+                                resourceInputStream, fos, downloaderConfig.getChunkSize(), lock);
                         reliableResourceCallable.setBytesRead(bytesRead);
 
                     } else if (DownloadStatus.RESOURCE_DOWNLOAD_CANCELED
@@ -394,7 +396,7 @@ public class ReliableResourceDownloader implements Runnable {
                         if (doCaching && downloaderConfig.isCacheWhenCanceled()) {
                             LOGGER.debug("Continuing to cache product");
                             reliableResourceCallable = new ReliableResourceCallable(
-                                    resourceInputStream, fos, downloaderConfig.getChunkSize());
+                                    resourceInputStream, fos, downloaderConfig.getChunkSize(), lock);
                             reliableResourceCallable.setBytesRead(bytesRead);
                         } else {
                             break;
@@ -494,7 +496,7 @@ public class ReliableResourceDownloader implements Runnable {
             }
 
             reliableResourceCallable = new ReliableResourceCallable(resourceInputStream,
-                    countingFbos, fos, downloaderConfig.getChunkSize());
+                    countingFbos, fos, downloaderConfig.getChunkSize(), lock);
 
             // So that Callable can account for bytes read in previous download attempt(s)
             reliableResourceCallable.setBytesRead(bytesRead);

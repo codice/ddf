@@ -14,16 +14,15 @@
  **/
 package ddf.catalog.resource.download;
 
+import com.google.common.io.CountingOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.io.CountingOutputStream;
 
 
 /**
@@ -67,6 +66,7 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
     
     private boolean cancelDownload = false;
 
+    private final Object lock;
 
     /**
      * Used when only downloading, no caching to @FileOutputStream because caching was disabled or 
@@ -76,8 +76,8 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
      * @param countingFbos
      * @param chunkSize
      */
-    public ReliableResourceCallable(InputStream input, CountingOutputStream countingFbos, int chunkSize) {
-        this(input, countingFbos, null, chunkSize);
+    public ReliableResourceCallable(InputStream input, CountingOutputStream countingFbos, int chunkSize, Object lock) {
+        this(input, countingFbos, null, chunkSize, lock);
     }
 
     /**
@@ -88,8 +88,8 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
      * @param fos
      * @param chunkSize
      */
-    public ReliableResourceCallable(InputStream input, FileOutputStream fos, int chunkSize) {
-        this(input, null, fos, chunkSize);
+    public ReliableResourceCallable(InputStream input, FileOutputStream fos, int chunkSize, Object lock) {
+        this(input, null, fos, chunkSize, lock);
     }
     
     /**
@@ -101,11 +101,12 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
      * @param chunkSize the number of bytes to read from the product @InputStream per chunk
      */
     public ReliableResourceCallable(InputStream input, CountingOutputStream countingFbos,
-            FileOutputStream fos, int chunkSize) {
+            FileOutputStream fos, int chunkSize, Object lock) {
         this.input = input;
         this.countingFbos = countingFbos;
         this.cacheFileOutputStream = fos;
         this.chunkSize = chunkSize;
+        this.lock = lock;
     }
 
     /**
@@ -216,7 +217,7 @@ public class ReliableResourceCallable implements Callable<ReliableResourceStatus
 
             // Synchronized to prevent being interrupted in the middle of writing to the
             // OutputStreams
-            synchronized(this) {
+            synchronized(lock) {
                 
                 // If download was interrupted or canceled break now so that the bytesRead count does
                 // not
