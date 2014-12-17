@@ -14,9 +14,9 @@
  **/
 package org.codice.ddf.commands.platform;
 
-import java.util.Map;
-
 import org.apache.felix.gogo.commands.Command;
+
+import java.util.Map;
 
 
 @Command(scope = PlatformCommands.NAMESPACE, name = "envlist", description = "Provides a list of environment variables")
@@ -27,8 +27,8 @@ public class EnvListCommand extends PlatformCommands {
 
         Map<String, String> env = System.getenv();
 
-        for (String envName : env.keySet()) {
-            System.out.printf("%s=%s%n", envName, env.get(envName));
+        for (Map.Entry<String, String> entry : env.entrySet()) {
+            System.out.printf("%s=%s%n", entry.getKey(), entry.getValue());
         }
 
         return null;

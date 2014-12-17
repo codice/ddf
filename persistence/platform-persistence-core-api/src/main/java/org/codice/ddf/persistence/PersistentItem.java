@@ -14,12 +14,12 @@
  **/
 package org.codice.ddf.persistence;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
 
 @SuppressWarnings("unchecked")
 public class PersistentItem extends HashMap<String, Object> {
@@ -127,14 +127,14 @@ public class PersistentItem extends HashMap<String, Object> {
     }
     
     public static Map<String, Object> stripSuffixes(Map<String, Object> inMap) {
-        Map<String, Object> outMap = new HashMap<String, Object>();
-        for (String key : inMap.keySet()) {
-            int index = StringUtils.lastIndexOfAny(key, SUFFIXES);
+        Map<String, Object> outMap = new HashMap<>();
+        for (Map.Entry<String, Object> entry : inMap.entrySet()) {
+            int index = StringUtils.lastIndexOfAny(entry.getKey(), SUFFIXES);
             if (index > 0) {
-                String newKey = key.substring(0, index);
-                outMap.put(newKey, inMap.get(key));
+                String newKey = entry.getKey().substring(0, index);
+                outMap.put(newKey, entry.getValue());
             } else {  // should this ever be executed?
-                outMap.put(key,  inMap.get(key));
+                outMap.put(entry.getKey(), entry.getValue());
             }
         }
         

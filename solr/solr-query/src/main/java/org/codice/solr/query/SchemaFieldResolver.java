@@ -14,10 +14,6 @@
  **/
 package org.codice.solr.query;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -26,6 +22,10 @@ import org.apache.solr.client.solrj.response.LukeResponse;
 import org.apache.solr.client.solrj.response.LukeResponse.FieldInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SchemaFieldResolver {
     
@@ -129,22 +129,22 @@ public class SchemaFieldResolver {
             Map<String, FieldInfo> fieldsInfo = rsp.getFieldInfo();
             if (fieldsInfo != null && !fieldsInfo.isEmpty()) {
                 LOGGER.info("got fieldsInfo for {} fields", fieldsInfo.size());
-                
-                for (String fieldName : fieldsInfo.keySet()) {
+
+                for (Map.Entry<String, FieldInfo> entry : fieldsInfo.entrySet()) {
                     
                     // See if any fieldName startsWith(propertyName)
                     // if it does, then see if remainder of fieldName matches any expected suffix
                     // if suffix matches, then get type of field and cache it
-                    if (fieldName.startsWith(propertyName) && StringUtils.endsWithAny(fieldName, FORMAT_SUFFIXES)) {
-                        String fieldType = fieldsInfo.get(fieldName).getType();
-                        int index = StringUtils.lastIndexOfAny(fieldName, FORMAT_SUFFIXES);
-                        String suffix = fieldName.substring(index);
+                    if (entry.getKey().startsWith(propertyName) && StringUtils.endsWithAny(entry.getKey(), FORMAT_SUFFIXES)) {
+                        String fieldType = entry.getValue().getType();
+                        int index = StringUtils.lastIndexOfAny(entry.getKey(), FORMAT_SUFFIXES);
+                        String suffix = entry.getKey().substring(index);
                         if (!isSearchedAsExactValue) {
                             suffix = getSpecialIndexSuffix(suffix);
                             fieldType += suffix;
                         }
-                        LOGGER.info("field {} has type {}", fieldName, fieldType);
-                        schemaField = new SchemaField(fieldName, fieldType);
+                        LOGGER.info("field {} has type {}", entry.getKey(), fieldType);
+                        schemaField = new SchemaField(entry.getKey(), fieldType);
                         schemaField.setSuffix(suffix);
                         return schemaField;
                     }

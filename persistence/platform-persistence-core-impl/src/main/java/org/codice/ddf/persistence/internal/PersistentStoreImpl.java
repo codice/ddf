@@ -104,24 +104,24 @@ public class PersistentStoreImpl implements PersistentStore {
         
         SolrInputDocument solrInputDocument = new SolrInputDocument();
         solrInputDocument.addField("createddate_tdt", now);
-        
-        for (String key : properties.keySet()) {
-            if (key.equals(PersistentItem.ID)) {
-                solrInputDocument.addField(key, (String) properties.get(key));
-            } else if (key.endsWith(PersistentItem.TEXT_SET_SUFFIX)) {
+
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+            if (entry.getKey().equals(PersistentItem.ID)) {
+                solrInputDocument.addField(entry.getKey(), entry.getValue());
+            } else if (entry.getKey().endsWith(PersistentItem.TEXT_SET_SUFFIX)) {
                 @SuppressWarnings("unchecked")
-                Set<String> values = (Set<String>) properties.get(key);
+                Set<String> values = (Set<String>) entry.getValue();
                 if (values != null && !values.isEmpty()) {
                     for (String value : values) {
-                        solrInputDocument.addField(key, value);
+                        solrInputDocument.addField(entry.getKey(), value);
                     }
                 }
-            } else if (key.endsWith(PersistentItem.XML_SUFFIX) || key.endsWith(PersistentItem.TEXT_SUFFIX)) {
-                solrInputDocument.addField(key, (String) properties.get(key));
-            } else if (key.endsWith(PersistentItem.LONG_SUFFIX)) {
-                solrInputDocument.addField(key, (Long) properties.get(key));
-            } else if (key.endsWith(PersistentItem.INT_SUFFIX)) {
-                solrInputDocument.addField(key, (Integer) properties.get(key));
+            } else if (entry.getKey().endsWith(PersistentItem.XML_SUFFIX) || entry.getKey().endsWith(PersistentItem.TEXT_SUFFIX)) {
+                solrInputDocument.addField(entry.getKey(), entry.getValue());
+            } else if (entry.getKey().endsWith(PersistentItem.LONG_SUFFIX)) {
+                solrInputDocument.addField(entry.getKey(), entry.getValue());
+            } else if (entry.getKey().endsWith(PersistentItem.INT_SUFFIX)) {
+                solrInputDocument.addField(entry.getKey(), entry.getValue());
             }
         }
 

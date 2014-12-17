@@ -14,6 +14,12 @@
  **/
 package org.codice.ddf.notifications.impl;
 
+import com.hazelcast.core.MapLoader;
+import com.hazelcast.core.MapStore;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -32,13 +38,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.hazelcast.core.MapLoader;
-import com.hazelcast.core.MapStore;
 
 /**
  * Hazelcast persistence provider implementation of @MapLoader and @MapStore to serialize and
@@ -114,8 +113,8 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
 
     @Override
     public void storeAll(Map<String, Object> keyValueMap) {
-        for (String key : keyValueMap.keySet()) {
-            store(key, keyValueMap.get(key));
+        for (Map.Entry<String, Object> entry : keyValueMap.entrySet()) {
+            store(entry.getKey(), entry.getValue());
         }
     }
 

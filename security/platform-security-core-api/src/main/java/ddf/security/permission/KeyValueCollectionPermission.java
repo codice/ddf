@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * An extension of ColectionPermission that exclusively holds KeyValuePermission objects.
@@ -89,9 +88,8 @@ public class KeyValueCollectionPermission extends CollectionPermission {
      *            created collection
      */
     public void addAll(Map<String, List<String>> map) {
-        Set<String> keys = map.keySet();
-        for (String key : keys) {
-            permissionList.add(new KeyValuePermission(key, map.get(key)));
+        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+            permissionList.add(new KeyValuePermission(entry.getKey(), entry.getValue()));
         }
     }
 
