@@ -63,19 +63,28 @@ define([
             },
 
             buildBillboard: function () {
+                var view = this;
                 var point = this.model.get('geometry').getPoint();
+                var cartographic = Cesium.Cartographic.fromDegrees(
+                    point.longitude,
+                    point.latitude,
+                    point.altitude
+                );
                 this.billboard = this.geoController.billboardCollection.add({
                     image: this.billboards[0],
-                    position: this.geoController.ellipsoid.cartographicToCartesian(
-                        Cesium.Cartographic.fromDegrees(
-                            point.longitude,
-                            point.latitude,
-                            point.altitude
-                        )
-                    ),
+                    position: this.geoController.ellipsoid.cartographicToCartesian(cartographic),
                     color: this.color,
                     scale: pointScale
                 });
+                //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
+                if (this.geoController.scene.terrainProvider && !point.altitude) {
+                    var promise = Cesium.sampleTerrain(this.geoController.scene.terrainProvider, 11, [cartographic]);
+                    Cesium.when(promise, function(updatedCartographic) {
+                        if (updatedCartographic[0].height) {
+                            view.billboard.position = view.geoController.ellipsoid.cartographicToCartesian(updatedCartographic[0]);
+                        }
+                    });
+                }
             },
 
             toggleSelection: function () {
