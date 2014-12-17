@@ -279,16 +279,16 @@ public class LoginFilter implements Filter {
                     try {
                         LOGGER.debug("Attempting to refresh user's SAML assertion.");
 
-                    Subject subject = securityManager.getSubject(savedToken);
-                    LOGGER.debug("Refresh of user assertion successful");
-                    for (Object principal : subject.getPrincipals()) {
-                        if (principal instanceof SecurityAssertion) {
-                            SecurityToken token = ((SecurityAssertion) principal).getSecurityToken();
-                            savedToken.replaceReferenece(token);
-                            if (LOGGER.isTraceEnabled()) {
-                                LOGGER.trace("Setting session token - class: {}  classloader: {}", token.getClass().getName(), token.getClass().getClassLoader());
-                            }
-                            session.setAttribute(SecurityConstants.SAML_ASSERTION, token);
+                        Subject subject = securityManager.getSubject(savedToken);
+                        LOGGER.debug("Refresh of user assertion successful");
+                        for (Object principal : subject.getPrincipals()) {
+                            if (principal instanceof SecurityAssertion) {
+                                SecurityToken token = ((SecurityAssertion) principal).getSecurityToken();
+                                savedToken.replaceReferenece(token);
+                                if (LOGGER.isTraceEnabled()) {
+                                    LOGGER.trace("Setting session token - class: {}  classloader: {}", token.getClass().getName(), token.getClass().getClassLoader());
+                                }
+                                session.setAttribute(SecurityConstants.SAML_ASSERTION, token);
 
                                 AssertionWrapper assertion = new AssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
                                 if (assertion.getSaml2() != null) {
