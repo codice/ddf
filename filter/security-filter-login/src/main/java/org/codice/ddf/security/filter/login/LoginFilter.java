@@ -258,25 +258,26 @@ public class LoginFilter implements Filter {
 
     private void renewSecurityToken(HttpSession session, SAMLAuthenticationToken savedToken) throws WSSecurityException {
         long timeoutSeconds = -1;
-        Long afterMil = (Long) session.getAttribute(SAML_EXPIRATION);
-        long beforeMil = System.currentTimeMillis();
-        if (afterMil == null) {
-            synchronized (lock) {
-                AssertionWrapper assertion = new AssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
-                if (assertion.getSaml2() != null) {
-                    DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
-                    afterMil = after.getMillis();
+        if (session != null) {
+            Long afterMil = (Long) session.getAttribute(SAML_EXPIRATION);
+            long beforeMil = System.currentTimeMillis();
+            if (afterMil == null) {
+                synchronized (lock) {
+                    AssertionWrapper assertion = new AssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
+                    if (assertion.getSaml2() != null) {
+                        DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
+                        afterMil = after.getMillis();
+                    }
                 }
             }
-        }
 
-        if (afterMil != null) {
-            timeoutSeconds = (afterMil - beforeMil) / 1000;
-        }
-        if (timeoutSeconds <= 60) {
-            synchronized (lock) {
-                try {
-                    LOGGER.debug("Attempting to refresh user's SAML assertion.");
+            if (afterMil != null) {
+                timeoutSeconds = (afterMil - beforeMil) / 1000;
+            }
+            if (timeoutSeconds <= 60) {
+                synchronized (lock) {
+                    try {
+                        LOGGER.debug("Attempting to refresh user's SAML assertion.");
 
                     Subject subject = securityManager.getSubject(savedToken);
                     LOGGER.debug("Refresh of user assertion successful");
@@ -289,23 +290,24 @@ public class LoginFilter implements Filter {
                             }
                             session.setAttribute(SecurityConstants.SAML_ASSERTION, token);
 
-                            AssertionWrapper assertion = new AssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
-                            if (assertion.getSaml2() != null) {
-                                DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
-                                afterMil = after.getMillis();
+                                AssertionWrapper assertion = new AssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
+                                if (assertion.getSaml2() != null) {
+                                    DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
+                                    afterMil = after.getMillis();
+                                }
+
+                                session.setAttribute(SAML_EXPIRATION, afterMil);
+                                LOGGER.debug("Saved new user assertion to session.");
                             }
-
-                            session.setAttribute(SAML_EXPIRATION, afterMil);
-                            LOGGER.debug("Saved new user assertion to session.");
                         }
-                    }
 
-                } catch (SecurityServiceException e) {
-                    LOGGER.warn("Unable to refresh user's SAML assertion. User will log out prematurely.", e);
-                    session.invalidate();
-                } catch (Exception e) {
-                    LOGGER.warn("Unhandled exception occurred.", e);
-                    session.invalidate();
+                    } catch (SecurityServiceException e) {
+                        LOGGER.warn("Unable to refresh user's SAML assertion. User will log out prematurely.", e);
+                        session.invalidate();
+                    } catch (Exception e) {
+                        LOGGER.warn("Unhandled exception occurred.", e);
+                        session.invalidate();
+                    }
                 }
             }
         }
