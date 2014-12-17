@@ -35,10 +35,9 @@
             <artifactId>slf4j-ext</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.admin.security</groupId>
-            <artifactId>admin-security-filter</artifactId>
-            <version>1.0.0</version>
-         </dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -58,8 +57,6 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <!--we will use this servlet filter once it has been made generic to protect this app-->
-                        <Embed-Dependency>admin-security-filter</Embed-Dependency>
                         <Web-ContextPath>/applications</Web-ContextPath>
                         <_wab>src/main/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
