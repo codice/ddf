@@ -14,6 +14,12 @@
  **/
 package org.codice.ddf.commands.catalog;
 
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.util.XPathHelper;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -22,13 +28,6 @@ import org.fusesource.jansi.Ansi;
 import org.geotools.filter.text.cql2.CQL;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
-
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.util.XPathHelper;
 
 @Command(scope = CatalogCommands.NAMESPACE, name = "search", description = "Searches records in the catalog provider.")
 public class SearchCommand extends CatalogCommands {
@@ -123,36 +122,31 @@ public class SearchCommand extends CatalogCommands {
             String modifiedDate = "";
 
             if (searchPhrase != null) {
-                XPathHelper helper = new XPathHelper(metacard.getMetadata());
-                String indexedText = helper.getDocument().getDocumentElement().getTextContent();
-                indexedText = indexedText.replaceAll("\\r\\n|\\r|\\n", " ");
+                if (metacard.getMetadata() != null) {
+                    XPathHelper helper = new XPathHelper(metacard.getMetadata());
+                    String indexedText = helper.getDocument().getDocumentElement().getTextContent();
+                    indexedText = indexedText.replaceAll("\\r\\n|\\r|\\n", " ");
 
-                String normalizedSearchPhrase = searchPhrase.replaceAll("\\*", "");
+                    String normalizedSearchPhrase = searchPhrase.replaceAll("\\*", "");
 
-                int index = -1;
+                    int index = -1;
 
-                if (caseSensitive) {
-                    index = indexedText.indexOf(normalizedSearchPhrase);
-                } else {
-                    index = indexedText.toLowerCase().indexOf(normalizedSearchPhrase.toLowerCase());
-                }
+                    if (caseSensitive) {
+                        index = indexedText.indexOf(normalizedSearchPhrase);
+                    } else {
+                        index = indexedText.toLowerCase().indexOf(normalizedSearchPhrase.toLowerCase());
+                    }
 
-                if (index != -1) {
-                    int contextLength =
-                            (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
-                    excerpt = "..." + indexedText
-                            .substring(Math.max(index - contextLength, 0), index);
-                    excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
-                    excerpt = excerpt
-                            + indexedText.substring(index, index + normalizedSearchPhrase.length());
-                    excerpt = excerpt + Ansi.ansi().reset().toString();
-                    excerpt = excerpt
-                            + indexedText.substring(
-                            index + normalizedSearchPhrase.length(),
-                            Math.min(indexedText.length(),
-                                    index + normalizedSearchPhrase.length() + contextLength))
-                            + "...";
+                    if (index != -1) {
+                        int contextLength = (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
+                        excerpt = "..." + indexedText.substring(Math.max(index - contextLength, 0), index);
+                        excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
+                        excerpt = excerpt + indexedText.substring(index, index + normalizedSearchPhrase.length());
+                        excerpt = excerpt + Ansi.ansi().reset().toString();
+                        excerpt = excerpt + indexedText.substring(index + normalizedSearchPhrase.length(),
+                                Math.min(indexedText.length(), index + normalizedSearchPhrase.length() + contextLength)) + "...";
 
+                    }
                 }
             }
 
