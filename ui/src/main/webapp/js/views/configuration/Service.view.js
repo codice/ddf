@@ -82,7 +82,9 @@ define([
             this.collectionRegion.show(new ServiceView.ConfigurationTable({ collection: this.model.get("configurations") }));
         },
         newConfiguration: function() {
-            if (this.model.has("factory") || !this.model.get("configurations").isEmpty()) {
+            if(this.model.get("factory") === false && !this.model.get("configurations").isEmpty()){
+                this.editModal.show(new ConfigurationEdit.View({model: this.model.get("configurations").at(0), service: this.model}));
+            } else if (this.model.has("factory") || !this.model.get("configurations").isEmpty()) {
                 wreqr.vent.trigger('poller:stop');
                 var configuration = new Service.Configuration();
                 if (this.model.get("factory")) {
