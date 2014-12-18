@@ -28,7 +28,7 @@
 	<name>DDF Content</name>
     
     <properties>
-        <ddf.platform.app.version>2.6.0-SNAPSHOT</ddf.platform.app.version>
+        <ddf.platform.app.version>2.6.0</ddf.platform.app.version>
     </properties>
 
     <dependencyManagement>
