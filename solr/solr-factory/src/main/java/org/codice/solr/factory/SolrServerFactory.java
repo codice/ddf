@@ -270,52 +270,45 @@ public final class SolrServerFactory {
 
         File solrConfigHome = new File(solrConfigFile.getParent());
 
-        SolrConfig solrConfig = null;
-        IndexSchema indexSchema = null;
-        CoreContainer container = null;
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(SolrServerFactory.class.getClassLoader());
 
             // NamedSPILoader uses the thread context classloader to lookup
             // codecs, posting formats, and analyzers
-            solrConfig = new SolrConfig(solrConfigHome.getParent(), solrConfigFileName,
+            SolrConfig solrConfig = new SolrConfig(solrConfigHome.getParent(), solrConfigFileName,
                     new InputSource(FileUtils.openInputStream(solrConfigFile)));
-            indexSchema = new IndexSchema(solrConfig, schemaFileName, new InputSource(
+            IndexSchema indexSchema = new IndexSchema(solrConfig, schemaFileName, new InputSource(
                     FileUtils.openInputStream(solrSchemaFile)));
-            container = CoreContainer.createAndLoad(solrConfigHome.getAbsolutePath(),
+            CoreContainer container = CoreContainer.createAndLoad(solrConfigHome.getAbsolutePath(),
                     solrFile);
-        } catch (ParserConfigurationException e) {
-            LOGGER.warn("Parser configuration exception loading index schema", e);
-        } catch (IOException e) {
-            LOGGER.warn("IO exception loading index schema", e);
-        } catch (SAXException e) {
-            LOGGER.warn("SAX exception loading index schema", e);
+
+            CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME, solrConfig
+                    .getResourceLoader().getInstanceDir());
+
+            File dataDir = configProxy.getDataDirectory();
+            LOGGER.debug("Using data directory [{}]", dataDir);
+            SolrCore core = new SolrCore(CORE_NAME, dataDir.getAbsolutePath(), solrConfig, indexSchema,
+                    coreDescriptor);
+            container.register(CORE_NAME, core, false);
+
+            return new EmbeddedSolrServer(container, CORE_NAME);
+        } catch (ParserConfigurationException|IOException|SAXException e) {
+            throw new IllegalArgumentException("Unable to parse Solr configuration file: " +
+                    solrConfigFileName, e);
         } finally {
             Thread.currentThread().setContextClassLoader(tccl);
         }
-
-        CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME, solrConfig
-                .getResourceLoader().getInstanceDir());
-
-        File dataDir = configProxy.getDataDirectory();
-        LOGGER.debug("Using data directory [{}]", dataDir);
-        SolrCore core = new SolrCore(CORE_NAME, dataDir.getAbsolutePath(), solrConfig, indexSchema,
-                coreDescriptor);
-        container.register(CORE_NAME, core, false);
-
-        return new EmbeddedSolrServer(container, CORE_NAME);
     }
 
     private static File getConfigFile(String configFileName, ConfigurationFileProxy configProxy) {
-        File result = null;
         try {
             URL url = configProxy.getResource(configFileName);
-            result = new File(new URI(url.toString()).getPath());
+            return new File(new URI(url.toString()).getPath());
         } catch (URISyntaxException e) {
-            LOGGER.warn("URI exception loading configuration file", e);
+            throw new IllegalArgumentException("Unable to locate Solr configuration file: " +
+                    configFileName, e);
         }
-        return result;
     }
 
     private static void createSolrCore(String url, String coreName, String configFileName, HttpClient client) {
