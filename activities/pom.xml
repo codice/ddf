@@ -23,7 +23,7 @@
 
     <groupId>org.codice.ddf</groupId>
     <artifactId>activities</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.3.0</version>
     <packaging>jar</packaging>
     <name>DDF :: Activities</name>
     <build>
@@ -81,4 +81,8 @@
             <url>http://artifacts.codice.org/content/groups/public/</url>
         </repository>
     </repositories>
+
+  <scm>
+    <tag>activities-0.3.0</tag>
+  </scm>
 </project>
