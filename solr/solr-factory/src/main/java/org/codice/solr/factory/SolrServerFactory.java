@@ -330,13 +330,12 @@ public final class SolrServerFactory {
             LOGGER.info("Creating Solr core {}", coreName);
 
             String instanceDir = System.getProperty("karaf.home") + "/data/solr/" + coreName;
-            String configFile = StringUtils.defaultIfBlank(configFileName, "solrconfig.xml");
-            String schemaFile = "schema.xml";
+            String configFile = StringUtils.defaultIfBlank(configFileName, DEFAULT_SOLRCONFIG_XML);
 
             try {
                 CoreAdminRequest
                         .createCore(coreName, instanceDir, solrServer, configFile,
-                                schemaFile);
+                                DEFAULT_SCHEMA_XML);
             } catch (SolrServerException e) {
                 LOGGER.error("SolrServerException creating " + coreName + " core", e);
             } catch (IOException e) {
