@@ -14,6 +14,9 @@
  **/
 package ddf.security.common.audit;
 
+import java.security.Principal;
+import java.util.List;
+
 import ddf.security.SecurityConstants;
 
 import org.apache.cxf.endpoint.Endpoint;
@@ -26,6 +29,9 @@ import org.apache.cxf.ws.security.tokenstore.TokenStore;
 import org.apache.cxf.ws.security.tokenstore.TokenStoreFactory;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.ws.security.SAMLTokenPrincipal;
+import org.apache.ws.security.WSSecurityEngineResult;
+import org.apache.ws.security.handler.WSHandlerConstants;
+import org.apache.ws.security.handler.WSHandlerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMImplementation;
@@ -76,7 +82,8 @@ public final class SecurityLogger {
             // grab the SAML assertion associated with this Message from the
             // token store
             if (token != null) {
-                LOGGER.info("SAML assertion successfully extracted from incoming Message.{}", requestLogInfo);
+                LOGGER.info("SAML assertion successfully extracted from incoming Message.{}",
+                        requestLogInfo);
                 logSecurityAssertionInfo(token);
             } else {
                 LOGGER.info("No SAML assertion exists on the incoming Message.{}", requestLogInfo);
@@ -166,14 +173,33 @@ public final class SecurityLogger {
     }
 
     private static SecurityToken getToken(Message message) {
-        TokenStore tokenStore = getTokenStore(message);
-        SAMLTokenPrincipal principal = (SAMLTokenPrincipal) message
-                .get(WSS4JInInterceptor.PRINCIPAL_RESULT);
-        if (tokenStore != null && principal != null) {
-            return tokenStore.getToken(principal.getId());
-        } else {
-            return null;
+        SecurityToken token = null;
+        if (message != null) {
+            TokenStore tokenStore = getTokenStore(message);
+            Principal principal = (Principal) message.get(WSS4JInInterceptor.PRINCIPAL_RESULT);
+            if (!(principal instanceof SAMLTokenPrincipal)) {
+                // Try to find the SAMLTokenPrincipal if it exists
+                List<?> wsResults = List.class.cast(message.get(WSHandlerConstants.RECV_RESULTS));
+                for (Object wsResult : wsResults) {
+                    if (wsResult instanceof WSHandlerResult) {
+                        List<WSSecurityEngineResult> wsseResults = ((WSHandlerResult) wsResult)
+                                .getResults();
+                        for (WSSecurityEngineResult wsseResult : wsseResults) {
+                            Object principalResult = wsseResult
+                                    .get(WSSecurityEngineResult.TAG_PRINCIPAL);
+                            if (principalResult instanceof SAMLTokenPrincipal) {
+                                principal = (SAMLTokenPrincipal) principalResult;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (tokenStore != null && principal != null && principal instanceof SAMLTokenPrincipal) {
+                token = tokenStore.getToken(((SAMLTokenPrincipal) principal).getId());
+            }
         }
+        return token;
     }
 
     private static TokenStore getTokenStore(Message message) {
