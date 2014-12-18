@@ -754,10 +754,4 @@
         <bundle>mvn:ddf.platform.security/platform-security-session/${project.version}</bundle>
     </feature>
 
-    <feature name="kernel-webconsolebranding" install="manual" version="${project.version}" description="DDF Web Admin Console branding">
-        <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
-        <bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
-        <bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>
-    </feature>
-
 </features>
