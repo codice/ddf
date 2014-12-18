@@ -28,7 +28,7 @@
     <properties>
         <cas.client.version>3.1.10</cas.client.version>
         <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
-        <ddf.platform.app.version>2.6.0-SNAPSHOT</ddf.platform.app.version>
+        <ddf.platform.app.version>2.6.0</ddf.platform.app.version>
         <jasypt.version>1.9.0</jasypt.version>
         <wss4j.version>1.6.16</wss4j.version>
         <cxf.version>2.7.8</cxf.version>
