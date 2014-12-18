@@ -12,8 +12,13 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-define(['backbone', 'underscore', 'jquery'], function (Backbone, _, $) {
+/*global define , location */
+define([
+    'backbone',
+    'underscore',
+    'jquery',
+    'js/wreqr'
+], function (Backbone, _, $, wreqr) {
 
     var Installer = {};
 
@@ -46,6 +51,8 @@ define(['backbone', 'underscore', 'jquery'], function (Backbone, _, $) {
         install: 'installFeature(java.lang.String)/',
         uninstall: 'uninstallFeature(java.lang.String)/',
         url: '/jolokia/exec/org.apache.karaf:type=features,name=root/',
+        installUrl:'/jolokia/exec/org.apache.karaf:type=features,name=root/installFeature(java.lang.String)/',
+        uninstallUrl: '/jolokia/exec/org.apache.karaf:type=features,name=root/uninstallFeature(java.lang.String)/',
         defaults: {
             hasNext: true,
             hasPrevious: false,
@@ -119,15 +126,18 @@ define(['backbone', 'underscore', 'jquery'], function (Backbone, _, $) {
         },
         save: function() {
             var that = this;
+            wreqr.vent.trigger('modulePoller:stop');
             return $.ajax({
                 type: 'GET',
-                url: this.url + this.install + 'admin-post-install-modules/',
+                url: that.uninstallUrl + 'admin-modules-installer/',
                 dataType: 'JSON'
             }).then(function(){
                 return $.ajax({
                     type: 'GET',
-                    url: that.url + that.uninstall + 'admin-modules-installer/',
+                    url: that.installUrl + 'admin-post-install-modules/',
                     dataType: 'JSON'
+                }).then(function(){
+                    location.reload();
                 });
             });
         }

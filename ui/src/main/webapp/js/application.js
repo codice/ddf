@@ -18,6 +18,7 @@ define([
     'marionette',
     'icanhaz',
     'poller',
+    'js/wreqr',
     'js/models/Module',
     'js/models/App',
     'text!templates/tabs.handlebars',
@@ -25,7 +26,7 @@ define([
     'text!templates/header.handlebars',
     'text!templates/footer.handlebars',
     'text!templates/moduleTab.handlebars'
-    ],function (_, Backbone, Marionette, ich, poller, Module, AppModel, tabs, appHeader, header, footer, moduleTab) {
+    ],function (_, Backbone, Marionette, ich, poller, wreqr, Module, AppModel, tabs, appHeader, header, footer, moduleTab) {
     'use strict';
 
     var Application = {};
@@ -89,6 +90,10 @@ define([
     modulePoller.on('success', addModuleRegions);
 
     modulePoller.start();
+
+    wreqr.vent.on('modulePoller:stop', function(){
+        modulePoller.stop();
+    });
 
     //configure the router (we aren't using this yet)
     Application.Router = Backbone.Router.extend({
