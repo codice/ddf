@@ -76,15 +76,19 @@ public class SecurityPlugin implements PreQueryPlugin, PreIngestPlugin, PreResou
 
     private void setSubject(Operation operation) {
         try {
-            Subject subject = SecurityUtils.getSubject();
-            if (subject instanceof ddf.security.Subject) {
-                operation.getProperties()
-                        .put(SecurityConstants.SECURITY_SUBJECT, (ddf.security.Subject) subject);
-                LOGGER.debug(
-                        "Copied security subject from SecurityUtils  to operation property for legacy and multi-thread support.");
-            } else {
-                LOGGER.debug(
-                        "Security subject was not of type ddf.security.Subject, cannot add to current operation. It may still be accessible from SecurityUtils for supporting services.");
+            Object requestSubject = operation.getProperties().get(SecurityConstants.SECURITY_SUBJECT);
+            Subject subject = null;
+            if (!(requestSubject instanceof ddf.security.Subject)) {
+                subject = SecurityUtils.getSubject();
+                if (subject instanceof ddf.security.Subject) {
+                    operation.getProperties()
+                            .put(SecurityConstants.SECURITY_SUBJECT, (ddf.security.Subject) subject);
+                    LOGGER.debug(
+                            "Copied security subject from SecurityUtils  to operation property for legacy and multi-thread support.");
+                } else {
+                    LOGGER.debug(
+                            "Security subject was not of type ddf.security.Subject, cannot add to current operation. It may still be accessible from SecurityUtils for supporting services.");
+                }
             }
         } catch (Exception e) {
             LOGGER.debug("No security subject found, cannot add to current operation.");
