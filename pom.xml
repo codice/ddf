@@ -29,8 +29,8 @@
 
 	<properties>
 	    <commons-io.version>2.1</commons-io.version>
-	    <ddf.platform.app.version>2.6.0-SNAPSHOT</ddf.platform.app.version>
-	    <ddf.catalog.app.version>2.3.1.ALPHA1</ddf.catalog.app.version>
+	    <ddf.platform.app.version>2.6.0</ddf.platform.app.version>
+	    <ddf.catalog.app.version>2.6.0</ddf.catalog.app.version>
 	    <joda-time.version>1.6.2</joda-time.version>
 	    <jts.version>1.12</jts.version>
 		<solr.version>4.7.2</solr.version>
