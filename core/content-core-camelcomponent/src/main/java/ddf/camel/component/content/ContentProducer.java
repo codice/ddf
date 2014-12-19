@@ -147,20 +147,12 @@ public class ContentProducer extends DefaultProducer {
                     }
                     
                 } catch (MimeTypeResolutionException | IOException e) {
-                    try {
-                        fis.close();
-                    } catch (IOException ignore) {
-                        //ignore
-                    }
-                    try {
-                        if (fbos != null) {
-                            fbos.close();
-                        }
-                    } catch (IOException ignore) {
-                        //ignore
-                    } throw new ContentComponentException(e);
+                    IOUtils.closeQuietly(fis);
+                    IOUtils.closeQuietly(fbos);
+                    throw new ContentComponentException(e);
                 }
             } else {
+                IOUtils.closeQuietly(fis);
                 LOGGER.error("Did not find a MimeTypeMapper service");
                 throw new ContentComponentException(
                         "Unable to find a mime type for the ingested file "
