@@ -14,10 +14,6 @@
  **/
 package ddf.security.cas.filter;
 
-import java.util.Hashtable;
-
-import javax.servlet.Filter;
-
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -25,6 +21,9 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.Filter;
+import java.util.Hashtable;
 
 public class CXFFilterAdder {
     private Logger logger = LoggerFactory.getLogger(CXFFilterAdder.class);
@@ -48,11 +47,15 @@ public class CXFFilterAdder {
     public CXFFilterAdder(Filter proxyFilter) {
         casProxyFilter = proxyFilter;
         Bundle cxfBundle = FrameworkUtil.getBundle(CXFNonSpringServlet.class);
-        logger.debug("Found CXF Servlet Bundle with id: {}", cxfBundle.getBundleId());
-        cxfContext = cxfBundle.getBundleContext();
-        properties.put(FILTER_NAME_KEY, FILTER_NAME);
-        properties.put(URL_PATTERNS_KEY, DEFAULT_URL_PATTERN);
-        registerService();
+        if (cxfBundle != null) {
+            logger.debug("Found CXF Servlet Bundle with id: {}", cxfBundle.getBundleId());
+            cxfContext = cxfBundle.getBundleContext();
+            properties.put(FILTER_NAME_KEY, FILTER_NAME);
+            properties.put(URL_PATTERNS_KEY, DEFAULT_URL_PATTERN);
+            registerService();
+        } else {
+            logger.debug("Could not find CXF Servlet Bundle");
+        }
     }
 
     public void setUrlPattern(String urlPattern) {
@@ -69,8 +72,11 @@ public class CXFFilterAdder {
     private void registerService() {
         logger.debug("Registering Filter with CXF Context for url {}",
                 properties.get(URL_PATTERNS_KEY));
-        filterService = cxfContext.registerService("javax.servlet.Filter", casProxyFilter,
-                properties);
+        if (cxfContext != null) {
+            filterService = cxfContext.registerService("javax.servlet.Filter", casProxyFilter, properties);
+        } else {
+            logger.debug("Attempting to register service with null CXF context.");
+        }
         logger.debug("Filter registered.");
     }
 

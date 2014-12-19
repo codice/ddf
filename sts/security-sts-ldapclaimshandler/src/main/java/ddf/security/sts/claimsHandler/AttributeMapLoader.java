@@ -14,17 +14,15 @@
  **/
 package ddf.security.sts.claimsHandler;
 
-import java.security.Principal;
-import java.util.Map;
-import java.util.StringTokenizer;
-
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.x500.X500Principal;
-
+import ddf.security.PropertiesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.PropertiesLoader;
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
+import java.security.Principal;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Logic that handles loading attribute maps from an incoming format and returning it as a Map.
@@ -94,8 +92,8 @@ public class AttributeMapLoader {
     private static String logLdapClaimsMap(Map<String, String> map) {
         StringBuilder builder = new StringBuilder();
         builder.append("LDAP claims map:\n");
-        for (String claim : map.keySet()) {
-            builder.append("claim: " + claim + "; " + "LDAP mapping: " + map.get(claim) + "\n");
+        for (Map.Entry<String, String> claim : map.entrySet()) {
+            builder.append("claim: ").append(claim.getKey()).append("; ").append("LDAP mapping: ").append(claim.getValue()).append("\n");
         }
 
         return builder.toString();

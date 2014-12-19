@@ -217,7 +217,7 @@ public class CasHandler implements AuthenticationHandler {
     /**
      * Listens for removal notifications from the cache and logs each time a removal is performed.
      */
-    private class RemovalListenerLogger implements RemovalListener<String, Assertion> {
+    private static class RemovalListenerLogger implements RemovalListener<String, Assertion> {
 
         @Override
         public void onRemoval(RemovalNotification<String, Assertion> notification) {

@@ -137,7 +137,7 @@ public class SecurityManagerImpl implements SecurityManager {
                 securityAssertion = new SecurityAssertionImpl(token);
                 Principal principal = securityAssertion.getPrincipal();
                 if (principal != null) {
-                    principals.add(securityAssertion.getPrincipal().getName(), curRealm.getName());
+                    principals.add(principal.getName(), curRealm.getName());
                 }
             } catch (Exception e) {
                 logger.warn("Encountered error while trying to get the Principal for the SecurityToken. Security functions may not work properly.", e);

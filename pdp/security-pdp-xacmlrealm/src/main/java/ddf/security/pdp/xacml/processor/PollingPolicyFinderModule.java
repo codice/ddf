@@ -65,12 +65,9 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule imple
         LOGGER.debug("initializing polling: {}, every {}", xacmlPolicyDirectories, pollingInterval);
         monitor = new FileAlterationMonitor(pollingInterval * MULTIPLIER);
 
-        Iterator<String> iterator = xacmlPolicyDirectories.iterator();
-
-        while (iterator.hasNext()) {
-            File directoryToMonitor = new File(iterator.next());
-            FileAlterationObserver observer = new FileAlterationObserver(directoryToMonitor,
-                    getXmlFileFilter());
+        for (String xacmlPolicyDirectory : xacmlPolicyDirectories) {
+            File directoryToMonitor = new File(xacmlPolicyDirectory);
+            FileAlterationObserver observer = new FileAlterationObserver(directoryToMonitor, getXmlFileFilter());
             observer.addListener(this);
             monitor.addObserver(observer);
             LOGGER.debug("Monitoring directory: " + directoryToMonitor);

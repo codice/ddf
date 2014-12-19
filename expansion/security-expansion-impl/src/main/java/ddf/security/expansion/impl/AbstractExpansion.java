@@ -92,9 +92,9 @@ public abstract class AbstractExpansion implements Expansion {
             return map;
 
         Set<String> expandedSet;
-        for (String thisKey : map.keySet()) {
-            expandedSet = expand(thisKey, map.get(thisKey));
-            map.put(thisKey, expandedSet);
+        for (Map.Entry<String, Set<String>> thisKey : map.entrySet()) {
+            expandedSet = expand(thisKey.getKey(), thisKey.getValue());
+            map.put(thisKey.getKey(), expandedSet);
         }
 
         return map;

@@ -40,6 +40,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,7 +92,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
     private String issuer;
 
-    private List<AttributeStatement> attributeStatements = new ArrayList<>();
+    private transient List<AttributeStatement> attributeStatements = new ArrayList<>();
 
     /**
      * Uninitialized Constructor
@@ -286,7 +287,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
      * Represents the String values parsed out of the SAML assertion.
      * This class only has the value field implemented for performance reasons.
      */
-    private class XMLString implements XSString {
+    private static class XMLString implements XSString {
         private String value;
 
         protected XMLString() {
@@ -421,12 +422,12 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
         @Override
         public Boolean isNil() {
-            return null;
+            return false;
         }
 
         @Override
         public XSBooleanValue isNilXSBoolean() {
-            return null;
+            return new XSBooleanValue();
         }
 
         @Override
@@ -464,7 +465,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
      * This class represents an attribute that has been specified in the SAML assertion.
      * Only the required minimum methods are implemented for performance reasons.
      */
-    private class Attr implements Attribute {
+    private static class Attr implements Attribute {
 
         private String name;
 
@@ -643,12 +644,12 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
         @Override
         public Boolean isNil() {
-            return null;
+            return false;
         }
 
         @Override
         public XSBooleanValue isNilXSBoolean() {
-            return null;
+            return new XSBooleanValue();
         }
 
         @Override
@@ -686,7 +687,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
      * This class represents an attribute statement within a SAML assertion.
      * Only the required minimum methods are implemented for performance reasons.
      */
-    private class AttrStatement implements AttributeStatement {
+    private static class AttrStatement implements AttributeStatement {
 
         private List<Attribute> attributes = new ArrayList<>();
 
@@ -835,12 +836,12 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
         @Override
         public Boolean isNil() {
-            return null;
+            return false;
         }
 
         @Override
         public XSBooleanValue isNilXSBoolean() {
-            return null;
+            return new XSBooleanValue();
         }
 
         @Override
@@ -877,7 +878,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     /**
      * Principal implementation that returns values obtained from the assertion.
      */
-    private class AssertionPrincipal implements Principal {
+    private class AssertionPrincipal implements Principal, Serializable {
         @Override
         public String getName() {
             return name;

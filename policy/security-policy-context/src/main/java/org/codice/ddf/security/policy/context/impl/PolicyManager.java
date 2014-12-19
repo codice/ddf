@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementation of ContextPolicyManager. This implementation starts with a default empty policy
@@ -195,14 +196,14 @@ public class PolicyManager implements ContextPolicyManager {
                 }
             }
 
-            Collection<String> contexts = contextToAuth.keySet();
+            Set<Map.Entry<String, List<String>>> contexts = contextToAuth.entrySet();
 
-            for (String context : contexts) {
-                List<ContextAttributeMapping> mappings = contextToAttr.get(context);
+            for (Map.Entry<String, List<String>> context : contexts) {
+                List<ContextAttributeMapping> mappings = contextToAttr.get(context.getKey());
                 if (mappings == null) {
-                    mappings = new ArrayList<ContextAttributeMapping>();
+                    mappings = new ArrayList<>();
                 }
-                policyStore.put(context, new Policy(context, contextToRealm.get(context), contextToAuth.get(context), mappings));
+                policyStore.put(context.getKey(), new Policy(context.getKey(), contextToRealm.get(context.getKey()), context.getValue(), mappings));
             }
         }
     }

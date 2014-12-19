@@ -176,10 +176,14 @@ public class X509PathTokenValidator implements TokenValidator {
             Credential credential = new Credential();
             credential.setBinarySecurityToken(binarySecurity);
             if (merlin != null) {
-                X509Certificate[] certificates = merlin
-                        .getCertificatesFromBytes(binarySecurity.getToken());
-                if (certificates != null) {
-                    credential.setCertificates(certificates);
+                byte[] token = binarySecurity.getToken();
+                if (token != null) {
+                    X509Certificate[] certificates = merlin.getCertificatesFromBytes(token);
+                    if (certificates != null) {
+                        credential.setCertificates(certificates);
+                    }
+                } else {
+                    LOGGER.debug("Binary Security Token bytes were null.");
                 }
             }
 
