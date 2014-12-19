@@ -23,7 +23,7 @@
 
 	<artifactId>solr</artifactId>
 	<groupId>ddf.catalog.solr</groupId>
-	<version>2.4.3</version>
+	<version>2.4.4-SNAPSHOT</version>
 	<name>DDF Catalog Solr</name>
 	<packaging>pom</packaging>
 
@@ -127,8 +127,4 @@
 			<url>http://artifacts.codice.org/content/groups/public/</url>
 		</repository>
 	</repositories>
-
-  <scm>
-    <tag>solr-2.4.3</tag>
-  </scm>
 </project>
