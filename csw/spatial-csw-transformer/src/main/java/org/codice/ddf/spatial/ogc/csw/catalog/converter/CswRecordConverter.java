@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
@@ -18,17 +18,14 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.DataHolder;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.core.TreeMarshaller;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
-import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
-import com.thoughtworks.xstream.io.xml.StaxDriver;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.vividsolutions.jts.geom.Envelope;
@@ -42,7 +39,6 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
@@ -53,7 +49,6 @@ import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -61,7 +56,6 @@ import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.BoundingBoxReader;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.RecordConverter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +73,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -101,9 +94,8 @@ import java.util.Set;
 
 /**
  * Converts CSW Record to a Metacard.
- * 
+ *
  * @author rodgersh
- * 
  */
 
 public class CswRecordConverter implements Converter, MetacardTransformer, InputTransformer {
@@ -111,7 +103,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     private static final Logger LOGGER = LoggerFactory.getLogger(CswRecordConverter.class);
 
     private static final String UTF8_ENCODING = "UTF-8";
-    
+
     private static final DatatypeFactory XSD_FACTORY;
 
     private static final CswRecordMetacardType CSW_METACARD_TYPE = new CswRecordMetacardType();
@@ -130,7 +122,6 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
      */
     private static final List<String> CSW_OVERLAPPING_ATTRIBUTE_NAMES = Arrays.asList(
             Metacard.TITLE, Metacard.CREATED, Metacard.MODIFIED);
-
 
     static {
         DatatypeFactory factory = null;
@@ -151,7 +142,6 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         xstream.alias(CswConstants.CSW_RECORD_LOCAL_NAME, Metacard.class);
     }
 
-
     public void setResourceActionProvider(ActionProvider resourceActionProvider) {
         this.resourceActionProvider = resourceActionProvider;
     }
@@ -162,7 +152,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     }
 
     @Override
-    public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
+    public void marshal(Object source, HierarchicalStreamWriter writer,
+            MarshallingContext context) {
         if (source == null || !(source instanceof Metacard)) {
             LOGGER.warn("Failed to marshal Metacard: {}", source);
             return;
@@ -183,10 +174,10 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
                     CswConstants.OWS_NAMESPACE);
         }
 
-        MetacardImpl metacard = new MetacardImpl((Metacard)  source);
+        MetacardImpl metacard = new MetacardImpl((Metacard) source);
 
         if (metacard.getResourceURI() != null && resourceActionProvider != null) {
-            Action action =  resourceActionProvider.getAction(metacard);
+            Action action = resourceActionProvider.getAction(metacard);
             if (action != null) {
                 URL resourceUrl = action.getUrl();
                 if (resourceUrl != null) {
@@ -206,27 +197,32 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         if (fieldsToWrite != null) {
             for (QName qName : fieldsToWrite) {
                 if (qName != null && !qName.equals(CswRecordMetacardType.OWS_BOUNDING_BOX_QNAME)) {
-                    String attrName = DefaultCswRecordMap.getDefaultCswRecordMap().getDefaultMetacardFieldFor(qName);
-                    AttributeDescriptor ad = metacard.getMetacardType().getAttributeDescriptor(attrName);
+                    String attrName = DefaultCswRecordMap.getDefaultCswRecordMap()
+                            .getDefaultMetacardFieldFor(qName);
+                    AttributeDescriptor ad = metacard.getMetacardType()
+                            .getAttributeDescriptor(attrName);
                     if (ad == null) {
-                        ad = new AttributeDescriptorImpl(attrName, false, false, false, false, BasicTypes.STRING_TYPE);
+                        ad = new AttributeDescriptorImpl(attrName, false, false, false, false,
+                                BasicTypes.STRING_TYPE);
                     }
                     writeAttribute(writer, context, metacard, ad, qName);
                 }
             }
         } else { // write all fields
-            Set<AttributeDescriptor> attrDescs = metacard.getMetacardType().getAttributeDescriptors();
+            Set<AttributeDescriptor> attrDescs = metacard.getMetacardType()
+                    .getAttributeDescriptors();
             for (AttributeDescriptor ad : attrDescs) {
-                List<QName> qNames = DefaultCswRecordMap.getDefaultCswRecordMap().getCswFieldsFor(ad.getName());
+                List<QName> qNames = DefaultCswRecordMap.getDefaultCswRecordMap()
+                        .getCswFieldsFor(ad.getName());
                 for (QName qName : qNames) {
                     writeAttribute(writer, context, metacard, ad, qName);
                 }
             }
         }
-        
+
         if ((fieldsToWrite == null || fieldsToWrite
                 .contains(CswRecordMetacardType.CSW_TEMPORAL_QNAME))
-                &&  metacard.getEffectiveDate() != null && metacard.getExpirationDate() != null) {
+                && metacard.getEffectiveDate() != null && metacard.getExpirationDate() != null) {
             StringBuilder sb = new StringBuilder();
             sb.append(
                     ISODateTimeFormat.dateTime().print(
@@ -234,7 +230,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
                     .append(" to ")
                     .append(ISODateTimeFormat.dateTime().print(
                             ((Date) metacard.getExpirationDate()).getTime()));
-            writeValue(writer, context, null, CswRecordMetacardType.CSW_TEMPORAL_QNAME, sb.toString());
+            writeValue(writer, context, null, CswRecordMetacardType.CSW_TEMPORAL_QNAME,
+                    sb.toString());
         }
         if ((fieldsToWrite == null || fieldsToWrite
                 .contains(CswRecordMetacardType.CSW_SOURCE_QNAME))
@@ -242,7 +239,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             writeValue(writer, context, null, CswRecordMetacardType.CSW_PUBLISHER_QNAME,
                     metacard.getSourceId());
         }
-        if (fieldsToWrite == null || fieldsToWrite.contains(CswRecordMetacardType.OWS_BOUNDING_BOX_QNAME)) {
+        if (fieldsToWrite == null || fieldsToWrite
+                .contains(CswRecordMetacardType.OWS_BOUNDING_BOX_QNAME)) {
             writeBoundingBox(writer, context, metacard);
         }
         writer.endNode();
@@ -298,10 +296,11 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             Metacard metacard) {
         Set<AttributeDescriptor> attrDescs = metacard.getMetacardType().getAttributeDescriptors();
         List<Geometry> geometries = new LinkedList<Geometry>();
-        
+
         for (AttributeDescriptor ad : attrDescs) {
-            if (ad.getType() != null && AttributeFormat.GEOMETRY.equals(ad.getType().getAttributeFormat())) {
-                
+            if (ad.getType() != null && AttributeFormat.GEOMETRY
+                    .equals(ad.getType().getAttributeFormat())) {
+
                 Attribute attr = metacard.getAttribute(ad.getName());
                 if (attr != null) {
                     if (ad.isMultiValued()) {
@@ -330,10 +329,10 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             writer.startNode(lower);
             writer.setValue(bounds.getMinX() + " " + bounds.getMinY());
             writer.endNode();
-            writer.startNode(upper);            
+            writer.startNode(upper);
             writer.setValue(bounds.getMaxX() + " " + bounds.getMaxY());
             writer.endNode();
-            
+
             writer.endNode();
         }
     }
@@ -352,7 +351,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
                 }
             } else if (CswRecordMetacardType.REQUIRED_FIELDS.contains(field)) {
                 writeValue(writer, context, attributeDescriptor, field, "");
-                
+
             }
         }
     }
@@ -404,7 +403,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
                 if (!StringUtils.isBlank(field.getPrefix())) {
                     writeNamespace(writer, field);
                 } else {
-                    writer.addAttribute(XMLConstants.XMLNS_ATTRIBUTE, field.getNamespaceURI());                    
+                    writer.addAttribute(XMLConstants.XMLNS_ATTRIBUTE, field.getNamespaceURI());
                 }
             }
 
@@ -415,14 +414,14 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     // TODO - do we really need this??
     private void writeNamespace(HierarchicalStreamWriter writer, QName field) {
-//        if (prefixToUriMapping == null
-//                || !prefixToUriMapping.containsKey(field.getPrefix())
-//                || !prefixToUriMapping.get(field.getPrefix()).equals(
-//                        field.getNamespaceURI())) {
-//            writer.addAttribute(XMLConstants.XMLNS_ATTRIBUTE
-//                    + CswConstants.NAMESPACE_DELIMITER + field.getPrefix(),
-//                    field.getNamespaceURI());
-//        }
+        //        if (prefixToUriMapping == null
+        //                || !prefixToUriMapping.containsKey(field.getPrefix())
+        //                || !prefixToUriMapping.get(field.getPrefix()).equals(
+        //                        field.getNamespaceURI())) {
+        //            writer.addAttribute(XMLConstants.XMLNS_ATTRIBUTE
+        //                    + CswConstants.NAMESPACE_DELIMITER + field.getPrefix(),
+        //                    field.getNamespaceURI());
+        //        }
     }
 
     @Override
@@ -433,7 +432,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         Object mappingObj = context.get(CswConstants.CSW_MAPPING);
         if (mappingObj instanceof Map<?, ?>) {
             // If we got mappings passed in, remove the existing mappings for that attribute
-            Map<String, String> customMappings = new CaseInsensitiveMap((Map<String, String>) mappingObj);
+            Map<String, String> customMappings = new CaseInsensitiveMap(
+                    (Map<String, String>) mappingObj);
             Map<String, String> convertedMappings = new CaseInsensitiveMap();
             for (Entry<String, String> customMapEntry : customMappings.entrySet()) {
                 Iterator<Entry<String, String>> existingMapIter = cswAttrMap.entrySet().iterator();
@@ -469,7 +469,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
         Map<String, String> namespaceMap = null;
         Object namespaceObj = context.get(CswConstants.WRITE_NAMESPACES);
-        if (namespaceObj instanceof Map<?, ?>){
+        if (namespaceObj instanceof Map<?, ?>) {
             namespaceMap = (Map<String, String>) namespaceObj;
         }
 
@@ -692,7 +692,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
      * Converts properties in CSW records that overlap with same name as a basic Metacard attribute,
      * e.g., title. This conversion method is needed mainly because CSW records express all dates as
      * strings, whereas MetacardImpl expresses them as java.util.Date types.
-     * 
+     *
      * @param attributeFormat
      * @param value
      * @return
@@ -701,7 +701,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             AttributeFormat attributeFormat, String value) {
         LOGGER.debug("converting csw record property {}", value);
         Serializable ser = null;
-        
+
         if (attributeFormat == null) {
             LOGGER.debug("AttributeFormat was null when converting {}", value);
             return ser;
@@ -764,7 +764,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         } catch (ParseException e) {
             LOGGER.debug("Unable to convert date {} from default locale format {} ", value, e);
         }
-        
+
         // default to current date
         LOGGER.warn("Unable to convert {} to a date object, defaulting to current time", value);
         return new Date();
@@ -772,13 +772,14 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     /**
      * Converts the CSW record property to the specified Metacard attribute format.
-     * 
+     *
      * @param attributeFormat
      * @param reader
      * @return
      */
     protected Serializable convertRecordPropertyToMetacardAttribute(
-            AttributeFormat attributeFormat, HierarchicalStreamReader reader, boolean isLonLatOrder) {
+            AttributeFormat attributeFormat, HierarchicalStreamReader reader,
+            boolean isLonLatOrder) {
         LOGGER.debug("converting csw record property {}", reader.getValue());
         Serializable ser = null;
         switch (attributeFormat) {
@@ -858,7 +859,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     @Override public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
             throws CatalogTransformerException {
         StringWriter stringWriter = new StringWriter();
-        Boolean omitXmlDec = (Boolean)arguments.get(CswConstants.OMIT_XML_DECLARATION);
+        Boolean omitXmlDec = (Boolean) arguments.get(CswConstants.OMIT_XML_DECLARATION);
         if (omitXmlDec == null || !omitXmlDec) {
             stringWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
         }
@@ -876,7 +877,8 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         return transformedContent;
     }
 
-    private void copyArgumentsToContext(MarshallingContext context, Map<String, Serializable> arguments) {
+    private void copyArgumentsToContext(MarshallingContext context,
+            Map<String, Serializable> arguments) {
         if (context == null || arguments == null) {
             return;
         }

@@ -37,10 +37,6 @@
             <artifactId>joda-time</artifactId>
             <version>1.6.2</version>
         </dependency>
-        <dependency>
-        	<groupId>org.codice.ddf.spatial</groupId>
-        	<artifactId>spatial-csw-api</artifactId>
-        </dependency>
 		<dependency>
 		    <groupId>commons-collections</groupId>
 		    <artifactId>commons-collections</artifactId>
@@ -91,10 +87,6 @@
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-api</artifactId>
             <version>${ddf.platform.app.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-csw-api</artifactId>
         </dependency>
     </dependencies>
 
