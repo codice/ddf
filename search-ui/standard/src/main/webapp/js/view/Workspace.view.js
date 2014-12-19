@@ -117,6 +117,9 @@ define([
             },
             editing: false,
             initialize: function() {
+                if(this.model.collection.parents[0] && this.model.collection.parents[0].get('editing')) {
+                    this.editing = true;
+                }
                 this.listenTo(wreqr.vent, 'workspace:edit', this.editMode);
                 this.listenTo(wreqr.vent, 'workspace:searcheditcancel', this.doneMode);
                 this.listenTo(wreqr.vent, 'workspace:save', this.doneMode);
@@ -159,7 +162,8 @@ define([
                 this.render();
             },
             editSearch: function() {
-                wreqr.vent.trigger('workspace:searchedit', dir.forward, this.model);
+                wreqr.vent.trigger('workspace:searchedit', dir.forward, this.model,
+                        this.model.collection.indexOf(this.model));
             },
             removeSearch: function() {
                 this.model.collection.remove(this.model);
@@ -199,6 +203,7 @@ define([
             initialize: function() {
                 this.realModel = this.model;
                 this.model = this.realModel.clone();
+                this.listenTo(wreqr.vent, 'workspace:edit', this.editMode);
                 this.listenTo(wreqr.vent, 'workspace:searcheditcancel', this.cancelMode);
                 this.listenTo(wreqr.vent, 'workspace:save', this.doneMode);
             },
@@ -222,8 +227,14 @@ define([
                 this.workspaceSearchPanelRegion.show(new WorkspaceView.SearchList({collection: this.model.get('searches')}));
                 this.workspaceMetacardPanelRegion.show(new WorkspaceView.MetacardList({collection: this.model.get('metacards')}));
             },
+            editMode: function() {
+                this.model.set('editing', true, {silent: true});
+                this.render();
+            },
             doneMode: function() {
+                this.model.unset('editing', {silent: true});
                 this.realModel.set(this.model.attributes);
+                this.render();
             },
             cancelMode: function() {
                 this.model.set(this.realModel.attributes);
@@ -247,6 +258,8 @@ define([
                 var view = this;
                 this.listenTo(wreqr.vent, 'workspace:editall', this.editMode);
                 this.listenTo(wreqr.vent, 'workspace:saveall', this.doneMode);
+                this.listenTo(wreqr.vent, 'workspace:editcancel', this.cancelMode);
+                this.realModel = this.model.clone();
                 if(this.model.get('searches')) {
                     var searches = this.model.get('searches');
                     searches.forEach(function(search) {
@@ -291,6 +304,12 @@ define([
                 this.render();
             },
             doneMode: function() {
+                this.realModel.set(this.model.attributes);
+                this.editing = false;
+                this.render();
+            },
+            cancelMode: function() {
+                this.model.set(this.realModel.attributes);
                 this.editing = false;
                 this.render();
             },
@@ -370,6 +389,9 @@ define([
                     this.listenTo(wreqr.vent, 'workspace:cancel', this.workspaceCancelAdd);
                     this.listenTo(wreqr.vent, 'workspace:saveresults', this.saveResultsToWorkspace);
                     this.listenTo(wreqr.vent, 'workspace:resultssavecancel', this.cancelResultsToWorkspace);
+                    if(this.workspaceRegion.currentView && this.workspaceRegion.currentView.realModel) {
+                        this.workspaceRegion.currentView.model.set(this.workspaceRegion.currentView.realModel.attributes);
+                    }
                     this.workspaceRegion.show(undefined, dir.none);
                 } else {
                     this.stopListening(wreqr.vent, 'workspace:show');
@@ -408,7 +430,12 @@ define([
                 var view = this;
                 if(view.currentWorkspace) {
                     if(search) {
-                        view.currentWorkspace.get('searches').add(search);
+                        if(_.isUndefined(this.currentSearchIndex) || _.isNull(this.currentSearchIndex) ||
+                            _.isNaN(this.currentSearchIndex) || this.currentSearchIndex < 0) {
+                            view.currentWorkspace.get('searches').add(search);
+                        } else {
+                            view.currentWorkspace.get('searches').models[this.currentSearchIndex] = search;
+                        }
                     }
                     wreqr.reqres.setHandler('workspace:getCurrent', function () {
                         return view.currentWorkspace;
@@ -451,8 +478,10 @@ define([
                 this.workspaceRegion.show(new WorkspaceView.WorkspaceList({collection: this.model.get('workspaces')}), direction);
             },
 
-            showWorkspaceSearchEdit: function(direction, model) {
-                this.workspaceRegion.show(new QueryView.QueryView({isWorkspace: true, model: model ? model : new QueryModel.Model()}), direction);
+            showWorkspaceSearchEdit: function(direction, model, index) {
+                var queryModel = model ? model : new QueryModel.Model();
+                this.currentSearchIndex = index;
+                this.workspaceRegion.show(new QueryView.QueryView({isWorkspace: true, model: queryModel}), direction);
             },
 
             showWorkspaceAdd: function(direction) {

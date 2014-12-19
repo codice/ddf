@@ -13,7 +13,9 @@
  --}}
 <div class="nav-header workspace-header">
     Searches
-    <a id="addSearch" href="#" class="fa fa-plus workspace-link"></a>
+    {{#isnt editing true}}
+        <a id="addSearch" href="#" class="fa fa-plus workspace-link"></a>
+    {{/isnt}}
 </div>
 <div id="workspaceSearchPanel" class="workspace-search-panel">
 
