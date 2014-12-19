@@ -14,8 +14,6 @@
  **/
 package org.codice.solr.xpath;
 
-import java.io.IOException;
-
 import lux.Config;
 import lux.index.field.TinyBinaryField;
 import lux.xml.tinybin.TinyBinary;
@@ -26,10 +24,12 @@ import net.sf.saxon.s9api.XPathCompiler;
 import net.sf.saxon.s9api.XPathSelector;
 import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.s9api.XdmValue;
-
 import org.apache.lucene.document.Document;
+import org.apache.lucene.util.BytesRef;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.search.DelegatingCollector;
+
+import java.io.IOException;
 
 /**
  * Collector that evaluates each Lucene document against a given XPath
@@ -64,23 +64,25 @@ public class XpathFilterCollector extends DelegatingCollector {
     public void collect(int docId) throws IOException {
         Document doc = this.context.reader().document(docId);
 
-        byte[] bytes = doc.getBinaryValue(LUX_XML_FIELD_NAME).bytes;
+        BytesRef binaryValue = doc.getBinaryValue(LUX_XML_FIELD_NAME);
+        if (binaryValue != null) {
+            byte[] bytes = binaryValue.bytes;
 
-        // Assuming the lux_xml field is configured to use the Lux TinyBinary xml format in the
-        // Lux update chain
-        if (bytes.length > 4 && bytes[0] == 'T' && bytes[1] == 'I' && bytes[2] == 'N') {
-            TinyBinary tb = new TinyBinary(bytes, TinyBinaryField.UTF8);
-            XdmNode node = new XdmNode(tb.getTinyDocument(config));
+            // Assuming the lux_xml field is configured to use the Lux TinyBinary xml format in the
+            // Lux update chain
+            if (bytes.length > 4 && bytes[0] == 'T' && bytes[1] == 'I' && bytes[2] == 'N') {
+                TinyBinary tb = new TinyBinary(bytes, TinyBinaryField.UTF8);
+                XdmNode node = new XdmNode(tb.getTinyDocument(config));
 
-            try {
-                selector.setContextItem(node);
-                XdmValue result = selector.evaluate();
-                if (result.size() > 0) {
-                    super.collect(docId);
+                try {
+                    selector.setContextItem(node);
+                    XdmValue result = selector.evaluate();
+                    if (result.size() > 0) {
+                        super.collect(docId);
+                    }
+                } catch (SaxonApiException e) {
+                    throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, "Unable to evaluate xpath: " + xpath, e);
                 }
-            } catch (SaxonApiException e) {
-                throw new SolrException(SolrException.ErrorCode.BAD_REQUEST,
-                        "Unable to evaluate xpath: " + xpath, e);
             }
         }
     }

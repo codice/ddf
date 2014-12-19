@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -52,7 +51,11 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
 
     private static final String PERSISTED_FILE_SUFFIX = ".ser";
 
+    private static final String PERSISTED_FILE_SUFFIX_REGEX = "\\.ser";
+
     private String mapName = "default";
+
+    private FilenameFilter filter;
 
     public FileSystemPersistenceProvider() {
     }
@@ -88,7 +91,7 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
     @Override
     public void store(String key, Object value) {
         OutputStream file = null;
-        ObjectOutput output = null;
+        ObjectOutputStream output = null;
         try {
             File dir = new File(getMapStorePath());
             if (!dir.exists()) {
@@ -101,12 +104,7 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         } catch (IOException e) {
             LOGGER.info("IOException storing value in cache with key = " + key, e);
         } finally {
-            try {
-                if (output != null) {
-                    output.close();
-                }
-            } catch (IOException e) {
-            }
+            IOUtils.closeQuietly(output);
             IOUtils.closeQuietly(file);
         }
     }
@@ -176,12 +174,14 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
     }
 
     private FilenameFilter getFilenameFilter() {
-        FilenameFilter filter = new FilenameFilter() {
-            @Override
-            public boolean accept(File file, String name) {
-                return name.toLowerCase().endsWith(PERSISTED_FILE_SUFFIX);
-            }
-        };
+        if (filter == null) {
+            filter = new FilenameFilter() {
+                @Override
+                public boolean accept(File file, String name) {
+                    return name.toLowerCase().endsWith(PERSISTED_FILE_SUFFIX);
+                }
+            };
+        }
         return filter;
     }
 
@@ -194,16 +194,18 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
             return keys;
         }
 
-        for (int i = 0; i < files.length; i++) {
-            keys.add(files[i].getName().replaceFirst(PERSISTED_FILE_SUFFIX, ""));
+        for (File file : files) {
+            keys.add(file.getName().replaceFirst(PERSISTED_FILE_SUFFIX_REGEX, ""));
         }
         return keys;
     }
 
     public void clear() {
         File[] files = new File(getMapStorePath()).listFiles(getFilenameFilter());
-        for (File file : files) {
-            file.delete();
+        if (files != null) {
+            for (File file : files) {
+                file.delete();
+            }
         }
     }
 }

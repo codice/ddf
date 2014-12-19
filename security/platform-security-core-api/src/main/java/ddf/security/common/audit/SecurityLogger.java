@@ -14,11 +14,7 @@
  **/
 package ddf.security.common.audit;
 
-import java.security.Principal;
-import java.util.List;
-
 import ddf.security.SecurityConstants;
-
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -42,6 +38,8 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
 import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
+import java.util.List;
 
 /**
  * Class that contains utility methods for logging common security messages.
@@ -108,10 +106,15 @@ public final class SecurityLogger {
         document.removeChild(document.getDocumentElement());
         document.appendChild(copy);
         DOMImplementation domImpl = document.getImplementation();
-        DOMImplementationLS domImplLs = (DOMImplementationLS) domImpl.getFeature("LS", "3.0");
-        LSSerializer serializer = domImplLs.createLSSerializer();
-        serializer.getDomConfig().setParameter("format-pretty-print", true);
-        return serializer.writeToString(document);
+        if (domImpl != null) {
+            DOMImplementationLS domImplLs = (DOMImplementationLS) domImpl.getFeature("LS", "3.0");
+            if (domImplLs != null) {
+                LSSerializer serializer = domImplLs.createLSSerializer();
+                serializer.getDomConfig().setParameter("format-pretty-print", true);
+                return serializer.writeToString(document);
+            }
+        }
+        return "";
     }
 
     public static void logTrace(String log, Throwable throwable) {

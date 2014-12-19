@@ -14,22 +14,6 @@
  **/
 package org.codice.ddf.notifications.impl;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.notifications.store.NotificationStore;
-import org.codice.ddf.notifications.store.PersistentNotification;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MapConfig;
@@ -40,6 +24,21 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.SqlPredicate;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.notifications.store.NotificationStore;
+import org.codice.ddf.notifications.store.PersistentNotification;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Stores (persists) the notifications for *all* users in a single persistent notifications cache to
@@ -114,8 +113,11 @@ public class HazelcastNotificationStore implements NotificationStore {
                 }
             } else {
                 MapStoreConfig mapStoreConfig = mapConfig.getMapStoreConfig();
-                LOGGER.debug("mapStoreConfig factoryClassName = {}",
-                        mapStoreConfig.getFactoryClassName());
+                if (mapStoreConfig != null) {
+                    LOGGER.debug("mapStoreConfig factoryClassName = {}", mapStoreConfig.getFactoryClassName());
+                } else {
+                    LOGGER.debug("mapStoreConfig is null");
+                }
             }
         }
 
