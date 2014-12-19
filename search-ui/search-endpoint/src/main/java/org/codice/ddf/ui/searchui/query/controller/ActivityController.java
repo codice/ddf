@@ -14,14 +14,7 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.minidev.json.JSONObject;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -42,6 +35,12 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The {@code ActivityController} handles the processing and routing of activities.
@@ -224,49 +223,50 @@ public class ActivityController extends AbstractEventController {
 
         String userId = getUserId(serverSession, subject);
 
-        Object activitiesPreCast = serverMessage.getDataAsMap().get("data");
-        Object[] activities = activitiesPreCast instanceof List ?
-                ((List) activitiesPreCast).toArray() :
-                (Object[]) activitiesPreCast;
+        Map<String, Object> dataAsMap = serverMessage.getDataAsMap();
+        if (dataAsMap != null) {
+            Object activitiesPreCast = dataAsMap.get("data");
+            Object[] activities = activitiesPreCast instanceof List ? ((List) activitiesPreCast).toArray() : (Object[]) activitiesPreCast;
 
-        for (Object activityObject : activities) {
-            Map activity = (Map) activityObject;
-            String id = (String) activity.get("id");
-            String action = (String) activity.get("action");
+            for (Object activityObject : activities) {
+                Map activity = (Map) activityObject;
+                String id = (String) activity.get("id");
+                String action = (String) activity.get("action");
 
-            if (action != null) {
-                if (REMOVE_ACTION.equals(action)) {
-                    //You can have a blank id for anonymous
-                    if (id != null) {
-                        try {
-                            this.persistentStore.delete(PersistentStore.ACTIVITY_TYPE,
-                                    "id = '" + id + "'");
-                        } catch (PersistenceException e) {
-                            throw new IllegalArgumentException(
-                                    "Unable to delete activity with id = " + id);
+                if (action != null) {
+                    if (REMOVE_ACTION.equals(action)) {
+                        //You can have a blank id for anonymous
+                        if (id != null) {
+                            try {
+                                this.persistentStore.delete(PersistentStore.ACTIVITY_TYPE, "id = '" + id + "'");
+                            } catch (PersistenceException e) {
+                                throw new IllegalArgumentException("Unable to delete activity with id = " + id);
+                            }
+                        } else {
+                            throw new IllegalArgumentException("Message id is null");
                         }
-                    } else {
-                        throw new IllegalArgumentException("Message id is null");
+                    } else if (CANCEL_ACTION.equals(action)) {
+
+                        if (null == userId) {
+                            throw new IllegalArgumentException("User ID is null");
+                        }
+                        if (null == id) {
+                            throw new IllegalArgumentException("Metadata ID is null");
+                        }
+
+                        JSONObject jsonPropMap = new JSONObject();
+                        jsonPropMap.put(ActivityEvent.DOWNLOAD_ID_KEY, id);
+
+                        Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL, jsonPropMap);
+                        eventAdmin.postEvent(event);
+
                     }
-                } else if (CANCEL_ACTION.equals(action)) {
-
-                    if (null == userId) {
-                        throw new IllegalArgumentException("User ID is null");
-                    }
-                    if (null == id) {
-                        throw new IllegalArgumentException("Metadata ID is null");
-                    }
-
-                    JSONObject jsonPropMap = new JSONObject();
-                    jsonPropMap.put(ActivityEvent.DOWNLOAD_ID_KEY, id);
-
-                    Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL, jsonPropMap);
-                    eventAdmin.postEvent(event);
-
+                } else {
+                    throw new IllegalArgumentException("Message action is null.");
                 }
-            } else {
-                throw new IllegalArgumentException("Message action is null.");
             }
+        } else {
+            throw new IllegalArgumentException("Server Message is null.");
         }
     }
 

@@ -16,11 +16,9 @@ package org.codice.ddf.ui.searchui.query.controller;
 
 
 import net.minidev.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
-import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
@@ -199,30 +197,34 @@ public class NotificationController extends AbstractEventController {
 
         String userId = getUserId(serverSession, subject);
 
-        Object[] notifications = (Object[]) serverMessage.getDataAsMap().get("data");
+        Map<String, Object> dataAsMap = serverMessage.getDataAsMap();
+        if (dataAsMap != null) {
+            Object[] notifications = (Object[]) dataAsMap.get("data");
 
-        for (Object notificationObject : notifications) {
-            Map notification = (Map) notificationObject;
-            String id = (String) notification.get("id");
-            String action = (String) notification.get("action");
+            for (Object notificationObject : notifications) {
+                Map notification = (Map) notificationObject;
+                String id = (String) notification.get("id");
+                String action = (String) notification.get("action");
 
-            if (action != null) {
-                if ("remove".equals(action)) {
-                    //You can have a blank id for anonymous
-                    if (id != null) {
-                        try {
-                            this.persistentStore.delete(PersistentStore.NOTIFICATION_TYPE,
-                                    "id = '" + id + "'");
-                        } catch (PersistenceException e) {
-                            throw new IllegalArgumentException("Unable to delete notification with id = " + id);
+                if (action != null) {
+                    if ("remove".equals(action)) {
+                        //You can have a blank id for anonymous
+                        if (id != null) {
+                            try {
+                                this.persistentStore.delete(PersistentStore.NOTIFICATION_TYPE, "id = '" + id + "'");
+                            } catch (PersistenceException e) {
+                                throw new IllegalArgumentException("Unable to delete notification with id = " + id);
+                            }
+                        } else {
+                            throw new IllegalArgumentException("Message id is null");
                         }
-                    } else {
-                        throw new IllegalArgumentException("Message id is null");
                     }
+                } else {
+                    throw new IllegalArgumentException("Message action is null.");
                 }
-            } else {
-                throw new IllegalArgumentException("Message action is null.");
             }
+        } else {
+            throw new IllegalArgumentException("Server Message is null.");
         }
     }
 }
