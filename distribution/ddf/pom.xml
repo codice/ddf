@@ -37,12 +37,12 @@
     <properties>
         <distribution.file.name>ddf-${project.version}</distribution.file.name>
         <opendj-embedded.app.version>1.2.0</opendj-embedded.app.version>
-        <ddf.security.app.version>2.5.0</ddf.security.app.version>
-        <ddf.platform.app.version>2.6.0</ddf.platform.app.version>
+        <ddf.security.app.version>2.5.1-SNAPSHOT</ddf.security.app.version>
+        <ddf.platform.app.version>2.6.1-SNAPSHOT</ddf.platform.app.version>
         <ddf.content.app.version>2.4.1</ddf.content.app.version>
         <ddf.catalog.app.version>2.6.0</ddf.catalog.app.version>
         <ddf.solr.catalog.app.version>2.4.3</ddf.solr.catalog.app.version>
-        <ddf.searchui.app.version>2.6.0</ddf.searchui.app.version>
+        <ddf.searchui.app.version>2.6.1-SNAPSHOT</ddf.searchui.app.version>
         <ddf.spatial.app.version>2.6.0</ddf.spatial.app.version>
         <ddf.admin.app.version>1.1.0</ddf.admin.app.version>
         <install-profiles.app.version>${project.version}</install-profiles.app.version>
