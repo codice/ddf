@@ -40,6 +40,8 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -92,13 +94,18 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
     private String issuer;
 
-    private transient List<AttributeStatement> attributeStatements = new ArrayList<>();
+    private transient List<AttributeStatement> attributeStatements;
 
     /**
      * Uninitialized Constructor
      */
     public SecurityAssertionImpl() {
+        init();
+    }
 
+    private void readObject(ObjectInputStream objectInputStream) throws IOException, ClassNotFoundException {
+        objectInputStream.defaultReadObject();
+        init();
     }
 
     /**
@@ -107,8 +114,13 @@ public class SecurityAssertionImpl implements SecurityAssertion {
      * @param securityToken - token to wrap
      */
     public SecurityAssertionImpl(SecurityToken securityToken) {
+        init();
         this.securityToken = securityToken;
         parseToken(securityToken);
+    }
+
+    private void init() {
+        attributeStatements = new ArrayList<>();
     }
 
     /**
@@ -198,7 +210,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     public Principal getPrincipal() {
         if (securityToken != null) {
             if (principal == null) {
-                principal = new AssertionPrincipal();
+                principal = new AssertionPrincipal(name);
             }
             return principal;
         }
@@ -878,7 +890,13 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     /**
      * Principal implementation that returns values obtained from the assertion.
      */
-    private class AssertionPrincipal implements Principal, Serializable {
+    private static class AssertionPrincipal implements Principal, Serializable {
+        private String name;
+
+        public AssertionPrincipal(String name) {
+            this.name = name;
+        }
+
         @Override
         public String getName() {
             return name;
