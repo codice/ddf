@@ -26,7 +26,7 @@
       <property name="encryptionProperties" value="etc/ws-security/server/encryption.properties" />
       <property name="tokenProperties" value="etc/ws-security/server/signature.properties" />
       <property name="assertionType" value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0" />
-      <property name="keyType" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey" />
+      <property name="keyType" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer" />
       <property name="keySize" value="256" />
       <property name="useKey" value="true" />
       <property name="claims">

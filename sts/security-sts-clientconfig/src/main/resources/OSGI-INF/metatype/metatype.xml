@@ -25,10 +25,10 @@
             <Option label="SAML v1.1" value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1"/>
         </AD>
 
-        <AD name="SAML Key Type:" id="keyType" description="The key type to use with SAML. Most services require PublicKey. Changing this value from the default could cause services to stop responding." required="true" type="String"
-            default="PublicKey">
-            <Option label="PublicKey" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey"/>
+        <AD name="SAML Key Type:" id="keyType" description="The key type to use with SAML. Most services require Bearer. Changing this value from the default could cause services to stop responding." required="true" type="String"
+            default="Bearer">
             <Option label="Bearer" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer"/>
+            <Option label="PublicKey" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey"/>
             <Option label="SymmetricKey" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/SymmetricKey"/>
         </AD>
 
