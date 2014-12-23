@@ -55,20 +55,22 @@ public final class SecurityAssertionStore {
             if (!(principal instanceof SAMLTokenPrincipal)) {
                 // Try to find the SAMLTokenPrincipal if it exists
                 List<?> wsResults = List.class.cast(message.get(WSHandlerConstants.RECV_RESULTS));
-                for (Object wsResult : wsResults) {
-                    if (wsResult instanceof WSHandlerResult) {
-                        List<WSSecurityEngineResult> wsseResults = ((WSHandlerResult) wsResult)
-                                .getResults();
-                        if (wsseResults != null)
-                        {
-                            for (WSSecurityEngineResult wsseResult : wsseResults) {
-                                Object principalResult = wsseResult
-                                        .get(WSSecurityEngineResult.TAG_PRINCIPAL);
-                                if (principalResult instanceof SAMLTokenPrincipal) {
-                                    principal = (SAMLTokenPrincipal) principalResult;
-                                    break;
+                if (wsResults != null)
+                {
+                    for (Object wsResult : wsResults) {
+                        if (wsResult instanceof WSHandlerResult) {
+                            List<WSSecurityEngineResult> wsseResults = ((WSHandlerResult) wsResult)
+                                    .getResults();
+
+                                for (WSSecurityEngineResult wsseResult : wsseResults) {
+                                    Object principalResult = wsseResult
+                                            .get(WSSecurityEngineResult.TAG_PRINCIPAL);
+                                    if (principalResult instanceof SAMLTokenPrincipal) {
+                                        principal = (SAMLTokenPrincipal) principalResult;
+                                        break;
+                                    }
                                 }
-                            }
+
                         }
                     }
                 }
