@@ -314,6 +314,7 @@ function (ich,Marionette,Backbone,ConfigurationEdit,Service,Utils,wreqr,_,$,moda
                 view.initRadioButtonUI(properties);
                 view.modelBinder.bind(properties, $boundData, Backbone.ModelBinder.createDefaultBindings($boundData, 'name'));
             }
+            view.$el.trigger('shown.bs.modal');
         },
         findConfigFromId: function(id) {
             var model = this.model;

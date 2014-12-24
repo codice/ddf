@@ -226,14 +226,17 @@ function (ich,Marionette,_,$,Q,ModalSource,EmptyView,Service,Status,wreqr,Utils,
         showModal: function(modalView) {
             // Global div for workaround with iframe resize and modals
             var region = this.application.getRegion('sourcesModal');
+            var collectionRegion = this.application.getRegion('collectionRegion');
             var iFrameModalDOM = $('#IframeModalDOM');
             modalView.$el.on('hidden.bs.modal', function () {
                 iFrameModalDOM.hide();
             });
             modalView.$el.on('shown.bs.modal', function () {
-                var modalHeight = (modalView.$el.height() * 1.7) ;
-                iFrameModalDOM.height(modalHeight);
-                iFrameModalDOM.show();
+                var extraHeight = modalView.el.firstChild.clientHeight - collectionRegion.$el.height();
+                if(extraHeight > 0) {
+                    iFrameModalDOM.height(extraHeight);
+                    iFrameModalDOM.show();
+                }
             });
             region.show(modalView);
             region.currentView.$el.modal();
