@@ -41,8 +41,8 @@ public interface Wcs {
     /**
      * GetCapabilities - HTTP GET
      * 
-     * @param request
-     * @return
+     * @param request - GetCapabilitiesRequest bean
+     * @return WCSCapabilitiesType JAXB object
      */
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
@@ -53,8 +53,8 @@ public interface Wcs {
     /**
      * GetCapabilities - HTTP POST
      * 
-     * @param request
-     * @return
+     * @param request - GetCapabilities JAXB object
+     * @return WCSCapabilitiesType JAXB object
      */
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
@@ -64,8 +64,8 @@ public interface Wcs {
     /**
      * DescribeCoverage - HTTP GET
      * 
-     * @param request
-     * @return
+     * @param request - DescribeCoverageRequest bean
+     * @return CoverageDescription JAXB object
      */
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
@@ -76,8 +76,8 @@ public interface Wcs {
     /**
      * DescribeCoverage - HTTP POST
      * 
-     * @param request
-     * @return
+     * @param request - DescribeCoverage JAXB object
+     * @return - CoverageDescription JAXB object
      */
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
@@ -85,10 +85,10 @@ public interface Wcs {
     CoverageDescription describeCoverage(DescribeCoverage request) throws WcsException;
 
     /**
-     * GetRecords - HTTP GET
+     * GetCoverage - HTTP GET
      * 
-     * @param request
-     * @return
+     * @param request - GetCoverageRequest bean
+     * @return GetCoverageResponse bean
      */
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
@@ -96,25 +96,45 @@ public interface Wcs {
     GetCoverageRequest request) throws WcsException;
 
     /**
-     * GetRecords - HTTP POST
-     * 
-     * @param request
-     * @return
+     * GetCoverage - HTTP POST
+     *
+     * @param request - GetCoverage JAXB object
+     * @return GetCoverageResponse bean
      */
     @POST
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     GetCoverageResponse getCoverage(GetCoverage request) throws WcsException;
-    
 
     /**
-     * GetRecords - HTTP POST
-     * 
-     * @param request
-     * @return
+     * GetCoverage - HTTP POST
+     *
+     * @param request - String representing the GetCoverage XML
+     * @return GetCoverageResponse bean
+     */
+    @POST
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    GetCoverageResponse getCoverage(String request) throws WcsException;
+
+    /**
+     * GetCoverageMultiPart - HTTP POST
+     *
+     * @param request - GetCoverage JAXB object
+     * @return handles multipart responses
      */
     @POST
     @Produces("multipart/mixed")
     @Consumes("text/xml")
     public MultipartBody getCoverageMultiPart(GetCoverage request) throws WcsException;
+
+    /**
+     * GetCoverageMultiPart - HTTP POST.
+     *
+     * @param coverageRequest - String representing the GetCoverage XML
+     * @return handles mutipart responses
+     */
+    @POST
+    @Produces("multipart/mixed")
+    @Consumes("text/xml")
+    public MultipartBody getCoverageMultiPart(String coverageRequest) throws WcsException;
 
 }
