@@ -802,6 +802,38 @@ public class TestCswRecordConverter {
         assertThat(xml, containsString("<csw:Record>"));
     }
 
+    @Test
+    public void testInputTransformWithNoNamespaceDeclaration()
+            throws IOException, CatalogTransformerException {
+        CswRecordConverter converter = new CswRecordConverter();
+
+        InputStream is = IOUtils.toInputStream(getRecordNoNamespaceDeclaration());
+        Metacard mc = converter.transform(is);
+
+        Metacard expectedMetacard = getTestMetacard();
+        assertThat(mc, not(nullValue()));
+        assertThat(mc.getContentTypeName(), equalTo(expectedMetacard.getContentTypeName()));
+        assertThat(mc.getCreatedDate(), equalTo(expectedMetacard.getCreatedDate()));
+        assertThat(mc.getEffectiveDate(), equalTo(expectedMetacard.getEffectiveDate()));
+        assertThat(mc.getId(), equalTo(expectedMetacard.getId()));
+        assertThat(mc.getModifiedDate(), equalTo(expectedMetacard.getModifiedDate()));
+        assertThat(mc.getTitle(), equalTo(expectedMetacard.getTitle()));
+        assertThat(mc.getResourceURI(), equalTo(expectedMetacard.getResourceURI()));
+    }
+
+    @Test
+    public void testInputTransform() throws IOException, CatalogTransformerException {
+
+        CswRecordConverter converter = new CswRecordConverter();
+
+              InputStream is = TestCswRecordConverter.class.getResourceAsStream("/Csw_Record.xml");
+        Metacard mc = converter.transform(is);
+
+        assertThat(mc, not(nullValue()));
+        assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
+                startsWith("08976079-9c53-465f-b921-97d0717262f5"));
+    }
+
     // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private CswRecordConverter createRecordConverter() {

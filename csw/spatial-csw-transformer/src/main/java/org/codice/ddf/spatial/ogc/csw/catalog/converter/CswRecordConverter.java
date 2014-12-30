@@ -27,6 +27,8 @@ import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
+import com.thoughtworks.xstream.io.xml.Xpp3Driver;
+import com.thoughtworks.xstream.io.xml.XppDriver;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -136,10 +138,11 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
     private XStream xstream;
 
     public CswRecordConverter() {
-        xstream = new XStream(new WstxDriver());
+        xstream = new XStream(new Xpp3Driver());
         xstream.setClassLoader(this.getClass().getClassLoader());
         xstream.registerConverter(this);
         xstream.alias(CswConstants.CSW_RECORD_LOCAL_NAME, Metacard.class);
+        xstream.alias(CswConstants.CSW_RECORD, Metacard.class);
     }
 
     public void setResourceActionProvider(ActionProvider resourceActionProvider) {
