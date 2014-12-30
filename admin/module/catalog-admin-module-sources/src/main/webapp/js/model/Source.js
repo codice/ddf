@@ -185,10 +185,11 @@ define(function (require) {
                 serviceCollection.each(function(service) {
                     var id = service.get('id');
                     var name = service.get('name');
-                    if ((!_.isUndefined(id) && 
-                            (id.indexOf('Source') !== -1 || id.indexOf('Source') !== -1) || 
+                    var factory = service.get('factory');
+
+                    if (( !_.isUndefined(id) && (id.indexOf('Source') !== -1 || id.indexOf('Service') !== -1) ||
                             !_.isUndefined(name) && (name.indexOf('Source') !== -1 || name.indexOf('Service') !== -1)) && 
-                            !initialModel.hasConfiguration(service)) {
+                            !initialModel.hasConfiguration(service) && factory) {
                         var config = new Service.Configuration({service: service});
                         config.set('fpid', config.get('fpid') + '_disabled');
                         initialModel.addDisabledConfiguration(config);
