@@ -51,12 +51,13 @@ define([
                     configurations.fetch({
                         success: function (freshModel) {
                             var collection = self.servicePage.model.get('value');
+                            // sort by name
+                            collection.comparator = function(model) {
+                                return model.get('name');
+                            };
                             var cfgs = freshModel.get('value');
                             var model = collection.parents[0];
-                            collection.reset();
-                            cfgs.each(function(cfg) {
-                                collection.add(cfg);
-                            });
+                            collection.reset(cfgs.models);
                             model.trigger('services:refresh', self.servicePage.refreshButton);
                         }
                     });
