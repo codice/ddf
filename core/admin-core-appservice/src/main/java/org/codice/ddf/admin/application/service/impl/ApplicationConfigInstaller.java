@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.admin.application.service.impl;
 
@@ -19,6 +19,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -49,19 +51,14 @@ public class ApplicationConfigInstaller extends Thread {
 
     /**
      * Constructor that creates the config installer.
-     * 
-     * @param fileName
-     *            Full pathname of the properties file.
-     * @param appService
-     *            Reference to the application server that should be called to
-     *            start the applications.
-     * @param featuresService
-     *            Reference to the features service that should be used to stop
-     *            and start and post-installation features.
-     * @param postInstallFeatureStart
-     *            Feature that should be started if installation occurs.
-     * @param postInstallFeatureStop
-     *            Feature that should be stopped if installation occurs.
+     *
+     * @param fileName                Full pathname of the properties file.
+     * @param appService              Reference to the application server that should be called to
+     *                                start the applications.
+     * @param featuresService         Reference to the features service that should be used to stop
+     *                                and start and post-installation features.
+     * @param postInstallFeatureStart Feature that should be started if installation occurs.
+     * @param postInstallFeatureStop  Feature that should be stopped if installation occurs.
      */
     public ApplicationConfigInstaller(String fileName, ApplicationService appService,
             FeaturesService featuresService, String postInstallFeatureStart,
@@ -89,13 +86,21 @@ public class ApplicationConfigInstaller extends Thread {
             if (!props.isEmpty()) {
                 LOGGER.debug("Found applications to install from config.");
                 for (Entry<Object, Object> curApp : props.entrySet()) {
-                    LOGGER.debug("Starting app {} at location: {}", curApp.getKey(),
-                            curApp.getValue());
+                    String appName = curApp.getKey().toString();
+                    String appLocation = curApp.getValue().toString();
+                    LOGGER.debug("Starting app {} at location: {}", appName,
+                            appLocation);
 
                     try {
-                        appService.startApplication(curApp.getKey().toString());
+                        if (StringUtils.isNotEmpty(appLocation)) {
+                            appService.addApplication(new URI(appLocation));
+                        }
+                        appService.startApplication(appName);
                     } catch (ApplicationServiceException ase) {
-                        LOGGER.warn("Could not start " + curApp.getKey().toString(), ase);
+                        LOGGER.warn("Could not start " + appName, ase);
+                    } catch (URISyntaxException use) {
+                        LOGGER.warn("Could not install application, location is not a valid URI "
+                                + appLocation, use);
                     }
 
                 }
