@@ -93,7 +93,10 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
                 model = this,
                 addUrl = [model.configUrl, "add"].join("/");
             //if it has a pid we are editing an existing record
-            if(model.get('properties') && model.get('properties').get("service.pid") || (model.parents.length > 0 && model.parents[0].get('id') && !model.get('fpid'))) {
+            var configExists = model.get('id');
+            var isFactory = model.get('fpid');
+            if(configExists || !isFactory) {
+                // config exists OR is a non-factory config.  non-factory configs do not needs to be "makeConfigCall"-ed
                 var collect = model.collectedData(model.get('properties').get("service.pid") || model.parents[0].get('id'));
                 var jData = JSON.stringify(collect);
 
