@@ -15,6 +15,7 @@
 package ddf.catalog.test;
 
 import com.jayway.restassured.response.Response;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import org.apache.commons.lang.StringUtils;
@@ -476,7 +477,7 @@ public abstract class AbstractIntegrationTest {
             if (attributeDef.getID() != null) {
                 if (attributeDef.getDefaultValue() != null) {
                     if (attributeDef.getCardinality() == 0) {
-                        properties.put(attributeDef.getID(), attributeDef.getDefaultValue()[0]);
+                        properties.put(attributeDef.getID(), getAttributeValue(attributeDef.getDefaultValue()[0], attributeDef.getType()));
                     } else {
                         properties.put(attributeDef.getID(), attributeDef.getDefaultValue());
                     }
@@ -487,6 +488,31 @@ public abstract class AbstractIntegrationTest {
         }
 
         return properties;
+    }
+
+    private Object getAttributeValue(String value, int type) {
+        switch (type) {
+        case AttributeDefinition.BOOLEAN:
+            return Boolean.valueOf(value);
+        case AttributeDefinition.BYTE:
+            return Byte.valueOf(value);
+        case AttributeDefinition.DOUBLE:
+            return Double.valueOf(value);
+        case AttributeDefinition.CHARACTER:
+            return Character.valueOf(value.toCharArray()[0]);
+        case AttributeDefinition.FLOAT:
+            return Float.valueOf(value);
+        case AttributeDefinition.INTEGER:
+            return Integer.valueOf(value);
+        case AttributeDefinition.LONG:
+            return Long.valueOf(value);
+        case AttributeDefinition.SHORT:
+            return Short.valueOf(value);
+        case AttributeDefinition.PASSWORD:
+        case AttributeDefinition.STRING:
+        default:
+            return value;
+        }
     }
 
     private ObjectClassDefinition getObjectClassDefinition(String symbolicName, String pid) {
