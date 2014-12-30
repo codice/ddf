@@ -458,7 +458,7 @@ define([
                     progress: progress,
                     data: data,
                     dataType: "json",
-                    timeout: 300000,
+                    timeout: properties.timeout,
                     error : function(){
                         if (typeof console !== 'undefined') {
                             console.error(arguments);

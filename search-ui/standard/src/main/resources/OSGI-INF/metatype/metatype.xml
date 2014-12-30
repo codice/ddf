@@ -33,8 +33,9 @@
             default="CT={url=http://cesiumjs.org/stk-terrain/tilesets/world/tiles}"
                 />
 
-        <AD description="Specifies the connection timeout in milliseconds to use when connecting to WMS services." name="Connection Timeout" id="timeout"
-            required="false" type="Integer" default="5000" />
+        <AD description="Specifies the client-side connection timeout in milliseconds."
+            name="Connection Timeout" id="timeout"
+            required="false" type="Integer" default="15000" />
 
         <AD description="Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected." name="Show Sign In" id="signIn"
             required="false" type="Boolean" default="false" />

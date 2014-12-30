@@ -84,6 +84,7 @@ define([
                 this.queryModel = options.queryModel;
                 this.resultList = options.resultList;
                 this.listenTo(wreqr.vent, 'search:clear', this.close);
+                this.listenTo(wreqr.vent, 'search:error', this.close);
             },
             onRender: function() {
                 this.configureProgress();

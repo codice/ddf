@@ -68,21 +68,30 @@
                 if (model.subscription) {
                     Cometd.Comet.unsubscribe(model.subscription);
                 }
+
+                var timeoutId = _.delay(function () {
+                    deferred.reject();
+                }, options.timeout || 15000);
+
                 var success = options.success;
                 options.success = function (resp) {
-                    if (!model.lastResponse) {
-                        var retVal = success(resp);
-                        if (retVal === false) {
-                            deferred.reject();
+                    if (deferred.state() !== "rejected") {
+                        if (!model.lastResponse) {
+                            var retVal = success(resp);
+                            if (retVal === false) {
+                                deferred.reject();
+                            } else {
+                                window.clearTimeout(timeoutId);
+                                deferred.resolve();
+                                model.lastResponse = resp;
+                            }
                         } else {
-                            deferred.resolve();
                             model.lastResponse = resp;
                         }
-                    } else {
-                        model.lastResponse = resp;
-                    }
-                    if (typeof options.progress == 'function') {
-                        options.progress(1, model);
+
+                        if (_.isFunction(options.progress)) {
+                            options.progress(1, model);
+                        }
                     }
                 };
 

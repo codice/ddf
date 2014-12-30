@@ -88,7 +88,7 @@ public class ConfigurationStore {
 
     private static MimeType JSON_MIME_TYPE;
     
-    private Integer timeout = 5000;
+    private Integer timeout = 15000;
     
     private HttpProxyService httpProxy;
 

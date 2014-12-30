@@ -290,8 +290,6 @@ define([
                 }
             ],
             url: "/service/query",
-            syncUrl: "/services/catalog/query",
-            useAjaxSync: false,
             parse: function (resp) {
                 if (resp.data) {
                     return resp.data;

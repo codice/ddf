@@ -503,14 +503,47 @@ define([
 
                 this.model.clearSearch();
                 this.model.startSearch(progressFunction).complete(function () {
-                    //this is fired after cometd has acknowledged our query request
-                    //re-enable the whole form
+                    // this is fired after cometd has acknowledged our query request
+                    // re-enable the whole form
                     view.$('button').removeClass('disabled');
                     view.$('input').prop('disabled',false);
                 }).success(function() {
-                    //this is fired after cometd has sent back the first result
+                    // this is fired after cometd has sent back the first result
                     wreqr.vent.trigger('search:results', dir.forward, view.model.get('result'));
                     wreqr.vent.trigger('map:results', view.model.get('result'), view.zoomOnResults);
+                }).error(function () {
+                    // this is fired if the timeout happens before the first result
+                    // is sent back from cometd
+                    view.model.get('result').set('successful', false);
+
+                    var status;
+                    if (view.model.get('result').has('status')) {
+                        status = view.model.get('result').get('status');
+                        status.forEach(function (value) {
+                            if (value.get('state') === 'ACTIVE') {
+                                value.set('state', 'FAILED');
+                            }
+                        });
+                    } else {
+                        var result = view.model.get('result');
+                        result.set('results', new Backbone.Collection());
+                        status = new Backbone.Collection();
+                        result.set('status', status);
+
+                        _.each(view.model.get('src').split(','), function (id) {
+                            var src = new MetaCard.SourceStatus();
+                            src.set('id', id);
+                            src.set('state', 'FAILED');
+                            status.add(src);
+                        });
+                    }
+
+                    if (!view.model.get('result').has('hits')) {
+                        view.model.get('result').set('hits', 0);
+                    }
+
+                    wreqr.vent.trigger('search:results', dir.forward, view.model.get('result'));
+                    wreqr.vent.trigger('search:error');
                 });
 
                 wreqr.vent.trigger('search:start', this.model, progress);
