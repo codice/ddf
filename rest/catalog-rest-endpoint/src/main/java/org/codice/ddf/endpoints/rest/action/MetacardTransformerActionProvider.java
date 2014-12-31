@@ -14,25 +14,27 @@
  **/
 package org.codice.ddf.endpoints.rest.action;
 
+import ddf.action.Action;
+import ddf.action.ActionProvider;
+import ddf.action.impl.ActionImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ddf.action.Action;
-import ddf.action.ActionProvider;
-import ddf.action.impl.ActionImpl;
-
 public class MetacardTransformerActionProvider extends AbstractMetacardActionProvider {
 
-    static final String DESCRIPTION_PREFIX = "Gets the Metacard ";
+    static final String DESCRIPTION_PREFIX =
+            "Provides a URL to the metacard that transforms the return value via the";
+    static final String DESCRIPTION_SUFFIX = " transformer";
 
-    static final String TITLE_PREFIX = "Get ";
+    static final String TITLE_PREFIX = "Export as ";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetacardTransformerActionProvider.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(MetacardTransformerActionProvider.class);
 
     private String metacardTransformerId;
 
@@ -68,7 +70,7 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
         }
 
         return new ActionImpl(getId(), TITLE_PREFIX + metacardTransformerId, DESCRIPTION_PREFIX
-                + metacardTransformerId, url);
+                + metacardTransformerId + DESCRIPTION_SUFFIX, url);
 
     }
 

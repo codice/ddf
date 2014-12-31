@@ -89,7 +89,8 @@ public class TestMetacardTransformerActionProvider extends AbstractActionProvide
         assertEquals(MetacardTransformerActionProvider.TITLE_PREFIX + SAMPLE_TRANSFORMER_ID,
                 action.getTitle());
 
-        assertEquals(MetacardTransformerActionProvider.DESCRIPTION_PREFIX + SAMPLE_TRANSFORMER_ID,
+        assertEquals(MetacardTransformerActionProvider.DESCRIPTION_PREFIX + SAMPLE_TRANSFORMER_ID +
+                MetacardTransformerActionProvider.DESCRIPTION_SUFFIX,
                 action.getDescription());
 
         assertThat(

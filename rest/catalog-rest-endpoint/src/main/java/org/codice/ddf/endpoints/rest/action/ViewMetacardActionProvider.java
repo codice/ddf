@@ -14,20 +14,19 @@
  **/
 package org.codice.ddf.endpoints.rest.action;
 
+import ddf.action.Action;
+import ddf.action.impl.ActionImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ddf.action.Action;
-import ddf.action.impl.ActionImpl;
-
 public class ViewMetacardActionProvider extends AbstractMetacardActionProvider {
 
-    public static final String TITLE = "View Complete Metacard";
+    public static final String TITLE = "Export Metacard XML";
 
     public static final String DESCRIPTION = "Provides a URL to the metacard";
 
