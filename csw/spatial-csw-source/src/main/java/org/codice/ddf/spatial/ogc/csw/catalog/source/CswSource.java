@@ -1243,7 +1243,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
         }
     }
 
-    private void loadContentTypes() {
+    protected void loadContentTypes() {
         Filter filter = filterBuilder.attribute(CswConstants.ANY_TEXT).is().like()
                 .text(CswConstants.WILD_CARD);
         Query query = new QueryImpl(filter, 1, CONTENT_TYPE_SAMPLE_SIZE, null, true, 0);
