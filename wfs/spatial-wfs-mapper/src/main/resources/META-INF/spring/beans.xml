@@ -29,13 +29,10 @@ http://www.springframework.org/schema/osgi-compendium http://www.springframework
 		<osgix:interfaces>
 			<beans:value>org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper</beans:value>
 		</osgix:interfaces>
-
-
-		<beans:bean id="metacardToFeatureMapper"
-			class="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.impl.MetacardMapperImpl" init-method="init">
-			<beans:property name="context" ref="bundleContext"/>
+  
+  		<beans:bean id="metacardToFeatureMapper"
+			class="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.impl.MetacardMapperImpl">
 		</beans:bean>
-
 
 	</osgix:managed-service-factory>
 

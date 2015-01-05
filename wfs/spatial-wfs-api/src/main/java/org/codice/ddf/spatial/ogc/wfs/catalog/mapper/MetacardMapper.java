@@ -19,20 +19,32 @@ package org.codice.ddf.spatial.ogc.wfs.catalog.mapper;
  */
 public interface MetacardMapper {
     /**
-     * 
-     * @param metacardAttribute The Metacard attribute to map to a Feature property.
-     * 
-     * @return The Feature property mapped to the given Metacard attribute.
+     * Gets the feature property for the give metacard attribute
      */
     String getFeatureProperty(String metacardAttribute);
     
+    /**
+     * Gets the metacard attribute for the given feature property
+     */
     String getMetacardAttribute(String featureProperty);
     
+    /**
+     * Gets the feature type for this metacard mapper
+     */
     String getFeatureType();
     
+    /**
+     * Gets the feature property used to sort temporally
+     */
     String getSortByTemporalFeatureProperty();
     
+    /**
+     * Gets the feature property used to when sorting by relevance
+     */
     String getSortByRelevanceFeatureProperty();
     
+    /**
+     * Gets the feature property used to when sorting by distance
+     */
     String getSortByDistanceFeatureProperty();
 }

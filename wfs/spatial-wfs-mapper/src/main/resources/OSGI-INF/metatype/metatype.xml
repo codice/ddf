@@ -21,18 +21,64 @@
 		<AD name="Feature Type" id="featureType" required="true" type="String"
 			description="Feature Type. Format is {URI}local-name" />
 
-		<AD name="Metacard Attribute to WFS Feature Property Mapping" id="metacardAttrToFeaturePropMap"
-			required="true" type="String" cardinality="100"
-			description="Metacard Attribute to WFS Feature Property Mapping. Format is metacardAttribute=featureProperty" />
+		<AD name="Metacard Title to WFS Feature Property Mapping" id="titleMapping"
+			required="false" type="String"
+			description="Metacard Title to WFS Feature Property Mapping" />
+
+        <AD name="Metacard Created Date to WFS Feature Property Mapping" id="createdDateMapping"
+			required="false" type="String"
+			description="Metacard Created Date to WFS Feature Property Mapping" />
 			
-		<AD name="Temporal Sort By Feature Property" id="sortByTemporalFeatureProperty" required="false" type="String"
-			description="When Sorting Temporally, Sort By This Feature Property." />
+        <AD name="Metacard Modified Date to WFS Feature Property Mapping" id="modifiedDateMapping"
+			required="false" type="String"
+			description="Metacard Modified Date to WFS Feature Property Mapping" />
 			
- 		<AD name="Relevance Sort By Feature Property" id="sortByRelevanceFeatureProperty" required="false" type="String"
-			description="When Sorting By Relevance, Sort By This Feature Property." />
+        <AD name="Metacard Effective Date to WFS Feature Property Mapping" id="effectiveDateMapping"
+			required="false" type="String"
+			description="Metacard Effective Date to WFS Feature Property Mapping" />
 			
-		<AD name="Distance Sort By Feature Property" id="sortByDistanceFeatureProperty" required="false" type="String"
-			description="When Sorting By Distance, Sort By This Feature Property." />
+        <AD name="Metacard Expiration Date to WFS Feature Property Mapping" id="expirationDateMapping"
+			required="false" type="String"
+			description="Metacard Expiration Date to WFS Feature Property Mapping" />
+			
+        <AD name="Metacard Resource URI to WFS Feature Property Mapping" id="resourceUriMapping"
+			required="false" type="String"
+			description="Metacard Resource URI to WFS Feature Property Mapping" />
+			
+        <AD name="Metacard Resource Size to WFS Feature Property Mapping" id="resourceSizeMapping"
+			required="false" type="String"
+			description="Metacard Resource Size to WFS Feature Property Mapping" />
+         
+        <AD description="The Units of the Feature Property that corresponds to the Metacard Resource Size"
+            name="The Units of the Feature Property that corresponds to the Metacard Resource Size" id="dataUnit" required="true"
+            type="String" default="B">
+            <Option label="B" value="B"/>
+            <Option label="KB" value="KB"/>
+            <Option label="MB" value="MB"/>
+            <Option label="GB" value="GB"/>
+            <Option label="TB" value="TB"/>
+            <Option label="PB" value="PB"/>
+         </AD>
+						
+         <AD name="Metacard Thumbnail to WFS Feature Property Mapping" id="thumbnailMapping"
+			 required="false" type="String"
+			 description="Metacard Thumbnail to WFS Feature Property Mapping" />
+			
+         <AD name="Metacard Geography to WFS Feature Property Mapping" id="geographyMapping"
+			 required="false" type="String"
+			 description="Metacard Geography to WFS Feature Property Mapping" />
+
+	     <AD name="Temporal Sort By Feature Property" id="sortByTemporalFeatureProperty"
+		     required="false" type="String"
+		     description="When Sorting Temporally, Sort By This Feature Property." />
+
+	     <AD name="Relevance Sort By Feature Property" id="sortByRelevanceFeatureProperty"
+		     required="false" type="String"
+		     description="When Sorting By Relevance, Sort By This Feature Property." />
+
+	     <AD name="Distance Sort By Feature Property" id="sortByDistanceFeatureProperty"
+		     required="false" type="String"
+		     description="When Sorting By Distance, Sort By This Feature Property." />
 
 	</OCD>
 

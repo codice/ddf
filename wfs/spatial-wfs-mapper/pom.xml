@@ -23,17 +23,22 @@
     <artifactId>spatial-wfs-mapper</artifactId>
     <name>DDF :: Spatial :: WFS :: Mapper</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-wfs-api</artifactId>
-        </dependency>
- 		
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-        </dependency>
-    </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>org.codice.ddf.spatial</groupId>
+			<artifactId>spatial-wfs-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+		</dependency>
+	</dependencies>
 
     <build>
         <resources>
@@ -51,14 +56,13 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
-                            org.codice.ddf.spatial.ogc.wfs.catalog.mapper,
-                            org.osgi.service.blueprint,
-                            org.apache.commons.lang, 
-                            org.slf4j,
-                            org.osgi.framework, 
-                            org.osgi.service.cm
+                            org.codice.ddf.spatial.ogc.wfs.catalog.mapper,                                      
+                            org.w3c.dom,
+                            org.slf4j
                         </Import-Package>
                         <Export-Package />
+                        <Embed-Dependency>commons-collections4</Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>
             </plugin>
