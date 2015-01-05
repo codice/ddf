@@ -67,6 +67,7 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
         wfs = createClientBean(Wfs.class, wfsServerUrl, username, password,
                 disableCnCheck, initProviders(), getClass().getClassLoader(),
                 new MarkableStreamInterceptor());
+        WebClient.getConfig(wfs).getRequestContext().put(org.apache.cxf.message.Message.MAINTAIN_SESSION, Boolean.TRUE);
     }
 
     private List<? extends Object> initProviders() {
