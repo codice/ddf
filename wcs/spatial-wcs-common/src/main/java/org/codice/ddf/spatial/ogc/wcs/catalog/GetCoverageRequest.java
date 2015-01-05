@@ -22,4 +22,21 @@ public class GetCoverageRequest {
 
     private String version = WcsConstants.VERSION_1_0_0;
 
+    private String id;
+
+    private String format;
+
+    public GetCoverageRequest(String id, String format) {
+        this.id = id;
+        this.format = format;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getCoverageFormat() {
+        return format;
+    }
+
 }
