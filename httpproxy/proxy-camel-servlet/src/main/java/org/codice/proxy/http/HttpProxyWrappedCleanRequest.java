@@ -39,14 +39,11 @@ public class HttpProxyWrappedCleanRequest extends HttpServletRequestWrapper {
 
     @Override
     public String getQueryString() {
-        String newQueryString = null;
-        String oldQueryString = super.getQueryString();
-        if (!(oldQueryString == null)) {
-            // If query string ends with an apersand, take it off
-            if (StringUtils.endsWith(oldQueryString, "&")) {
-                newQueryString = StringUtils.chop(oldQueryString);
-            }
+        String queryString = super.getQueryString();
+        // If query string ends with an ampersand, take it off
+        if (StringUtils.endsWith(queryString, "&")) {
+            queryString = StringUtils.chop(queryString);
         }
-        return newQueryString;
+        return queryString;
     }
 }
