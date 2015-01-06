@@ -70,7 +70,6 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
                     }
                 } catch (Exception e) {
                     LOGGER.debug("Unable to retrieve cached resource for metacard id = {}", metacard.getId());
-                    // LOGGER.warn(e.getMessage(), e);
                 }
                 if (cachedResource != null) {
                     long resourceSize = cachedResource.getSize();
