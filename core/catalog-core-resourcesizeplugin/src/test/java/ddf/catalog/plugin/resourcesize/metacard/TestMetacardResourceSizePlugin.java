@@ -18,8 +18,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -67,7 +67,7 @@ public class TestMetacardResourceSizePlugin {
         // Since using Metacard vs. MetacardImpl have to get resource-size as an
         // Attribute vs. Long
         Attribute resourceSizeAttr = resultMetacard.getAttribute(Metacard.RESOURCE_SIZE);
-        assertThat((Long)resourceSizeAttr.getValue(), is(999L));
+        assertThat((String) resourceSizeAttr.getValue(), is("999"));
     }
 
     /**

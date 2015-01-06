@@ -14,6 +14,11 @@
  **/
 package ddf.catalog.plugin.resourcesize.metacard;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ddf.catalog.cache.ResourceCacheInterface;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.data.Attribute;
@@ -27,10 +32,6 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.resource.data.ReliableResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class MetacardResourceSizePlugin implements PostQueryPlugin {
 
@@ -69,12 +70,14 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
                     }
                 } catch (Exception e) {
                     LOGGER.debug("Unable to retrieve cached resource for metacard id = {}", metacard.getId());
+                    // LOGGER.warn(e.getMessage(), e);
                 }
                 if (cachedResource != null) {
                     long resourceSize = cachedResource.getSize();
                     if (resourceSize > 0 && cachedResource.hasProduct()) {
                         LOGGER.debug("Setting resourceSize = {} for metacard ID = {}", resourceSize, metacard.getId());
-                        Attribute resourceSizeAttribute = new AttributeImpl(Metacard.RESOURCE_SIZE, resourceSize);
+                        Attribute resourceSizeAttribute = new AttributeImpl(Metacard.RESOURCE_SIZE,
+                                String.valueOf(resourceSize));
                         metacard.setAttribute(resourceSizeAttribute);
                     } else {
                         LOGGER.debug("resourceSize <= 0 for metacard ID = {}", metacard.getId());
