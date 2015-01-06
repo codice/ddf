@@ -29,7 +29,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -41,7 +40,6 @@ import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,13 +57,11 @@ public class CasHandlerTest {
      *
      * @throws ServletException
      */
-    @Test
-    public void testNoPrincipalNoResolve() throws ServletException {
+    @Test public void testNoPrincipalNoResolve() throws ServletException {
         CasHandler handler = createHandler();
         HandlerResult result = handler
                 .getNormalizedToken(createServletRequest(false), mock(HttpServletResponse.class),
-                        new ProxyFilterChain(null),
-                        false);
+                        new ProxyFilterChain(null), false);
         // NO_ACTION due to resolve being false
         assertEquals(HandlerResult.Status.NO_ACTION, result.getStatus());
     }
@@ -75,13 +71,11 @@ public class CasHandlerTest {
      *
      * @throws ServletException
      */
-    @Test
-    public void testPrincipalNoResolve() throws ServletException {
+    @Test public void testPrincipalNoResolve() throws ServletException {
         CasHandler handler = createHandler();
         HandlerResult result = handler
                 .getNormalizedToken(createServletRequest(true), mock(HttpServletResponse.class),
-                        new ProxyFilterChain(null),
-                        false);
+                        new ProxyFilterChain(null), false);
         assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
     }
 
@@ -92,15 +86,13 @@ public class CasHandlerTest {
      * @throws ServletException
      * @throws IOException
      */
-    @Test
-    public void testNoPrincipalResolve() throws ServletException, IOException {
+    @Test public void testNoPrincipalResolve() throws ServletException, IOException {
         CasHandler handler = createHandler();
         Filter testFilter = mock(Filter.class);
         handler.setProxyFilter(new ProxyFilter(Arrays.asList(testFilter)));
         HandlerResult result = handler
                 .getNormalizedToken(createServletRequest(false), mock(HttpServletResponse.class),
-                        new ProxyFilterChain(null),
-                        true);
+                        new ProxyFilterChain(null), true);
         assertEquals(HandlerResult.Status.REDIRECTED, result.getStatus());
         // verify that the filter was called once
         verify(testFilter).doFilter(any(ServletRequest.class), any(ServletResponse.class),
@@ -114,19 +106,12 @@ public class CasHandlerTest {
      * @throws ServletException
      * @throws IOException
      */
-    @Test
-    public void testPrincipalResolve() throws ServletException, IOException {
+    @Test public void testPrincipalResolve() throws ServletException, IOException {
         CasHandler handler = createHandler();
-        Filter testFilter = mock(Filter.class);
-        handler.setProxyFilter(new ProxyFilter(Arrays.asList(testFilter)));
         HandlerResult result = handler
                 .getNormalizedToken(createServletRequest(true), mock(HttpServletResponse.class),
-                        new ProxyFilterChain(null),
-                        true);
+                        new ProxyFilterChain(null), true);
         assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
-        // verify that the filter was never called
-        verify(testFilter, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class),
-                any(FilterChain.class));
     }
 
     /**
@@ -136,65 +121,22 @@ public class CasHandlerTest {
      * @throws ServletException
      * @throws IOException
      */
-    @Test
-    public void testCachedPrincipalResolve() throws ServletException, IOException {
+    @Test public void testCachedPrincipalResolve() throws ServletException, IOException {
         CasHandler handler = createHandler();
-        Filter testFilter = mock(Filter.class);
-        handler.setProxyFilter(new ProxyFilter(Arrays.asList(testFilter)));
+        HttpServletRequest servletRequest = createServletRequest(true);
+        HttpSession session = servletRequest.getSession();
         HandlerResult result = handler
-                .getNormalizedToken(createServletRequest(true), mock(HttpServletResponse.class),
-                        new ProxyFilterChain(null),
-                        true);
+                .getNormalizedToken(servletRequest, mock(HttpServletResponse.class),
+                        new ProxyFilterChain(null), true);
         assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
 
         // now check for caching sessions
-        result = handler
-                .getNormalizedToken(createServletRequest(false), mock(HttpServletResponse.class),
-                        new ProxyFilterChain(null),
-                        true);
-        assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
-
-        // verify that the filter was never called
-        verify(testFilter, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class),
-                any(FilterChain.class));
-    }
-
-    /**
-     * Tests that the handler properly returns a COMPLETED result from having a cached session that
-     * contains the CAS assertion. The cached session is retrieved from a cookie.
-     *
-     * @throws ServletException
-     * @throws IOException
-     */
-    @Test
-    public void testCachedCookiePrincipalResolve() throws ServletException, IOException {
-        CasHandler handler = createHandler();
-        Filter testFilter = mock(Filter.class);
-        handler.setProxyFilter(new ProxyFilter(Arrays.asList(testFilter)));
-        HandlerResult result = handler
-                .getNormalizedToken(createServletRequest(true), mock(HttpServletResponse.class),
-                        new ProxyFilterChain(null),
-                        true);
-        assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
-
-        // now check for caching sessions
-        HttpServletRequest servletRequest = mock(HttpServletRequest.class);
-        HttpSession session = mock(HttpSession.class);
-        when(session.getId()).thenReturn("OTHER");
+        servletRequest = createServletRequest(false);
         when(servletRequest.getSession()).thenReturn(session);
         when(servletRequest.getSession(any(Boolean.class))).thenReturn(session);
-        Cookie[] cookieArray = {new Cookie("JSESSIONID", SESSION_ID)};
-        when(servletRequest.getCookies()).thenReturn(cookieArray);
-
-        result = handler
-                .getNormalizedToken(servletRequest, mock(HttpServletResponse.class),
-                        new ProxyFilterChain(null),
-                        true);
+        result = handler.getNormalizedToken(servletRequest, mock(HttpServletResponse.class),
+                new ProxyFilterChain(null), true);
         assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
-
-        // verify that the filter was never called
-        verify(testFilter, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class),
-                any(FilterChain.class));
     }
 
     private CasHandler createHandler() {
@@ -202,6 +144,8 @@ public class CasHandlerTest {
         STSClientConfiguration clientConfiguration = new STSClientConfigurationImpl();
         clientConfiguration.setAddress(STS_ADDRESS);
         handler.setClientConfiguration(clientConfiguration);
+        Filter testFilter = mock(Filter.class);
+        handler.setProxyFilter(new ProxyFilter(Arrays.asList(testFilter)));
         return handler;
     }
 
@@ -217,9 +161,8 @@ public class CasHandlerTest {
             when(session.getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION)).thenReturn(assertion);
             AttributePrincipal principal = mock(AttributePrincipal.class);
             when(principal.getProxyTicketFor(STS_ADDRESS)).thenReturn(MOCK_TICKET);
-            when(principal.getProxyTicketFor(not(eq(STS_ADDRESS))))
-                    .thenThrow(
-                            new RuntimeException("Tried to create ticket for incorrect service."));
+            when(principal.getProxyTicketFor(not(eq(STS_ADDRESS)))).thenThrow(
+                    new RuntimeException("Tried to create ticket for incorrect service."));
             when(assertion.getPrincipal()).thenReturn(principal);
         }
         return servletRequest;

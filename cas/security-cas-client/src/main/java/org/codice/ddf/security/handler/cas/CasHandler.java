@@ -14,8 +14,6 @@
  **/
 package org.codice.ddf.security.handler.cas;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
@@ -35,18 +33,14 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Authentication Handler for CAS. Runs through CAS filter chain if no CAS ticket is present.
  */
 public class CasHandler implements AuthenticationHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CasHandler.class);
-
     /**
      * CAS type to use when configuring context policy.
      */
@@ -54,25 +48,20 @@ public class CasHandler implements AuthenticationHandler {
 
     public static final String SOURCE = "CASHandler";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CasHandler.class);
+
     protected String realm = BaseAuthenticationToken.DEFAULT_REALM;
 
     private STSClientConfiguration clientConfiguration;
 
     private ProxyFilter proxyFilter;
 
-    // default session timeout is 5 minutes
-    private Cache<String, Assertion> cache = CacheBuilder.newBuilder()
-            .expireAfterWrite(5,
-                    TimeUnit.MINUTES).removalListener(new RemovalListenerLogger()).build();
-
-    @Override
-    public String getAuthenticationType() {
+    @Override public String getAuthenticationType() {
         return AUTH_TYPE;
     }
 
-    @Override
-    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
-            FilterChain chain, boolean resolve) throws ServletException {
+    @Override public HandlerResult getNormalizedToken(ServletRequest request,
+            ServletResponse response, FilterChain chain, boolean resolve) throws ServletException {
 
         // Default to NO_ACTION and set the source as this handler
         HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
@@ -84,6 +73,12 @@ public class CasHandler implements AuthenticationHandler {
         LOGGER.debug("Doing CAS authentication and authorization for path {}", path);
 
         // if the request contains the principal, return it
+        try {
+            proxyFilter.doFilter(request, response, new ProxyFilterChain(null));
+        } catch (IOException e) {
+            throw new ServletException(e);
+        }
+
         Assertion assertion = getAssertion(httpRequest);
         if (assertion != null) {
             LOGGER.debug("Found previous CAS attribute, using that same session.");
@@ -94,7 +89,6 @@ public class CasHandler implements AuthenticationHandler {
                 //update cache with new information
                 LOGGER.debug("Adding new CAS assertion for session {}",
                         httpRequest.getSession(false).getId());
-                cache.put(httpRequest.getSession(false).getId(), assertion);
                 httpRequest.getSession(false)
                         .setAttribute(AbstractCasFilter.CONST_CAS_ASSERTION, assertion);
                 LOGGER.debug("Successfully set authentication token, returning result with token.");
@@ -103,14 +97,9 @@ public class CasHandler implements AuthenticationHandler {
             }
         } else {
             if (resolve) {
-                try {
-                    LOGGER.debug(
-                            "Calling cas authentication and validation filters to perform redirects.");
-                    proxyFilter.doFilter(request, response, new ProxyFilterChain(null));
-                    handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
-                } catch (IOException e) {
-                    throw new ServletException(e);
-                }
+                LOGGER.debug(
+                        "Calling cas authentication and validation filters to perform redirects.");
+                handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
             } else {
                 LOGGER.warn(
                         "No cas authentication information found and resolve is not enabled, returning NO_ACTION.");
@@ -120,9 +109,8 @@ public class CasHandler implements AuthenticationHandler {
         return handlerResult;
     }
 
-    @Override
-    public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
-            FilterChain chain) throws ServletException {
+    @Override public HandlerResult handleError(ServletRequest servletRequest,
+            ServletResponse servletResponse, FilterChain chain) throws ServletException {
         HandlerResult handlerResult;
         LOGGER.warn("handleError was called on the CasHandler, cannot do anything.");
         handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
@@ -170,21 +158,6 @@ public class CasHandler implements AuthenticationHandler {
             if (session.getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION) != null) {
                 LOGGER.debug("Found CAS assertion in session.");
                 return (Assertion) session.getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);
-            } else if (cache.getIfPresent(session.getId()) != null) {
-                LOGGER.debug("Found CAS assertion in cached session with id {}", session.getId());
-                // check to see if session was cached
-                return cache.getIfPresent(session.getId());
-            }
-        }
-        if (request.getCookies() != null) {
-            // check cookies to see if there is a previous session is in there
-            for (Cookie curCookie : request.getCookies()) {
-                if (cache.getIfPresent(curCookie.getValue()) != null) {
-                    LOGGER.debug(
-                            "Found CAS assertion in cookie-based cached session with name:value - {}:{}",
-                            curCookie.getName(), curCookie.getValue());
-                    return cache.getIfPresent(curCookie.getValue());
-                }
             }
         }
         return null;
@@ -206,12 +179,12 @@ public class CasHandler implements AuthenticationHandler {
         this.proxyFilter = proxyFilter;
     }
 
-    public void setRealm(String realm) {
-        this.realm = realm;
-    }
-
     public String getRealm() {
         return realm;
+    }
+
+    public void setRealm(String realm) {
+        this.realm = realm;
     }
 
     /**
@@ -219,12 +192,10 @@ public class CasHandler implements AuthenticationHandler {
      */
     private static class RemovalListenerLogger implements RemovalListener<String, Assertion> {
 
-        @Override
-        public void onRemoval(RemovalNotification<String, Assertion> notification) {
+        @Override public void onRemoval(RemovalNotification<String, Assertion> notification) {
             if (notification.getCause().equals(RemovalCause.EXPIRED)) {
                 LOGGER.debug("Cached CAS assertion for session with id {} has expired.",
-                        notification.getKey(),
-                        notification.getValue());
+                        notification.getKey(), notification.getValue());
             }
         }
     }
