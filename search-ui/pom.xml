@@ -28,7 +28,7 @@
     <packaging>pom</packaging>
     
     <properties>
-	    <ddf.httpproxy.version>1.0.1</ddf.httpproxy.version>
+	    <ddf.httpproxy.version>1.0.2-SNAPSHOT</ddf.httpproxy.version>
 	</properties>
 	
     <modules>
