@@ -20,6 +20,7 @@ import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -101,7 +102,10 @@ public class LoginFilter implements Filter {
 
     private final Object lock = new Object();
 
-    private int expirationTime;
+    /**
+     * Default expiration value is 31 minutes
+     */
+    private int expirationTime = 31;
 
     public LoginFilter() {
         super();
@@ -145,7 +149,7 @@ public class LoginFilter implements Filter {
             Subject subject = validateRequest(httpRequest, httpResponse);
             if (subject != null) {
                 httpRequest.setAttribute(SecurityConstants.SECURITY_SUBJECT, subject);
-                LOGGER.debug("Now performing request as user {}", subject.getPrincipal());
+                LOGGER.debug("Now performing request as user {} for {}", subject.getPrincipal(), StringUtils.isNotBlank(httpRequest.getContextPath()) ? httpRequest.getContextPath() : httpRequest.getServletPath());
                 SecurityLogger.logDebug("Executing request as user: " + subject.getPrincipal());
                 subject.execute(new Callable<Object>() {
 
