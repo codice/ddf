@@ -132,7 +132,7 @@
                                 {{else}}
                                     {{#isUrl this}}
                                     <td>
-                                        <a target='blank' title="{{propertyTitle @key}}" href='{{safeString this}}'>{{safeString this}}</a>
+                                        <a target='_blank' title="{{propertyTitle @key}}" href='{{safeString this}}'>{{safeString this}}</a>
                                     </td>
                                     {{else}}
                                     <td>{{safeString this}}</td>
@@ -146,7 +146,7 @@
                         <tr>
                             <td>Metadata</td>
                             <td>
-                                <a target='blank' title="Download Metadata"
+                                <a target='_blank' title="Download Metadata"
                                    href='/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=metadata'>
                                     View</a>
                             </td>
@@ -176,7 +176,7 @@
                     {{#each actions}}
                          <tr>
                              <td>
-                                 <a target='_blank' title="{{description}}" href='{{safeString url}}'>{{title}}</a>
+                                 <a class="metacard-action-link" title="{{description}}" href='#{{@index}}'>{{title}}</a>
                              </td>
                          </tr>
                     {{else}}

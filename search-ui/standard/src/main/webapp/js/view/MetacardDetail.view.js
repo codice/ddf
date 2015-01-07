@@ -20,14 +20,21 @@ define([
         'maptype',
         'wreqr',
         'cometdinit',
-        'text!templates/metacard.handlebars'
+        'text!templates/metacard.handlebars',
+        'js/view/Modal',
+        'text!templates/metacardActionModal.handlebars'
     ],
-    function ($, _, Marionette, ich, dir, maptype, wreqr, Cometd, metacardTemplate) {
+    function ($, _, Marionette, ich, dir, maptype, wreqr, Cometd, metacardTemplate, Modal, metacardActionTemplate) {
         "use strict";
 
         var Metacard = {};
 
         ich.addTemplate('metacardTemplate', metacardTemplate);
+        ich.addTemplate('metacardActionTemplate', metacardActionTemplate);
+
+        Metacard.ActionModal = Modal.extend({
+            template: 'metacardActionTemplate'
+        });
 
         Metacard.MetacardDetailView = Marionette.ItemView.extend({
             className : 'slide-animate',
@@ -36,7 +43,8 @@ define([
                 'click .location-link': 'viewLocation',
                 'click .nav-tabs' : 'onTabClick',
                 'click #prevRecord' : 'previousRecord',
-                'click #nextRecord' : 'nextRecord'
+                'click #nextRecord' : 'nextRecord',
+                'click .metacard-action-link' : 'metacardActionModal'
             },
             modelEvents: {
                 'change': 'render'
@@ -117,6 +125,13 @@ define([
                     });
                     wreqr.vent.trigger('metacard:selected', dir.upward, this.nextModel.get("metacard"));
                 }
+            },
+            metacardActionModal: function (e) {
+                var index = e.target.hash.replace('#', '');
+                var action = this.model.get('actions').at(index);
+                var modal = new Metacard.ActionModal({model: action});
+
+                wreqr.vent.trigger('showModal', modal);
             }
         });
 

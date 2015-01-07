@@ -1476,3 +1476,10 @@ a.pause:hover, a.pause:focus {
     position: relative;
     overflow: hidden;
 }
+.modal-iframe-body {
+    height: 80%;
+    height: calc(100% - 60px);
+}
+.modal-iframe-content {
+    height: 500px;
+}
