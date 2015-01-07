@@ -32,15 +32,15 @@ public class MetacardMapperImpl implements MetacardMapper {
     
     private String featureType;
     
-    BidiMap<String, String> bidiMap;
+    private BidiMap<String, String> bidiMap;
     
-    String dataUnit;
+    private String dataUnit;
     
-    String sortByTemporalFeatureProperty;
+    private String sortByTemporalFeatureProperty;
     
-    String sortByRelevanceFeatureProperty;
+    private String sortByRelevanceFeatureProperty;
     
-    String sortByDistanceFeatureProperty;
+    private String sortByDistanceFeatureProperty;
     
  
     public MetacardMapperImpl() {
