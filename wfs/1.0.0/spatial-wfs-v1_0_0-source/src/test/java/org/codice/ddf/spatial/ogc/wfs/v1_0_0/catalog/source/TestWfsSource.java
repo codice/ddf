@@ -273,6 +273,13 @@ public class TestWfsSource {
 
         source = new WfsSource(mockWfs, new GeotoolsFilterAdapterImpl(), mockContext,
                 mockAvailabilityTask);
+
+    }
+
+    @Test
+    public void testAvailability() throws WfsException {
+        setUp(NO_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
+        assertTrue(source.isAvailable());
     }
 
     @Test(expected = UnsupportedQueryException.class)
