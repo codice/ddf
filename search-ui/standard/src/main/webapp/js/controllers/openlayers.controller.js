@@ -53,34 +53,25 @@ define(['underscore',
                 var map;
                 if (properties.imageryProviders) {
                     var layers = [];
-                    _.each(properties.imageryProviders, function (item) {
-                        var imageryProvider;
-                        try {
-                            imageryProvider = $.parseJSON(item);
-                        } catch (e) {
-                            if (typeof console !== 'undefined') {
-                                console.error('Unable to parse imagery provider configuration:', item, e);
-                            }
-                        }
-
+                    _.each(properties.imageryProviders, function (imageryProvider) {
                         if (imageryProvider) {
-                            var key = Object.keys(imageryProvider)[0];
-                            var type = imageryProviderTypes[key];
-                            var initObj = imageryProvider[key];
+                            var type = imageryProviderTypes[imageryProvider.type];
+                            var initObj = _.omit(imageryProvider, 'type');
 
-                            if (key === 'OSM') {
+                            if (imageryProvider.type === 'OSM') {
                                 if (initObj.url && initObj.url.indexOf('/{z}/{x}/{y}') === -1) {
                                     initObj.url = initObj.url + '/{z}/{x}/{y}.png';
                                 }
-                            } else if (key === 'BM') {
+                            } else if (imageryProvider.type === 'BM') {
                                 if (!initObj.imagerySet) {
                                     initObj.imagerySet = initObj.url;
                                 }
-                            } else if (key === 'WMS') {
+                            } else if (imageryProvider.type === 'WMS') {
                                 if (!initObj.params) {
                                     initObj.params = {
-                                        layers: initObj.layers
+                                        LAYERS: initObj.layers
                                     };
+                                    _.extend(initObj.params, initObj.parameters);
                                 }
                             }
                             layers.push(new ol.layer.Tile({

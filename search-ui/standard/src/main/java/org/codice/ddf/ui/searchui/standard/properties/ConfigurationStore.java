@@ -17,8 +17,6 @@ package org.codice.ddf.ui.searchui.standard.properties;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.BinaryContentImpl;
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
 import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -27,6 +25,11 @@ import org.codice.proxy.http.HttpProxyService;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.bpsm.edn.EdnIOException;
+import us.bpsm.edn.EdnSyntaxException;
+import us.bpsm.edn.parser.Parseable;
+import us.bpsm.edn.parser.Parser;
+import us.bpsm.edn.parser.Parsers;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -46,6 +49,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import static org.boon.Boon.toJson;
+import static us.bpsm.edn.parser.Parsers.defaultConfiguration;
+
 /**
  * Stores external configuration properties.
  *
@@ -64,15 +70,15 @@ public class ConfigurationStore {
 
     private String format;
 
-    private List<String> imageryProviders = new ArrayList<String>();
+    private List<String> imageryProviders = new ArrayList<>();
 
-    private List<String> proxiedImageryProviders = new ArrayList<String>();
+    private List<Map<String, Object>> proxiedImageryProviders = new ArrayList<>();
 
     private String terrainProvider;
 
-    private String proxiedTerrainProvider;
+    private Map<String, Object> proxiedTerrainProvider;
 
-    private List<String> imageryEndpoints = new ArrayList<String>();
+    private List<String> imageryEndpoints = new ArrayList<>();
 
     private String terrainEndpoint;
 
@@ -145,25 +151,24 @@ public class ConfigurationStore {
     @GET
     @Path("/config")
     public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
-
         Response response;
-        JSONObject configObj = new JSONObject();
+        Map<String, Object> config = new HashMap<>();
 
-        configObj.put("branding", getProductName());
-        configObj.put("version", getProductVersion());
-        configObj.put("showWelcome", isSignIn);
-        configObj.put("showTask", isTask);
-        configObj.put("format", format);
-        configObj.put("timeout", timeout);
-        configObj.put("resultCount", resultCount);
-        configObj.put("typeNameMapping", typeNameMapping);
-        configObj.put("terrainProvider", proxiedTerrainProvider);
-        configObj.put("imageryProviders", proxiedImageryProviders);
-        configObj.put("gazetteer", isGazetteer);
-        configObj.put("showIngest", isIngest);
+        config.put("branding", getProductName());
+        config.put("version", getProductVersion());
+        config.put("showWelcome", isSignIn);
+        config.put("showTask", isTask);
+        config.put("format", format);
+        config.put("timeout", timeout);
+        config.put("resultCount", resultCount);
+        config.put("typeNameMapping", typeNameMapping);
+        config.put("terrainProvider", proxiedTerrainProvider);
+        config.put("imageryProviders", proxiedImageryProviders);
+        config.put("gazetteer", isGazetteer);
+        config.put("showIngest", isIngest);
 
-        String configString = JSONValue.toJSONString(configObj);
-        BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configString.getBytes()),
+        String configJson = toJson(config);
+        BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configJson.getBytes()),
                 JSON_MIME_TYPE);
         response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
 
@@ -212,7 +217,7 @@ public class ConfigurationStore {
         this.timeout = timeout;
     }
 
-    public List<String> getProxiedImageryProviders() {
+    public List<Map<String, Object>> getProxiedImageryProviders() {
         return proxiedImageryProviders;
     }
 
@@ -238,7 +243,7 @@ public class ConfigurationStore {
         setProxiesForImagery(itemList);
     }
 
-    public String getProxiedTerrainProvider() {
+    public Map<String, Object> getProxiedTerrainProvider() {
         return proxiedTerrainProvider;
     }
 
@@ -264,7 +269,10 @@ public class ConfigurationStore {
         proxiedImageryProviders.clear();
 
         for(String provider : imageryProviders) {
-            proxiedImageryProviders.add(getProxiedProvider(provider, true));
+            Map<String, Object> proxiedProvider = getProxiedProvider(provider, true);
+            if (proxiedProvider != null) {
+                proxiedImageryProviders.add(proxiedProvider);
+            }
         }
     }
 
@@ -280,56 +288,46 @@ public class ConfigurationStore {
         proxiedTerrainProvider = getProxiedProvider(terrainProvider, false);
     }
 
-    private String getProxiedProvider(String provider, boolean imagery) {
+    private Map<String, Object> getProxiedProvider(String provider, boolean imagery) {
         if (StringUtils.isBlank(provider)) {
-            return "";
+            return null;
         }
-        int firstPartIdx = provider.indexOf("{");
-        int lastPartIdx = provider.indexOf("}");
-        String innerPart = provider.substring(firstPartIdx, lastPartIdx);
-        String[] providerParts = innerPart.split(";");
-        StringBuilder proxiedProviderParts = new StringBuilder();
-        for (String part : providerParts) {
-            if (part.contains(URL)) {
-                String url = part.substring(part.indexOf("=")+1);
 
-                try {
-                    bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
-                    incrementer++;
-                    String endpointName = httpProxy.start(bundleName, url, timeout);
-                    if (imagery) {
-                        imageryEndpoints.add(endpointName);
-                    } else {
-                        terrainEndpoint = endpointName;
-                    }
-                    proxiedProviderParts.append(QUOTE + URL + QUOTE + ":" + QUOTE + SERVLET_PATH + "/" + endpointName + QUOTE + ",");
-                } catch (Exception e) {
-                    LOGGER.error("Unable to configure proxy for: {}", url, e);
-                }
+        Parser parser = Parsers.newParser(defaultConfiguration());
+        Map<String, Object> config;
+        try {
+            Object value = parser.nextValue(Parsers.newParseable(provider));
+            if (value instanceof Map) {
+                config = new HashMap<String, Object>((Map) value);
             } else {
-                String[] parts = part.split("=");
-                if(parts.length == 2) {
-                    StringBuilder valuePart = new StringBuilder();
-                    if (parts[1].contains("|")) {
-                        String[] valueParts = parts[1].split("\\|");
-                        valuePart.append("[");
-                        for (String value : valueParts) {
-                            valuePart.append(value + ",");
-                        }
-                        valuePart.deleteCharAt(valuePart.length() - 1);
-                        valuePart.append("]");
-                    } else {
-                        valuePart.append(parts[1]);
-                    }
-                    proxiedProviderParts.append(QUOTE + parts[0] + QUOTE + ":" + QUOTE + valuePart + QUOTE + ",");
+                LOGGER.warn("Expected a map for provider configuration but got {} instead: {}",
+                        value.getClass().getName(), provider);
+                return null;
+            }
+        } catch (EdnSyntaxException|EdnIOException e) {
+            LOGGER.warn("Unable to parse provider configuration: " + provider, e);
+            return null;
+        }
+
+        if (config.containsKey(URL)) {
+            String url = config.get(URL).toString();
+
+            try {
+                bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
+                incrementer++;
+                String endpointName = httpProxy.start(bundleName, url, timeout);
+                if (imagery) {
+                    imageryEndpoints.add(endpointName);
                 } else {
-                    proxiedProviderParts.append(part + ",");
+                    terrainEndpoint = endpointName;
                 }
+                config.put(URL, SERVLET_PATH + "/" + endpointName);
+            } catch (Exception e) {
+                LOGGER.error("Unable to configure proxy for: {}", url, e);
             }
         }
 
-        String cleanProxiedProviders = proxiedProviderParts.deleteCharAt(proxiedProviderParts.lastIndexOf(",")).toString();
-        return "{" + QUOTE + provider.substring(0, firstPartIdx-1).replace("=", "") + QUOTE + ":{" + cleanProxiedProviders + "}}";
+        return config;
     }
 
 	public HttpProxyService getHttpProxy() {

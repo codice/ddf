@@ -23,14 +23,14 @@
         </AD>
         <AD name="Imagery Providers" id="imageryProviders"
             required="false" type="String" cardinality="10000"
-            description="List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). Example: TYPE={url=http://url;layers=layer1|layer2;alpha=0.5}"
-            default="OSM={url=http://otile1.mqcdn.com/tiles/1.0.0/map;fileExtension=jpg;alpha=1},OSM={url=http://otile1.mqcdn.com/tiles/1.0.0/sat;fileExtension=jpg;alpha=0.5}"
+            description='List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). Example: {"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}'
+            default='{"type" "OSM" "url" "http://otile1.mqcdn.com/tiles/1.0.0/map" "fileExtension" "jpg" "alpha" 1},{"type" "OSM" "url" "http://otile1.mqcdn.com/tiles/1.0.0/sat" "fileExtension" "jpg" "alpha" 0.5}'
                 />
 
         <AD name="Terrain Provider" id="terrainProvider"
             required="false" type="String"
-            description="Terrain provider to use for height data. Valid types are: CT (CesiumTerrain), AGS (ArcGisImageServer), VRW (VRTheWorld). Example: TYPE={url=http://url}"
-            default="CT={url=http://cesiumjs.org/stk-terrain/tilesets/world/tiles}"
+            description='Terrain provider to use for height data. Valid types are: CT (CesiumTerrain), AGS (ArcGisImageServer), VRW (VRTheWorld). Example: {"type" "CT" "url" "http://example.com"}'
+            default='{"type" "CT" "url" "http://cesiumjs.org/stk-terrain/tilesets/world/tiles"}'
                 />
 
         <AD description="Specifies the client-side connection timeout in milliseconds."

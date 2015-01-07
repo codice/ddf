@@ -71,19 +71,10 @@ define(['underscore',
                 };
 
                 if(properties.imageryProviders) {
-                    _.each(properties.imageryProviders, function(item) {
-                        var imageryProvider;
-                        try {
-                            imageryProvider = $.parseJSON(item);
-                        } catch (e) {
-                            if (typeof console !== 'undefined') {
-                                console.error('Unable to parse imagery provider configuration:', item, e);
-                            }
-                        }
+                    _.each(properties.imageryProviders, function(imageryProvider) {
                         if (imageryProvider) {
-                            var key = Object.keys(imageryProvider)[0];
-                            var type = imageryProviderTypes[key];
-                            var initObj = imageryProvider[key];
+                            var type = imageryProviderTypes[imageryProvider.type];
+                            var initObj = _.omit(imageryProvider, 'type');
                             if (!options.imageryProvider) {
                                 options.imageryProvider = new type(initObj);
                                 viewer = new Cesium.Viewer(mapDivId, options);
@@ -101,17 +92,9 @@ define(['underscore',
 
                     if (viewer) {
                         if (properties.terrainProvider) {
-                            try {
-                                var terrainProvider = $.parseJSON(properties.terrainProvider);
-                                var key = Object.keys(terrainProvider)[0];
-                                var type = imageryProviderTypes[key];
-                                var initObj = terrainProvider[key];
-                                viewer.scene.terrainProvider = new type(initObj);
-                            } catch (e) {
-                                if (typeof console !== 'undefined') {
-                                    console.error('Unable to parse terrain provider configuration:', properties.terrainProvider, e);
-                                }
-                            }
+                            var type = imageryProviderTypes[properties.terrainProvider.type];
+                            var initObj = _.omit(properties.terrainProvider, 'type');
+                            viewer.scene.terrainProvider = new type(initObj);
                         }
 
                         if (properties.gazetteer) {

@@ -22,6 +22,7 @@ import org.osgi.framework.BundleContext;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,9 +37,9 @@ public class ConfigurationStoreTest {
     
     private static final String PROXY_SERVER = "http://www.example.com/wms";
 
-    private static final List<String> IMAGERY_PROVIDERS = Arrays.asList("OSM={url=http://otile1.mqcdn.com/tiles/1.0.0/map;fileExtension=jpg;alpha=1}","OSM={url=http://otile1.mqcdn.com/tiles/1.0.0/sat;fileExtension=jpg;alpha=0.5}");
+    private static final List<String> IMAGERY_PROVIDERS = Arrays.asList("{\"type\" \"OSM\" \"url\" \"http://otile1.mqcdn.com/tiles/1.0.0/map\" \"fileExtension\" \"jpg\" \"alpha\" 1},{\"type\" \"OSM\" \"url\" \"http://otile1.mqcdn.com/tiles/1.0.0/sat\" \"fileExtension\" \"jpg\" \"alpha\" 0.5}");
 
-    private static final String TERRAIN_PROVIDER = "CT={url=http://cesiumjs.org/stk-terrain/tilesets/world/tiles}";
+    private static final String TERRAIN_PROVIDER = "{\"type\" \"CT\" \"url\" \"http://cesiumjs.org/stk-terrain/tilesets/world/tiles\"}";
 
     private static final String BUNDLE_SYMBOLIC_NAME = "mySymbolicName";
 
@@ -58,8 +59,8 @@ public class ConfigurationStoreTest {
         configurationStore.setImageryProviders(IMAGERY_PROVIDERS);
 
         // Verify
-        for(String provider : configurationStore.getProxiedImageryProviders()) {
-            assertTrue(provider.contains(PROXY_SERVER));
+        for (Map<String, Object> provider : configurationStore.getProxiedImageryProviders()) {
+            assertTrue(provider.get(ConfigurationStore.URL).toString().contains(PROXY_SERVER));
         }
     }
 
@@ -79,7 +80,8 @@ public class ConfigurationStoreTest {
         configurationStore.setTerrainProvider(TERRAIN_PROVIDER);
 
         // Verify
-        assertTrue(configurationStore.getProxiedTerrainProvider().contains(PROXY_SERVER));
+        assertTrue(configurationStore.getProxiedTerrainProvider().get(ConfigurationStore.URL)
+                .toString().contains(PROXY_SERVER));
     }
 
     @Test
