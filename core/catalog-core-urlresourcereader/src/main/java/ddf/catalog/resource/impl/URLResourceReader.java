@@ -184,6 +184,7 @@ public class URLResourceReader implements ResourceReader {
 
         if (properties.containsKey(BYTES_TO_SKIP)) {
             bytesToSkip = properties.get(BYTES_TO_SKIP).toString();
+            logger.debug("bytesToSkip: {}", bytesToSkip);
         }
 
         if (resourceURI.getScheme().equals(URL_HTTP_SCHEME)
