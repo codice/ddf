@@ -304,12 +304,16 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                         } else {
                             LOGGER.warn("AnonymousInterceptor does not support the policies presented by the endpoint.");
                         }
-
-                        try {
-                            //Add security header to SOAP message
-                            soapMessage.getSOAPHeader().addChildElement(securityHeader);
-                        } catch (SOAPException e) {
-                            LOGGER.error("Issue when adding security header to SOAP message.");
+                        
+                        if (securityHeader != null) {
+                            try {
+                                // Add security header to SOAP message
+                                soapMessage.getSOAPHeader().addChildElement(securityHeader);
+                            } catch (SOAPException e) {
+                                LOGGER.error("Issue when adding security header to SOAP message.");
+                            }
+                        } else {
+                            LOGGER.debug("Security Header was null so not creating a SAML Assertion");
                         }
                     } else {
                         LOGGER.warn("Policy is null");
