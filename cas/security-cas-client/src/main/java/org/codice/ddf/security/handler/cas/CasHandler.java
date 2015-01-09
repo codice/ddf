@@ -56,12 +56,14 @@ public class CasHandler implements AuthenticationHandler {
 
     private ProxyFilter proxyFilter;
 
-    @Override public String getAuthenticationType() {
+    @Override
+    public String getAuthenticationType() {
         return AUTH_TYPE;
     }
 
-    @Override public HandlerResult getNormalizedToken(ServletRequest request,
-            ServletResponse response, FilterChain chain, boolean resolve) throws ServletException {
+    @Override
+    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
+            FilterChain chain, boolean resolve) throws ServletException {
 
         // Default to NO_ACTION and set the source as this handler
         HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
@@ -109,8 +111,9 @@ public class CasHandler implements AuthenticationHandler {
         return handlerResult;
     }
 
-    @Override public HandlerResult handleError(ServletRequest servletRequest,
-            ServletResponse servletResponse, FilterChain chain) throws ServletException {
+    @Override
+    public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
+            FilterChain chain) throws ServletException {
         HandlerResult handlerResult;
         LOGGER.warn("handleError was called on the CasHandler, cannot do anything.");
         handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
@@ -192,7 +195,8 @@ public class CasHandler implements AuthenticationHandler {
      */
     private static class RemovalListenerLogger implements RemovalListener<String, Assertion> {
 
-        @Override public void onRemoval(RemovalNotification<String, Assertion> notification) {
+        @Override
+        public void onRemoval(RemovalNotification<String, Assertion> notification) {
             if (notification.getCause().equals(RemovalCause.EXPIRED)) {
                 LOGGER.debug("Cached CAS assertion for session with id {} has expired.",
                         notification.getKey(), notification.getValue());

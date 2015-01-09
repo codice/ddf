@@ -57,7 +57,8 @@ public class CasHandlerTest {
      *
      * @throws ServletException
      */
-    @Test public void testNoPrincipalNoResolve() throws ServletException {
+    @Test
+    public void testNoPrincipalNoResolve() throws ServletException {
         CasHandler handler = createHandler();
         HandlerResult result = handler
                 .getNormalizedToken(createServletRequest(false), mock(HttpServletResponse.class),
@@ -71,7 +72,8 @@ public class CasHandlerTest {
      *
      * @throws ServletException
      */
-    @Test public void testPrincipalNoResolve() throws ServletException {
+    @Test
+    public void testPrincipalNoResolve() throws ServletException {
         CasHandler handler = createHandler();
         HandlerResult result = handler
                 .getNormalizedToken(createServletRequest(true), mock(HttpServletResponse.class),
@@ -86,7 +88,8 @@ public class CasHandlerTest {
      * @throws ServletException
      * @throws IOException
      */
-    @Test public void testNoPrincipalResolve() throws ServletException, IOException {
+    @Test
+    public void testNoPrincipalResolve() throws ServletException, IOException {
         CasHandler handler = createHandler();
         Filter testFilter = mock(Filter.class);
         handler.setProxyFilter(new ProxyFilter(Arrays.asList(testFilter)));
@@ -106,7 +109,8 @@ public class CasHandlerTest {
      * @throws ServletException
      * @throws IOException
      */
-    @Test public void testPrincipalResolve() throws ServletException, IOException {
+    @Test
+    public void testPrincipalResolve() throws ServletException, IOException {
         CasHandler handler = createHandler();
         HandlerResult result = handler
                 .getNormalizedToken(createServletRequest(true), mock(HttpServletResponse.class),
@@ -121,7 +125,8 @@ public class CasHandlerTest {
      * @throws ServletException
      * @throws IOException
      */
-    @Test public void testCachedPrincipalResolve() throws ServletException, IOException {
+    @Test
+    public void testCachedPrincipalResolve() throws ServletException, IOException {
         CasHandler handler = createHandler();
         HttpServletRequest servletRequest = createServletRequest(true);
         HttpSession session = servletRequest.getSession();
