@@ -94,11 +94,9 @@ public class URLResourceReader implements ResourceReader {
      * Default URLResourceReader constructor.
      */
     public URLResourceReader() {
-        logger.debug("INSIDE: resource-impl.URLResourceReader default constructor");
     }
 
     public URLResourceReader(MimeTypeMapper mimeTypeMapper) {
-        logger.debug("INSIDE: resource-impl.URLResourceReader constructor to set mimeTypeMapper");
         if (mimeTypeMapper == null) {
             logger.debug("mimeTypeMapper is NULL");
         }
@@ -158,7 +156,6 @@ public class URLResourceReader implements ResourceReader {
     }
 
     public void setMimeTypeMapper(MimeTypeMapper mimeTypeMapper) {
-        logger.debug("Setting mimeTypeMapper");
         this.mimeTypeMapper = mimeTypeMapper;
     }
 
@@ -217,11 +214,9 @@ public class URLResourceReader implements ResourceReader {
     private ResourceResponse doRetrieveProduct(URI resourceURI, String productName, String bytesToSkip)
             throws IOException, ResourceNotFoundException {
 
-        logger.entry();
         try {
             URLConnection connection = null;
 
-            logger.debug("Creating URL for path: {}", resourceURI.getPath());
             URL url = resourceURI.toURL();
             logger.debug("Opening connection to: {}", resourceURI.toString());
 
@@ -360,7 +355,6 @@ public class URLResourceReader implements ResourceReader {
 
     @Override
     public Set<String> getOptions(Metacard metacard) {
-        logger.trace("ENTERING/EXITING: getOptions");
         logger.debug("URLResourceReader getOptions doesn't support options, returning empty set.");
         return Collections.emptySet();
     }
