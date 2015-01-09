@@ -16,7 +16,7 @@
 
 	<OCD description="STS Configuration" name="Security STS Server" id="ddf.security.sts">
 
-        <AD name="SAML Assertion Lifetime:" id="lifetime" required="true" type="Integer"
+        <AD name="SAML Assertion Lifetime:" id="lifetime" required="true" type="Long"
             default="1800"
             description="Set the number of seconds that an issued SAML assertion will be good for.">
         </AD>

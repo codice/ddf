@@ -37,10 +37,6 @@ public class PropertyPlaceholderWrapper {
 
     public static final String STS_ENCRYPTION_USERNAME = "encryptionUsername";
 
-    private final Logger LOGGER = LoggerFactory.getLogger(PropertyPlaceholderWrapper.class);
-
-    private Map<String, String> stsMap;
-
     private DefaultConditionsProvider samlConditionsProvider;
 
     private StaticSTSProperties stsProperties;
@@ -51,11 +47,10 @@ public class PropertyPlaceholderWrapper {
         stsProperties = properties;
     }
 
-    public void setStsMap(Map<String, String> map) {
-        stsMap = map;
-        samlConditionsProvider.setLifetime(Long.parseLong(stsMap.get(STS_LIFETIME)));
-        stsProperties.setSignatureUsername(STS_SIGNATURE_USERNAME);
-        stsProperties.setIssuer(STS_ISSUER);
-        stsProperties.setEncryptionUsername(STS_ENCRYPTION_USERNAME);
+    public void setStsMap(Map<String, Object> map) {
+        samlConditionsProvider.setLifetime((Long)map.get(STS_LIFETIME));
+        stsProperties.setSignatureUsername(String.valueOf(map.get(STS_SIGNATURE_USERNAME)));
+        stsProperties.setIssuer(String.valueOf(map.get(STS_ISSUER)));
+        stsProperties.setEncryptionUsername(String.valueOf(map.get(STS_ENCRYPTION_USERNAME)));
     }
 }
