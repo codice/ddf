@@ -27,7 +27,7 @@
   <packaging>bundle</packaging>
   
   <properties>
-        <ddf.catalog.app.version>2.6.0</ddf.catalog.app.version>
+        <ddf.catalog.app.version>2.7.0-SNAPSHOT</ddf.catalog.app.version>
   </properties>
   
   <dependencies>
