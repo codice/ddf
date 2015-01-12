@@ -227,7 +227,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
      * 
      */
     public void init() {
-              setupAvailabilityPoll();
+        setupAvailabilityPoll();
     }
 
     public void destroy() {
