@@ -326,6 +326,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             } else {
                 availabilityTask.setInterval(interval);
             }
+            // Run the availability check immediately prior to scheduling it in a thread.
+            // This is necessary to allow the catalog framework to have the correct
+            // availability when the source is bound
+            availabilityTask.run();
             // Run the availability check every 1 second. The actually call to
             // the remote server will only occur if the pollInterval has
             // elapsed.

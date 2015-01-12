@@ -280,7 +280,15 @@ public class TestWfsSource {
         return new WfsSource(mockWfs, new GeotoolsFilterAdapterImpl(), mockContext,
                 mockAvailabilityTask);
     }
-    
+
+    @Test
+    public void testAvailability() throws WfsException {
+        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
+                MockWfsServer.getFilterCapabilities(),
+                Wfs20Constants.EPSG_4326_URN, 1);
+        assertTrue(source.isAvailable());
+    }
+
     @Test
     public void testParseCapabilities() throws WfsException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
