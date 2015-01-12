@@ -16,11 +16,12 @@ define([
         'backbone',
         'openlayers',
         'underscore',
+        'properties',
         'wreqr',
         'maptype',
         './notification.view'
     ],
-    function (Marionette, Backbone, ol, _, wreqr, maptype, NotificationView) {
+    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView) {
         "use strict";
 
         var Draw = {};
@@ -45,7 +46,7 @@ define([
 
                 _.each(coords, function (item) {
                     _.each(item, function (point) {
-                        coordinates.push(ol.proj.transform([point[0], point[1]], 'EPSG:3857', 'EPSG:4326'));
+                        coordinates.push(ol.proj.transform([point[0], point[1]], properties.projection, 'EPSG:4326'));
                     });
                 });
 
@@ -59,7 +60,7 @@ define([
                 var coords = [];
                 if (polygon) {
                     _.each(polygon, function (item) {
-                        coords.push(ol.proj.transform([item[0], item[1]], 'EPSG:4326', 'EPSG:3857'));
+                        coords.push(ol.proj.transform([item[0], item[1]], 'EPSG:4326', properties.projection));
                     });
                 }
 

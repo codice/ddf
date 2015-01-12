@@ -17,9 +17,10 @@ define([
         'underscore',
         'openlayers',
         'direction',
+        'properties',
         'wreqr'
     ],
-    function (Backbone, Marionette, _, ol, dir, wreqr) {
+    function (Backbone, Marionette, _, ol, dir, properties, wreqr) {
         "use strict";
         var Views = {};
 
@@ -54,8 +55,7 @@ define([
             buildBillboard: function () {
                 var point = this.model.get('geometry').getPoint();
                 this.billboard = new ol.Feature({
-                    geometry: new ol.geom.Point(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326',
-                        'EPSG:3857'))
+                    geometry: new ol.geom.Point(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection))
                 });
 
                 var iconStyle = new ol.style.Style({
@@ -122,7 +122,7 @@ define([
                 var points = this.model.get('geometry').getMultiPoint();
                 var coords = [];
                 _.each(points, function(point) {
-                    coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', 'EPSG:3857'));
+                    coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection));
                 });
                 this.billboard = new ol.Feature({
                     geometry: new ol.geom.MultiPoint(coords)
@@ -159,7 +159,7 @@ define([
                 var points = this.model.get('geometry').getLineString();
                 var coords = [];
                 _.each(points, function(point) {
-                    coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', 'EPSG:3857'));
+                    coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection));
                 });
                 this.billboard = new ol.Feature({
                     geometry: new ol.geom.LineString(coords)
@@ -191,7 +191,7 @@ define([
                 _.each(points, function(line) {
                     coords = [];
                     _.each(line, function(point) {
-                        coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', 'EPSG:3857'));
+                        coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection));
                     });
                     mls.appendLineString(new ol.geom.LineString(coords));
                 });
@@ -225,7 +225,7 @@ define([
                 var points = this.model.get('geometry').getPolygon();
                 var coords = [];
                 _.each(points, function(point) {
-                    coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', 'EPSG:3857'));
+                    coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection));
                 });
                 this.billboard = new ol.Feature({
                     geometry: new ol.geom.LineString(coords)
@@ -257,7 +257,7 @@ define([
                 _.each(points, function(polygon) {
                     coords = [];
                     _.each(polygon, function (point) {
-                        coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', 'EPSG:3857'));
+                        coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection));
                     });
                     mpg.appendLineString(new ol.geom.LineString(coords));
                 });

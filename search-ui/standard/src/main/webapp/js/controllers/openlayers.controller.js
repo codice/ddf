@@ -87,7 +87,8 @@ define(['underscore',
                         layers: layers,
                         target: mapDivId,
                         view: new ol.View({
-                            center: [0, 0],
+                            projection: ol.proj.get(properties.projection),
+                            center: ol.proj.transform([0, 0], 'EPSG:4326', properties.projection),
                             zoom: 3
                         })
                     });
@@ -229,7 +230,7 @@ define(['underscore',
 
             flyToGeometry: function (geometry) {
                 var point = geometry.getPoint();
-                var location = ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', 'EPSG:3857');
+                var location = ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection);
                 var pan = ol.animation.pan({
                     duration: 2000,
                     source: /** @type {ol.Coordinate} */ (this.mapViewer.getView().getCenter())
@@ -248,8 +249,8 @@ define(['underscore',
                         }
                     });
                 } else if (rectangle.north && rectangle.south && rectangle.east && rectangle.west) {
-                    var northWest = ol.proj.transform([rectangle.west, rectangle.north], 'EPSG:4326', 'EPSG:3857');
-                    var southEast = ol.proj.transform([rectangle.east, rectangle.south], 'EPSG:4326', 'EPSG:3857');
+                    var northWest = ol.proj.transform([rectangle.west, rectangle.north], 'EPSG:4326', properties.projection);
+                    var southEast = ol.proj.transform([rectangle.east, rectangle.south], 'EPSG:4326', properties.projection);
                     var coords = [];
                     coords.push(northWest[0]);
                     coords.push(southEast[1]);

@@ -14,9 +14,10 @@ define([
         'backbone',
         'openlayers',
         'underscore',
+        'properties',
         'wreqr'
     ],
-    function (Marionette, Backbone, ol, _, wreqr) {
+    function (Marionette, Backbone, ol, _, properties, wreqr) {
         "use strict";
 
         var FilterGeometryGroup = {};
@@ -58,10 +59,10 @@ define([
             },
 
             modelToRectangle: function () {
-                var northWest = ol.proj.transform([this.model.get('west'), this.model.get('north')], 'EPSG:4326', 'EPSG:3857');
-                var northEast = ol.proj.transform([this.model.get('east'), this.model.get('north')], 'EPSG:4326', 'EPSG:3857');
-                var southWest = ol.proj.transform([this.model.get('west'), this.model.get('south')], 'EPSG:4326', 'EPSG:3857');
-                var southEast = ol.proj.transform([this.model.get('east'), this.model.get('south')], 'EPSG:4326', 'EPSG:3857');
+                var northWest = ol.proj.transform([this.model.get('west'), this.model.get('north')], 'EPSG:4326', properties.projection);
+                var northEast = ol.proj.transform([this.model.get('east'), this.model.get('north')], 'EPSG:4326', properties.projection);
+                var southWest = ol.proj.transform([this.model.get('west'), this.model.get('south')], 'EPSG:4326', properties.projection);
+                var southEast = ol.proj.transform([this.model.get('east'), this.model.get('south')], 'EPSG:4326', properties.projection);
                 var coords = [];
                 coords.push(northWest);
                 coords.push(northEast);
@@ -77,7 +78,7 @@ define([
                 var coords = [];
                 if (polygon) {
                     _.each(polygon, function (item) {
-                        coords.push(ol.proj.transform([item[0], item[1]], 'EPSG:4326', 'EPSG:3857'));
+                        coords.push(ol.proj.transform([item[0], item[1]], 'EPSG:4326', properties.projection));
                     });
                 }
 

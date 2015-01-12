@@ -106,6 +106,8 @@ public class ConfigurationStore {
     
     private String bundleName;
 
+    private String projection = "EPSG:3857";
+
     private Map<String, Set<String>> typeNameMapping = new HashMap<String, Set<String>>();
 
     public static final Factory NEW_SET_FACTORY = new Factory() {
@@ -166,6 +168,7 @@ public class ConfigurationStore {
         config.put("imageryProviders", proxiedImageryProviders);
         config.put("gazetteer", isGazetteer);
         config.put("showIngest", isIngest);
+        config.put("projection", projection);
 
         String configJson = toJson(config);
         BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configJson.getBytes()),
@@ -422,6 +425,14 @@ public class ConfigurationStore {
 
     public Map<String, Set<String>> getTypeNameMapping() {
         return typeNameMapping;
+    }
+
+    public String getProjection() {
+        return projection;
+    }
+
+    public void setProjection(String projection) {
+        this.projection = projection;
     }
 
 }

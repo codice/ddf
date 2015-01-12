@@ -16,11 +16,12 @@ define([
         'backbone',
         'openlayers',
         'underscore',
+        'properties',
         'wreqr',
         'maptype',
         './notification.view'
     ],
-    function (Marionette, Backbone, ol, _, wreqr, maptype, NotificationView) {
+    function (Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView) {
         "use strict";
 
         var Draw = {};
@@ -41,8 +42,8 @@ define([
 
                 var extent = geometry.getExtent();
 
-                var northWest = ol.proj.transform([extent[0], extent[3]], 'EPSG:3857', 'EPSG:4326');
-                var southEast = ol.proj.transform([extent[2], extent[1]], 'EPSG:3857', 'EPSG:4326');
+                var northWest = ol.proj.transform([extent[0], extent[3]], properties.projection, 'EPSG:4326');
+                var southEast = ol.proj.transform([extent[2], extent[1]], properties.projection, 'EPSG:4326');
 
                 this.model.set({
                     north: northWest[1],
@@ -53,10 +54,10 @@ define([
             },
 
             modelToRectangle: function (model) {
-                var northWest = ol.proj.transform([model.get('west'), model.get('north')], 'EPSG:4326', 'EPSG:3857');
-                var northEast = ol.proj.transform([model.get('east'), model.get('north')], 'EPSG:4326', 'EPSG:3857');
-                var southWest = ol.proj.transform([model.get('west'), model.get('south')], 'EPSG:4326', 'EPSG:3857');
-                var southEast = ol.proj.transform([model.get('east'), model.get('south')], 'EPSG:4326', 'EPSG:3857');
+                var northWest = ol.proj.transform([model.get('west'), model.get('north')], 'EPSG:4326', properties.projection);
+                var northEast = ol.proj.transform([model.get('east'), model.get('north')], 'EPSG:4326', properties.projection);
+                var southWest = ol.proj.transform([model.get('west'), model.get('south')], 'EPSG:4326', properties.projection);
+                var southEast = ol.proj.transform([model.get('east'), model.get('south')], 'EPSG:4326', properties.projection);
                 var coords = [];
                 coords.push(northWest);
                 coords.push(northEast);
