@@ -17,8 +17,6 @@ package ddf.security.sts;
 
 import org.apache.cxf.sts.StaticSTSProperties;
 import org.apache.cxf.sts.token.provider.DefaultConditionsProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -45,10 +43,15 @@ public class PropertyPlaceholderWrapper {
             StaticSTSProperties properties) {
         samlConditionsProvider = conditionsProvider;
         stsProperties = properties;
+        // set the default values in case there is no configuration
+        samlConditionsProvider.setLifetime(1800);
+        stsProperties.setSignatureUsername("localhost");
+        stsProperties.setIssuer("localhost");
+        stsProperties.setEncryptionUsername("localhost");
     }
 
     public void setStsMap(Map<String, Object> map) {
-        samlConditionsProvider.setLifetime((Long)map.get(STS_LIFETIME));
+        samlConditionsProvider.setLifetime((Long) map.get(STS_LIFETIME));
         stsProperties.setSignatureUsername(String.valueOf(map.get(STS_SIGNATURE_USERNAME)));
         stsProperties.setIssuer(String.valueOf(map.get(STS_ISSUER)));
         stsProperties.setEncryptionUsername(String.valueOf(map.get(STS_ENCRYPTION_USERNAME)));
