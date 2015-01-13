@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -134,43 +135,70 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
         while (reader.hasMoreChildren()) {
             reader.moveDown();
 
-            String name = propertyPrefix + reader.getNodeName();
-            AttributeDescriptor attributeDescriptor = metacardType.getAttributeDescriptor(name);                      
-            Serializable value = null;
-            
+            String featureProperty = propertyPrefix + reader.getNodeName();
+            AttributeDescriptor attributeDescriptor = metacardType.getAttributeDescriptor(featureProperty);                      
+           
             //Check MetacardMapper for mappings of incoming values
-            if (metacardMapper != null) {    
-	            String newName = metacardMapper.getMetacardAttribute(name);
-	            if (newName != null){
-	            	name = newName;
-	            }
+            String mappedMetacardAttribute = null;
+            if (metacardMapper != null) {
+                LOGGER.debug("Looking up metacard attribute for feature property {} using metacard mapper", featureProperty);
+                mappedMetacardAttribute = metacardMapper.getMetacardAttribute(featureProperty);
+                LOGGER.debug("Found metacard attribute {} for feature property {}", mappedMetacardAttribute, featureProperty);
             }
             
+            Serializable value = null;
             if (attributeDescriptor != null
-                    && (StringUtils.isNotBlank(reader.getValue()) || BasicTypes.GEO_TYPE
-                            .getAttributeFormat().equals(attributeDescriptor.getType()
-                                    .getAttributeFormat()) || BasicTypes.DATE_TYPE
-                                    .getAttributeFormat().equals(attributeDescriptor.getType()
-                                            .getAttributeFormat()))) {
-                value = writeFeaturePropertyToMetacardAttribute(attributeDescriptor.getType()
-                        .getAttributeFormat(), reader);
-            }
-            if (null != value) {
-                mc.setAttribute(name, value);
-                if (BasicTypes.GEO_TYPE.getAttributeFormat().equals(
-                        attributeDescriptor.getType().getAttributeFormat())) {
-                    mc.setLocation((String) value);
-                }
-                // if this node matches a basic metacard attribute name,
-                // populate that field as well
-                if (isBasicMetacardAttribute(reader.getNodeName())) {
-                    LOGGER.debug("Setting metacard basic attribute: {} = {}", reader.getNodeName(),
-                            value);
-                    mc.setAttribute(reader.getNodeName(), value);
-                }
+                    && (StringUtils.isNotBlank(reader.getValue())
+                            || BasicTypes.GEO_TYPE.getAttributeFormat().equals(
+                                    attributeDescriptor.getType().getAttributeFormat()) || BasicTypes.DATE_TYPE
+                            .getAttributeFormat().equals(
+                                    attributeDescriptor.getType().getAttributeFormat()))) {
+                if (StringUtils.isNotBlank(mappedMetacardAttribute)) {
+                    if (StringUtils.equals(mappedMetacardAttribute, Metacard.RESOURCE_SIZE)) {
+                        String sizeBeforeConversion = reader.getValue();
+                        String bytes = convertToBytes(reader, metacardMapper.getDataUnit());
+                        if (StringUtils.isNotBlank(bytes)) {
+                            LOGGER.debug("Setting mapped metacard attribute {} with value {}", mappedMetacardAttribute, bytes);
+                            mc.setAttribute(mappedMetacardAttribute, bytes);
+                        }
+                        if(StringUtils.isNotBlank(sizeBeforeConversion)) {
+                            LOGGER.debug("Setting metacard attribute {} with value {}", featureProperty, sizeBeforeConversion);
+                            mc.setAttribute(featureProperty, sizeBeforeConversion);
+                        }
+                    } else {
+                        value = getValueForMetacardAttribute(attributeDescriptor.getType()
+                                .getAttributeFormat(), reader);
+                        if (value != null) {
+                            LOGGER.debug("Setting mapped metacard attribute {} with value {}", mappedMetacardAttribute, value);
+                            mc.setAttribute(mappedMetacardAttribute, value);
+                            mc.setAttribute(featureProperty, value);
+                        }
+                    }
+                } else {
+                    value = getValueForMetacardAttribute(attributeDescriptor.getType()
+                            .getAttributeFormat(), reader);
 
-            }
+                    if (value != null) {
+                        LOGGER.debug("Setting metacard attribute {} with value {}",
+                                featureProperty, value);
+                        mc.setAttribute(featureProperty, value);
+                    }
+                }
+                    if (BasicTypes.GEO_TYPE.getAttributeFormat().equals(
+                            attributeDescriptor.getType().getAttributeFormat())) {
+                        mc.setLocation((String) value);
+                    }
+                    // if this node matches a basic metacard attribute name,
+                    // populate that field as well
+                    if (isBasicMetacardAttribute(reader.getNodeName())) {
+                        LOGGER.debug("Setting metacard basic attribute: {} = {}",
+                                reader.getNodeName(), value);
 
+                        mc.setAttribute(reader.getNodeName(), value);
+                    }
+                
+            }
+            
             reader.moveUp();
         }
 
@@ -188,7 +216,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
         return mc;
     }
 
-    protected Serializable writeFeaturePropertyToMetacardAttribute(AttributeFormat attributeFormat,
+    protected Serializable getValueForMetacardAttribute(AttributeFormat attributeFormat,
             HierarchicalStreamReader reader) {
 
         Serializable ser = null;
@@ -251,11 +279,54 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
     }
 
-    protected Date parseDateFromXml(HierarchicalStreamReader reader) {
-        if(StringUtils.isBlank(reader.getValue())) {
-            return null;
+    private String convertToBytes(HierarchicalStreamReader reader, String unit) {
+
+        BigDecimal resourceSize = new BigDecimal(reader.getValue());
+        resourceSize.setScale(1, BigDecimal.ROUND_HALF_UP);
+
+        switch (unit) {
+        case "B":
+            break;
+        case "KB":
+            resourceSize = resourceSize.multiply(new BigDecimal("1024"));
+            break;
+        case "MB":
+            resourceSize = resourceSize.multiply(new BigDecimal("1048576"));
+            break;
+        case "GB":
+            resourceSize = resourceSize.multiply(new BigDecimal("1073741824"));
+            break;
+        case "TB":
+            resourceSize = resourceSize.multiply(new BigDecimal("1099511627776"));
+            break;
+        case "PB":
+            resourceSize = resourceSize.multiply(new BigDecimal("1125899906842624"));
+            break;
         }
-        Date date = null;        
+
+        LOGGER.debug("resource size in bytes: {}", resourceSize.toPlainString());
+        return resourceSize.toPlainString();
+    }
+    
+    protected Date parseDateFromXml(HierarchicalStreamReader reader) {
+        Date date = null;
+        boolean processingChildNode = false;
+
+        if (reader.hasMoreChildren()) {
+            reader.moveDown();
+            processingChildNode = true;
+        }
+
+        LOGGER.debug("node name: " + reader.getNodeName());
+        LOGGER.debug("value: " + reader.getValue());
+        if (StringUtils.isBlank(reader.getValue())) {
+            date = null;
+            if (processingChildNode) {
+                reader.moveUp();
+            }
+            return date;
+        }
+
         try { // trying to parse xsd:date
             date = DatatypeConverter.parseDate(reader.getValue()).getTime();
         } catch (IllegalArgumentException e) {
@@ -271,6 +342,12 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
                 date = new Date();
             }
         }
+
+        if (processingChildNode) {
+            reader.moveUp();
+            processingChildNode = false;
+        }
+        LOGGER.debug("node name: " + reader.getNodeName());
         return date;
     }
 

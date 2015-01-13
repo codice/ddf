@@ -50,12 +50,16 @@ public class MetacardMapperImpl implements MetacardMapper {
 
     @Override
     public String getFeatureProperty(String metacardAttribute) {
-        return bidiMap.get(metacardAttribute);
+        String featureProperty = bidiMap.get(metacardAttribute);
+        LOGGER.debug("Returning feature property {} for metacard attribute {}", featureProperty, metacardAttribute);
+        return featureProperty;
     }
     
     @Override
     public String getMetacardAttribute(String featureProperty) {
-        return bidiMap.inverseBidiMap().get(featureProperty);
+        String metacardAttribute = bidiMap.inverseBidiMap().get(featureProperty);
+        LOGGER.debug("Returning metacard attribute {} for feature property {}.", metacardAttribute, featureProperty);
+        return metacardAttribute;
     }
     
     public void setFeatureType(String featureType) {
@@ -137,6 +141,7 @@ public class MetacardMapperImpl implements MetacardMapper {
         dataUnit = unit;
       }  
     
+    @Override
     public String getDataUnit() {
         return dataUnit;
     }

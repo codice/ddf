@@ -207,7 +207,12 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
             throw new IllegalArgumentException(
                     "No MetacardType registered on the FeatureConverter.  Unable to to convert features to metacards.");
         }
-        mc.setId(id);
+        if(StringUtils.isNotBlank(id)) {
+            mc.setId(id);
+        } else {
+            LOGGER.warn("Feature id is blank.  Unable to set metacard id.");
+        }
+        
         mc.setSourceId(sourceId);
 
         // set some default values that we can't get from a generic

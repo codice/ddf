@@ -76,7 +76,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         super(metacardMapper);
     }
 
-    protected Serializable writeFeaturePropertyToMetacardAttribute(AttributeFormat attributeFormat,
+    protected Serializable getValueForMetacardAttribute(AttributeFormat attributeFormat,
             HierarchicalStreamReader reader) {
 
         Serializable ser = null;

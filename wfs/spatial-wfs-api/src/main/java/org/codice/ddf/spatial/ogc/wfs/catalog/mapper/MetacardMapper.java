@@ -47,4 +47,9 @@ public interface MetacardMapper {
      * Gets the feature property used to when sorting by distance
      */
     String getSortByDistanceFeatureProperty();
+    
+    /**
+     * Gets the unit of the feature property mapped the metacard resource-size
+     */
+    String getDataUnit();
 }
