@@ -19,9 +19,10 @@ define(['underscore',
         'wreqr',
         'properties',
         'js/view/openlayers.metacard',
+        'js/model/Metacard',
         'jquery',
         'js/view/openlayers.geocoder'
-    ], function (_, Marionette, ol, Q, wreqr, properties, OpenlayersMetacard, $, geocoder) {
+    ], function (_, Marionette, ol, Q, wreqr, properties, OpenlayersMetacard, Metacard, $, geocoder) {
         "use strict";
 
         var imageryProviderTypes = {
@@ -242,12 +243,10 @@ define(['underscore',
 
             flyToRectangle: function (rectangle) {
                 if (rectangle.north === rectangle.south && rectangle.east === rectangle.west) {
-                    this.flyToGeometry({
-                        point: {
-                            longitude: rectangle.west,
-                            latitude: rectangle.north
-                        }
-                    });
+                    this.flyToGeometry(new Metacard.Geometry({
+                        type: "Point",
+                        coordinates: [rectangle.west, rectangle.north]
+                    }));
                 } else if (rectangle.north && rectangle.south && rectangle.east && rectangle.west) {
                     var northWest = ol.proj.transform([rectangle.west, rectangle.north], 'EPSG:4326', properties.projection);
                     var southEast = ol.proj.transform([rectangle.east, rectangle.south], 'EPSG:4326', properties.projection);
