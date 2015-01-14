@@ -217,10 +217,15 @@ public class LoginFilter implements Filter {
                 }
             }
 
-            renewSecurityToken(httpRequest.getSession(false), token);
+            SAMLAuthenticationToken newToken = renewSecurityToken(httpRequest.getSession(false), token);
 
             synchronized (lock) {
-                SecurityToken securityToken = (SecurityToken) token.getCredentials();
+                SecurityToken securityToken;
+                if (newToken != null) {
+                    securityToken = (SecurityToken) newToken.getCredentials();
+                } else {
+                    securityToken = (SecurityToken) token.getCredentials();
+                }
                 if(!wasReference) {
                     // wrap the token
                     AssertionWrapper assertion = new AssertionWrapper(securityToken.getToken());
@@ -260,7 +265,7 @@ public class LoginFilter implements Filter {
         return subject;
     }
 
-    private void renewSecurityToken(HttpSession session, SAMLAuthenticationToken savedToken) throws WSSecurityException {
+    private SAMLAuthenticationToken renewSecurityToken(HttpSession session, SAMLAuthenticationToken savedToken) throws WSSecurityException {
         long timeoutSeconds = -1;
         if (session != null) {
             Long afterMil = (Long) session.getAttribute(SAML_EXPIRATION);
@@ -288,7 +293,8 @@ public class LoginFilter implements Filter {
                         for (Object principal : subject.getPrincipals()) {
                             if (principal instanceof SecurityAssertion) {
                                 SecurityToken token = ((SecurityAssertion) principal).getSecurityToken();
-                                savedToken.replaceReferenece(token);
+                                SAMLAuthenticationToken samlAuthenticationToken = new SAMLAuthenticationToken(
+                                        (java.security.Principal) savedToken.getPrincipal(), token, savedToken.getRealm());
                                 if (LOGGER.isTraceEnabled()) {
                                     LOGGER.trace("Setting session token - class: {}  classloader: {}", token.getClass().getName(), token.getClass().getClassLoader());
                                 }
@@ -302,6 +308,8 @@ public class LoginFilter implements Filter {
 
                                 session.setAttribute(SAML_EXPIRATION, afterMil);
                                 LOGGER.debug("Saved new user assertion to session.");
+
+                                return samlAuthenticationToken;
                             }
                         }
 
@@ -315,6 +323,7 @@ public class LoginFilter implements Filter {
                 }
             }
         }
+        return null;
     }
 
     private Subject handleAuthenticationToken(HttpServletRequest httpRequest, BSTAuthenticationToken token) throws ServletException {

@@ -320,6 +320,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                 stsClient.setTokenType(stsClientConfig.getAssertionType());
                 stsClient.setKeyType(stsClientConfig.getKeyType());
                 stsClient.setKeySize(Integer.valueOf(stsClientConfig.getKeySize()));
+                stsClient.setAllowRenewing(true);
                 token = stsClient.renewSecurityToken(securityToken);
                 LOGGER.debug("Finished renewing security token.");
                 SecurityLogger.logInfo("Finished renewing security token.");
