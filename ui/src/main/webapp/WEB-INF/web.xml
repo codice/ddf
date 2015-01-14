@@ -16,8 +16,8 @@
 	      http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
          version="2.4">
 
-    <description>Admin UI - Sources</description>
-    <display-name>Admin UI - Sources</display-name>
+    <description>Admin UI</description>
+    <display-name>Admin UI</display-name>
 
     <!-- Default page to serve -->
     <welcome-file-list>
@@ -33,5 +33,15 @@
         <param-name>org.eclipse.jetty.servlet.SessionPath</param-name>
         <param-value>/</param-value>
     </context-param>
+	
+	<security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Admin UI</web-resource-name>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
 
 </web-app>
