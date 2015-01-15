@@ -77,6 +77,8 @@ public class Jpeg2000ThumbnailConverter implements PostQueryPlugin {
                 // convert j2k thumbnail to jpeg thumbnail
                 original.reset();
                 BufferedImage thumbnail = ImageIO.read(original);
+                if (thumbnail == null)
+                    continue;
                 ImageIO.write(thumbnail, "jpeg", converted);
                 metacard.setAttribute(
                         new AttributeImpl(Metacard.THUMBNAIL, converted.toByteArray()));
