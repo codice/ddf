@@ -106,6 +106,17 @@
 			<artifactId>guava</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>net.java.dev.jai-imageio</groupId>
+			<artifactId>jai-imageio-core-standalone</artifactId>
+			<version>1.2-pre-dr-b04-2014-09-13</version>
+		</dependency>
+		<dependency>
+			<groupId>net.java.dev.jai-imageio</groupId>
+			<artifactId>jai-imageio-jpeg2000</artifactId>
+			<version>1.2-pre-dr-b04-2014-09-13</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -118,7 +129,9 @@
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Embed-Dependency>
 							imgscalr-lib,
-							guava
+							guava,
+							jai-imageio-core-standalone,
+							jai-imageio-jpeg2000
 						</Embed-Dependency>
 						<Private-Package>
 							ddf.catalog.transformer.input.tika,
