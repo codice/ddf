@@ -14,6 +14,7 @@
  **/
 package org.codice.ddf.security.interceptor;
 
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 
@@ -95,7 +96,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnonymousInterceptor.class);
 
-    //Token Assertions    
+    //Token Assertions
     private static final String TOKEN_SAML20 = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
 
     private final List<Realm> realms;
@@ -105,6 +106,9 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     private STSClientConfiguration stsClientConfiguration;
 
     private ContextPolicyManager contextPolicyManager;
+
+    private boolean anonymousAccessDenied = false;
+    private boolean overrideEndpointPolicies = false;
 
     private final Object lock = new Object();
 
@@ -120,6 +124,12 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
+
+        if (anonymousAccessDenied) {
+            LOGGER.debug("AnonymousAccess not enabled - no message checking performed.");
+            return;
+        }
+
         if (message != null) {
             SoapVersion version = message.getVersion();
             SOAPMessage soapMessage = getSOAPMessage(message);
@@ -139,12 +149,12 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                 LOGGER.debug("Issue with getting security header", e1);
             }
             if (existingSecurityHeader == null) {
-                LOGGER.debug("Security header returned null, execute AnonymousInterceptor");
+                LOGGER.debug("Current request has no security header, continuing with AnonymousInterceptor");
 
                 AssertionInfoMap assertionInfoMap = message.get(AssertionInfoMap.class);
 
-                //if there is no policy then we don't need to do anything anyways
-                if (assertionInfoMap != null) {
+                // if there is a policy we need to follow or we are ignoring policies, prepare the SOAP message
+                if ((assertionInfoMap != null) || overrideEndpointPolicies) {
                     RequestData reqData = new CXFRequestData();
 
                     WSSConfig config = (WSSConfig) message.getContextualProperty(WSSConfig.class.getName());
@@ -164,17 +174,19 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                         soapFactory = SOAPFactory.newInstance();
                     } catch (SOAPException e) {
                         LOGGER.error("Could not create a SOAPFactory.", e);
+                        return;  // can't add anything if we can't create it
                     }
                     if (soapFactory != null) {
                         //Create security header
                         try {
-                            securityHeader = soapFactory
-                                    .createElement(org.apache.ws.security.WSConstants.WSSE_LN, org.apache.ws.security.WSConstants.WSSE_PREFIX,
-                                            org.apache.ws.security.WSConstants.WSSE_NS);
+                            securityHeader = soapFactory.createElement(org.apache.ws.security.WSConstants.WSSE_LN,
+                                                                       org.apache.ws.security.WSConstants.WSSE_PREFIX,
+                                                                       org.apache.ws.security.WSConstants.WSSE_NS);
                             securityHeader.addAttribute(new QName(org.apache.ws.security.WSConstants.URI_SOAP11_ENV,
-                                    org.apache.ws.security.WSConstants.ATTR_MUST_UNDERSTAND), "1");
+                                                                  org.apache.ws.security.WSConstants.ATTR_MUST_UNDERSTAND), "1");
                         } catch (SOAPException e) {
                             LOGGER.error("Unable to create security header for anonymous user.", e);
+                            return;  // can't create the security - just return
                         }
                     }
                 }
@@ -217,7 +229,9 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
                 //Supporting Token Assertions
                 QName supportingTokenAssertion = null;
+                boolean policyRequirementsSupported = false;
 
+                // if there is a plicy, try to follow it as closely as possible
                 if (effectivePolicy != null) {
                     Policy policy = effectivePolicy.getPolicy();
                     if (policy != null) {
@@ -297,33 +311,55 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                         }
 
                         //Check security and token policies
-                        if (tokenAssertion != null && tokenAssertion.trim()
-                                .equals(org.apache.cxf.ws.security.policy.SP12Constants.INCLUDE_ALWAYS_TO_RECIPIENT) && tokenType != null && tokenType
-                                .trim().equals(TOKEN_SAML20)) {
-                            createSecurityToken(version, soapFactory, securityHeader);
+                        if (tokenAssertion != null && tokenType != null &&
+                            tokenAssertion.trim().equals(org.apache.cxf.ws.security.policy.SP12Constants.INCLUDE_ALWAYS_TO_RECIPIENT) &&
+                            tokenType.trim().equals(TOKEN_SAML20)) {
+                            policyRequirementsSupported = true;
                         } else {
                             LOGGER.warn("AnonymousInterceptor does not support the policies presented by the endpoint.");
                         }
-                        
-                        if (securityHeader != null) {
-                            try {
-                                // Add security header to SOAP message
-                                soapMessage.getSOAPHeader().addChildElement(securityHeader);
-                            } catch (SOAPException e) {
-                                LOGGER.error("Issue when adding security header to SOAP message.");
-                            }
+
+                    } else {
+                        if (overrideEndpointPolicies) {
+                            LOGGER.debug("WS Policy is null, override is true - an anonymous assertion will be generated");
                         } else {
-                            LOGGER.debug("Security Header was null so not creating a SAML Assertion");
+                            LOGGER.warn("WS Policy is null, override flag is false - no anonymous assertion will be generated.");
+                        }
+                    }
+                } else {
+                    if (overrideEndpointPolicies) {
+                        LOGGER.debug("Effective WS Policy is null, override is true - an anonymous assertion will be generated");
+                    } else {
+                        LOGGER.warn("Effective WS Policy is null, override flag is false - no anonymous assertion will be generated.");
+                    }
+                }
+
+                if (policyRequirementsSupported || overrideEndpointPolicies) {
+                    LOGGER.debug("Creating anonymous security token.");
+                    if (soapFactory != null && securityHeader != null) {
+                        createSecurityToken(version, soapFactory, securityHeader);
+                        try {
+                            // Add security header to SOAP message
+                            soapMessage.getSOAPHeader().addChildElement(securityHeader);
+                        } catch (SOAPException e) {
+                            LOGGER.error("Issue when adding security header to SOAP message:" + e.getMessage());
                         }
                     } else {
-                        LOGGER.warn("Policy is null");
+                        LOGGER.debug("Security Header was null so not creating a SAML Assertion");
                     }
                 }
             } else {
-                LOGGER.debug("SOAP message contains security header, ignore AnonymousInterceptor.");
+                LOGGER.debug("SOAP message contains security header, no action taken by the AnonymousInterceptor.");
+            }
+            if (LOGGER.isTraceEnabled()) {
+                try {
+                    LOGGER.trace("SOAP request after anonymous interceptor: {}", SecurityLogger.getFormattedXml(soapMessage.getSOAPHeader().getParentNode()));
+                } catch (SOAPException e) {
+                    //ignore
+                }
             }
         } else {
-            LOGGER.error("Incoming SOAP message is null.");
+            LOGGER.error("Incoming SOAP message is null - anonymous interceptor makes no sense.");
         }
     }
 
@@ -550,6 +586,18 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
     public void setContextPolicyManager(ContextPolicyManager contextPolicyManager) {
         this.contextPolicyManager = contextPolicyManager;
+    }
+
+    public void setAnonymousAccessDenied(boolean deny) {
+        anonymousAccessDenied = deny;
+    }
+
+    public boolean isAnonymousAccessDenied() {
+        return anonymousAccessDenied;
+    }
+
+    public void setOverrideEndpointPolicies(boolean override) {
+        overrideEndpointPolicies = override;
     }
 
     static class CXFRequestData extends RequestData {

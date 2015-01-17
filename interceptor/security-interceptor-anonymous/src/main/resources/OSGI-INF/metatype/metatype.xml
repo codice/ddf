@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="Security SOAP Anonymous Interceptor" id="org.codice.ddf.security.interceptor.AnonymousInterceptor">
+
+<!--
+        <AD name="Realm" id="realm" required="false" type="String" default="DDF"
+            description="The security realm to which the anonymous token is assigned. This should correspond to the same
+            realm in which all the WS implementations reside.">
+        </AD>
+-->
+
+        <AD name="Deny Anonymous Access" id="anonymousAccessDenied" required="false" type="Boolean" default="false"
+            description="If set to true, no anonymous access will be allowed via this anonymous interceptor. If set to
+            false, this interceptor will generate anonymous tokens for incoming requests that lack a WS-Security header."/>
+
+        <AD name="Override Endpoint Policies" id="overrideEndpointPolicies" required="false" type="Boolean" default="false"
+            description="If checked, forces anonymous tokens to be created and inserted into the incoming request regardless
+            of whether the policy requires an issued token. If set to false, if the endpoint policies cannot be satisfied,
+            no changes will be made to the incoming request. This only applies to incoming requests that lack a WS-Security
+            header - those with a WS-Security header are passed through unchanged."/>
+
+    </OCD>
+
+    <Designate pid="org.codice.ddf.security.interceptor.AnonymousInterceptor">
+        <Object ocdref="org.codice.ddf.security.interceptor.AnonymousInterceptor" />
+    </Designate>
+
+</metatype:MetaData>
