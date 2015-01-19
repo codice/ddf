@@ -66,9 +66,6 @@
                             jai-imageio-core-standalone,
                             jai-imageio-jpeg2000
                         </Embed-Dependency>
-                        <Private-Package>
-                            ddf.catalog.plugin.jpeg2000.thumbnail.converter
-                        </Private-Package>
                         <Export-Package />
                     </instructions>
                 </configuration>
