@@ -27,13 +27,17 @@ import java.util.Map;
  */
 public class PropertyPlaceholderWrapper {
 
-    public static final String STS_LIFETIME = "lifetime";
+    private static final String STS_LIFETIME = "lifetime";
 
-    public static final String STS_SIGNATURE_USERNAME = "signatureUsername";
+    private static final String STS_SIGNATURE_USERNAME = "signatureUsername";
 
-    public static final String STS_ISSUER = "issuer";
+    private static final String STS_ISSUER = "issuer";
 
-    public static final String STS_ENCRYPTION_USERNAME = "encryptionUsername";
+    private static final String STS_ENCRYPTION_USERNAME = "encryptionUsername";
+
+    private static final int DEFAULT_LIFETIME = 1800;
+
+    private static final String DEFAULT_NAME = "localhost";
 
     private DefaultConditionsProvider samlConditionsProvider;
 
@@ -44,10 +48,10 @@ public class PropertyPlaceholderWrapper {
         samlConditionsProvider = conditionsProvider;
         stsProperties = properties;
         // set the default values in case there is no configuration
-        samlConditionsProvider.setLifetime(1800);
-        stsProperties.setSignatureUsername("localhost");
-        stsProperties.setIssuer("localhost");
-        stsProperties.setEncryptionUsername("localhost");
+        samlConditionsProvider.setLifetime(DEFAULT_LIFETIME);
+        stsProperties.setSignatureUsername(DEFAULT_NAME);
+        stsProperties.setIssuer(DEFAULT_NAME);
+        stsProperties.setEncryptionUsername(DEFAULT_NAME);
     }
 
     public void setStsMap(Map<String, Object> map) {
