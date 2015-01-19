@@ -17,8 +17,6 @@ package ddf.security.sts;
 
 import org.apache.cxf.sts.StaticSTSProperties;
 import org.apache.cxf.sts.token.provider.DefaultConditionsProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -29,13 +27,17 @@ import java.util.Map;
  */
 public class PropertyPlaceholderWrapper {
 
-    public static final String STS_LIFETIME = "lifetime";
+    private static final String STS_LIFETIME = "lifetime";
 
-    public static final String STS_SIGNATURE_USERNAME = "signatureUsername";
+    private static final String STS_SIGNATURE_USERNAME = "signatureUsername";
 
-    public static final String STS_ISSUER = "issuer";
+    private static final String STS_ISSUER = "issuer";
 
-    public static final String STS_ENCRYPTION_USERNAME = "encryptionUsername";
+    private static final String STS_ENCRYPTION_USERNAME = "encryptionUsername";
+
+    private static final int DEFAULT_LIFETIME = 1800;
+
+    private static final String DEFAULT_NAME = "localhost";
 
     private DefaultConditionsProvider samlConditionsProvider;
 
@@ -45,10 +47,15 @@ public class PropertyPlaceholderWrapper {
             StaticSTSProperties properties) {
         samlConditionsProvider = conditionsProvider;
         stsProperties = properties;
+        // set the default values in case there is no configuration
+        samlConditionsProvider.setLifetime(DEFAULT_LIFETIME);
+        stsProperties.setSignatureUsername(DEFAULT_NAME);
+        stsProperties.setIssuer(DEFAULT_NAME);
+        stsProperties.setEncryptionUsername(DEFAULT_NAME);
     }
 
     public void setStsMap(Map<String, Object> map) {
-        samlConditionsProvider.setLifetime((Long)map.get(STS_LIFETIME));
+        samlConditionsProvider.setLifetime((Long) map.get(STS_LIFETIME));
         stsProperties.setSignatureUsername(String.valueOf(map.get(STS_SIGNATURE_USERNAME)));
         stsProperties.setIssuer(String.valueOf(map.get(STS_ISSUER)));
         stsProperties.setEncryptionUsername(String.valueOf(map.get(STS_ENCRYPTION_USERNAME)));
