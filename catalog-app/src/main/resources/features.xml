@@ -122,8 +122,8 @@
         <bundle>mvn:ddf.catalog.plugin/plugin-federation-replication/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-plugin-jpeg2000" install="manual" version="2.7.0-SNAPSHOT" description="">
-        <bundle>mvn:ddf.catalog.plugin/jpeg2000-thumbnail-converter/2.7.0-SNAPSHOT</bundle>
+    <feature name="catalog-plugin-jpeg2000" install="manual" version="${project.version}" description="">
+        <bundle>mvn:ddf.catalog.plugin/jpeg2000-thumbnail-converter/${project.version}</bundle>
     </feature>
     
     <feature name="catalog-transformer-metadata" install="manual" version="${project.version}" description="Retrieves the attribute, Metadata, from the Metacard.">
