@@ -71,6 +71,7 @@ public class CatalogBackupPluginTest {
         CreateResponse mockCreateResponse = getMockCreateResponse(Arrays.asList(METACARD_IDS));
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
+        catalogBackupPlugin.setEnableBackupPlugin(true);
         catalogBackupPlugin.setRootBackupDir(null);
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
@@ -86,6 +87,7 @@ public class CatalogBackupPluginTest {
         int subDirLevels = 0;
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
+        catalogBackupPlugin.setEnableBackupPlugin(true);
         catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
@@ -109,6 +111,7 @@ public class CatalogBackupPluginTest {
         int subDirLevels = -5;
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
+        catalogBackupPlugin.setEnableBackupPlugin(true);
         catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
@@ -138,6 +141,7 @@ public class CatalogBackupPluginTest {
         int subDirLevels = 1000;
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
+        catalogBackupPlugin.setEnableBackupPlugin(true);
         catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
@@ -161,6 +165,7 @@ public class CatalogBackupPluginTest {
         int subDirLevels = 3;
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
+        catalogBackupPlugin.setEnableBackupPlugin(true);
         catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
@@ -186,6 +191,7 @@ public class CatalogBackupPluginTest {
         int subDirLevels = 3;
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
+        catalogBackupPlugin.setEnableBackupPlugin(true);
         catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
@@ -211,6 +217,7 @@ public class CatalogBackupPluginTest {
         int subDirLevels = 3;
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
+        catalogBackupPlugin.setEnableBackupPlugin(true);
         catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
@@ -235,6 +242,7 @@ public class CatalogBackupPluginTest {
         int subDirLevels = 3;
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
+        catalogBackupPlugin.setEnableBackupPlugin(true);
         catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
@@ -265,6 +273,7 @@ public class CatalogBackupPluginTest {
         int subDirLevels = 3;
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
+        catalogBackupPlugin.setEnableBackupPlugin(true);
         catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
@@ -298,6 +307,7 @@ public class CatalogBackupPluginTest {
         int subDirLevels = 3;
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
+        catalogBackupPlugin.setEnableBackupPlugin(true);
         catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 
@@ -324,6 +334,7 @@ public class CatalogBackupPluginTest {
         int subDirLevels = 3;
 
         CatalogBackupPlugin catalogBackupPlugin = new CatalogBackupPlugin();
+        catalogBackupPlugin.setEnableBackupPlugin(true);
         catalogBackupPlugin.setRootBackupDir(rootBackupDir.getRoot().getAbsolutePath());
         catalogBackupPlugin.setSubDirLevels(subDirLevels);
 

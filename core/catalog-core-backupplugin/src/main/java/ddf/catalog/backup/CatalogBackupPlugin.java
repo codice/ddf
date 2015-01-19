@@ -56,6 +56,8 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     private File rootBackupDir;
 
     private int subDirLevels;
+    
+    private boolean enableBackupPlugin = false;
 
     private enum OPERATION {
         CREATE,
@@ -76,28 +78,29 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      */
     @Override
     public CreateResponse process(CreateResponse input) throws PluginExecutionException {
-        LOGGER.debug("Performing backup of metacards in CreateResponse.");
-
-        if(rootBackupDir == null) {
-            throw new PluginExecutionException("No root backup directory configured.");
-        }
-
-        List<String> errors = new ArrayList<String>();
-
-        List<Metacard> metacards = input.getCreatedMetacards();
-
-        for(Metacard metacard : metacards) {
-            try {
-                backupMetacard(metacard);
-            } catch(IOException e) {
-                errors.add(metacard.getId());
+        if ( enableBackupPlugin ){
+            LOGGER.debug("Performing backup of metacards in CreateResponse.");
+            
+            if(rootBackupDir == null) {
+                throw new PluginExecutionException("No root backup directory configured.");
+            }
+    
+            List<String> errors = new ArrayList<String>();
+    
+            List<Metacard> metacards = input.getCreatedMetacards();
+    
+            for(Metacard metacard : metacards) {
+                try {
+                    backupMetacard(metacard);
+                } catch(IOException e) {
+                    errors.add(metacard.getId());
+                }
+            }
+    
+            if(errors.size() > 0) {
+                throw new PluginExecutionException(getExceptionMessage(CreateResponse.class.getSimpleName(), null, errors, OPERATION.CREATE));
             }
         }
-
-        if(errors.size() > 0) {
-            throw new PluginExecutionException(getExceptionMessage(CreateResponse.class.getSimpleName(), null, errors, OPERATION.CREATE));
-        }
-
         return input;
     }
 
@@ -111,45 +114,46 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      */
     @Override
     public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
-        LOGGER.debug("Updating metacards contained in UpdateResponse in backup.");
-
-        if(rootBackupDir == null) {
-            throw new PluginExecutionException("No root backup directory configured.");
-        }
-
-        List<String> deleteErrors = new ArrayList<String>();
-        List<String> backupErrors = new ArrayList<String>();
-
-        List<Update> updates = input.getUpdatedMetacards();
-
-        for (Update update : updates) {
-            try {
-                deleteMetacard(update.getOldMetacard());
-            } catch(IOException e) {
-                deleteErrors.add(update.getOldMetacard().getId());
+        if ( enableBackupPlugin ) {
+            LOGGER.debug("Updating metacards contained in UpdateResponse in backup.");
+    
+            if(rootBackupDir == null) {
+                throw new PluginExecutionException("No root backup directory configured.");
             }
-
-            try {
-                backupMetacard(update.getNewMetacard());
-            } catch (IOException e) {
-                backupErrors.add(update.getNewMetacard().getId());
+    
+            List<String> deleteErrors = new ArrayList<String>();
+            List<String> backupErrors = new ArrayList<String>();
+    
+            List<Update> updates = input.getUpdatedMetacards();
+    
+            for (Update update : updates) {
+                try {
+                    deleteMetacard(update.getOldMetacard());
+                } catch(IOException e) {
+                    deleteErrors.add(update.getOldMetacard().getId());
+                }
+    
+                try {
+                    backupMetacard(update.getNewMetacard());
+                } catch (IOException e) {
+                    backupErrors.add(update.getNewMetacard().getId());
+                }
+            }
+    
+            String exceptionMessage = null;
+    
+            if(deleteErrors.size() > 0) {
+                exceptionMessage = getExceptionMessage(UpdateResponse.class.getSimpleName(), exceptionMessage, deleteErrors, OPERATION.DELETE);
+            }
+    
+            if(backupErrors.size() > 0) {
+                exceptionMessage = getExceptionMessage(UpdateResponse.class.getSimpleName(), exceptionMessage, backupErrors, OPERATION.CREATE);
+            }
+    
+            if(deleteErrors.size() > 0 || backupErrors.size() > 0) {
+                throw new PluginExecutionException(exceptionMessage);
             }
         }
-
-        String exceptionMessage = null;
-
-        if(deleteErrors.size() > 0) {
-            exceptionMessage = getExceptionMessage(UpdateResponse.class.getSimpleName(), exceptionMessage, deleteErrors, OPERATION.DELETE);
-        }
-
-        if(backupErrors.size() > 0) {
-            exceptionMessage = getExceptionMessage(UpdateResponse.class.getSimpleName(), exceptionMessage, backupErrors, OPERATION.CREATE);
-        }
-
-        if(deleteErrors.size() > 0 || backupErrors.size() > 0) {
-            throw new PluginExecutionException(exceptionMessage);
-        }
-
         return input;
     }
 
@@ -162,29 +166,34 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      */
     @Override
     public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
-        LOGGER.debug("Deleting metacards contained in DeleteResponse from backup.");
-
-        if(rootBackupDir == null) {
-            throw new PluginExecutionException("No root backup directory configured.");
-        }
-
-        List<String> errors = new ArrayList<String>();
-
-        List<Metacard> metacards = input.getDeletedMetacards();
-
-        for(Metacard metacard : metacards) {
-            try {
-                deleteMetacard(metacard);
-            } catch(IOException e) {
-                errors.add(metacard.getId());
+        if ( enableBackupPlugin ){
+            LOGGER.debug("Deleting metacards contained in DeleteResponse from backup.");
+    
+            if(rootBackupDir == null) {
+                throw new PluginExecutionException("No root backup directory configured.");
+            }
+    
+            List<String> errors = new ArrayList<String>();
+    
+            List<Metacard> metacards = input.getDeletedMetacards();
+    
+            for(Metacard metacard : metacards) {
+                try {
+                    deleteMetacard(metacard);
+                } catch(IOException e) {
+                    errors.add(metacard.getId());
+                }
+            }
+    
+            if(errors.size() > 0) {
+                throw new PluginExecutionException(getExceptionMessage(DeleteResponse.class.getSimpleName(), null, errors, OPERATION.DELETE));
             }
         }
-
-        if(errors.size() > 0) {
-            throw new PluginExecutionException(getExceptionMessage(DeleteResponse.class.getSimpleName(), null, errors, OPERATION.DELETE));
-        }
-
         return input;
+    }
+    
+    public void setEnableBackupPlugin( boolean enablePlugin ){
+        enableBackupPlugin = enablePlugin;
     }
 
     /**
