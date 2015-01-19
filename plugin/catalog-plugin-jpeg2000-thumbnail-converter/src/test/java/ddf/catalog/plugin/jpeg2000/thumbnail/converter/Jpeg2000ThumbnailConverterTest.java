@@ -46,14 +46,17 @@ public class Jpeg2000ThumbnailConverterTest {
         IIORegistry.getDefaultInstance().registerServiceProvider(jpeg2000ThumbnailConverter);
         List<Result> resultList = new ArrayList<>();
         Metacard metacard = new MetacardImpl();
-        byte[] j2kbytes = Files
-                .readAllBytes(Paths.get(getClass().getResource("/Bretagne2.j2k").getPath()));
-        metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, j2kbytes));
+        byte[] j2kbytes = new byte[0];
         resultList.add(new ResultImpl(metacard));
         QueryResponseImpl queryResponse = new QueryResponseImpl(null, resultList, 1);
-        jpeg2000ThumbnailConverter.process(queryResponse);
-        // verify the plugin converted the j2k
-        assertTrue(!Arrays.equals(j2kbytes, metacard.getThumbnail()));
+        // there are two possible byte signatures, so test an example of each one
+        for (String image : new String[] {"/Bretagne2.j2k", "/Cevennes2.jp2"}) {
+            j2kbytes = Files.readAllBytes(Paths.get(getClass().getResource(image).getPath()));
+            metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, j2kbytes));
+            jpeg2000ThumbnailConverter.process(queryResponse);
+            // verify the plugin converted the j2k/jp2 image
+            assertTrue(!Arrays.equals(j2kbytes, metacard.getThumbnail()));
+        }
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         ImageIO.write(ImageIO.read(new ByteArrayInputStream(j2kbytes)), "gif", output);
         metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, output.toByteArray()));
