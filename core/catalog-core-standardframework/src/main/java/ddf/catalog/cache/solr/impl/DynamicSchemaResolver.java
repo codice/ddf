@@ -388,6 +388,14 @@ public class DynamicSchemaResolver {
         return schemaFields.getFieldSuffix(format);
     }
 
+    public String getMetacardUniqueId(SolrDocument doc) {
+        return doc.getFieldValue(SchemaFields.METACARD_UNIQUE_ID_NAME).toString();
+    }
+
+    public String getMetacardId(SolrDocument doc) {
+        return doc.getFieldValue(SchemaFields.METACARD_ID_NAME).toString();
+    }
+
     public String getMetacardSource(SolrDocument doc) {
         return doc.getFieldValue(SchemaFields.METACARD_SOURCE_NAME).toString();
     }

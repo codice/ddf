@@ -68,6 +68,11 @@ public class SchemaFields {
 
     public static final String METACARD_SOURCE_NAME = "metacard_source" + TEXT_SUFFIX;
 
+    public static final String METACARD_ID_NAME = "original_id" + TEXT_SUFFIX;
+
+    // the unique id field used in the platform solr standalone server
+    public static final String METACARD_UNIQUE_ID_NAME = "id" + TEXT_SUFFIX;
+
     public static final String CACHED_DATE = "cached" + DATE_SUFFIX;
 
     static {

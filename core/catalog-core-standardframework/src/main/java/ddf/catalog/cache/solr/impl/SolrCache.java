@@ -285,6 +285,9 @@ public class SolrCache {
 
                     if (StringUtils.isNotBlank(metacard.getSourceId())) {
                         solrInputDocument.addField(SchemaFields.METACARD_SOURCE_NAME, metacard.getSourceId());
+                        solrInputDocument.setField(SchemaFields.METACARD_UNIQUE_ID_NAME,
+                                metacard.getSourceId() + metacard.getId());
+                        solrInputDocument.addField(SchemaFields.METACARD_ID_NAME, metacard.getId());
                     }
 
                     docs.add(solrInputDocument);
@@ -324,6 +327,10 @@ public class SolrCache {
             throw new IngestException(
                     "Attribute name cannot be null. Please provide the name of the attribute.");
         }
+        attributeName = attributeName + SchemaFields.TEXT_SUFFIX;
+        if(attributeName.equals(SchemaFields.METACARD_UNIQUE_ID_NAME)) {
+            attributeName = SchemaFields.METACARD_ID_NAME;
+        }
 
         @SuppressWarnings("unchecked")
         List<? extends Serializable> identifiers = deleteRequest.getAttributeValues();
@@ -342,7 +349,7 @@ public class SolrCache {
                 queryBuilder.append(" OR ");
             }
 
-            queryBuilder.append(attributeName + SchemaFields.TEXT_SUFFIX + ":" + QUOTE
+            queryBuilder.append(attributeName + ":" + QUOTE
                     + identifiers.get(i) + QUOTE);
 
         }
@@ -361,40 +368,20 @@ public class SolrCache {
 
         SolrDocumentList docs = solrResponse.getResults();
 
-        for (SolrDocument doc : docs) {
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("SOLR DOC: {}", doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
-            }
-
-            try {
-                deletedMetacards.add(createMetacard(doc));
-            } catch (MetacardCreationException e) {
-                LOGGER.info("Metacard creation exception creating metacards during delete", e);
-                throw new IngestException("Could not create metacard(s).");
-            }
-
-        }
         /* 2. Delete */
-
         try {
-            if (Metacard.ID.equals(attributeName)) {
-                LOGGER.debug("identifiers to be deleted: " + StringUtils.join(identifiers, ","));
-                server.deleteById((List<String>) identifiers);
+            // solr deleteByQuery(queryBuilder.toString()) does not work,
+            // SOLR BUG back in 4.0.0
+            // so we have to delete by id
+            List<String> metacardIdentfiers = new ArrayList<String>();
+            for (SolrDocument doc : docs) {
+                metacardIdentfiers.add(resolver.getMetacardUniqueId(doc));
+            }
+            if (!metacardIdentfiers.isEmpty()) {
+                LOGGER.debug("metacard identifiers to be deleted: {}", StringUtils.join(metacardIdentfiers, ","));
+                server.deleteById(metacardIdentfiers);
             } else {
-                // solr deleteByQuery(queryBuilder.toString()) does not work,
-                // SOLR BUG back in 4.0.0
-                // so we have to delete by id
-                List<String> metacardIdentfiers = new ArrayList<String>();
-                for (Metacard deletedMetacard : deletedMetacards) {
-                    metacardIdentfiers.add(deletedMetacard.getId());
-                }
-                if (!metacardIdentfiers.isEmpty()) {
-                    LOGGER.debug("metacard identifiers to be deleted: " + StringUtils.join(metacardIdentfiers, ","));
-                    server.deleteById(metacardIdentfiers);
-                } else {
-                    LOGGER.debug("No metacard identifiers to be deleted");
-                }
+                LOGGER.debug("No metacard identifiers to be deleted");
             }
         } catch (SolrServerException e) {
             LOGGER.error("SOLR server exception deleting request message", e);
@@ -531,6 +518,7 @@ public class SolrCache {
         }
 
         metacard.setSourceId(resolver.getMetacardSource(doc));
+        metacard.setId(resolver.getMetacardId(doc));
 
         return metacard;
     }
