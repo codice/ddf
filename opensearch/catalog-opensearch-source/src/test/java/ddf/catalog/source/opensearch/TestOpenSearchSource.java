@@ -102,7 +102,7 @@ public class TestOpenSearchSource {
      * @throws MalformedURLException
      */
     @Test
-    public void testQuery_ById() throws UnsupportedQueryException, MalformedURLException,
+    public void testQuery_ById() throws UnsupportedQueryException,
         IOException {
         WebClient client = mock(WebClient.class);
 
@@ -113,6 +113,8 @@ public class TestOpenSearchSource {
         when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
 
         when(client.get()).thenReturn(clientResponse);
+
+        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
         Client proxy = mock(Client.class);
 
@@ -143,7 +145,7 @@ public class TestOpenSearchSource {
     @Test
     @Ignore
     // Ignored because Content Type support has yet to be added.
-    public void testQuery_ByContentType() throws UnsupportedQueryException, MalformedURLException,
+    public void testQuery_ByContentType() throws UnsupportedQueryException,
         IOException, URISyntaxException {
 
         // given
@@ -175,6 +177,8 @@ public class TestOpenSearchSource {
         when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
 
         when(client.get()).thenReturn(clientResponse);
+
+        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
         
         when(clientResponse.getEntity()).thenReturn(
                 new BinaryContentImpl(getSampleAtomStream()).getInputStream());
@@ -214,6 +218,8 @@ public class TestOpenSearchSource {
         when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
 
         when(client.get()).thenReturn(clientResponse);
+
+        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
         
         when(clientResponse.getEntity()).thenReturn(
                 new BinaryContentImpl(getSampleAtomStream()).getInputStream());
@@ -262,6 +268,8 @@ public class TestOpenSearchSource {
 
         Response clientResponse = mock(Response.class);
 
+        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+
         OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
 
         when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
@@ -283,6 +291,37 @@ public class TestOpenSearchSource {
         SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
         Assert.assertEquals(0, response.getHits());
+
+    }
+
+    @Test(expected = UnsupportedQueryException.class)
+    public void testQueryBadResponse() throws UnsupportedQueryException,
+            IOException {
+        WebClient client = mock(WebClient.class);
+
+        Response clientResponse = mock(Response.class);
+
+        when(clientResponse.getStatus()).thenReturn(
+                Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+
+        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
+
+        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
+
+        when(client.get()).thenReturn(clientResponse);
+
+        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        source.setInputTransformer(getMockInputTransformer());
+        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
+        source.init();
+        source.setParameters("q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+
+        source.openSearchConnection = openSearchConnection;
+
+        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
+                .text(SAMPLE_SEARCH_PHRASE);
+
+        source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
     }
 
@@ -457,6 +496,8 @@ public class TestOpenSearchSource {
         WebClient client = mock(WebClient.class);
 
         Response clientResponse = mock(Response.class);
+
+        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
         OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
 
