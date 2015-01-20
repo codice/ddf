@@ -17,6 +17,7 @@ package org.codice.ddf.ui.searchui.standard.properties;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.BinaryContentImpl;
+
 import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -25,9 +26,9 @@ import org.codice.proxy.http.HttpProxyService;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import us.bpsm.edn.EdnIOException;
 import us.bpsm.edn.EdnSyntaxException;
-import us.bpsm.edn.parser.Parseable;
 import us.bpsm.edn.parser.Parser;
 import us.bpsm.edn.parser.Parsers;
 
@@ -39,6 +40,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,7 +84,7 @@ public class ConfigurationStore {
 
     private String terrainEndpoint;
 
-    private Boolean isSignIn = false;
+    private Boolean isSignIn = true;
 
     private Boolean isTask = false;
 
