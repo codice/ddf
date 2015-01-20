@@ -31,6 +31,7 @@
     <properties>
         <ddf.catalog.app.version>2.7.0-SNAPSHOT</ddf.catalog.app.version>
         <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
+        <ddf.security.app.version>2.6.0-SNAPSHOT</ddf.security.app.version>
         <org.geotools.version>8.4</org.geotools.version>     
         <handlebars.version>1.1.2</handlebars.version>
         <jaxb.annotate.plugin.version>0.6.0</jaxb.annotate.plugin.version>
@@ -55,6 +56,11 @@
                 <groupId>ddf.catalog.core</groupId>
                 <artifactId>catalog-core-api-impl</artifactId>
                 <version>${ddf.catalog.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security</groupId>
+                <artifactId>ddf-security-common</artifactId>
+                <version>${ddf.security.app.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>

@@ -24,6 +24,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
 
@@ -38,8 +39,15 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 import net.opengis.cat.csw.v_2_0_2.TransactionType;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.Bus;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.cxf.ws.security.trust.STSClient;
+import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -112,11 +120,39 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     }
 
     public void setSubject(Subject subject) {
-        this.setSubjectOnRequest(WebClient.client(csw), subject);
+        Client client = WebClient.client(csw);
+        client.reset();
+        RestSecurity.setSubjectOnClient(subject, client);
     }
     
     public void setSAMLAssertion(STSClientConfiguration stsClientConfig) {
-        this.setSAMLAssertion(WebClient.client(csw), stsClientConfig);
+        Client client = WebClient.client(csw);
+        LOGGER.debug("ENTERING: setSAMLAssertion()");
+        if (stsClientConfig == null || StringUtils.isBlank(stsClientConfig.getAddress())) {
+            LOGGER.debug("STSClientConfiguration is either null or its address is blank - assuming no STS Client is configured, so no SAML assertion will get generated.");
+            return;
+        }
+        ClientConfiguration clientConfig = WebClient.getConfig(client);
+        Bus bus = clientConfig.getBus();
+        STSClient stsClient = configureSTSClient(bus, stsClientConfig);
+        stsClient.setTokenType(stsClientConfig.getAssertionType());
+        stsClient.setKeyType(stsClientConfig.getKeyType());
+        stsClient.setKeySize(Integer.valueOf(stsClientConfig.getKeySize()));
+        try {
+            SecurityToken securityToken = stsClient.requestSecurityToken(stsClientConfig.getAddress());
+            org.w3c.dom.Element samlToken = securityToken.getToken();
+            if (samlToken != null) {
+                Cookie cookie = new Cookie(RestSecurity.SECURITY_COOKIE_NAME, RestSecurity.encodeSaml(
+                        samlToken));
+                client.reset();
+                client.cookie(cookie);
+            } else {
+                LOGGER.debug("Attempt to retrieve SAML token resulted in null token - could not add token to request");
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Exception trying to get SAML assertion", e);
+        }
+        LOGGER.debug("EXITING: setSAMLAssertion()");
     }    
 
     protected List<? extends Object> initProviders(

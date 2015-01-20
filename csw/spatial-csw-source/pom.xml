@@ -31,6 +31,11 @@
         </dependency>
 
         <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
         </dependency>
@@ -169,7 +174,8 @@
                             catalog-core-api-impl,
                             commons-collections4,
                             gt-cql,
-                            ogc-tools-gml-jts
+                            ogc-tools-gml-jts,
+                            ddf-security-common
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
