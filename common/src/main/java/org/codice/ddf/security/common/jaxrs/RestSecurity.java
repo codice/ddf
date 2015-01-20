@@ -35,8 +35,14 @@ public final class RestSecurity {
 
     public static final String SECURITY_COOKIE_NAME = "org.codice.websso.saml.token";
 
+    /**
+     * Parses the incoming subject for a saml assertion and sets that as a cookie on the client.
+     *
+     * @param subject Subject containing a SAML-based security token.
+     * @param client  Client to set the cookie on.
+     */
     public static void setSubjectOnClient(Subject subject, Client client) {
-        if(subject != null) {
+        if (subject != null) {
             javax.ws.rs.core.Cookie cookie = createSamlCookie(subject);
             if (cookie == null) {
                 LOGGER.info("SAML Cookie was null. Unable to set the cookie for the client.");

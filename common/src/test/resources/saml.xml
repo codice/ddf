@@ -59,8 +59,7 @@
     </ds:Signature>
     <saml2:Subject>
         <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"
-                      NameQualifier="http://cxf.apache.org/sts">CN=client,OU=I4CE,O=Lockheed
-            Martin,L=Goodyear,ST=Arizona,C=US
+                      NameQualifier="http://cxf.apache.org/sts">CN=client,C=US
         </saml2:NameID>
         <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:holder-of-key">
             <saml2:SubjectConfirmationData xsi:type="saml2:KeyInfoConfirmationDataType">
@@ -101,8 +100,7 @@
     <saml2:AttributeStatement>
         <saml2:Attribute Name="DigitalIdentifier"
                          NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
-            <saml2:AttributeValue xsi:type="xs:string">CN=client,OU=I4CE,O=Lockheed
-                Martin,L=Goodyear,ST=Arizona,C=US
+            <saml2:AttributeValue xsi:type="xs:string">CN=client,C=US
             </saml2:AttributeValue>
         </saml2:Attribute>
     </saml2:AttributeStatement>
