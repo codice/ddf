@@ -76,8 +76,6 @@ public class OpenSearchConnection {
     private static final transient Logger LOGGER = LoggerFactory
             .getLogger(OpenSearchConnection.class);
 
-    private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
-
     protected OpenSearch openSearch;
 
     protected RESTService restService;
@@ -265,62 +263,6 @@ public class OpenSearchConnection {
             }
         }
         return tmp;
-    }
-
-    /**
-     * Sets a subject cookie on a {@link org.apache.cxf.jaxrs.client.WebClient} and returns the
-     * resulting client.
-     * @param webClient - {@link org.apache.cxf.jaxrs.client.WebClient} to update
-     * @param subject - {@link ddf.security.Subject} to inject
-     * @return {@link org.apache.cxf.jaxrs.client.WebClient}
-     */
-    public WebClient setSubjectOnWebClient(WebClient webClient, Subject subject) {
-        if(subject != null) {
-            Cookie cookie = createSamlCookie(subject);
-            return webClient.cookie(cookie);
-        }
-        return webClient;
-    }
-
-    /**
-     * Creates a cookie to be returned to the browser if the token was successfully exchanged for
-     * a SAML assertion.
-     *
-     * @param subject - {@link ddf.security.Subject} to create the cookie from
-     */
-    private Cookie createSamlCookie(Subject subject) {
-        Cookie cookie = null;
-        org.w3c.dom.Element samlToken = null;
-        try {
-            for (Object principal : subject.getPrincipals().asList()) {
-                if (principal instanceof SecurityAssertion) {
-                    samlToken = ((SecurityAssertion) principal).getSecurityToken()
-                            .getToken();
-                }
-            }
-
-            if (samlToken != null) {
-                cookie = new Cookie(SAML_COOKIE_NAME, encodeSaml(samlToken));
-            }
-        } catch (WSSecurityException e) {
-            LOGGER.error("Unable to parse SAML assertion from subject.", e);
-        }
-        return cookie;
-    }
-
-    /**
-     * Encodes the SAML assertion as a deflated Base64 String so that it can be used as a Cookie.
-     *
-     * @param token
-     * @return String
-     * @throws WSSecurityException
-     */
-    private String encodeSaml(org.w3c.dom.Element token) throws WSSecurityException {
-        AssertionWrapper assertion = new AssertionWrapper(token);
-        String samlStr = assertion.assertionToString();
-        DeflateEncoderDecoder deflateEncoderDecoder = new DeflateEncoderDecoder();
-        byte[] deflatedToken = deflateEncoderDecoder.deflateToken(samlStr.getBytes());
-        return Base64Utility.encode(deflatedToken);
     }
 
     /**

@@ -25,6 +25,11 @@
     <name>DDF :: Catalog :: OpenSearch :: Source</name>
     <packaging>bundle</packaging>
 
+    <properties>
+        <!-- compile-time dependency -->
+        <ddf.security.app.version>2.6.0-SNAPSHOT</ddf.security.app.version>
+    </properties>
+
     <dependencies>
 
         <dependency>
@@ -148,6 +153,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+            <version>${ddf.security.app.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -178,7 +189,8 @@
                             ddf.catalog.source.opensearch,
                             ddf.catalog.data.impl,
                             ddf.catalog.operation.impl,
-                            ddf.catalog.util.impl
+                            ddf.catalog.util.impl,
+                            org.codice.ddf.security.common.jaxrs
                         </Private-Package>
                         <Export-Package />
                     </instructions>

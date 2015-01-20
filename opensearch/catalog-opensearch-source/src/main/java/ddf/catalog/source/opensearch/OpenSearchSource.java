@@ -51,6 +51,7 @@ import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.geotools.filter.FilterTransformer;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
@@ -254,7 +255,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
             Object subjectObj = queryRequest.getProperties()
                     .get(SecurityConstants.SECURITY_SUBJECT);
             subject = (Subject) subjectObj;
-            client = openSearchConnection.setSubjectOnWebClient(client, subject);
+            RestSecurity.setSubjectOnClient(subject, client);
         }
 
         Query query = queryRequest.getQuery();
@@ -289,7 +290,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                     Object subjectObj = queryRequest.getProperties()
                             .get(SecurityConstants.SECURITY_SUBJECT);
                     subject = (Subject) subjectObj;
-                    webClient = openSearchConnection.setSubjectOnWebClient(webClient, subject);
+                    RestSecurity.setSubjectOnClient(subject, webClient);
                 }
 
                 Response clientResponse = webClient.get();
@@ -725,7 +726,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                 }
 
                 if(subject != null) {
-                    webClient = openSearchConnection.setSubjectOnWebClient(webClient, subject);
+                    RestSecurity.setSubjectOnClient(subject, webClient);
                 }
 
                 Response clientResponse = null;
