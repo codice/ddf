@@ -334,7 +334,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
             stream = (InputStream)entityObj;
         }
         if (Response.Status.OK.getStatusCode() != clientResponse.getStatus()) {
-            String error = new String();
+            String error = "";
             try {
                 if (stream != null) {
                     error = IOUtils.toString(stream);
