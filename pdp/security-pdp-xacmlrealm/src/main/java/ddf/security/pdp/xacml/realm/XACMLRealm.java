@@ -143,7 +143,26 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
                 curResponse = isPermitted(curRequest);
                 logger.debug("Received response from PDP, returning {}.", curResponse);
                 results[i] = curResponse;
-            } else {
+            } else if (curPermission instanceof KeyValuePermission) {
+                //Need to refactor this into a private method with the above condition
+                //This is to handle the case where there is a single KeyValuePermission
+                logger.debug("Checking if {} has access to current metacard",
+                        subjectPrincipal.getPrimaryPrincipal());
+
+                SecurityLogger.logInfo("Checking if [" + subjectPrincipal.getPrimaryPrincipal()
+                        + "] has access to view current metacard");
+                KeyValueCollectionPermission keyValueCollectionPermission = new KeyValueCollectionPermission((KeyValuePermission) curPermission);
+                logger.debug("Received authZ info, creating XACML request.");
+                RequestType curRequest = createRedactXACMLRequest(
+                        (String) subjectPrincipal.getPrimaryPrincipal(), info,
+                         keyValueCollectionPermission);
+                logger.debug("Created XACML request, calling PDP.");
+
+                curResponse = isPermitted(curRequest);
+                logger.debug("Received response from PDP, returning {}.", curResponse);
+                results[i] = curResponse;
+            }
+            else {
                 logger.warn(
                   "Could not check permissions with {}, permission being requested MUST be an ActionPermission or RedactionPermission",
                   curPermission);
@@ -152,6 +171,8 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
         }
         return results;
     }
+
+
 
     protected RequestType createActionXACMLRequest(String subject, AuthorizationInfo info,
       String action) {
