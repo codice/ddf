@@ -1,30 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.backup;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -34,17 +22,28 @@ import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The CatalogBackupPlugin backups up metacards to the file system. It is a
  * PostIngestPlugin, so it processes CreateResponses, DeleteResponses, and
  * UpdateResponses.
- *
+ * <p/>
  * The root backup directory and subdirectory levels can be configured in the
  * Backup Post-Ingest Plugin section in the admin console.
- *
+ * <p/>
  * This feature can be installed/uninstalled with the following commands:
- *
+ * <p/>
  * ddf@local>features:install catalog-core-backupplugin
  * ddf@local>features:uninstall catalog-core-backupplugin
  */
@@ -59,10 +58,11 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     private int subDirLevels;
 
-    private boolean enableBackupPlugin = false;
+    private boolean enableBackupPlugin = true;
 
     private enum OPERATION {
-        CREATE, DELETE
+        CREATE,
+        DELETE
     };
 
     public CatalogBackupPlugin() {
@@ -72,8 +72,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     /**
      * Backs up created metacards to the file system backup.
      *
-     * @param input
-     *            the {@link CreateResponse} to process
+     * @param input the {@link CreateResponse} to process
      * @return
      * @throws PluginExecutionException
      */
@@ -109,8 +108,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     /**
      * Backs up updated metacards to the file system backup.
      *
-     * @param input
-     *            the {@link UpdateResponse} to process
+     * @param input the {@link UpdateResponse} to process
      * @return
      * @throws PluginExecutionException
      */
@@ -163,9 +161,8 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     /**
      * Removes deleted metacards from the file system backup.
-     * 
-     * @param input
-     *            the {@link DeleteResponse} to process
+     *
+     * @param input the {@link DeleteResponse} to process
      * @return
      * @throws PluginExecutionException
      */
@@ -205,8 +202,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     /**
      * Sets the root file system backup directory.
      *
-     * @param dir
-     *            absolute path for the root file system backup directory.
+     * @param dir absolute path for the root file system backup directory.
      */
     public void setRootBackupDir(String dir) {
         if (StringUtils.isBlank(dir)) {
@@ -222,8 +218,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      * Sets the number of subdirectory levels to create. Two characters from
      * each metacard ID will be used to name each subdirectory level.
      *
-     * @param levels
-     *            number of subdirectory levels to create
+     * @param levels number of subdirectory levels to create
      */
     public void setSubDirLevels(int levels) {
         this.subDirLevels = levels;
@@ -248,9 +243,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     /**
      * Deletes metacard from file system backup.
      *
-     * @param metacard
-     *            the metacard to be deleted.
-     *
+     * @param metacard the metacard to be deleted.
      * @throws IOException
      */
     private void deleteMetacard(Metacard metacard) throws IOException {
@@ -263,8 +256,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      * written to temp files. Each temp file is renamed when the write is
      * complete. This makes it easy to find and remove failed files.
      *
-     * @param metacard
-     *            the metacard to create a temp file for.
+     * @param metacard the metacard to create a temp file for.
      * @return
      * @throws IOException
      */
@@ -297,9 +289,8 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     /**
      * Removed the temp file extension off of the backed up metacard.
      *
-     * @param source
-     *            the backed up metacard file in which the temp file extension
-     *            is to be removed.
+     * @param source the backed up metacard file in which the temp file extension
+     *               is to be removed.
      * @throws IOException
      */
     private void removeTempExtension(File source) throws IOException {
@@ -312,13 +303,10 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     /**
      * Gets an exception message
-     * 
-     * @param previousExceptionMessage
-     *            the previous exception message that we wish to append to
-     * @param metacardsIdsInError
-     *            the metacard IDs that processed in error
-     * @param operation
-     *            the operation being performed
+     *
+     * @param previousExceptionMessage the previous exception message that we wish to append to
+     * @param metacardsIdsInError      the metacard IDs that processed in error
+     * @param operation                the operation being performed
      * @return the updated exception message
      */
     private String getExceptionMessage(String responseType, String previousExceptionMessage,
