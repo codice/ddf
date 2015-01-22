@@ -24,7 +24,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -177,8 +181,7 @@ public class TestGeoJsonQueryResponseTransformer {
         }
     }
 
-    private void verifyResult(@SuppressWarnings("rawtypes")
-    Map result) {
+    private void verifyResult(@SuppressWarnings("rawtypes") Map result) {
         assertThat(toString(result.get("relevance")), is(Double.toString(DEFAULT_RELEVANCE)));
         @SuppressWarnings("rawtypes")
         Map metacard = (Map) result.get("metacard");

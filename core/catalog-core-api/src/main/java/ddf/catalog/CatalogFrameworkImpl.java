@@ -1047,11 +1047,15 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
         if (!exceptions.isEmpty()) {
             // we have exceptions to merge in
             if (response == null) {
-                logger.error("Could not add Query exceptions to a QueryResponse because the list of ProcessingDetails was null -- according to the API this should not happen");
+                logger.error("Could not add exceptions to response because the response was null");
             } else {
                 // need to merge them together.
                 Set<ProcessingDetails> sourceDetails = response.getProcessingDetails();
-                sourceDetails.addAll(exceptions);
+                if (null != sourceDetails) {
+                    sourceDetails.addAll(exceptions);
+                } else {
+                    logger.error("Could not add exceptions to response because the response's processing details was null");
+                }
             }
         }
         return response;
