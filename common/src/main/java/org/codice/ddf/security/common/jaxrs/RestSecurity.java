@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Cookie;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Provides methods that help with securing RESTful (jaxrs) communications.
@@ -39,13 +40,14 @@ public final class RestSecurity {
      * Parses the incoming subject for a saml assertion and sets that as a cookie on the client.
      *
      * @param subject Subject containing a SAML-based security token.
-     * @param client  Client to set the cookie on.
+     * @param client  Non-null client to set the cookie on.
+     * @throws java.lang.NullPointerException if client is null
      */
     public static void setSubjectOnClient(Subject subject, Client client) {
         if (subject != null) {
             javax.ws.rs.core.Cookie cookie = createSamlCookie(subject);
             if (cookie == null) {
-                LOGGER.info("SAML Cookie was null. Unable to set the cookie for the client.");
+                LOGGER.debug("SAML Cookie was null. Unable to set the cookie for the client.");
                 return;
             }
             client.cookie(cookie);
@@ -82,13 +84,14 @@ public final class RestSecurity {
      *
      * @param token SAML assertion as a token
      * @return String
-     * @throws WSSecurityException
+     * @throws WSSecurityException if the assertion in the token cannot be converted
      */
     public static String encodeSaml(org.w3c.dom.Element token) throws WSSecurityException {
         AssertionWrapper assertion = new AssertionWrapper(token);
         String samlStr = assertion.assertionToString();
         DeflateEncoderDecoder deflateEncoderDecoder = new DeflateEncoderDecoder();
-        byte[] deflatedToken = deflateEncoderDecoder.deflateToken(samlStr.getBytes());
+        byte[] deflatedToken = deflateEncoderDecoder
+                .deflateToken(samlStr.getBytes(StandardCharsets.UTF_8));
         return Base64Utility.encode(deflatedToken);
     }
 
