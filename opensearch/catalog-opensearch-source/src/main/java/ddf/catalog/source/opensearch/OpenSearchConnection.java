@@ -17,44 +17,21 @@ package ddf.catalog.source.opensearch;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.Query;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.encryption.EncryptionService;
-import org.apache.commons.io.IOUtils;
+import ddf.security.settings.SecuritySettingsService;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.configuration.security.FiltersType;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.saml.ext.AssertionWrapper;
 import org.codice.ddf.endpoints.OpenSearch;
 import org.codice.ddf.endpoints.rest.RESTService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.ws.rs.core.Cookie;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Arrays;
 
 /**
  * This class wraps the CXF JAXRS code to make it easier to use and also easier to test. Most of
@@ -62,16 +39,6 @@ import java.util.Arrays;
  * mock up when testing.
  */
 public class OpenSearchConnection {
-
-    protected static final String[] SSL_ALLOWED_ALGORITHMS =
-            {
-                    ".*_WITH_AES_.*"
-            };
-
-    protected static final String[] SSL_DISALLOWED_ALGORITHMS =
-            {
-                    ".*_WITH_NULL_.*", ".*_DH_anon_.*"
-            };
 
     private static final transient Logger LOGGER = LoggerFactory
             .getLogger(OpenSearchConnection.class);
@@ -86,43 +53,26 @@ public class OpenSearchConnection {
 
     private FilterAdapter filterAdapter;
 
-    private EncryptionService encryptionService;
-
-    private String trustStorePath;
-
-    private String trustStorePassword;
-
-    private String keyStorePath;
-
-    private String keyStorePassword;
-
     private String username;
 
     private String password;
+
+    private SecuritySettingsService securitySettingsService;
 
     /**
      * Default Constructor
      * @param endpointUrl - OpenSearch URL to connect to
      * @param filterAdapter - adapter to translate between DDF REST and OpenSearch
-     * @param keyStorePassword - SSL Keystore password
-     * @param keyStorePath - SSL Keystore file path
-     * @param trustStorePassword - SSL Truststore password
-     * @param trustStorePath - SSL Truststore file path
+     * @param securitySettings - Service used to obtain settings for secure communications.
      * @param username - Basic Auth user name
      * @param password - Basic Auth password
-     * @param encryptionService - decrypt service for passwords
      */
     public OpenSearchConnection(String endpointUrl, FilterAdapter filterAdapter,
-            String keyStorePassword, String keyStorePath, String trustStorePassword,
-            String trustStorePath, String username, String password, EncryptionService encryptionService) {
+            SecuritySettingsService securitySettings, String username, String password) {
         this.filterAdapter = filterAdapter;
-        this.keyStorePassword = keyStorePassword;
-        this.keyStorePath = keyStorePath;
-        this.trustStorePassword = trustStorePassword;
-        this.trustStorePath = trustStorePath;
         this.username = username;
         this.password = password;
-        this.encryptionService = encryptionService;
+        this.securitySettingsService = securitySettings;
         openSearch = JAXRSClientFactory.create(endpointUrl, OpenSearch.class);
         openSearchClient = WebClient.client(openSearch);
 
@@ -131,9 +81,7 @@ public class OpenSearchConnection {
             restService = JAXRSClientFactory.create(restUrl.buildUrl(), RESTService.class);
             restServiceClient = WebClient.client(restService);
 
-            if (StringUtils.startsWithIgnoreCase(endpointUrl, "https") && StringUtils.isNotEmpty(keyStorePassword)
-                    && StringUtils.isNotEmpty(keyStorePath) && StringUtils.isNotEmpty(trustStorePassword)
-                    && StringUtils.isNotEmpty(trustStorePath)) {
+            if (StringUtils.startsWithIgnoreCase(endpointUrl, "https")) {
                 setTLSOptions(openSearchClient);
                 setTLSOptions(restServiceClient);
             }
@@ -281,121 +229,10 @@ public class OpenSearchConnection {
             }
         }
 
-        try {
-            TLSClientParameters tlsParams = new TLSClientParameters();
-            tlsParams.setDisableCNCheck(true);
+        TLSClientParameters tlsParams = securitySettingsService.getTLSParameters();
+        tlsParams.setDisableCNCheck(true);
+        httpConduit.setTlsClientParameters(tlsParams);
 
-            // the default type is JKS
-            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-
-            // add the truststore if it exists
-            File truststore = new File(trustStorePath);
-            if (truststore.exists() && trustStorePassword != null) {
-                FileInputStream fis = new FileInputStream(truststore);
-                try {
-                    LOGGER.debug("Loading trustStore");
-                    trustStore.load(fis,
-                            encryptionService.decryptValue(trustStorePassword).toCharArray());
-                } catch (IOException e) {
-                    LOGGER.error("Unable to load truststore. {}", truststore, e);
-                } catch (CertificateException e) {
-                    LOGGER.error("Unable to load certificates from keystore. {}", truststore, e);
-                } finally {
-                    IOUtils.closeQuietly(fis);
-                }
-                TrustManagerFactory trustFactory = TrustManagerFactory
-                        .getInstance(TrustManagerFactory
-                                .getDefaultAlgorithm());
-                trustFactory.init(trustStore);
-                LOGGER.debug("trust manager factory initialized");
-                TrustManager[] tm = trustFactory.getTrustManagers();
-                tlsParams.setTrustManagers(tm);
-            }
-
-            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-
-            // add the keystore if it exists
-            File keystore = new File(keyStorePath);
-            if (keystore.exists() && keyStorePassword != null) {
-                FileInputStream fis = new FileInputStream(keystore);
-                try {
-                    LOGGER.debug("Loading keyStore");
-                    keyStore.load(fis,
-                            encryptionService.decryptValue(keyStorePassword).toCharArray());
-                } catch (IOException e) {
-                    LOGGER.error("Unable to load keystore. {}", keystore, e);
-                } catch (CertificateException e) {
-                    LOGGER.error("Unable to load certificates from keystore. {}", keystore, e);
-                } finally {
-                    IOUtils.closeQuietly(fis);
-                }
-                KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory
-                        .getDefaultAlgorithm());
-                keyFactory.init(keyStore, keyStorePassword.toCharArray());
-                LOGGER.debug("key manager factory initialized");
-                KeyManager[] km = keyFactory.getKeyManagers();
-                tlsParams.setKeyManagers(km);
-            }
-
-            // this sets the algorithms that we accept for SSL
-            FiltersType filter = new FiltersType();
-            filter.getInclude().addAll(Arrays.asList(SSL_ALLOWED_ALGORITHMS));
-            filter.getExclude().addAll(Arrays.asList(SSL_DISALLOWED_ALGORITHMS));
-            tlsParams.setCipherSuitesFilter(filter);
-
-            httpConduit.setTlsClientParameters(tlsParams);
-        } catch (KeyStoreException e) {
-            LOGGER.error("Unable to read keystore: ", e);
-        } catch (NoSuchAlgorithmException e) {
-            LOGGER.error("Problems creating SSL socket. Usually this is "
-                    + "referring to the certificate sent by the server not being trusted by the client.",
-                    e);
-        } catch (FileNotFoundException e) {
-            LOGGER.error("Unable to locate one of the SSL stores: {} | {}", trustStorePath,
-                    keyStorePath, e);
-        } catch (UnrecoverableKeyException e) {
-            LOGGER.error("Unable to read keystore: ", e);
-        }
-    }
-
-    public EncryptionService getEncryptionService() {
-        return encryptionService;
-    }
-
-    public void setEncryptionService(EncryptionService encryptionService) {
-        this.encryptionService = encryptionService;
-    }
-
-    public String getTrustStorePath() {
-        return trustStorePath;
-    }
-
-    public void setTrustStorePath(String trustStorePath) {
-        this.trustStorePath = trustStorePath;
-    }
-
-    public String getTrustStorePassword() {
-        return trustStorePassword;
-    }
-
-    public void setTrustStorePassword(String trustStorePassword) {
-        this.trustStorePassword = trustStorePassword;
-    }
-
-    public String getKeyStorePath() {
-        return keyStorePath;
-    }
-
-    public void setKeyStorePath(String keyStorePath) {
-        this.keyStorePath = keyStorePath;
-    }
-
-    public String getKeyStorePassword() {
-        return keyStorePassword;
-    }
-
-    public void setKeyStorePassword(String keyStorePassword) {
-        this.keyStorePassword = keyStorePassword;
     }
 
     public String getUsername() {

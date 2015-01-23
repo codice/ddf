@@ -39,6 +39,7 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathFactory;
 
+import ddf.security.settings.SecuritySettingsService;
 import org.apache.abdera.Abdera;
 import org.apache.abdera.ext.opensearch.OpenSearchConstants;
 import org.apache.abdera.model.Category;
@@ -50,12 +51,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.geotools.filter.FilterTransformer;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import java.io.StringReader;
 
@@ -89,15 +89,13 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import ddf.security.encryption.EncryptionService;
 
 /**
  * Federated site that talks via OpenSearch to the DDF platform. Communication is usually performed
  * via https which requires a keystore and trust store to be provided.
  *
  */
-public final class OpenSearchSource implements FederatedSource, ConfiguredService,
-        ConfigurationWatcher {
+public final class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     static final String BAD_URL_MESSAGE = "Bad url given for remote source";
 
@@ -146,7 +144,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
     private static final String BYTES_EQUAL = "bytes=";
 
-    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(OpenSearchSource.class));
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
 
     private FilterAdapter filterAdapter;
 
@@ -157,21 +155,13 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
     protected OpenSearchConnection openSearchConnection;
 
-    private EncryptionService encryptionService;
+    private SecuritySettingsService securitySettingsService;
 
     private List<String> parameters;
 
     private String username;
 
     private String password;
-
-    private String keystorePassword;
-
-    private String truststorePassword;
-
-    private String keystorePath;
-
-    private String truststorePath;
 
     private long receiveTimeout = 0;
 
@@ -199,7 +189,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     }
 
     protected void configureClient() {
-        openSearchConnection = new OpenSearchConnection(endpointUrl, filterAdapter, keystorePassword, keystorePath, truststorePassword, truststorePath, username, password, encryptionService);
+        openSearchConnection = new OpenSearchConnection(endpointUrl, filterAdapter, securitySettingsService, username, password);
     }
 
     @Override
@@ -728,7 +718,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
         Long bytesToSkip = Long.valueOf(0);
         final String methodName = "retrieveResource";
-        LOGGER.entry(methodName);
+        LOGGER.trace("ENTRY: {}", methodName);
 
         if (requestProperties == null) {
             throw new ResourceNotFoundException("Could not retrieve resource with null properties.");
@@ -809,7 +799,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                         }
                     }
 
-                    LOGGER.exit(methodName);
+                    LOGGER.trace("EXIT: {}", methodName);
 
                     //DDF-643
                     ResourceResponseImpl resourceResponse = new ResourceResponseImpl(new ResourceImpl(
@@ -821,7 +811,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
             }
         }
 
-        LOGGER.exit(methodName);
+        LOGGER.trace("EXIT: {}", methodName);
         throw new ResourceNotFoundException(COULD_NOT_RETRIEVE_RESOURCE_MESSAGE);
     }
 
@@ -852,64 +842,6 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     public void setConfigurationPid(String configurationPid)
     {
         this.configurationPid = configurationPid;
-    }
-
-    @Override
-    public void configurationUpdateCallback(Map<String, String> properties) {
-        String setTrustStorePath = properties.get(ConfigurationManager.TRUST_STORE);
-        if (StringUtils.isNotBlank(setTrustStorePath)) {
-            LOGGER.debug("Setting trust store path: " + setTrustStorePath);
-            truststorePath = setTrustStorePath;
-        }
-
-        String setTrustStorePassword = properties
-                .get(ConfigurationManager.TRUST_STORE_PASSWORD);
-        if (StringUtils.isNotBlank(setTrustStorePassword)) {
-            if (openSearchConnection.getEncryptionService() == null) {
-                LOGGER.error(
-                        "The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
-                                + "trustStore password. Setting decrypted password to null.");
-                truststorePassword = setTrustStorePassword;
-            } else {
-                setTrustStorePassword = openSearchConnection.getEncryptionService().decryptValue(setTrustStorePassword);
-                LOGGER.debug("Setting trust store password.");
-                truststorePassword = setTrustStorePassword;
-            }
-        }
-
-        String setKeyStorePath = properties.get(ConfigurationManager.KEY_STORE);
-        if (StringUtils.isNotBlank(setKeyStorePath)) {
-            LOGGER.debug("Setting key store path: " + setKeyStorePath);
-            openSearchConnection.setKeyStorePath(setKeyStorePath);
-            keystorePath = setKeyStorePath;
-        }
-
-        String setKeyStorePassword = properties
-                .get(ConfigurationManager.KEY_STORE_PASSWORD);
-        if (StringUtils.isNotBlank(setKeyStorePassword)) {
-            if (openSearchConnection.getEncryptionService() == null) {
-                LOGGER.error(
-                        "The StsRealm has a null Encryption Service. Unable to decrypt the encrypted "
-                                + "keyStore password. Setting decrypted password to null.");
-                keystorePassword = setKeyStorePassword;
-            } else {
-                setKeyStorePassword = openSearchConnection.getEncryptionService().decryptValue(setKeyStorePassword);
-                LOGGER.debug("Setting key store password.");
-                keystorePassword = setKeyStorePassword;
-            }
-        }
-
-        if(isInitialized) {
-            configureClient();
-        }
-    }
-
-    public EncryptionService getEncryptionService() {
-        return encryptionService;
-    }
-
-    public void setEncryptionService(EncryptionService encryptionService) {
-        this.encryptionService = encryptionService;
     }
 
     public List<String> getParameters() {
@@ -962,5 +894,9 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
      */
     public long getReceiveTimeout() {
         return this.receiveTimeout;
+    }
+
+    public void setSecuritySettings(SecuritySettingsService settingsService) {
+        this.securitySettingsService = settingsService;
     }
 }

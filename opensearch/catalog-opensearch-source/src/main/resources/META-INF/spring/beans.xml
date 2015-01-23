@@ -31,7 +31,7 @@
 
     <osgi:reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
-    <osgi:reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+    <osgi:reference id="securitySettings" interface="ddf.security.settings.SecuritySettingsService"/>
 
 
     <osgix:managed-service-factory id="DDFfederationPrototypeServiceFactory"
@@ -40,7 +40,6 @@
 
         <osgix:interfaces>
             <beans:value>ddf.catalog.source.FederatedSource</beans:value>
-            <beans:value>org.codice.ddf.configuration.ConfigurationWatcher</beans:value>
         </osgix:interfaces>
 
         <!--
@@ -55,7 +54,7 @@
             <beans:property name="localQueryOnly" value="false"/>
             <beans:property name="shouldConvertToBBox" value="true"/>
             <beans:property name="inputTransformer" ref="xmlInputTransformer"/>
-            <beans:property name="encryptionService" ref="encryptionService"/>
+            <beans:property name="securitySettings" ref="securitySettings"/>
             <beans:property name="parameters" value="q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort" />
             <beans:constructor-arg ref="filterAdapter"/>
         </beans:bean>
