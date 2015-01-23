@@ -708,7 +708,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
      * lexigraphical order.
      * 
      */
-    class MetricsTimeRangeComparator implements Comparator {
+    static class MetricsTimeRangeComparator implements Comparator {
         public int compare(Object o1, Object o2) {
             String timeRange1 = (String) o1;
             String timeRange2 = (String) o2;

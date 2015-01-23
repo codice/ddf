@@ -104,7 +104,7 @@ public class XpathQueryParser extends SolrQueryParser {
      * iterator to bypass further Saxon evaluation. This extension function, like the evaluator, is
      * not thread safe.
      */
-    public class LuceneSearch extends Search {
+    public static class LuceneSearch extends Search {
 
         private Query query;
 

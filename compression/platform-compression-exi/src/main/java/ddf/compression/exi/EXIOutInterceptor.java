@@ -83,7 +83,7 @@ public class EXIOutInterceptor extends AbstractPhaseInterceptor<Message> {
      * OutputStream that caches data and on close will encode the data into an exi format and send it out on the outputstream
      * provided in the constructor.
      */
-    private class EXIOutputStream extends CachedOutputStream {
+    private static class EXIOutputStream extends CachedOutputStream {
 
         private OutputStream outStream;
 
