@@ -101,6 +101,7 @@
 		<module>platform-security-core-api</module>
 		<module>encryption</module>
         <module>platform-security-session</module>
+        <module>platform-security-settings</module>
     </modules>
 
 </project>
