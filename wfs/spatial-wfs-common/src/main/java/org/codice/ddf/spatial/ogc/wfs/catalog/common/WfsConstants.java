@@ -57,5 +57,27 @@ public class WfsConstants {
     public static final String LAT_LON_ORDER = "LAT_LON";
     
     public static final String LON_LAT_ORDER = "LON_LAT";
+    
+    public static final String B = "B";
+    
+    public static final String KB = "KB";
+    
+    public static final String MB = "MB";
+    
+    public static final String GB = "GB";
+    
+    public static final String TB = "TB";
+    
+    public static final String PB = "PB";
+    
+    public static final String BYTES_PER_KB = "1024";
+    
+    public static final String BYTES_PER_MB = "1048576";
+    
+    public static final String BYTES_PER_GB = "1073741824";
+    
+    public static final String BYTES_PER_TB = "1099511627776";
+    
+    public static final String BYTES_PER_PB = "1125899906842624";
 
 }

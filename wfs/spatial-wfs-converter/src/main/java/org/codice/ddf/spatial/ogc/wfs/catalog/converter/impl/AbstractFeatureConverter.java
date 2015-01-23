@@ -14,6 +14,18 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl;
 
+import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.B;
+import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.BYTES_PER_GB;
+import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.BYTES_PER_KB;
+import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.BYTES_PER_MB;
+import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.BYTES_PER_PB;
+import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.BYTES_PER_TB;
+import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.GB;
+import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.KB;
+import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.MB;
+import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.PB;
+import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.TB;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -285,27 +297,28 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
         resourceSize.setScale(1, BigDecimal.ROUND_HALF_UP);
 
         switch (unit) {
-        case "B":
+        case B:
             break;
-        case "KB":
-            resourceSize = resourceSize.multiply(new BigDecimal("1024"));
+        case KB:
+            resourceSize = resourceSize.multiply(new BigDecimal(BYTES_PER_KB));
             break;
-        case "MB":
-            resourceSize = resourceSize.multiply(new BigDecimal("1048576"));
+        case MB:
+            resourceSize = resourceSize.multiply(new BigDecimal(BYTES_PER_MB));
             break;
-        case "GB":
-            resourceSize = resourceSize.multiply(new BigDecimal("1073741824"));
+        case GB:
+            resourceSize = resourceSize.multiply(new BigDecimal(BYTES_PER_GB));
             break;
-        case "TB":
-            resourceSize = resourceSize.multiply(new BigDecimal("1099511627776"));
+        case TB:
+            resourceSize = resourceSize.multiply(new BigDecimal(BYTES_PER_TB));
             break;
-        case "PB":
-            resourceSize = resourceSize.multiply(new BigDecimal("1125899906842624"));
+        case PB:
+            resourceSize = resourceSize.multiply(new BigDecimal(BYTES_PER_PB));
             break;
         }
 
-        LOGGER.debug("resource size in bytes: {}", resourceSize.toPlainString());
-        return resourceSize.toPlainString();
+        String resourceSizeAsString = resourceSize.toPlainString();
+        LOGGER.debug("resource size in bytes: {}", resourceSizeAsString);
+        return resourceSizeAsString;
     }
     
     protected Date parseDateFromXml(HierarchicalStreamReader reader) {
@@ -317,8 +330,10 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
             processingChildNode = true;
         }
 
-        LOGGER.debug("node name: " + reader.getNodeName());
-        LOGGER.debug("value: " + reader.getValue());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("node name: {}", reader.getNodeName());
+            LOGGER.debug("value: {}", reader.getValue());
+        }
         if (StringUtils.isBlank(reader.getValue())) {
             date = null;
             if (processingChildNode) {
@@ -347,7 +362,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
             reader.moveUp();
             processingChildNode = false;
         }
-        LOGGER.debug("node name: " + reader.getNodeName());
+        LOGGER.debug("node name: {}", reader.getNodeName());
         return date;
     }
 

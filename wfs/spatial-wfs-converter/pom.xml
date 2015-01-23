@@ -97,11 +97,14 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package />
-                        <Embed-Dependency>spatial-wfs-common;scope=compile|runtime,
-                        spatial-wfs-api;scope=compile|runtime,
-                        spatial-ogc-common;scope=compile|runtime,
-                        spatial-wfs-v1_0_0-schema-bindings;scope=compile|runtime,
-                        catalog-core-api-impl</Embed-Dependency>
+                        <Embed-Dependency>
+                            spatial-wfs-common;scope=compile|runtime,
+                            spatial-wfs-api;scope=compile|runtime,
+                            spatial-ogc-common;scope=compile|runtime,
+                            spatial-wfs-v1_0_0-schema-bindings;scope=compile|runtime,
+                            catalog-core-api-impl,
+                            spatial-wfs-common;scope=compile|runtime
+                        </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>
