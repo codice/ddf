@@ -23,7 +23,7 @@
 
     <groupId>org.codice.httpproxy</groupId>
     <artifactId>httpproxy-pom</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.2</version>
     <packaging>pom</packaging>
     <name>Codice DDF HTTP Proxy</name>
 
@@ -122,4 +122,8 @@
             <url>http://artifacts.codice.org/content/groups/public/</url>
         </repository>
     </repositories>
+
+  <scm>
+    <tag>httpproxy-1.0.2</tag>
+  </scm>
 </project>
