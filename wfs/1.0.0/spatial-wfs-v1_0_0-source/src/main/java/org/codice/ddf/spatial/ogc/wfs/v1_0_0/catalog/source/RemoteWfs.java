@@ -32,6 +32,7 @@ import ogc.schema.opengis.wfs.v_1_0_0.GetCapabilitiesType;
 import ogc.schema.opengis.wfs.v_1_0_0.GetFeatureType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType;
 
+import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
@@ -85,21 +86,11 @@ public class RemoteWfs extends TrustedRemoteSource implements Wfs {
     }
 
     /**
-     * Sets the keystores to use for outgoing requests.
-     * 
-     * @param keyStorePath
-     *            Path to the keystore.
-     * @param keyStorePassword
-     *            Password for the keystore.
-     * @param trustStorePath
-     *            Path to the truststore.
-     * @param trustStorePassword
-     *            Password for the truststore.
+     * Sets the TLS Parameters on the current client
      */
-    public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
-            String trustStorePassword) {
-        this.configureKeystores(WebClient.client(wfs), keyStorePath, keyStorePassword,
-                trustStorePath, trustStorePassword);
+    protected void setTlsParameters() {
+        Client client = WebClient.client(wfs);
+        setTlsParameters(client);
     }
 
     /**

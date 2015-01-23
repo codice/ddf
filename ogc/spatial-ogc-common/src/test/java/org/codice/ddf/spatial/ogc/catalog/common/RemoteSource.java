@@ -35,14 +35,12 @@ public class RemoteSource extends TrustedRemoteSource implements GenericRemoteSo
                 disableCnCheck, null, getClass().getClassLoader());
     }
 
-    public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
-            String trustStorePassword) {
-        this.configureKeystores(WebClient.client(grs), keyStorePath, keyStorePassword,
-                trustStorePath, trustStorePassword);
-    }
-
     public void setTimeouts(Integer connectionTimeout, Integer receiveTimeout) {
         this.configureTimeouts(WebClient.client(grs), connectionTimeout, receiveTimeout);
+    }
+
+    public void setTlsParameters() {
+        setTlsParameters(WebClient.client(grs));
     }
 
     @GET

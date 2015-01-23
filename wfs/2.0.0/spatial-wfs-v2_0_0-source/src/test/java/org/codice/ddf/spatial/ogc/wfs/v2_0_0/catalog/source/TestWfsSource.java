@@ -881,31 +881,6 @@ public class TestWfsSource {
     }
 
     @Test
-    public void testKeystoreConfiguration() throws JAXBException, UnsupportedQueryException,
-        DatatypeConfigurationException, SAXException, IOException, WfsException {
-        WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,
-                false, 0);
-
-        final String keyStorePath = "/path/keystore.jks";
-        final String keyStorePassword = "password";
-        final String trustStorePath = "/path/truststore.jks";
-        final String trustStorePassword = "/password";
-
-        Map<String, String> configurationMap = new HashMap<String, String>();
-        configurationMap.put(ConfigurationManager.KEY_STORE, keyStorePath);
-        configurationMap.put(ConfigurationManager.KEY_STORE_PASSWORD, keyStorePassword);
-        configurationMap.put(ConfigurationManager.TRUST_STORE, trustStorePath);
-        configurationMap.put(ConfigurationManager.TRUST_STORE_PASSWORD, trustStorePassword);
-
-        // Perform test
-        source.configurationUpdateCallback(configurationMap);
-
-        verify(mockWfs, atLeastOnce()).setKeystores(any(String.class), any(String.class),
-                any(String.class), any(String.class));
-    }
-
-    @Test
     public void testTimeoutConfiguration() throws WfsException {
         WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA,
                 MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, 1, false,

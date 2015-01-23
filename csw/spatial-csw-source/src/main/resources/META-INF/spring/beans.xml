@@ -37,6 +37,8 @@
 
     <reference id="cswTransformProvider" interface="com.thoughtworks.xstream.converters.Converter" />
 
+    <reference id="securitySettings" interface="ddf.security.settings.SecuritySettingsService"/>
+
      <osgix:managed-service-factory
             id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.id"
             factory-pid="Csw_Federated_Source"
@@ -44,7 +46,6 @@
 
         <osgix:interfaces>
             <beans:value>ddf.catalog.source.FederatedSource</beans:value>
-            <beans:value>org.codice.ddf.configuration.ConfigurationWatcher</beans:value>
         </osgix:interfaces>
 
         <beans:bean id="Csw_Federated_Source"
@@ -78,6 +79,7 @@
             <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>
             <beans:property name="receiveTimeout" value=""/>
+            <beans:property name="securitySettings" ref="securitySettings"/>
         </beans:bean>
     </osgix:managed-service-factory>
 
@@ -88,7 +90,6 @@
 
         <osgix:interfaces>
             <beans:value>ddf.catalog.source.ConnectedSource</beans:value>
-            <beans:value>org.codice.ddf.configuration.ConfigurationWatcher</beans:value>
         </osgix:interfaces>
         <beans:bean id="Csw_Connected_Source"
                     class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSource"
@@ -120,6 +121,7 @@
             <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>
             <beans:property name="receiveTimeout" value=""/>
+            <beans:property name="securitySettings" ref="securitySettings"/>
         </beans:bean>
     </osgix:managed-service-factory>
 </beans:beans>

@@ -49,6 +49,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
 import com.thoughtworks.xstream.converters.Converter;
+import ddf.security.settings.SecuritySettingsService;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
@@ -73,8 +74,6 @@ import net.opengis.ows.v_1_0_0.OperationsMetadata;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
@@ -132,8 +131,7 @@ import ddf.security.sts.client.configuration.STSClientConfiguration;
  * CswSource provides a DDF {@link FederatedSource} and {@link ConnectedSource} for CSW 2.0.2
  * services.
  */
-public class CswSource extends MaskableImpl implements FederatedSource, ConnectedSource,
-        ConfigurationWatcher {
+public class CswSource extends MaskableImpl implements FederatedSource, ConnectedSource {
 
     private FilterBuilder filterBuilder;
 
@@ -245,10 +243,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     private AvailabilityTask availabilityTask;
 
     private boolean isConstraintCql;
-    
-    protected String keyStorePath, keyStorePassword;
 
-    protected String trustStorePath, trustStorePassword;
+    private SecuritySettingsService securitySettingsService;
 
     /**
      * Instantiates a CswSource. This constructor is for unit tests
@@ -475,8 +471,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
         try {
             remoteCsw = new RemoteCsw(cswTransformProvider, cswSourceConfiguration);
-            remoteCsw.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword);
+            remoteCsw.setSecuritySettings(securitySettingsService);
+            remoteCsw.setTlsParameters();
             remoteCsw.setTimeouts(cswSourceConfiguration.getConnectionTimeout(),
                     cswSourceConfiguration.getReceiveTimeout());
         } catch (IllegalArgumentException iae) {
@@ -1478,20 +1474,6 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
                        .contains(cswSourceConfiguration.getOutputSchema()) : false;
     }
 
-    @Override
-    public void configurationUpdateCallback(Map<String, String> configurationMap) {
-
-        LOGGER.debug("Got new configurations, updating the keystore and truststore.");
-        keyStorePath = configurationMap.get(ConfigurationManager.KEY_STORE);
-        keyStorePassword = configurationMap.get(ConfigurationManager.KEY_STORE_PASSWORD);
-        trustStorePath = configurationMap.get(ConfigurationManager.TRUST_STORE);
-        trustStorePassword = configurationMap.get(ConfigurationManager.TRUST_STORE_PASSWORD);
-        if (remoteCsw != null) {
-            remoteCsw.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword);
-        }
-    }
-
     /**
      * Callback class to check the Availability of the CswSource.
      * <p/>
@@ -1529,5 +1511,9 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     public void setAvailabilityTask(AvailabilityTask availabilityTask) {
         this.availabilityTask = availabilityTask;
+    }
+
+    public void setSecuritySettings(SecuritySettingsService securitySettings) {
+        this.securitySettingsService = securitySettings;
     }
 }

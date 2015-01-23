@@ -760,49 +760,6 @@ public class TestCswSource extends TestCswSourceBase {
     }
 
     @Test
-    public void testKeystoreConfiguration() throws JAXBException, UnsupportedQueryException,
-        DatatypeConfigurationException, SAXException, IOException {
-
-        final String TITLE = "title";
-
-        // Setup
-        final String searchPhrase = "*";
-        final int pageSize = 1;
-        final int numRecordsReturned = 1;
-        final long numRecordsMatched = 1;
-
-        setupMockContextForMetacardTypeRegistrationAndUnregistration(getDefaultContentTypes());
-
-        try {
-            configureMockRemoteCsw(numRecordsReturned, numRecordsMatched,
-                    CswConstants.VERSION_2_0_2);
-        } catch (CswException e) {
-            fail("Could not configure Mock Remote CSW: " + e.getMessage());
-        }
-
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new LinkedList<String>());
-        cswSource.setCswUrl(URL);
-        cswSource.setId(ID);
-
-        final String keyStorePath = "/path/keystore.jks";
-        final String keyStorePassword = "password";
-        final String trustStorePath = "/path/truststore.jks";
-        final String trustStorePassword = "/password";
-
-        Map<String, String> configurationMap = new HashMap<String, String>();
-        configurationMap.put(ConfigurationManager.KEY_STORE, keyStorePath);
-        configurationMap.put(ConfigurationManager.KEY_STORE_PASSWORD, keyStorePassword);
-        configurationMap.put(ConfigurationManager.TRUST_STORE, trustStorePath);
-        configurationMap.put(ConfigurationManager.TRUST_STORE_PASSWORD, trustStorePassword);
-
-        // Perform test
-        cswSource.configurationUpdateCallback(configurationMap);
-
-        verify(mockCsw, atLeastOnce()).setKeystores(any(String.class), any(String.class),
-                    any(String.class), any(String.class));
-    }
-
-    @Test
     public void testTimeoutConfiguration() {
 
         final String TITLE = "title";

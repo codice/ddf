@@ -41,10 +41,12 @@ import net.opengis.cat.csw.v_2_0_2.TransactionType;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
@@ -98,16 +100,11 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
     }
 
     /**
-     * Sets the keystores to use for outgoing requests.
-     * @param keyStorePath Path to the keystore.
-     * @param keyStorePassword Password for the keystore.
-     * @param trustStorePath Path to the truststore.
-     * @param trustStorePassword Password for the truststore.
+     * Sets the TLS Parameters on the current client
      */
-    public void setKeystores(String keyStorePath, String keyStorePassword, String trustStorePath,
-            String trustStorePassword) {
-        this.configureKeystores(WebClient.client(csw), keyStorePath, keyStorePassword,
-                trustStorePath, trustStorePassword);
+    protected void setTlsParameters() {
+        Client client = WebClient.client(csw);
+        setTlsParameters(client);
     }
 
     /**

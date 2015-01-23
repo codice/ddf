@@ -39,6 +39,7 @@ import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
+import ddf.security.settings.SecuritySettingsService;
 import ogc.schema.opengis.filter.v_1_0_0.FilterType;
 import ogc.schema.opengis.wfs.v_1_0_0.GetFeatureType;
 import ogc.schema.opengis.wfs.v_1_0_0.ObjectFactory;
@@ -49,8 +50,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.ws.commons.schema.XmlSchema;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
@@ -106,8 +105,7 @@ import java.util.concurrent.TimeUnit;
  * Provides a Federated and Connected source implementation for OGC WFS servers.
  * 
  */
-public class WfsSource extends MaskableImpl implements FederatedSource, ConnectedSource,
-        ConfigurationWatcher {
+public class WfsSource extends MaskableImpl implements FederatedSource, ConnectedSource {
 
     private String wfsUrl;
 
@@ -200,9 +198,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
     private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
 
-    protected String keyStorePath, keyStorePassword;
-
-    protected String trustStorePath, trustStorePassword;
+    private SecuritySettingsService securitySettingsService;
 
     public WfsSource(RemoteWfs remoteWfs, FilterAdapter filterAdapter, BundleContext context,
             AvailabilityTask task) {
@@ -358,8 +354,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
         try {
             remoteWfs = new RemoteWfs(wfsUrl, username, password, disableCnCheck);
-            remoteWfs.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword);
+            remoteWfs.setSecuritySettings(securitySettingsService);
+            remoteWfs.setTlsParameters();
             remoteWfs.setTimeouts(connectionTimeout, receiveTimeout);
         } catch (IllegalArgumentException iae) {
             LOGGER.warn("Unable to create RemoteWfs.", iae);
@@ -971,18 +967,8 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         }
     }
 
-    @Override
-    public void configurationUpdateCallback(Map<String, String> configurationMap) {
-
-        LOGGER.debug("Got new configurations, updating the keystore and truststore.");
-        keyStorePath = configurationMap.get(ConfigurationManager.KEY_STORE);
-        keyStorePassword = configurationMap.get(ConfigurationManager.KEY_STORE_PASSWORD);
-        trustStorePath = configurationMap.get(ConfigurationManager.TRUST_STORE);
-        trustStorePassword = configurationMap.get(ConfigurationManager.TRUST_STORE_PASSWORD);
-        if (remoteWfs != null) {
-            remoteWfs.setKeystores(keyStorePath, keyStorePassword, trustStorePath,
-                    trustStorePassword);
-        }
+    public void setSecuritySettings(SecuritySettingsService securitySettings) {
+        this.securitySettingsService = securitySettings;
     }
 
     private class MetacardTypeRegistration {

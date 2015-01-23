@@ -30,13 +30,14 @@
 
     <list id="converterList" interface="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.FeatureConverterFactory" cardinality="0..N"/>
 
+    <reference id="securitySettings" interface="ddf.security.settings.SecuritySettingsService"/>
+
     <osgix:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.WfsFederatedSource.id" factory-pid="Wfs_v2_0_0_Federated_Source"
             update-strategy="bean-managed" update-method="refresh">
 
         <osgix:interfaces>
             <beans:value>ddf.catalog.source.FederatedSource</beans:value>
-            <beans:value>org.codice.ddf.configuration.ConfigurationWatcher</beans:value>
         </osgix:interfaces>
 
         <beans:bean id="Wfs_v2_0_0_Federated_Source" class="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.WfsSource"
@@ -59,6 +60,7 @@
             <beans:property name="disableSorting" value="false" />
             <beans:property name="connectionTimeout" value=""/>
             <beans:property name="receiveTimeout" value=""/>
+            <beans:property name="securitySettings" ref="securitySettings"/>
         </beans:bean>
     </osgix:managed-service-factory>
 
@@ -68,7 +70,6 @@
 
         <osgix:interfaces>
             <beans:value>ddf.catalog.source.ConnectedSource</beans:value>
-            <beans:value>org.codice.ddf.configuration.ConfigurationWatcher</beans:value>
         </osgix:interfaces>
         <beans:bean id="Wfs_v2_0_0_Connected_Source" class="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.WfsSource"
                     init-method="init" destroy-method="destroy">
@@ -91,6 +92,7 @@
             <beans:property name="disableSorting" value="false" />
             <beans:property name="connectionTimeout" value=""/>
             <beans:property name="receiveTimeout" value=""/>
+            <beans:property name="securitySettings" ref="securitySettings"/>
         </beans:bean>
     </osgix:managed-service-factory>
 </beans:beans>
