@@ -28,6 +28,7 @@ import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
+import org.apache.solr.common.SolrException;
 import org.apache.solr.core.CoreContainer;
 import org.apache.solr.core.CoreDescriptor;
 import org.apache.solr.core.SolrConfig;
@@ -130,19 +131,31 @@ public final class SolrServerFactory {
 
         if (System.getProperty("host") != null && System.getProperty("jetty.port") != null && System
                 .getProperty("hostContext") != null) {
-            url = "http://" + System.getProperty("host") + ":" + System.getProperty("jetty.port") +
-                    "/" + StringUtils.stripStart(System.getProperty("hostContext"), "/");
+            url = System.getProperty("urlScheme", "http") + "://" + System.getProperty("host") +
+                    ":" + System.getProperty("jetty.port") + "/"
+                    + StringUtils.strip(System.getProperty("hostContext"), "/");
+            LOGGER.info("Solr system properties set.  Using system configured URL instead: {}",
+                    url);
         }
 
+        String coreUrl = url + "/" + coreName;
         SolrServer server;
-        if (StringUtils.startsWith(url, "https")) {
-            CloseableHttpClient client = getHttpClient();
-            createSolrCore(url, coreName, configFile, client);
-            server = new HttpSolrServer(url + "/" + coreName, client);
-        } else {
-            createSolrCore(url, coreName, configFile, null);
-            server = new HttpSolrServer(url + "/" + coreName);
+        try {
+            if (StringUtils.startsWith(url, "https")) {
+                CloseableHttpClient client = getHttpClient();
+                createSolrCore(url, coreName, configFile, client);
+                server = new HttpSolrServer(coreUrl, client);
+            } else {
+                createSolrCore(url, coreName, configFile, null);
+                server = new HttpSolrServer(coreUrl);
+            }
+        } catch (SolrException ex) {
+            LOGGER.error("Unable to create HTTP Solr server client ({}): {}", coreUrl,
+                    ex.getMessage());
+            return null;
         }
+
+        LOGGER.info("Created HTTP Solr server client ({})", coreUrl);
         return server;
     }
 
