@@ -239,14 +239,14 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
         Serializable metacardId = queryRequest.getPropertyValue(Metacard.ID);
         SourceResponseImpl response = null;
 
-        WebClient client = openSearchConnection.getOpenSearchWebClient();
+        WebClient openSearchWebClient = openSearchConnection.getOpenSearchWebClient();
 
         Subject subject = null;
         if (queryRequest.hasProperties()) {
             Object subjectObj = queryRequest.getProperties()
                     .get(SecurityConstants.SECURITY_SUBJECT);
             subject = (Subject) subjectObj;
-            RestSecurity.setSubjectOnClient(subject, client);
+            RestSecurity.setSubjectOnClient(subject, openSearchWebClient);
         }
 
         Query query = queryRequest.getQuery();
@@ -255,11 +255,11 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
             LOGGER.debug("Received query: " + query);
         }
 
-        boolean canDoOpenSearch = setOpenSearchParameters(query, subject, client);
+        boolean canDoOpenSearch = setOpenSearchParameters(query, subject, openSearchWebClient);
 
         if(canDoOpenSearch) {
 
-            InputStream responseStream = performRequest(client);
+            InputStream responseStream = performRequest(openSearchWebClient);
 
             response = new SourceResponseImpl(queryRequest,
                     new ArrayList<Result>());
@@ -273,16 +273,16 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                     (String) metacardId, false);
 
             if (restClient != null) {
-                WebClient webClient = openSearchConnection.getWebClientFromClient(restClient);
+                WebClient restWebClient = openSearchConnection.getWebClientFromClient(restClient);
 
                 if (queryRequest.hasProperties()) {
                     Object subjectObj = queryRequest.getProperties()
                             .get(SecurityConstants.SECURITY_SUBJECT);
                     subject = (Subject) subjectObj;
-                    RestSecurity.setSubjectOnClient(subject, webClient);
+                    RestSecurity.setSubjectOnClient(subject, restWebClient);
                 }
 
-                InputStream responseStream = performRequest(client);
+                InputStream responseStream = performRequest(restWebClient);
 
                 Metacard metacard = null;
                 List<Result> resultQueue = new ArrayList<Result>();

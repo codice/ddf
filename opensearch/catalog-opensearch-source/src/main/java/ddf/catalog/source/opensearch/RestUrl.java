@@ -29,7 +29,7 @@ import java.net.URL;
  */
 public class RestUrl {
 
-    private StringBuilder url = new StringBuilder();
+    private String baseUrl;
 
     private String id;
 
@@ -38,8 +38,7 @@ public class RestUrl {
     static final String RESOURCE_QUERY_PARAM = "transform=resource";
 
     public RestUrl(String protocol, String host, String port, String contextPath) {
-
-        url.append(protocol + "://" + host + ":" + port + contextPath);
+        baseUrl = protocol + "://" + host + ":" + port + contextPath;
     }
 
     /**
@@ -94,15 +93,16 @@ public class RestUrl {
     }
 
     public String buildUrl() {
+        String url = baseUrl;
 
         if (id != null) {
-            url.append(id);
+            url += id;
         }
         if (retrieveResource) {
-            url.append("?" + RESOURCE_QUERY_PARAM);
+            url += "?" + RESOURCE_QUERY_PARAM;
         }
 
-        return url.toString();
+        return url;
     }
 
 }
