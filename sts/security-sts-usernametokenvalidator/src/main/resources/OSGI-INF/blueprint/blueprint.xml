@@ -48,7 +48,7 @@
 
     <bean class="org.apache.ws.security.validate.JAASUsernameTokenValidator" id="JAASValidator">
         <cm:managed-properties persistent-id="ddf.security.sts.usernametokenvalidator" update-strategy="container-managed" />
-        <property name="contextName" value="ddf"/>
+        <property name="contextName" value="karaf"/>
     </bean>
 
     <bean class="org.apache.cxf.sts.token.validator.UsernameTokenValidator" id="utValidator">

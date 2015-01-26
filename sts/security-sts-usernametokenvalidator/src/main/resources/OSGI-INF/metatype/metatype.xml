@@ -16,7 +16,7 @@
 
 	<OCD description="STS Username Token Validator Configuration" name="Security STS Username Token Validator" id="ddf.security.sts.usernametokenvalidator">
 	    <AD name="JAAS Context:" id="contextName" required="true" type="String"
-	      default="ddf"
+	      default="karaf"
 	      description="The JAAS context to be used with this service.">
 	    </AD>
 	</OCD>

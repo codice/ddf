@@ -84,7 +84,6 @@
         <feature>cxf-core</feature>
         <feature>cxf-ws-security</feature>
         <feature>spring-tx</feature>
-        <feature>security-sts-ldaplogin</feature>
         <feature>security-sts-propertyclaimshandler</feature>
         <bundle>mvn:ddf.security.sts/security-sts-server/${project.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcprov-jdk15/1.46_3</bundle>

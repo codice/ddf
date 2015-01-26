@@ -92,7 +92,7 @@ public class UPBSTValidator implements TokenValidator {
     private Validator validator = new org.apache.ws.security.validate.UsernameTokenValidator();
 
     private UsernameTokenRealmCodec usernameTokenRealmCodec;
-    private String supportedRealm = DDF_REALM;
+    private String supportedRealm = KARAF_REALM;
 
     /**
      * Set the WSS4J Validator instance to use to validate the token.
