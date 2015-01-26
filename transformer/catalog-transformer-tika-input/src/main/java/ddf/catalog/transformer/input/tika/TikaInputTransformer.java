@@ -15,6 +15,7 @@
 package ddf.catalog.transformer.input.tika;
 
 import com.google.common.io.FileBackedOutputStream;
+import com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderSpi;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
@@ -41,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
+import javax.imageio.spi.IIORegistry;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -58,11 +60,13 @@ public class TikaInputTransformer implements InputTransformer {
 
     public TikaInputTransformer(BundleContext bundleContext) {
         if (bundleContext == null) {
-            LOGGER.error("Bundle context is null. Unable to register {} as an osgi service.", TikaInputTransformer.class.getSimpleName());
+            LOGGER.error("Bundle context is null. Unable to register {} as an osgi service.",
+                    TikaInputTransformer.class.getSimpleName());
             return;
         }
 
         registerService(bundleContext);
+        IIORegistry.getDefaultInstance().registerServiceProvider(new J2KImageReaderSpi());
     }
 
     @Override
@@ -71,7 +75,8 @@ public class TikaInputTransformer implements InputTransformer {
     }
 
     @Override
-    public Metacard transform(InputStream input, String uri) throws IOException, CatalogTransformerException {
+    public Metacard transform(InputStream input, String uri)
+            throws IOException, CatalogTransformerException {
 
         LOGGER.debug("Transforming input stream using Tika.");
 
@@ -84,14 +89,16 @@ public class TikaInputTransformer implements InputTransformer {
             try {
                 IOUtils.copy(input, fileBackedOutputStream);
             } catch (IOException e) {
-                throw new CatalogTransformerException("Could not copy bytes of content message.", e);
+                throw new CatalogTransformerException("Could not copy bytes of content message.",
+                        e);
             }
 
             Parser parser = new AutoDetectParser();
             Metadata metadata = new Metadata();
             ToXMLContentHandler xmlHandler = new ToXMLContentHandler();
 
-            try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
+            try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource()
+                    .openStream()) {
                 parser.parse(inputStreamMessageCopy, xmlHandler, metadata, new ParseContext());
 
             } catch (SAXException e) {
@@ -100,9 +107,10 @@ public class TikaInputTransformer implements InputTransformer {
                 throw new CatalogTransformerException("Tika exception processing input.", e);
             }
 
-
-            try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
-                metacard = createMetacard(inputStreamMessageCopy, metadata, uri, xmlHandler.toString());
+            try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource()
+                    .openStream()) {
+                metacard = createMetacard(inputStreamMessageCopy, metadata, uri,
+                        xmlHandler.toString());
             }
         }
 
@@ -110,7 +118,8 @@ public class TikaInputTransformer implements InputTransformer {
         return metacard;
     }
 
-    private Metacard createMetacard(InputStream input, Metadata metadata, String uri, String metacardMetadata) {
+    private Metacard createMetacard(InputStream input, Metadata metadata, String uri,
+            String metacardMetadata) {
         Metacard metacard = new MetacardImpl(BasicTypes.BASIC_METACARD);
 
         String contentType = metadata.get(Metadata.CONTENT_TYPE);
@@ -187,19 +196,22 @@ public class TikaInputTransformer implements InputTransformer {
     }
 
     /**
-     *  We programmatically register the Tika Input Transformer so we can programmatically build the 
-     *  list of supported mime types.
+     * We programmatically register the Tika Input Transformer so we can programmatically build the
+     * list of supported mime types.
      */
     private void registerService(BundleContext bundleContext) {
-        LOGGER.debug("Registering {} as an osgi service.", TikaInputTransformer.class.getSimpleName());
-        bundleContext.registerService(ddf.catalog.transform.InputTransformer.class, this, getServiceProperties());
+        LOGGER.debug("Registering {} as an osgi service.",
+                TikaInputTransformer.class.getSimpleName());
+        bundleContext.registerService(ddf.catalog.transform.InputTransformer.class, this,
+                getServiceProperties());
     }
 
     private Hashtable<String, Object> getServiceProperties() {
-        Hashtable<String, Object> properties = new Hashtable<String, Object>();
+        Hashtable<String, Object> properties = new Hashtable<>();
         properties.put(ddf.catalog.Constants.SERVICE_ID, "tika");
         properties.put(ddf.catalog.Constants.SERVICE_TITLE, "Tika Input Transformer");
-        properties.put(ddf.catalog.Constants.SERVICE_DESCRIPTION, "The Tika Input Transformer detects and extracts metadata and text content from various documents.");
+        properties.put(ddf.catalog.Constants.SERVICE_DESCRIPTION,
+                "The Tika Input Transformer detects and extracts metadata and text content from various documents.");
         properties.put("mime-type", getSupportedMimeTypes());
         // The Tika Input Transformer should be tried last, so we set the service ranking to -1
         properties.put(Constants.SERVICE_RANKING, -1);
@@ -209,12 +221,13 @@ public class TikaInputTransformer implements InputTransformer {
 
     private List<String> getSupportedMimeTypes() {
         SortedSet<MediaType> mediaTypes = MediaTypeRegistry.getDefaultRegistry().getTypes();
-        List<String> mimeTypes = new ArrayList<String>(mediaTypes.size());
+        List<String> mimeTypes = new ArrayList<>(mediaTypes.size());
 
         for (MediaType mediaType : mediaTypes) {
             String mimeType = mediaType.getType() + "/" + mediaType.getSubtype();
             mimeTypes.add(mimeType);
         }
+        mimeTypes.add("image/jp2");
 
         LOGGER.debug("supported mime types: {}", mimeTypes);
         return mimeTypes;
@@ -224,7 +237,8 @@ public class TikaInputTransformer implements InputTransformer {
         try {
             Image image = ImageIO.read(new CloseShieldInputStream(input));
 
-            BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+            BufferedImage bufferedImage = new BufferedImage(image.getWidth(null),
+                    image.getHeight(null), BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = bufferedImage.createGraphics();
             graphics.drawImage(image, null, null);
             graphics.dispose();
