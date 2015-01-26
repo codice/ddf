@@ -396,7 +396,7 @@ public abstract class TrustedRemoteSource {
         ClientConfiguration clientConfiguration = WebClient.getConfig(client);
 
         HTTPConduit httpConduit = clientConfiguration.getHttpConduit();
-        if (securitySettingsService != null) {
+        if (securitySettingsService != null && httpConduit != null) {
             TLSClientParameters origParameters = httpConduit.getTlsClientParameters();
             TLSClientParameters tlsClientParameters = securitySettingsService.getTLSParameters();
             if (origParameters != null) {
@@ -404,7 +404,8 @@ public abstract class TrustedRemoteSource {
             }
             httpConduit.setTlsClientParameters(tlsClientParameters);
         } else {
-            LOGGER.debug("Could not get a reference to security settings service, using system defaults.");
+            LOGGER.debug(
+                    "Could not get a reference to security settings service or reference to client http conduit, using system defaults.");
         }
 
     }
