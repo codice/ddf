@@ -43,10 +43,6 @@ import static org.junit.Assert.fail;
 @ExamReactorStrategy(PerClass.class)
 public class TestCatalog extends AbstractIntegrationTest {
 
-    private static final String EXTERNAL_SOLR_CONFIG_PID = "ddf.catalog.solr.external.SolrHttpCatalogProvider";
-
-    public static final String CACHING_FEDERATION_STRATEGY_PID = "ddf.catalog.federation.impl.CachingFederationStrategy";
-
     private static boolean ranBefore = false;
 
     protected static boolean setupFailed = false;
@@ -61,7 +57,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         if (!ranBefore) {
             try {
                 setLogLevels();
-                configureBundles();
                 waitForAllBundles();
                 waitForCatalogProvider();
                 waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
@@ -78,23 +73,6 @@ public class TestCatalog extends AbstractIntegrationTest {
     @After
     public void afterTest() {
         LOGGER.info("End of {}", testName.getMethodName());
-    }
-
-    private void configureBundles() throws IOException, InterruptedException {
-        LOGGER.info("Updating Solr configuration.");
-
-        Configuration fedConfig = configAdmin.getConfiguration(CACHING_FEDERATION_STRATEGY_PID,
-                null);
-
-        Dictionary<String, Object> properties = new Hashtable<>();
-        properties.put("url", "http://localhost:" + HTTP_PORT + "/solr");
-
-        fedConfig.update(properties);
-
-        properties.put("forceAutoCommit", "true");
-
-        Configuration solrConfig = configAdmin.getConfiguration(EXTERNAL_SOLR_CONFIG_PID, null);
-        solrConfig.update(properties);
     }
 
     @Test

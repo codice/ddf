@@ -15,7 +15,6 @@
 package ddf.catalog.test;
 
 import com.jayway.restassured.response.Response;
-import ddf.catalog.data.Attribute;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import org.apache.commons.lang.StringUtils;
@@ -106,7 +105,7 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String RMI_REG_PORT = "1100";
 
-    protected static final String SERVICE_ROOT = "http://localhost:" + HTTP_PORT + "/services";
+    protected static final String SERVICE_ROOT = "https://localhost:" + HTTPS_PORT + "/services";
 
     protected static final String REST_PATH = SERVICE_ROOT + "/catalog/";
 
@@ -188,6 +187,11 @@ public abstract class AbstractIntegrationTest {
 
     protected Option[] configureConfigurationPorts() throws URISyntaxException {
         return options(
+                editConfigurationFilePut("etc/system.properties", "urlScheme", "https"),
+                editConfigurationFilePut("etc/system.properties", "host", "localhost"),
+                editConfigurationFilePut("etc/system.properties", "jetty.port", HTTPS_PORT),
+                editConfigurationFilePut("etc/system.properties", "hostContext", "/solr"),
+                editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
                 editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", SSH_PORT),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "port", HTTP_PORT),
                 editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
@@ -199,7 +203,13 @@ public abstract class AbstractIntegrationTest {
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg",
                         "rmiServerPort", RMI_SERVER_PORT),
                 replaceConfigurationFile("etc/hazelcast.xml", new File(this.getClass()
-                        .getResource("/hazelcast.xml").toURI())));
+                        .getResource("/hazelcast.xml").toURI())),
+                replaceConfigurationFile("etc/ddf.security.sts.client.configuration.cfg",
+                        new File(this.getClass()
+                        .getResource("/ddf.security.sts.client.configuration.cfg").toURI())),
+                replaceConfigurationFile("etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg",
+                        new File(this.getClass()
+                                .getResource("/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg").toURI())));
     }
 
     protected Option[] configureMavenRepos() {
@@ -222,10 +232,7 @@ public abstract class AbstractIntegrationTest {
                         vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
                 when(System.getProperty("maven.repo.local") != null)
                         .useOptions(systemProperty("org.ops4j.pax.url.mvn.localRepository")
-                                .value(System.getProperty("maven.repo.local", ""))),
-                systemProperty("host").value("localhost"),
-                systemProperty("jetty.port").value(HTTP_PORT),
-                systemProperty("hostContext").value("/solr"));
+                                .value(System.getProperty("maven.repo.local", ""))));
     }
 
     protected Option[] configureVmOptions() {
@@ -240,7 +247,7 @@ public abstract class AbstractIntegrationTest {
     protected Option[] configureStartScript() {
         return options(
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg", "featuresBoot",
-                        "catalog-app,solr-app,spatial-app"));
+                        "security-services-app,catalog-app,solr-app,spatial-app"));
     }
 
     /**
