@@ -29,7 +29,7 @@
 
 	<properties>
 	    <commons-io.version>2.1</commons-io.version>
-	    <ddf.platform.app.version>2.6.1</ddf.platform.app.version>
+	    <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
 	    <ddf.catalog.app.version>2.6.1</ddf.catalog.app.version>
 	    <joda-time.version>1.6.2</joda-time.version>
 	    <jts.version>1.12</jts.version>
