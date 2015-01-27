@@ -57,11 +57,9 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
      */
     public static final String AUTH_TYPE = "SAML";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SAMLAssertionHandler.class);
+
     protected String realm = BaseAuthenticationToken.DEFAULT_REALM;
-
-
-    private static final Logger LOGGER = LoggerFactory
-      .getLogger(SAMLAssertionHandler.class);
 
     @Override
     public String getAuthenticationType() {
@@ -70,7 +68,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
     @Override
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
-      FilterChain chain, boolean resolve) {
+            FilterChain chain, boolean resolve) {
         HandlerResult handlerResult = new HandlerResult();
 
         SecurityToken securityToken = null;
@@ -90,32 +88,44 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
                 LOGGER.trace("Cookie value: {}", tokenString);
                 securityToken = new SecurityToken();
                 Element thisToken = StaxUtils.read(new StringReader(tokenString))
-                  .getDocumentElement();
+                        .getDocumentElement();
                 securityToken.setToken(thisToken);
-                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken, realm);
+                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken,
+                        realm);
                 handlerResult.setToken(samlToken);
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
             } catch (DataFormatException e) {
-                LOGGER.warn("Unexpected error deflating cookie value - proceeding without SAML token.", e);
+                LOGGER.warn(
+                        "Unexpected error deflating cookie value - proceeding without SAML token.",
+                        e);
             } catch (Base64Exception e) {
-                LOGGER.warn("Unexpected error un-encoding the cookie value - proceeding without SAML token.", e);
+                LOGGER.warn(
+                        "Unexpected error un-encoding the cookie value - proceeding without SAML token.",
+                        e);
             } catch (IOException e) {
-                LOGGER.warn("Unexpected error converting cookie value to string - proceeding without SAML token.", e);
+                LOGGER.warn(
+                        "Unexpected error converting cookie value to string - proceeding without SAML token.",
+                        e);
             } catch (XMLStreamException e) {
-                LOGGER.warn("Unexpected error converting XML string to element - proceeding without SAML token.", e);
+                LOGGER.warn(
+                        "Unexpected error converting XML string to element - proceeding without SAML token.",
+                        e);
             }
             return handlerResult;
         }
 
         HttpSession session = httpRequest.getSession(false);
-        if(session != null) {
+        if (session == null && httpRequest.getRequestedSessionId() != null) {
+            session = httpRequest.getSession();
+        }
+        if (session != null) {
             //Check if there is a SAML Assertion in the session
             //If so, create a SAMLAuthenticationToken using the sessionId
             Object savedToken = session.getAttribute(SecurityConstants.SAML_ASSERTION);
             if (savedToken != null) {
                 LOGGER.trace("Creating SAML authentication token with session.");
-                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, session.getId(),
-                        realm);
+                SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null,
+                        session.getId(), realm);
                 handlerResult.setToken(samlToken);
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
                 return handlerResult;
@@ -135,19 +145,24 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
      * the presented SAML assertion - either it was invalid, or the reference didn't match a
      * cached assertion, etc. In order not to get stuck in a processing loop, we will remove the
      * existing SAML assertion cookies - that will allow handling to progress moving forward.
-     * @param servletRequest http servlet request
+     *
+     * @param servletRequest  http servlet request
      * @param servletResponse http servlet response
-     * @param chain rest of the request chain to be invoked after security handling
+     * @param chain           rest of the request chain to be invoked after security handling
      * @return result containing the potential credentials and status
      * @throws ServletException
      */
     @Override
     public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
-      FilterChain chain) throws ServletException {
+            FilterChain chain) throws ServletException {
         HandlerResult result = new HandlerResult();
 
-        HttpServletRequest httpRequest = servletRequest instanceof HttpServletRequest ? (HttpServletRequest) servletRequest : null;
-        HttpServletResponse httpResponse = servletResponse instanceof HttpServletResponse ? (HttpServletResponse) servletResponse : null;
+        HttpServletRequest httpRequest = servletRequest instanceof HttpServletRequest ?
+                (HttpServletRequest) servletRequest :
+                null;
+        HttpServletResponse httpResponse = servletResponse instanceof HttpServletResponse ?
+                (HttpServletResponse) servletResponse :
+                null;
         if (httpRequest == null || httpResponse == null) {
             return result;
         }
@@ -170,7 +185,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         this.realm = realm;
     }
 
-    public void deleteCookie(String cookieName, HttpServletRequest request, HttpServletResponse response) {
+    public void deleteCookie(String cookieName, HttpServletRequest request,
+            HttpServletResponse response) {
         //remove session cookie
         try {
             LOGGER.debug("Removing cookie {}", cookieName);

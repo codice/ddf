@@ -75,13 +75,15 @@ public class CasHandler implements AuthenticationHandler {
         LOGGER.debug("Doing CAS authentication and authorization for path {}", path);
 
         // if the request contains the principal, return it
+        Assertion assertion = getAssertion(httpRequest);
         try {
-            proxyFilter.doFilter(request, response, new ProxyFilterChain(null));
+            if (resolve && assertion == null) {
+                proxyFilter.doFilter(request, response, new ProxyFilterChain(null));
+            }
         } catch (IOException e) {
             throw new ServletException(e);
         }
 
-        Assertion assertion = getAssertion(httpRequest);
         if (assertion != null) {
             LOGGER.debug("Found previous CAS attribute, using that same session.");
             CASAuthenticationToken token = getAuthenticationToken(assertion);
@@ -137,13 +139,17 @@ public class CasHandler implements AuthenticationHandler {
             LOGGER.debug("Getting proxy ticket for {}", clientConfiguration.getAddress());
             String proxyTicket = attributePrincipal
                     .getProxyTicketFor(clientConfiguration.getAddress());
-            LOGGER.debug("proxy ticket: {}", proxyTicket);
-            LOGGER.debug("Creating AuthenticationToken with {}|{} as the credentials.", proxyTicket,
-                    clientConfiguration.getAddress());
-            token = new CASAuthenticationToken(attributePrincipal, proxyTicket,
-                    clientConfiguration.getAddress(), realm);
+            if (proxyTicket == null || proxyTicket.equals("null")) {
+                LOGGER.warn("Couldn't get proxy ticket for CAS authentication.");
+            } else {
+                LOGGER.debug("proxy ticket: {}", proxyTicket);
+                LOGGER.debug("Creating AuthenticationToken with {}|{} as the credentials.",
+                        proxyTicket, clientConfiguration.getAddress());
+                token = new CASAuthenticationToken(attributePrincipal, proxyTicket,
+                        clientConfiguration.getAddress(), realm);
+            }
         } else {
-            LOGGER.warn("Couldn't get user information for CAS authentication.");
+            LOGGER.warn("Couldn't get attribute principle for CAS authentication.");
         }
 
         return token;
