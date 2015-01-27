@@ -25,6 +25,10 @@
 	<name>DDF :: Catalog :: Core :: URL Resource Reader</name>
 	<packaging>bundle</packaging>
 
+    <properties>
+        <ddf.security.app.version>2.5.1</ddf.security.app.version>
+    </properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
@@ -74,7 +78,16 @@
 			<artifactId>logback-classic</artifactId>
 			<version>0.9.24</version>
 			<scope>test</scope>
-		</dependency>	
+		</dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+            <version>${ddf.security.app.version}</version>
+        </dependency>
 	</dependencies>
 
 	<build>
@@ -89,7 +102,8 @@
 							ddf.catalog.resource.impl,
 							ddf.catalog.operation.impl,
 							ddf.catalog.data.impl,
-							ddf.catalog.util.impl	
+							ddf.catalog.util.impl,
+                            org.codice.ddf.security.common.jaxrs
 						</Private-Package>
                         <Export-Package>
 							ddf.catalog.resource.impl;version="${project.version}"

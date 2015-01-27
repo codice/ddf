@@ -23,6 +23,8 @@ import ddf.mime.custom.CustomMimeTypeResolver;
 import ddf.mime.mapper.MimeTypeMapperImpl;
 import ddf.mime.tika.TikaMimeTypeResolver;
 import junit.framework.Assert;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.tika.metadata.HttpHeaders;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +34,9 @@ import org.junit.runners.model.FrameworkMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -39,20 +44,26 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ResourceReaderTest {
+
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceReaderTest.class);
 
@@ -98,6 +109,20 @@ public class ResourceReaderTest {
 
     private CustomMimeTypeResolver customResolver;
 
+    private WebClient mockWebClient = mock(WebClient.class);
+
+    private class TestURLResourceReader extends URLResourceReader {
+
+        public TestURLResourceReader(MimeTypeMapper mimeTypeMapper) {
+            super(mimeTypeMapper);
+        }
+
+        @Override
+        protected WebClient getWebClient(String uri) {
+            return mockWebClient;
+        }
+    }
+
     @Rule
     public MethodRule watchman = new TestWatchman() {
         public void starting(FrameworkMethod method) {
@@ -123,7 +148,7 @@ public class ResourceReaderTest {
 
     @Test
     public void testURLResourceReaderBadQualifier() {
-        URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
+        URLResourceReader resourceReader = new TestURLResourceReader(mimeTypeMapper);
         String filePath = TEST_PATH + MPEG_FILE_NAME_1;
 
         HashMap<String, Serializable> arguments = new HashMap<String, Serializable>();
@@ -134,10 +159,10 @@ public class ResourceReaderTest {
             resourceReader.retrieveResource(uri, arguments);
         } catch (IOException e) {
             LOGGER.info("Successfully caught expected IOException");
-            assert (true);
+            fail();
         } catch (ResourceNotFoundException e) {
             LOGGER.info("Caught unexpected ResourceNotFoundException");
-            fail();
+            assert (true);
         } catch (URISyntaxException e) {
             LOGGER.info("Caught unexpected URISyntaxException");
             fail();
@@ -238,10 +263,10 @@ public class ResourceReaderTest {
             resourceReader.retrieveResource(uri, arguments);
         } catch (IOException e) {
             LOGGER.info("Successfully caught IOException");
-            assert (true);
-        } catch (ResourceNotFoundException e) {
-            LOGGER.info("Caught unexpected ResourceNotFoundException");
             fail();
+        } catch (ResourceNotFoundException e) {
+            LOGGER.info("Caught ResourceNotFoundException");
+            assert (true);
         } catch (URISyntaxException e) {
             LOGGER.info("Caught unexpected URISyntaxException");
             fail();
@@ -262,10 +287,10 @@ public class ResourceReaderTest {
             resourceReader.retrieveResource(uri, arguments);
         } catch (IOException e) {
             LOGGER.info("Successfully caught IOException");
-            assert (true);
-        } catch (ResourceNotFoundException e) {
-            LOGGER.info("Caught unexpected ResourceNotFoundException");
             fail();
+        } catch (ResourceNotFoundException e) {
+            LOGGER.info("Caught ResourceNotFoundException");
+            assert (true);
         }
     }
 
@@ -276,7 +301,7 @@ public class ResourceReaderTest {
 
         verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE);
 
-        uri = new URI(FILE_SCHEME_PLUS_SEP + TEST_PATH + JPEG_FILE_NAME_1);
+        uri = new URI(FILE_SCHEME_PLUS_SEP + ABSOLUTE_PATH + TEST_PATH + JPEG_FILE_NAME_1);
 
         verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE);
     }
@@ -285,13 +310,18 @@ public class ResourceReaderTest {
     public void testNameInContentDisposition() throws URISyntaxException, IOException,
             ResourceNotFoundException {
         URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
-        URLConnection conn = mock(URLConnection.class);
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        map.put(HttpHeaders.CONTENT_DISPOSITION,
+                Arrays.<Object>asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
+        when(mockResponse.getHeaders()).thenReturn(map);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
-        when(conn.getHeaderField(URLResourceReader.CONTENT_DISPOSITION)).thenReturn(
-                "inline; filename=\"" + JPEG_FILE_NAME_1 + "\"");
-        when(conn.getInputStream()).thenReturn(getBinaryData());
+        when(mockResponse.getEntity()).thenReturn(getBinaryData());
 
-        ResourceResponse response = verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn, null);
+        ResourceResponse response = verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1,
+                JPEG_MIME_TYPE, null);
 
         // verify that we got the entire resource
         Assert.assertEquals(5, response.getResource().getByteArray().length);
@@ -299,17 +329,23 @@ public class ResourceReaderTest {
 
     @Test
     public void testRetrievingPartialContent() throws URISyntaxException, IOException,
-        ResourceNotFoundException {
+            ResourceNotFoundException {
         URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
-        URLConnection conn = mock(URLConnection.class);
 
-        when(conn.getHeaderField(URLResourceReader.CONTENT_DISPOSITION)).thenReturn(
-                "inline; filename=\"" + JPEG_FILE_NAME_1 + "\"");
-        when(conn.getInputStream()).thenReturn(getBinaryData());
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        map.put(HttpHeaders.CONTENT_DISPOSITION,
+                Arrays.<Object>asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
+        when(mockResponse.getHeaders()).thenReturn(map);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+
+        when(mockResponse.getEntity()).thenReturn(getBinaryData());
 
         String bytesToSkip = "2";
 
-        ResourceResponse response = verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn, bytesToSkip);
+        ResourceResponse response = verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1,
+                JPEG_MIME_TYPE, bytesToSkip);
 
         // verify that we got the entire resource
         Assert.assertEquals(3, response.getResource().getByteArray().length);
@@ -319,26 +355,35 @@ public class ResourceReaderTest {
     public void testUnquotedNameInContentDisposition() throws URISyntaxException, IOException,
         ResourceNotFoundException {
         URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
-        URLConnection conn = mock(URLConnection.class);
 
-        when(conn.getHeaderField(URLResourceReader.CONTENT_DISPOSITION)).thenReturn(
-                "inline; filename=" + JPEG_FILE_NAME_1);
-        when(conn.getInputStream()).thenReturn(null);
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        map.put(HttpHeaders.CONTENT_DISPOSITION,
+                Arrays.<Object>asList("inline; filename=" + JPEG_FILE_NAME_1));
+        when(mockResponse.getHeaders()).thenReturn(map);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
-        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn, null);
+        when(mockResponse.getEntity()).thenReturn(null);
+
+        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null);
     }
 
     @Test
     public void testUnquotedNameEndingSemicolonInContentDisposition() throws URISyntaxException,
         IOException, ResourceNotFoundException {
         URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
-        URLConnection conn = mock(URLConnection.class);
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        map.put(HttpHeaders.CONTENT_DISPOSITION,
+                Arrays.<Object>asList("inline;filename=" + JPEG_FILE_NAME_1 + ";"));
+        when(mockResponse.getHeaders()).thenReturn(map);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
-        when(conn.getHeaderField(URLResourceReader.CONTENT_DISPOSITION)).thenReturn(
-                "inline;filename=" + JPEG_FILE_NAME_1 + ";");
-        when(conn.getInputStream()).thenReturn(null);
+        when(mockResponse.getEntity()).thenReturn(null);
 
-        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, conn, null);
+        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null);
     }
 
     @Test
@@ -375,8 +420,8 @@ public class ResourceReaderTest {
             LOGGER.info("Got resource: " + resource.getName());
             String name = resource.getName();
             assertNotNull(name);
-            assertTrue(name.equals(filename));
-            assertTrue(resource.getMimeType().toString().contains(expectedMimeType));
+            assertThat(name, is(filename));
+            assertThat(resource.getMimeType().toString(), containsString(expectedMimeType));
 
         } catch (IOException e) {
             LOGGER.info("Caught unexpected IOException");
@@ -389,14 +434,21 @@ public class ResourceReaderTest {
 
     private void verifyFileFromURLResourceReader(URI uri, String filename, String expectedMimeType)
         throws URISyntaxException, IOException, ResourceNotFoundException {
-        URLConnection conn = mock(URLConnection.class);
-        when(conn.getInputStream()).thenReturn(null);
-        verifyFileFromURLResourceReader(uri, filename, expectedMimeType, conn, null);
+        Response mockResponse = mock(Response.class);
+        when(mockWebClient.get()).thenReturn(mockResponse);
+        MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+        map.put(HttpHeaders.CONTENT_DISPOSITION,
+                Arrays.<Object>asList("inline; filename=\"" + filename + "\""));
+        when(mockResponse.getHeaders()).thenReturn(map);
+        when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+
+        when(mockResponse.getEntity()).thenReturn(null);
+        verifyFileFromURLResourceReader(uri, filename, expectedMimeType, null);
     }
 
     // Create arguments, adding bytesToSkip if present, and call doVerification
-    private ResourceResponse verifyFileFromURLResourceReader(URI uri, String filename, String expectedMimeType,
-                                                             URLConnection conn, String bytesToSkip)
+    private ResourceResponse verifyFileFromURLResourceReader(URI uri, String filename,
+            String expectedMimeType, String bytesToSkip)
             throws URISyntaxException, IOException, ResourceNotFoundException {
 
         Map<String, Serializable> arguments = new HashMap<String, Serializable>();
@@ -405,17 +457,15 @@ public class ResourceReaderTest {
             arguments.put(BYTES_TO_SKIP, bytesToSkip);
         }
 
-        return doVerification(uri, filename, expectedMimeType, conn, arguments);
+        return doVerification(uri, filename, expectedMimeType, arguments);
 
     }
 
-    private ResourceResponse doVerification(URI uri, String filename, String expectedMimeType, URLConnection conn,
-                                            Map<String, Serializable> arguments)
+    private ResourceResponse doVerification(URI uri, String filename, String expectedMimeType,
+            Map<String, Serializable> arguments)
             throws URISyntaxException, IOException, ResourceNotFoundException {
 
-        URLResourceReader resourceReader = new URLResourceReader(mimeTypeMapper);
-
-        resourceReader.setConn(conn);
+        URLResourceReader resourceReader = new TestURLResourceReader(mimeTypeMapper);
 
         // Test using the URL ResourceReader
         LOGGER.info("URI: " + uri.toString());
@@ -429,7 +479,7 @@ public class ResourceReaderTest {
         LOGGER.info("Got resource: " + resource.getName());
         String name = resource.getName();
         assertNotNull(name);
-        assertTrue(name.equals(filename));
+        assertThat(name, is(filename));
         assertTrue(resource.getMimeType().toString().contains(expectedMimeType));
 
         return resourceResponse;
