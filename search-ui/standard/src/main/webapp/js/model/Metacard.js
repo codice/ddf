@@ -14,11 +14,10 @@
 define([
         'backbone',
         'underscore',
-        'js/model/util',
         'wreqr',
         'backboneassociations'
     ],
-    function (Backbone, _, Util, wreqr) {
+    function (Backbone, _, wreqr) {
         "use strict";
         var MetaCard = {};
 
@@ -28,59 +27,8 @@ define([
                 return this.get('type') === 'Point';
             },
 
-            average: function (points, attribute) {
-                var attrs = _.pluck(points, attribute);
-                var sum = _.reduce(attrs, function (a, b) {
-                    return Math.abs(a) + Math.abs(b);
-                }, 0);
-                return sum / points.length;
-            },
-
             getPoint: function () {
-                if (this.isPoint()) {
-                    var coordinates = this.get('coordinates');
-                    return this.convertPointCoordinate(coordinates);
-                }
-                if (this.isMultiPoint()) {
-                    return this.getMultiPoint()[0];
-                }
-
-                var points = [];
-
-                if (this.isPolygon()) {
-                    points = this.getPolygon();
-                } else if (this.isMultiPolygon()) {
-                    points = this.getMultiPolygon()[0];
-                } else if (this.isGeometryCollection()) {
-                    var geo = new MetaCard.Geometry(this.getGeometryCollection()[0]);
-                    points = geo.getPoint();
-                } else if (this.isLineString()) {
-                    points = this.getLineString();
-                } else if (this.isMultiLineString()) {
-                    points = this.getMultiLineString()[Math.floor(this.getMultiLineString().length / 2)];
-                }
-
-                if (this.isLineString() || this.isMultiLineString()) {
-                    if (points.length % 2) {
-                        points = [points[Math.floor(points.length / 2)]];
-                    } else {
-                        points = [points[Math.floor(points.length / 2) - 1], points[Math.floor(points.length / 2)]];
-                    }
-                }
-
-                var region = new Util.Region(points),
-                    centroid = region.centroid(this.isPolygon() || this.isMultiPolygon());
-                if (_.isNaN(centroid.latitude)) {
-                    // seems to happen when regions is perfect rectangle...
-                    if (typeof console !== 'undefined') {
-                        console.warn('centroid util did not return a good centroid, defaulting to average of all points');
-                    }
-                    return {
-                        latitude: this.average(points, 'latitude'),
-                        longitude: this.average(points, 'longitude')
-                    };
-                }
-                return centroid;
+                return _.object(['longitude', 'latitude'], this.getAllPoints()[0]);
             },
 
             getAllPoints: function () {
