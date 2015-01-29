@@ -364,7 +364,7 @@ public class ResourceReaderTest {
         when(mockResponse.getHeaders()).thenReturn(map);
         when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
-        when(mockResponse.getEntity()).thenReturn(null);
+        when(mockResponse.getEntity()).thenReturn(getBinaryData());
 
         verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null);
     }
@@ -381,7 +381,7 @@ public class ResourceReaderTest {
         when(mockResponse.getHeaders()).thenReturn(map);
         when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
-        when(mockResponse.getEntity()).thenReturn(null);
+        when(mockResponse.getEntity()).thenReturn(getBinaryData());
 
         verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null);
     }
@@ -442,7 +442,7 @@ public class ResourceReaderTest {
         when(mockResponse.getHeaders()).thenReturn(map);
         when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
-        when(mockResponse.getEntity()).thenReturn(null);
+        when(mockResponse.getEntity()).thenReturn(getBinaryData());
         verifyFileFromURLResourceReader(uri, filename, expectedMimeType, null);
     }
 

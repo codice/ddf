@@ -260,23 +260,26 @@ public class URLResourceReader implements ResourceReader {
 
             InputStream is = null;
             Object entityObj = clientResponse.getEntity();
-            if (entityObj != null) {
+            if (entityObj instanceof InputStream) {
                 is = (InputStream) entityObj;
-            }
-            if (Response.Status.OK.getStatusCode() != clientResponse.getStatus()) {
-                String error = new String();
-                try {
-                    if (is != null) {
-                        error = IOUtils.toString(is);
+                if (Response.Status.OK.getStatusCode() != clientResponse.getStatus()) {
+                    String error = null;
+                    try {
+                        if (is != null) {
+                            error = IOUtils.toString(is);
+                        }
+                    } catch (IOException ioe) {
+                        LOGGER.debug("Could not convert error message to a string for output.",
+                                ioe);
                     }
-                } catch (IOException ioe) {
-                    LOGGER.debug("Could not convert error message to a string for output.",
-                            ioe);
+                    String errorMsg = "Received error code while retrieving resource (status "
+                            + clientResponse.getStatus() + "): " + error;
+                    LOGGER.warn(errorMsg);
+                    throw new ResourceNotFoundException(errorMsg);
                 }
-                String errorMsg = "Received error code while retrieving resource (status "
-                        + clientResponse.getStatus() + "): " + error;
-                LOGGER.warn(errorMsg);
-                throw new ResourceNotFoundException(errorMsg);
+            } else {
+                throw new ResourceNotFoundException(
+                        "Received null response while retrieving resource.");
             }
 
             skipBytes(is, bytesToSkip);
@@ -306,29 +309,8 @@ public class URLResourceReader implements ResourceReader {
             LOGGER.warn("mimeTypeMapper is NULL");
         } else {
             // Extract the file extension (if any) from the URL's filename
-            int index = productName.lastIndexOf(".");
-
-            // If there is a file extension, attempt to get mime type based on the file
-            // extension,
-            // using the MimeTypeMapper so that any custom MimeTypeResolvers are consulted
-            if (index > -1) {
-                String fileExtension = productName.substring(index + 1);
-
-                // Handle case where "." or ".." could be in the URL path and there is no
-                // valid file extension.
-                // Example:
-                // C:\workspaces\ddf_sprints\ddf\catalog\resource\./src/test/resources/data/JpegWithoutExtension
-                // When this occurs move on to alternate mime type resolution approaches.
-                if (!fileExtension.contains("\\") && !fileExtension.contains("/")) {
-                    LOGGER.debug("url.getFile() = {},   fileExtension = {}", productName,
-                            fileExtension);
-                    mimeType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
-                } else {
-                    LOGGER.debug(
-                            "fileExtension = {} is not valid - proceeding with alternate mime type resolution",
-                            fileExtension);
-                }
-            }
+            String fileExtension = FilenameUtils.getExtension(productName);
+            mimeType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
         }
 
         // If MimeTypeMapper was null or did not yield a mime type, or if default
@@ -380,7 +362,13 @@ public class URLResourceReader implements ResourceReader {
     private void skipBytes(InputStream is, String bytesToSkip) throws IOException {
         if (bytesToSkip != null) {
             LOGGER.debug("Skipping {} bytes", bytesToSkip);
-            is.skip(Long.valueOf(bytesToSkip));
+            long bytesSkipped = is.skip(Long.valueOf(bytesToSkip));
+            if (Long.valueOf(bytesToSkip) != bytesSkipped) {
+                LOGGER.debug(
+                        "Did not skip specified bytes while retrieving resource."
+                                + " Bytes to skip: {} -- Skipped Bytes: {}", bytesToSkip,
+                        bytesSkipped);
+            }
         }
     }
 
