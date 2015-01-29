@@ -24,18 +24,117 @@ define([
         "use strict";
         var Views = {};
 
+        var transformPoint = function (point) {
+            var coords = [point.longitude, point.latitude];
+            return ol.proj.transform(coords, 'EPSG:4326', properties.projection);
+        };
+
+        var getPoint = function (model) {
+            return new ol.geom.Point(transformPoint(model.getPoint()));
+        };
+
+        var addCenterPoint = function (model, geom) {
+            return new ol.geom.GeometryCollection([getPoint(model), geom]);
+        };
+
+        var getMultiPoint = function (model) {
+            var points = model.getMultiPoint();
+
+            var coords = [];
+            _.each(points, function(point) {
+                coords.push(transformPoint(point));
+            });
+
+            return new ol.geom.MultiPoint(coords);
+        };
+
+        var getLineString = function (model) {
+            var points = model.getLineString();
+            var coords = [];
+            _.each(points, function(point) {
+                coords.push(transformPoint(point));
+            });
+            return new ol.geom.LineString(coords);
+        };
+
+        var getMultiLineString = function (model) {
+            var points = model.getMultiLineString();
+            var coords = [];
+            var mls = new ol.geom.MultiLineString(coords);
+            _.each(points, function (line) {
+                coords = [];
+                _.each(line, function (point) {
+                    coords.push(transformPoint(point));
+                });
+                mls.appendLineString(new ol.geom.LineString(coords));
+            });
+            return mls;
+        };
+
+        var getPolygon = function (model) {
+            var points = model.getPolygon();
+            var coords = [];
+            _.each(points, function(point) {
+                coords.push(transformPoint(point));
+            });
+
+            return new ol.geom.LineString(coords);
+        };
+
+        var getMultiPolygon = function (model) {
+            var points = model.getMultiPolygon();
+            var coords = [];
+            var mpg = new ol.geom.MultiLineString(coords);
+            _.each(points, function (polygon) {
+                coords = [];
+                _.each(polygon, function (point) {
+                    coords.push(transformPoint(point));
+                });
+                mpg.appendLineString(new ol.geom.LineString(coords));
+            });
+            return mpg;
+        };
+
+        var getGeometryCollection = function (model) {
+            var geometries = _.map(model.getGeometryCollection(), function(geo) {
+                if (geo.isPoint()) {
+                    return getPoint(geo);
+                } else if (geo.isMultiPoint()) {
+                    return getMultiPoint(geo);
+                }  else if (geo.isLineString()) {
+                    return getLineString(geo);
+                } else if (geo.isMultiLineString()) {
+                    return getMultiLineString(geo);
+                } else if (geo.isPolygon()) {
+                    return getPolygon(geo);
+                } else if (geo.isMultiPolygon()) {
+                    return getMultiPolygon(geo);
+                } else if (geo.isGeometryCollection()) {
+                    return getGeometryCollection(geo);
+                } else {
+                    throw new Error("No method for this geometry");
+                }
+            });
+
+            return new ol.geom.GeometryCollection(geometries);
+        };
 
         Views.PointView = Marionette.ItemView.extend({
             modelEvents: {
                 'change:context': 'toggleSelection'
             },
+
+            getGeometry: getPoint,
+            pointFillColor: 'rgba(255,164,102,1)',
+            pointStokeColor: 'rgba(0,0,0,1)',
+            lineStokeColor: 'rgba(255,255,255,1)',
+
             initialize: function (options) {
                 this.geoController = options.geoController;
-                if(! options.ignoreEvents) {
+                if (!options.ignoreEvents) {
                     this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
                     this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
                 }
-                this.color = options.color || {red: 1, green: 0.6431372549019608, blue: 0.403921568627451, alpha: 1 };
                 this.buildBillboard();
             },
 
@@ -53,19 +152,19 @@ define([
             },
 
             buildBillboard: function () {
-                var point = this.model.get('geometry').getPoint();
+                var model = this.model.get('geometry');
                 this.billboard = new ol.Feature({
-                    geometry: new ol.geom.Point(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection))
+                    geometry: addCenterPoint(model, this.getGeometry(model))
                 });
 
-                var iconStyle = new ol.style.Style({
+                this.billboard.setStyle(new ol.style.Style({
                     image: new ol.style.Circle({
                         radius: 4,
-                        fill: new ol.style.Fill({color: '#FFA466'}),
-                        stroke: new ol.style.Stroke({color: '#914500', width: 1})
-                    })
-                });
-                this.billboard.setStyle(iconStyle);
+                        fill: new ol.style.Fill({color: this.pointFillColor}),
+                        stroke: new ol.style.Stroke({color: this.pointStokeColor, width: 1})
+                    }),
+                    stroke: new ol.style.Stroke({color: this.lineStokeColor, width: 1})
+                }));
 
                 var vectorSource = new ol.source.Vector({
                     features: [this.billboard]
@@ -80,13 +179,11 @@ define([
             },
 
             toggleSelection: function () {
-
                 if (this.model.get('context')) {
                     this.billboard.scale = 0.5;
                 } else {
                     this.billboard.scale = 0.41;
                 }
-
             },
             onMapLeftClick: function (event) {
                 // find out if this click is on us
@@ -98,7 +195,6 @@ define([
                 // find out if this click is on us
                 if (_.has(event, 'object') && event.object === this.billboard) {
                     this.geoController.flyToLocation(this.model);
-
                 }
             },
 
@@ -106,7 +202,6 @@ define([
                 // If there is already a billboard for this view, remove it
                 if (!_.isUndefined(this.billboard)) {
                     this.geoController.mapViewer.removeLayer(this.vectorLayer);
-
                 }
                 this.stopListening();
             }
@@ -114,252 +209,31 @@ define([
         });
 
         Views.MultiPointView = Views.PointView.extend({
-            initialize: function (options) {
-                Views.PointView.prototype.initialize.call(this, options);
-            },
-
-            buildBillboard: function () {
-                var points = this.model.get('geometry').getMultiPoint();
-                var coords = [];
-                _.each(points, function(point) {
-                    coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection));
-                });
-                this.billboard = new ol.Feature({
-                    geometry: new ol.geom.MultiPoint(coords)
-                });
-
-                var iconStyle = new ol.style.Style({
-                    image: new ol.style.Circle({
-                        radius: 4,
-                        fill: new ol.style.Fill({color: '#FFA466'}),
-                        stroke: new ol.style.Stroke({color: '#914500', width: 1})
-                    })
-                });
-                this.billboard.setStyle(iconStyle);
-
-                var vectorSource = new ol.source.Vector({
-                    features: [this.billboard]
-                });
-
-                var vectorLayer = new ol.layer.Vector({
-                    source: vectorSource
-                });
-
-                this.vectorLayer = vectorLayer;
-                this.geoController.mapViewer.addLayer(vectorLayer);
-            }
+            getGeometry: getMultiPoint
         });
 
         Views.LineView = Views.PointView.extend({
-            initialize: function (options) {
-                Views.PointView.prototype.initialize.call(this, options);
-            },
-
-            buildBillboard: function () {
-                var points = this.model.get('geometry').getLineString();
-                var coords = [];
-                _.each(points, function(point) {
-                    coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection));
-                });
-                this.billboard = new ol.Feature({
-                    geometry: new ol.geom.LineString(coords)
-                });
-
-                var iconStyle = new ol.style.Style({
-                    stroke: new ol.style.Stroke({color: '#914500', width: 1})
-                });
-                this.billboard.setStyle(iconStyle);
-
-                var vectorSource = new ol.source.Vector({
-                    features: [this.billboard]
-                });
-
-                var vectorLayer = new ol.layer.Vector({
-                    source: vectorSource
-                });
-
-                this.vectorLayer = vectorLayer;
-                this.geoController.mapViewer.addLayer(vectorLayer);
-            }
+            getGeometry: getLineString,
+            pointFillColor: 'rgba(91,147,225,1)'
         });
 
         Views.MultiLineView = Views.LineView.extend({
-            buildBillboard: function () {
-                var points = this.model.get('geometry').getMultiLineString();
-                var coords = [];
-                var mls = new ol.geom.MultiLineString(coords);
-                _.each(points, function(line) {
-                    coords = [];
-                    _.each(line, function(point) {
-                        coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection));
-                    });
-                    mls.appendLineString(new ol.geom.LineString(coords));
-                });
-                this.billboard = new ol.Feature({
-                    geometry: mls
-                });
-
-                var iconStyle = new ol.style.Style({
-                    stroke: new ol.style.Stroke({color: '#914500', width: 1})
-                });
-                this.billboard.setStyle(iconStyle);
-
-                var vectorSource = new ol.source.Vector({
-                    features: [this.billboard]
-                });
-
-                var vectorLayer = new ol.layer.Vector({
-                    source: vectorSource
-                });
-
-                this.vectorLayer = vectorLayer;
-                this.geoController.mapViewer.addLayer(vectorLayer);
-            }
+            getGeometry: getMultiLineString
         });
 
         Views.RegionView = Views.PointView.extend({
-            initialize: function (options) {
-                Views.PointView.prototype.initialize.call(this, options);
-            },
-            buildBillboard: function () {
-                var points = this.model.get('geometry').getPolygon();
-                var coords = [];
-                _.each(points, function(point) {
-                    coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection));
-                });
-                this.billboard = new ol.Feature({
-                    geometry: new ol.geom.LineString(coords)
-                });
-
-                var iconStyle = new ol.style.Style({
-                    stroke: new ol.style.Stroke({color: '#914500', width: 1})
-                });
-                this.billboard.setStyle(iconStyle);
-
-                var vectorSource = new ol.source.Vector({
-                    features: [this.billboard]
-                });
-
-                var vectorLayer = new ol.layer.Vector({
-                    source: vectorSource
-                });
-
-                this.vectorLayer = vectorLayer;
-                this.geoController.mapViewer.addLayer(vectorLayer);
-            }
+            getGeometry: getPolygon,
+            pointFillColor: 'rgba(255,103,118,1)'
         });
 
         Views.MultiRegionView = Views.RegionView.extend({
-            buildBillboard: function () {
-                var points = this.model.get('geometry').getMultiPolygon();
-                var coords = [];
-                var mpg = new ol.geom.MultiLineString(coords);
-                _.each(points, function(polygon) {
-                    coords = [];
-                    _.each(polygon, function (point) {
-                        coords.push(ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection));
-                    });
-                    mpg.appendLineString(new ol.geom.LineString(coords));
-                });
-                this.billboard = new ol.Feature({
-                    geometry: mpg
-                });
-
-                var iconStyle = new ol.style.Style({
-                    stroke: new ol.style.Stroke({color: '#914500', width: 1})
-                });
-                this.billboard.setStyle(iconStyle);
-
-                var vectorSource = new ol.source.Vector({
-                    features: [this.billboard]
-                });
-
-                var vectorLayer = new ol.layer.Vector({
-                    source: vectorSource
-                });
-
-                this.vectorLayer = vectorLayer;
-                this.geoController.mapViewer.addLayer(vectorLayer);
-            }
+            getGeometry: getMultiPolygon
         });
 
         Views.GeometryCollectionView = Views.PointView.extend({
-            initialize: function (options) {
-                options.color = options.color || {red: 1, green: 1, blue: 0.403921568627451, alpha: 1 };
-                options.polygonColor = options.polygonColor || {red: 1, green: 1, blue: 0.404, alpha: 0.2 };
-
-                this.buildGeometryCollection(options);
-                Views.PointView.prototype.initialize.call(this, options);
-            },
-
-            buildGeometryCollection: function (options) {
-                var collection = this.model.get('geometry');
-
-                this.geometries = _.map(collection.getGeometryCollection(), function(geo) {
-
-                    var subOptions = _.clone(options);
-                    var subModel = _.clone(options.model);
-                    subOptions.ignoreEvents = true;
-                    subModel.set('geometry', geo);
-                    subOptions.model = subModel;
-                    if (geo.isPoint()) {
-                        return new Views.PointView(subOptions);
-                    } else if (geo.isMultiPoint()) {
-                        return new Views.MultiPointView(subOptions);
-                    } else if (geo.isPolygon()) {
-                        return new Views.RegionView(subOptions);
-                    } else if (geo.isMultiPolygon()) {
-                        return new Views.MultiRegionView(subOptions);
-                    }  else if (geo.isLineString()) {
-                        return new Views.LineView(subOptions);
-                    } else if (geo.isMultiLineString()) {
-                        return new Views.MultiLineView(subOptions);
-                    } else if (geo.isGeometryCollection()) {
-                        return new Views.GeometryCollectionView(subOptions);
-                    } else {
-                        throw new Error("No view for this geometry");
-                    }
-                });
-                this.model.set('geometry', collection);
-            },
-
-            buildBillboard: function () {
-            },
-
-            toggleSelection: function () {
-                var view = this;
-
-                _.each(view.geometries, function(geometry) {
-                    geometry.toggleSelection();
-                });
-            },
-
-            onMapLeftClick: function (event) {
-                var view = this;
-
-                _.each(view.geometries, function(geometry) {
-                    geometry.onMapLeftClick(event);
-                });
-            },
-
-            onMapDoubleClick: function (event) {
-                var view = this;
-                _.each(view.geometries, function(geometry) {
-                    geometry.onMapDoubleClick(event);
-                });
-            },
-
-            onClose: function () {
-                var view = this;
-
-                _.each(view.geometries, function(geometry) {
-                    geometry.onClose();
-                });
-
-                this.stopListening();
-            }
+            getGeometry: getGeometryCollection,
+            pointFillColor: 'rgba(255,255,103,1)'
         });
-
 
         Views.ResultsView = Marionette.CollectionView.extend({
             itemView: Backbone.View,

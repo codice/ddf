@@ -40,7 +40,7 @@ define([
                     this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
                     this.listenTo(this.geoController, 'doubleclick:left', this.onMapDoubleClick);
                 }
-                this.color = options.color || {red: 1, green: 0.6431372549019608, blue: 0.403921568627451, alpha: 1 };
+                this.color = options.color || {red: 1, green: 164/255, blue: 103/255, alpha: 1 };
                 this.buildBillboard();
             },
 
@@ -199,7 +199,7 @@ define([
 
         Views.LineView = Views.PointView.extend({
             initialize: function (options) {
-                options.color = options.color || new Cesium.Color(0.3568627450980392, 0.5764705882352941, 0.8823529411764706, 1);
+                options.color = options.color || new Cesium.Color(91/255, 147/255, 225/255, 1);
                 Views.PointView.prototype.initialize.call(this, options);
 
                 this.buildLine();
@@ -275,16 +275,18 @@ define([
 
         Views.RegionView = Views.PointView.extend({
             initialize: function (options) {
-                this.color = options.color || {red: 1, green: 0.6431372549019608, blue: 0.403921568627451, alpha: 1 };
+                // a light red
+                this.color = options.color || {red: 1, green: 103/255, blue: 118/255, alpha: 1 };
+                options.color = this.color;
+
                 // a light blue
-                this.polygonColor = options.polygonColor || new Cesium.Color(0.3568627450980392, 0.5764705882352941, 0.8823529411764706, 0.2);
-                this.color = options.color || {red: this.polygonColor.red, green: this.polygonColor.green, blue: this.polygonColor.blue, alpha: 1};
+                this.polygonColor = options.polygonColor || new Cesium.Color(91/255, 147/255, 225/255, 0.2);
+
                 // a grey matching the outline of the default marker
-                this.outlineColor = options.outlineColor || new Cesium.Color(0.707, 0.707, 0.707, 1);
+                this.outlineColor = options.outlineColor || new Cesium.Color(180/255, 180/255, 180/255, 1);
 
                 Views.PointView.prototype.initialize.call(this, options);
                 this.buildPolygon();
-
             },
 
             toggleSelection : function(){
@@ -494,8 +496,8 @@ define([
 
         Views.GeometryCollectionView = Views.PointView.extend({
             initialize: function (options) {
-                options.color = options.color || {red: 1, green: 1, blue: 0.403921568627451, alpha: 1 };
-                options.polygonColor = options.polygonColor || {red: 1, green: 1, blue: 0.404, alpha: 0.2 };
+                options.color = options.color || {red: 1, green: 1, blue: 103/255, alpha: 1 };
+                options.polygonColor = options.polygonColor || {red: 1, green: 1, blue: 103/255, alpha: 0.2 };
 
                 this.buildGeometryCollection(options);
                 Views.PointView.prototype.initialize.call(this, options);
