@@ -85,6 +85,8 @@ define(['underscore',
                     });
 
                     map = new ol.Map({
+                        interactions: ol.interaction.defaults().extend(
+                            [new ol.interaction.Select()]),
                         layers: layers,
                         target: mapDivId,
                         view: new ol.View({
@@ -232,16 +234,44 @@ define(['underscore',
             flyToGeometry: function (geometry) {
                 var point = geometry.getPoint();
                 var location = ol.proj.transform([point.longitude, point.latitude], 'EPSG:4326', properties.projection);
+                var view = this.mapViewer.getView();
+                
                 var pan = ol.animation.pan({
                     duration: 2000,
-                    source: /** @type {ol.Coordinate} */ (this.mapViewer.getView().getCenter())
+                    source: view.getCenter()
                 });
 
-                this.mapViewer.beforeRender(pan);
-                this.mapViewer.getView().setCenter(location);
+                var distance = new ol.geom.LineString([view.getCenter(), location]).getLength();
+                var doBounce = view.getZoom() === 12 && distance > 100;
+                var zoomOrBounce;
+
+                if (doBounce) {
+                    var bounceFactor = Math.max(distance, 1) / 6378137;
+                    zoomOrBounce = ol.animation.bounce({
+                        duration: 2000,
+                        resolution: view.getResolutionForExtent(
+                            ol.proj.get(properties.projection).getExtent(),
+                            this.mapViewer.getSize()) * bounceFactor
+                    });
+                } else {
+                    zoomOrBounce = ol.animation.zoom({
+                        duration: 2000,
+                        resolution: view.getResolution()
+                    });
+                }
+
+                this.mapViewer.beforeRender(pan, zoomOrBounce);
+                view.setCenter(location);
+                if (!doBounce) {
+                    view.setZoom(12);
+                }
             },
 
             flyToRectangle: function (rectangle) {
+                var zoom = ol.animation.zoom({
+                    duration: 2000,
+                    resolution: this.mapViewer.getView().getResolution()
+                });
                 if (rectangle.north === rectangle.south && rectangle.east === rectangle.west) {
                     this.flyToGeometry(new Metacard.Geometry({
                         type: "Point",
@@ -257,16 +287,16 @@ define(['underscore',
                     coords.push(northWest[1]);
                     var pan1 = ol.animation.pan({
                         duration: 2000,
-                        source: /** @type {ol.Coordinate} */ (this.mapViewer.getView().getCenter())
+                        source: this.mapViewer.getView().getCenter()
                     });
-                    this.mapViewer.beforeRender(pan1);
+                    this.mapViewer.beforeRender(pan1, zoom);
                     this.mapViewer.getView().fitExtent(coords, this.mapViewer.getSize());
                 } else {
                     var pan2 = ol.animation.pan({
                         duration: 2000,
-                        source: /** @type {ol.Coordinate} */ (this.mapViewer.getView().getCenter())
+                        source: this.mapViewer.getView().getCenter()
                     });
-                    this.mapViewer.beforeRender(pan2);
+                    this.mapViewer.beforeRender(pan2, zoom);
                     var extent = rectangle.getExtent();
                     this.mapViewer.getView().fitExtent(extent);
                 }
