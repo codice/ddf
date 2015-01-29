@@ -22,10 +22,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import ddf.action.Action;
+import ddf.action.ActionProvider;
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -74,15 +78,24 @@ public class TestKMLTransformerImpl {
 
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
+    private static final String ACTION_URL = "http://example.com/source/id?transform=resource";
+
+    private static ActionProvider mockActionProvider;
+    private static Action mockAction;
+
     @BeforeClass
     public static void setUp() throws IOException {
         when(mockContext.getBundle()).thenReturn(mockBundle);
-        when(mockBundle.getResource(any(String.class))).thenReturn(
-                TestKMLTransformerImpl.class.getResource(defaultStyleLocation));
+        URL url = TestKMLTransformerImpl.class.getResource(defaultStyleLocation);
+        when(mockBundle.getResource(any(String.class))).thenReturn(url);
 
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        mockActionProvider = mock(ActionProvider.class);
+        mockAction = mock(Action.class);
+        when(mockActionProvider.getAction(any(Metacard.class))).thenReturn(mockAction);
+        when(mockAction.getUrl()).thenReturn(new URL(ACTION_URL));
         kmlTransformer = new KMLTransformerImpl(mockContext, defaultStyleLocation,
-                new KmlStyleMap());
+                new KmlStyleMap(), mockActionProvider);
     }
 
     @Test(expected = CatalogTransformerException.class)

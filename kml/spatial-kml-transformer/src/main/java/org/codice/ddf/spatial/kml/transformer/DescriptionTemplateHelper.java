@@ -1,133 +1,104 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.kml.transformer;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-
-import javax.xml.bind.DatatypeConverter;
-
-import org.codice.ddf.configuration.ConfigurationManager;
+import com.github.jknack.handlebars.Options;
+import ddf.action.Action;
+import ddf.action.ActionProvider;
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.Metacard;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.jknack.handlebars.Options;
-
-import ddf.catalog.data.Metacard;
+import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
 /**
- * A handlebars template helper class that creates handlebar helpers which are used in the 
+ * A handlebars template helper class that creates handlebar helpers which are used in the
  * description.hbt handlebars template
- *
  */
 public class DescriptionTemplateHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DescriptionTemplateHelper.class);
 
-    private static final String CATALOG_SOURCES_REST = "/catalog/sources/";
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
-    private static final String FORWARD_SLASH = "/";
+    private ActionProvider resourceActionProvider;
 
-    private String protocol = null;
-    private String host = null;
-    private int port = -1;
-    private String serviceContext = null;
-    
-    public DescriptionTemplateHelper(String callingUrl,
-            Map<String, String> platformConfiguration) {
+    private static final List<String> NON_PRINTABLE_ATTRIBUTES = Collections.unmodifiableList(
+            Arrays.asList(Metacard.RESOURCE_SIZE, Metacard.RESOURCE_URI, Metacard.GEOGRAPHY,
+                    Metacard.METADATA, Metacard.THUMBNAIL, Metacard.CONTENT_TYPE_VERSION));
 
-        // attempt to read url context from incoming query
-        if (callingUrl != null) {
-            try {
-                URL url = new URL(callingUrl);
-                protocol = url.getProtocol();
-                host = url.getHost();
-                port = url.getPort();
-            } catch (MalformedURLException e) {
-                LOGGER.warn("Failed to parse incoming URL", e);
+    public DescriptionTemplateHelper(ActionProvider actionProvider) {
+        this.resourceActionProvider = actionProvider;
+    }
+
+    public CharSequence isPrintableAttribute(Attribute attribute, AttributeFormat format,
+            Options options) throws IOException {
+        if (attribute == null || attribute.getValue() == null ||
+                NON_PRINTABLE_ATTRIBUTES.contains(attribute.getName()) ||
+                prettyPrint(attribute, format) == null) {
+            return options.inverse();
+        }
+        return options.fn();
+    }
+
+    public String prettyPrint(Attribute attribute, AttributeFormat format) {
+        switch (format) {
+        case BINARY:
+            return DatatypeConverter.printBase64Binary((byte[]) attribute.getValue());
+        case DATE:
+            if (attribute != null && attribute.getValue() != null) {
+                return dateFormat.format((Date) attribute.getValue());
+            } else {
+                return dateFormat.format(new Date());
             }
+            // There is no way to prettyPrint these
+        case GEOMETRY:
+        case OBJECT:
+        case XML:
+            return null;
+        // Nothing to do
+        case STRING:
+        case BOOLEAN:
+        case DOUBLE:
+        case FLOAT:
+        case INTEGER:
+        case LONG:
+        case SHORT:
+        default:
+            return attribute.getValue().toString();
         }
-        if (platformConfiguration != null) {
-            serviceContext = platformConfiguration.get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
-
-            // if no url set, use that of configurationManager
-            if (host == null) {
-                host = platformConfiguration.get(ConfigurationManager.HOST);
-                try {
-                    port = Integer.parseInt(platformConfiguration.get(ConfigurationManager.PORT));
-                } catch (NumberFormatException e) {
-                    LOGGER.warn("Failed to parse port from platform configuration", e);
-                }
-                protocol = platformConfiguration.get(ConfigurationManager.PROTOCOL);
-                if (protocol.indexOf(":") != -1) {
-                    protocol = protocol.split(":")[0];
-                }
-            }
-        }
-    }
-    
-    public String effectiveTime(Metacard context) {
-        String effectiveTime = null;
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        if (context.getEffectiveDate() == null) {
-            effectiveTime = dateFormat.format(new Date());
-        } else {
-            effectiveTime = dateFormat.format(context.getEffectiveDate());
-        }
-        return effectiveTime;
     }
 
-    public String resourceUrl(Metacard context) {
-        StringBuilder path = new StringBuilder();
-        if (serviceContext != null) {
-            path.append(serviceContext);
-        }
-        path.append(CATALOG_SOURCES_REST).append(context.getSourceId()).append(FORWARD_SLASH).append(context.getId());
-        String uri = "";
-        try {
-            uri = new URI(protocol, null, host, port, path.toString(), "transform=resource", null).toString();
-        } catch (URISyntaxException e) {
-            LOGGER.error("Failed to create resource url", e);
-        }
-        LOGGER.debug("HTML URI = {}", uri);
-        
-        return uri.toString();
-    }
-    
-    public String metacardUrl(Metacard context) {
-        StringBuilder path = new StringBuilder();
-        if (serviceContext != null) {
-            path.append(serviceContext);
-        }
-        path.append(CATALOG_SOURCES_REST).append(context.getSourceId()).append(FORWARD_SLASH).append(context.getId());
-        String uri = "";
-        try {
-            uri = new URI(protocol, null, host, port, path.toString(), "transform=html", null).toString();
-        } catch (URISyntaxException e) {
-            LOGGER.error("Failed to create metacard url", e);
-        }
-        LOGGER.debug("HTML URI = {}", uri);
-        
-        return uri.toString();
+    public String printAttributeName(Attribute attribute) {
+        String title = attribute.getName();
+        title = StringUtils.replace(title, "-", " ");
+        title = StringUtils.replace(title, ".", " ");
+        title = WordUtils.capitalize(title);
+        return title;
     }
 
     public CharSequence hasThumbnail(Metacard context, Options options) {
@@ -135,7 +106,7 @@ public class DescriptionTemplateHelper {
                 .getThumbnail().length != 0)) {
             try {
                 return options.fn();
-            } catch (IOException e) {                
+            } catch (IOException e) {
                 LOGGER.error("Failed to execute thumbnail template", e);
                 return "";
             }
@@ -153,6 +124,17 @@ public class DescriptionTemplateHelper {
         return DatatypeConverter.printBase64Binary(context.getThumbnail());
     }
 
+    public String resourceUrl(Metacard context) {
+        if (resourceActionProvider != null) {
+            Action action = resourceActionProvider.getAction(context);
+            if (action != null) {
+                return action.getUrl().toString();
+            }
+        }
+        return context.getResourceURI().toString();
+
+    }
+
     public String resourceSizeString(Metacard context) {
         String resourceSize = context.getResourceSize();
         String sizePrefixes = " KMGTPEZYXWVU";
@@ -168,9 +150,9 @@ public class DescriptionTemplateHelper {
         try {
             size = Long.parseLong(resourceSize);
         } catch (NumberFormatException nfe) {
-            LOGGER.info(
+            LOGGER.debug(
                     "Failed to parse resourceSize ({}), assuming already formatted.",
-                    resourceSize);
+                    StringUtils.trim(resourceSize));
             return resourceSize;
         }
 
@@ -183,5 +165,6 @@ public class DescriptionTemplateHelper {
         return (Math.round(size * 100 / Math.pow(1024, t2)) / 100) + " "
                 + (c == ' ' ? "" : c) + "B";
     }
-    
+
+
 }

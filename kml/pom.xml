@@ -38,11 +38,6 @@
 				<artifactId>JavaAPIforKml</artifactId>
 				<version>2.2.0</version>
 			</dependency>
-			<dependency>
-				<groupId>ddf.catalog.core</groupId>
-				<artifactId>catalog-core-api-impl</artifactId>
-				<version>${ddf.catalog.app.version}</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	

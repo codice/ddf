@@ -51,7 +51,6 @@
 		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>antlr4-runtime</artifactId>
-			<version>4.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.abego.treelayout</groupId>
@@ -63,7 +62,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.0</version>
-		</dependency>		
+		</dependency>
+        <dependency>
+            <groupId>ddf.action.core</groupId>
+            <artifactId>action-core-api</artifactId>
+        </dependency>
 	</dependencies>
 
 	<build>

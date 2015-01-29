@@ -33,7 +33,8 @@
         <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
         <ddf.security.app.version>2.6.0-SNAPSHOT</ddf.security.app.version>
         <org.geotools.version>8.4</org.geotools.version>     
-        <handlebars.version>1.1.2</handlebars.version>
+        <handlebars.version>2.0.0</handlebars.version>
+        <antlr.version>4.3</antlr.version>
         <jaxb.annotate.plugin.version>0.6.0</jaxb.annotate.plugin.version>
         <jaxb.visitor.plugin.version>1.13</jaxb.visitor.plugin.version>
         <xpp3.bundle.version>1.1.4c_5</xpp3.bundle.version>
@@ -111,6 +112,11 @@
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars</artifactId>
                 <version>${handlebars.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${antlr.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>

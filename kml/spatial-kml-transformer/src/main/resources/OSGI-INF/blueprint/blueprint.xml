@@ -18,7 +18,9 @@
         http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
         http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-	<bean id="kmlStyleMap" class="org.codice.ddf.spatial.kml.transformer.KmlStyleMap" />
+    <reference id="resourceActionProvider" interface="ddf.action.ActionProvider" filter="id=catalog.data.metacard.resource" />
+
+    <bean id="kmlStyleMap" class="org.codice.ddf.spatial.kml.transformer.KmlStyleMap" />
 
 	<reference-list id="kmlStyleMapList" interface="org.codice.ddf.spatial.kml.transformer.KmlStyleMapEntry"
 		availability="optional" member-type="service-object">
@@ -29,6 +31,7 @@
 		<argument ref="blueprintBundleContext" />
 		<argument value="kml-styling/defaultStyling.kml" />	<!-- Path for default base Styling file -->
 		<argument ref="kmlStyleMap" />
+        <argument ref="resourceActionProvider" />
 	</bean>
 
 	<service ref="kmlTransformerImpl" interface="ddf.catalog.transform.MetacardTransformer">

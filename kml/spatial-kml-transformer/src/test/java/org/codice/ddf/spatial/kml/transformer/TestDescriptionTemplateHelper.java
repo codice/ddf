@@ -18,10 +18,17 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.is;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,7 +40,11 @@ import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
+import ddf.action.Action;
+import ddf.action.ActionProvider;
 import org.codice.ddf.configuration.ConfigurationManager;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.github.jknack.handlebars.Options;
@@ -45,22 +56,38 @@ public class TestDescriptionTemplateHelper {
 
     private static final String ID = "id";
     private static final String SOURCE = "sourceId";
+
+    private static ActionProvider mockActionProvider;
+    private static Action mockAction;
+
+    private static final String ACTION_URL = "http://example.com/source/id?transform=resource";
+
+    private static final String DEFAULT_URI = "http://example.com/something/different";
+
+    private static DescriptionTemplateHelper helper;
+
+    @BeforeClass
+    public static void setUp() throws MalformedURLException {
+        mockActionProvider = mock(ActionProvider.class);
+        mockAction = mock(Action.class);
+        when(mockActionProvider.getAction(any(Metacard.class))).thenReturn(mockAction);
+        when(mockAction.getUrl()).thenReturn(new URL(ACTION_URL));
+        helper = new DescriptionTemplateHelper(mockActionProvider);
+    }
     
     @Test
     public void testUnsetEffectiveTime() throws ParseException {
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(null, null);
-        
-        Metacard metacard = new MetacardImpl();
-        
-        String effectiveTime = helper.effectiveTime(metacard);
+        MetacardImpl metacard = new MetacardImpl();
+
+        String effectiveTime = helper.prettyPrint(metacard.getAttribute(Metacard.EFFECTIVE),
+                metacard.getMetacardType().getAttributeDescriptor(Metacard.EFFECTIVE).getType()
+                        .getAttributeFormat());
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        assertNotNull(dateFormat.parse(effectiveTime));        
+        assertNotNull(effectiveTime);
     }
     
     @Test
     public void testSetEffectiveTime() throws ParseException {
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(null, null);
-        
         MetacardImpl metacard = new MetacardImpl();
         Calendar calendar = new GregorianCalendar();
         calendar.set(Calendar.YEAR, 1988);
@@ -68,152 +95,38 @@ public class TestDescriptionTemplateHelper {
         Date date = calendar.getTime();
         metacard.setEffectiveDate(date);
         
-        String effectiveTime = helper.effectiveTime(metacard);
+        String effectiveTime = helper.prettyPrint(metacard.getAttribute(Metacard.EFFECTIVE), metacard.getMetacardType().getAttributeDescriptor(Metacard.EFFECTIVE).getType().getAttributeFormat());
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        Date retrievedDate = dateFormat.parse(effectiveTime); 
+        Date retrievedDate = dateFormat.parse(effectiveTime);
+        assertNotNull(effectiveTime);
+        assertThat(effectiveTime, is(dateFormat.format(date)));
+        assertThat(date, is(dateFormat.parse(effectiveTime)));
         assertEquals(date, retrievedDate);        
     }
 
     @Test
-    public void testNoContextMetacardUrl() {
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(null, null);
-        
+    public void testNoActionProviderResourceUrl() throws URISyntaxException {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setSourceId(SOURCE);
         metacard.setId(ID);
-        
-        String url = helper.metacardUrl(metacard);
-        String expected = "/catalog/sources/" + SOURCE + "/" + ID + "?transform=html";
-        assertEquals(expected, url);        
+        metacard.setResourceURI(new URI(DEFAULT_URI));
+        DescriptionTemplateHelper noActionHelper = new DescriptionTemplateHelper(null);
+        String url = noActionHelper.resourceUrl(metacard);
+        assertThat(url, is(DEFAULT_URI));
     }
 
     @Test
-    public void testUrlContextMetacardUrl() {
-        
-        String callingUrl = "http://someHost:9898/anyContext";
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(callingUrl, null);
-        
-        MetacardImpl metacard = new MetacardImpl();
-        metacard.setSourceId(SOURCE);
-        metacard.setId(ID);
-        
-        String url = helper.metacardUrl(metacard);
-        String expected = "http://someHost:9898/catalog/sources/" + SOURCE + "/" + ID + "?transform=html";
-        assertEquals(expected, url);        
-    }
-
-    @Test
-    public void testPlatformContextMetacardUrl() {
-        Map<String, String> platformContext = new HashMap<String, String>();
-        platformContext.put(ConfigurationManager.HOST, "someHost");
-        platformContext.put(ConfigurationManager.PORT, "9898");
-        platformContext.put(ConfigurationManager.PROTOCOL, "http://");
-        platformContext.put(ConfigurationManager.SERVICES_CONTEXT_ROOT, "/services");
-        
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(null, platformContext);
-        
-        MetacardImpl metacard = new MetacardImpl();
-        metacard.setSourceId(SOURCE);
-        metacard.setId(ID);
-        
-        String url = helper.metacardUrl(metacard);
-        String expected = "http://someHost:9898/services/catalog/sources/" + SOURCE + "/" + ID + "?transform=html";
-        assertEquals(expected, url);
-    }
-
-    @Test
-    public void testPlatformandUrlContextMetacardUrl() {
-        String callingUrl = "http://someHost:9898/anyContext";
-        Map<String, String> platformContext = new HashMap<String, String>();
-        
-        platformContext.put(ConfigurationManager.HOST, "someOtherHost");
-        platformContext.put(ConfigurationManager.PORT, "1111");
-        platformContext.put(ConfigurationManager.PROTOCOL, "http://");
-        platformContext.put(ConfigurationManager.SERVICES_CONTEXT_ROOT, "/services");
-        
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(callingUrl, platformContext);
-        
-        MetacardImpl metacard = new MetacardImpl();
-        metacard.setSourceId(SOURCE);
-        metacard.setId(ID);
-        
-        String url = helper.metacardUrl(metacard);
-        String expected = "http://someHost:9898/services/catalog/sources/" + SOURCE + "/" + ID + "?transform=html";
-        assertEquals(expected, url);
-    }
-
-    @Test
-    public void testNoContextResourceUrl() {
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(null, null);
-        
+    public void testActionProviderResourceUrl() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setSourceId(SOURCE);
         metacard.setId(ID);
         
         String url = helper.resourceUrl(metacard);
-        String expected = "/catalog/sources/" + SOURCE + "/" + ID + "?transform=resource";
-        assertEquals(expected, url);        
-    }
-
-    @Test
-    public void testUrlContextResourceUrl() {
-        
-        String callingUrl = "http://someHost:9898/anyContext";
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(callingUrl, null);
-        
-        MetacardImpl metacard = new MetacardImpl();
-        metacard.setSourceId(SOURCE);
-        metacard.setId(ID);
-        
-        String url = helper.resourceUrl(metacard);
-        String expected = "http://someHost:9898/catalog/sources/" + SOURCE + "/" + ID + "?transform=resource";
-        assertEquals(expected, url);        
-    }
-
-    @Test
-    public void testPlatformContextResourceUrl() {
-        Map<String, String> platformContext = new HashMap<String, String>();
-        platformContext.put(ConfigurationManager.HOST, "someHost");
-        platformContext.put(ConfigurationManager.PORT, "9898");
-        platformContext.put(ConfigurationManager.PROTOCOL, "http://");
-        platformContext.put(ConfigurationManager.SERVICES_CONTEXT_ROOT, "/services");
-        
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(null, platformContext);
-        
-        MetacardImpl metacard = new MetacardImpl();
-        metacard.setSourceId(SOURCE);
-        metacard.setId(ID);
-        
-        String url = helper.resourceUrl(metacard);
-        String expected = "http://someHost:9898/services/catalog/sources/" + SOURCE + "/" + ID + "?transform=resource";
-        assertEquals(expected, url);
-    }
-
-    @Test
-    public void testPlatformandUrlContextResourceUrl() {
-        String callingUrl = "http://someHost:9898/anyContext";
-        Map<String, String> platformContext = new HashMap<String, String>();
-       
-        platformContext.put(ConfigurationManager.HOST, "someOtherHost");
-        platformContext.put(ConfigurationManager.PORT, "1111");
-        platformContext.put(ConfigurationManager.PROTOCOL, "http://");
-        platformContext.put(ConfigurationManager.SERVICES_CONTEXT_ROOT, "/services");
-        
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(callingUrl, platformContext);
-        
-        MetacardImpl metacard = new MetacardImpl();
-        metacard.setSourceId(SOURCE);
-        metacard.setId(ID);
-        
-        String url = helper.resourceUrl(metacard);
-        String expected = "http://someHost:9898/services/catalog/sources/" + SOURCE + "/" + ID + "?transform=resource";
-        assertEquals(expected, url);
+        assertThat(url, is(ACTION_URL));
     }
 
     @Test
     public void testNoThumbnailHasThumbnail() throws IOException {
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(null, null);
-
         String ifOption = "if";
         String elseOption = "else";
         Metacard metacard = new MetacardImpl();
@@ -228,8 +141,6 @@ public class TestDescriptionTemplateHelper {
 
     @Test
     public void testThumbnailHasThumbnail() throws IOException {
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(null, null);
-
         String ifOption = "if";
         String elseOption = "else";
         MetacardImpl metacard = new MetacardImpl();
@@ -246,8 +157,6 @@ public class TestDescriptionTemplateHelper {
 
     @Test
     public void testBase64Thumbnail() {
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(null, null);
-
         byte[] expected = new byte[] {1, 2, 3};
         MetacardImpl metacard = new MetacardImpl();
         metacard.setThumbnail(expected);
@@ -261,8 +170,6 @@ public class TestDescriptionTemplateHelper {
 
     @Test
     public void testResourceSizeStringNoneSet() {
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(null, null);
-
         MetacardImpl metacard = new MetacardImpl();
         
         String result = helper.resourceSizeString(metacard);
@@ -272,8 +179,6 @@ public class TestDescriptionTemplateHelper {
 
     @Test
     public void testResourceSizeStringNASet() {
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(null, null);
-
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("N/A");
         
@@ -284,7 +189,6 @@ public class TestDescriptionTemplateHelper {
 
     @Test
     public void testResourceSizeStringNonNumericSet() {
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(null, null);
         String size = "foo";
 
         MetacardImpl metacard = new MetacardImpl();
@@ -298,8 +202,6 @@ public class TestDescriptionTemplateHelper {
 
     @Test
     public void testResourceSizeStringNumericSet() {
-        DescriptionTemplateHelper helper = new DescriptionTemplateHelper(null, null);
-
         Map<String, String> sizes = new HashMap<String, String>();
         sizes.put("1", "1 B");
         sizes.put("76", "76 B");

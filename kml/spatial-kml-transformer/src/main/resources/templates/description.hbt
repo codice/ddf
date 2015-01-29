@@ -17,37 +17,33 @@
         max-height: 100px;
         border-style:none
       }
+      tr:nth-child(even) {
+        background-color: #c0c0c0;
+      }
     </style>
   </head>
   <body>
 
     {{#hasThumbnail}}
-        <div class="thumbnailDiv"><a href="{{resourceUrl}}"><img alt="Thumnail" src="data:image/jpeg;charset=utf-8;base64, {{base64Thumbnail}}"></a></div>
+        <div class="thumbnailDiv"><a href="{{resourceUrl}}"><img alt="Thumbnail" src="data:image/jpeg;charset=utf-8;base64, {{base64Thumbnail}}"></a></div>
     {{/hasThumbnail}}
-    <table>
-      <tr>
-        <td class="label">Source:</td>
-        <td>{{sourceId}}</td>
-      </tr>
-      <tr>
-        <td class="label">Created:</td>
-        <td>{{createdDate}}</td>
-      </tr>
-      <tr>
-        <td class="label">Effective:</td>
-        <td>{{effectiveTime}}</td>
-      </tr>
-      {{#if resourceSize}}
-        <tr>
-          <td class="label">Size:</td>
-          <td>{{resourceSizeString}}</td>
-        </tr>
-      {{/if}}
+
+    <table style="width:100%">
+        <tbody>
+        {{#each attributes}}
+            {{#isPrintableAttribute this.key this.value}}
+            <tr>
+                <td style="font-weight: bold;">{{printAttributeName this.key}}</td>
+                <td>{{prettyPrint this.key this.value}}</td>
+            </tr>
+            {{/isPrintableAttribute}}
+        {{/each}}
+        </tbody>
     </table>
     <table class="linkTable">
       <tr>
-        <td><a href="{{metacardUrl}}">View Details...</a></td>
         <td><a href="{{resourceUrl}}">Download...</a></td>
+          <td>{{resourceSizeString}}</td>
       </tr>
     </table>
   </body>
