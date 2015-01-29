@@ -67,7 +67,7 @@ public class TestGetRecordsMessageBodyReader {
     @Test
     public void testConfigurationArguments() throws Exception {
         when(mockInputManager.getTransformerBySchema(anyString()))
-                .thenReturn(new CswRecordConverter());
+                .thenReturn(new CswRecordConverter(null));
 
         CswSourceConfiguration config = new CswSourceConfiguration();
         config.setMetacardCswMappings(
@@ -116,7 +116,7 @@ public class TestGetRecordsMessageBodyReader {
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
 
         when(mockInputManager.getTransformerBySchema(anyString()))
-                .thenReturn(new CswRecordConverter());
+                .thenReturn(new CswRecordConverter(null));
 
         CswSourceConfiguration config = new CswSourceConfiguration();
         Map<String, String> mappings = new HashMap<>();

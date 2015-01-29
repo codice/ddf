@@ -62,7 +62,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     protected static final CswRecordMetacardType CSW_METACARD_TYPE = new CswRecordMetacardType();
 
-    protected static final CswRecordConverter CONVERTER = new CswRecordConverter();
+    protected static final CswRecordConverter CONVERTER = new CswRecordConverter(null);
 
     protected static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
     

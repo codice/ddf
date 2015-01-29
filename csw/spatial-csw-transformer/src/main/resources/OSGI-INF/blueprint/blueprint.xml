@@ -14,6 +14,8 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <reference id="resourceActionProvider" interface="ddf.action.ActionProvider" filter="id=catalog.data.metacard.resource" />
+
     <!-- Register the Transformers -->
     <service interface="ddf.catalog.transform.InputTransformer">
 		<service-properties>
@@ -22,7 +24,9 @@
             <!-- TODO - still need to register OGCCORE for old school system -->
             <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2" />
 		</service-properties>
-		<bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter" />
+		<bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter" >
+            <argument ref="resourceActionProvider" />
+        </bean>
 	</service>
 
     <service interface="ddf.catalog.transform.MetacardTransformer">
@@ -31,7 +35,9 @@
             <entry key="mime-type" value="text/xml" />
             <entry key="schema" value="http://www.opengis.net/cat/csw/2.0.2" />
         </service-properties>
-        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter" />
+        <bean class="org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter" >
+            <argument ref="resourceActionProvider" />
+        </bean>
     </service>
 
     <service interface="ddf.catalog.transform.QueryResponseTransformer">

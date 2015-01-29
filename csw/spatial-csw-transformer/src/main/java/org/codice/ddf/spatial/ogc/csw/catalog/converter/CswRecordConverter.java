@@ -137,16 +137,14 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     private XStream xstream;
 
-    public CswRecordConverter() {
+    public CswRecordConverter(ActionProvider actionProvider) {
+        this.resourceActionProvider = actionProvider;
+
         xstream = new XStream(new Xpp3Driver());
         xstream.setClassLoader(this.getClass().getClassLoader());
         xstream.registerConverter(this);
         xstream.alias(CswConstants.CSW_RECORD_LOCAL_NAME, Metacard.class);
         xstream.alias(CswConstants.CSW_RECORD, Metacard.class);
-    }
-
-    public void setResourceActionProvider(ActionProvider resourceActionProvider) {
-        this.resourceActionProvider = resourceActionProvider;
     }
 
     @Override

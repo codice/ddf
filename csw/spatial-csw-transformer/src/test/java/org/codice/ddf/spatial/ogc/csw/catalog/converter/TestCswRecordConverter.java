@@ -90,6 +90,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyByte;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -120,6 +121,14 @@ public class TestCswRecordConverter {
 
     private static String CREATED;
 
+    private static CswRecordConverter converter;
+
+    private static ActionProvider mockActionProvider;
+
+    private static Action mockAction;
+
+    private static final String ACTION_URL = "http://example.com/source/id?transform=resource";
+
     static {
         DatatypeFactory factory = null;
         try {
@@ -136,13 +145,18 @@ public class TestCswRecordConverter {
         MODIFIED = XSD_FACTORY.newXMLGregorianCalendar(MODIFIED_DATE).toXMLFormat();
         EFFECTIVE = XSD_FACTORY.newXMLGregorianCalendar(EFFECTIVE_DATE).toXMLFormat();
         CREATED = XSD_FACTORY.newXMLGregorianCalendar(CREATED_DATE).toXMLFormat();
+
+        mockActionProvider = mock(ActionProvider.class);
+        mockAction = mock(Action.class);
+        when(mockActionProvider.getAction(any(Metacard.class))).thenReturn(mockAction);
+        when(mockAction.getUrl()).thenReturn(new URL(ACTION_URL));
+
+        converter = new CswRecordConverter(mockActionProvider);
     }
 
     @Test
     public void testUnmarshalSingleCswRecordToMetacard() {
         XStream xstream = new XStream(new WstxDriver());
-
-        CswRecordConverter converter = new CswRecordConverter();
 
         xstream.registerConverter(converter);
 
@@ -170,8 +184,6 @@ public class TestCswRecordConverter {
     public void testUnmarshalNoNamespaceDeclaration() throws IOException, SAXException {
         XStream xstream = new XStream(new XppDriver());
 
-        CswRecordConverter converter = new CswRecordConverter();
-
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
@@ -194,8 +206,6 @@ public class TestCswRecordConverter {
     public void testUnmarshalWriteNamespaces()
             throws IOException, SAXException, XmlPullParserException {
         XStream xstream = new XStream(new XppDriver());
-
-        CswRecordConverter converter = new CswRecordConverter();
 
         xstream.registerConverter(converter);
 
@@ -240,8 +250,6 @@ public class TestCswRecordConverter {
         Map<String, String> metacardAttributeMappings = getMetacardAttributeMappings();
         metacardAttributeMappings.put(CswRecordMetacardType.CSW_FORMAT, Metacard.CONTENT_TYPE);
 
-        CswRecordConverter converter = new CswRecordConverter();
-
         xstream.registerConverter(converter);
 
         xstream.alias("csw:Record", MetacardImpl.class);
@@ -262,7 +270,6 @@ public class TestCswRecordConverter {
     public void testUnmarshalCswRecordGeometryToMetacard() {
         XStream xstream = new XStream(new WstxDriver());
 
-        CswRecordConverter converter = new CswRecordConverter();
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
@@ -282,7 +289,6 @@ public class TestCswRecordConverter {
     public void testUnmarshalCswRecordMultipleTitles() {
         XStream xstream = new XStream(new WstxDriver());
 
-        CswRecordConverter converter = new CswRecordConverter();
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
@@ -305,7 +311,6 @@ public class TestCswRecordConverter {
     public void testUnmarshalCswRecordMultipleResourceUri() {
         XStream xstream = new XStream(new WstxDriver());
 
-        CswRecordConverter converter = new CswRecordConverter();
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
@@ -322,7 +327,6 @@ public class TestCswRecordConverter {
     public void testUnmarshalCswRecordMetacardAttributeOverlap() {
         XStream xstream = new XStream(new WstxDriver());
 
-        CswRecordConverter converter = new CswRecordConverter();
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
@@ -409,7 +413,6 @@ public class TestCswRecordConverter {
     public void testUnmarshalCswRecordMetacard_DateMappings() throws XmlPullParserException {
         XStream xstream = new XStream(new WstxDriver());
 
-        CswRecordConverter converter = new CswRecordConverter();
         xstream.registerConverter(converter);
 
         xstream.alias("csw:Record", MetacardImpl.class);
@@ -461,7 +464,6 @@ public class TestCswRecordConverter {
     private Metacard buildMetacardFromCSW(String cswFileName) {
         XStream xstream = new XStream(new WstxDriver());
 
-        CswRecordConverter converter = new CswRecordConverter();
         xstream.registerConverter(converter);
 
         xstream.alias("Record", MetacardImpl.class);
@@ -481,7 +483,6 @@ public class TestCswRecordConverter {
         metacardAttributeMappings.put(CswRecordMetacardType.CSW_CREATED, Metacard.CREATED);
         metacardAttributeMappings.put(CswRecordMetacardType.CSW_DATE_SUBMITTED, Metacard.MODIFIED);
 
-        CswRecordConverter converter = new CswRecordConverter();
         xstream.registerConverter(converter);
 
         xstream.alias("csw:Record", MetacardImpl.class);
@@ -513,8 +514,6 @@ public class TestCswRecordConverter {
     public void testUnmarshalCswRecordWithProductAndThumbnail() throws URISyntaxException,
             IOException, JAXBException, ParserConfigurationException, SAXException {
         XStream xstream = new XStream(new WstxDriver());
-
-        CswRecordConverter converter = new CswRecordConverter();
 
         xstream.registerConverter(converter);
 
@@ -561,7 +560,6 @@ public class TestCswRecordConverter {
      */
     @Test
     public void testConvertISODateMetacardAttribute() {
-        CswRecordConverter converter = new CswRecordConverter();
         String dateStr = "2013-05-03T17:25:04Z";
         Serializable ser = converter.convertStringValueToMetacardValue(
                 AttributeFormat.DATE, dateStr);
@@ -581,7 +579,6 @@ public class TestCswRecordConverter {
      */
     @Test
     public void testConvertInvalidTimeZoneInDateMetacardAttribute() {
-        CswRecordConverter converter = new CswRecordConverter();
         String dateStr = "2013-05-13T10:56:39EDT";
         Serializable ser = converter.convertStringValueToMetacardValue(
                 AttributeFormat.DATE, dateStr);
@@ -594,7 +591,6 @@ public class TestCswRecordConverter {
      */
     @Test
     public void testConvertInvalidDateMetacardAttribute() {
-        CswRecordConverter converter = new CswRecordConverter();
         String dateStr = "26021000ZFEB11";
         Serializable ser = converter.convertStringValueToMetacardValue(
                 AttributeFormat.DATE, dateStr);
@@ -619,7 +615,6 @@ public class TestCswRecordConverter {
         UnmarshallingContext context = new TreeUnmarshaller(null, null, null, null);
         context.put(CswConstants.CSW_MAPPING, metacardAttributeMappings);
 
-        CswRecordConverter converter = new CswRecordConverter();
         // Perform test
         Metacard metacard = (Metacard) converter.unmarshal(reader, context);
 
@@ -632,14 +627,13 @@ public class TestCswRecordConverter {
     @Test
     public void testMarshalRecord() throws IOException, JAXBException, SAXException,
             XpathException {
-        CswRecordConverter cswRecordConverter = createRecordConverter();
         Metacard metacard = getTestMetacard();
 
         StringWriter stringWriter = new StringWriter();
         PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
         MarshallingContext context = new TreeMarshaller(writer, null, null);
 
-        cswRecordConverter.marshal(metacard, writer, context);
+        converter.marshal(metacard, writer, context);
 
         String xml = stringWriter.toString();
         assertThat(xml, containsString(CswConstants.CSW_RECORD));
@@ -649,7 +643,6 @@ public class TestCswRecordConverter {
     @Test
     public void testMarshalBriefRecord() throws IOException, JAXBException, SAXException,
             XpathException {
-        CswRecordConverter cswRecordConverter = createRecordConverter();
         Metacard metacard = getTestMetacard();
 
         StringWriter stringWriter = new StringWriter();
@@ -657,7 +650,7 @@ public class TestCswRecordConverter {
         MarshallingContext context = new TreeMarshaller(writer, null, null);
         context.put(CswConstants.ELEMENT_SET_TYPE, ElementSetType.BRIEF);
 
-        cswRecordConverter.marshal(metacard, writer, context);
+        converter.marshal(metacard, writer, context);
 
         String xml = stringWriter.toString();
         assertThat(xml, containsString(CswConstants.CSW_BRIEF_RECORD));
@@ -667,7 +660,6 @@ public class TestCswRecordConverter {
     @Test
     public void testMarshalSummaryRecord() throws IOException, JAXBException, SAXException,
             XpathException {
-        CswRecordConverter cswRecordConverter = createRecordConverter();
         Metacard metacard = getTestMetacard();
 
         StringWriter stringWriter = new StringWriter();
@@ -675,7 +667,7 @@ public class TestCswRecordConverter {
         MarshallingContext context = new TreeMarshaller(writer, null, null);
         context.put(CswConstants.ELEMENT_SET_TYPE, ElementSetType.SUMMARY);
 
-        cswRecordConverter.marshal(metacard, writer, context);
+        converter.marshal(metacard, writer, context);
 
         String xml = stringWriter.toString();
         assertThat(xml, containsString(CswConstants.CSW_SUMMARY_RECORD));
@@ -684,15 +676,9 @@ public class TestCswRecordConverter {
 
     @Test
     public void testMarshalRecordWithActionProvider()
-            throws IOException, JAXBException, SAXException, XpathException {
-        CswRecordConverter cswRecordConverter = createRecordConverter();
-
-        ActionProvider mockActionProvider = mock(ActionProvider.class);
-        final String actionUrl = "http://example.com/source/id?transform=resource";
-        Action mockAction = mock(Action.class);
-
-        cswRecordConverter.setResourceActionProvider(mockActionProvider);
-        Metacard metacard = getTestMetacard();
+            throws IOException, JAXBException, SAXException, XpathException, URISyntaxException {
+        MetacardImpl metacard = getTestMetacard();
+        metacard.setResourceURI(new URI(TEST_URI));
 
         StringWriter stringWriter = new StringWriter();
         PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
@@ -700,7 +686,8 @@ public class TestCswRecordConverter {
         context.put(CswConstants.ELEMENT_NAMES, Arrays.asList(new QName("source")));
         context.put(CswConstants.WRITE_NAMESPACES, true);
 
-        cswRecordConverter.marshal(metacard, writer, context);
+        CswRecordConverter testConverter = new CswRecordConverter(null);
+        testConverter.marshal(metacard, writer, context);
 
         String xml = "<?xml version='1.0' encoding='UTF-8'?>" + stringWriter.toString();
 
@@ -712,18 +699,14 @@ public class TestCswRecordConverter {
 
         assertXMLEqual(test1, xml);
 
-        when(mockAction.getUrl()).thenReturn(new URL(actionUrl));
-
-        when(mockActionProvider.getAction(any(MetacardImpl.class))).thenReturn(mockAction);
-
         stringWriter.getBuffer().setLength(0);
-        cswRecordConverter.marshal(metacard, writer, context);
+        converter.marshal(metacard, writer, context);
 
         String xml2 = "<?xml version='1.0' encoding='UTF-8'?>" + stringWriter.toString();
 
         final String test2 =
                 "<?xml version='1.0' encoding='UTF-8'?><csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"><source>"
-                        + actionUrl
+                        + ACTION_URL
                         + "</source></csw:Record>";
 
         assertXMLEqual(test2, xml2);
@@ -732,7 +715,6 @@ public class TestCswRecordConverter {
     @Test
     public void testMarshalRecordWithNamespaces() throws IOException, JAXBException, SAXException,
             XpathException {
-        CswRecordConverter cswRecordConverter = createRecordConverter();
         Metacard metacard = getTestMetacard();
 
         StringWriter stringWriter = new StringWriter();
@@ -740,26 +722,22 @@ public class TestCswRecordConverter {
         MarshallingContext context = new TreeMarshaller(writer, null, null);
         context.put(CswConstants.WRITE_NAMESPACES, true);
 
-        cswRecordConverter.marshal(metacard, writer, context);
+        converter.marshal(metacard, writer, context);
 
         String xml = stringWriter.toString();
         XMLUnit.setIgnoreWhitespace(true);
         assertXMLEqual(getControlRecord(), xml);
     }
 
-
-
-
     @Test
     public void testMetacardTransform() throws IOException, JAXBException, SAXException,
             XpathException, CatalogTransformerException {
-        CswRecordConverter cswRecordConverter = createRecordConverter();
         Metacard metacard = getTestMetacard();
 
         Map<String, Serializable> args = new HashMap<>();
         args.put(CswConstants.WRITE_NAMESPACES, true);
 
-        BinaryContent content = cswRecordConverter.transform(metacard, args);
+        BinaryContent content = converter.transform(metacard, args);
 
         String xml = IOUtils.toString(content.getInputStream());
         assertThat(xml,
@@ -771,14 +749,13 @@ public class TestCswRecordConverter {
     @Test
     public void testMetacardTransformOmitXmlDeclaration() throws IOException, JAXBException, SAXException,
             XpathException, CatalogTransformerException {
-        CswRecordConverter cswRecordConverter = createRecordConverter();
         Metacard metacard = getTestMetacard();
 
         Map<String, Serializable> args = new HashMap<>();
         args.put(CswConstants.WRITE_NAMESPACES, true);
         args.put(CswConstants.OMIT_XML_DECLARATION, true);
 
-        BinaryContent content = cswRecordConverter.transform(metacard, args);
+        BinaryContent content = converter.transform(metacard, args);
 
         String xml = IOUtils.toString(content.getInputStream());
         assertThat(xml, not(containsString(
@@ -790,13 +767,12 @@ public class TestCswRecordConverter {
     @Test
     public void testMetacardTransformOmitNamespaces() throws IOException, JAXBException, SAXException,
             XpathException, CatalogTransformerException {
-        CswRecordConverter cswRecordConverter = createRecordConverter();
         Metacard metacard = getTestMetacard();
 
         Map<String, Serializable> args = new HashMap<>();
         args.put(CswConstants.WRITE_NAMESPACES, false);
 
-        BinaryContent content = cswRecordConverter.transform(metacard, args);
+        BinaryContent content = converter.transform(metacard, args);
 
         String xml = IOUtils.toString(content.getInputStream());
         assertThat(xml, containsString("<csw:Record>"));
@@ -805,8 +781,6 @@ public class TestCswRecordConverter {
     @Test
     public void testInputTransformWithNoNamespaceDeclaration()
             throws IOException, CatalogTransformerException {
-        CswRecordConverter converter = new CswRecordConverter();
-
         InputStream is = IOUtils.toInputStream(getRecordNoNamespaceDeclaration());
         Metacard mc = converter.transform(is);
 
@@ -824,8 +798,6 @@ public class TestCswRecordConverter {
     @Test
     public void testInputTransform() throws IOException, CatalogTransformerException {
 
-        CswRecordConverter converter = new CswRecordConverter();
-
               InputStream is = TestCswRecordConverter.class.getResourceAsStream("/Csw_Record.xml");
         Metacard mc = converter.transform(is);
 
@@ -836,26 +808,7 @@ public class TestCswRecordConverter {
 
     // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private CswRecordConverter createRecordConverter() {
-        CswRecordConverter cswRecordConverter;
-        Map<String, String> prefixToUriMapping = new HashMap<String, String>();
-
-        prefixToUriMapping.put(XMLConstants.XML_NS_PREFIX, XMLConstants.XML_NS_URI);
-        prefixToUriMapping.put(CswConstants.XML_SCHEMA_INSTANCE_NAMESPACE_PREFIX,
-                XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
-        prefixToUriMapping.put(CswConstants.XML_SCHEMA_NAMESPACE_PREFIX,
-                XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        prefixToUriMapping.put(CswConstants.OWS_NAMESPACE_PREFIX, CswConstants.OWS_NAMESPACE);
-        prefixToUriMapping.put(CswConstants.CSW_NAMESPACE_PREFIX, CswConstants.CSW_OUTPUT_SCHEMA);
-        prefixToUriMapping.put(CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX,
-                CswConstants.DUBLIN_CORE_SCHEMA);
-        prefixToUriMapping.put(CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX,
-                CswConstants.DUBLIN_CORE_TERMS_SCHEMA);
-        cswRecordConverter = new CswRecordConverter();
-        return cswRecordConverter;
-    }
-
-    private Metacard getTestMetacard() {
+    private MetacardImpl getTestMetacard() {
 
         MetacardImpl metacard = new MetacardImpl();
 
@@ -871,7 +824,7 @@ public class TestCswRecordConverter {
         metacard.setSourceId("sourceID");
         metacard.setTitle("This is my title");
         try {
-            metacard.setResourceURI(new URI(TEST_URI));
+            metacard.setResourceURI(new URI(ACTION_URL));
         } catch (URISyntaxException e) {
             LOGGER.debug("URISyntaxException", e);
         }
@@ -970,7 +923,7 @@ public class TestCswRecordConverter {
                 + "  <dct:issued>" + MODIFIED + "</dct:issued>\n"
                 + "  <dc:identifier>ID</dc:identifier>\n"
                 + "  <dct:bibliographicCitation>ID</dct:bibliographicCitation>\n"
-                + "  <dc:source>http://host:port/my/product.pdf</dc:source>\n"
+                + "  <dc:source>" + ACTION_URL + "</dc:source>\n"
                 + "  <dc:title>This is my title</dc:title>\n"
                 + "  <dct:alternative>This is my title</dct:alternative>\n"
                 + "  <dc:type>I have some content type</dc:type>\n"
@@ -993,7 +946,7 @@ public class TestCswRecordConverter {
                 + "  <dct:issued>" + MODIFIED + "</dct:issued>\n"
                 + "  <dc:identifier>ID</dc:identifier>\n"
                 + "  <dct:bibliographicCitation>ID</dct:bibliographicCitation>\n"
-                + "  <dc:source>http://host:port/my/product.pdf</dc:source>\n"
+                + "  <dc:source>" + ACTION_URL + "</dc:source>\n"
                 + "  <dc:title>This is my title</dc:title>\n"
                 + "  <dct:alternative>This is my title</dct:alternative>\n"
                 + "  <dc:type>I have some content type</dc:type>\n"

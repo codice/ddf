@@ -137,7 +137,7 @@ public class TestGetRecordsResponseConverter {
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
 
         when(mockInputManager.getTransformerBySchema(anyString()))
-                .thenReturn(new CswRecordConverter());
+                .thenReturn(new CswRecordConverter(null));
 
         xstream.registerConverter(new GetRecordsResponseConverter(provider));
         xstream.alias("GetRecordsResponse", CswRecordCollection.class);
@@ -685,7 +685,7 @@ public class TestGetRecordsResponseConverter {
 
         TransformerManager mockMetacardManager = mock(TransformerManager.class);
         when(mockMetacardManager.getTransformerBySchema(anyString())).thenReturn(
-                new CswRecordConverter());
+                new CswRecordConverter(null));
         GetRecordsResponseConverter rrConverter = new GetRecordsResponseConverter(new CswTransformProvider(mockMetacardManager, null));
 
         XStream xstream = new XStream(new StaxDriver(new NoNameCoder()));
