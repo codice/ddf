@@ -36,7 +36,7 @@
         <osgi.version>4.3.1</osgi.version>
         <shiro.version>1.2.1</shiro.version>
         <org.geotools.version>8.4</org.geotools.version>
-        <karaf.version>2.3.3</karaf.version>
+        <karaf.version>2.3.8</karaf.version>
         <tika.version>1.6</tika.version>
     </properties>
 
@@ -163,6 +163,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-security-xml</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>javax.ws.rs</groupId>
                 <artifactId>javax.ws.rs-api</artifactId>
                 <version>2.0-m10</version>
@@ -265,7 +271,7 @@
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
-                <version>2.5</version>
+                <version>3.0-alpha-1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
@@ -316,6 +322,7 @@
         <module>platform-commands</module>
         <module>util</module>
         <module>platform-filter-delegate</module>
+        <module>error</module>
         <module>platform-app</module>
     </modules>
 

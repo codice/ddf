@@ -1,0 +1,179 @@
+@import url("/error/lib/lato/css/lato.min.css");
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 15px;
+    line-height: 1.42857143;
+    color: #2c3e50;
+    background-color: #ffffff;
+    margin: 0;
+}
+
+@media (min-width: 768px) {
+    .container {
+        width: 750px;
+    }
+}
+
+@media (min-width: 992px) {
+    .container {
+        width: 970px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .container {
+        width: 1170px;
+    }
+}
+
+.container {
+    margin-right: auto;
+    margin-left: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.page-header {
+    padding-bottom: 9px;
+    margin: 42px 0 21px;
+    border-bottom: 1px solid transparent;
+}
+
+h2, .h2 {
+    font-size: 32px;
+}
+
+h1, .h1, h2, .h2, h3, .h3 {
+    margin-top: 21px;
+    margin-bottom: 10px;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: 400;
+    line-height: 1.1;
+    color: inherit;
+}
+
+article, aside, details, figcaption, figure, footer, header, main, nav, section, summary {
+    display: block;
+}
+
+ul, ol {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.full-height {
+    height: 100%;
+}
+
+.well {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.well {
+    min-height: 20px;
+    padding: 19px;
+    margin-bottom: 20px;
+    background-color: #ecf0f1;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+}
+
+a {
+    color: #18bc9c;
+    text-decoration: none;
+}
+
+a {
+    background: transparent;
+}
+
+.error-code {
+    font-size: 700%;
+    position: relative;
+    left: 15px;
+    top: -10px;
+    float: left;
+}
+
+.error-message {
+    position: relative;
+    font-size: 300%;
+    left: 40px;
+    top: 57px;
+}
+
+.error-type {
+    clear: both;
+    padding-bottom: 10px;
+    padding-left: 20px;
+}
+
+.error-container {
+    border: solid 5px #ecf0f1;
+    border-radius: 30px;
+}
+
+.error-resolve-text {
+    clear: both;
+    display: block;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    font-size: 125%;
+}
+
+.error-throwable {
+    clear: both;
+    padding-left: 20px;
+    padding-top: 20px;
+}
+
+.more-less {
+    clear: both;
+    padding-bottom: 10px;
+}
+
+.error-throwable-text {
+    display: block;
+    padding-left: 90px;
+}
+
+.error-caused-text {
+    display: block;
+    float: left;
+}
+
+.error-ellipsis {
+    display: block;
+    position: relative;
+    font-size: 200%;
+    cursor: pointer;
+    top: -42px;
+    float: right;
+    color: #18bc9c;
+}
