@@ -9,17 +9,15 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, document, window*/
+/*global define, document, window,decodeURI*/
 define([
     'marionette',
     'icanhaz',
-    'backbone',
     'underscore',
     'text!templates/login.handlebars',
     'jquery',
-    'js/application',
     'purl'
-], function(Marionette, ich, Backbone, _, loginTemplate, $) {
+], function(Marionette, ich, _, loginTemplate, $) {
 
     ich.addTemplate('loginTemplate', loginTemplate);
 
@@ -40,27 +38,28 @@ define([
         },
         logInUser: function() {
             var view = this;
-            this.deleteCookie();
 
-            var usernamePasswordJson = {
-                username: view.$('#username').val(),
-                password: view.$('#password').val()
-            };
+            var prevUrl = decodeURI($.url().param('prevurl'));
 
             $.ajax({
-                type: "POST",
+                type: "GET",
+                url: "/logout",
+                async: false
+            });
+
+            $.ajax({
+                type: "GET",
                 url: document.URL,
                 async: false,
-                dataType: 'json',
-                data: usernamePasswordJson,
+                beforeSend: function (xhr) {
+                    var base64 = window.btoa(view.$('#username').val() + ":" + view.$('#password').val());
+                    xhr.setRequestHeader ("Authorization", "Basic " + base64);
+                },
                 error: function() {
                     view.showErrorText();
                     view.setErrorState();
                 },
                 success: function() {
-
-                    var prevUrl = decodeURIComponent($.url().param('prevurl'));
-
                     if (!_.isUndefined(prevUrl)) {
                         window.location.href = prevUrl;
                     } else {

@@ -167,13 +167,13 @@ public class WebSSOFilter implements Filter {
                 return;
             case NO_ACTION:
                 // should never occur - one of the handlers should have returned a token
-                LOGGER.warn("No handlers were able to determine required credentials, returning forbidden.");
-                returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, httpResponse);
+                LOGGER.warn("No handlers were able to determine required credentials, returning bad request.");
+                returnSimpleResponse(HttpServletResponse.SC_BAD_REQUEST, httpResponse);
                 return;
             case COMPLETED:
                 if (result.getToken() == null) {
                     LOGGER.warn("Completed without credentials - check context policy configuration.");
-                    returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, httpResponse);
+                    returnSimpleResponse(HttpServletResponse.SC_BAD_REQUEST, httpResponse);
                     return;
                 }
                 if (LOGGER.isDebugEnabled()) {
@@ -186,8 +186,8 @@ public class WebSSOFilter implements Filter {
                 return;
             }
         } else {
-            LOGGER.warn("Expected login credentials - didn't find any. Returning a forbidden response.");
-            returnSimpleResponse(HttpServletResponse.SC_FORBIDDEN, httpResponse);
+            LOGGER.warn("Expected login credentials - didn't find any. Returning a bad request.");
+            returnSimpleResponse(HttpServletResponse.SC_BAD_REQUEST, httpResponse);
             return;
         }
 
@@ -201,7 +201,6 @@ public class WebSSOFilter implements Filter {
             deleteCookie(SAML_COOKIE_REF, httpRequest, httpResponse);
             // redirect to ourselves without the SAML cookies
             httpResponse.sendRedirect(httpRequest.getRequestURI());
-            return;
         } catch (Exception e) {
             LOGGER.debug("Exception in filter chain - passing off to handlers. Msg: {}", e.getMessage(), e);
 
@@ -215,10 +214,10 @@ public class WebSSOFilter implements Filter {
                     break;
                 }
             }
-            if (result.getStatus() == HandlerResult.Status.NO_ACTION) {
-                LOGGER.debug("Error during authentication - no error recovery attempted - returning unauthorized.");
-                httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
+            if (result == null || result.getStatus() == HandlerResult.Status.NO_ACTION) {
+                LOGGER.debug("Error during authentication - no error recovery attempted - returning bad request.");
+                httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST);
                 httpResponse.flushBuffer();
             }
         }
