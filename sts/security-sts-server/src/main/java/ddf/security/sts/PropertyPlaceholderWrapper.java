@@ -18,8 +18,6 @@ package ddf.security.sts;
 import org.apache.cxf.sts.StaticSTSProperties;
 import org.apache.cxf.sts.token.provider.DefaultConditionsProvider;
 
-import java.util.Map;
-
 /**
  * property-placeholder misbehaves when set to reload, causing the bundle to bounce
  * for several minutes after a config change. This class replaces property-placeholder
@@ -54,10 +52,19 @@ public class PropertyPlaceholderWrapper {
         stsProperties.setEncryptionUsername(DEFAULT_NAME);
     }
 
-    public void setStsMap(Map<String, Object> map) {
-        samlConditionsProvider.setLifetime((Long) map.get(STS_LIFETIME));
-        stsProperties.setSignatureUsername(String.valueOf(map.get(STS_SIGNATURE_USERNAME)));
-        stsProperties.setIssuer(String.valueOf(map.get(STS_ISSUER)));
-        stsProperties.setEncryptionUsername(String.valueOf(map.get(STS_ENCRYPTION_USERNAME)));
+    public void setLifetime(Long lifetime) {
+        samlConditionsProvider.setLifetime(lifetime);
+    }
+
+    public void setSignatureUsername(String username) {
+        stsProperties.setSignatureUsername(username);
+    }
+
+    public void setEncryptionUsername(String username) {
+        stsProperties.setEncryptionUsername(username);
+    }
+
+    public void setIssuer(String issuer) {
+        stsProperties.setIssuer(issuer);
     }
 }

@@ -233,8 +233,7 @@
         <argument ref="SAMLConditionsProvider"/>
         <argument ref="STSProperties"/>
         <cm:managed-properties persistent-id="ddf.security.sts"
-                               update-strategy="component-managed"
-                               update-method="setStsMap"/>
+                               update-strategy="container-managed" />
     </bean>
 </blueprint>
 
