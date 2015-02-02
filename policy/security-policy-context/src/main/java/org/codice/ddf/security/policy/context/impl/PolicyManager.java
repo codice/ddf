@@ -48,7 +48,7 @@ public class PolicyManager implements ContextPolicyManager {
 
     private static final String DEFAULT_REALM = "DDF";
 
-    private static final String DEFAULT_REALM_CONTEXTS = "/=DDF";
+    private static final String DEFAULT_REALM_CONTEXTS = "/=karaf";
 
     private Map<String, ContextPolicy> policyStore = new HashMap<String, ContextPolicy>();
 

@@ -16,7 +16,7 @@
 
 	<OCD description="Anonymous Validator Configuration" name="Security STS Anonymous Validator" id="ddf.security.sts.anonymousvalidator">
         <AD name="Supported Realm" id="supportedRealm" required="true" type="String"
-            default="DDF"
+            default="karaf"
             description="The realm that this validator supports.">
         </AD>
 	</OCD>

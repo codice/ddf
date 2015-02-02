@@ -14,10 +14,6 @@
  **/
 package ddf.ldap.ldaplogin;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 import org.apache.karaf.jaas.config.JaasRealm;
 import org.apache.karaf.jaas.config.impl.Config;
 import org.apache.karaf.jaas.config.impl.Module;
@@ -25,6 +21,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Registers LDAP as a JAAS realm.
@@ -44,7 +44,7 @@ public class LdapLoginConfig {
     private static String PROPS_MODULE = org.apache.karaf.jaas.modules.properties.PropertiesLoginModule.class.getName();
 
     // using karaf to append to default jaas realm
-    private static final String CONFIG_NAME = "ddf";
+    private static final String CONFIG_NAME = "karaf";
 
     private static final String SUFFICIENT_FLAG = "sufficient";
 

@@ -35,7 +35,7 @@
 
     <bean class="org.codice.ddf.security.validator.uname.UPBSTValidator" id="utValidator">
         <property name="validator" ref="JAASValidator"/>
-        <property name="supportedRealm" value="DDF"/>
+        <property name="supportedRealm" value="karaf"/>
     </bean>
 
     <service ref="utValidator" interface="org.apache.cxf.sts.token.validator.TokenValidator"/>

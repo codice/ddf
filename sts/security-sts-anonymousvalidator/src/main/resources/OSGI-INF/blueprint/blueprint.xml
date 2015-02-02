@@ -24,7 +24,7 @@
     <bean class="org.codice.ddf.security.validator.anonymous.AnonymousValidator" id="anonValidator">
         <cm:managed-properties persistent-id="ddf.security.sts.anonymousvalidator"
                                update-strategy="container-managed"/>
-        <property name="supportedRealm" value="DDF"/>
+        <property name="supportedRealm" value="karaf"/>
     </bean>
 
     <service ref="anonValidator" interface="org.apache.cxf.sts.token.validator.TokenValidator"/>

@@ -21,27 +21,14 @@
 
     <ext:property-placeholder/>
 
-    <cm:property-placeholder persistent-id="org.codice.ddf.security.handler.pki.ddf"
-                             placeholder-prefix="$pkifilter{" update-strategy="reload">
-        <cm:default-properties>
-            <cm:property name="realm"
-                         value="DDF"/>
-            <cm:property name="signatureProperties"
-                         value="${ddf.home}/etc/ws-security/server/signature.properties"/>
-            <!-- we may or may not need these encryption properties, just put them here for now -->
-            <cm:property name="encryptionProperties"
-                         value="${ddf.home}/etc/ws-security/server/encryption.properties"/>
-        </cm:default-properties>
-    </cm:property-placeholder>
-
     <bean id="tokenFactory" class="org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory"
           init-method="init">
-        <property name="realm" value="$pkifilter{realm}"/>
-        <property name="signaturePropertiesPath" value="$pkifilter{signatureProperties}"/>
+        <property name="realm" value="karaf"/>
+        <property name="signaturePropertiesPath" value="${ddf.home}/etc/ws-security/server/signature.properties"/>
     </bean>
     <bean id="handler" class="org.codice.ddf.security.handler.pki.PKIHandler" >
         <property name="tokenFactory" ref="tokenFactory"/>
-        <property name="realm" value="$pkifilter{realm}"/>
+        <property name="realm" value="karaf"/>
     </bean>
 
     <service ref="handler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"

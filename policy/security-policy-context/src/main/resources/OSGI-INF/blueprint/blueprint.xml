@@ -21,7 +21,7 @@
                 update-strategy="component-managed" update-method="setPolicies"/>
 
         <property name="authenticationTypes" value="/=SAML|ANON,/admin=SAML|basic,/jolokia=SAML|basic,/system=basic,/solr=SAML|PKI|basic" />
-        <property name="realms" value="/=DDF,/admin=karaf,/system=karaf,/solr=karaf,/jolokia=karaf" />
+        <property name="realms" value="/=karaf,/admin=karaf,/system=karaf,/solr=karaf,/jolokia=karaf" />
         <property name="requiredAttributes" value="/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/jolokia={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}" />
         <property name="whiteListContexts" value="/services/SecurityTokenService,/services/internal,/proxy" />
     </bean>
