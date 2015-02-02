@@ -83,7 +83,7 @@ public class OgcUrlResourceReader extends URLResourceReader {
                 strBuilder.append("\");</script></html>");
                 return new ResourceResponseImpl(
                         new ResourceImpl(new ByteArrayInputStream(strBuilder.toString().getBytes()),
-                                resource.getMimeType().toString(), resource.getName()));
+                                detectedMimeType, resource.getName()));
             }
         }
         return response;
