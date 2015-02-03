@@ -139,6 +139,7 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
                                     }
                                 }
                             }
+                            session.setMaxInactiveInterval(httpSession.getMaxInactiveInterval());
                         }
                     }
                 }
