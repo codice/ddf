@@ -364,7 +364,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     }
 
     private void createSecurityToken(SoapVersion version, SOAPFactory soapFactory, SOAPElement securityHeader) {
-        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("DDF");
+        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("karaf");
 
         //synchronize the step of requesting the assertion, it is not thread safe
         AuthenticationInfo authenticationInfo = null;
