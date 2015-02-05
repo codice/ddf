@@ -39,7 +39,7 @@
         <xalan.version>2.7.1</xalan.version>
         <xerces.version>2.9.1</xerces.version>
         <saxon.version>9.1.0.8</saxon.version>
-        <karaf.version>2.3.3</karaf.version>
+        <karaf.version>2.3.8</karaf.version>
         <camel.version>2.12.1</camel.version>
     </properties>
 
