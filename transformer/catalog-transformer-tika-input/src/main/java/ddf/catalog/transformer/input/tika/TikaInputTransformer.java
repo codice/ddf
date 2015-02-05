@@ -16,6 +16,7 @@ package ddf.catalog.transformer.input.tika;
 
 import com.google.common.io.FileBackedOutputStream;
 import com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderSpi;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
@@ -67,6 +68,7 @@ public class TikaInputTransformer implements InputTransformer {
 
         registerService(bundleContext);
         IIORegistry.getDefaultInstance().registerServiceProvider(new J2KImageReaderSpi());
+        IIORegistry.getDefaultInstance().registerServiceProvider(new TIFFImageReaderSpi());
     }
 
     @Override
@@ -228,6 +230,7 @@ public class TikaInputTransformer implements InputTransformer {
             mimeTypes.add(mimeType);
         }
         mimeTypes.add("image/jp2");
+        mimeTypes.add("image/bmp");
 
         LOGGER.debug("supported mime types: {}", mimeTypes);
         return mimeTypes;
