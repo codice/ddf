@@ -17,9 +17,9 @@ package org.codice.ddf.security.handler.basic;
 import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.util.Base64;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
+import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,6 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
     public static final String SOURCE = "BasicHandler";
 
     protected String authenticationType = AUTH_TYPE;
-    protected String realm = BaseAuthenticationToken.DEFAULT_REALM;
 
     public BasicAuthenticationHandler() {
         LOGGER.debug("Creating basic username/token bst handler.");
@@ -77,6 +76,7 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
     @Override
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
 
+        String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
         HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
         handlerResult.setSource(realm + "-" + SOURCE);
 
@@ -106,6 +106,7 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
 
     @Override
     public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException {
+        String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
         doAuthPrompt(realm, (HttpServletResponse) servletResponse);
         HandlerResult result = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
         result.setSource(realm + "-" + SOURCE);
@@ -142,15 +143,14 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
      */
     protected UPAuthenticationToken extractAuthenticationInfo(HttpServletRequest request) {
 
+        String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || authHeader.equals("")) {
             return null;
         }
 
-        UPAuthenticationToken token = extractAuthInfo(authHeader);
-
-        return token;
+        return extractAuthInfo(authHeader, realm);
     }
 
     /**
@@ -159,7 +159,7 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
      * @param authHeader the authHeader string from the HTTP request
      * @return the initialize UPAuthenticationToken for this username, password, realm combination (or null)
      */
-    protected UPAuthenticationToken extractAuthInfo(String authHeader) {
+    protected UPAuthenticationToken extractAuthInfo(String authHeader, String realm) {
         UPAuthenticationToken token = null;
         authHeader = authHeader.trim();
         String[] parts = authHeader.split(" ");
@@ -168,7 +168,7 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
             String authInfo = parts[1];
 
             if (authType.equalsIgnoreCase(AUTHENTICATION_SCHEME_BASIC)) {
-                String decoded = null;
+                String decoded;
                 try {
                     decoded = new String(Base64.decode(authInfo));
                     parts = decoded.split(":");
@@ -183,13 +183,5 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
             }
         }
         return token;
-    }
-
-    public String getRealm() {
-        return realm;
-    }
-
-    public void setRealm(String realm) {
-        this.realm = realm;
     }
 }

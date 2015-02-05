@@ -43,8 +43,7 @@ public class LdapLoginConfig {
 
     private static String PROPS_MODULE = org.apache.karaf.jaas.modules.properties.PropertiesLoginModule.class.getName();
 
-    // using karaf to append to default jaas realm
-    private static final String CONFIG_NAME = "karaf";
+    private static final String CONFIG_NAME = "ldap";
 
     private static final String SUFFICIENT_FLAG = "sufficient";
 

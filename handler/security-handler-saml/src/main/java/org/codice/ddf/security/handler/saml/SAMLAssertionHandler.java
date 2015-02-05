@@ -23,9 +23,9 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
+import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -59,8 +59,6 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SAMLAssertionHandler.class);
 
-    protected String realm = BaseAuthenticationToken.DEFAULT_REALM;
-
     @Override
     public String getAuthenticationType() {
         return AUTH_TYPE;
@@ -70,8 +68,9 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
             FilterChain chain, boolean resolve) {
         HandlerResult handlerResult = new HandlerResult();
+        String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
 
-        SecurityToken securityToken = null;
+        SecurityToken securityToken;
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         Map<String, Cookie> cookies = HttpUtils.getCookieMap(httpRequest);
 
@@ -175,14 +174,6 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
         result.setStatus(HandlerResult.Status.NO_ACTION);
         return result;
-    }
-
-    public String getRealm() {
-        return realm;
-    }
-
-    public void setRealm(String realm) {
-        this.realm = realm;
     }
 
     public void deleteCookie(String cookieName, HttpServletRequest request,

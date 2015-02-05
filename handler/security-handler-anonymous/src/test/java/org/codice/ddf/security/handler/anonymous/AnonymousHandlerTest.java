@@ -16,7 +16,6 @@ package org.codice.ddf.security.handler.anonymous;
 
 import org.apache.ws.security.WSSecurityException;
 import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.junit.Test;
@@ -33,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +47,6 @@ public class AnonymousHandlerTest {
         AnonymousHandler handler = new AnonymousHandler();
         PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
         handler.setTokenFactory(tokenFactory);
-        handler.setRealm("DDF");
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -63,8 +62,8 @@ public class AnonymousHandlerTest {
         assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
         assertTrue(result.getToken() instanceof AnonymousAuthenticationToken);
         assertEquals("Anonymous", result.getToken().getCredentials());
-        assertEquals(BaseAuthenticationToken.DEFAULT_REALM, result.getToken().getRealm());
-        assertEquals("DDF-AnonymousHandler", result.getSource());
+        assertEquals(null, result.getToken().getRealm());
+        assertEquals("null-AnonymousHandler", result.getSource());
     }
 
     @Test
@@ -72,10 +71,10 @@ public class AnonymousHandlerTest {
         AnonymousHandler handler = new AnonymousHandler();
         PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
         handler.setTokenFactory(tokenFactory);
-        handler.setRealm("DDF");
         StringWriter writer = new StringWriter(1024);
         PrintWriter printWriter = new PrintWriter(writer);
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getAttribute(anyString())).thenReturn("DDF");
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(response.getWriter()).thenReturn(printWriter);
 

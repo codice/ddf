@@ -14,20 +14,19 @@
  **/
 package org.codice.ddf.security.handler.pki;
 
+import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.jasypt.contrib.org.apache.commons.codec_1_3.binary.Base64;
-import org.codice.ddf.security.handler.api.HandlerResult;
 import org.junit.Test;
 
-import java.security.cert.X509Certificate;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -44,7 +43,6 @@ public class PKIHandlerTest {
     public void testGetNormalizedTokenSuccess() throws java.security.cert.CertificateException, ServletException {
         PKIHandler handler = new PKIHandler();
         PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
-        tokenFactory.setRealm("TestRealm");
         tokenFactory.setSignaturePropertiesPath("signatures.properties");
         tokenFactory.init();
         handler.setTokenFactory(tokenFactory);
@@ -97,7 +95,6 @@ public class PKIHandlerTest {
     public void testGetNormalizedTokenFailureNoCertBytes() throws java.security.cert.CertificateException, ServletException {
         PKIHandler handler = new PKIHandler();
         PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
-        tokenFactory.setRealm("TestRealm");
         tokenFactory.setSignaturePropertiesPath("signatures.properties");
         tokenFactory.init();
         handler.setTokenFactory(tokenFactory);
@@ -125,7 +122,6 @@ public class PKIHandlerTest {
     public void testGetNormalizedTokenFailureNoCerts() throws ServletException {
         PKIHandler handler = new PKIHandler();
         PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
-        tokenFactory.setRealm("TestRealm");
         tokenFactory.setSignaturePropertiesPath("signatures.properties");
         tokenFactory.init();
         handler.setTokenFactory(tokenFactory);

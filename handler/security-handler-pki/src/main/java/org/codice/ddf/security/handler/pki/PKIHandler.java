@@ -14,22 +14,20 @@
  **/
 package org.codice.ddf.security.handler.pki;
 
-
-import java.security.cert.X509Certificate;
+import org.codice.ddf.security.handler.api.AuthenticationHandler;
+import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
+import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
+import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-
-import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
-import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.security.cert.X509Certificate;
 
 /**
  * Handler for PKI based authentication. X509 chain will be extracted from the HTTP request and
@@ -44,8 +42,6 @@ public class PKIHandler implements AuthenticationHandler {
     public static final String AUTH_TYPE = "PKI";
 
     public static final String SOURCE = "PKIHandler";
-
-    protected String realm = BaseAuthenticationToken.DEFAULT_REALM;
 
     protected PKIAuthenticationTokenFactory tokenFactory;
 
@@ -69,6 +65,7 @@ public class PKIHandler implements AuthenticationHandler {
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
       FilterChain chain, boolean resolve) throws ServletException {
 
+        String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
         HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
         handlerResult.setSource(realm + "-" + SOURCE);
 
@@ -89,6 +86,7 @@ public class PKIHandler implements AuthenticationHandler {
     @Override
     public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
       FilterChain chain) throws ServletException {
+        String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
         HandlerResult result = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
         result.setSource(realm + "-" + SOURCE);
         LOGGER.debug("In error handler for pki - no action taken.");
@@ -97,14 +95,14 @@ public class PKIHandler implements AuthenticationHandler {
 
     protected PKIAuthenticationToken extractAuthenticationInfo(HttpServletRequest request) {
         PKIAuthenticationToken token;
+        String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
         X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
 
-        token = tokenFactory.getTokenFromCerts(certs);
+        token = tokenFactory.getTokenFromCerts(certs, realm);
         return token;
     }
 
     public void setTokenFactory(PKIAuthenticationTokenFactory factory) {
         tokenFactory = factory;
     }
-    public void setRealm(String realm) { this.realm = realm; }
 }

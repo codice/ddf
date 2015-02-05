@@ -16,6 +16,7 @@ package org.codice.ddf.security.filter.websso;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.InvalidSAMLReceivedException;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -48,7 +49,6 @@ import java.util.List;
  * (the SAML assertion).
  */
 public class WebSSOFilter implements Filter {
-    private static final String DEFAULT_REALM = "DDF";
     private static final String SAML_COOKIE_NAME = "org.codice.websso.saml.token";
     private static final String SAML_COOKIE_REF = "org.codice.websso.saml.ref";
 
@@ -99,7 +99,7 @@ public class WebSSOFilter implements Filter {
                 + StringUtils.defaultString(httpRequest.getPathInfo());
         LOGGER.debug("Handling request for path {}", path);
 
-        String realm = DEFAULT_REALM;
+        String realm = BaseAuthenticationToken.DEFAULT_REALM;
         boolean isWhiteListed = false;
         if (contextPolicyManager != null) {
             ContextPolicy policy = contextPolicyManager.getContextPolicy(path);

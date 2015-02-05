@@ -33,8 +33,6 @@ public class PKIAuthenticationTokenFactory {
 
     private String signaturePropertiesPath;
 
-    private String realm;
-
     /**
      * Initializes Merlin crypto object.
      */
@@ -48,18 +46,18 @@ public class PKIAuthenticationTokenFactory {
         }
     }
 
-    public PKIAuthenticationToken getTokenFromString(String certString, boolean isEncoded) {
+    public PKIAuthenticationToken getTokenFromString(String certString, boolean isEncoded, String realm) {
         PKIAuthenticationToken token = null;
         try {
             byte[] certBytes = isEncoded ? Base64.decode(certString) : certString.getBytes();
-            token = getTokenFromBytes(certBytes);
+            token = getTokenFromBytes(certBytes, realm);
         } catch (WSSecurityException e) {
             LOGGER.error("Unable to decode given string certificate: {}", e.getMessage(), e);
         }
         return token;
     }
 
-    public PKIAuthenticationToken getTokenFromBytes(byte[] certBytes) {
+    public PKIAuthenticationToken getTokenFromBytes(byte[] certBytes, String realm) {
         PKIAuthenticationToken token = null;
         try {
             X509Certificate[] certs = merlin.getCertificatesFromBytes(certBytes);
@@ -70,7 +68,7 @@ public class PKIAuthenticationTokenFactory {
         return token;
     }
 
-    public PKIAuthenticationToken getTokenFromCerts(X509Certificate[] certs) {
+    public PKIAuthenticationToken getTokenFromCerts(X509Certificate[] certs, String realm) {
         PKIAuthenticationToken token = null;
         if (certs != null && certs.length > 0) {
             byte[] certBytes = null;
@@ -100,14 +98,6 @@ public class PKIAuthenticationTokenFactory {
             certBytes = merlin.getBytesFromCertificates(certs);
         }
         return certBytes;
-    }
-
-    public String getRealm() {
-        return realm;
-    }
-
-    public void setRealm(String realm) {
-        this.realm = realm;
     }
 
     public String getSignaturePropertiesPath() {

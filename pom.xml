@@ -33,7 +33,7 @@
         <wss4j.version>1.6.16</wss4j.version>
         <cxf.version>2.7.8</cxf.version>
         <shiro.version>1.2.1</shiro.version>
-        <karaf.version>2.3.3</karaf.version>
+        <karaf.version>2.3.8</karaf.version>
         <powermock.version>1.5.4</powermock.version>
     </properties>
 

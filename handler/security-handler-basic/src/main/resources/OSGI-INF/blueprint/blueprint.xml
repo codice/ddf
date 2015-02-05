@@ -16,7 +16,6 @@
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <bean id="handler" class="org.codice.ddf.security.handler.basic.BasicAuthenticationHandler">
-        <property name="realm" value="karaf"/>
     </bean>
 
     <service ref="handler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"

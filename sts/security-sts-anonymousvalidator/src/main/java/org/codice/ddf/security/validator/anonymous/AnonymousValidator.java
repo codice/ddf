@@ -24,13 +24,15 @@ import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class AnonymousValidator implements TokenValidator {
 
     public static final String ANON_VALUE_TYPE = "urn:ddf:security:sso#DDFToken";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AnonymousValidator.class);
 
-    private String supportedRealm;
+    private List<String> supportedRealm;
 
     private AnonymousAuthenticationToken parse(ReceivedToken validateTarget) {
         Object token = validateTarget.getToken();
@@ -61,7 +63,7 @@ public class AnonymousValidator implements TokenValidator {
                 LOGGER.trace("No realm specified in request, canHandletoken = true");
                 return true;
             } else {
-                if (supportedRealm.equalsIgnoreCase(anonToken.getRealm())) {
+                if (supportedRealm.contains(anonToken.getRealm())) {
                     LOGGER.trace("Realm '{}' recognized - canHandleToken = true",
                             anonToken.getRealm());
                     return true;
@@ -85,7 +87,7 @@ public class AnonymousValidator implements TokenValidator {
 
         if (anonToken != null) {
             if (anonToken.getRealm() != null) {
-                if(anonToken.getRealm().equalsIgnoreCase(supportedRealm) && anonToken.getCredentials().equals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS)) {
+                if(supportedRealm.contains(anonToken.getRealm()) && anonToken.getCredentials().equals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS)) {
                     validateTarget.setState(ReceivedToken.STATE.VALID);
                 }
             } else if (anonToken.getCredentials().equals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS)) {
@@ -100,7 +102,7 @@ public class AnonymousValidator implements TokenValidator {
      * two instances of this validator where each contains a differnent token validator.
      * @param supportedRealm string representing the realm supported by this validator
      */
-    public void setSupportedRealm(String supportedRealm) {
+    public void setSupportedRealm(List<String> supportedRealm) {
         this.supportedRealm = supportedRealm;
     }
 }

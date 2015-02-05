@@ -21,6 +21,7 @@ import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
 import org.codice.ddf.security.handler.pki.PKIHandler;
+import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +48,6 @@ public class AnonymousHandler implements AuthenticationHandler {
 
     public static final String INVALID_MESSAGE = "Username/Password is invalid.";
 
-    private String realm;
-
     private PKIAuthenticationTokenFactory tokenFactory;
 
     @Override
@@ -71,6 +70,7 @@ public class AnonymousHandler implements AuthenticationHandler {
     public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
         HandlerResult result = new HandlerResult();
 
+        String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
         // For anonymous - if credentials were provided, return them, if not, then return guest credentials
         BaseAuthenticationToken authToken = getAuthToken((HttpServletRequest) request,
                 (HttpServletResponse) response, chain);
@@ -89,15 +89,14 @@ public class AnonymousHandler implements AuthenticationHandler {
      */
     private BaseAuthenticationToken getAuthToken(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
         //check for basic auth first
+        String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
         BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
-        basicAuthenticationHandler.setRealm(realm);
         HandlerResult handlerResult = basicAuthenticationHandler.getNormalizedToken(request, response, chain, false);
         if(handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
             return handlerResult.getToken();
         }
         //if basic fails, check for PKI
         PKIHandler pkiHandler = new PKIHandler();
-        pkiHandler.setRealm(realm);
         pkiHandler.setTokenFactory(tokenFactory);
         try {
             handlerResult = pkiHandler.getNormalizedToken(request, response, chain, false);
@@ -109,15 +108,14 @@ public class AnonymousHandler implements AuthenticationHandler {
         }
 
         //if everything fails, the user is anonymous, log in as such
-        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(realm);
 
-
-        return token;
+        return new AnonymousAuthenticationToken(realm);
     }
 
     @Override
     public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException {
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
+        String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
         httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         try {
             httpResponse.getWriter().write(INVALID_MESSAGE);
@@ -131,14 +129,6 @@ public class AnonymousHandler implements AuthenticationHandler {
         logger.debug("In error handler for anonymous - returning action completed.");
         result.setStatus(HandlerResult.Status.REDIRECTED);
         return result;
-    }
-
-    public String getRealm() {
-        return realm;
-    }
-
-    public void setRealm(String realm) {
-        this.realm = realm;
     }
 
     public PKIAuthenticationTokenFactory getTokenFactory() {

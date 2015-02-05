@@ -57,12 +57,13 @@ public class BasicAuthenticationHandlerTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain chain = mock(FilterChain.class);
 
+        when(request.getAttribute(anyString())).thenReturn("karaf");
         HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
 
         assertNotNull(result);
         assertEquals(HandlerResult.Status.REDIRECTED, result.getStatus());
         // confirm that the proper responses were sent through the HttpResponse
-        Mockito.verify(response).setHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"DDF\"");
+        Mockito.verify(response).setHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"karaf\"");
         Mockito.verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         Mockito.verify(response).setContentLength(0);
         Mockito.verify(response).flushBuffer();
@@ -76,12 +77,12 @@ public class BasicAuthenticationHandlerTest {
     @Test
     public void testGetNormalizedTokenResolveWithCredentials() throws IOException {
         BasicAuthenticationHandler handler = new BasicAuthenticationHandler();
-        handler.setRealm("TestRealm");
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain chain = mock(FilterChain.class);
 
+        when(request.getAttribute(anyString())).thenReturn("TestRealm");
         when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Basic " + new String(Base64.encode(CREDENTIALS.getBytes())));
 
         HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
@@ -167,29 +168,28 @@ public class BasicAuthenticationHandlerTest {
     @Test
     public void testExtractAuthInfo() {
         BasicAuthenticationHandler handler = new BasicAuthenticationHandler();
-        handler.setRealm("TestRealm");
-        UPAuthenticationToken result = handler.extractAuthInfo("Basic " + new String(Base64.encode(CREDENTIALS.getBytes())));
+        UPAuthenticationToken result = handler.extractAuthInfo("Basic " + new String(Base64.encode(CREDENTIALS.getBytes())), "TestRealm");
         assertNotNull(result);
         assertEquals("admin", result.getUsername());
         assertEquals("password", result.getPassword());
         assertEquals("TestRealm", result.getRealm());
 
-        result = handler.extractAuthInfo("Basic " + new String(Base64.encode(":password".getBytes())));
+        result = handler.extractAuthInfo("Basic " + new String(Base64.encode(":password".getBytes())), "TestRealm");
         assertNotNull(result);
         assertEquals("", result.getUsername());
         assertEquals("password", result.getPassword());
         assertEquals("TestRealm", result.getRealm());
 
-        result = handler.extractAuthInfo("Basic " + new String(Base64.encode("user:".getBytes())));
+        result = handler.extractAuthInfo("Basic " + new String(Base64.encode("user:".getBytes())), "TestRealm");
         assertNotNull(result);
         assertEquals("user", result.getUsername());
         assertEquals("", result.getPassword());
         assertEquals("TestRealm", result.getRealm());
 
-        result = handler.extractAuthInfo("Basic " + new String(Base64.encode("user/password".getBytes())));
+        result = handler.extractAuthInfo("Basic " + new String(Base64.encode("user/password".getBytes())), "TestRealm");
         assertNull(result);
 
-        result = handler.extractAuthInfo("Basic " + new String(Base64.encode("".getBytes())));
+        result = handler.extractAuthInfo("Basic " + new String(Base64.encode("".getBytes())), "TestRealm");
         assertNull(result);
     }
 
@@ -200,6 +200,7 @@ public class BasicAuthenticationHandlerTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
 
         when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Basic " + new String(Base64.encode(CREDENTIALS.getBytes())));
+        when(request.getAttribute(anyString())).thenReturn("karaf");
 
         UPAuthenticationToken result = handler.extractAuthenticationInfo(request);
         assertNotNull(result);
@@ -207,12 +208,11 @@ public class BasicAuthenticationHandlerTest {
         assertEquals("password", result.getPassword());
         assertEquals(BaseAuthenticationToken.DEFAULT_REALM, result.getRealm());
 
-        handler.setRealm("TestRealm");
         result = handler.extractAuthenticationInfo(request);
         assertNotNull(result);
         assertEquals("admin", result.getUsername());
         assertEquals("password", result.getPassword());
-        assertEquals("TestRealm", result.getRealm());
+        assertEquals("karaf", result.getRealm());
 
         when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
         result = handler.extractAuthenticationInfo(request);

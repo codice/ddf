@@ -23,12 +23,10 @@
 
     <bean id="tokenFactory" class="org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory"
           init-method="init">
-        <property name="realm" value="karaf"/>
         <property name="signaturePropertiesPath" value="${ddf.home}/etc/ws-security/server/signature.properties"/>
     </bean>
     <bean id="handler" class="org.codice.ddf.security.handler.pki.PKIHandler" >
         <property name="tokenFactory" ref="tokenFactory"/>
-        <property name="realm" value="karaf"/>
     </bean>
 
     <service ref="handler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"

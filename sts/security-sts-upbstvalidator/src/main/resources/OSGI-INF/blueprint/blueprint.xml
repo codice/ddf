@@ -14,28 +14,18 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
-		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
-        http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
-        http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd"
+		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd"
            default-activation="lazy">
 
     <type-converters>
         <bean class="org.apache.karaf.jaas.modules.properties.PropertiesConverter"/>
     </type-converters>
 
-    <ext:property-placeholder/>
-
-    <bean class="org.apache.ws.security.validate.JAASUsernameTokenValidator" id="JAASValidator">
-        <cm:managed-properties persistent-id="ddf.security.sts.usernametokenvalidator" update-strategy="container-managed" />
-        <property name="contextName" value="karaf"/>
-    </bean>
+    <reference-list id="jaasRealmList" interface="org.apache.karaf.jaas.config.JaasRealm" />
 
     <bean class="org.codice.ddf.security.validator.uname.UPBSTValidator" id="utValidator">
-        <property name="validator" ref="JAASValidator"/>
-        <property name="supportedRealm" value="karaf"/>
+        <property name="jaasRealmList" ref="jaasRealmList" />
     </bean>
 
     <service ref="utValidator" interface="org.apache.cxf.sts.token.validator.TokenValidator"/>

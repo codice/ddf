@@ -29,6 +29,8 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -45,7 +47,7 @@ public class AnonymousValidatorTest {
     @Before
     public void setup() {
         validator = new AnonymousValidator();
-        validator.setSupportedRealm("DDF");
+        validator.setSupportedRealm(Arrays.asList("DDF"));
         AnonymousAuthenticationToken anonymousAuthenticationToken = new AnonymousAuthenticationToken("DDF");
 
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();

@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class BaseAuthenticationToken implements AuthenticationToken {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseAuthenticationToken.class);
 
-    public static final String DEFAULT_REALM = "DDF";
+    public static final String DEFAULT_REALM = "karaf";
 
     /**
      * Represents the account identity submitted during the authentication process.

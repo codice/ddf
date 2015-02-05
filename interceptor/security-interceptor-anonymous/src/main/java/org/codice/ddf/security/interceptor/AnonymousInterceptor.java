@@ -53,6 +53,7 @@ import org.apache.ws.security.handler.WSHandlerConstants;
 import org.apache.ws.security.util.WSSecurityUtil;
 import org.apache.ws.security.validate.Validator;
 import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -364,7 +365,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     }
 
     private void createSecurityToken(SoapVersion version, SOAPFactory soapFactory, SOAPElement securityHeader) {
-        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("karaf");
+        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(BaseAuthenticationToken.DEFAULT_REALM);
 
         //synchronize the step of requesting the assertion, it is not thread safe
         AuthenticationInfo authenticationInfo = null;
