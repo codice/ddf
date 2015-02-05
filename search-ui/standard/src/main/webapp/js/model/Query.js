@@ -64,7 +64,7 @@ define([
                 _.bindAll(this);
                 this.listenTo(this, 'change:north change:south change:east change:west',this.setBBox);
                 this.listenTo(this, 'change:scheduled change:scheduleValue change:scheduleUnits', this.startScheduledSearch);
-                this.listenTo(this, 'change:north change:south change:east change:west', this.setBboxLatLon);
+                this.listenTo(this, 'change:bbox', this.setBboxLatLon);
                 this.listenTo(this, 'change:lat change:lon', this.setRadiusLatLon);
                 this.listenTo(this, 'change:usngbb', this.setBboxUsng);
                 this.listenTo(this, 'change:usng', this.setRadiusUsng);
@@ -88,10 +88,10 @@ define([
                 this.drawing = true;
             },
 
-            repositionLatLon: function () {
+            repositionLatLon: function (silent) {
                 if (this.get('usngbb')) {
                     var result = converter.USNGtoLL(this.get('usngbb'));
-                    this.set(result);
+                    this.set(result, {silent:silent});
                 }
             },
 
@@ -100,7 +100,7 @@ define([
 
                 this.set('usngbb', usngsStr, {silent:this.get('locationType') !== 'usng'});
                 if (this.get('locationType') === 'usng' && this.drawing) {
-                    this.repositionLatLon();
+                    this.repositionLatLon(true);
                 }
             },
 
@@ -112,6 +112,16 @@ define([
             setBboxUsng: function () {
                 var result = converter.USNGtoLL(this.get('usngbb'));
                 this.set(result, {silent:this.get('locationType') === 'usng' && this.drawing});
+            },
+
+            setBBox : function() {
+                var north = this.get('north'),
+                    south = this.get('south'),
+                    west = this.get('west'),
+                    east = this.get('east');
+                if (north && south && east && west){
+                    this.set('bbox', [west, south, east, north].join(','), {silent:this.get('locationType') === 'usng' && !this.drawing});
+                }
             },
 
             setRadiusUsng: function () {
@@ -484,16 +494,6 @@ define([
                 _.each(_.keys(model.defaults), function(key) {
                     model.set(key, model.defaults[key]);
                 });
-            },
-
-            setBBox : function() {
-                var north = this.get('north'),
-                    south = this.get('south'),
-                    west = this.get('west'),
-                    east = this.get('east');
-                if (north && south && east && west){
-                    this.set('bbox', [west,south,east,north].join(','));
-                }
             },
 
             swapDatesIfNeeded : function() {

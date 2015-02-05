@@ -210,7 +210,8 @@ define([
 
             swapLocationTypeUsng: function() {
                 this.model.set('locationType', 'usng');
-                this.model.repositionLatLon();
+                this.model.setBboxLatLon();
+                this.model.repositionLatLon(false);
                 //radius
                 this.$('#latdiv').hide();
                 this.$('#londiv').hide();
