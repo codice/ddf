@@ -283,6 +283,7 @@
         <module>security</module>
         <module>admin</module>
         <module>catalog-app</module>
+        <module>docs</module>
     </modules>
 
     <repositories>
