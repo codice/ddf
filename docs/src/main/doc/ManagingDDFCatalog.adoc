@@ -1,0 +1,154 @@
+= Managing DDF Catalog Application
+include::../config.adoc[]
+
+== Overview
+
+The DDF Catalog provides a framework for storing, searching, processing, and transforming information.  Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.  At the core of the Catalog functionality is the `Catalog Framework`, which routes all requests and responses through the system, invoking additional processing per the system configuration.
+
+== Catalog Architecture
+
+The DDF Catalog provides a framework for storing, searching, processing, and transforming information.  Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.  At the core of the Catalog functionality is the `Integrating Catalog Framework`, which routes all requests and responses through the system, invoking additional processing per the system configuration.
+
+=== Catalog Architecture
+
+----
+INSERT DIAGRAM HERE
+----
+
+== Installing and Uninstalling
+
+=== Prerequisites
+
+Before the DDF Catalog application can be installed:
+
+* the DDF Kernel must be running
+
+* the DDF Platform application must be installed
+
+=== Installing
+
+* Before installing a DDF application, verify that its prerequisites have been met. 
+
+* Copy the DDF application's KAR file to the `<INSTALL_DIRECTORY>/deploy` directory.
+
+=== Verifying
+
+* Verify the appropriate features for the DDF application have been installed using the `features:list` command to view the KAR file's features.
+
+* Verify that the bundles within the installed features are in an active state.
+
+=== Uninstalling
+
+[WARNING]
+====
+It is very important to save the KAR file or the feature repository URL for the application prior to an uninstall so that the uninstall can be reverted if necessary.
+====
+
+If the DDF application is deployed on the DDF Kernel in a custom installation (or the application has been upgraded previously), i.e., its KAR file is in the `<INSTALL_DIRECTORY>/deploy` directory, uninstall it by deleting this KAR file.
+
+Otherwise, if the DDF application is running as part of the DDF distribution zip, it is uninstalled *the first time and only the first time* using the `features:removeurl` command:
+
+.Uninstall DDF application from DDF distribution
+----
+features:removeurl -u <DDF application's feature repository URL>
+
+Example:   features:removeurl -u mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+----
+
+The uninstall of the application can be verified by the absence of any of the DDF application's features in the `features:list` command output.
+
+[NOTE]
+====
+The repository URLs for installed applications can be obtained by entering:
+
+`features:listrepositories -u`
+====
+
+=== Revert the Uninstall
+
+If the uninstall of the DDF application needs to be reverted, this is accomplished by either:
+
+* copying the application's KAR file previously in the `<INSTALL_DIRECTORY>/deploy` directory, OR 
+
+* adding the application's feature repository back into DDF and installing its main feature, which typically is of the form `<applicationName>-app`, e.g., `catalog-app`.
+
+.Reverting DDF application's uninstall
+----
+features:addurl <DDF application's feature repository URL>
+features:install <DDF application's main feature>
+
+Example:
+
+    ddf@local>features:addurl mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+    ddf@local>features:install catalog-app
+----
+
+=== Upgrade
+
+To upgrade an application, complete the following procedure. 
+
+. Uninstall the application by following the Uninstall Applications instructions above.
+
+. Install the new application KAR file by copying the admin-app-X.Y.kar file to the `<INSTALL_DIRECTORY>/deploy` directory.
+
+. Start the application. +
+`features:install admin-app`
+
+. Complete the steps in the Verify section above to determine if the upgrade was successful.
+
+== Federation UI
+
+The federation user interface is a convenient way to manage federated data sources for the DDF.
+
+Federation enables including remote sources, including other DDF installations in queries. For a full description of Federation, see Extending Federation.
+
+=== Installing
+
+The Federation UI is installed by default.
+
+=== Configuring
+
+No configuration is required.
+
+=== Using
+
+. Go to the admin ui at `http://localhost:8181/admin/index.html`.
+
+. Open DDF-Catalog Application
+
+=== Adding a Source
+
+. Press add button. +
+(IMG)
+
+. Name the source. +
+(IMG)
+
+. Choose source type. The type of source selected will determine the options to configure.+
+(IMG)
+
+=== Editing a Source
+
+. Click the name of the source to edit.
+
+. Update relevant properties. +
+(IMG)
+
+. Click save.
+
+=== Enabling/Disabling a Source
+
+. Select the drop down menu for the source under the heading Type. +
+(IMG)
+
+. Set to enabled/disabled.
+
+=== Removing a Source
+
+. Click the delete source icon. +
+(IMG)
+
+. Check box next to the source to delete.+
+(IMG)
+
+. Click delete.
