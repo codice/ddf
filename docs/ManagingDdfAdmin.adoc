@@ -1,0 +1,208 @@
+= Managing {branding} Admin Application
+include::../config.adoc[]
+
+== Overview
+The DDF Admin Application contains components that are responsible for the installation and configuration of DDF and other DDF applications.
+
+The administrative application enhances administrative capabilities when installing and managing DDF. It contains various services and interfaces that allow administrators more control over their systems.
+
+The Admin application contains an application service that handles all operations that are performed on applications. This includes adding, removing, starting, stopping, and showing status.
+
+=== Administrative User Interface
+
+The Admin UI is the centralized location for administering the system. The Admin UI allows an administrator to install and remove selected applications and their dependencies and access configuration pages to configure and tailor system services and properties
+
+=== Modules
+
+The Admin UI is a modular system that can be expanded with additional modules as necessary. DDF comes with the Configurations module and the Installation modules. However, new modules can be added, and each module is presented in its own tab of the Admin UI. More information on modules, including the ones that come with DDF, is available on the Modules page.
+
+== Prerequisites
+Before the DDF Admin application can be installed:
+
+* the DDF Kernel must be running
+* the DDF Platform Application must be installed
+* the DDF Catalog Application must be installed
+
+== Install Applications
+
+* Before installing a {branding} application, verify that its prerequisites have been met. 
+* Copy the {branding} application's KAR file to the `<INSTALL_DIRECTORY>/deploy` directory.
+
+== Verify
+
+. Verify the appropriate features for the DDF application have been installed using the
+`features:list` command to view the KAR file's features.
+
+. Verify that the bundles within the installed features are in an active state.
+
+== Uninstall Applications
+[WARNING]
+====
+It is very important to save the KAR file or the feature repository URL for the application prior to an uninstall so that the uninstall can be reverted if necessary.
+====
+
+If the DDF application is deployed on the DDF Kernel in a custom installation (or the application has been upgraded previously), i.e., its KAR file is in `<INSTALL_DIRECTORY>/deploy` the directory, uninstall it by deleting this KAR file.
+
+Otherwise, if the DDF application is running as part of the DDF distribution zip, it is uninstalled *the first time and only the first time* using the `features:removeurl` command:
+
+.Uninstall DDF application from DDF distribution
+----
+features:removeurl -u <DDF application's feature repository URL>
+
+Example:   features:removeurl -u mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+----
+
+The uninstall of the application can be verified by the absence of any of the DDF application's features in the `features:list` command output.
+
+=== Revert the Uninstall
+
+If the uninstall of the DDF application needs to be reverted, this is accomplished by either:
+
+* copying the application's KAR file previously in the `<INSTALL_DIRECTORY>/deploy` directory, OR 
+
+* adding the application's feature repository back into DDF and installing its main feature, which typically is of the form `<applicationName>-app`, e.g., `catalog-app`.
+
+.Reverting {branding} application's uninstall
+----
+features:addurl <DDF application's feature repository URL>
+features:install <DDF application's main feature>
+
+Example:
+    ddf@local>features:addurl mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+
+    ddf@local>features:install catalog-app
+----
+
+== Upgrade 
+
+To upgrade an application, complete the following procedure.
+
+. Uninstall the application by following the Uninstall Applications instructions above.
+. Install the new application KAR file by copying the `admin-app-X.Y.kar` file to the `<INSTALL_DIRECTORY>/deploy` directory.
+.Start the application.
+----
+features:install admin-app
+----
+.Complete the steps in the Verify section above to determine if the upgrade was successful.
+
+== Modules
+
+Modules are single components that implement the `org.codice.ddf.ui.admin.api.module.AdminModule` interface. Once they implement and expose themselves as a service, they are added in to the Admin UI as a new tab.
+
+=== Included Modules
+
+==== Installer Module
+
+The application installer module enables a user to install and remove applications. Each application includes a features file that provides a description of the application and a list of the dependencies required to successfully run that application. The installer reads the features file and presents the applications in a manner that allows the administrator to visualize these dependencies. As applications are selected or deselected, the corresponding dependent applications are selected or deselected as necessary.
+
+===== Set Up the Module
+
+. Install the module if it is not already pre-installed. +
+`features:install admin-modules-installer`
+
+. Open a web browser and navigate to the Installation page. +
+`http://DDF_HOST:DDF_PORT/admin`
+
+. Log in with the default username of "admin" (no quotes) and the default password of "admin" (no quotes).
+
+. Select the Installation tab if not already selected.
+
+===== UI Basics
+[IMPORTANT]
+====
+Do NOT deselect/uninstall the Platform App or the Admin App. Doing so will disable the use of this installer and the ability to install/uninstall other applications.
+====
+
+* Installation Profile Page
+** When a profile is selected, it will auto select applications on the Select Application Page and install them automatically.
+
+** If choose to customize a profile, you will be given the options to manually selected the applications on the Select Application Page.
+
+* In the Select applications to install page, hover over each application to view additional details about the application.
+
+* New applications can be added and existing applications can be upgraded using the Applications Module.
+
+* When an application is selected, dependent applications will automatically be selected.
+
+* When an application is unselected, dependent applications will automatically be unselected.
+(IMG)
+* If apps are preselected when the Select applications to install page is reached, they will be uninstalled if unselected.
+
+* Applications can still be installed using kar deployment as stated in Application Installation.
+
+====== Display the Features File in the Installer 
+
+To ensure that the installer can correctly interpret and display application details, there are several guidelines that should be followed when creating the features file for the application.
+
+* Be sure that only one feature (in the features.xml) has the auto-install tag (install='auto'). This is the feature that the installer displays to the user (name, description, version, etc.). It is typically named after the application itself, and the description provides a complete application description.
+
+* Verify that the one feature specified to auto-install has a complete list of all of its dependencies to ensure the dependency tree can be constructed correctly.
+
+====== Example Screenshots
+
+The following are examples of what the Installation Steps/Pages look like:
+
+Welcome Page
+
+(IMG)
+
+General Configuration Page
+
+(IMG)
+
+Installation Profile Page
+
+(IMG)
+
+Select Applications Page
+
+(IMG)
+
+[WARNING]
+====
+Platform App, Admin App, and Security Services App CANNOT be selected or unselected as it is installed by default and can cause errors if removed.
+**Security Services App appears to be unselected upon first view of the tree structure, but it is in fact automatically installed with a later part of the installation process.
+==== 
+
+Final Page
+
+(IMG)
+
+==== Configuration Module
+The configuration module allows administrators to change bundle and service configurations.
+
+===== Set Up the Module
+
+. Install the module if it is not pre-installed.
+`features:install admin-modules-configuration`
+
+. Open a web browser and navigate to the Admin UI page.
+
+`http://DDF_HOST:DDF_PORT/admin`
+
+. Select the Configurations tab if not already selected.
+
+===== Configurations Tab
+(IMG)
+
+=== Admin Console Access Control
+
+If you have integrated DDF with your existing security infrastructure, then you may want to limit access to parts of the DDF based on user roles/groups.
+
+==== Restricting DDF Access
+
+. See the documentation for your specific security infrastructure to configure users, roles, and groups.
+
+. On the `/system/console/configMgr`, select the Web Context Policy Manager.
+(IMG)
+
+.. A dialogue will pop up that allows you to edit DDF access restrictions.
+
+.. Once you have configured your realms in your security infrastructure, you can associate them with DDF contexts.
+
+.. If your infrastructure supports multiple authentication methods, they may be specified on a per-context basis.
+
+.. Role requirements may be enforced by configuring the required attributes for a given context.
+
+.. The whitelist allows child contexts to be excluded from the authentication constraints of their parents.
+

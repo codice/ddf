@@ -1,0 +1,14 @@
+= Extending {branding} Adminstrative Application
+include::../config.adoc[]
+
+== Overview
+
+The administrative application enhances administrative capabilities when installing and managing DDF. It contains various services and interfaces that allow administrators more control over their systems.
+
+This guide supports developers creating extensions of the existing framework.
+
+
+
+
+
+
