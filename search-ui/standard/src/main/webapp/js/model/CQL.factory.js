@@ -18,7 +18,17 @@ define([
     'properties'
 ],function (_, moment, Properties) {
 
-
+    function normalizeLongitude(lon_deg) {
+        if (lon_deg >= -180 && lon_deg <= 180)
+            return lon_deg;//common case, and avoids slight double precision shifting
+        var off = (lon_deg + 180) % 360;
+        if (off < 0)
+            return 180 + off;
+        else if (off === 0 && lon_deg > 0)
+            return 180;
+        else
+            return -180 + off;
+    }
 
     var Filter = {};
 
@@ -138,8 +148,8 @@ define([
                     // build the bbox value.
                     var north = filter.get('north'),
                         south = filter.get('south'),
-                        west = filter.get('west'),
-                        east = filter.get('east');
+                        west = normalizeLongitude(filter.get('west')),
+                        east = normalizeLongitude(filter.get('east'));
 
                     var bbox = 'POLYGON ((' +
                         west + ' ' + south +
