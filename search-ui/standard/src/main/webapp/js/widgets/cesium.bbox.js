@@ -63,9 +63,77 @@ define([
                     epsilon = Cesium.Math.EPSILON7,
                     modelProps;
 
+
+                if (!this.lastLongitude) {
+                    this.crossDateLine = false;
+                    this.lastLongitude = mx.longitude;
+                } else {
+                    if (this.lastLongitude > 0 && mx.longitude > 0 && mn.longitude > 0) {
+                        //west of the date line
+                        this.crossDateLine = false;
+                        //track direction of the bbox
+                        if (this.lastLongitude > mx.longitude) {
+                            if (this.dir === "east") {
+                                if (mx.longitude < mn.longitude) {
+                                    this.dir = "west";
+                                }
+                            } else {
+                                this.dir = "west";
+                            }
+                        } else if (this.lastLongitude < mx.longitude) {
+                            if (this.dir === "west") {
+                                if (mx.longitude > mn.longitude) {
+                                    this.dir = "east";
+                                }
+                            } else {
+                                this.dir = "east";
+                            }
+                        }
+                    } else if (this.lastLongitude > 0 && mx.longitude < 0 && mn.longitude > 0) {
+                        //crossed date line from west to east
+                        this.crossDateLine = !(this.dir && this.dir === "west");
+                    } else if (this.lastLongitude < 0 && mx.longitude > 0 && mn.longitude > 0) {
+                        //moved back across date line to same quadrant
+                        this.crossDateLine = false;
+                    } else if (this.lastLongitude < 0 && mx.longitude < 0 && mn.longitude < 0) {
+                        //east of the date line
+                        this.crossDateLine = false;
+                        //track direction of the bbox
+                        if (this.lastLongitude < mx.longitude) {
+                            if (this.dir === "west") {
+                                if (mx.longitude > mn.longitude) {
+                                    this.dir = "east";
+                                }
+                            } else {
+                                this.dir = "east";
+                            }
+                        } else if (this.lastLongitude > mx.longitude) {
+                            if (this.dir === "east") {
+                                if (mx.longitude < mn.longitude) {
+                                    this.dir = "west";
+                                }
+                            } else {
+                                this.dir = "west";
+                            }
+                        }
+                    } else if (this.lastLongitude < 0 && mx.longitude > 0 && mn.longitude < 0) {
+                        //crossed date line from east to west
+                        this.crossDateLine = !(this.dir && this.dir === "east");
+                    } else if (this.lastLongitude > 0 && mx.longitude < 0 && mn.longitude < 0) {
+                        //moved back across date line to same quadrant
+                        this.crossDateLine = false;
+                    }
+                    this.lastLongitude = mx.longitude;
+                }
+
                 // Re-order so west < east and south < north
-                e.west = Math.min(mn.longitude, mx.longitude);
-                e.east = Math.max(mn.longitude, mx.longitude);
+                if (this.crossDateLine) {
+                    e.east = Math.min(mn.longitude, mx.longitude);
+                    e.west = Math.max(mn.longitude, mx.longitude);
+                } else {
+                    e.west = Math.min(mn.longitude, mx.longitude);
+                    e.east = Math.max(mn.longitude, mx.longitude);
+                }
                 e.south = Math.min(mn.latitude, mx.latitude);
                 e.north = Math.max(mn.latitude, mx.latitude);
 
@@ -180,6 +248,9 @@ define([
                 this.listenTo(this.model, 'change:north change:south change:east change:west', this.updateGeometry);
 
                 this.model.trigger("EndExtent", this.model);
+                this.dir = undefined;
+                this.lastLongitude = undefined;
+                this.crossDateLine = undefined;
             },
             handleRegionInter: function (movement) {
                 var cartesian = this.scene.camera
