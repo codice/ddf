@@ -1,0 +1,1420 @@
+= Integrating {branding} Security Application
+include::../config.adoc[]
+
+== Overview
+
+The Security application provides authentication, authorization, and auditing services for the DDF. They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements. More information about the security framework and how everything works as a single security solution can be found on the Managing Web Service Security page.
+
+This guide supports integration of this application with external frameworks.
+
+== Security CAS
+
+The Security CAS app contains all of the services and implementations needed to integrate with the Central Authentication Server (CAS).
+
+Information on setting up and configuring the CAS server is located on the CAS SSO Configuration page.
+
+=== Components
+
+[cols="3" options="header"]
+|===
+
+|Bundle Name
+|Feature Located In
+|Description/Link to Bundle Page
+
+|security-cas-client
+|security-cas-client
+|Security CAS Client
+
+|security-cas-impl
+|security-cas-client
+|Security CAS Implementation
+
+|security-cas-tokenvalidator
+|security-cas-tokenvalidator
+|Security CAS Token Validator
+
+|security-cas-cxfservletfilter
+|security-cas-cxfservletfilter
+|Security CAS CXF Servlet Filter
+
+|security-cas-server
+| 
+|Security CAS Server
+
+|===
+
+=== Security CAS Client
+
+The Security CAS client bundle contains client files needed by components that are performing authentication with CAS. This includes setting up the CAS SSO servlet filters and starting a callback service that is needed to request proxy tickets from CAS.
+
+==== Installation
+This bundle is not installed by default and can be added by installing the `security-cas-client` feature.
+
+==== Configuration
+
+.Settings
+[cols="3" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Description
+
+|Server Name
+|https://server:8993
+|This is the name of the server that is calling CAS. The URL is used during CAS redirection to redirect back to the calling server.
+
+|CAS Server URL
+|https://cas:8443/cas
+|The main URL to the CAS Web application.
+
+|CAS Server Login URL
+|https://cas:8443/cas/login
+|URL to the login page of CAS (generally ends in /login)
+
+|Proxy Callback URL
+|https://server:8993/sso
+|Full URL of the callback service that CAS hits to create proxy tickets.
+
+|Proxy Receptor URL
+|/sso
+|
+ 
+|===
+
+==== Implementation Details
+
+===== Imported Services
+None
+
+===== Exported Services
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Implementation Class
+|Properties Set
+
+|javax.servlet.Filter
+|ddf.security.cas.client.ProxyFilter
+|CAS Filters
+
+|===
+
+=== Security CAS Implementation
+
+The Security CAS implementation bundle contains CAS-specific implementations of classes from the Security Core API. Inside this bundle is the `ddf.security.service.impl.cas.CasAuthenticationToken` class. It is an implementation of the AuthenticationToken class that is used to pass Authentication Credentials to the Security Framework.
+
+==== Configuration
+None.
+
+==== Implementation Details
+
+==== Imported Services
+None
+
+==== Exported Services
+None
+
+=== Security CAS Server
+
+The Security CAS Server project creates a web application (.war) file that is configured to be deployed to a tomcat application server. Information on installing and configuring it within tomcat is available on the CAS SSO Configuration page.
+
+==== Configuration
+N/A - Not a bundle
+
+==== Implementation Details
+N/A - Not a bundle
+
+=== Security CAS Token Validator
+
+The Security CAS TokenValidator bundle exports a TokenValidator service that is called by the STS to validate CAS proxy tickets.
+
+==== Installation
+This bundle is not installed by default and can be added by installing the `security-cas-tokenvalidator` feature.
+
+==== Configuration
+
+===== Settings
+
+[cols="2,2,5" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Description
+
+|CAS Server URL
+|https://localhost:8443/cas/
+|The hostname in the URL should match the hostname alias defined within the certificate that CAS is using for SSL communication.
+
+|===
+
+==== Implementation Details
+
+===== Imported Services
+[cols="4,1,1" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|ddf.security.encryption.EncryptionService
+|required
+|false
+|===
+
+===== Exported Services
+[cols="4,4,2" options="header"]
+|===
+
+|Registered Interfaces
+|Implementation Class
+|Properties Set
+
+|ddf.catalog.util.DdfConfigurationWatcher
+org.apache.cxf.sts.token.validator.TokenValidator
+|ddf.security.cas.WebSSOTokenValidator
+|CAS Server URL and Encryption Service reference
+
+|===
+
+=== Security CAS CXF Servlet Filter
+
+The Security CAS CXF Servlet Filter bundle binds a list of CAS servlet filters to the CXF servlet. The servlet filters are defined by by the security-cas-client bundle.
+
+==== Installation
+This bundle is not installed by default and can be added by installing the `security-cas-cxfservletfilter` feature.
+
+==== Configuration
+
+===== Settings
+[cols="1,1,3" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Description
+
+|URL Pattern
+|/services/catalog/*
+|This defines the servlet URL that should be binded to the CAS filter. By default, they will bind to the REST and OpenSearch endpoints. The REST endpoint is called by the SearchUI when accessing individual metadata about a metacard and when accessing the metacard's thumbnail. An example of just securing the OpenSearch endpoint would be the value: `/services/catalog/query`.
+
+|===
+
+[WARNING]
+====
+Endpoints that are secured by the CXF Servlet Filters will not currently work with federation. With the default settings, REST and OpenSearch federation to the site with this feature installed will not work. Federation from this site, however, will work normally.
+====
+
+==== Implementation Details
+
+===== Imported Services
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|javax.servlet.Filter
+|required
+|false
+
+|===
+
+===== Exported Services
+
+None (filter is exported inside the code and not via configuration)
+
+== Security Core
+
+The Security Core app contains all of the necessary components that are used to perform security operations (authentication, authorization, and auditing) required in the framework.
+
+=== Components
+[cols="3" options="header"]
+|===
+
+|Bundle Name
+|Located in Feature
+|Description / Link to Bundle Page
+
+|security-core-api
+|security-core
+|Security Core API
+
+|security-core-impl
+|security-core
+|Security Core Implementation
+
+|security-core-commons
+|security-core
+|Security Core Commons
+
+|===
+
+=== Security Core Commons
+
+The Security Core Commons bundle contains helper and utility classes that are used within DDF to help with performing common security operations. Most notably, this bundle contains the `ddf.security.common.audit.SecurityLogger` class that performs the security audit logging within DDF.
+
+==== Configuration
+None
+
+==== Implementation Details
+
+===== Imported Services
+None
+
+===== Exported Services
+None
+
+=== Security Core Implementation
+
+The Security Core Implementation contains the reference implementations for the Security Core API interfaces that come with the DDF distribution.
+
+==== Configuration
+None
+
+==== Install and Uninstall
+
+The Security Core app installs this bundle by default. It is recommended to use this bundle as it contains the reference implementations for many classes used within the DDF Security Framework.
+
+==== Implementation Details
+
+===== Imported Services
+
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|org.apache.shiro.realm.Realm
+|optional
+|true
+
+|===
+
+===== Exported Services
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Implementation Class
+|Properties Set
+
+|ddf.security.service.SecurityManager
+|ddf.security.service.impl.SecurityManagerImpl
+|None
+
+|===
+
+== Security Encryption
+
+The DDF Security Encryption application offers an encryption framework and service implementation for other applications to use. This service is commonly used to encrypt and decrypt default passwords that are located within the metatype and Administration Web Console.
+
+=== Components
+[cols="3" options="header"]
+|===
+
+|Bundle Name
+|Feature Located In
+|Description/Link to Bundle Page
+
+|security-encryption-api
+|security-encryption
+|Security Encryption API
+
+|security-encryption-impl
+|security-encryption
+|Security Encryption Implementation
+
+|security-encryption-commands
+|security-encryption
+|Security Encryption Commands
+
+|===
+
+=== Security Encryption API
+
+The Security Encryption API bundle provides the framework for the encryption service. Applications that use the encryption service should import this bundle and use the interfaces defined within it instead of calling an implementation directly.
+
+==== Installation
+
+This bundle is installed by default as part of the `security-encryption` feature. Many applications that come with DDF depend on this bundle and it should not be uninstalled.
+
+==== Configuration
+
+===== Settings
+None
+
+==== Implementation Details
+
+===== Imported Services
+None
+
+===== Exported Services
+None
+
+=== Security Encryption Commands
+
+The Security Encryption Commands bundle enhances the DDF system console by allowing administrators and integrators to encrypt and decrypt values directly from the console. More information and sample commands are available on the Encryption Service page.
+
+==== Installation
+
+This bundle is installed by default by the `security-encryption` feature. This bundle is tied specifically to the DDF console and can be uninstalled without causing any issues to other applications. When uninstalled, administrators will not be able to encrypt and decrypt data from the console.
+
+==== Configuration
+
+===== Settings
+None
+
+==== Implementation Details
+
+===== Imported Services
+None
+
+===== Exported Services
+None
+
+=== Security Encryption Implementation
+
+The Security Encryption Implementation bundle contains all of the service implementations for the Encryption Framework and exports those implementations as services to the OSGi service registry.
+
+==== Installation
+
+This bundle is installed by default as part of the `security-encryption` feature. Other projects are dependent on the services this bundle exports and it should not be uninstalled unless another security service implementation is being added.
+
+==== Configuration
+
+===== Settings
+None
+
+==== Implementation Details
+
+===== Imported Services
+None
+
+===== Exported Services
+
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Implementation Class
+|Properties Set
+
+|ddf.security.encryption.EncryptionService
+|ddf.security.encryption.impl.EncryptionServiceImpl
+|Key
+
+|===
+
+== Security LDAP
+
+The DDF LDAP application allows the user to configure either an embedded or a standalone LDAP server. The provided features contain a default set of schemas and users loaded to help facilitate authentication and authorization testing.
+
+=== Components
+
+[cols="3" options="header"]
+|===
+
+|Bundle Name
+|Feature Located In
+|Description/Link to Bundle Page
+
+|ldap-embedded
+|ldap
+|Embedded LDAP Configuration
+
+|===
+
+=== Configuring a Standalone LDAP Server
+
+In some production environments it is suggested that the LDAP server be run separate from the DDF installation. Due to the minimal number of dependencies that the embedded LDAP application requires, this app can be run using a minimal install of DDF that uses much less memory and CPU than a standard installation.
+
+==== Run a Standalone Embedded LDAP Instance
+
+. Obtain and unzip the DDF kernel (`ddf-distribution-kernel-<VERSION>.zip`). 
+. Start the distribution (https://login.macefusion.com/secure/login?service=https%3A%2F%2Fwiki.macefusion.com%2Fpages%2Fviewpage.action%3Ftitle%3DStarting%2Band%2BStopping%26spaceKey%3DDDF).
+. When the kernel is loaded up with the DDF logo at the command prompt, execute:
+----
+la
+----
+which is short for "list all." 
+
+[WARNING]
+====
+Since the kernel does not include all apps, if you were to do a "`list`" instead of "`la`," no results would be returned at this point. 
+====
+. Verify that all bundles are `Active`. 
+. Deploy the Embedded LDAP app by copying the `ldap-embedded-app-<VERSION>.kar` file into the `<DISTRIBUTION_HOME>/deploy` directory. You can verify that theLDAP server is installed by checking the DDF log or by performing an `la` and verifying that the OpenDJ bundle is in the Active state. Additionally, it should be responding to LDAP requests on the default ports, 1389 and 1636.
+. To perform any of the configurations identified below, the web console will need to be installed by executing:
+----
+features:install webconsole
+----
+
+==== Configuration
+The configuration options are located on the standard DDF configuration web console under the title *LDAP Server*. It currently contains three configuration options.
+
+[cols="1,7" options="header"]
+|===
+
+|Configuration Name
+|Description
+
+|LDAP Port
+|Sets the port for LDAP (plaintext and StartTLS). 0 will disable the port.
+
+|LDAPS Port
+|Sets the port for LDAPS. 0 will disable the port.
+
+|Base LDIF File
+|Location on the server for a LDIF file. This file will be loaded into the LDAP and overwrite any existing entries. This option should be used when updating the default groups/users with a new LDIF file for testing. The LDIF file being loaded may contain any LDAP entries (schemas, users, groups, etc.). If the location is left blank, the default base LDIF file will be used that comes with DDF.
+
+|===
+
+
+==== Trust Certificates
+
+For LDAPS to function correctly, it is important that the LDAP server is configured with a keystore file that trusts the clients it is connecting to and vice versa. Complete the following procedure to provide your own keystore information for the LDAP. 
+
+. Navigate to the `/etc/keystores` folder in the kernel distribution folder.
+. Find the `serverKeystore.jks` file and replace it with a keystore file valid for your operating environment.
+. If the DDF kernel is running, restart it so the changes will take place
+
+==== Connect to a Standalone LDAP Server
+
+DDF instances can connect to an external LDAP server by installing and configuring the `security-sts-server` feature detailed here.
+
+=== Embedded LDAP Configuration
+
+The Embedded LDAP application contains an LDAP server (OpenDJ version 2.4.6) that has a default set of schemas and users loaded to help facilitate authentication and authorization testing.
+
+==== Default Settings
+
+===== Ports
+[cols="2" options="header"]
+|===
+
+|Protocol
+|Default Port
+
+|LDAP
+|1389
+
+|LDAPS
+|1636
+
+|StartTLS
+|1389
+
+|===
+
+===== Users
+
+====== LDAP Users
+[cols="1,1,1,3" options="header"]
+|===
+
+|Username
+|Password
+|Groups
+|Description
+
+|testuser1
+|password1
+|
+|General test user for authentication
+
+|testuser2
+|password2
+| 
+|General test user for authentication
+
+|nromanova
+|password1
+|avengers
+|General test user for authentication
+
+|lcage
+|password1
+|admin, avengers
+|General test user for authentication, Admin user for karaf
+
+|jhowlett
+|password1
+|admin, avengers
+|General test user for authentication, Admin user for karaf
+
+|pparker
+|password1
+|admin, avengers
+|General test user for authentication, Admin user for karaf
+
+|jdrew
+|password1
+|admin, avengers
+|General test user for authentication, Admin user for karaf
+
+|tstark
+|password1
+|admin, avengers
+|General test user for authentication, Admin user for karaf
+
+|bbanner
+|password1
+|admin, avengers
+|General test user for authentication, Admin user for karaf
+
+|srogers
+|password1
+|admin, avengers
+|General test user for authentication, Admin user for karaf
+
+|admin
+|admin
+|admin
+|Admin user for karaf
+
+|===
+
+====== LDAP Admin
+[cols="5" options="header"]
+|===
+|Username
+|Password
+|Groups
+|Attributes
+|Description
+
+|admin
+|secret
+|
+|
+|Administrative User for LDAP
+
+|===
+
+===== Schemas
+
+The default schemas loaded into the LDAP instance are the same defaults that come with OpenDJ.
+
+[cols="1,7" options="header"]
+|===
+
+|Schema File Name
+|Schema Description (http://opendj.forgerock.org/doc/admin-guide/index/chap-schema.html)
+
+|00-core.ldif
+|This file contains a core set of attribute type and objectlass definitions from several standard LDAP documents, including draft-ietf-boreham-numsubordinates, draft-findlay-ldap-groupofentries, draft-furuseth-ldap-untypedobject, draft-good-ldap-changelog, draft-ietf-ldup-subentry, draft-wahl-ldap-adminaddr, RFC 1274, RFC 2079, RFC 2256, RFC 2798, RFC 3045, RFC 3296, RFC 3671, RFC 3672, RFC 4512, RFC 4519, RFC 4523, RFC 4524, RFC 4530, RFC 5020, and X.501.
+
+|01-pwpolicy.ldif
+|This file contains schema definitions from draft-behera-ldap-password-policy, which defines a mechanism for storing password policy information in an LDAP directory server.
+
+|02-config.ldif
+|This file contains the attribute type and objectclass definitions for use with the directory server configuration.
+
+|03-changelog.ldif
+|This file contains schema definitions from draft-good-ldap-changelog, which defines a mechanism for storing information about changes to directory server data.
+
+|03-rfc2713.ldif
+|This file contains schema definitions from RFC 2713, which defines a mechanism for storing serialized Java objects in the directory server.
+
+|03-rfc2714.ldif
+|This file contains schema definitions from RFC 2714, which defines a mechanism for storing CORBA objects in the directory server.
+
+|03-rfc2739.ldif
+|This file contains schema definitions from RFC 2739, which defines a mechanism for storing calendar and vCard objects in the directory server. Note that the definition in RFC 2739 contains a number of errors, and this schema file has been altered from the standard definition in order to fix a number of those problems.
+
+|03-rfc2926.ldif
+|This file contains schema definitions from RFC 2926, which defines a mechanism for mapping between Service Location Protocol (SLP) advertisements and LDAP.
+
+|03-rfc3112.ldif
+|This file contains schema definitions from RFC 3112, which defines the authentication password schema.
+
+|03-rfc3712.ldif
+|This file contains schema definitions from RFC 3712, which defines a mechanism for storing printer information in the directory server.
+
+|03-uddiv3.ldif
+|This file contains schema definitions from RFC 4403, which defines a mechanism for storing UDDIv3 information in the directory server.
+
+|04-rfc2307bis.ldif
+|This file contains schema definitions from the draft-howard-rfc2307bis specification, used to store naming service information in the directory server.
+
+|05-rfc4876.ldif
+|This file contains schema definitions from RFC 4876, which defines a schema for storing Directory User Agent (DUA) profiles and preferences in the directory server.
+
+|05-samba.ldif
+|This file contains schema definitions required when storing Samba user accounts in the directory server.
+
+|05-solaris.ldif
+|This file contains schema definitions required for Solaris and OpenSolaris LDAP naming services.
+
+|06-compat.ldif
+|This file contains the attribute type and objectclass definitions for use with the directory server configuration.
+
+|===
+
+==== Configuration
+
+===== Start and Stop
+
+The embedded LDAP application installs a feature with the name `ldap-embedded`. Installing and uninstalling this feature will start and stop the embedded LDAP server. This will also install a fresh instance of the server each time. If changes need to persist, stop then start the embedded-ldap-opendj bundle (rather than installing/uninstalling the feature).
+
+All settings, configurations, and changes made to the embedded LDAP instances are persisted across DDF restarts. If DDF is stopped while the LDAP feature is installed and started, it will automatically restart with the saved settings on the next DDF start.
+
+===== Settings
+
+The configuration options are located on the standard DDF configuration web console under the title LDAP Server. It currently contains three configuration options.
+
+[cols="2,6" options="header"]
+|===
+
+|Configuration Name
+|Description
+
+|LDAP Port
+|Sets the port for LDAP (plaintext and StartTLS). 0 will disable the port.
+
+|LDAPS Port
+|Sets the port for LDAPS. 0 will disable the port.
+
+|Base LDIF File
+|Location on the server for a LDIF file. This file will be loaded into the LDAP and overwrite any existing entries. This option should be used when updating the default groups/users with a new ldif file for testing. The LDIF file being loaded may contain any ldap entries (schemas, users, groups..etc). If the location is left blank, the default base LDIF file will be used that comes with DDF.
+
+|===
+
+==== Limitations
+
+Current limitations for the embedded LDAP instances include:
+
+* Inability to store the LDAP files/storage outside of the DDF installation directory.  This results in any LDAP data (i.e., LDAP user information) being lost when the `ldap-embedded` feature is uninstalled.
+* Cannot be run standalone from DDF. In order to run embedded-ldap, the DDF must be started.
+
+==== External Links
+
+Location to the default base LDIF file in the DDF source code: https://github.com/codice/ddf/blob/master/ldap/embedded/ldap-embedded-opendj/src/main/resources/default-users.ldif
+
+OpenDJ documentation: http://opendj.forgerock.org/docs.html
+
+==== LDAP Administration
+
+OpenDJ provides a number of tools for LDAP administration. Refer to the OpenDJ Admin Guide (http://opendj.forgerock.org/opendj-server/doc/admin-guide/).
+
+===== Download the Admin Tools
+
+OpenDJ (Version 2.4.6) and the included tool suite can be downloaded at http://www.forgerock.org/opendj-archive.html.
+
+===== Use the Admin Tools
+
+The admin tools are located in `<opendj-installation>/bat` for Windows and `<opendj-installation>/bin` for *nix.  These tools can be used to administer both local and remote LDAP servers by setting the *host* and *port* parameters appropriately.
+
+===== Example Commands for Disabling/Enabling a User's Account
+
+In this example,  the user *Bruce Banner (uid=bbanner)* is disabled using the *manage-account* command on Windows.  Run *manage-account --help* for usage instructions.
+
+----
+D:\OpenDJ-2.4.6\bat>manage-account set-account-is-disabled -h localhost -p 4444 -O true
+-D "cn=admin" -w secret -b "uid=bbanner,ou=users,dc=example,dc=com"
+The server is using the following certificate:
+    Subject DN:  CN=Win7-1, O=Administration Connector Self-Signed Certificate
+    Issuer DN:  CN=Win7-1, O=Administration Connector Self-Signed Certificate
+    Validity:  Wed Sep 04 15:36:46 MST 2013 through Fri Sep 04 15:36:46 MST 2015
+Do you wish to trust this certificate and continue connecting to the server?
+Please enter "yes" or "no":yes
+Account Is Disabled:  true
+----
+
+====== Verify the Account is Disabled
+
+Notice `Account Is Disabled: true` in the listing.
+
+----
+D:\OpenDJ-2.4.6\bat>manage-account get-all -h localhost -p 4444  -D "cn=admin" -w secret
+-b "uid=bbanner,ou=users,dc=example,dc=com"
+The server is using the following certificate:
+    Subject DN:  CN=Win7-1, O=Administration Connector Self-Signed Certificate
+    Issuer DN:  CN=Win7-1, O=Administration Connector Self-Signed Certificate
+    Validity:  Wed Sep 04 15:36:46 MST 2013 through Fri Sep 04 15:36:46 MST 2015
+Do you wish to trust this certificate and continue connecting to the server?
+Please enter "yes" or "no":yes
+Password Policy DN:  cn=Default Password Policy,cn=Password Policies,cn=config
+Account Is Disabled:  true
+Account Expiration Time:
+Seconds Until Account Expiration:
+Password Changed Time:  19700101000000.000Z
+Password Expiration Warned Time:
+Seconds Until Password Expiration:
+Seconds Until Password Expiration Warning:
+Authentication Failure Times:
+Seconds Until Authentication Failure Unlock:
+Remaining Authentication Failure Count:
+Last Login Time:
+Seconds Until Idle Account Lockout:
+Password Is Reset:  false
+Seconds Until Password Reset Lockout:
+Grace Login Use Times:
+Remaining Grace Login Count:  0
+Password Changed by Required Time:
+Seconds Until Required Change Time:
+Password History:
+----
+
+====== Enable the Account
+
+----
+D:\OpenDJ-2.4.6\bat>manage-account clear-account-is-disabled  -h localhost -p 4444  -D
+"cn=admin" -w secret -b "uid=bbanner,ou=users,dc=example,dc=com"
+The server is using the following certificate:
+    Subject DN:  CN=Win7-1, O=Administration Connector Self-Signed Certificate
+    Issuer DN:  CN=Win7-1, O=Administration Connector Self-Signed Certificate
+    Validity:  Wed Sep 04 15:36:46 MST 2013 through Fri Sep 04 15:36:46 MST 2015
+Do you wish to trust this certificate and continue connecting to the server?
+Please enter "yes" or "no":yes
+Account Is Disabled:  false
+----
+
+====== Verify the Account is Enabled
+Notice `Account Is Disabled: false` in the listing.
+
+----
+D:\OpenDJ-2.4.6\bat>manage-account get-all -h localhost -p 4444  -D "cn=admin" -w secret
+-b "uid=bbanner,ou=users,dc=example,dc=com"
+The server is using the following certificate:
+    Subject DN:  CN=Win7-1, O=Administration Connector Self-Signed Certificate
+    Issuer DN:  CN=Win7-1, O=Administration Connector Self-Signed Certificate
+    Validity:  Wed Sep 04 15:36:46 MST 2013 through Fri Sep 04 15:36:46 MST 2015
+Do you wish to trust this certificate and continue connecting to the server?
+Please enter "yes" or "no":yes
+Password Policy DN:  cn=Default Password Policy,cn=Password Policies,cn=config
+Account Is Disabled:  false
+Account Expiration Time:
+Seconds Until Account Expiration:
+Password Changed Time:  19700101000000.000Z
+Password Expiration Warned Time:
+Seconds Until Password Expiration:
+Seconds Until Password Expiration Warning:
+Authentication Failure Times:
+Seconds Until Authentication Failure Unlock:
+Remaining Authentication Failure Count:
+Last Login Time:
+Seconds Until Idle Account Lockout:
+Password Is Reset:  false
+Seconds Until Password Reset Lockout:
+Grace Login Use Times:
+Remaining Grace Login Count:  0
+Password Changed by Required Time:
+Seconds Until Required Change Time:
+Password History:
+----
+
+== Security PEP
+
+The DDF Security PEP application contains bundles and services that enable service and metacard authorization. These two types of authorization can be installed separately and extended with custom services.
+
+=== Components
+[cols="3" options="header"]
+|===
+
+|Bundle Name
+|Located in Feature
+|Description/Link to Bundle Page
+
+|security-pep-interceptor
+|security-pep-serviceauthz
+|Security PEP Interceptor
+
+|security-pep-redaction
+|security-pep-redaction
+|Security PEP Redaction
+
+|===
+
+=== Security PEP Interceptor
+
+The Security PEP Interceptor bundle contains the `ddf.security.pep.interceptor.EPAuthorizingInterceptor` class. This class uses CXF to intercept incoming SOAP messages and enforces service authorization policies by sending the service request to the security framework.
+
+==== Installation
+This bundle is not installed by default and can be added by installing the `security-pep-serviceauthz` feature.
+
+[WARNING]
+====
+To perform service authorization within a default install of DDF, this bundle MUST be installed.
+====
+
+==== Configuration
+
+===== Settings
+None
+
+==== Implementation Details
+
+===== Imported Services
+None
+
+===== Exported Services
+None
+
+=== Security PEP Redaction
+
+The Security PEP Redaction bundle contains a redaction plugin that is added as a post query plugin in the DDF query lifecycle. This plugin looks at the security attributes on the metacard and compares them to the security attributes on the user who made the query request. If they do not match, the plug in will, depending on the configuration, filter the metacard out of the results or redact certain parts of the metacard that the user does not have permission to see.
+
+==== Installation
+
+This bundle is not installed by default and can be added by installing the `security-pep-redaction` feature.
+
+==== Configuration
+None
+
+==== Implementation Details
+
+===== Imported Services
+None
+
+===== Exported Services
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Implementation Class
+|Properties Set
+
+|ddf.catalog.plugin.PostQueryPlugin
+|ddf.security.pep.redaction.plugin.RedactionPlugin
+|None
+
+|===
+
+== Security STS
+
+The Security STS application contains the bundles and services necessary to run and talk to a Security Token Service (STS). It builds off of the Apache CXF STS code and add components specific to DDF functionality. 
+
+=== Components
+
+[cols="1,1,3" options="header"]
+|===
+
+|Bundle Name
+|Located in Feature
+|Description/Link to Bundle Page
+
+|security-sts-clientconfig
+|security-sts-realm
+|Security STS Client Config
+
+|security-sts-realm
+|security-sts-realm
+|Security STS Realm
+
+|security-sts-ldaplogin
+|security-sts-ldaplogin
+|Security STS LDAP Login
+
+|security-sts-ldapclaimshandler
+|security-sts-server
+|Security STS LDAP Claims Handler
+
+|security-sts-server
+|security-sts-server
+|Security STS Server
+
+|security-sts-samlvalidator
+|security-sts-server
+|Contains the default CXF SAML validator, exposes it as a service for the STS.
+
+|security-sts-x509validator
+|security-sts-server
+|Contains the default CXF x509 validator, exposes it as a service for the STS.
+
+|===
+
+=== Security STS Client Config
+
+The DDF Security STS Client Config bundle keeps track and exposes configurations and settings for the CXF STS client. This client can be used by other services to create their own STS client. Once a service is registered as a watcher of the configuration, it will be updated whenever the settings change for the sts client.
+
+==== Installation
+
+This bundle is not installed by default and can be added by installing the `security-sts-realm` feature.
+
+==== Configuration
+
+===== Settings
+
+Settings can be found in the web console under *Configuration -> Security STS Client*.
+[cols="1,2,2" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Information
+
+|STS Address
+|https://server:8993/services/SecurityTokenService
+|The hostname of the remote server should match the certificate that the server is using.
+
+|STS Endpoint Name
+|{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port
+|
+ 
+|STS Service Name
+|{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService
+|
+ 
+|Signature Properties
+|etc/ws-security/client/signature.properties
+|
+ 
+|Encryption Properties
+|etc/ws-security/client/encryption.properties
+|
+ 
+|STS Properties
+|etc/ws-security/client/signature.properties
+|
+ 
+|Claims
+|<List of Claims>
+|
+ 
+|===
+
+==== Implementation Details
+
+===== Imported Services
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|ddf.catalog.DdfConfigurationWatcher
+|required
+|true
+
+|org.osgi.service.cm.ConfigurationAdmin
+|required
+|false
+
+|===
+
+===== Exported Services
+None
+
+=== Security STS LDAP Claims Handler
+
+The DDF Security STS LDAP Claims Handler bundle adds functionality to the STS server that allows it to retrieve claims from an LDAP server. It also adds mappings for the LDAP attributes to the STS SAML claims.
+
+==== Installation
+
+This bundle is not installed by default and can be added by installing the 
+`security-sts-server`
+ feature.
+
+==== Configuration
+
+===== Settings
+
+Settings can be found in the web console under *Configuration -> Security STS LDAP and Roles Claims Handler*.
+
+[cols="3" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Information
+
+|LDAP URL
+|ldap://localhost:1389
+|
+ 
+|LDAP Bind User DN
+|cn=admin
+|
+ 
+|LDAP Bind User Password
+|secret
+|This password value is encrypted by default using the Security Encryption application.
+
+|LDAP Username Attribute
+|uid
+|
+ 
+|LDAP Base User DN
+|ou=users,dc=example,dc=com
+|
+ 
+|LDAP Group ObjectClass
+|groupOfNames
+|ObjectClass that defines structure for group membership in LDAP. Usually this is groupOfNames or groupOfUniqueNames
+
+|LDAP Membership Attribute
+|member
+|Attribute used to designate the user's name as a member of the group in LDAP. Usually this is member or uniqueMember
+
+|LDAP Base Group DN
+|ou=groups,dc=example,dc=com
+|
+
+|User Attribute Map File
+|etc/ws-security/attributeMap.properties
+|Properties file that contains mappings from Claim=LDAP attribute.
+
+|===
+
+==== Implementation Details
+
+===== Imported Services
+
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|ddf.security.encryption.EncryptionService
+|optional
+|false
+
+|===
+
+===== Exported Services
+
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Implementation Class
+|Properties Set
+
+|org.apache.cxf.sts.claims.ClaimsHandler
+|ddf.security.sts.claimsHandler.LdapClaimsHandler
+|Properties from the settings
+
+|org.apache.cxf.sts.claims.ClaimsHandler
+|ddf.security.sts.claimsHandler.RoleClaimsHandler
+|Properties from the settings
+
+|===
+
+=== Security STS LDAP Login
+
+The DDF Security STS LDAP Login bundle enables functionality within the STS that allows it to use an LDAP to perform authentication when passed a UsernameToken in a RequestSecurityToken SOAP request.
+
+==== Installation
+
+This bundle is not installed by default and can be added by installing the `security-sts-ldaplogin` feature.
+
+==== Configuration
+
+===== Settings
+
+Configuration settings can be found in the web console under *Configuration -> Security STS LDAP Login*.
+
+[cols="3" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Information
+
+|LDAP URL
+|ldaps://localhost:1636
+|
+ 
+|LDAP Bind User DN
+|cn=admin
+|
+ 
+|LDAP Bind User Password
+|secret
+|This password value is encrypted by default using the Security Encryption application.
+
+|LDAP Username Attribute
+|uid
+|
+ 
+|LDAP Base User DN
+|ou=users,dc=example,dc=com
+|
+ 
+|LDAP Base Group DN
+|ou=groups,dc=example,dc=com
+|
+ 
+|SSL Keystore Alias
+|server
+|This alias is used when connecting to the LDAP using SSL (LDAPS).
+
+|===
+
+==== Implementation Details
+
+===== Imported Services
+None
+
+===== Exported Services
+None
+
+=== Security STS Realm
+
+The DDF Security STS Realm performs authentication of a user by delegating the authentication request to an STS. This is different than the realms located within the Security PDP application as those ones only perform authorization and not authentication.
+
+
+==== Installation
+This bundle is installed by default and should not be uninstalled unless the security framework is not being used.
+
+==== Configuration
+
+===== Settings
+None
+
+==== Implementation Details
+
+===== Imported Services
+[cols="3" options="header"]
+
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|ddf.security.encryption.EncryptionService
+|opt
+|false
+
+|===
+
+===== Exported Services
+
+[cols="3" options="header"]
+|===
+|Registered Interfaces
+|Implementation Class
+|Properties Set
+
+|ddf.catalog.util.DdfConfigurationWatcher
+org.apache.shiro.realm.Realm
+|ddf.security.realm.sts.StsRealm
+|None
+
+|===
+
+==== Security STS Server
+
+The DDF Security STS Server is a bundle that starts up an implementation of the CXF STS. The STS obtains many of its configurations (Claims Handlers, Token Validators, etc.) from the OSGi service registry as those items are registered as services using the CXF interfaces. The various services that the STS Server imports are listed in the Implementation Details section of this page.
+
+[NOTE]
+====
+The WSDL for the STS is located at the `security-sts-server/sr/main/resources/META-INF/sts/wsdl/ws-trust-1.4-service.wsdl` within the source code.
+====
+
+==== Installation
+
+This bundle is not installed by default and can be added by installing the `security-sts-server` feature.
+
+==== Configuration
+
+===== Settings
+
+Configuration settings can be found in the web console under *Configuration -> Security STS Server*.
+
+[cols="2,1,5" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Information
+
+|SAML Assertion Lifetime
+|1800
+|
+ 
+|Token Issuer
+|localhost
+|The name of the server issuing tokens. Generally this is the cn or hostname of this machine on the network. 
+
+|Signature Username
+|localhost
+|Alias of the private key in the STS Server's keystore used to sign messages.
+
+|Encryption Username
+|localhost
+|Alias of the private key in the STS Server's keystore used to encrypt messages. 
+
+|===
+
+==== Implementation Details
+
+===== Imported Services
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|org.apache.cxf.sts.claims.ClaimsHandler
+|optional
+|true
+
+|org.apache.cxf.sts.token.validator.TokenValidator
+|optional
+|true
+
+|===
+
+===== Exported Services
+None
+
+== Security PDP
+
+The DDF Security PDP application contains services that are able to perform authorization decisions based on configurations and policies. In the DDF Security Framework, these components are called realms, and they implement the `org.apache.shiro.realm.Realm` and `org.apache.shiro.authz.Authorizer` interfaces. Although these components perform decisions on access control, enforcement of this decision is performed by components within the Security PEP application.
+
+=== Components
+[cols="3" options="header"]
+|===
+
+|Bundle Name
+|Located in Feature
+|Description/Link to Bundle Page
+
+|security-pdp-xacmlrealm
+|security-pdp-xacml
+|Security PDP XACML Realm
+
+|security-pdp-authzrealm
+|security-pdp-simple
+|Security PDP AuthZ Realm
+
+|===
+
+=== Security PDP AuthZ Realm
+
+The DDF Security PDP AuthZ Realm exposes a realm service that makes decisions on authorization requests using the attributes stored within the metacard to determine if access should be granted. Unlike the Security PDP XACML Realm, this realm does not use XACML and does not delegate decisions to an external processing engine. Decisions are made based on "match-all" and "match-one" logic. The configuration below provides the mapping between user attributes and metacard attributes - one map exists for each type of mapping (each map may contain multiple values).
+
+* Match-All Mapping:  This mapping is used to guarantee that all values present in the specified metacard attribute exist in the corresponding user attribute.
+
+* Match-One Mapping:  This mapping is used to guarantee that at least one of the values present in the specified metacard attribute exists in the corresponding user attribute.
+
+==== Installation
+
+This bundle is not installed by default and can be added by installing the `security-pdp-java` feature.
+
+==== Configuration
+
+===== Settings
+
+Settings can be found in the web console under *Configuration -> Security Simple AuthZ Realm*.
+
+[cols="1,1,6" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Description
+
+|Roles
+|admin
+|Add all the roles that allow access to restricted actions. Any user that has any one of these roles will be allowed access to restricted actions.
+
+|Open Action List
+|
+|Add any actions that will not be restricted by role. Any action listed here will automatically be allowed to be performed by any user in any role.
+
+|Match-All Mappings
+| 
+|These map user attributes to metacard security attributes to be used in "Match All" checking. All the values in the metacard attribute must be present in the user attributes in order to "pass" and allow access. These attribute names are case-sensitive.
+
+|Match-One Mappings
+|
+|These map user attributes to metacard security attributes to be used in "Match One" checking. At least one of the values from the metacard attribute must be present in the corresponding user attribute to "pass" and allow access. These attribute names are case-sensitive.
+
+|===
+
+==== Implementation Details
+
+===== Imported Services
+None
+
+===== Exported Services
+[cols="3" options="header"]
+|===
+
+|Registered Interfaces
+|Implementation Class
+|Properties Set
+
+|org.apache.shiro.realm.Realm +
+org.apache.shiro.authz.Authorizer
+|ddf.security.pdp.realm.SimpleAuthzRealm
+|None
+
+|===
+
+=== Security PDP XACML Realm
+
+The DDF Security PDP XACML realm exposes a realm that creates a XACML request with the incoming authorization information and sends the request to a XACML processing engine. The engine that is sent the request is not hardcoded and is retrieved at runtime by the OSGi service registry. This realm contains an embedded XACML processing engine that handles the requests and policies.
+
+==== Installation
+
+This bundle is not installed by default and can be added by installing the `security-pdp-xacml` feature.
+
+==== Configuration
+
+===== Settings
+None
+
+==== Implementation Details
+
+===== Imported Services
+None
+
+===== Exported Services
+[cols="3" options="header"]
+|===
+
+|Registered Interfaces
+|Implementation Class
+|Properties Set
+
+|org.apache.shiro.realm.Realm +
+org.apache.shiro.authz.Authorizer
+|ddf.security.pep.realm.XACMLRealm
+|None
+
+|===
+
+== Anonymous Interceptor
+
+The goal of the AnonymousInterceptor is to allow non-secure clients (SOAP requests without security headers) to access secure service endpoints. 
+
+All requests to secure endpoints must include, as part of the incoming message, a user's credentials in the form of a SAML assertion or a reference to a SAML assertion. For REST/HTTP requests, either the assertion itself or the session reference (that contains the assertion) is included. For SOAP requests, the assertion is included in the SOAP header. 
+
+Rather than reject requests without user credentials, the anonymous interceptor detects the missing credentials and inserts an assertion that represents the "anonymous" user. The attributes included in this anonymous user assertion are configured by the administrator to represent any unknown user on the current network.
+
+=== Installing
+
+The `AnonymousInterceptor` is installed by default with DDF Security Application.
+
+=== Configuring
+
+==== Configuring via the Admin Console
+
+. Navigate to the DDF Admin Console -> Configuration
+. Select “ Security STS Anonymous Claims Handler”
+. Click the + next to Attributes to add a new attribute
+. Add the following attribute: “http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous”
+. Repeat the steps above to add another new attribute: “http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous”
+. Click save
+. Now select “Security Simple AuthZ Realm”
+. Under role, add anonymous so Roles value is: “admin,anonymous”
+. Click save.
+
+Once these configurations have been added, the AnonymousInterceptor is ready for use. Both secure and non-secure requests will be accepted by all secure DDF service endpoints.

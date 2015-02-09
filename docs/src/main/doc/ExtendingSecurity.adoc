@@ -1,0 +1,22 @@
+= Extending {branding} Security Application
+include::../config.adoc[]
+
+== Overview
+
+The Security application provides authentication, authorization, and auditing services for the DDF. They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements. More information about the security framework and how everything works as a single security solution can be found on the Managing Web Service Security page.
+
+This guide supports developers creating extensions of the existing framework.
+
+== Developing Token Validators
+
+Token validators are used by the Security Token Service (STS) to validate incoming token requests. The TokenValidator CXF interface must be implemented by any custom token validator class. The canHandleToken and validateToken methods must be overridden. The canHandleToken method should return true or false based on the ValueType value of the token that the validator is associated with. The validator may be able to handle any number of different tokens that you specify. The validateToken method returns a TokenValidatorResponse object that contains the Principal of the identity being validated and also validates the ReceivedToken object that was collected from the RST (RequestSecurityToken) message.
+
+=== Usage
+
+At the moment, validators must be added to the cxf-sts.xml blueprint file manually. There is a section labeled as the "Delegate Configuration" in that file. That is where the validator must be added along with the existing validators. In the future, we expect this to be pluggable without changes to the blueprint file.
+
+[NOTE]
+====
+The validator services that are currently bundled on their own are webSSOTokenValidator, SamlTokenValidator, and x509TokenValidator. Each has its own blueprint.xml file that defines and exports the service.  They can be individually turned on/off as a bundle/service.  
+====
+ 

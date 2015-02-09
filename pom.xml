@@ -184,6 +184,7 @@
         <module>interceptor</module>
         <module>security-services-app</module>
         <module>rest</module>
+        <module>docs</module>
     </modules>
 
     <repositories>
