@@ -24,11 +24,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.ws.security.WSDocInfo;
+import org.apache.ws.security.WSSConfig;
 import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.components.crypto.Crypto;
 import org.apache.ws.security.components.crypto.CryptoFactory;
+import org.apache.ws.security.handler.RequestData;
 import org.apache.ws.security.saml.ext.AssertionWrapper;
 import org.apache.ws.security.saml.ext.OpenSAMLUtil;
+import org.apache.ws.security.validate.Credential;
+import org.apache.ws.security.validate.SamlAssertionValidator;
+import org.apache.ws.security.validate.Validator;
 import org.codice.ddf.security.common.PropertiesLoader;
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
@@ -99,6 +105,8 @@ public class LoginFilter implements Filter {
     private Crypto signatureCrypto;
 
     private DocumentBuilder docBuilder;
+
+    private Validator assertionValidator = new SamlAssertionValidator();
 
     private final Object lock = new Object();
 
@@ -244,12 +252,36 @@ public class LoginFilter implements Filter {
                     Document doc = docBuilder.newDocument();
                     Element policyElement = OpenSAMLUtil.toDom(samlResponse, doc);
                     doc.appendChild(policyElement);
-                    Response marshalledResponse = (Response) OpenSAMLUtil
-                            .fromDom(policyElement);
-                    SAMLProtocolResponseValidator validator = new SAMLProtocolResponseValidator();
 
-                    // validate the assertion
-                    validator.validateSamlResponse(marshalledResponse, crypto, null);
+                    Credential credential = new Credential();
+                    credential.setAssertion(assertion);
+
+                    RequestData requestData = new RequestData();
+                    requestData.setSigCrypto(crypto);
+                    WSSConfig wssConfig = WSSConfig.getNewInstance();
+                    requestData.setWssConfig(wssConfig);
+
+                    if (assertion.isSigned()) {
+                        if (assertion.getSaml1() != null) {
+                            assertion.getSaml1().getDOM().setIdAttributeNS(null, "AssertionID", true);
+                        } else {
+                            assertion.getSaml2().getDOM().setIdAttributeNS(null, "ID", true);
+                        }
+
+                        // Verify the signature
+                        try {
+                            assertion.verifySignature(requestData, new WSDocInfo(samlResponse.getDOM().getOwnerDocument()));
+                        } catch (WSSecurityException e) {
+                            throw new WSSecurityException(WSSecurityException.FAILURE, "invalidSAMLsecurity");
+                        }
+                    }
+
+                    // Validate the Assertion & verify trust in the signature
+                    try {
+                        assertionValidator.validate(credential, requestData);
+                    } catch (WSSecurityException ex) {
+                        throw new WSSecurityException(WSSecurityException.FAILURE, "invalidSAMLsecurity");
+                    }
                 }
 
                 // if it is all good, then we'll create our subject
