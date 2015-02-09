@@ -69,6 +69,7 @@
         <module>endpoint</module>
         <module>core</module>
         <module>content-app</module>
+        <module>docs</module>
     </modules>
     
     	
