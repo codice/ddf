@@ -24,25 +24,25 @@ function (Marionette, Backbone, Cesium, _, wreqr) {
     var FilterGeometryItem = Backbone.View.extend({
         initialize: function(options){
             this.options = options;
-            this.listenTo(this.model, 'change', this.updatePrimative);
+            this.listenTo(this.model, 'change', this.updatePrimitive);
         },
         // this will manipulate the map.
         render: function(){
-            this.updatePrimative();
+            this.updatePrimitive();
             return this;
         },
         remove: function(){
-            this.cleanUpPrimative();
+            this.cleanUpPrimitive();
             Backbone.View.prototype.remove.apply(this, arguments);
         },
-        cleanUpPrimative: function() {
+        cleanUpPrimitive: function() {
             if(this.primitive){
                 this.options.geoController.scene.primitives.remove(this.primitive);
                 this.primitive = null;
             }
         },
-        updatePrimative: function(){
-            this.cleanUpPrimative();
+        updatePrimitive: function(){
+            this.cleanUpPrimitive();
             var geoType = this.model.get('geoType');
             if(geoType === 'polygon'){
                 this.primitive = this.createPolygonPrimitive();
@@ -182,17 +182,21 @@ function (Marionette, Backbone, Cesium, _, wreqr) {
         initialize: function(options){
             this.options = options;
             this.listenTo(wreqr.vent, 'mapfilter:showFilters', this.showFilters);
+            this.listenTo(wreqr.vent, 'map:clear', this.clear);
         },
         showFilters: function(filters){
-            if(this.view){
-                this.view.close();
-            }
+            this.clear();
 
             this.view = new FilterGeometryCollection({
                 geoController: this.options.geoController,
                 collection: filters
             });
             this.view.render();
+        },
+        clear: function () {
+            if (this.view){
+                this.view.close();
+            }
         }
     });
 
