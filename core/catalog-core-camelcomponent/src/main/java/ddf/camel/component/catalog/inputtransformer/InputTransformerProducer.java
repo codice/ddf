@@ -73,9 +73,10 @@ public class InputTransformerProducer extends TransformerProducer {
                     + "=" + transformerId);
         }
 
+        InputStream message = null;
         Metacard metacard = null;
         try {
-            InputStream message = in.getBody(InputStream.class);
+            message = in.getBody(InputStream.class);
             if(null != message) {
                 metacard = generateMetacard(derivedMimeType, mapper, message);
             } else {
@@ -86,6 +87,10 @@ public class InputTransformerProducer extends TransformerProducer {
             throw new CatalogTransformerException(
                     "Did not find an InputTransformer for MIME Type [" + mimeType + "] and "
                             + MimeTypeToTransformerMapper.ID_KEY + " [" + transformerId + "]", e);
+        } finally {
+            if (null != message) {
+                IOUtils.closeQuietly(message);
+            }
         }
 
         return metacard;

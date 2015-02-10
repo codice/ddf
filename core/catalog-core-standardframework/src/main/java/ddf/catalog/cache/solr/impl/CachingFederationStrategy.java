@@ -559,7 +559,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     } else {
                         sourceId = "Unknown Source";
                     }
-                    logger.warn("Couldn't get results from completed federated query for " + sourceId, e);
+                    logger.warn("Couldn't get results from completed federated query for {}", sourceId, e);
                     processingDetails.add(new ProcessingDetailsImpl(sourceId, e));
                 } catch (ExecutionException e) {
                     String sourceId;
@@ -568,7 +568,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     } else {
                         sourceId = "Unknown Source";
                     }
-                    logger.warn("Couldn't get results from completed federated query for " + sourceId, e);
+                    logger.warn("Couldn't get results from completed federated query for {}", sourceId, e);
                     processingDetails.add(new ProcessingDetailsImpl(sourceId, e));
                 }
             }
