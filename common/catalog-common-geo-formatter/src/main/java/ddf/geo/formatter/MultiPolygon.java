@@ -74,12 +74,14 @@ public class MultiPolygon extends Polygon {
 
         List<Position> positions = new ArrayList<Position>();
 
-        for (int i = 0; i < geometry.getNumGeometries(); i++) {
-
-            CompositeGeometry compositeGeo = CompositeGeometry.getCompositeGeometry(geometry
-                    .getGeometryN(i));
-
-            positions.addAll(compositeGeo.toGeoRssPositions());
+        if(null != geometry) {
+            for (int i = 0; i < geometry.getNumGeometries(); i++) {
+                CompositeGeometry compositeGeo = CompositeGeometry
+                        .getCompositeGeometry(geometry.getGeometryN(i));
+                if (null != compositeGeo) {
+                    positions.addAll(compositeGeo.toGeoRssPositions());
+                }
+            }
         }
 
         return positions;

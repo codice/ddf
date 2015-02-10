@@ -38,8 +38,9 @@ public class NamespaceMapImpl implements NamespaceContext {
 
         allNamespaceUris.putAll(namespaces);
 
-        for (String key : namespaces.keySet()) {
-            allPrefixes.put(namespaces.get(key), key);
+        for (Map.Entry<String, String> entry : namespaces.entrySet())
+        {
+            allPrefixes.put(entry.getValue(), entry.getKey());
         }
     }
 

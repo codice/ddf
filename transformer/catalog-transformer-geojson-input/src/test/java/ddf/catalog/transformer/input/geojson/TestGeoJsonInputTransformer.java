@@ -23,8 +23,10 @@ import static org.mockito.Mockito.mock;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
@@ -160,10 +162,12 @@ public class TestGeoJsonInputTransformer {
         assertEquals(DEFAULT_TYPE, metacard.getContentTypeName());
         assertEquals(DEFAULT_VERSION, metacard.getContentTypeVersion());
         assertEquals("<xml></xml>", metacard.getMetadata());
+		SimpleDateFormat dateFormat = new SimpleDateFormat(GeoJsonInputTransformer.ISO_8601_DATE_FORMAT);
+		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         assertEquals("2012-09-01T00:09:19.368+0000",
-                GeoJsonInputTransformer.ISO_8601_DATE_FORMAT.format(metacard.getCreatedDate()));
+				dateFormat.format(metacard.getCreatedDate()));
         assertEquals("2012-09-01T00:09:19.368+0000",
-                GeoJsonInputTransformer.ISO_8601_DATE_FORMAT.format(metacard.getModifiedDate()));
+				dateFormat.format(metacard.getModifiedDate()));
         assertArrayEquals(DEFAULT_BYTES, metacard.getThumbnail());
     }
 

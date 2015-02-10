@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -422,7 +423,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
             Thread.currentThread().setContextClassLoader(OpenSearchSource.class.getClassLoader());
             parser = ABDERA.getParser();
-            atomDoc = parser.parse(new InputStreamReader(is));
+            atomDoc = parser.parse(new InputStreamReader(is), StandardCharsets.UTF_8.name());
 
         } finally {
             Thread.currentThread().setContextClassLoader(tccl);
@@ -590,7 +591,8 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     private Metacard parseContent(String content, String id) {
         if (inputTransformer != null && content != null && !content.isEmpty()) {
             try {
-                return inputTransformer.transform(new ByteArrayInputStream(content.getBytes()), id);
+                return inputTransformer.transform(new ByteArrayInputStream(content.getBytes(
+                        StandardCharsets.UTF_8)), id);
             } catch (IOException e) {
                 LOGGER.warn("Unable to read metacard content from Atom feed.", e);
             } catch (CatalogTransformerException e) {

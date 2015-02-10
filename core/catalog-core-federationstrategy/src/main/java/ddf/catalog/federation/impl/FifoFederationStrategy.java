@@ -187,7 +187,7 @@ public class FifoFederationStrategy implements FederationStrategy {
         return query;
     }
 
-    private class CallableSourceResponse implements Callable<SourceResponse> {
+    private static class CallableSourceResponse implements Callable<SourceResponse> {
 
         private Query query = null;
 
@@ -221,7 +221,7 @@ public class FifoFederationStrategy implements FederationStrategy {
      *            - the deadline for the timeout to occur
      * @return the time remaining prior to the timeout
      */
-    private class FifoQueryMonitor implements Runnable {
+    private static class FifoQueryMonitor implements Runnable {
 
         private QueryResponseImpl returnResults;
 

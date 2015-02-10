@@ -240,19 +240,22 @@ public class TikaInputTransformer implements InputTransformer {
         try {
             Image image = ImageIO.read(new CloseShieldInputStream(input));
 
-            BufferedImage bufferedImage = new BufferedImage(image.getWidth(null),
-                    image.getHeight(null), BufferedImage.TYPE_INT_RGB);
-            Graphics2D graphics = bufferedImage.createGraphics();
-            graphics.drawImage(image, null, null);
-            graphics.dispose();
+            if (null != image) {
+                BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+                Graphics2D graphics = bufferedImage.createGraphics();
+                graphics.drawImage(image, null, null);
+                graphics.dispose();
 
-            BufferedImage thumb = Scalr.resize(bufferedImage, 200);
+                BufferedImage thumb = Scalr.resize(bufferedImage, 200);
 
-            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-                ImageIO.write(thumb, "jpeg", out);
+                try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                    ImageIO.write(thumb, "jpeg", out);
 
-                byte[] thumbBytes = out.toByteArray();
-                metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, thumbBytes));
+                    byte[] thumbBytes = out.toByteArray();
+                    metacard.setAttribute(new AttributeImpl(Metacard.THUMBNAIL, thumbBytes));
+                }
+            } else {
+                LOGGER.warn("Unable to read image from input stream to create thumbnail.");
             }
         } catch (Exception e) {
             LOGGER.warn("Unable to read image from input stream to create thumbnail.", e);

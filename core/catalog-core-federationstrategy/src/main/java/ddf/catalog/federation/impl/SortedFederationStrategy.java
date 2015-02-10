@@ -95,7 +95,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
         return new SortedQueryMonitor(pool, futures, returnResults, query);
     }
 
-    private class SortedQueryMonitor implements Runnable {
+    private static class SortedQueryMonitor implements Runnable {
 
         private QueryResponseImpl returnResults;
 

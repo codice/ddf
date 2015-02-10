@@ -17,6 +17,7 @@ package ddf.catalog.services.xsltlistener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -124,7 +125,7 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
         BinaryContent resultContent;
         StreamResult resultOutput = null;
         Source source = new StreamSource(
-                new ByteArrayInputStream(metacard.getMetadata().getBytes()));
+                new ByteArrayInputStream(metacard.getMetadata().getBytes(StandardCharsets.UTF_8)));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         resultOutput = new StreamResult(baos);

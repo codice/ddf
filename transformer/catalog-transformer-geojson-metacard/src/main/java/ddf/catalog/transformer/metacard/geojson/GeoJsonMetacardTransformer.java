@@ -16,6 +16,7 @@ package ddf.catalog.transformer.metacard.geojson;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -58,14 +59,9 @@ import ddf.geo.formatter.CompositeGeometry;
  */
 public class GeoJsonMetacardTransformer implements MetacardTransformer {
 
-    public static final SimpleDateFormat ISO_8601_DATE_FORMAT = new SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    public static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     protected static final String METACARD_TYPE_PROPERTY_KEY = "metacard-type";
-
-    static {
-        ISO_8601_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
 
     public static final String ID = "geojson";
 
@@ -92,7 +88,7 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
         String jsonText = JSONValue.toJSONString(rootObject);
 
         return new ddf.catalog.data.BinaryContentImpl(
-                new ByteArrayInputStream(jsonText.getBytes()), DEFAULT_MIME_TYPE);
+                new ByteArrayInputStream(jsonText.getBytes(StandardCharsets.UTF_8)), DEFAULT_MIME_TYPE);
     }
 
     public static JSONObject convertToJSON(Metacard metacard) throws CatalogTransformerException {
@@ -116,8 +112,10 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
                     break;
                 case DATE:
                     if (attribute.getValue() != null) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
+                        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
                         properties.put(attribute.getName(),
-                                ISO_8601_DATE_FORMAT.format(((Date) attribute.getValue())));
+                                dateFormat.format(((Date) attribute.getValue())));
                     }
                     break;
                 case BINARY:

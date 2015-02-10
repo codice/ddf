@@ -1044,13 +1044,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
      */
     protected QueryResponse addProcessingDetails(Set<ProcessingDetails> exceptions,
             QueryResponse response) {
-        Set<ProcessingDetails> sourceDetails = response.getProcessingDetails();
         if (!exceptions.isEmpty()) {
             // we have exceptions to merge in
-            if (sourceDetails == null) {
+            if (response == null) {
                 logger.error("Could not add Query exceptions to a QueryResponse because the list of ProcessingDetails was null -- according to the API this should not happen");
             } else {
                 // need to merge them together.
+                Set<ProcessingDetails> sourceDetails = response.getProcessingDetails();
                 sourceDetails.addAll(exceptions);
             }
         }

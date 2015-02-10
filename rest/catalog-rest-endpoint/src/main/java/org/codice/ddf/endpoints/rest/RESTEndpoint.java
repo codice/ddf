@@ -79,6 +79,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -360,7 +361,8 @@ public class RESTEndpoint implements RESTService {
         }
 
         sourcesString = JSONValue.toJSONString(resultsList);
-        content = new BinaryContentImpl(new ByteArrayInputStream(sourcesString.getBytes()),
+        content = new BinaryContentImpl(new ByteArrayInputStream(sourcesString.getBytes(
+                StandardCharsets.UTF_8)),
                 JSON_MIME_TYPE);
         responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
 
@@ -538,16 +540,6 @@ public class RESTEndpoint implements RESTService {
             // Content-Type: application/json;id=geojson
             if (contentPart.getContentType() != null) {
                 contentType = contentPart.getContentType().toString();
-            }
-
-            filename = contentPart.getContentDisposition().getParameter(
-                    FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
-
-            // Only interested in attachments for file uploads
-            if (StringUtils.isBlank(filename)) {
-                throw new ServerErrorException("No filename provided - cannot create metacard", Status.BAD_REQUEST);
-            } else {
-                filename = FilenameUtils.getName(filename);
             }
 
             // Get the file contents as an InputStream and ensure the stream is positioned
@@ -769,7 +761,11 @@ public class RESTEndpoint implements RESTService {
         try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(1000000)) {
 
             try {
-                IOUtils.copy(message, fileBackedOutputStream);
+                if (null != message) {
+                    IOUtils.copy(message, fileBackedOutputStream);
+                } else {
+                    throw new MetacardCreationException("Could not copy bytes of content message.  Message was NULL.");
+                }
             } catch (IOException e) {
                 throw new MetacardCreationException("Could not copy bytes of content message.", e);
             }

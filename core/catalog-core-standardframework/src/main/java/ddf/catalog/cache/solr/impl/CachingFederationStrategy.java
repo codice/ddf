@@ -210,7 +210,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         // Do NOT call source.isAvailable() when checking sources
         for (final Source source : sources) {
             if (source != null) {
-                if (!futures.containsKey(source)) {
+                if (!futures.containsValue(source)) {
                     logger.debug("running query on source: {}", source.getId());
 
                     try {
@@ -553,10 +553,14 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     }
 
                 } catch (InterruptedException e) {
-                    logger.warn(
-                            "Couldn't get results from completed federated query on for {}",
-                            source.getId(), e);
-                    processingDetails.add(new ProcessingDetailsImpl(source.getId(), e));
+                    String sourceId;
+                    if (source != null) {
+                        sourceId = source.getId();
+                    } else {
+                        sourceId = "Unknown Source";
+                    }
+                    logger.warn("Couldn't get results from completed federated query for " + sourceId, e);
+                    processingDetails.add(new ProcessingDetailsImpl(sourceId, e));
                 } catch (ExecutionException e) {
                     String sourceId;
                     if (source != null) {

@@ -200,16 +200,20 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
             logger.debug("returning returnResults: {}", queryResponse);
         }
 
-        try {
-            for (PostFederatedQueryPlugin service : postQuery) {
-                try {
-                    queryResponse = service.process(queryResponse);
-                } catch (PluginExecutionException e) {
-                    logger.warn("Error executing PostFederatedQueryPlugin: " + e.getMessage(), e);
+        if(null != queryResponse) {
+            try {
+                for (PostFederatedQueryPlugin service : postQuery) {
+                    try {
+                        queryResponse = service.process(queryResponse);
+                    } catch (PluginExecutionException e) {
+                        logger.warn("Error executing PostFederatedQueryPlugin: " + e.getMessage(), e);
+                    }
                 }
+            } catch (StopProcessingException e) {
+                logger.warn("Plugin stopped processing: ", e);
             }
-        } catch (StopProcessingException e) {
-            logger.warn("Plugin stopped processing: ", e);
+        } else {
+            logger.warn("No QueryResponse for PostFederatedQueryPlugins to process");
         }
 
         logger.debug("returning Query Results: {}", queryResponse);
@@ -260,7 +264,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
         return offset + pageSize - 1;
     }
 
-    private class CallableSourceResponse implements Callable<SourceResponse> {
+    private static class CallableSourceResponse implements Callable<SourceResponse> {
 
         private Query query = null;
 
@@ -281,7 +285,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
         };
     }
 
-    private class OffsetResultHandler implements Runnable {
+    private static class OffsetResultHandler implements Runnable {
 
         private QueryResponseImpl originalResults = null;
 

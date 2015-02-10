@@ -27,11 +27,10 @@ public class EnvListCommand extends OsgiCommandSupport {
         
         Map<String, String> env = System.getenv();
 
-        for (String envName : env.keySet()) {
-            System.out.printf("%s=%s%n", envName, env.get(envName));
+        for (Map.Entry<String, String> entry : env.entrySet()) {
+            System.out.printf("%s=%s%n", entry.getKey(), entry.getValue());
         }
 
-        
         System.out.println("This command is deprecated and will be removed in DDF 3.0.");
         System.out.println("Please use platform:envlist instead");
 

@@ -17,6 +17,7 @@ package ddf.catalog.transformer.response.query.atom;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -352,7 +353,7 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
                     try {
                         byte[] xmlBytes = binaryContent.getByteArray();
                         if (xmlBytes != null && xmlBytes.length > 0) {
-                            contentOutput = new String(xmlBytes);
+                            contentOutput = new String(xmlBytes, StandardCharsets.UTF_8);
 
                             atomContentType = Type.XML;
                         }
@@ -476,7 +477,11 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
                             CompositeGeometry formatter = CompositeGeometry
                                     .getCompositeGeometry(geometry);
 
-                            georssPositions.addAll(formatter.toGeoRssPositions());
+                            if (null != formatter) {
+                                georssPositions.addAll(formatter.toGeoRssPositions());
+                            } else {
+                                LOGGER.info("When cycling through geometries, could not get composite geometry [{}]", geo);
+                            }
 
                         } catch (ParseException e) {
                             LOGGER.info("When cycling through geometries, could not parse [{}]", geo, e);

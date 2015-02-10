@@ -320,7 +320,7 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
      */
     private Response executeQuery(String format, OpenSearchQuery query, UriInfo ui,
             Map<String, Serializable> properties) {
-        Response response;
+        Response response = null;
         String queryFormat = format;
 
         MultivaluedMap<String, String> queryParams = ui.getQueryParameters();
@@ -378,8 +378,10 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
                 // pass in the format for the transform
                 BinaryContent content = framework.transform(queryResponseQueue, queryFormat,
                         arguments);
-                response = Response.ok(content.getInputStream(), content.getMimeTypeValue())
-                        .build();
+                if (null != content) {
+                    response = Response.ok(content.getInputStream(), content.getMimeTypeValue())
+                            .build();
+                }
             }
         } catch (UnsupportedQueryException ce) {
             LOGGER.warn("Error executing query", ce);

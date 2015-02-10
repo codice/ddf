@@ -909,7 +909,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         return new ExpressionValues(propertyName, literal);
     }
 
-    private class ExpressionValues {
+    private static class ExpressionValues {
         public String propertyName;
 
         public Object literal;

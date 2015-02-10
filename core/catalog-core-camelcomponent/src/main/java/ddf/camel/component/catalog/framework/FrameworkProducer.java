@@ -128,10 +128,7 @@ public class FrameworkProducer extends DefaultProducer {
             if (operationValueObj == null) {
                 exchange.getIn().setBody(new ArrayList<Metacard>());
 
-                throw new FrameworkProducerException(
-                        String.format(
-                                "Missing expected header \"operation:<CREATE|UPDATE|DELETE>\" but received {}",
-                                operation));
+                throw new FrameworkProducerException("Missing expected header!");
             }
 
             operation = operationValueObj.toString();

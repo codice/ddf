@@ -53,16 +53,16 @@ public class ContextualEvaluationCriteriaImpl implements ContextualEvaluationCri
 
         LOGGER.debug("criteria = {}", criteria);
         LOGGER.debug("textPaths:\n");
-        for (String textPath : textPaths) {
-            LOGGER.debug(textPath);
-        }
-        // LOGGER.debug( "metadata:\n{}", XPathHelper.xmlToString( metadata ) );
+        if (null != textPaths) {
+            for (String textPath : textPaths) {
+                LOGGER.debug(textPath);
+            }
+            // LOGGER.debug( "metadata:\n{}", XPathHelper.xmlToString( metadata ) );
 
-        this.criteria = criteria;
-        this.fuzzy = fuzzy;
-        this.caseSensitiveSearch = caseSensitiveSearch;
-        this.metadata = metadata;
-        if (textPaths != null) {
+            this.criteria = criteria;
+            this.fuzzy = fuzzy;
+            this.caseSensitiveSearch = caseSensitiveSearch;
+            this.metadata = metadata;
             this.textPaths = new String[textPaths.length];
             System.arraycopy(textPaths, 0, this.textPaths, 0, textPaths.length);
         }

@@ -34,9 +34,6 @@ import ddf.catalog.filter.XPathBuilder;
  * 
  */
 public class GeotoolsFilterBuilder implements FilterBuilder {
-
-    private boolean configured = false;
-
     private FilterFactory factory = new FilterFactoryImpl();
 
     // public Filter cql(String cql) {

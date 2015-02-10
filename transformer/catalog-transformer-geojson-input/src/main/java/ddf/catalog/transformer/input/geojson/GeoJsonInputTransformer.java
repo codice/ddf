@@ -59,11 +59,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
     private MetacardTypeRegistry mTypeRegistry;
 
-    public static final SimpleDateFormat ISO_8601_DATE_FORMAT = new SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    static {
-        ISO_8601_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
+    public static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonInputTransformer.class);
 
@@ -183,8 +179,10 @@ public class GeoJsonInputTransformer implements InputTransformer {
                             break;
                         case DATE:
                             try {
+                                SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
+                                dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
                                 metacard.setAttribute(ad.getName(),
-                                        ISO_8601_DATE_FORMAT.parse(attributeString));
+                                        dateFormat.parse(attributeString));
                             } catch (java.text.ParseException e) {
                                 throw new CatalogTransformerException("Could not parse Date:", e);
                             }

@@ -16,6 +16,7 @@ package ddf.catalog.transformer.attribute;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import javax.activation.MimeType;
@@ -86,7 +87,7 @@ public class AttributeMetacardTransformer implements MetacardTransformer {
             }
             if (String.class.isAssignableFrom(attribute.getValue().getClass())) {
                 return new BinaryContentImpl(new ByteArrayInputStream(attribute.getValue()
-                        .toString().getBytes()), mimeType);
+                        .toString().getBytes(StandardCharsets.UTF_8)), mimeType);
             }
 
         }

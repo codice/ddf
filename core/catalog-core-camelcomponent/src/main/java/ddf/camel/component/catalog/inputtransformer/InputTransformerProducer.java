@@ -75,7 +75,13 @@ public class InputTransformerProducer extends TransformerProducer {
 
         Metacard metacard = null;
         try {
-            metacard = generateMetacard(derivedMimeType, mapper, in.getBody(InputStream.class));
+            InputStream message = in.getBody(InputStream.class);
+            if(null != message) {
+                metacard = generateMetacard(derivedMimeType, mapper, message);
+            } else {
+                throw new CatalogTransformerException(
+                        "Message body was null; unable to generate Metacard!");
+            }
         } catch (MetacardCreationException e) {
             throw new CatalogTransformerException(
                     "Did not find an InputTransformer for MIME Type [" + mimeType + "] and "

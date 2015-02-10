@@ -47,7 +47,7 @@ public class RangeCommand extends CatalogCommands {
 
     private static final String NUMBER = "#";
 
-    private static final SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+    private static final String DATE_FORMAT = "MM-dd-yyyy";
 
     @Argument(name = "ATTRIBUTE_NAME", description = "The attribute to query on.", index = 0, multiValued = false, required = true)
     String attributeName = Metacard.MODIFIED;
@@ -75,6 +75,8 @@ public class RangeCommand extends CatalogCommands {
         Date wayInThePast = new DateTime().minusYears(5000).toDate();
         Date endDate = wayInTheFuture;
         Date startDate = wayInThePast;
+
+        SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 
         if (WILDCARD.equals(parameter1) && WILDCARD.equals(parameter2)) {
             filter = builder.attribute(attributeName).before().date(endDate);
