@@ -547,18 +547,18 @@ public class RrdJmxCollector implements JmxCollector {
                                     now, lastUpdateTime, sampleSkipCount);
                         }
                     } catch (IllegalArgumentException iae) {
-                        LOGGER.error("Dropping sample of datasource " + rrdDataSourceName, iae);
+                        LOGGER.error("Dropping sample of datasource {}", rrdDataSourceName, iae);
                     }
                 } catch (MalformedObjectNameException e) {
-                    LOGGER.warn("Problems getting MBean attribute " + mbeanAttributeName, e);
+                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
                 } catch (AttributeNotFoundException e) {
-                    LOGGER.warn("Problems getting MBean attribute " + mbeanAttributeName, e);
+                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
                 } catch (InstanceNotFoundException e) {
-                    LOGGER.warn("Problems getting MBean attribute " + mbeanAttributeName, e);
+                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
                 } catch (MBeanException e) {
-                    LOGGER.warn("Problems getting MBean attribute " + mbeanAttributeName, e);
+                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
                 } catch (ReflectionException e) {
-                    LOGGER.warn("Problems getting MBean attribute " + mbeanAttributeName, e);
+                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
                 } catch (IOException e) {
                     LOGGER.warn("Error updating RRD", e);
                 }

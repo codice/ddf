@@ -360,15 +360,11 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
             } catch (UnrecoverableKeyException e) {
                 handleKeyStoreException(e);
             } finally {
-                try {
-                    if (null != tsFIS) {
-                        tsFIS.close();
-                    }
-                    if (null != ksFIS) {
-                        ksFIS.close();
-                    }
-                } catch (IOException e) {
-                    LOGGER.warn("An Exception occurred trying to close the keystore file input streams for metrics.");
+                if (null != tsFIS) {
+                    IOUtils.closeQuietly(tsFIS);
+                }
+                if (null != ksFIS) {
+                    IOUtils.closeQuietly(ksFIS);
                 }
             }
         } else {
