@@ -330,9 +330,13 @@ public class KMLTransformerImpl implements KMLTransformer {
     }
 
     private Geometry addPointToKmlGeo(Geometry kmlGeo, com.vividsolutions.jts.geom.Coordinate vertex) {
-        de.micromata.opengis.kml.v_2_2_0.Point kmlPoint = KmlFactory.createPoint()
-                .addToCoordinates(vertex.x, vertex.y);
-        return KmlFactory.createMultiGeometry().addToGeometry(kmlPoint).addToGeometry(kmlGeo);
+        if(null != vertex) {
+            de.micromata.opengis.kml.v_2_2_0.Point kmlPoint = KmlFactory.createPoint()
+                    .addToCoordinates(vertex.x, vertex.y);
+            return KmlFactory.createMultiGeometry().addToGeometry(kmlPoint).addToGeometry(kmlGeo);
+        } else {
+            return null;
+        }
     }
 
     @Override

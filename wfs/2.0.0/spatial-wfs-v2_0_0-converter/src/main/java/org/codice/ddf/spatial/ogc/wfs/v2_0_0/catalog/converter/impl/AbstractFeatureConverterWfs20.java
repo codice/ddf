@@ -143,6 +143,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = null;
         Document doc = null;
+        Object gml = null;
         InputStream xmlIs = null;
 
         //Check if GML 3.2.1 namespace exist on XML chunk
@@ -155,46 +156,48 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
             LOGGER.error(XML_PARSE_FAILURE);
         }
 
-        String[] namePrefix = doc.getDocumentElement().getNodeName().split(":");
-        String prefix = "";
-        if (namePrefix.length < 2) {
-            LOGGER.debug("Incoming XML has no GML prefix");
-        } else {
-            prefix = ":" + namePrefix[0];
-        }
+        if(null != doc) {
+            String[] namePrefix = doc.getDocumentElement().getNodeName().split(":");
+            String prefix = "";
+            if (namePrefix.length < 2) {
+                LOGGER.debug("Incoming XML has no GML prefix");
+            } else {
+                prefix = ":" + namePrefix[0];
+            }
 
-        String xmlNs = doc.getDocumentElement().getAttribute("xmlns" + prefix);
-        if (xmlNs.equals(Wfs20Constants.GML_3_2_NAMESPACE)) {
-            LOGGER.warn("Namespace already exists.");
-        } else {
-            doc.createElementNS(Wfs20Constants.GML_3_2_NAMESPACE, doc.getDocumentElement().getNodeName());
+            String xmlNs = doc.getDocumentElement().getAttribute("xmlns" + prefix);
+            if (xmlNs.equals(Wfs20Constants.GML_3_2_NAMESPACE)) {
+                LOGGER.warn("Namespace already exists.");
+            } else {
+                doc.createElementNS(Wfs20Constants.GML_3_2_NAMESPACE,
+                        doc.getDocumentElement().getNodeName());
 
-        }
-        //Convert DOM to InputStream
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Source xmlSource = new DOMSource(doc);
-        Result outputTarget = new StreamResult(outputStream);
-        try {
-            TransformerFactory.newInstance().newTransformer().transform(xmlSource, outputTarget);
-        } catch (TransformerException|TransformerFactoryConfigurationError e) {
-            LOGGER.error(CREATE_TRANSFORMER_FAILURE);
-        }
+            }
+            //Convert DOM to InputStream
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            Source xmlSource = new DOMSource(doc);
+            Result outputTarget = new StreamResult(outputStream);
+            try {
+                TransformerFactory.newInstance().newTransformer().transform(xmlSource, outputTarget);
+            } catch (TransformerException | TransformerFactoryConfigurationError e) {
+                LOGGER.error(CREATE_TRANSFORMER_FAILURE);
+            }
 
-        xmlIs = new ByteArrayInputStream(outputStream.toByteArray());
+            xmlIs = new ByteArrayInputStream(outputStream.toByteArray());
 
-        //Parse XML into a Geometry object
-        Configuration configurationG = new org.geotools.gml3.v3_2.GMLConfiguration();
-        Parser parser = new org.geotools.xml.Parser(configurationG);
-        parser.setStrict(false);
-        parser.setValidating(false);
-        parser.setFailOnValidationError(false);
-        parser.setForceParserDelegate(false);
+            //Parse XML into a Geometry object
+            Configuration configurationG = new org.geotools.gml3.v3_2.GMLConfiguration();
+            Parser parser = new org.geotools.xml.Parser(configurationG);
+            parser.setStrict(false);
+            parser.setValidating(false);
+            parser.setFailOnValidationError(false);
+            parser.setForceParserDelegate(false);
 
-        Object gml = null;
-        try {
-            gml = parser.parse(xmlIs);
-        } catch (IOException|SAXException|ParserConfigurationException e) {
-            LOGGER.error("{} {}", GML_FAILURE, xml);
+            try {
+                gml = parser.parse(xmlIs);
+            } catch (IOException | SAXException | ParserConfigurationException e) {
+                LOGGER.error("{} {}", GML_FAILURE, xml);
+            }
         }
 
         return gml;
