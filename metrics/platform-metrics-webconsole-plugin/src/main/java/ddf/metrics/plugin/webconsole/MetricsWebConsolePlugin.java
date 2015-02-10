@@ -313,47 +313,62 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
     private void configureHttps(WebClient client) {
         LOGGER.debug("Configuring client for HTTPS");
         HTTPConduit conduit = WebClient.getConfig(client).getHttpConduit();
-        TLSClientParameters params = conduit.getTlsClientParameters();
+        if (null != conduit) {
+            TLSClientParameters params = conduit.getTlsClientParameters();
 
-        if (params == null) {
-            params = new TLSClientParameters();
-        }
+            if (params == null) {
+                params = new TLSClientParameters();
+            }
 
-        params.setDisableCNCheck(true);
+            params.setDisableCNCheck(true);
 
-        KeyStore keyStoreJks;
-        try {
-            keyStoreJks = KeyStore.getInstance("JKS");
+            KeyStore keyStoreJks;
+            FileInputStream tsFIS = null;
+            FileInputStream ksFIS = null;
+            try {
+                keyStoreJks = KeyStore.getInstance("JKS");
 
-            File trustStoreFile = new File(trustStore);
-            keyStoreJks.load(new FileInputStream(trustStoreFile), trustStorePassword.toCharArray());
-            TrustManagerFactory trustFactory = TrustManagerFactory.getInstance(TrustManagerFactory
-                    .getDefaultAlgorithm());
-            trustFactory.init(keyStoreJks);
-            TrustManager[] tm = trustFactory.getTrustManagers();
-            params.setTrustManagers(tm);
+                File trustStoreFile = new File(trustStore);
+                tsFIS = new FileInputStream(trustStoreFile);
+                keyStoreJks.load(tsFIS, trustStorePassword.toCharArray());
+                TrustManagerFactory trustFactory = TrustManagerFactory
+                        .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                trustFactory.init(keyStoreJks);
+                TrustManager[] tm = trustFactory.getTrustManagers();
+                params.setTrustManagers(tm);
 
-            File keyStoreFile = new File(keyStore);
-            keyStoreJks.load(new FileInputStream(keyStoreFile), keyStorePassword.toCharArray());
-            KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory
-                    .getDefaultAlgorithm());
-            keyFactory.init(keyStoreJks, keyStorePassword.toCharArray());
-            KeyManager[] km = keyFactory.getKeyManagers();
-            params.setKeyManagers(km);
+                File keyStoreFile = new File(keyStore);
+                ksFIS = new FileInputStream(keyStoreFile);
+                keyStoreJks.load(ksFIS, keyStorePassword.toCharArray());
+                KeyManagerFactory keyFactory = KeyManagerFactory
+                        .getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                keyFactory.init(keyStoreJks, keyStorePassword.toCharArray());
+                KeyManager[] km = keyFactory.getKeyManagers();
+                params.setKeyManagers(km);
 
-            conduit.setTlsClientParameters(params);
-        } catch (KeyStoreException e) {
-            handleKeyStoreException(e);
-        } catch (NoSuchAlgorithmException e) {
-            handleKeyStoreException(e);
-        } catch (CertificateException e) {
-            handleKeyStoreException(e);
-        } catch (FileNotFoundException e) {
-            handleKeyStoreException(e);
-        } catch (IOException e) {
-            handleKeyStoreException(e);
-        } catch (UnrecoverableKeyException e) {
-            handleKeyStoreException(e);
+                conduit.setTlsClientParameters(params);
+            } catch (KeyStoreException e) {
+                handleKeyStoreException(e);
+            } catch (NoSuchAlgorithmException e) {
+                handleKeyStoreException(e);
+            } catch (CertificateException e) {
+                handleKeyStoreException(e);
+            } catch (FileNotFoundException e) {
+                handleKeyStoreException(e);
+            } catch (IOException e) {
+                handleKeyStoreException(e);
+            } catch (UnrecoverableKeyException e) {
+                handleKeyStoreException(e);
+            } finally {
+                if (null != tsFIS) {
+                    IOUtils.closeQuietly(tsFIS);
+                }
+                if (null != ksFIS) {
+                    IOUtils.closeQuietly(ksFIS);
+                }
+            }
+        } else {
+            LOGGER.warn("HTTP Conduit returned by the web client was NULL.");
         }
     }
 
@@ -501,23 +516,25 @@ public class MetricsWebConsolePlugin extends AbstractWebConsolePlugin implements
 
     @Override
     public void configurationUpdateCallback(Map<String, String> configuration) {
-        servicesContextRoot = configuration.get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
-        String trustStoreLoc = configuration.get(ConfigurationManager.TRUST_STORE);
-        if (StringUtils.isNotBlank(trustStoreLoc)) {
-            trustStore = trustStoreLoc;
-            trustStorePassword = configuration.get(ConfigurationManager.TRUST_STORE_PASSWORD);
-        } else {
-            trustStore = TRUSTSTORE_DEFAULT_LOC;
-            trustStorePassword = TRUSTSTORE_DEFAULT_PASS;
-        }
+        synchronized (this) {
+            servicesContextRoot = configuration.get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
+            String trustStoreLoc = configuration.get(ConfigurationManager.TRUST_STORE);
+            if (StringUtils.isNotBlank(trustStoreLoc)) {
+                trustStore = trustStoreLoc;
+                trustStorePassword = configuration.get(ConfigurationManager.TRUST_STORE_PASSWORD);
+            } else {
+                trustStore = TRUSTSTORE_DEFAULT_LOC;
+                trustStorePassword = TRUSTSTORE_DEFAULT_PASS;
+            }
 
-        String keystoreLoc = configuration.get(ConfigurationManager.KEY_STORE);
-        if (StringUtils.isNotBlank(keystoreLoc)) {
-            keyStore = keystoreLoc;
-            keyStorePassword = configuration.get(ConfigurationManager.KEY_STORE_PASSWORD);
-        } else {
-            keyStore = KEYSTORE_DEFAULT_LOC;
-            keyStorePassword = KEYSTORE_DEFAULT_PASS;
+            String keystoreLoc = configuration.get(ConfigurationManager.KEY_STORE);
+            if (StringUtils.isNotBlank(keystoreLoc)) {
+                keyStore = keystoreLoc;
+                keyStorePassword = configuration.get(ConfigurationManager.KEY_STORE_PASSWORD);
+            } else {
+                keyStore = KEYSTORE_DEFAULT_LOC;
+                keyStorePassword = KEYSTORE_DEFAULT_PASS;
+            }
         }
     }
 }

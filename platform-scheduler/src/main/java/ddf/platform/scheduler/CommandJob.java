@@ -17,6 +17,7 @@ package ddf.platform.scheduler;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.felix.gogo.runtime.CommandNotFoundException;
 import org.apache.felix.service.command.CommandProcessor;
@@ -68,7 +69,8 @@ public class CommandJob implements Job {
                 try {
                     LOGGER.info("Executing command [{}]", commandInput);
                     commandSession.execute(commandInput);
-                    LOGGER.info("Execution Output: {}", byteArrayOutputStream.toString());
+                    LOGGER.info("Execution Output: {}", byteArrayOutputStream.toString(
+                            StandardCharsets.UTF_8.name()));
                 } catch (CommandNotFoundException e) {
                     LOGGER.info(
                             "Command could not be found. Make sure the command's library has been loaded and try again: {}",
@@ -134,7 +136,7 @@ public class CommandJob implements Job {
         return command;
     }
 
-    private class CommandException extends Exception {
+    private static class CommandException extends Exception {
 
     }
 }

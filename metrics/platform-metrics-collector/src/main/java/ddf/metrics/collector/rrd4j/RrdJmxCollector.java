@@ -23,8 +23,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -343,7 +348,7 @@ public class RrdJmxCollector implements JmxCollector {
      * called). If the RRD file already exists, then just create an RRD DB instance based on the
      * existing RRD file.
      * 
-     * @param path
+     * @param metricName
      *            path where the RRD file is to be created. This is required.
      * @param dsName
      *            data source name for the RRD file. This is required.
@@ -385,7 +390,9 @@ public class RrdJmxCollector implements JmxCollector {
         if (!file.exists()) {
             // Create necessary parent directories
             if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
+                if(!file.getParentFile().mkdirs()) {
+                    LOGGER.warn("Could not create parent file: {}", file.getParentFile().getAbsolutePath());
+                }
             }
 
             LOGGER.debug("Creating new RRD file {}", rrdPath);
@@ -540,10 +547,20 @@ public class RrdJmxCollector implements JmxCollector {
                                     now, lastUpdateTime, sampleSkipCount);
                         }
                     } catch (IllegalArgumentException iae) {
-                        LOGGER.error("Dropping sample of datasource " + rrdDataSourceName, iae);
+                        LOGGER.error("Dropping sample of datasource {}", rrdDataSourceName, iae);
                     }
-                } catch (Exception e) {
-                    LOGGER.warn("Problems getting MBean attribute " + mbeanAttributeName, e);
+                } catch (MalformedObjectNameException e) {
+                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
+                } catch (AttributeNotFoundException e) {
+                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
+                } catch (InstanceNotFoundException e) {
+                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
+                } catch (MBeanException e) {
+                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
+                } catch (ReflectionException e) {
+                    LOGGER.warn("Problems getting MBean attribute {}", mbeanAttributeName, e);
+                } catch (IOException e) {
+                    LOGGER.warn("Error updating RRD", e);
                 }
             }
         };

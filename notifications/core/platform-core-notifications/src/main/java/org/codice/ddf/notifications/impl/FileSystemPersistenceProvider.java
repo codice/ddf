@@ -65,7 +65,9 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         this.mapName = mapName;
         File dir = new File(getPersistencePath());
         if (!dir.exists()) {
-            dir.mkdir();
+            if (!dir.mkdir()) {
+               LOGGER.warn("Unable to create directory: {}", dir.getAbsolutePath());
+            }
         }
     }
 
@@ -95,7 +97,9 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         try {
             File dir = new File(getMapStorePath());
             if (!dir.exists()) {
-                dir.mkdir();
+                if (!dir.mkdir()) {
+                    LOGGER.warn("Unable to create directory: {}", dir.getAbsolutePath());
+                }
             }
             file = new FileOutputStream(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
             OutputStream buffer = new BufferedOutputStream(file);
@@ -120,7 +124,9 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
     public void delete(String key) {
         File file = new File(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
         if (file.exists()) {
-            file.delete();
+            if (!file.delete()) {
+                LOGGER.warn("File was unable to be deleted: {}", file.getAbsolutePath());
+            }
         }
     }
 
@@ -204,7 +210,9 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         File[] files = new File(getMapStorePath()).listFiles(getFilenameFilter());
         if (files != null) {
             for (File file : files) {
-                file.delete();
+                if (!file.delete()) {
+                    LOGGER.warn("File was unable to be deleted: {}", file.getAbsolutePath());
+                }
             }
         }
     }

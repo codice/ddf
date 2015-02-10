@@ -30,7 +30,7 @@ public class DescribeCommand extends PlatformCommands implements ConfigurationWa
     protected Object doExecute() throws Exception {
         TreeSet<String> keys = new TreeSet<String>(configurationMap.keySet());
         for (String key : keys) {
-            System.out.printf("%s=%s\n", key, configurationMap.get(key));
+            System.out.printf("%s=%s%n", key, configurationMap.get(key));
         }
         return null;
     }

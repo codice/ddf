@@ -99,19 +99,22 @@ public final class SecurityLogger {
      * Transform into formatted XML.
      */
     public static String getFormattedXml(Node node) {
-        Document document = node.getOwnerDocument().getImplementation()
-                .createDocument("", "fake", null);
-        Element copy = (Element) document.importNode(node, true);
-        document.importNode(node, false);
-        document.removeChild(document.getDocumentElement());
-        document.appendChild(copy);
-        DOMImplementation domImpl = document.getImplementation();
-        if (domImpl != null) {
-            DOMImplementationLS domImplLs = (DOMImplementationLS) domImpl.getFeature("LS", "3.0");
-            if (domImplLs != null) {
-                LSSerializer serializer = domImplLs.createLSSerializer();
-                serializer.getDomConfig().setParameter("format-pretty-print", true);
-                return serializer.writeToString(document);
+        DOMImplementation impl = node.getOwnerDocument().getImplementation();
+        if (null != impl) {
+            Document document = impl.createDocument("", "fake", null);
+            Element copy = (Element) document.importNode(node, true);
+            document.importNode(node, false);
+            document.removeChild(document.getDocumentElement());
+            document.appendChild(copy);
+            DOMImplementation domImpl = document.getImplementation();
+            if (domImpl != null) {
+                DOMImplementationLS domImplLs = (DOMImplementationLS) domImpl
+                        .getFeature("LS", "3.0");
+                if (domImplLs != null) {
+                    LSSerializer serializer = domImplLs.createLSSerializer();
+                    serializer.getDomConfig().setParameter("format-pretty-print", true);
+                    return serializer.writeToString(document);
+                }
             }
         }
         return "";
