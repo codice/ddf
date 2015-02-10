@@ -24,8 +24,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.junit.Test;
 
@@ -260,14 +262,16 @@ public class TestGeoJsonExtensible {
         assertEquals(DEFAULT_TYPE, metacard.getContentTypeName());
         assertEquals(DEFAULT_VERSION, metacard.getContentTypeVersion());
         assertEquals("<xml></xml>", metacard.getMetadata());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(GeoJsonInputTransformer.ISO_8601_DATE_FORMAT);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         assertEquals(DEFAULT_CREATED_DATE,
-                GeoJsonInputTransformer.ISO_8601_DATE_FORMAT.format(metacard.getCreatedDate()));
+                dateFormat.format(metacard.getCreatedDate()));
         assertEquals(DEFAULT_MODIFIED_DATE,
-                GeoJsonInputTransformer.ISO_8601_DATE_FORMAT.format(metacard.getModifiedDate()));
+                dateFormat.format(metacard.getModifiedDate()));
         assertEquals(DEFAULT_EXPIRATION_DATE,
-                GeoJsonInputTransformer.ISO_8601_DATE_FORMAT.format(metacard.getExpirationDate()));
+                dateFormat.format(metacard.getExpirationDate()));
         assertEquals(DEFAULT_EFFECTIVE_DATE,
-                GeoJsonInputTransformer.ISO_8601_DATE_FORMAT.format(metacard.getEffectiveDate()));
+                dateFormat.format(metacard.getEffectiveDate()));
         assertArrayEquals(DEFAULT_BYTES, metacard.getThumbnail());
         assertEquals(BasicTypes.BASIC_METACARD.getName(), metacard.getMetacardType().getName());
 

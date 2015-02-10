@@ -103,7 +103,9 @@ public class BundleProxyClassLoader extends ClassLoader {
             url = super.getResource(name);
         }
 
-        LOGGER.debug("name = {},   url = {}", name, url.toString());
+        if (null != url) {
+            LOGGER.debug("name = {},   url = {}", name, url.toString());
+        }
         LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
 
         return url;

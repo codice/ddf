@@ -130,7 +130,7 @@ public class MigrateCommand extends DuplicateCommands {
             final ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
                     multithreaded, 0L, TimeUnit.MILLISECONDS, blockingQueue,
                     rejectedExecutionHandler);
-            console.printf("Running %d threads during replication.\n", multithreaded);
+            console.printf("Running %d threads during replication.%n", multithreaded);
 
             do {
                 LOGGER.debug("In loop at iteration {}", queryIndex.get());
@@ -185,13 +185,13 @@ public class MigrateCommand extends DuplicateCommands {
             LOGGER.debug("Querying with startIndex: {}", startIndex);
             response = framework.query(queryRequest);
         } catch (UnsupportedQueryException e) {
-            printErrorMessage(String.format("Received error from Framework: %s\n", e.getMessage()));
+            printErrorMessage(String.format("Received error from Framework: %s%n", e.getMessage()));
             return null;
         } catch (SourceUnavailableException e) {
-            printErrorMessage(String.format("Received error from Frameworks: %s\n", e.getMessage()));
+            printErrorMessage(String.format("Received error from Frameworks: %s%n", e.getMessage()));
             return null;
         } catch (FederationException e) {
-            printErrorMessage(String.format("Received error from Frameworks: %s\n", e.getMessage()));
+            printErrorMessage(String.format("Received error from Frameworks: %s%n", e.getMessage()));
             return null;
         }
         if (response.getProcessingDetails() != null && !response.getProcessingDetails().isEmpty()) {
@@ -215,8 +215,11 @@ public class MigrateCommand extends DuplicateCommands {
 
         Map<ServiceReference<CatalogProvider>, CatalogProvider> map = new TreeMap<ServiceReference<CatalogProvider>, CatalogProvider>(
                 new ServiceComparator());
-        for (ServiceReference<CatalogProvider> serviceReference : serviceRefs) {
-            map.put(serviceReference, (CatalogProvider) st.getService(serviceReference));
+
+        if (null != serviceRefs) {
+            for (ServiceReference<CatalogProvider> serviceReference : serviceRefs) {
+                map.put(serviceReference, (CatalogProvider) st.getService(serviceReference));
+            }
         }
 
         return new ArrayList<CatalogProvider>(map.values());

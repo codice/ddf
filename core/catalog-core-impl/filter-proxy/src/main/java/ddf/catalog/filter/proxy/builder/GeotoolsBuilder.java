@@ -135,8 +135,11 @@ class GeotoolsBuilder {
             }
             break;
         case DURING_RELATIVE:
-            filter = factory.during(factory.property(attribute),
-                    factory.literal(new DefaultPeriodDuration(getValue(Long.class))));
+            Long longValue = getValue(Long.class);
+            if (null != value) {
+                filter = factory.during(factory.property(attribute),
+                        factory.literal(new DefaultPeriodDuration(longValue)));
+            }
             break;
         case EQ:
             filter = factory.equals(factory.property(attribute), factory.literal(value));

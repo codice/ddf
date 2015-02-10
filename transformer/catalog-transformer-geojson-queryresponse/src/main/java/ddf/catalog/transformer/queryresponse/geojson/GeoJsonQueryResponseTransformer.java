@@ -16,6 +16,7 @@ package ddf.catalog.transformer.queryresponse.geojson;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import javax.activation.MimeType;
@@ -97,7 +98,7 @@ public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer
         String jsonText = JSONValue.toJSONString(rootObject);
 
         return new ddf.catalog.data.BinaryContentImpl(
-                new ByteArrayInputStream(jsonText.getBytes()), DEFAULT_MIME_TYPE);
+                new ByteArrayInputStream(jsonText.getBytes(StandardCharsets.UTF_8)), DEFAULT_MIME_TYPE);
     }
 
     public static JSONObject convertToJSON(Result result) throws CatalogTransformerException {

@@ -53,7 +53,10 @@ public class GeometryCollection extends MultiPolygon {
             List<Map> listOfGeometries = new ArrayList<Map>();
 
             for (int i = 0; i < geometry.getNumGeometries(); i++) {
-                listOfGeometries.add(getCompositeGeometry(geometry.getGeometryN(i)).toJsonMap());
+                CompositeGeometry compositeGeo = getCompositeGeometry(geometry.getGeometryN(i));
+                if(null != compositeGeo) {
+                    listOfGeometries.add(compositeGeo.toJsonMap());
+                }
             }
 
             map.put(GEOMETRIES_KEY, listOfGeometries);
@@ -71,12 +74,15 @@ public class GeometryCollection extends MultiPolygon {
 
         List<Position> positions = new ArrayList<Position>();
 
-        for (int i = 0; i < geometry.getNumGeometries(); i++) {
+        if(null != geometry) {
+            for (int i = 0; i < geometry.getNumGeometries(); i++) {
+                CompositeGeometry compositeGeo = CompositeGeometry
+                        .getCompositeGeometry(geometry.getGeometryN(i));
 
-            CompositeGeometry compositeGeo = CompositeGeometry.getCompositeGeometry(geometry
-                    .getGeometryN(i));
-
-            positions.addAll(compositeGeo.toGeoRssPositions());
+                if(null != compositeGeo) {
+                    positions.addAll(compositeGeo.toGeoRssPositions());
+                }
+            }
         }
 
         return positions;

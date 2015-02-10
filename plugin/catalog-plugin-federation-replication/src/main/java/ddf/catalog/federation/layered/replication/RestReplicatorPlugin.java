@@ -15,6 +15,7 @@
 package ddf.catalog.federation.layered.replication;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.ws.rs.core.MediaType;
@@ -192,7 +193,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
         try {
             binaryContent = transformer.transform(m, null);
             client.type(getValidMimeType(binaryContent.getMimeTypeValue()));
-            return new String(binaryContent.getByteArray());
+            return new String(binaryContent.getByteArray(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.warn("Could not understand metacard.", e);
             throw new PluginExecutionException("Could not send metacard.");

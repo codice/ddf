@@ -430,7 +430,7 @@ public class ReliableResourceDownloader implements Runnable {
                 }
             }
 
-            if (!DownloadStatus.RESOURCE_DOWNLOAD_COMPLETE.equals(reliableResourceStatus
+            if (null != reliableResourceStatus && !DownloadStatus.RESOURCE_DOWNLOAD_COMPLETE.equals(reliableResourceStatus
                     .getDownloadStatus())) {
                 if (doCaching) {
                     deleteCacheFile(fos);

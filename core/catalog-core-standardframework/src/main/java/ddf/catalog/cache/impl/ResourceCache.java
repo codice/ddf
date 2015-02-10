@@ -136,8 +136,9 @@ public class ResourceCache implements ResourceCacheInterface {
                 }
             } else {
                 MapStoreConfig mapStoreConfig = mapConfig.getMapStoreConfig();
-                LOGGER.debug("mapStoreConfig factoryClassName = {}",
-                        mapStoreConfig.getFactoryClassName());
+                if (null != mapStoreConfig) {
+                    LOGGER.debug("mapStoreConfig factoryClassName = {}", mapStoreConfig.getFactoryClassName());
+                }
             }
         }
 

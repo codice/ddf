@@ -81,7 +81,11 @@ public class ReliableResource implements Resource, Serializable {
     @Override
     public byte[] getByteArray() throws IOException {
         try (InputStream product = getProduct()) {
-            return IOUtils.toByteArray(product);
+            if (null != product) {
+                return IOUtils.toByteArray(product);
+            } else {
+                throw new IOException("Cannot get byte array of null Product");
+            }
         }
     }
 

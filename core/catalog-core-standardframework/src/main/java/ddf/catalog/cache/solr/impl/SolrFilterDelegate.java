@@ -500,11 +500,14 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                 pnt = geo.getCentroid();
             }
 
-            String nearestNeighborQuery = geoPointToCircleQuery(propertyName,
-                    NEAREST_NEIGHBOR_DISTANCE_LIMIT, pnt);
+            SolrQuery query = null;
+            if(null != pnt) {
+                String nearestNeighborQuery = geoPointToCircleQuery(propertyName,
+                        NEAREST_NEIGHBOR_DISTANCE_LIMIT, pnt);
 
-            return getSolrQueryWithSort(nearestNeighborQuery);
-
+                query = getSolrQueryWithSort(nearestNeighborQuery);
+            }
+            return query;
         } else {
             throw new UnsupportedOperationException("Unable to read given WKT: " + wkt);
         }

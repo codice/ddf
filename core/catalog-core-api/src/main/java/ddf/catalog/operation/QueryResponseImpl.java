@@ -211,10 +211,8 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
                         "Cannot add new Results after the Queue has been closed");
             } else {
                 if (closeQueue) {
-                    synchronized (queue) {
-                        queue.add(result);
-                        closeResultQueue();
-                    }
+                    queue.add(result);
+                    closeResultQueue();
                 } else {
                     queue.add(result);
                 }
@@ -240,10 +238,8 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
                         "Cannot add new Results after the Queue has been closed");
             } else {
                 if (closeQueue) {
-                    synchronized (queue) {
-                        queue.addAll(results);
-                        closeResultQueue();
-                    }
+                    queue.addAll(results);
+                    closeResultQueue();
                 } else {
                     queue.addAll(results);
                 }

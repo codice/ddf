@@ -18,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -94,8 +95,8 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
                     synchronized (factory) {
                         builder = factory.newDocumentBuilder();
                     }
-                    anyElement = builder.parse(new ByteArrayInputStream(xmlString.getBytes()))
-                            .getDocumentElement();
+                    anyElement = builder.parse(new ByteArrayInputStream(xmlString.getBytes(
+                            StandardCharsets.UTF_8))).getDocumentElement();
                 } catch (ParserConfigurationException e) {
                     throw new CatalogTransformerException(TRANSFORMATION_FAILED_ERROR_MESSAGE, e);
                 } catch (SAXException e) {

@@ -89,8 +89,8 @@ public class TemporalPredicate implements Predicate {
         }
 
         Metacard entry = (Metacard) properties.getProperty(PubSubConstants.HEADER_ENTRY_KEY);
-        LOGGER.debug("entry id: {}", entry.getId());
         if (entry != null) {
+            LOGGER.debug("entry id: {}", entry.getId());
 
             switch (this.type) {
             case modified:

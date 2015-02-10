@@ -245,11 +245,14 @@ public class IngestCommand extends CatalogCommands {
     private int getFileCount(File dir) {
         int count = 0;
 
-        for (File file : dir.listFiles()) {
-            if (file.isDirectory()) {
-                count += getFileCount(file);
-            } else {
-                count++;
+        File[] files = dir.listFiles();
+        if (null != files) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    count += getFileCount(file);
+                } else {
+                    count++;
+                }
             }
         }
 

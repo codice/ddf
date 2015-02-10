@@ -269,7 +269,7 @@ public class DumpCommand extends CatalogCommands {
 
         long end = System.currentTimeMillis();
         String elapsedTime = timeFormatter.print(new Period(start, end).withMillis(0));
-        console.printf(" %d file(s) dumped in %s\t\n", resultCount.get(), elapsedTime);
+        console.printf(" %d file(s) dumped in %s\t%n", resultCount.get(), elapsedTime);
         LOGGER.info("{} file(s) dumped in {}", resultCount.get(), elapsedTime);
         console.println();
 

@@ -163,11 +163,11 @@ public class ContextualPredicate implements Predicate {
      * @return a search phrase aligned to Lucene syntax
      */
     public static String normalizePhrase(String inputPhrase, boolean isFuzzy) {
-        String phrase = inputPhrase.trim();
-        String parts[] = phrase.split("\"");
-        LOGGER.debug("phrase = [{}]    parts.length = {}", phrase, parts.length);
-
+        String phrase = "";
         if (inputPhrase != null && !inputPhrase.equals("")) {
+            phrase = inputPhrase.trim();
+            String parts[] = phrase.split("\"");
+            LOGGER.debug("phrase = [{}]    parts.length = {}", phrase, parts.length);
             // if multiple parts found, then exact (quoted) phrases are present
             if (parts.length > 1) {
                 // Odd parts are in quotes, i.e., exact (quoted) phrases, so skip them
@@ -190,12 +190,13 @@ public class ContextualPredicate implements Predicate {
                     }
                 }
 
-                phrase = "";
+                StringBuilder phraseBuilder = new StringBuilder("");
                 for (int i = 0; i < parts.length; i++) {
-                    phrase = phrase + parts[i];
+                    phraseBuilder.append(parts[i]);
                     if (i < (parts.length - 1))
-                        phrase = phrase + "\"";
+                        phraseBuilder.append("\"");
                 }
+                phrase = phraseBuilder.toString();
             } else {
                 LOGGER.debug("parts.length <= 1:  phrase = {}", phrase);
                 phrase = normalizeBooleanOperators(phrase);

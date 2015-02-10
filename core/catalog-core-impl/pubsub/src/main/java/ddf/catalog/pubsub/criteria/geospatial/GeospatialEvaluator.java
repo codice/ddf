@@ -18,6 +18,7 @@ package ddf.catalog.pubsub.criteria.geospatial;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -233,8 +234,8 @@ public class GeospatialEvaluator {
         String methodName = "supportSRSName";
         LOGGER.debug("ENTERING: {}", methodName);
 
-        if (gml.indexOf(METADATA_DOD_MIL_CRS_WGS84E_2D) != -1) {
-            gml = gml.replaceAll(METADATA_DOD_MIL_CRS_WGS84E_2D, EPSG_4326);
+        if (gml.contains(METADATA_DOD_MIL_CRS_WGS84E_2D)) {
+            gml = gml.replaceAll(Pattern.quote(METADATA_DOD_MIL_CRS_WGS84E_2D), EPSG_4326);
         }
 
         LOGGER.debug("EXITING: {}  --  gml = {}", methodName, gml);

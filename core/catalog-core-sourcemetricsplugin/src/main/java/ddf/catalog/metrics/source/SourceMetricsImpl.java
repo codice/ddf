@@ -179,35 +179,37 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
         LOGGER.trace("ENTERING: process (for PostFederatedQueryPlugin)");
 
-        Set<ProcessingDetails> processingDetails = input.getProcessingDetails();
-        List<Result> results = input.getResults();
+        if(null != input) {
+            Set<ProcessingDetails> processingDetails = input.getProcessingDetails();
+            List<Result> results = input.getResults();
 
-        // Total Exceptions metric per Source
-        Iterator<ProcessingDetails> iterator = processingDetails.iterator();
-        while (iterator.hasNext()) {
-            ProcessingDetails next = iterator.next();
-            if (next != null && next.getException() != null) {
-                String sourceId = next.getSourceId();
-                updateMetric(sourceId, EXCEPTIONS_SCOPE, 1);
+            // Total Exceptions metric per Source
+            Iterator<ProcessingDetails> iterator = processingDetails.iterator();
+            while (iterator.hasNext()) {
+                ProcessingDetails next = iterator.next();
+                if (next != null && next.getException() != null) {
+                    String sourceId = next.getSourceId();
+                    updateMetric(sourceId, EXCEPTIONS_SCOPE, 1);
+                }
             }
-        }
 
-        Map<String, Integer> totalHitsPerSource = new HashMap<String, Integer>();
+            Map<String, Integer> totalHitsPerSource = new HashMap<String, Integer>();
 
-        for (Result result : results) {
-            String sourceId = result.getMetacard().getSourceId();
-            if (totalHitsPerSource.containsKey(sourceId)) {
-                totalHitsPerSource.put(sourceId, totalHitsPerSource.get(sourceId) + 1);
-            } else {
-                // First detection of this new source ID in the results list -
-                // initialize the Total Query Result Count for this Source
-                totalHitsPerSource.put(sourceId, 1);
+            for (Result result : results) {
+                String sourceId = result.getMetacard().getSourceId();
+                if (totalHitsPerSource.containsKey(sourceId)) {
+                    totalHitsPerSource.put(sourceId, totalHitsPerSource.get(sourceId) + 1);
+                } else {
+                    // First detection of this new source ID in the results list -
+                    // initialize the Total Query Result Count for this Source
+                    totalHitsPerSource.put(sourceId, 1);
+                }
             }
-        }
 
-        // Total Query Results metric per Source
-        for (String sourceId : totalHitsPerSource.keySet()) {
-            updateMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, totalHitsPerSource.get(sourceId));
+            // Total Query Results metric per Source
+            for (Map.Entry<String, Integer> source : totalHitsPerSource.entrySet()) {
+                updateMetric(source.getKey(), QUERIES_TOTAL_RESULTS_SCOPE, source.getValue());
+            }
         }
 
         LOGGER.trace("EXITING: process (for PostFederatedQueryPlugin)");
@@ -468,11 +470,11 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
         // Given sourceId = dib30rhel-58 and collectorName = Queries.TotalResults
         // The resulting RRD filename would be: sourceDib30rhel58QueriesTotalResults
         String[] sourceIdParts = sourceId.split(ALPHA_NUMERIC_REGEX);
-        String newSourceId = "";
+        StringBuilder newSourceIdBuilder = new StringBuilder("");
         for (String part : sourceIdParts) {
-            newSourceId += StringUtils.capitalize(part);
+            newSourceIdBuilder.append(StringUtils.capitalize(part));
         }
-        String rrdPath = "source" + newSourceId + collectorName;
+        String rrdPath = "source" + newSourceIdBuilder.toString() + collectorName;
         LOGGER.debug("BEFORE: rrdPath = " + rrdPath);
 
         // Sterilize RRD path name by removing any non-alphanumeric characters - this would confuse
@@ -522,7 +524,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
      * @author rodgersh
      * 
      */
-    public class SourceMetric {
+    public static class SourceMetric {
 
         // The Yammer Metric
         private Metric metric;

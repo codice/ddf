@@ -59,7 +59,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
 
     protected AtomicInteger failedCount = new AtomicInteger(0);
 
-    private static final SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+    private static final String DATE_FORMAT = "MM-dd-yyyy";
 
     @Option(name = "--batchsize", required = false, aliases = {"-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
     int batchSize = MAX_BATCH_SIZE;
@@ -146,15 +146,15 @@ public abstract class DuplicateCommands extends CatalogCommands {
             createResponse = provider.create(createRequest);
             createdMetacards = createResponse.getCreatedMetacards();
         } catch (IngestException e) {
-            printErrorMessage(String.format("Received error while ingesting: %s\n", e.getMessage()));
+            printErrorMessage(String.format("Received error while ingesting: %s%n", e.getMessage()));
             LOGGER.warn("Error during ingest. Attempting to ingest batch individually.");
             return ingestSingly(provider, metacards);
         } catch (SourceUnavailableException e) {
-            printErrorMessage(String.format("Received error while ingesting: %s\n", e.getMessage()));
+            printErrorMessage(String.format("Received error while ingesting: %s%n", e.getMessage()));
             LOGGER.warn("Error during ingest:", e);
             return createdMetacards;
         } catch (Exception e) {
-            printErrorMessage(String.format("Unexpected Exception received while ingesting: %s\n", e.getMessage()));
+            printErrorMessage(String.format("Unexpected Exception received while ingesting: %s%n", e.getMessage()));
             LOGGER.warn("Unexpected Exception during ingest:", e);
             return createdMetacards;
         }
@@ -190,6 +190,9 @@ public abstract class DuplicateCommands extends CatalogCommands {
         if (builder == null) {
             builder = getFilterBuilder();
         }
+
+        SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+
         if (StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {
             return builder.attribute(temporalProperty).is().during()
                     .dates(formatter.parse(startDate), formatter.parse(endDate));

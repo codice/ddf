@@ -23,10 +23,12 @@ import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -179,8 +181,7 @@ public class TestGeoJsonQueryResponseTransformer {
         }
     }
 
-    private void verifyResult(@SuppressWarnings("rawtypes")
-    Map result) {
+    private void verifyResult(@SuppressWarnings("rawtypes") Map result) {
         assertThat(toString(result.get("relevance")), is(Double.toString(DEFAULT_RELEVANCE)));
         @SuppressWarnings("rawtypes")
         Map metacard = (Map) result.get("metacard");
@@ -192,12 +193,14 @@ public class TestGeoJsonQueryResponseTransformer {
         assertThat(toString(properties.get(Metacard.TITLE)), is(DEFAULT_TITLE));
         assertThat(toString(properties.get(Metacard.CONTENT_TYPE)), is(DEFAULT_TYPE));
         assertThat(toString(properties.get(Metacard.CONTENT_TYPE_VERSION)), is(DEFAULT_VERSION));
+        SimpleDateFormat dateFormat = new SimpleDateFormat(GeoJsonMetacardTransformer.ISO_8601_DATE_FORMAT);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         assertThat(toString(properties.get(Metacard.CREATED)),
-                is(GeoJsonMetacardTransformer.ISO_8601_DATE_FORMAT.format(now)));
+                is(dateFormat.format(now)));
         assertThat(toString(properties.get(Metacard.EXPIRATION)), nullValue());
         assertThat(toString(properties.get(Metacard.EFFECTIVE)), nullValue());
         assertThat(toString(properties.get(Metacard.MODIFIED)),
-                is(GeoJsonMetacardTransformer.ISO_8601_DATE_FORMAT.format(now)));
+                is(dateFormat.format(now)));
         assertThat(toString(properties.get(Metacard.THUMBNAIL)), is("CA=="));
         assertThat(toString(properties.get(Metacard.METADATA)), is(DEFAULT_XML));
         assertThat(toString(properties.get(Metacard.RESOURCE_URI)), is(DEFAULT_URI));

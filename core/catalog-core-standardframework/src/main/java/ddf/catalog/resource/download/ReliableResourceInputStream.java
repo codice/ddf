@@ -129,7 +129,10 @@ public class ReliableResourceInputStream extends InputStream {
         int byteRead = 0;
         try (InputStream is = fbosByteSource.openStream()) {
             if (countingFbos.getCount() > fbosBytesRead) {
-                is.skip(fbosBytesRead);
+                long skipped = is.skip(fbosBytesRead);
+                if (skipped != fbosBytesRead) {
+                    throw new IOException("Tried to skip " + fbosBytesRead + " bytes but actually skipped " + skipped + " bytes");
+                }
                 byteRead = is.read();
                 fbosBytesRead++;
             }
@@ -229,7 +232,10 @@ public class ReliableResourceInputStream extends InputStream {
     private int readFromFbosInputStream(byte[] b, int off, int len) throws IOException {
         int numBytesRead;
         try (InputStream is = fbosByteSource.openStream()) {
-            is.skip(fbosBytesRead);
+            long skipped = is.skip(fbosBytesRead);
+            if (skipped != fbosBytesRead) {
+               throw new IOException("Tried to skip " + fbosBytesRead + " bytes but actually skipped " + skipped + " bytes");
+            }
             numBytesRead = is.read(b, off, len);
             LOGGER.trace("numBytesRead = {}", numBytesRead);
             if (numBytesRead > 0) {

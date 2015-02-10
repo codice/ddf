@@ -60,7 +60,10 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         this.mapName = mapName;
         File dir = new File(PERSISTENCE_PATH);
         if (!dir.exists()) {
-            dir.mkdir();
+            boolean success = dir.mkdir();
+            if (!success) {
+                LOGGER.error("Could not make directory: {}", dir.getAbsolutePath());
+            }
         }
     }
 
@@ -82,7 +85,10 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         try {
             File dir = new File(getMapStorePath());
             if (!dir.exists()) {
-                dir.mkdir();
+                boolean success = dir.mkdir();
+                if (!success) {
+                    LOGGER.error("Could not make directory: {}", dir.getAbsolutePath());
+                }
             }
             LOGGER.debug("file name: {}{}{}", getMapStorePath(), key, SER);
             file = new FileOutputStream(getMapStoreFile(key));
@@ -106,8 +112,8 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
 
     @Override
     public void storeAll(Map<String, Object> keyValueMap) {
-        for (String key : keyValueMap.keySet()) {
-            store(key, keyValueMap.get(key));
+        for (Map.Entry<String, Object> entry : keyValueMap.entrySet()) {
+            store(entry.getKey(), entry.getValue());
         }
     }
 
@@ -115,7 +121,10 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
     public void delete(String key) {
         File file = getMapStoreFile(key);
         if (file.exists()) {
-            file.delete();
+            boolean success = file.delete();
+            if (!success) {
+               LOGGER.error("Could not delete file {}", file.getAbsolutePath());
+            }
         }
     }
 
@@ -197,8 +206,13 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
 
     public void clear() {
         File[] files = new File(getMapStorePath()).listFiles(getFilenameFilter());
-        for (File file : files) {
-            file.delete();
+        if(null != files) {
+            for (File file : files) {
+                boolean success = file.delete();
+                if (!success) {
+                    LOGGER.error("Could not delete file {}", file.getAbsolutePath());
+                }
+            }
         }
     }
 

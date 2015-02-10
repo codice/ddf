@@ -212,8 +212,6 @@ public final class ContextualEvaluator {
         // The same analyzer should be used for indexing and searching
 //        StandardAnalyzer standardAnalyzer = new StandardAnalyzer(Version.LUCENE_30);
         ContextualAnalyzer contextualAnalyzer = new ContextualAnalyzer(Version.LUCENE_30);
-        CaseSensitiveContextualAnalyzer caseSensitiveStandardAnalyzer = new CaseSensitiveContextualAnalyzer(
-                Version.LUCENE_30);
 
         // 1. create the index
         Directory index = new RAMDirectory();
@@ -235,6 +233,9 @@ public final class ContextualEvaluator {
         // "case-insensitive" field name
         addDoc(indexWriter, FIELD_NAME, indexableText);
         indexWriter.close();
+
+        CaseSensitiveContextualAnalyzer caseSensitiveStandardAnalyzer = new CaseSensitiveContextualAnalyzer(
+                Version.LUCENE_30);
 
         // Create a second IndexWriter using the custom case-sensitive StandardAnalyzer
         // NOTE: set boolean to false to append the case-sensitive indexed text to the existing
