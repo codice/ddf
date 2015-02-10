@@ -25,7 +25,7 @@ define([
 
         var FacetItemView = Marionette.ItemView.extend({
             template: 'facetItemTemplate',
-            tagName: 'tr',
+            tagName: 'div',
             events: {
                 'click .remove-facet': 'removeClicked',
                 'click .add-facet': 'addClicked',

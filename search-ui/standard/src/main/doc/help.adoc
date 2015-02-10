@@ -1,0 +1,382 @@
+= Standard Search UI Help
+:imagesdir: ./images
+:toc: right
+:branding: DDF
+
+////
+ Copyright (c) Codice Foundation
+ 
+ This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ General Public License as published by the Free Software Foundation, either version 3 of the
+ License, or any later version.
+ 
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ Lesser General Public License for more details. A copy of the GNU Lesser General Public License is
+ distributed along with this program and can be found at <http://www.gnu.org/licenses/lgpl.html>.
+
+////
+
+== Overview
+
+The {branding} Standard Search UI application allows a user to search for records in the local
+Catalog (provider) and federated sources. Results of the search are returned in HTML format and are
+displayed on a globe, providing a visual representation of where the records were found.
+
+Located at the bottom of the left pane of the Search UI are two tabs: <<Search>> and
+<<Workspaces>>. The Search tab contains basic fields to query the Catalog and other sources. The
+workspaces feature uses the same search criteria that are provided in the Search tab, and it also
+allows the user to create custom searches that can be saved for later execution. The right-side
+pane displays a map that, when records are found, shows the location of where the record was
+retrieved.
+
+== Search
+
+The Standard Search UI allows users to search for records in the local Catalog and federated
+sources based on the criteria entered in the Search tab. After a search is executed, the UI
+provides results based on the defined criteria and detailed information about each result.
+Additionally, a user can save individual records that were returned by the query to a workspace, so
+they can be referenced in the future. The user can also save the search criteria to a workspace so
+the query can be run again.
+
+== Search Criteria
+
+The Search UI queries a Catalog using the following criteria.
+
+[cols="1,6", options="header"]
+|===
+|Criteria	
+|Description
+
+|Keywords	
+|Search by free text using the grammar of the underlying endpoint/Catalog.
+
+|Time	
+|Search based on relative or absolute time of the created, modified, or effective date.
+
+|Location	
+|Search by latitude/longitude or the USNG using a point-radius or bounding box.
+
+|Type	
+|Search for specific Metacard.CONTENT_TYPE values.
+
+|Sorting	
+|Sort results by relevance, distance, created time, modified time or effective time.
+
+|Addtional Sources	
+|Select *All Sources* or *Specific Sources*.
+
+|All Sources	
+|Create an enterprise search. All federations are queried.
+
+|Specific Sources	
+|Search a specific source(s). If a source is unavailable, it is displayed in red text.
+
+|===
+
+image:search-form.png[Search criteria]
+
+== Results
+
+After a query is executed, the records matching the search criteria are automatically displayed in
+the Results pane.
+
+[cols="1,6", options="header"]
+|===
+
+|Item	
+|Description
+
+|image:result-status-toggle.png[Search criteria]
+|Enhanced search toggle. Enables the enhanced search menu (see below). Allows users to filter and
+ refine search and build more sophisticated queries.
+
+|Results	
+|The number of records that were returned as a result of the query. Only the top 250 results are
+ displayed, with the most relevant records displayed at the top of the list. If more than 250
+ results are returned, try narrowing the search criteria.
+
+|Search button	
+|Navigates back to the Search pane.
+
+|Save button	
+|Allows the user to select individual records to save.
+
+|Records list	
+|Shows the results of the search. The following information is displayed for each record:
+
+Title – The title of the record is displayed in blue text. Select the title of the record to view
+more details.
+
+Source – The gray text displayed below the record title is the data source (e.g., ddf.distribution)
+and the amount of time that has passed since the record was created (e.g., an hour ago).
+
+Refresh button	Refreshes the list of results. The most relevant records continue to be displayed
+at the top of the results list.
+
+|===
+
+image:results-list.png[Search results]
+
+== Enhanced Search
+
+The enhanced search menu allows more granular filtering of results and the ability to construct
+sophisticated queries.
+
+[cols="1,6", options="header"]
+|===
+
+|Item	
+|Description
+
+|Source	
+|List of all sources searched with check boxes to allow users to refine searches to the most
+ relevant sources.
+
+|Metadata Content Type	
+|List of metadata content types found in the search, with the ability to select and deselect
+ content type.
+
+|Query	
+|The Query builder enables users to construct a very granular search query.
+ The first drop down menu contains the metadata elements in the search results, and the second
+ contains operators based on the field selected (greater than, equals, contains, before, after,
+ etc.)  Click the + to add further constraints to the query, or x to remove.
+ Click Search to use the new query.
+
+|Search button	
+|Executes enhanced search on new parameters specified or query built above.
+|===
+
+image:results-filters.png[Enhanced Search]
+
+== Record Summary
+
+When an individual record is selected in the results list, the Record pane opens. When the Summary
+button is selected in the Record pane, the following information is displayed.
+
+[cols="1,6", options="header"]
+|===
+
+|Item	
+|Description
+
+|Results button	
+|Navigates back to the original query results list.
+
+|Up and down arrows	
+|Navigate through the records that were returned in the search. When the end or the beginning of
+ the search results list is reached, the respective up or down arrow is disabled.
+
+|Details button	
+|Opens the <<Record Details, Details>> tab, which displays more information about the record.
+
+|Title	
+|The title of the record is displayed in white font.
+
+|Source	
+|The location that the metadata came from, which could be the local provider or a federated source.
+
+|Created time	
+|When the record was created.
+
+|Modified time	
+|Time since the record was last modified.
+
+|Locate button	
+|Centers the map on the record's originating location.
+
+|Thumbnail	
+|Depicts a reduced-size image of the original artifact for the current record, if available.
+
+|Download	
+|A link to download the record. The size, if known, is indicated.
+|===
+
+image:record-summary.png[Record summary]
+
+== Record Details
+
+When an individual record is selected in the results list, the Record pane opens. When the Details
+button is selected in the Record pane, the following information is displayed.
+
+[cols="1,6", options="header"]
+|===
+
+|Item	
+|Description
+
+|Results button	
+|Navigates back to the original query results list.
+
+|Up and down arrows	
+|Navigate through the records that were returned in the search. When the end or the beginning of
+ the search results list is reached, the respective up or down arrow is disabled.
+
+|Summary button	
+|Opens the Summary tab, which provides a high level overview of the result set.
+
+|Id	
+|The record's unique identifier.
+
+|Source Id	
+|Where the metadata was retrieved from, which could be the local provider or a federated source.
+
+|Title	
+|The title of the record is displayed in white font.
+
+|Thumbnail	
+|Depicts a reduced size image of the original artifact for the current record, if available.
+
+|Resource URI	
+|Identifies the stored resource within the server.
+
+|Created time	
+|When the record was created.
+
+|Metacard Content Type version	
+|The version of the metadata associated with the record.
+
+|Metacard Type	
+|The type of metacard associated with the record.
+
+|Metacard Content Type	
+|The type of the metadata associated with the record.
+
+|Resource size	
+|The size of the resource, if available.
+
+|Modified	
+|Time since the record was last modified.
+
+|Download	
+|When applicable, a download link for the product associated with the record is displayed. The size
+ of the product is also displayed, if available. If the size is not available, N/A is displayed.
+
+|Metadata	
+|Shows a representation of the metadata XML, if available.
+|===
+
+image:record-details.png[Record details]
+
+== Actions
+
+Depending on the contents of the metacard, various actions will be available to perform on the
+metadata.
+
+Troubleshooting: if no actions are available, ensure IP address is configured correctly under
+global configuration in Admin Console.
+
+image:record-actions.png[Actions]
+
+== Save a Search
+
+Saved searches are search criteria that are created and saved by a user. Each saved search has a
+name that was defined by the user, and the search can be executed at a later time or be scheduled
+for execution. Saved records (metacards) that the user elected to save for future use are returned
+as part of a search. These queries can be saved to a <<Workspaces, workspace>>, which is a
+collection of searches and metacards created by a user. Complete the following procedure to create
+a saved search.
+
+. Select the Search tab at the bottom of the left pane.
+. Use the fields provided to define the <<search criteria>> for the query to be saved.
+. Select the *Save* button. The Select Workspace pane opens.
+. Type a name for the query in the *ENTER NAME FOR SEARCH* field.
+. Select a workspace in which to save the query, or create a workspace by typing a title for the
+  new workspace in the *New Workspace* field.
+  image:search-save.png[New workspace]
+
+. Select the Save button.
+
+
+[NOTE]
+====
+The size of the product is based on the value in the associated metacard's resource-size attribute.
+This is defined when the metacard was originally created and may or may not be accurate. Often it
+will be set to N/A, indicating that the size is unknown or not applicable.
+
+However, if the administrator has enabled caching on {branding} and has installed the
+catalog-core-resourcesizeplugin PostQuery Plugin, and if the product has been retrieved, it has
+been cached and the size of the product can be determined based on the cached file's size.
+Therefore, subsequent query results that include that product will display an accurate size under
+the download link.
+====
+
+== Workspaces
+
+Each user can create multiple workspaces and assign each of them a descriptive name. Each workspace
+can contain multiple <<Save a Search, saved searches>> and contain multiple saved records
+(metacards). Workspaces are saved for each user and are loaded when the user logs in. Workspaces
+and their contents are persisted, so they survive if {branding} is restarted. Currently, workspaces
+are private and cannot be viewed by other users.
+
+=== Create a Workspace
+
+. Select the Workspaces tab at the bottom of the Search UI's left pane. The Workspaces pane opens,
+  which displays the existing workspaces that were created by the user. At the top of the pane, an
+  option to *Add* and an option to *Edit* are displayed.
+. Select the *Add* button at the top of the left pane. A new workspace is created.
+. In the *Workspace Name* field, enter a descriptive name for the workspace.
+  image:workspace-add.png[Enhanced Search]
+
+. Select the *Add* button. The Workspaces pane opens, which now displays the new workspace and any
+  existing workspaces.
+. Select the name of the new workspace. The data (i.e., saved searches and records) for the
+  selected workspace is displayed in the Workspace pane.
+. Select the + icon near the top of the Workspace pane to begin adding queries to the workspace.
+  The Add/Edit Search pane opens.
+. Enter a name for the new query to be saved in the QUERY NAME field.
+. Complete the rest of the <<search criteria>>.
+  image:workspace-query.png[complete search criteria]
+
+. Select the *Save & Search* button. The Search UI begins searching for records matching the
+  criteria, and the new query is saved to the workspace. When the search is complete, the
+  Workspace pane opens.
+. Select the name of the search to view the query results.
+  image:workspace-list.png[]
+. If necessary, in the Workspace pane, select the *Edit* button then select the pencil
+  (image:workspace-edit-search.png[]) icon next to the name of a query to change the search
+  criteria.
+. If necessary, in the Workspace pane, select the delete (image:workspace-remove-search.png[]) icon
+  next to the name of a query to delete the query from the workspace.
+  image:workspace-edit.png[]
+
+== Notifications
+
+The Standard Search UI receives all notifications from {branding}. These notifications appear as
+pop-up windows inside the Search UI to alert the user of an event of interest. To view all
+notifications, select the notification (image:notification-icon.png[Notification icon]) icon.
+
+Currently, the notifications provide information about product retrieval only. After a user
+initiates a resource download, they receive periodic notifications that provide the progress of the
+download (e.g., the download completed, failed, or is being retried).
+
+[NOTE]
+====
+A notification pop-up remains visible until it is dismissed or the browser is refreshed. Once a
+notification is dismissed, it cannot be retrieved again.
+====
+
+== Activities
+
+Similar to notifications, activities appear as pop-up windows inside the Search UI. Activity events
+include the status and progress of actions that are being performed by the user, such as searches
+and downloads. To view all activities, select the activity (image:notification-icon.png[]) icon in
+the top-right corner of the window. A list of all activities opens in a drop-down menu, from which
+activities can be read and deleted. If a download activity is being performed, the Activity
+drop-down menu provides the link to retrieve the product.
+
+If caching is enabled, a progress bar is displayed in the Activity (Product Retrieval) drop-down
+menu until the action being performed is complete.
+
+== Downloads
+
+Downloads from the UI are currently managed by the user-specific browser's download manager.
+The UI itself does not have a built-in download manager utility.
+
+== Maps
+
+The right side of the Search UI contains a map to locate search results on. There are three views
+for this map, 3D, 2D, and Columbus View. To choose a different view, select the map icon in the
+upper right corner. (The icon will change depending on current view selected: 3D
+(image:3d-map-icon.png[]), 2D (image:2d-map-icon.png[]), Columbus (image:columbus-map-icon.png[])

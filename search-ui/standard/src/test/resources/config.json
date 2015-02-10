@@ -1,13 +1,17 @@
 {
-    "footer": "",
-    "textColor": "",
-    "wmsServer": "",
-    "style": "",
-    "sync": false,
-    "layers": "",
     "branding": "DDF",
-    "format": "",
     "timeout": 5000,
-    "header": "",
-    "resultCount": 250
+    "resultCount": 250,
+    "gazetteer": false,
+    "projection": "EPSG:4326",
+    "imageryProviders": [
+        {
+            "type": "SI",
+            "url": "http://localhost:8888/images/natural_earth_50m.png",
+            "parameters": {
+                "imageSize": [10800, 5400]
+            },
+            "alpha": 1
+        }
+    ]
 }

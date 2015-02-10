@@ -10,7 +10,7 @@
  *
  **/
 /*global define*/
-/*jshint newcap:false */
+/*jshint newcap: false, bitwise: false */
 
 define(['underscore',
         'marionette',
@@ -29,7 +29,8 @@ define(['underscore',
             OSM: ol.source.OSM,
             BM: ol.source.BingMaps,
             WMS: ol.source.TileWMS,
-            MQ: ol.source.MapQuest
+            MQ: ol.source.MapQuest,
+            SI: ol.source.ImageStatic
         };
 
         var Controller = Marionette.Controller.extend({
@@ -58,6 +59,7 @@ define(['underscore',
                         if (imageryProvider) {
                             var type = imageryProviderTypes[imageryProvider.type];
                             var initObj = _.omit(imageryProvider, 'type');
+                            var layerType = ol.layer.Tile;
 
                             if (imageryProvider.type === 'OSM') {
                                 if (initObj.url && initObj.url.indexOf('/{z}/{x}/{y}') === -1) {
@@ -74,8 +76,16 @@ define(['underscore',
                                     };
                                     _.extend(initObj.params, initObj.parameters);
                                 }
+                            } else if (imageryProvider.type === 'SI') {
+                                layerType = ol.layer.Image;
+                                if (!initObj.imageExtent) {
+                                    initObj.imageExtent = ol.proj.get(properties.projection).getExtent();
+                                }
+                                if (initObj.parameters) {
+                                    _.extend(initObj, initObj.parameters);
+                                }
                             }
-                            layers.push(new ol.layer.Tile({
+                            layers.push(new layerType({
                                 visible: true,
                                 preload: Infinity,
                                 opacity: initObj.alpha,

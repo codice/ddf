@@ -16,8 +16,9 @@ describe('Workspace', function () {
 
     it("should allow adding a workspace", function () {
         return this.browser
-            .elementById('Add').click()
-            .waitForElementById('workspaceName').type('foo')
+            .elementById('Add', asserters.isDisplayed).click()
+            .waitForElementById('workspaceName', asserters.isDisplayed).type('foo')
+            .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('workspace-add.png'))
             .elementByCssSelector('#workspaceAddForm a.submit').click()
             .waitForElementByClassName('workspace-name')
             .text().should.eventually.equal('foo')
@@ -28,13 +29,23 @@ describe('Workspace', function () {
     it("should allow adding a search to a workspace", function () {
         return this.browser
             .waitForElementById('addSearch').click()
-            .waitForElementById('queryName').type('bar')
+            .waitForElementById('queryName', asserters.isDisplayed).type('bar')
             .waitForElementByCssSelector('#workspaces input[name="q"]').type('*')
             .waitForElementById('workspaceSearchButton')
+            .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('workspace-query.png'))
             .safeExecute('document.querySelectorAll("#workspaceSearchButton")[0].scrollIntoView(true)')
             .elementById('workspaceSearchButton').click()
             .waitForElementByClassName('workspace-name')
-            .text().should.eventually.equal('bar');
+            .text().should.eventually.equal('bar')
+            .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('workspace-list.png'));
+    });
+
+    it("should allow editing searches in workspace", function () {
+        return this.browser
+            .waitForElementByClassName('workspace-row')
+            .waitForElementById('Edit').click()
+            .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('workspace-edit.png'))
+            .waitForElementById('Done').click();
     });
 
     it("should allow viewing search in workspace", function () {

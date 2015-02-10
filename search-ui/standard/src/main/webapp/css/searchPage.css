@@ -99,7 +99,7 @@ body {
     bottom: 30px;
     left: 15px;
     width: 400px;
-    height: 95%;
+    height: 93%;
     height: calc(100% - 82px);
     padding: 0px;
     z-index: 100;
@@ -145,7 +145,12 @@ body {
 }
 
 .height-full-menu {
+    height: 95%;
     height: calc(100% - 36px);
+}
+
+.clear-both {
+    clear: both;
 }
 
 .margin-no {
@@ -293,6 +298,10 @@ body {
     white-space:nowrap;
 }
 
+.apply {
+    margin-bottom: 5px;
+}
+
 #searchPages, #workspace {
     /*magic needed to get perfect scrollbar needed*/
     overflow: hidden;
@@ -305,7 +314,7 @@ body {
 
     width: 100%;
     /*this is for IE only*/
-    height: 600px;
+    height: 95%;
     height: calc(100% - 66px);
     background-repeat: no-repeat;
     background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
@@ -485,7 +494,7 @@ table.metacard-table {
 .progress-container {
     display: inline-block;
     height: 100%;
-    width: 80%;
+    width: 95%;
     width: calc(100% - 35px);
     background-color: rgba(90,90,90,1);
 }
@@ -507,7 +516,7 @@ table.metacard-table {
     display: table-cell;
     vertical-align: middle;
     margin-top: 1px;
-    width: 80%;
+    width: 95%;
     width: calc(100% - 35px);
     height: 30px;
     text-align: center;
@@ -522,7 +531,7 @@ table.metacard-table {
     display: table-cell;
     vertical-align: middle;
     margin-top: 1px;
-    width: 80%;
+    width: 95%;
     width: calc(100% - 35px);
     height: 30px;
     text-align: center;
@@ -956,6 +965,7 @@ button.ui-multiselect {
 }
 
 .full-screen-search {
+    height: 95%;
     height: calc(100% - 37px);
     width: 100%;
     box-shadow: none;
@@ -1209,7 +1219,7 @@ a.pause:hover, a.pause:focus {
 }
 
 .workspace-tabs {
-    height: 80%;
+    height: 97%;
     height: calc(100% - 32px);
     border-bottom: solid 1px #666;
 }
@@ -1221,7 +1231,7 @@ a.pause:hover, a.pause:focus {
 }
 
 .workspace-header {
-    width: 80%;
+    width: 95%;
     width: calc(100% - 30px);
     margin: 10px 0 0;
     font-size: small;
@@ -1276,6 +1286,7 @@ a.pause:hover, a.pause:focus {
 .workspace-table {
     margin-left: 15px;
     margin-right: 15px;
+    width: 95%;
     width: calc(100% - 30px);
 }
 
@@ -1305,7 +1316,7 @@ a.pause:hover, a.pause:focus {
 }
 
 .saved-records-block {
-    width: 80%;
+    width: 95%;
     width: calc(100% - 30px);
     margin: 10px 0 0;
 }
@@ -1477,7 +1488,7 @@ a.pause:hover, a.pause:focus {
     overflow: hidden;
 }
 .modal-iframe-body {
-    height: 80%;
+    height: 95%;
     height: calc(100% - 60px);
 }
 .modal-iframe-content {

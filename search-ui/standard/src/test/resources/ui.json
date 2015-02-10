@@ -1,6 +1,6 @@
 {
-  "footer": "FOOTER",
+  "footer": null,
   "color": "white",
   "background": "black",
-  "header": "HEADER"
+  "header": null
 }

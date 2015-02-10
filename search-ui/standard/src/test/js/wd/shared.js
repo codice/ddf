@@ -7,6 +7,8 @@ var argv = require('yargs').argv;
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 var wd = require('wd');
+var fs = require('fs');
+var path = require('path');
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -25,7 +27,16 @@ function debugLogging(browser) {
     });
 }
 
-var url = argv.url || 'http://localhost:8888/';
+var screenshotPath = path.join(__dirname, '../../../..', 'target/webapp/images');
+fs.mkdir(screenshotPath);
+
+exports.screenshotPath = screenshotPath;
+
+exports.getPathForScreenshot = function (filename) {
+    return path.join(screenshotPath, filename);
+};
+
+var url = argv.url || 'http://localhost:8888?map=2d';
 
 exports.asserters = wd.asserters;
 
@@ -43,8 +54,7 @@ exports.setup = function() {
 
         return this.browser
             .setAsyncScriptTimeout(10000)
-            // size based on default sauce labs vm resolution
-            .setWindowSize(1024, 768)
+            .setWindowSize(1080, 1080)
             .get(url);
     });
 

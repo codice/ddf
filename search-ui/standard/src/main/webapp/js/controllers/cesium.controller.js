@@ -34,7 +34,8 @@ define(['underscore',
             GE: Cesium.GoogleEarthImageryProvider,
             CT: Cesium.CesiumTerrainProvider,
             AGS: Cesium.ArcGisImageServerTerrainProvider,
-            VRW: Cesium.VRTheWorldTerrainProvider
+            VRW: Cesium.VRTheWorldTerrainProvider,
+            SI: Cesium.SingleTileImageryProvider
         };
 
         var Controller = Marionette.Controller.extend({
