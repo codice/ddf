@@ -16,12 +16,17 @@ package org.codice.ddf.security.filter.authorization;
 
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.permission.ActionPermission;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValuePermission;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.Permission;
+import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -47,8 +52,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class AuthorizationFilterTest {
 
@@ -113,6 +122,31 @@ public class AuthorizationFilterTest {
         } catch (ServletException e) {
             fail(e.getMessage());
         }
+    }
+
+    @Test
+    public void testActionAuthorization() throws Exception {
+        String serviceURI = "/services/catalog/query";
+        FilterChain filterChain = mock(FilterChain.class);
+        ContextPolicyManager contextPolicyManager = mock(ContextPolicyManager.class);
+        AuthorizationFilter authorizationFilter = new AuthorizationFilter(contextPolicyManager);
+        authorizationFilter.setShouldActionAuthorize(true);
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getRequestURI()).thenReturn(serviceURI);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+
+        Subject subject = mock(Subject.class);
+        when(subject.isPermitted(any(ActionPermission.class))).thenReturn(true);
+
+        ThreadContext.bind(subject);
+
+        authorizationFilter.doFilter(request, response, filterChain);
+
+        ArgumentCaptor<ActionPermission> permission = ArgumentCaptor
+                .forClass(ActionPermission.class);
+        verify(subject).isPermitted(permission.capture());
+        assertEquals(serviceURI, permission.getValue().getAction());
     }
 
     private class TestContextPolicy implements ContextPolicy {

@@ -14,6 +14,7 @@
  **/
 package org.codice.ddf.security.filter.authorization;
 
+import ddf.security.permission.ActionPermission;
 import ddf.security.permission.CollectionPermission;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -40,6 +41,8 @@ public class AuthorizationFilter implements Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationFilter.class);
 
     private final ContextPolicyManager contextPolicyManager;
+
+    private boolean shouldActionAuthorize;
 
     /**
      * Default constructor
@@ -74,14 +77,20 @@ public class AuthorizationFilter implements Filter {
             }
 
             boolean permitted = true;
-            ContextPolicy policy = contextPolicyManager.getContextPolicy(httpRequest.getContextPath());
+            if (shouldActionAuthorize) {
+                ActionPermission actionPermission = new ActionPermission(httpRequest.getRequestURI());
+                permitted = (subject != null) && subject.isPermitted(actionPermission);
+            } else {
+                ContextPolicy policy = contextPolicyManager.getContextPolicy(httpRequest.getContextPath());
 
-            if (policy != null) {
-                Collection<CollectionPermission> permissions = policy.getAllowedAttributePermissions();
+                if (policy != null) {
+                    Collection<CollectionPermission> permissions = policy.getAllowedAttributePermissions();
 
-                for (CollectionPermission permission : permissions) {
-                    if (subject == null || !subject.isPermittedAll(permission.getPermissionList())) {
-                        permitted = false;
+                    for (CollectionPermission permission : permissions) {
+                        if (subject == null || !subject.isPermittedAll(
+                                permission.getPermissionList())) {
+                            permitted = false;
+                        }
                     }
                 }
             }
@@ -115,6 +124,10 @@ public class AuthorizationFilter implements Filter {
     @Override
     public void destroy() {
         LOGGER.debug("Destroying AuthZ filter.");
+    }
+
+    public void setShouldActionAuthorize(boolean actionAuthorize) {
+        this.shouldActionAuthorize = actionAuthorize;
     }
 
 }
