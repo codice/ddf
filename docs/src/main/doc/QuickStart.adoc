@@ -1,0 +1,129 @@
+= Quick Start
+include::../includes/config.adoc[]
+
+== Overview
+
+Distributed Data Framework (DDF) is an agile and modular integration framework.  It is primarily focused on data integration, enabling clients to insert, query and transform information from disparate data sources via the DDF Catalog. A Catalog API allows integrators to insert new capabilities at various stages throughout each operation.  DDF is designed with the following architectural qualities to benefit integrators.
+
+== Quick Start
+This quick tutorial will demonstrate:
+
+- [*] Installation
+- [*] Catalog Capabilities: Ingest and query using every endpoint
+- [*] Use of the Content Framework
+- [*] Metrics Reporting
+
+=== Prerequisites
+Review link:prerequisites.html[Prerequisites] to ensure all system prerequisites are met.
+
+=== Install DDF
+
+. Install DDF by unzipping the zip file. This will create an installation directory, which is typically created with the name and version of the application. This installation directory will be referred to as `<DISTRIBUTION_INSTALL_DIR>`. Substitute the actual directory name in place of this.
+. Start DDF by running the `<DISTRIBUTION_INSTALL_DIR>/bin/ddf` script (or `ddf.bat` on Windows).
+. Verify the distribution is running.
+. Go to https://localhost:8993/admin.
+. Enter the default username of "admin" (no quotes) and the password of "admin" (no quotes).
+. Follow the install instructions for more extensive install guidance, or use the command line console (which appears after the  <DISTRIBUTION_INSTALL_DIR>/bin/ddf script starts) to install a few applications as mentioned below.
++
+----
+app:start catalog-app
+app:start content-app
+app:start solr-app
+----
++
+[WARNING]
+====
+Other applications may be installed at a later time.
+====
++
+. Go to http://localhost:8181/services and verify five REST services are available: admin, application, metrics, catalog, and catalog/query.
+. Click on the links to each REST service's WADL to see its interface.
+. In the Web Console (at /system/console/configMgr), configure the system settings.
+.. Enter the username of "admin" (no quotes) and the password "admin" (no quotes).
+.. Select Platform Global Configuration.
+.. Enter the port and host where the distribution is running.
+
+=== Catalog Capabilities
+
+. Create an entry in the Catalog by ingesting a valid GeoJson file (attached to this page). This ingest can be performed using:
+.. A REST client, such as Google Chrome's Advanced REST Client. OR 
+.. Using the following curl command to POST to the Catalog REST CRUD endpoint.
++
+.Windows Example
+----
+curl.exe -H "Content-type: application/json;id=geojson" -i -X POST -d @"C:\path\to\geojson_valid.json" http://localhost:8181/services/catalog
+----
++
+.*NIX Example
+----
+curl -H "Content-type: application/json;id=geojson" -i -X POST -d @geojson_valid.json http://localhost:8181/services/catalog
+----
++
+Where: 
+*-H* adds an HTTP header. In this case, Content-type header `application/json;id=geojson` is added to match the data being sent in the request.
+*-i* requests that HTTP headers are displayed in the response.
+*-X* specifies the type of HTTP operation. For this example, it is necessary to POST (ingest) data to the server.
+*-d* specifies the data sent in the POST request. The @ character is necessary to specify that the data is a file.
++
+The last parameter is the URL of the server that will receive the data.
++
+This should return a response similar to the following (the actual catalog ID in the id and Location URL fields will be different):
++
+.Sample Response
+[source,http,linenums]
+----
+HTTP/1.1 201 Created
+Content-Length: 0
+Date: Mon, 22 Apr 2013 22:02:22 GMT
+id: 44dc84da101c4f9d9f751e38d9c4d97b
+Location: http://localhost:8181/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b
+Server: Jetty(7.5.4.v20111024)
+----
++
+. Verify the entry was successfully ingested by entering in a browser the URL returned in the POST response's HTTP header. For instance in our example, it was `/services/catalog/44dc84da101c4f9d9f751e38d9c4d97b`. This should display the catalog entry in XML within the browser.
+. Verify the catalog entry exists by executing a query via the OpenSearch endpoint.
+. Enter the following URL in a browser /services/catalog/query?q=ddf. A single result, in Atom format, should be returned.
+
+=== Use of the Content Framework
+Using the Content framework's directory monitor, ingest a file so that it is stored in the content repository with a metacard created and inserted into the Catalog.
+
+. In the Web Console, select the Configuration tab.
+. Select the *Content Directory Monitor*.
+. Set the directory path to *inbox*.
+. Click the *Save* button.
+. Copy the attached link:geojson_valid.json[geojson] file to the `<DISTRIBUTION_INSTALL_DIR>/inbox` directory.
++
+The Content Framework will:
++
+.. ingest the file,
+.. store it in the content repository at <DISTRIBUTION_INSTALL_DIR>/content/store/<GUID>/geojson_valid.json,
+.. look up the GeoJson Input Transformer based on the mime type of the ingested file,
+.. create a metacard based on the metadata parsed from the ingested GeoJson file, and
+.. insert the metacard into the Catalog using the CatalogFramework.
++
+Note that XML metadata for text searching is not automatically generated from GeoJson fields.
+. Verify GeoJson file was stored using the Content REST endpoint.
+.. Install the feature content-rest-endpoint using the Features tab in the Web Console.
+.. Send a GET command to read the content from the content repository using the Content REST endpoint. This can be done using curl command below. Note that the GUID will be different for each ingest. The GUID can be determined by           going to the <DISTRIBUTION_INSTALL_DIR>/content/store directory and copying the sub-directory in this folder (there should only be one).
+
+.*NIX Example
+[source]
+----
+curl -X GET http://localhost:8181/services/content/c90147bf86294d46a9d35ebbd44992c5
+----
+
+The response to the GET command will be the contents of the geojson_valid.json file originally ingested.
+
+=== Metrics Reporting
+
+Complete the following procedure now that several queries have been executed.
+. Open the Web Console (/system/console/metrics).
+. Select the PNG link for Catalog Queries under the column labeled 1h (one hour). A graph of the catalog queries that were performed in the last hour is displayed.
+. Select the browser's back button to return to the Metrics tab.
+. Select the XLS link for Catalog Queries under the column labeled 1d (one day).
+
+.Handy Tip
+[TIP]
+====
+Based on the browser's configuration, the .xls file will be downloaded or automatically displayed in Excel.
+====

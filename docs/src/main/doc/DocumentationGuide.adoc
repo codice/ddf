@@ -1,0 +1,91 @@
+= Documentation Guide
+include::../includes/config.adoc[]
+ 
+== Introduction
+=== Overview
+This document serves to guide users, administrators and developers through the {branding}. 
+
+=== Documentation Updates
+The most current Distributed Data Framework  {branding}) documentation is available at: https://tools.codice.org/wiki/display {branding}/
+
+=== Conventions
+The following conventions are used within this documentation:
+
+[TIP]
+====
+This is a *Tip*, used to provide helpful information.
+====
+
+[NOTE]
+====
+This is an *Informational Note*, used to emphasize points, remind users of beneficial information, or indicate minor problems in the outcome of an operation.
+====
+
+[WARNING]
+====
+This is an *Emphasized Note*, used to inform of important information.
+====
+
+[IMPORTANT]
+====
+This is a *Warning*, used to alert users about the possibility of an undesirable outcome or condition.
+====
+
+=== Customizable Values
+
+Many values used in descriptions are customizable and should be changed for specific use cases. These values are denoted by < >, and by [[ ]]when within XML syntax. When using a real value, the placeholder characters should be omitted.
+
+=== Code Values
+
+Java objects, lines of code, or file properties are denoted with the Monospace font style. Example:  {branding}.catalog.CatalogFramework`
+
+=== Hyperlinks
+
+Some hyperlinks (e.g., `/system/console`) within the documentation assume a locally running installation of {branding}.  Simply change the hostname if accessing a remote host.
+
+=== Questions
+Questions about {branding} or this documentation should be posted to the {branding}-users forum (https://groups.google.com/d/forum {branding}-users), {branding}-announcements forum (https://groups.google.com/d/forum {branding}-announcements), or {branding}-developers forum (https://groups.google.com/d/forum {branding}-developers), where they will be responded to quickly by a member of the {branding} team.
+
+== Applications
+
+Overview
+ {branding} is comprised of several modular applications, to be installed or uninstalled as needed.
+
+== Applications
+
+{branding} Administrative Application::
+The administrative application enhances administrative capabilities when installing and managing {branding}. It contains various services and interfaces that allow administrators more control over their systems. 
+{branding} Catalog Application::
+The {branding} Catalog provides a framework for storing, searching, processing, and transforming information. 
+Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog. 
+At the core of the Catalog functionality is the *Catalog Framework*, which routes all requests and responses through the system, invoking additional processing per the system configuration.
+{branding} Content Application::
+The {branding} Content application provides a framework for storing, reading, processing, transforming and cataloging data. 
+{branding} Platform Application:: 
+The Platform application is considered to be a core application of the distribution. The Platform application has fundamental building blocks that the distribution needs to run.
+These building blocks include subsets of: Karaf (http://karaf.apache.org/), CXF (http://cxf.apache.org/), Cellar (http://karaf.apache.org/index/subprojects/cellar.html), and Camel (http://camel.apache.org/). 
++
+Included as part of the Platform application is also a Command Scheduler. The Command Scheduler allows users to schedule Command Line Shell Commands to run at certain specified intervals. 
+{branding} Security Application::
+The Security application provides authentication, authorization, and auditing services for the {branding}. They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements. More information about the security framework and how everything works as a single security solution can be found on the Managing Web Service Security page. 
+{branding} Solr Catalog Application::
+The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using Apache Solr (http://lucene.apache.org/solr/) as a data store. 
+{branding} Spatial Application::
+The {branding} Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link. 
+{branding} Standard Search UI::
+The {branding} Standard Search UI application allows a user to search for records in the local Catalog (provider) and federated sources. Results of the search are returned in HTML format and are displayed on a globe, providing a visual representation of where the records were found.
+
+== Choosing a Guide
+The documentation is segmented by user needs, with users categorized as Users, Administrators, Integrators, and Developers. 
+
+Users::
+Users are end users interacting with the applications at the most basic level. 
+
+Administrators::
+Administrators will be installing, maintaining, and supporting existing applications.
+
+Integrators::
+Integrators will use the existing applications to support their external frameworks.
+
+Developers::
+Developers will build or extend the functionality of the applications. 
