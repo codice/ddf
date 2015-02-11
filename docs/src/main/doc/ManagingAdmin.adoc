@@ -1,5 +1,5 @@
 = Managing {branding} Admin Application
-include::../config.adoc[]
+include::../includes/config.adoc[]
 
 == Overview
 The DDF Admin Application contains components that are responsible for the installation and configuration of DDF and other DDF applications.

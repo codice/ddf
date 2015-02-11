@@ -1,5 +1,5 @@
 = Extending {branding} Adminstrative Application
-include::../config.adoc[]
+include::../includes/config.adoc[]
 
 == Overview
 
