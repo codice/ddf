@@ -1,5 +1,5 @@
 = Extending DDF Catalog Application
-include::../config.adoc[]
+include::../includes/config.adoc[]
 
 == Overview
 
