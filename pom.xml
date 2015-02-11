@@ -30,6 +30,7 @@
 	
     <modules>
         <module>search-ui</module>
+        <module>docs</module>
     </modules>
     
     <properties>
