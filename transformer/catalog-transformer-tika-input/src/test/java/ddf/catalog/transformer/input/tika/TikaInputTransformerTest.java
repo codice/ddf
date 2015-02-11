@@ -137,7 +137,7 @@ public class TikaInputTransformerTest {
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
         assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"tiff:BitsPerSample\" content=\"8\" />"));
+                containsString("<meta name=\"tiff:BitsPerSample\" content=\"8\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/tiff"));
     }
 
@@ -150,7 +150,7 @@ public class TikaInputTransformerTest {
         assertNotNull(metacard.getMetadata());
         assertThat(
                 metacard.getMetadata(),
-                containsString("<meta name=\"Compression CompressionTypeName\" content=\"BI_RGB\" />"));
+                containsString("<meta name=\"Compression CompressionTypeName\" content=\"BI_RGB\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/x-ms-bmp"));
     }
 
@@ -162,7 +162,7 @@ public class TikaInputTransformerTest {
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
         assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"Compression CompressionTypeName\" content=\"lzw\" />"));
+                containsString("<meta name=\"Compression CompressionTypeName\" content=\"lzw\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/gif"));
     }
 
@@ -183,7 +183,7 @@ public class TikaInputTransformerTest {
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
         assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"Model\" content=\"Canon EOS 40D\" />"));
+                containsString("<meta name=\"Model\" content=\"Canon EOS 40D\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/jpeg"));
         assertThat(convertDate(metacard.getCreatedDate()), is("2009-08-11 09:09:45 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2009-10-02 23:02:49 UTC"));
@@ -212,7 +212,7 @@ public class TikaInputTransformerTest {
         assertThat(metacard.getTitle(), is("Tosteberga \u00C4ngar"));
         assertNotNull(metacard.getMetadata());
         assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"Keywords\" content=\"bird watching\" />"));
+                containsString("<meta name=\"Keywords\" content=\"bird watching\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/jpeg"));
         assertThat(convertDate(metacard.getCreatedDate()), is("2010-07-28 11:02:00 UTC"));
         
@@ -228,7 +228,7 @@ public class TikaInputTransformerTest {
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
         assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"Compression Lossless\" content=\"true\" />"));
+                containsString("<meta name=\"Compression Lossless\" content=\"true\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/png"));
     }
 
@@ -241,7 +241,7 @@ public class TikaInputTransformerTest {
         assertThat(metacard.getTitle(), is("Test Title"));
         assertNotNull(metacard.getMetadata());
         assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"xmpDM:artist\" content=\"Test Artist\" />"));
+                containsString("<meta name=\"xmpDM:artist\" content=\"Test Artist\"/>"));
         assertThat(metacard.getContentTypeName(), is("audio/mpeg"));
     }
 
@@ -256,7 +256,7 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getModifiedDate()), is("2012-01-28 18:40:25 UTC"));
         assertNotNull(metacard.getMetadata());
         assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"xmpDM:artist\" content=\"Test Artist\" />"));
+                containsString("<meta name=\"xmpDM:artist\" content=\"Test Artist\"/>"));
         assertThat(metacard.getContentTypeName(), is("audio/mp4"));
     }
 
@@ -271,7 +271,7 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getModifiedDate()), is("2007-09-15 09:02:31 UTC"));
         assertNotNull(metacard.getMetadata());
         assertThat(metacard.getMetadata(),
-                containsString("<meta name=\"xmpTPg:NPages\" content=\"1\" />"));
+                containsString("<meta name=\"xmpTPg:NPages\" content=\"1\"/>"));
         assertThat(metacard.getContentTypeName(), is("application/pdf"));
     }
 

@@ -14,15 +14,30 @@
  **/
 package ddf.catalog.transformer.input.tika;
 
-import com.google.common.io.FileBackedOutputStream;
-import com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderSpi;
-import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.InputTransformer;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.SortedSet;
+
+import javax.imageio.ImageIO;
+import javax.imageio.spi.IIORegistry;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.exception.TikaException;
@@ -42,22 +57,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.imageio.ImageIO;
-import javax.imageio.spi.IIORegistry;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.SortedSet;
+import com.google.common.io.FileBackedOutputStream;
+import com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderSpi;
+import com.sun.media.imageioimpl.plugins.tiff.TIFFImageReaderSpi;
+
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.InputTransformer;
 
 public class TikaInputTransformer implements InputTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaInputTransformer.class);
+    
+    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+    
+    private static final String XSLT = "/metadata.xslt";
 
     public TikaInputTransformer(BundleContext bundleContext) {
         if (bundleContext == null) {
@@ -112,7 +128,7 @@ public class TikaInputTransformer implements InputTransformer {
             try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource()
                     .openStream()) {
                 metacard = createMetacard(inputStreamMessageCopy, metadata, uri,
-                        xmlHandler.toString());
+                        transformToXml(xmlHandler.toString()));
             }
         }
 
@@ -260,5 +276,20 @@ public class TikaInputTransformer implements InputTransformer {
         } catch (Exception e) {
             LOGGER.warn("Unable to read image from input stream to create thumbnail.", e);
         }
+    }
+    
+    private String transformToXml(String xhtml) throws CatalogTransformerException {
+        LOGGER.debug("Transforming xhtml to xml.");
+        Writer xml = new StringWriter();
+        try {
+            Transformer transformer = TRANSFORMER_FACTORY.newTransformer(new StreamSource(this
+                    .getClass().getResourceAsStream(XSLT)));
+            transformer.transform(new StreamSource(new StringReader(xhtml)), new StreamResult(xml));
+        } catch (TransformerException e) {
+            throw new CatalogTransformerException("Unable to transform metdata from XHTML to XML.",
+                    e);
+        }
+
+        return xml.toString();
     }
 }
