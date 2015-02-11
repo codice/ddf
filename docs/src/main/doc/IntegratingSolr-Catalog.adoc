@@ -1,5 +1,5 @@
 = Integrating {branding} Solr Catalog Application
-include::../config.adoc[]
+include::../includes/config.adoc[]
                      
 == Overview
 
