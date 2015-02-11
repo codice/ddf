@@ -1,5 +1,5 @@
 = Managing DDF Content Application
-include::../config.adoc[]
+include::../includes/config.adoc[]
 
 == Overview
 
@@ -8,6 +8,7 @@ The DDF Content application provides a framework for storing, reading, processin
 == Prerequisites
 
 Before the DDF Content application can be installed, the following prerequisites must be met: 
+
 * the DDF Kernel must be running,
 * the DDF Platform Application must be installed, and
 * the DDF Catalog Application must be installed. 
