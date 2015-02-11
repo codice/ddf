@@ -84,6 +84,30 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                       <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="target/adoc" />
+                                <mkdir dir="target/includes" />
+                                <copy todir="target/adoc">
+                                    <fileset dir="src/main/doc" />
+                                </copy>
+                                <copy todir="target/includes">
+                                    <fileset dir="src/main/includes" />
+                                </copy>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.2</version>
                 <dependencies>
@@ -122,11 +146,11 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <sourceDirectory>src/main/doc</sourceDirectory>
+                    <sourceDirectory>target/adoc</sourceDirectory>
                     <headerFooter>true</headerFooter>
                     <imagesDir>./images</imagesDir>
                     <imagesOutDir>./images/</imagesOutDir>
-                  <outputDirectory>target/docs</outputDirectory>
+                  <outputDirectory>target/docs/html</outputDirectory>
                 </configuration>
             </plugin>
 
@@ -142,7 +166,7 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <sourceDirectory>src/main/doc</sourceDirectory>
+                    <sourceDirectory>target/adoc</sourceDirectory>
                     <gemPath>${project.build.directory}/gems-provided</gemPath>
                     <requires>
                         <require>asciidoctor-diagram</require>
@@ -161,8 +185,8 @@
                         </goals>
                         <configuration>
                             <backend>pdf</backend>
-                            <sourceDirectory>src/main/doc</sourceDirectory>
-                            <outputDirectory>target/docs</outputDirectory>
+                            <sourceDirectory>target/adoc</sourceDirectory>
+                            <outputDirectory>target/docs/pdf</outputDirectory>
 
                             <!-- WARNING callout bullets don't yet work with CodeRay -->
                             <sourceHighlighter>coderay</sourceHighlighter>
