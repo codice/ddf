@@ -121,7 +121,11 @@ public class DescriptionTemplateHelper {
     }
 
     public String base64Thumbnail(Metacard context) {
-        return DatatypeConverter.printBase64Binary(context.getThumbnail());
+        if(null != context && context.getThumbnail() != null && context.getThumbnail().length != 0) {
+            return DatatypeConverter.printBase64Binary(context.getThumbnail());
+        } else {
+            return null;
+        }
     }
 
     public String resourceUrl(Metacard context) {

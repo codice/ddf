@@ -131,25 +131,27 @@ public class FeatureCollectionMessageBodyReaderWfs20 implements MessageBodyReade
         catch (JAXBException e1) {
             LOGGER.error("Error in retrieving feature collection.", e1);
         }
-   
-        BigInteger numberReturned = wfsFeatureCollectionType.getValue().getNumberReturned();
-        String numberMatched = wfsFeatureCollectionType.getValue().getNumberMatched();
-        
-        // Re-create the input stream (since it has already been read for potential
-        // exception message creation)
-        inStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));
 
         Wfs20FeatureCollection featureCollection = null;
 
-        try {
-            featureCollection = (Wfs20FeatureCollection) xstream.fromXML(inStream);
-            featureCollection.setNumberMatched(numberMatched);
-            featureCollection.setNumberReturned(numberReturned);
-            
-        } catch (XStreamException e) {
-            LOGGER.error("Exception unmarshalling {}", e);
-        } finally {
-            IOUtils.closeQuietly(inStream);
+        if(null != wfsFeatureCollectionType && null != wfsFeatureCollectionType.getValue()) {
+            BigInteger numberReturned = wfsFeatureCollectionType.getValue().getNumberReturned();
+            String numberMatched = wfsFeatureCollectionType.getValue().getNumberMatched();
+
+            // Re-create the input stream (since it has already been read for potential
+            // exception message creation)
+            inStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));
+
+            try {
+                featureCollection = (Wfs20FeatureCollection) xstream.fromXML(inStream);
+                featureCollection.setNumberMatched(numberMatched);
+                featureCollection.setNumberReturned(numberReturned);
+
+            } catch (XStreamException e) {
+                LOGGER.error("Exception unmarshalling {}", e);
+            } finally {
+                IOUtils.closeQuietly(inStream);
+            }
         }
 
         return featureCollection;

@@ -588,9 +588,10 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
 
         // Determine current page number of results being requested.
         // Example: startIndex = 21 and origPageSize=10, then requesting to go
-        // to
-        // page number 3.
-        int pageNumber = Math.round(query.getStartIndex() / origPageSize) + 1;
+        // to page number 3.
+        // Note: Integer division will truncate remainders so 4 / 2 will return 0 and not .5.  Also,
+        // pages are numbered 1 - N so we add 1 to the result
+        int pageNumber = query.getStartIndex() / origPageSize + 1;
 
         // Modified page size is based on current page number and a constant
         // multiplier,
