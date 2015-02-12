@@ -63,7 +63,10 @@ public class SecureCxfClientFactoryBuilder {
      * Blueprint constructor.
      */
     public SecureCxfClientFactoryBuilder(SecuritySettingsService securitySettingsService,
-            STSClientConfiguration stsClientConfig) {
+            STSClientConfiguration stsClientConfig) throws SecurityServiceException {
+        if (securitySettingsService == null || stsClientConfig == null) {
+            throw new SecurityServiceException("Could not access security configurations.");
+        }
         this.securitySettingsService = securitySettingsService;
         this.stsClientConfig = stsClientConfig;
     }
@@ -109,6 +112,9 @@ public class SecureCxfClientFactoryBuilder {
         }
 
         Client cxfClient = WebClient.client(jaxrsClientFactoryBean.create(interfaceClass));
+        if (cxfClient == null) {
+            throw new SecurityServiceException("Could not construct base client");
+        }
         ClientConfiguration clientConfig = WebClient.getConfig(cxfClient);
         initSecurity(clientConfig, cxfClient, username, password);
 
@@ -127,11 +133,6 @@ public class SecureCxfClientFactoryBuilder {
         }
 
         TLSClientParameters tlsParams = httpConduit.getTlsClientParameters();
-
-        if (tlsParams == null) {
-            tlsParams = new TLSClientParameters();
-            httpConduit.setTlsClientParameters(tlsParams);
-        }
 
         tlsParams.setDisableCNCheck(true);
     }
@@ -169,7 +170,7 @@ public class SecureCxfClientFactoryBuilder {
 
     private void initSamlAssertion(ClientConfiguration clientConfig, Client cxfClient)
             throws SecurityServiceException {
-        if (stsClientConfig == null || StringUtils.isBlank(stsClientConfig.getAddress())) {
+        if (StringUtils.isBlank(stsClientConfig.getAddress())) {
             LOGGER.debug(
                     "STSClientConfiguration is either null or its address is blank - assuming no STS Client is configured, so no SAML assertion will get generated.");
             return;
@@ -212,10 +213,7 @@ public class SecureCxfClientFactoryBuilder {
         String stsPropertiesPath = stsClientConfig.getTokenProperties();
 
         STSClient stsClient = new STSClient(bus);
-        if (StringUtils.isBlank(stsAddress)) {
-            LOGGER.debug("STS address is null, unable to create STS Client");
-            return stsClient;
-        }
+
         LOGGER.debug("Setting WSDL location (stsAddress) on STSClient: {}", stsAddress);
         stsClient.setWsdlLocation(stsAddress);
         LOGGER.debug("Setting service name on STSClient: {}", stsServiceName);
@@ -229,20 +227,20 @@ public class SecureCxfClientFactoryBuilder {
 
         // Properties loader should be able to find the properties file
         // no matter where it is
-        if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
+        if (StringUtils.isNotEmpty(signaturePropertiesPath)) {
             LOGGER.debug("Setting signature properties on STSClient: {}", signaturePropertiesPath);
             Properties signatureProperties = PropertiesLoader
                     .loadProperties(signaturePropertiesPath);
             newStsProperties.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
         }
-        if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
+        if (StringUtils.isNotEmpty(encryptionPropertiesPath)) {
             LOGGER.debug("Setting encryption properties on STSClient: {}",
                     encryptionPropertiesPath);
             Properties encryptionProperties = PropertiesLoader
                     .loadProperties(encryptionPropertiesPath);
             newStsProperties.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
         }
-        if (stsPropertiesPath != null && !stsPropertiesPath.isEmpty()) {
+        if (StringUtils.isNotEmpty(stsPropertiesPath)) {
             LOGGER.debug("Setting sts properties on STSClient: {}", stsPropertiesPath);
             Properties stsProperties = PropertiesLoader.loadProperties(stsPropertiesPath);
             newStsProperties.put(SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties);
@@ -262,14 +260,7 @@ public class SecureCxfClientFactoryBuilder {
                     LOGGER.info(
                             "HTTPConduit was null for stsClient. Unable to configure keystores for stsClient.");
                 } else {
-                    if (securitySettingsService != null) {
-                        httpConduit
-                                .setTlsClientParameters(securitySettingsService.getTLSParameters());
-                    } else {
-                        LOGGER.debug(
-                                "Could not get reference to security settings, SSL communications will use system defaults.");
-                    }
-
+                    httpConduit.setTlsClientParameters(securitySettingsService.getTLSParameters());
                 }
             } catch (BusException e) {
                 throw new SecurityServiceException("Unable to create sts client.", e);
@@ -305,10 +296,6 @@ public class SecureCxfClientFactoryBuilder {
          * @see org.codice.ddf.security.common.SecureCxfClientFactoryBuilder
          */
         public T getClient() throws SecurityServiceException {
-            if (cxfClient == null) {
-                throw new SecurityServiceException("Factory must be initialized first!");
-            }
-
             WebClient newClient = WebClient.fromClient(cxfClient);
 
             Subject subject = SecurityUtils.getSubject();
