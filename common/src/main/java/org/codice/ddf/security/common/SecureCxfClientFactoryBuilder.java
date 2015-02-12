@@ -48,61 +48,54 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class SecureCxfClientFactory<T> {
+public class SecureCxfClientFactoryBuilder {
 
     protected static final String ADDRESSING_NAMESPACE = "http://www.w3.org/2005/08/addressing";
 
     private static final transient Logger LOGGER = LoggerFactory
-            .getLogger(SecureCxfClientFactory.class);
+            .getLogger(SecureCxfClientFactoryBuilder.class);
 
     private final SecuritySettingsService securitySettingsService;
 
     private final STSClientConfiguration stsClientConfig;
 
-    private Client cxfClient;
-
-    private String username;
-
-    private String password;
-
     /**
      * Blueprint constructor.
      */
-    public SecureCxfClientFactory(SecuritySettingsService securitySettingsService,
+    public SecureCxfClientFactoryBuilder(SecuritySettingsService securitySettingsService,
             STSClientConfiguration stsClientConfig) {
         this.securitySettingsService = securitySettingsService;
         this.stsClientConfig = stsClientConfig;
     }
 
     /**
-     * @see org.codice.ddf.security.common.SecureCxfClientFactory#initFactory(String, Class, String, String, java.util.List, boolean)
+     * @see SecureCxfClientFactoryBuilder#buildFactory(String, Class, String, String, java.util.List, boolean)
      */
-    public void initFactory(String endpointUrl, Class<T> interfaceClass)
+    public <T> SecureCxfClientFactory<T> buildFactory(String endpointUrl, Class<T> interfaceClass)
             throws SecurityServiceException {
-        initFactory(endpointUrl, interfaceClass, null, null);
+        return buildFactory(endpointUrl, interfaceClass, null, null);
     }
 
     /**
-     * @see org.codice.ddf.security.common.SecureCxfClientFactory#initFactory(String, Class, String, String, java.util.List, boolean)
+     * @see SecureCxfClientFactoryBuilder#buildFactory(String, Class, String, String, java.util.List, boolean)
      */
-    public void initFactory(String endpointUrl, Class<T> interfaceClass, String username,
-            String password) throws SecurityServiceException {
-        initFactory(endpointUrl, interfaceClass, username, password, null, false);
+    public <T> SecureCxfClientFactory<T> buildFactory(String endpointUrl, Class<T> interfaceClass,
+            String username, String password) throws SecurityServiceException {
+        return buildFactory(endpointUrl, interfaceClass, username, password, null, false);
     }
 
     /**
-     * Initialize (or reinitialize) the base client for use in {@link #getClient()}
+     * Creates a factory that will return security-aware clients.
+     *
+     * @see org.codice.ddf.security.common.SecureCxfClientFactoryBuilder.SecureCxfClientFactory
      */
-    public void initFactory(String endpointUrl, Class<T> interfaceClass, String username,
-            String password, List<?> providers, boolean disableCnCheck)
+    public <T> SecureCxfClientFactory<T> buildFactory(String endpointUrl, Class<T> interfaceClass,
+            String username, String password, List<?> providers, boolean disableCnCheck)
             throws SecurityServiceException {
-        if (StringUtils.isEmpty(endpointUrl)) {
+        if (StringUtils.isEmpty(endpointUrl) || interfaceClass == null) {
             throw new IllegalArgumentException(
                     "Called without a valid URL, will not be able to connect.");
         }
-
-        this.username = username;
-        this.password = password;
 
         JAXRSClientFactoryBean jaxrsClientFactoryBean = new JAXRSClientFactoryBean();
         jaxrsClientFactoryBean.setServiceClass(interfaceClass);
@@ -115,32 +108,18 @@ public class SecureCxfClientFactory<T> {
             jaxrsClientFactoryBean.setProviders(providers);
         }
 
-        cxfClient = WebClient.client(jaxrsClientFactoryBean.create(interfaceClass));
-        initSecurity();
+        Client cxfClient = WebClient.client(jaxrsClientFactoryBean.create(interfaceClass));
+        ClientConfiguration clientConfig = WebClient.getConfig(cxfClient);
+        initSecurity(clientConfig, cxfClient, username, password);
 
         if (disableCnCheck) {
-            disableCnCheck();
-        }
-    }
-
-    /**
-     * The returned client is NOT reusable!
-     * This method should be called for each request in order to ensure
-     * that the security subject is up-to-date each time.
-     */
-    public T getClient() {
-        WebClient newClient = WebClient.fromClient(cxfClient);
-
-        Subject subject = SecurityUtils.getSubject();
-        if (subject instanceof ddf.security.Subject) {
-            RestSecurity.setSubjectOnClient((ddf.security.Subject) subject, newClient);
+            disableCnCheck(clientConfig);
         }
 
-        return (T) newClient;
+        return new SecureCxfClientFactory<>(cxfClient);
     }
 
-    private void disableCnCheck() throws SecurityServiceException {
-        ClientConfiguration clientConfig = WebClient.getConfig(cxfClient);
+    private void disableCnCheck(ClientConfiguration clientConfig) throws SecurityServiceException {
         HTTPConduit httpConduit = clientConfig.getHttpConduit();
         if (httpConduit == null) {
             throw new SecurityServiceException(
@@ -157,12 +136,12 @@ public class SecureCxfClientFactory<T> {
         tlsParams.setDisableCNCheck(true);
     }
 
-    /**
+    /*
      * Add TLS and Basic Auth credentials to the underlying {@link org.apache.cxf.transport.http.HTTPConduit}
      * This includes two-way ssl assuming that the platform keystores are configured correctly
      */
-    private void initSecurity() throws SecurityServiceException {
-        ClientConfiguration clientConfig = WebClient.getConfig(cxfClient);
+    private void initSecurity(ClientConfiguration clientConfig, Client cxfClient, String username,
+            String password) throws SecurityServiceException {
 
         HTTPConduit httpConduit = clientConfig.getHttpConduit();
         if (httpConduit == null) {
@@ -185,16 +164,16 @@ public class SecureCxfClientFactory<T> {
         TLSClientParameters tlsParams = securitySettingsService.getTLSParameters();
         httpConduit.setTlsClientParameters(tlsParams);
 
-        initSamlAssertion();
+        initSamlAssertion(clientConfig, cxfClient);
     }
 
-    private void initSamlAssertion() throws SecurityServiceException {
+    private void initSamlAssertion(ClientConfiguration clientConfig, Client cxfClient)
+            throws SecurityServiceException {
         if (stsClientConfig == null || StringUtils.isBlank(stsClientConfig.getAddress())) {
             LOGGER.debug(
                     "STSClientConfiguration is either null or its address is blank - assuming no STS Client is configured, so no SAML assertion will get generated.");
             return;
         }
-        ClientConfiguration clientConfig = WebClient.getConfig(cxfClient);
         Bus clientBus = clientConfig.getBus();
         STSClient stsClient = configureSTSClient(clientBus, stsClientConfig);
         try {
@@ -304,5 +283,40 @@ public class SecureCxfClientFactory<T> {
         stsClient.setKeySize(Integer.valueOf(stsClientConfig.getKeySize()));
 
         return stsClient;
+    }
+
+    public class SecureCxfClientFactory<T> {
+
+        private Client cxfClient;
+
+        private SecureCxfClientFactory(Client cxfClient) {
+            this.cxfClient = cxfClient;
+        }
+
+        /**
+         * Clients produced by this method will be secured with basic authentication
+         * (if a username and password were provided), two-way ssl,
+         * and the security subject from the current thread.
+         * <p/>
+         * The returned client should NOT be reused between threads!
+         * This method should be called for each new request thread in order to ensure
+         * that the security subject is up-to-date each time.
+         *
+         * @see org.codice.ddf.security.common.SecureCxfClientFactoryBuilder
+         */
+        public T getClient() throws SecurityServiceException {
+            if (cxfClient == null) {
+                throw new SecurityServiceException("Factory must be initialized first!");
+            }
+
+            WebClient newClient = WebClient.fromClient(cxfClient);
+
+            Subject subject = SecurityUtils.getSubject();
+            if (subject instanceof ddf.security.Subject) {
+                RestSecurity.setSubjectOnClient((ddf.security.Subject) subject, newClient);
+            }
+
+            return (T) newClient;
+        }
     }
 }
