@@ -28,7 +28,6 @@ import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
@@ -56,33 +55,47 @@ public class SecureCxfClientFactory<T> {
     private static final transient Logger LOGGER = LoggerFactory
             .getLogger(SecureCxfClientFactory.class);
 
-    protected final Client cxfClient;
-
     private final SecuritySettingsService securitySettingsService;
 
     private final STSClientConfiguration stsClientConfig;
 
-    private final String username;
+    private Client cxfClient;
 
-    private final String password;
+    private String username;
 
-    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, String username,
-            String password, SecuritySettingsService securitySettingsService,
-            STSClientConfiguration stsClientConfig) throws SecurityServiceException {
-        cxfClient = WebClient.client(JAXRSClientFactory.create(endpointUrl, interfaceClass));
+    private String password;
 
-        this.username = username;
-        this.password = password;
+    /**
+     * Blueprint constructor.
+     */
+    public SecureCxfClientFactory(SecuritySettingsService securitySettingsService,
+            STSClientConfiguration stsClientConfig) {
         this.securitySettingsService = securitySettingsService;
         this.stsClientConfig = stsClientConfig;
-
-        initSecurity();
     }
 
-    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass,
-            ClassLoader classLoader, List<?> providers, boolean disableCnCheck, String username,
-            String password, SecuritySettingsService securitySettingsService,
-            STSClientConfiguration stsClientConfig) throws SecurityServiceException {
+    /**
+     * @see org.codice.ddf.security.common.SecureCxfClientFactory#initFactory(String, Class, String, String, java.util.List, boolean)
+     */
+    public void initFactory(String endpointUrl, Class<T> interfaceClass)
+            throws SecurityServiceException {
+        initFactory(endpointUrl, interfaceClass, null, null);
+    }
+
+    /**
+     * @see org.codice.ddf.security.common.SecureCxfClientFactory#initFactory(String, Class, String, String, java.util.List, boolean)
+     */
+    public void initFactory(String endpointUrl, Class<T> interfaceClass, String username,
+            String password) throws SecurityServiceException {
+        initFactory(endpointUrl, interfaceClass, username, password, null, false);
+    }
+
+    /**
+     * Initialize (or reinitialize) the base client for use in {@link #getClient()}
+     */
+    public void initFactory(String endpointUrl, Class<T> interfaceClass, String username,
+            String password, List<?> providers, boolean disableCnCheck)
+            throws SecurityServiceException {
         if (StringUtils.isEmpty(endpointUrl)) {
             throw new IllegalArgumentException(
                     "Called without a valid URL, will not be able to connect.");
@@ -90,21 +103,19 @@ public class SecureCxfClientFactory<T> {
 
         this.username = username;
         this.password = password;
-        this.securitySettingsService = securitySettingsService;
-        this.stsClientConfig = stsClientConfig;
 
-        JAXRSClientFactoryBean clientFactoryBean = new JAXRSClientFactoryBean();
-        clientFactoryBean.setServiceClass(interfaceClass);
-        clientFactoryBean.setAddress(endpointUrl);
-        clientFactoryBean.setClassLoader(classLoader);
-        clientFactoryBean.getInInterceptors().add(new LoggingInInterceptor());
-        clientFactoryBean.getOutInterceptors().add(new LoggingOutInterceptor());
+        JAXRSClientFactoryBean jaxrsClientFactoryBean = new JAXRSClientFactoryBean();
+        jaxrsClientFactoryBean.setServiceClass(interfaceClass);
+        jaxrsClientFactoryBean.setAddress(endpointUrl);
+        jaxrsClientFactoryBean.setClassLoader(interfaceClass.getClassLoader());
+        jaxrsClientFactoryBean.getInInterceptors().add(new LoggingInInterceptor());
+        jaxrsClientFactoryBean.getOutInterceptors().add(new LoggingOutInterceptor());
 
         if (!CollectionUtils.isEmpty(providers)) {
-            clientFactoryBean.setProviders(providers);
+            jaxrsClientFactoryBean.setProviders(providers);
         }
 
-        cxfClient = WebClient.client(clientFactoryBean.create(interfaceClass));
+        cxfClient = WebClient.client(jaxrsClientFactoryBean.create(interfaceClass));
         initSecurity();
 
         if (disableCnCheck) {
@@ -211,10 +222,8 @@ public class SecureCxfClientFactory<T> {
      * @param bus - CXF bus to initialize STSClient with
      * @return STSClient
      */
-    protected STSClient configureSTSClient(Bus bus, STSClientConfiguration stsClientConfig)
+    private STSClient configureSTSClient(Bus bus, STSClientConfiguration stsClientConfig)
             throws SecurityServiceException {
-        final String methodName = "configureSTSClient";
-        LOGGER.debug("ENTERING: {}", methodName);
 
         String stsAddress = stsClientConfig.getAddress();
         String stsServiceName = stsClientConfig.getServiceName();
@@ -226,16 +235,15 @@ public class SecureCxfClientFactory<T> {
         STSClient stsClient = new STSClient(bus);
         if (StringUtils.isBlank(stsAddress)) {
             LOGGER.debug("STS address is null, unable to create STS Client");
-            LOGGER.debug("EXITING: {}", methodName);
             return stsClient;
         }
-        LOGGER.debug("Setting WSDL location (stsAddress) on STSClient: " + stsAddress);
+        LOGGER.debug("Setting WSDL location (stsAddress) on STSClient: {}", stsAddress);
         stsClient.setWsdlLocation(stsAddress);
-        LOGGER.debug("Setting service name on STSClient: " + stsServiceName);
+        LOGGER.debug("Setting service name on STSClient: {}", stsServiceName);
         stsClient.setServiceName(stsServiceName);
-        LOGGER.debug("Setting endpoint name on STSClient: " + stsEndpointName);
+        LOGGER.debug("Setting endpoint name on STSClient: {}", stsEndpointName);
         stsClient.setEndpointName(stsEndpointName);
-        LOGGER.debug("Setting addressing namespace on STSClient: " + ADDRESSING_NAMESPACE);
+        LOGGER.debug("Setting addressing namespace on STSClient: {}", ADDRESSING_NAMESPACE);
         stsClient.setAddressingNamespace(ADDRESSING_NAMESPACE);
 
         Map<String, Object> newStsProperties = new HashMap<>();
@@ -243,19 +251,20 @@ public class SecureCxfClientFactory<T> {
         // Properties loader should be able to find the properties file
         // no matter where it is
         if (signaturePropertiesPath != null && !signaturePropertiesPath.isEmpty()) {
-            LOGGER.debug("Setting signature properties on STSClient: " + signaturePropertiesPath);
+            LOGGER.debug("Setting signature properties on STSClient: {}", signaturePropertiesPath);
             Properties signatureProperties = PropertiesLoader
                     .loadProperties(signaturePropertiesPath);
             newStsProperties.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
         }
         if (encryptionPropertiesPath != null && !encryptionPropertiesPath.isEmpty()) {
-            LOGGER.debug("Setting encryption properties on STSClient: " + encryptionPropertiesPath);
+            LOGGER.debug("Setting encryption properties on STSClient: {}",
+                    encryptionPropertiesPath);
             Properties encryptionProperties = PropertiesLoader
                     .loadProperties(encryptionPropertiesPath);
             newStsProperties.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
         }
         if (stsPropertiesPath != null && !stsPropertiesPath.isEmpty()) {
-            LOGGER.debug("Setting sts properties on STSClient: " + stsPropertiesPath);
+            LOGGER.debug("Setting sts properties on STSClient: {}", stsPropertiesPath);
             Properties stsProperties = PropertiesLoader.loadProperties(stsPropertiesPath);
             newStsProperties.put(SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties);
         }
@@ -289,8 +298,6 @@ public class SecureCxfClientFactory<T> {
                 throw new SecurityServiceException("Unable to create sts client endpoint.", e);
             }
         }
-
-        LOGGER.debug("EXITING: {}", methodName);
 
         stsClient.setTokenType(stsClientConfig.getAssertionType());
         stsClient.setKeyType(stsClientConfig.getKeyType());
