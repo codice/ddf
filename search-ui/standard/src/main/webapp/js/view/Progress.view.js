@@ -95,9 +95,11 @@ define([
                     this.merge();
                     this.close();
                 }
+
                 if (this.model.get('current') > 0) {
                     this.$el.find('#progressbar').show();
                 }
+
                 if (this.model.get('hits') > 0) {
                     if (this.model.get('lastMergeHits') === 0) {
                         this.merge();
@@ -109,8 +111,12 @@ define([
                     this.$el.find('#progress-text').hide();
                     this.$el.find('#searching-text').show();
                 }
+
                 $("#progressbar .ui-progressbar-value").animate({width: ((this.model.get('current') / this.model.get('total'))*100)+'%'}, 400, 'swing', function() {
-                    if(view.model.isComplete()) {
+                    if (view.model.isComplete()) {
+                        view.$el.find('#searching-text').hide();
+                        view.$el.find('#progress-text').show();
+
                         view.$el.find('.progress-btn').removeClass('btn-info');
                         view.$el.find('.progress-btn').addClass('btn-primary');
                         view.$el.find('#progress-text').addClass('pulse');
@@ -136,7 +142,7 @@ define([
                 this.$el.find('#progress-text').hide();
                 this.$el.find('#searching-text').show();
                 var spinner = new Spinner(spinnerConfig).spin(page);
-                if(this.model.isComplete()) {
+                if (this.model.isComplete()) {
                     this.close();
                 }
 
