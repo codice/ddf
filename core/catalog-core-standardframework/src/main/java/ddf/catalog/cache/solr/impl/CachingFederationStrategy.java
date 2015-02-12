@@ -524,26 +524,33 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
             long deadline = System.currentTimeMillis() + query.getTimeoutMillis();
 
             Map<String, Serializable> returnProperties = returnResults.getProperties();
-            for (int i = 0; i < futures.size(); i++) {
-
-                Source source = null;
-                SourceResponse sourceResponse = null;
+            int futureCount = futures.size();
+            for (int i = 0; i < futureCount; i++) {
+                String sourceId = "Unknown Source";
                 try {
-                    Future<SourceResponse> future = null;
+                    Future<SourceResponse> future;
                     if (query.getTimeoutMillis() < 1) {
                         future = completionService.take();
                     } else {
-                        future = completionService.poll(getTimeRemaining(deadline),
-                                TimeUnit.MILLISECONDS);
+                        future = completionService.poll(
+                                getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
+                        if (future == null) {
+                            timeoutRemainingSources(processingDetails);
+                            break;
+                        }
                     }
 
-                    source = futures.get(future);
-                    sourceResponse = future.get();
+                    Source source = futures.remove(future);
+                    if (source != null) {
+                        sourceId = source.getId();
+                    }
+
+                    SourceResponse sourceResponse = future.get();
 
                     if (sourceResponse == null) {
-                        logger.info("Search timed out for {}", source.getId());
-                        processingDetails.add(new ProcessingDetailsImpl(source.getId(),
-                                new TimeoutException()));
+                        logger.info("Source {} returned null response", sourceId);
+                        processingDetails.add(new ProcessingDetailsImpl(sourceId,
+                                new NullPointerException()));
                     } else {
                         resultList.addAll(sourceResponse.getResults());
                         totalHits += sourceResponse.getHits();
@@ -551,25 +558,16 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                         Map<String, Serializable> properties = sourceResponse.getProperties();
                         returnProperties.putAll(properties);
                     }
-
                 } catch (InterruptedException e) {
-                    String sourceId;
-                    if (source != null) {
-                        sourceId = source.getId();
-                    } else {
-                        sourceId = "Unknown Source";
-                    }
-                    logger.warn("Couldn't get results from completed federated query for {}", sourceId, e);
+                    logger.warn(
+                            "Couldn't get results from completed federated query on for {}",
+                            sourceId, e);
                     processingDetails.add(new ProcessingDetailsImpl(sourceId, e));
                 } catch (ExecutionException e) {
-                    String sourceId;
-                    if (source != null) {
-                        sourceId = source.getId();
-                    } else {
-                        sourceId = "Unknown Source";
-                    }
-                    logger.warn("Couldn't get results from completed federated query for {}", sourceId, e);
-                    processingDetails.add(new ProcessingDetailsImpl(sourceId, e));
+                    logger.warn("Couldn't get results from completed federated query for {}",
+                            sourceId, e.getCause());
+                    processingDetails.add(new ProcessingDetailsImpl(sourceId,
+                            new Exception(e.getCause())));
                 }
             }
             logger.debug("All sources finished returning results: {}", resultList.size());
@@ -590,6 +588,16 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                 returnResults
                         .addResults(resultList.size() > maxResults ? resultList.subList(0, maxResults)
                                 : resultList, true);
+            }
+        }
+
+        private void timeoutRemainingSources(Set<ProcessingDetails> processingDetails) {
+            for (Source expiredSource : futures.values()) {
+                if (expiredSource != null) {
+                    logger.info("Search timed out for {}", expiredSource.getId());
+                    processingDetails.add(new ProcessingDetailsImpl(expiredSource.getId(),
+                            new TimeoutException()));
+                }
             }
         }
 
