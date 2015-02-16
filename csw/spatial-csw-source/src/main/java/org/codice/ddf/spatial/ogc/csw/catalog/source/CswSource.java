@@ -300,8 +300,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     public void refresh(Map<String, Object> configuration) {
         LOGGER.debug("{}: Entering refresh()", cswSourceConfiguration.getId());
 
-        if (configuration == null) {
-            LOGGER.error("Recieved null configuration during refresh for {}: {}", this.getClass()
+        if (configuration == null || configuration.isEmpty()) {
+            LOGGER.error("Recieved null or empty configuration during refresh for {}: {}", this.getClass()
                     .getSimpleName(), cswSourceConfiguration.getId());
             return;
         }

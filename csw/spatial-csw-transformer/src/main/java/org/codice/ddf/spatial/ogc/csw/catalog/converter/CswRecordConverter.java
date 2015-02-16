@@ -93,6 +93,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Converts CSW Record to a Metacard.
@@ -521,7 +522,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         HierarchicalStreamReader reader = copyXml(hreader, metadataWriter, namespaceMap);
 
         MetacardImpl mc = new MetacardImpl(CSW_METACARD_TYPE);
-        Map<String, Attribute> attributes = new HashMap<String, Attribute>();
+        Map<String, Attribute> attributes = new TreeMap<>();
 
         while (reader.hasMoreChildren()) {
             reader.moveDown();
@@ -592,23 +593,26 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
             // value.
             if (cswToMetacardAttributeNames.containsKey(attrName)) {
                 String metacardAttrName = cswToMetacardAttributeNames.get(attrName);
-                AttributeFormat cswAttributeFormat = CSW_METACARD_TYPE
-                        .getAttributeDescriptor(attrName)
-                        .getType().getAttributeFormat();
-                AttributeDescriptor metacardAttributeDescriptor = CSW_METACARD_TYPE
-                        .getAttributeDescriptor(metacardAttrName);
-                AttributeFormat metacardAttrFormat = metacardAttributeDescriptor.getType()
-                        .getAttributeFormat();
-                LOGGER.debug("Setting overlapping Metacard attribute [{}] to value in "
-                                + "CSW attribute [{}] that has value [{}] and format {}",
-                        metacardAttrName,
-                        attrName, attr.getValue(), metacardAttrFormat);
-                if (cswAttributeFormat.equals(metacardAttrFormat)) {
-                    mc.setAttribute(metacardAttrName, attr.getValue());
-                } else {
-                    Serializable value = convertStringValueToMetacardValue(metacardAttrFormat, attr
-                            .getValue().toString());
-                    mc.setAttribute(metacardAttrName, value);
+                if (mc.getAttribute(metacardAttrName) == null) {
+                    AttributeFormat cswAttributeFormat = CSW_METACARD_TYPE
+                            .getAttributeDescriptor(attrName)
+                            .getType().getAttributeFormat();
+                    AttributeDescriptor metacardAttributeDescriptor = CSW_METACARD_TYPE
+                            .getAttributeDescriptor(metacardAttrName);
+                    AttributeFormat metacardAttrFormat = metacardAttributeDescriptor.getType()
+                            .getAttributeFormat();
+                    LOGGER.debug("Setting overlapping Metacard attribute [{}] to value in "
+                                    + "CSW attribute [{}] that has value [{}] and format {}",
+                            metacardAttrName,
+                            attrName, attr.getValue(), metacardAttrFormat);
+                    if (cswAttributeFormat.equals(metacardAttrFormat)) {
+                        mc.setAttribute(metacardAttrName, attr.getValue());
+                    } else {
+                        Serializable value = convertStringValueToMetacardValue(metacardAttrFormat,
+                                attr
+                                        .getValue().toString());
+                        mc.setAttribute(metacardAttrName, value);
+                    }
                 }
             }
         }
