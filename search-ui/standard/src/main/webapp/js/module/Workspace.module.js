@@ -93,7 +93,7 @@ define(['application',
                 return WorkspaceModule.workspaces;
             });
 
-            var workspaceView = new WorkspaceView.WorkspaceLayout({model: WorkspaceModule.workspaces});
+            var workspaceView = new WorkspaceView.PanelLayout({model: WorkspaceModule.workspaces});
 
             var Controller = Marionette.Controller.extend({
 
