@@ -65,11 +65,9 @@ public class SearchService {
 
     private static final String ID = "id";
 
-    private static final String MAX_RESULTS = "mr";
-
     private static final String SOURCES = "src";
 
-    private static final String MAX_TIMEOUT = "mt";
+    private static final String MAX_TIMEOUT = "timeout";
 
     private static final String START_INDEX = "start";
 
@@ -182,7 +180,6 @@ public class SearchService {
      *            - JSON message received from cometd
      */
     public void executeQuery(Map<String, Object> queryMessage, Subject subject) {
-        Long maxResults = castObject(Long.class, queryMessage.get(MAX_RESULTS));
         String sources = castObject(String.class, queryMessage.get(SOURCES));
         Long maxTimeout = castObject(Long.class, queryMessage.get(MAX_TIMEOUT));
         Long startIndex = castObject(Long.class, queryMessage.get(START_INDEX));
@@ -190,16 +187,6 @@ public class SearchService {
         String cql = castObject(String.class, queryMessage.get(CQL_FILTER));
         String sort = castObject(String.class, queryMessage.get(SORT));
         String id = castObject(String.class, queryMessage.get(ID));
-
-        Long localCount = count;
-
-        // Build the SearchRequest and then hand off to the controller for the actual query
-
-        // honor maxResults if count is not specified
-        if (localCount == null && maxResults != null) {
-            LOGGER.debug("setting count to: {}", maxResults);
-            localCount = maxResults;
-        }
 
         Set<String> sourceIds = getSourceIds(sources);
 
@@ -211,7 +198,7 @@ public class SearchService {
             return;
         }
 
-        Query query = createQuery(filter, startIndex, localCount, sort, maxTimeout);
+        Query query = createQuery(filter, startIndex, count, sort, maxTimeout);
         SearchRequest searchRequest = new SearchRequest(sourceIds, query, id);
 
         try {
