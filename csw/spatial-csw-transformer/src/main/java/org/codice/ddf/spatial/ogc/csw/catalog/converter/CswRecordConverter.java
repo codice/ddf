@@ -702,7 +702,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
      * @param value
      * @return
      */
-    public Serializable convertStringValueToMetacardValue(
+    public static Serializable convertStringValueToMetacardValue(
             AttributeFormat attributeFormat, String value) {
         LOGGER.debug("converting csw record property {}", value);
         Serializable ser = null;
@@ -745,7 +745,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         return ser;
     }
 
-    private Date convertToDate(String value) {
+    private static Date convertToDate(String value) {
         // Dates are strings and expected to be in ISO8601 format, YYYY-MM-DD'T'hh:mm:ss.sss,
         // per annotations in the CSW Record schema. At least the date portion must be present;
         // the time zone and time are optional.

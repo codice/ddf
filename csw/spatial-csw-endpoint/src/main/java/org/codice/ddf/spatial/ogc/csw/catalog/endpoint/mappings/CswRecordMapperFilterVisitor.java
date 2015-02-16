@@ -62,8 +62,6 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     protected static final CswRecordMetacardType CSW_METACARD_TYPE = new CswRecordMetacardType();
 
-    protected static final CswRecordConverter CONVERTER = new CswRecordConverter(null);
-
     protected static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
     
     protected static final String SPATIAL_QUERY_TAG = "spatialQueryExtraData";
@@ -278,7 +276,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
             AttributeDescriptor attrDesc = CSW_METACARD_TYPE.getAttributeDescriptor(propName);
             if (attrDesc != null && attrDesc.getType() != null) {
                 String value = (String) expression.getValue();
-                Serializable convertedValue = CONVERTER.convertStringValueToMetacardValue(attrDesc
+                Serializable convertedValue = CswRecordConverter.convertStringValueToMetacardValue(attrDesc
                         .getType().getAttributeFormat(), value);
                 return getFactory(extraData).literal(convertedValue);
             }
