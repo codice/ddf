@@ -37,7 +37,6 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
-import org.codice.ddf.cxf.RestSecurity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -116,7 +115,13 @@ public class SecureCxfClientFactoryBuilder {
             throw new SecurityServiceException("Could not construct base client");
         }
         ClientConfiguration clientConfig = WebClient.getConfig(cxfClient);
-        initSecurity(clientConfig, cxfClient, username, password);
+
+        if (!StringUtils.startsWithIgnoreCase(endpointUrl, "https")) {
+            LOGGER.warn("Cannot secure non-https connection " + endpointUrl
+                    + ", only unsecured clients will be created");
+        } else {
+            initSecurity(clientConfig, cxfClient, username, password);
+        }
 
         if (disableCnCheck) {
             disableCnCheck(clientConfig);
@@ -151,11 +156,6 @@ public class SecureCxfClientFactoryBuilder {
         }
 
         if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
-            if (!StringUtils.startsWithIgnoreCase(httpConduit.getAddress(), "https")) {
-                throw new SecurityServiceException(
-                        "Cannot perform basic auth over non-https connection " + httpConduit
-                                .getAddress());
-            }
             if (httpConduit.getAuthorization() != null) {
                 httpConduit.getAuthorization().setUserName(username);
                 httpConduit.getAuthorization().setPassword(password);
@@ -276,6 +276,7 @@ public class SecureCxfClientFactoryBuilder {
         return stsClient;
     }
 
+    //TODO: we need to detect expired security tokens somehow, and renew them
     public class SecureCxfClientFactory<T> {
 
         private Client cxfClient;
@@ -302,6 +303,8 @@ public class SecureCxfClientFactoryBuilder {
             if (subject instanceof ddf.security.Subject) {
                 RestSecurity.setSubjectOnClient((ddf.security.Subject) subject, newClient);
             }
+            WebClient.getConfig(newClient).getRequestContext()
+                    .put(org.apache.cxf.message.Message.MAINTAIN_SESSION, Boolean.TRUE);
 
             return (T) newClient;
         }
