@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.ddf.security.common.jaxrs;
+package org.codice.ddf.cxf;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
@@ -30,7 +30,6 @@ import java.nio.charset.StandardCharsets;
 /**
  * Provides methods that help with securing RESTful (jaxrs) communications.
  */
-@Deprecated
 public final class RestSecurity {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestSecurity.class);
@@ -42,7 +41,7 @@ public final class RestSecurity {
      *
      * @param subject Subject containing a SAML-based security token.
      * @param client  Non-null client to set the cookie on.
-     * @throws java.lang.NullPointerException if client is null
+     * @throws NullPointerException if client is null
      */
     public static void setSubjectOnClient(Subject subject, Client client) {
         if (subject != null) {

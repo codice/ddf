@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.ddf.security.common;
+package org.codice.ddf.cxf;
 
 import ddf.security.PropertiesLoader;
 import ddf.security.service.SecurityServiceException;
@@ -37,7 +37,7 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
-import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.codice.ddf.cxf.RestSecurity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -90,7 +90,7 @@ public class SecureCxfClientFactoryBuilder {
     /**
      * Creates a factory that will return security-aware clients.
      *
-     * @see org.codice.ddf.security.common.SecureCxfClientFactoryBuilder.SecureCxfClientFactory
+     * @see SecureCxfClientFactoryBuilder.SecureCxfClientFactory
      */
     public <T> SecureCxfClientFactory<T> buildFactory(String endpointUrl, Class<T> interfaceClass,
             String username, String password, List<?> providers, boolean disableCnCheck)
@@ -293,7 +293,7 @@ public class SecureCxfClientFactoryBuilder {
          * This method should be called for each new request thread in order to ensure
          * that the security subject is up-to-date each time.
          *
-         * @see org.codice.ddf.security.common.SecureCxfClientFactoryBuilder
+         * @see SecureCxfClientFactoryBuilder
          */
         public T getClient() throws SecurityServiceException {
             WebClient newClient = WebClient.fromClient(cxfClient);
