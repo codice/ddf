@@ -278,7 +278,7 @@ public class TikaInputTransformer implements InputTransformer {
         }
     }
     
-    private String transformToXml(String xhtml) throws CatalogTransformerException {
+    private String transformToXml(String xhtml) {
         LOGGER.debug("Transforming xhtml to xml.");
         Writer xml = new StringWriter();
         try {
@@ -286,8 +286,9 @@ public class TikaInputTransformer implements InputTransformer {
                     .getClass().getResourceAsStream(XSLT)));
             transformer.transform(new StreamSource(new StringReader(xhtml)), new StreamResult(xml));
         } catch (TransformerException e) {
-            throw new CatalogTransformerException("Unable to transform metdata from XHTML to XML.",
+            LOGGER.warn("Unable to transform metdata from XHTML to XML.",
                     e);
+            return xhtml;
         }
 
         return xml.toString();
