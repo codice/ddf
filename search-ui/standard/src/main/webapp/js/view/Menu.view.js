@@ -29,12 +29,13 @@ define([
     'cometdinit',
     'jquery',
     'js/view/ingest/IngestMenu',
+    'properties',
     'modelbinder',
     'perfectscrollbar',
     'backbonecometd',
     'progressbar'
 ], function(Marionette, ich, menubarTemplate, menubarItemTemplate, User, Backbone, notificationMenuTemplate, notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $,
-        IngestMenu) {
+        IngestMenu, properties) {
 
     if (!ich.menubarItemTemplate) {
         ich.addTemplate('menubarItemTemplate', menubarItemTemplate);
@@ -573,7 +574,8 @@ define([
                         serializeData: function(){
                              return {
                                 branding: menuBarView.model.get('branding'),
-                                version: menuBarView.model.get('version')
+                                version: menuBarView.model.get('version'),
+                                helpUrl: properties.helpUrl || "help.html"
                              };
                         }
                     });

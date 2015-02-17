@@ -110,6 +110,8 @@ public class ConfigurationStore {
 
     private String projection = "EPSG:3857";
 
+    private String helpUrl = "help.html";
+
     private Map<String, Set<String>> typeNameMapping = new HashMap<String, Set<String>>();
 
     public static final Factory NEW_SET_FACTORY = new Factory() {
@@ -171,6 +173,7 @@ public class ConfigurationStore {
         config.put("gazetteer", isGazetteer);
         config.put("showIngest", isIngest);
         config.put("projection", projection);
+        config.put("helpUrl", helpUrl);
 
         String configJson = toJson(config);
         BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configJson.getBytes()),
@@ -437,4 +440,11 @@ public class ConfigurationStore {
         this.projection = projection;
     }
 
+    public String getHelpUrl() {
+        return helpUrl;
+    }
+
+    public void setHelpUrl(String helpUrl) {
+        this.helpUrl = helpUrl;
+    }
 }

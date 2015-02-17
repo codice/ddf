@@ -40,6 +40,9 @@
             name="Connection Timeout" id="timeout"
             required="false" type="Integer" default="15000" />
 
+        <AD description="URL to help documentation" name="Help Location" id="helpUrl"
+            required="false" type="String" default="help.html" />
+
         <AD description="Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected." name="Show Sign In" id="signIn"
             required="false" type="Boolean" default="true" />
 
