@@ -50,7 +50,7 @@ public class SecureCxfClientFactoryBuilder {
 
     protected static final String ADDRESSING_NAMESPACE = "http://www.w3.org/2005/08/addressing";
 
-    private static final transient Logger LOGGER = LoggerFactory
+    private static final Logger LOGGER = LoggerFactory
             .getLogger(SecureCxfClientFactoryBuilder.class);
 
     private final SecuritySettingsService securitySettingsService;
@@ -192,6 +192,12 @@ public class SecureCxfClientFactoryBuilder {
          * @see SecureCxfClientFactoryBuilder
          */
         public T getClientForSubject(Subject subject) throws SecurityServiceException {
+            String asciiString = cxfClient.getBaseURI().toASCIIString();
+            if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
+                throw new SecurityServiceException(
+                        "Cannot secure non-https connection " + asciiString);
+            }
+
             WebClient newClient = WebClient.fromClient(cxfClient);
 
             if (subject instanceof ddf.security.Subject) {
@@ -211,6 +217,12 @@ public class SecureCxfClientFactoryBuilder {
          * and the system security token (x509 cert).
          */
         public T getClientForSystem() throws SecurityServiceException {
+            String asciiString = cxfClient.getBaseURI().toASCIIString();
+            if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
+                throw new SecurityServiceException(
+                        "Cannot secure non-https connection " + asciiString);
+            }
+
             if (StringUtils.isBlank(stsClientConfig.getAddress())) {
                 throw new SecurityServiceException(
                         "STSClientConfiguration is either null or its address is blank - assuming no STS Client is configured, so no SAML assertion will get generated.");
@@ -219,6 +231,7 @@ public class SecureCxfClientFactoryBuilder {
             ClientConfiguration clientConfig = WebClient.getConfig(newClient);
             Bus clientBus = clientConfig.getBus();
             STSClient stsClient = configureSTSClient(clientBus);
+
             try {
                 SecurityToken securityToken = stsClient
                         .requestSecurityToken(stsClientConfig.getAddress());
