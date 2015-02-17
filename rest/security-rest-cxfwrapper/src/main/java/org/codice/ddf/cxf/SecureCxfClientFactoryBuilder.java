@@ -35,7 +35,6 @@ import org.apache.cxf.transport.https.HttpsURLConnectionFactory;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,7 +126,7 @@ public class SecureCxfClientFactoryBuilder {
             disableCnCheck(clientConfig);
         }
 
-        return new SecureCxfClientFactory<>(cxfClient);
+        return new SecureCxfClientFactory<>(securitySettingsService, stsClientConfig, cxfClient);
     }
 
     private void disableCnCheck(ClientConfiguration clientConfig) throws SecurityServiceException {
@@ -164,149 +163,161 @@ public class SecureCxfClientFactoryBuilder {
 
         TLSClientParameters tlsParams = securitySettingsService.getTLSParameters();
         httpConduit.setTlsClientParameters(tlsParams);
-
-        initSamlAssertion(clientConfig, cxfClient);
     }
 
-    private void initSamlAssertion(ClientConfiguration clientConfig, Client cxfClient)
-            throws SecurityServiceException {
-        if (StringUtils.isBlank(stsClientConfig.getAddress())) {
-            LOGGER.debug(
-                    "STSClientConfiguration is either null or its address is blank - assuming no STS Client is configured, so no SAML assertion will get generated.");
-            return;
-        }
-        Bus clientBus = clientConfig.getBus();
-        STSClient stsClient = configureSTSClient(clientBus, stsClientConfig);
-        try {
-            SecurityToken securityToken = stsClient
-                    .requestSecurityToken(stsClientConfig.getAddress());
-            Element samlToken = securityToken.getToken();
-            if (samlToken != null) {
-                Cookie cookie = new Cookie(RestSecurity.SECURITY_COOKIE_NAME,
-                        RestSecurity.encodeSaml(samlToken));
-                cxfClient.reset();
-                cxfClient.cookie(cookie);
-            } else {
-                LOGGER.debug(
-                        "Attempt to retrieve SAML token resulted in null token - could not add token to request");
-            }
-        } catch (Exception e) {
-            throw new SecurityServiceException("Exception trying to get SAML assertion", e);
-        }
-    }
-
-    /**
-     * Returns a new STSClient object configured with the properties that have
-     * been set.
-     *
-     * @param bus - CXF bus to initialize STSClient with
-     * @return STSClient
-     */
-    private STSClient configureSTSClient(Bus bus, STSClientConfiguration stsClientConfig)
-            throws SecurityServiceException {
-
-        String stsAddress = stsClientConfig.getAddress();
-        String stsServiceName = stsClientConfig.getServiceName();
-        String stsEndpointName = stsClientConfig.getEndpointName();
-        String signaturePropertiesPath = stsClientConfig.getSignatureProperties();
-        String encryptionPropertiesPath = stsClientConfig.getEncryptionProperties();
-        String stsPropertiesPath = stsClientConfig.getTokenProperties();
-
-        STSClient stsClient = new STSClient(bus);
-
-        LOGGER.debug("Setting WSDL location (stsAddress) on STSClient: {}", stsAddress);
-        stsClient.setWsdlLocation(stsAddress);
-        LOGGER.debug("Setting service name on STSClient: {}", stsServiceName);
-        stsClient.setServiceName(stsServiceName);
-        LOGGER.debug("Setting endpoint name on STSClient: {}", stsEndpointName);
-        stsClient.setEndpointName(stsEndpointName);
-        LOGGER.debug("Setting addressing namespace on STSClient: {}", ADDRESSING_NAMESPACE);
-        stsClient.setAddressingNamespace(ADDRESSING_NAMESPACE);
-
-        Map<String, Object> newStsProperties = new HashMap<>();
-
-        // Properties loader should be able to find the properties file
-        // no matter where it is
-        if (StringUtils.isNotEmpty(signaturePropertiesPath)) {
-            LOGGER.debug("Setting signature properties on STSClient: {}", signaturePropertiesPath);
-            Properties signatureProperties = PropertiesLoader
-                    .loadProperties(signaturePropertiesPath);
-            newStsProperties.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
-        }
-        if (StringUtils.isNotEmpty(encryptionPropertiesPath)) {
-            LOGGER.debug("Setting encryption properties on STSClient: {}",
-                    encryptionPropertiesPath);
-            Properties encryptionProperties = PropertiesLoader
-                    .loadProperties(encryptionPropertiesPath);
-            newStsProperties.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
-        }
-        if (StringUtils.isNotEmpty(stsPropertiesPath)) {
-            LOGGER.debug("Setting sts properties on STSClient: {}", stsPropertiesPath);
-            Properties stsProperties = PropertiesLoader.loadProperties(stsPropertiesPath);
-            newStsProperties.put(SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties);
-        }
-
-        LOGGER.debug("Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"");
-        newStsProperties
-                .put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, Boolean.TRUE.toString());
-        stsClient.setProperties(newStsProperties);
-
-        if (stsClient.getWsdlLocation()
-                .startsWith(HttpsURLConnectionFactory.HTTPS_URL_PROTOCOL_ID)) {
-            try {
-                LOGGER.debug("Setting up SSL on the STSClient HTTP Conduit");
-                HTTPConduit httpConduit = (HTTPConduit) stsClient.getClient().getConduit();
-                if (httpConduit == null) {
-                    LOGGER.info(
-                            "HTTPConduit was null for stsClient. Unable to configure keystores for stsClient.");
-                } else {
-                    httpConduit.setTlsClientParameters(securitySettingsService.getTLSParameters());
-                }
-            } catch (BusException e) {
-                throw new SecurityServiceException("Unable to create sts client.", e);
-            } catch (EndpointException e) {
-                throw new SecurityServiceException("Unable to create sts client endpoint.", e);
-            }
-        }
-
-        stsClient.setTokenType(stsClientConfig.getAssertionType());
-        stsClient.setKeyType(stsClientConfig.getKeyType());
-        stsClient.setKeySize(Integer.valueOf(stsClientConfig.getKeySize()));
-
-        return stsClient;
-    }
-
-    //TODO: we need to detect expired security tokens somehow, and renew them
     public class SecureCxfClientFactory<T> {
+
+        private final SecuritySettingsService securitySettingsService;
+
+        private final STSClientConfiguration stsClientConfig;
 
         private Client cxfClient;
 
-        private SecureCxfClientFactory(Client cxfClient) {
+        private SecureCxfClientFactory(SecuritySettingsService securitySettingsService,
+                STSClientConfiguration stsClientConfig, Client cxfClient) {
+            this.securitySettingsService = securitySettingsService;
+            this.stsClientConfig = stsClientConfig;
             this.cxfClient = cxfClient;
         }
 
         /**
          * Clients produced by this method will be secured with basic authentication
          * (if a username and password were provided), two-way ssl,
-         * and the security subject from the current thread.
+         * and the provided security subject.
          * <p/>
-         * The returned client should NOT be reused between threads!
-         * This method should be called for each new request thread in order to ensure
+         * The returned client should NOT be reused between requests!
+         * This method should be called for each new request in order to ensure
          * that the security subject is up-to-date each time.
          *
          * @see SecureCxfClientFactoryBuilder
          */
-        public T getClient() throws SecurityServiceException {
+        public T getClientForSubject(Subject subject) throws SecurityServiceException {
             WebClient newClient = WebClient.fromClient(cxfClient);
 
-            Subject subject = SecurityUtils.getSubject();
             if (subject instanceof ddf.security.Subject) {
                 RestSecurity.setSubjectOnClient((ddf.security.Subject) subject, newClient);
+            } else {
+                throw new SecurityServiceException("Not a ddf subject " + subject);
             }
             WebClient.getConfig(newClient).getRequestContext()
                     .put(org.apache.cxf.message.Message.MAINTAIN_SESSION, Boolean.TRUE);
 
             return (T) newClient;
+        }
+
+        /**
+         * Clients produced by this method will be secured with basic authentication
+         * (if a username and password were provided), two-way ssl,
+         * and the system security token (x509 cert).
+         */
+        public T getClientForSystem() throws SecurityServiceException {
+            if (StringUtils.isBlank(stsClientConfig.getAddress())) {
+                throw new SecurityServiceException(
+                        "STSClientConfiguration is either null or its address is blank - assuming no STS Client is configured, so no SAML assertion will get generated.");
+            }
+            WebClient newClient = WebClient.fromClient(cxfClient);
+            ClientConfiguration clientConfig = WebClient.getConfig(newClient);
+            Bus clientBus = clientConfig.getBus();
+            STSClient stsClient = configureSTSClient(clientBus);
+            try {
+                SecurityToken securityToken = stsClient
+                        .requestSecurityToken(stsClientConfig.getAddress());
+                Element samlToken = securityToken.getToken();
+                if (samlToken != null) {
+                    Cookie cookie = new Cookie(ddf.security.SecurityConstants.SAML_COOKIE_NAME,
+                            RestSecurity.encodeSaml(samlToken));
+                    newClient.reset();
+                    newClient.cookie(cookie);
+                    return (T) newClient;
+                } else {
+                    throw new SecurityServiceException(
+                            "Attempt to retrieve SAML token resulted in null token - could not add token to request");
+                }
+            } catch (Exception e) {
+                throw new SecurityServiceException("Exception trying to get SAML assertion", e);
+            }
+        }
+
+        /**
+         * Returns a new STSClient object configured with the properties that have
+         * been set.
+         *
+         * @param bus - CXF bus to initialize STSClient with
+         * @return STSClient
+         */
+        private STSClient configureSTSClient(Bus bus) throws SecurityServiceException {
+
+            String stsAddress = stsClientConfig.getAddress();
+            String stsServiceName = stsClientConfig.getServiceName();
+            String stsEndpointName = stsClientConfig.getEndpointName();
+            String signaturePropertiesPath = stsClientConfig.getSignatureProperties();
+            String encryptionPropertiesPath = stsClientConfig.getEncryptionProperties();
+            String stsPropertiesPath = stsClientConfig.getTokenProperties();
+
+            STSClient stsClient = new STSClient(bus);
+
+            LOGGER.debug("Setting WSDL location (stsAddress) on STSClient: {}", stsAddress);
+            stsClient.setWsdlLocation(stsAddress);
+            LOGGER.debug("Setting service name on STSClient: {}", stsServiceName);
+            stsClient.setServiceName(stsServiceName);
+            LOGGER.debug("Setting endpoint name on STSClient: {}", stsEndpointName);
+            stsClient.setEndpointName(stsEndpointName);
+            LOGGER.debug("Setting addressing namespace on STSClient: {}", ADDRESSING_NAMESPACE);
+            stsClient.setAddressingNamespace(ADDRESSING_NAMESPACE);
+
+            Map<String, Object> newStsProperties = new HashMap<>();
+
+            // Properties loader should be able to find the properties file
+            // no matter where it is
+            if (StringUtils.isNotEmpty(signaturePropertiesPath)) {
+                LOGGER.debug("Setting signature properties on STSClient: {}",
+                        signaturePropertiesPath);
+                Properties signatureProperties = PropertiesLoader
+                        .loadProperties(signaturePropertiesPath);
+                newStsProperties.put(SecurityConstants.SIGNATURE_PROPERTIES, signatureProperties);
+            }
+            if (StringUtils.isNotEmpty(encryptionPropertiesPath)) {
+                LOGGER.debug("Setting encryption properties on STSClient: {}",
+                        encryptionPropertiesPath);
+                Properties encryptionProperties = PropertiesLoader
+                        .loadProperties(encryptionPropertiesPath);
+                newStsProperties.put(SecurityConstants.ENCRYPT_PROPERTIES, encryptionProperties);
+            }
+            if (StringUtils.isNotEmpty(stsPropertiesPath)) {
+                LOGGER.debug("Setting sts properties on STSClient: {}", stsPropertiesPath);
+                Properties stsProperties = PropertiesLoader.loadProperties(stsPropertiesPath);
+                newStsProperties.put(SecurityConstants.STS_TOKEN_PROPERTIES, stsProperties);
+            }
+
+            LOGGER.debug("Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"");
+            newStsProperties
+                    .put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, Boolean.TRUE.toString());
+            stsClient.setProperties(newStsProperties);
+
+            if (stsClient.getWsdlLocation()
+                    .startsWith(HttpsURLConnectionFactory.HTTPS_URL_PROTOCOL_ID)) {
+                try {
+                    LOGGER.debug("Setting up SSL on the STSClient HTTP Conduit");
+                    HTTPConduit httpConduit = (HTTPConduit) stsClient.getClient().getConduit();
+                    if (httpConduit == null) {
+                        LOGGER.info(
+                                "HTTPConduit was null for stsClient. Unable to configure keystores for stsClient.");
+                    } else {
+                        httpConduit
+                                .setTlsClientParameters(securitySettingsService.getTLSParameters());
+                    }
+                } catch (BusException e) {
+                    throw new SecurityServiceException("Unable to create sts client.", e);
+                } catch (EndpointException e) {
+                    throw new SecurityServiceException("Unable to create sts client endpoint.", e);
+                }
+            }
+
+            stsClient.setTokenType(stsClientConfig.getAssertionType());
+            stsClient.setKeyType(stsClientConfig.getKeyType());
+            stsClient.setKeySize(Integer.valueOf(stsClientConfig.getKeySize()));
+
+            return stsClient;
         }
     }
 }

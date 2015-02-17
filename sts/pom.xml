@@ -41,7 +41,6 @@
         <module>security-sts-anonymousvalidator</module>
         <module>security-sts-anonymousclaimshandler</module>
         <module>security-sts-propertyclaimshandler</module>
-        <module>security-sts-cxfwrapper</module>
     </modules>
 
 </project>

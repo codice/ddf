@@ -14,6 +14,7 @@
  **/
 package org.codice.ddf.cxf;
 
+import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import org.apache.cxf.common.util.Base64Utility;
@@ -33,8 +34,6 @@ import java.nio.charset.StandardCharsets;
 public final class RestSecurity {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestSecurity.class);
-
-    public static final String SECURITY_COOKIE_NAME = "org.codice.websso.saml.token";
 
     /**
      * Parses the incoming subject for a saml assertion and sets that as a cookie on the client.
@@ -71,7 +70,7 @@ public final class RestSecurity {
                 }
             }
             if (samlToken != null) {
-                cookie = new Cookie(SECURITY_COOKIE_NAME, encodeSaml(samlToken));
+                cookie = new Cookie(SecurityConstants.SAML_COOKIE_NAME, encodeSaml(samlToken));
             }
         } catch (WSSecurityException e) {
             LOGGER.error("Unable to parse SAML assertion from subject.", e);

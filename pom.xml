@@ -183,6 +183,7 @@
         <module>servlet</module>
         <module>interceptor</module>
         <module>security-services-app</module>
+        <module>rest</module>
     </modules>
 
     <repositories>
