@@ -131,8 +131,8 @@ define([
                     e.east = Math.min(mn.longitude, mx.longitude);
                     e.west = Math.max(mn.longitude, mx.longitude);
                 } else {
-                    e.west = Math.min(mn.longitude, mx.longitude);
                     e.east = Math.max(mn.longitude, mx.longitude);
+                    e.west = Math.min(mn.longitude, mx.longitude);
                 }
                 e.south = Math.min(mn.latitude, mx.latitude);
                 e.north = Math.max(mn.latitude, mx.latitude);
