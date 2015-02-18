@@ -214,6 +214,7 @@ public class UsernameTokenValidator implements TokenValidator {
             if (secToken == null) {
                 Credential credential = new Credential();
                 credential.setUsernametoken(ut);
+                //Only this section is new, the rest is copied from the apache class
                 Set<Map.Entry<String, Validator>> entries = validators.entrySet();
                 for (Map.Entry<String, Validator> entry : entries) {
                     try {
@@ -224,6 +225,7 @@ public class UsernameTokenValidator implements TokenValidator {
                         LOGGER.debug("Unable to validate user against {}" + entry.getKey(), ex);
                     }
                 }
+                //end new section
             }
 
             Principal principal =
