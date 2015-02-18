@@ -36,6 +36,9 @@ import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.shiro.subject.Subject;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -53,20 +56,34 @@ public class SecureCxfClientFactoryBuilder {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(SecureCxfClientFactoryBuilder.class);
 
-    private final SecuritySettingsService securitySettingsService;
-
-    private final STSClientConfiguration stsClientConfig;
-
-    /**
-     * Blueprint constructor.
-     */
-    public SecureCxfClientFactoryBuilder(SecuritySettingsService securitySettingsService,
-            STSClientConfiguration stsClientConfig) throws SecurityServiceException {
-        if (securitySettingsService == null || stsClientConfig == null) {
-            throw new SecurityServiceException("Could not access security configurations.");
+    private SecuritySettingsService getSecuritySettingsService() throws SecurityServiceException {
+        BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+        if (bundleContext != null) {
+            ServiceReference<SecuritySettingsService> serviceReference = bundleContext
+                    .getServiceReference(SecuritySettingsService.class);
+            if (serviceReference != null) {
+                SecuritySettingsService service = bundleContext.getService(serviceReference);
+                if (service != null) {
+                    return service;
+                }
+            }
         }
-        this.securitySettingsService = securitySettingsService;
-        this.stsClientConfig = stsClientConfig;
+        throw new SecurityServiceException("Could not get SecuritySettingsService");
+    }
+
+    private STSClientConfiguration getStsClientConfiguration() throws SecurityServiceException {
+        BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+        if (bundleContext != null) {
+            ServiceReference<STSClientConfiguration> serviceReference = bundleContext
+                    .getServiceReference(STSClientConfiguration.class);
+            if (serviceReference != null) {
+                STSClientConfiguration service = bundleContext.getService(serviceReference);
+                if (service != null) {
+                    return service;
+                }
+            }
+        }
+        throw new SecurityServiceException("Could not get STSClientConfiguration");
     }
 
     /**
@@ -126,7 +143,7 @@ public class SecureCxfClientFactoryBuilder {
             disableCnCheck(clientConfig);
         }
 
-        return new SecureCxfClientFactory<>(securitySettingsService, stsClientConfig, cxfClient);
+        return new SecureCxfClientFactory<>(cxfClient);
     }
 
     private void disableCnCheck(ClientConfiguration clientConfig) throws SecurityServiceException {
@@ -155,28 +172,26 @@ public class SecureCxfClientFactoryBuilder {
         }
 
         if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+            String asciiString = cxfClient.getBaseURI().toASCIIString();
+            if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
+                throw new SecurityServiceException(
+                        "Cannot secure non-https connection " + asciiString);
+            }
             if (httpConduit.getAuthorization() != null) {
                 httpConduit.getAuthorization().setUserName(username);
                 httpConduit.getAuthorization().setPassword(password);
             }
         }
 
-        TLSClientParameters tlsParams = securitySettingsService.getTLSParameters();
+        TLSClientParameters tlsParams = getSecuritySettingsService().getTLSParameters();
         httpConduit.setTlsClientParameters(tlsParams);
     }
 
     public class SecureCxfClientFactory<T> {
 
-        private final SecuritySettingsService securitySettingsService;
-
-        private final STSClientConfiguration stsClientConfig;
-
         private Client cxfClient;
 
-        private SecureCxfClientFactory(SecuritySettingsService securitySettingsService,
-                STSClientConfiguration stsClientConfig, Client cxfClient) {
-            this.securitySettingsService = securitySettingsService;
-            this.stsClientConfig = stsClientConfig;
+        private SecureCxfClientFactory(Client cxfClient) {
             this.cxfClient = cxfClient;
         }
 
@@ -223,7 +238,7 @@ public class SecureCxfClientFactoryBuilder {
                         "Cannot secure non-https connection " + asciiString);
             }
 
-            if (StringUtils.isBlank(stsClientConfig.getAddress())) {
+            if (StringUtils.isBlank(getStsClientConfiguration().getAddress())) {
                 throw new SecurityServiceException(
                         "STSClientConfiguration is either null or its address is blank - assuming no STS Client is configured, so no SAML assertion will get generated.");
             }
@@ -234,7 +249,7 @@ public class SecureCxfClientFactoryBuilder {
 
             try {
                 SecurityToken securityToken = stsClient
-                        .requestSecurityToken(stsClientConfig.getAddress());
+                        .requestSecurityToken(getStsClientConfiguration().getAddress());
                 Element samlToken = securityToken.getToken();
                 if (samlToken != null) {
                     Cookie cookie = new Cookie(ddf.security.SecurityConstants.SAML_COOKIE_NAME,
@@ -260,12 +275,12 @@ public class SecureCxfClientFactoryBuilder {
          */
         private STSClient configureSTSClient(Bus bus) throws SecurityServiceException {
 
-            String stsAddress = stsClientConfig.getAddress();
-            String stsServiceName = stsClientConfig.getServiceName();
-            String stsEndpointName = stsClientConfig.getEndpointName();
-            String signaturePropertiesPath = stsClientConfig.getSignatureProperties();
-            String encryptionPropertiesPath = stsClientConfig.getEncryptionProperties();
-            String stsPropertiesPath = stsClientConfig.getTokenProperties();
+            String stsAddress = getStsClientConfiguration().getAddress();
+            String stsServiceName = getStsClientConfiguration().getServiceName();
+            String stsEndpointName = getStsClientConfiguration().getEndpointName();
+            String signaturePropertiesPath = getStsClientConfiguration().getSignatureProperties();
+            String encryptionPropertiesPath = getStsClientConfiguration().getEncryptionProperties();
+            String stsPropertiesPath = getStsClientConfiguration().getTokenProperties();
 
             STSClient stsClient = new STSClient(bus);
 
@@ -316,8 +331,8 @@ public class SecureCxfClientFactoryBuilder {
                         LOGGER.info(
                                 "HTTPConduit was null for stsClient. Unable to configure keystores for stsClient.");
                     } else {
-                        httpConduit
-                                .setTlsClientParameters(securitySettingsService.getTLSParameters());
+                        httpConduit.setTlsClientParameters(
+                                getSecuritySettingsService().getTLSParameters());
                     }
                 } catch (BusException e) {
                     throw new SecurityServiceException("Unable to create sts client.", e);
@@ -326,9 +341,9 @@ public class SecureCxfClientFactoryBuilder {
                 }
             }
 
-            stsClient.setTokenType(stsClientConfig.getAssertionType());
-            stsClient.setKeyType(stsClientConfig.getKeyType());
-            stsClient.setKeySize(Integer.valueOf(stsClientConfig.getKeySize()));
+            stsClient.setTokenType(getStsClientConfiguration().getAssertionType());
+            stsClient.setKeyType(getStsClientConfiguration().getKeyType());
+            stsClient.setKeySize(Integer.valueOf(getStsClientConfiguration().getKeySize()));
 
             return stsClient;
         }
