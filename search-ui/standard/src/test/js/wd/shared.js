@@ -16,15 +16,20 @@ chaiAsPromised.transferPromiseness = wd.transferPromiseness;
 
 function debugLogging(browser) {
     // optional extra logging
-    browser.on('status', function (info) {
-        console.log(info.cyan);
-    });
-    browser.on('command', function (eventType, command, response) {
-        console.log(' > ' + eventType.cyan, command, (response || '').grey);
-    });
-    browser.on('http', function (meth, path, data) {
-        console.log(' > ' + meth.magenta, path, (data || '').grey);
-    });
+    if (browser.on) {
+        browser.on('status', function (info) {
+            console.log(info.cyan);
+        });
+        browser.on('command', function (eventType, command, response) {
+            if (command === "takeScreenshot()") {
+                response = "";
+            }
+            console.log(' > ' + eventType.cyan, command, (response || '').grey);
+        });
+        browser.on('http', function (meth, path, data) {
+            console.log(' > ' + meth.magenta, path, (data || '').grey);
+        });
+    }
 }
 
 var screenshotPath = path.join(__dirname, '../../../..', 'target/webapp/images');
