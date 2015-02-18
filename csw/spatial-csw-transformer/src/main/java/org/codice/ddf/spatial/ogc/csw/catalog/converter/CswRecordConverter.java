@@ -609,8 +609,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
                         mc.setAttribute(metacardAttrName, attr.getValue());
                     } else {
                         Serializable value = convertStringValueToMetacardValue(metacardAttrFormat,
-                                attr
-                                        .getValue().toString());
+                                attr.getValue().toString());
                         mc.setAttribute(metacardAttrName, value);
                     }
                 }
