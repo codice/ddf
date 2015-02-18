@@ -36,7 +36,8 @@
     "openlayers3": "v3.0.0",
     "jquery-file-upload": "9.5.7",
     "cesium-drawhelper":"leforthomas/cesium-drawhelper#4fbe1776f50a8b9dee0252725eab93a8e68fb539",
-    "limby-resize": "danschumann/limby-resize"
+    "limby-resize": "danschumann/limby-resize",
+    "spectrum": "1.6.0"
   },
   "resolutions": {
     "jquery": "1.11.0"

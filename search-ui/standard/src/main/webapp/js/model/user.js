@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define, window*/
 
 define([
     'backbone',
@@ -19,7 +19,45 @@ define([
 
     var User = {};
 
+    User.Preferences = Backbone.AssociatedModel.extend({
+        defaults: {
+            pointColor: '#FFA467',
+            multiPointColor: '#FFA467',
+            lineColor: '#5B93FF',
+            multiLineColor: '#5B93FF',
+            polygonColor: '#FF6776',
+            multiPolygonColor: '#FF6776',
+            geometryCollectionColor: '#FFFF67'
+        },
+        url: '/service/user',
+        initialize: function () {
+            if (this.parents.length === 0 || this.parents[0].isGuestUser()) {
+                var jsonString = window.localStorage.getItem('org.codice.ddf.search.preferences');
+                if (jsonString && jsonString !== '') {
+                    this.set(JSON.parse(jsonString));
+                }
+            }
+        },
+        savePreferences: function () {
+            if (this.parents[0].isGuestUser()) {
+                window.localStorage.setItem('org.codice.ddf.search.preferences', JSON.stringify(this.toJSON()));
+            } else {
+                this.save();
+            }
+        }
+    });
+
     User.Model = Backbone.AssociatedModel.extend({
+        relations: [
+            {
+                type: Backbone.One,
+                key: 'preferences',
+                relatedModel: User.Preferences
+            }
+        ],
+        defaults: {
+            preferences: new User.Preferences()
+        },
         isGuestUser: function() {
             return this.get('isAnonymous') === 'true' || this.get('isAnonymous') === true;
         }

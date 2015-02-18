@@ -29,13 +29,15 @@ define([
     'cometdinit',
     'jquery',
     'js/view/ingest/IngestMenu',
+    'js/view/preferences/PreferencesMenu',
+    'application',
     'properties',
     'modelbinder',
     'perfectscrollbar',
     'backbonecometd',
     'progressbar'
 ], function(Marionette, ich, menubarTemplate, menubarItemTemplate, User, Backbone, notificationMenuTemplate, notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $,
-        IngestMenu, properties) {
+        IngestMenu, PreferencesMenu, Application, properties) {
 
     if (!ich.menubarItemTemplate) {
         ich.addTemplate('menubarItemTemplate', menubarItemTemplate);
@@ -58,9 +60,6 @@ define([
     ich.addTemplate('helpTemplate', helpTemplate);
 
     var Menu = {};
-
-    Menu.UserModel = new User.Response();
-    Menu.UserModel.fetch();
 
     var MenuItem = Backbone.Model.extend({
 
@@ -391,7 +390,8 @@ define([
             notification: '#notification',
             help: '#help',
             tasks: '#tasks',
-            ingest: '#ingest'
+            ingest: '#ingest',
+            preferences: '#preferences'
         },
         onRender: function() {
             var menuBarView = this;
@@ -400,18 +400,18 @@ define([
                     className: 'dropdown',
                     initialize: function() {
                         if(this.isNotGuestUser()){
-                            this.model.set({name: Menu.UserModel.get('user').get('username')});
+                            this.model.set({name: Application.UserModel.get('user').get('username')});
                         }
-                        this.listenTo(Menu.UserModel, 'change', this.updateUser);
+                        this.listenTo(Application.UserModel, 'change', this.updateUser);
                     },
                     updateUser: function() {
                         if(this.isNotGuestUser()) {
-                            this.model.set({name: Menu.UserModel.get('user').get('username')});
+                            this.model.set({name: Application.UserModel.get('user').get('username')});
                         }
                         this.render();
                     },
                     isNotGuestUser: function() {
-                        return Menu.UserModel && Menu.UserModel.get('user') && Menu.UserModel.get('user').get('username') && !Menu.UserModel.get('user').isGuestUser();
+                        return Application.UserModel && Application.UserModel.get('user') && Application.UserModel.get('user').get('username') && !Application.UserModel.get('user').isGuestUser();
                     },
                     onRender: function() {
                         if(this.isNotGuestUser()) {
@@ -600,6 +600,16 @@ define([
                 })});
                 this.ingest.show(ingest);
             }
+
+            var preferences = new PreferencesMenu({model: new MenuItem({
+                id: 'Preferences',
+                name: 'Preferences',
+                classes: 'fa fa-sliders center-icon showModal',
+                iconOnly: true,
+                dropdown: false,
+                user: Application.UserModel
+            })});
+            this.preferences.show(preferences);
         }
     });
 

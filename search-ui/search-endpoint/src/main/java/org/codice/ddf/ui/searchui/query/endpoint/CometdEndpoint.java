@@ -131,7 +131,7 @@ public class CometdEndpoint {
                  
             searchController.setBayeuxServer(bayeuxServer);
             searchService = new SearchService(filterBuilder, searchController);
-            userService = new UserService();
+            userService = new UserService(persistentStore);
             workspaceService = new WorkspaceService(persistentStore);
             cometdAnnotationProcessor.process(userService);
             cometdAnnotationProcessor.process(workspaceService);

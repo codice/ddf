@@ -27,6 +27,7 @@
             spin: 'lib/spin.js/spin',
             q: 'lib/q/q',
             strapdown: 'lib/strapdown/v/0.2',
+            spectrum: 'lib/spectrum/spectrum',
 
             // backbone
             backbone: 'lib/components-backbone/backbone-min',

@@ -18,9 +18,10 @@ define([
         'openlayers',
         'direction',
         'properties',
-        'wreqr'
+        'wreqr',
+        'application'
     ],
-    function (Backbone, Marionette, _, ol, dir, properties, wreqr) {
+    function (Backbone, Marionette, _, ol, dir, properties, wreqr, Application) {
         "use strict";
         var Views = {};
 
@@ -125,11 +126,11 @@ define([
             },
 
             getGeometry: getPoint,
-            pointFillColor: 'rgba(255,164,102,1)',
-            pointStokeColor: 'rgba(0,0,0,1)',
-            lineStokeColor: 'rgba(255,255,255,1)',
+            pointStrokeColor: 'rgba(0,0,0,1)',
+            lineStrokeColor: 'rgba(255,255,255,1)',
 
             initialize: function (options) {
+                this.pointFillColor = options.pointFillColor || Application.UserModel.get('user>preferences>pointColor');
                 this.geoController = options.geoController;
                 if (!options.ignoreEvents) {
                     this.listenTo(this.geoController, 'click:left', this.onMapLeftClick);
@@ -161,9 +162,9 @@ define([
                     image: new ol.style.Circle({
                         radius: 4,
                         fill: new ol.style.Fill({color: this.pointFillColor}),
-                        stroke: new ol.style.Stroke({color: this.pointStokeColor, width: 1})
+                        stroke: new ol.style.Stroke({color: this.pointStrokeColor, width: 1})
                     }),
-                    stroke: new ol.style.Stroke({color: this.lineStokeColor, width: 1})
+                    stroke: new ol.style.Stroke({color: this.lineStrokeColor, width: 1})
                 }));
 
                 var vectorSource = new ol.source.Vector({
@@ -213,8 +214,7 @@ define([
         });
 
         Views.LineView = Views.PointView.extend({
-            getGeometry: getLineString,
-            pointFillColor: 'rgba(91,147,225,1)'
+            getGeometry: getLineString
         });
 
         Views.MultiLineView = Views.LineView.extend({
@@ -222,8 +222,7 @@ define([
         });
 
         Views.RegionView = Views.PointView.extend({
-            getGeometry: getPolygon,
-            pointFillColor: 'rgba(255,103,118,1)'
+            getGeometry: getPolygon
         });
 
         Views.MultiRegionView = Views.RegionView.extend({
@@ -231,8 +230,7 @@ define([
         });
 
         Views.GeometryCollectionView = Views.PointView.extend({
-            getGeometry: getGeometryCollection,
-            pointFillColor: 'rgba(255,255,103,1)'
+            getGeometry: getGeometryCollection
         });
 
         Views.ResultsView = Marionette.CollectionView.extend({
@@ -262,16 +260,22 @@ define([
                 if (geometry.isPoint()) {
                     ItemView = Views.PointView;
                 } else if (geometry.isMultiPoint()) {
+                    options.pointFillColor = Application.UserModel.get('user>preferences>multiPointColor');
                     ItemView = Views.MultiPointView;
                 } else if (geometry.isPolygon()) {
+                    options.pointFillColor = Application.UserModel.get('user>preferences>polygonColor');
                     ItemView = Views.RegionView;
                 } else if (geometry.isMultiPolygon()) {
+                    options.pointFillColor = Application.UserModel.get('user>preferences>multiPolygonColor');
                     ItemView = Views.MultiRegionView;
                 }  else if (geometry.isLineString()) {
+                    options.pointFillColor = Application.UserModel.get('user>preferences>lineColor');
                     ItemView = Views.LineView;
                 } else if (geometry.isMultiLineString()) {
+                    options.pointFillColor = Application.UserModel.get('user>preferences>multiLineColor');
                     ItemView = Views.MultiLineView;
                 } else if (geometry.isGeometryCollection()) {
+                    options.pointFillColor = Application.UserModel.get('user>preferences>geometryCollectionColor');
                     ItemView = Views.GeometryCollectionView;
                 } else {
                     throw new Error("No view for this geometry");

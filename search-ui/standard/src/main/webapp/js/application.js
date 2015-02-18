@@ -26,6 +26,7 @@ define(['jquery',
         'js/controllers/application.controller',
         'js/controllers/Modal.controller',
         'js/controllers/SystemUsage.controller',
+        'js/model/user',
         // Load non attached libs and plugins
         'bootstrap',
         'backboneassociations',
@@ -34,7 +35,7 @@ define(['jquery',
         'modelbinder',
         'collectionbinder'
     ], function ($, _, Marionette, Backbone, ich, properties, maptype, map, header, footer,
-                 ApplicationController, ModalController, SystemUsageController) {
+                 ApplicationController, ModalController, SystemUsageController, User) {
         'use strict';
 
         var Application = {};
@@ -47,6 +48,9 @@ define(['jquery',
         Application.App = new Marionette.Application();
 
         Application.AppModel = new Backbone.Model(properties);
+
+        Application.UserModel = new User.Response();
+        Application.UserModel.fetch();
 
         Application.Controllers = {
 

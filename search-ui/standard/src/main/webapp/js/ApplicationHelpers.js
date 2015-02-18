@@ -31,7 +31,7 @@ define([
     //
     // This sub object selecting can be see at
     // http://dhruvaray.github.io/backbone-associations/specify-associations.html#sa-getsetop
-    Backbone.Associations.SEPARATOR = '>';
+    Backbone.Associations.setSeparator('>');
 
     /**
      * A very simple promise wrapper of fetch that just resolves or rejects.  Warning! If
