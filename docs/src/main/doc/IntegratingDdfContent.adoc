@@ -64,175 +64,59 @@ The DDF Content Framework design consists of several major components, namely en
 
 The endpoints provide external clients access to the Content Framework. Input transformers convert incoming content into a metacard.  The core Content Framework routes requests and responses through the system. The storage providers provide storage of the content to specific types of storage, e.g., file system, relational database, XML database. The Content plugins provide pluggable functionality that can be executed after the content has been stored/update/deleted but before the response has been returned to the client.
 
-The UML class diagrams below illustrates how these components are related to each other.
-
-[plantuml, content_framework_design, png]
-....
-title <b>Content Framework Design</b>
-
-class ContentRestEndpoint {
-    Response create(InputStream, String contentType, String directive, String contentUri)
-    Response read(String id)
-    Response update(InputStream, String id, String contentType, String directive)
-    Response updateCatalogOnly(InputStream, String contentType, String contentUri) 
-    Response delete(String id, String directive)
-    Response deleteCatalogOnly(String contentUri)
-}
-
-interface ContentItem {
-    String id
-    String uri
-    String mimeType
-    InputStream stream
-}
-
-interface ContentFramework {
-    CreateResponse create(CreateRequest)
-    ReadResponse read(ReadRequest)
-    UpdateResponse update(UpdateRequest)
-    DeleteResponse delete(DeleteRequest)
-}
-
-interface StorageProvider {
-    CreateResponse create(CreateRequest)
-    ReadResponse read(ReadRequest)
-    UpdateResponse update(UpdateRequest)
-    DeleteResponse delete(DeleteRequest)
-}
-
-interface MimeTypeMapper {
-    String getMimeTypeForFileExtension(String)
-    String getFileExtensionForMimeype(String)
-}
-
-interface MimeTypeResolver {
-    String name
-    int priority
-    String[] customMimeTypes
-    String getMimeTypeForFileExtension(String)
-    String getFileExtensionForMimeype(String)
-}
-
-interface ContentPlugin {
-    CreateResponse processCreate(CreateResponse)
-    UpdateResponse processUpdate(UpdateResponse)
-    DeleteResponse processDelete(DeleteResponse)
-}
-
-interface InputTransformer {
-    Metacard transform(InputStream)
-    Metacard transform(InputStream, String id)
-}
-
-interface CatalogFramework {
-    CreateResponse create(CreateRequest)
-    UpdateResponse update(UpdateRequest)
-    DeleteResponse delete(DeleteRequest)
-}
-
-Client -> ContentRestEndpoint
-ContentRestEndpoint --> IncomingContentItem : creates
-ContentItem <|.. IncomingContentItem
-ContentRestEndpoint -> ContentFrameworkImpl : invokes
-ContentFramework <|.. ContentFrameworkImpl
-ContentFrameworkImpl -> FileSystemProvider : invokes
-StorageProvider <|.. FileSystemProvider
-FileSystemProvider --> MimeTypeMapperImpl : uses
-MimeTypeMapper <|.. MimeTypeMapperImpl
-MimeTypeMapperImpl o-- MimeTypeResolver : looks up in OSGi registry
-MimeTypeResolver <|.. TikaMimeTypeResolver
-MimeTypeResolver <|.. CustomMimeTypeResolver
-FileSystemProvider --> ContentFile : creates
-ContentItem <|.. ContentFile
-ContentFrameworkImpl o-- ContentPlugin : invokes
-ContentPlugin <|.. CatalogContentPlugin
-CatalogContentPlugin o-- InputTransformer : looks up in OSGi registry
-InputTransformer <|.. GeoJsonInputTransformer
-CatalogContentPlugin -> CatalogFramework : invokes
-
-note "Adds support for application/json;id=geojson,\nand image/nitf mime types" as Note1
-Note1 .. CustomMimeTypeResolver
-
-note "Only component in Content Framework that\ninterfaces with Catalog Framework" as Note3
-CatalogContentPlugin .. Note3
-
-note "Assigns GUID for ContentItem on create requests" as Note4
-ContentFrameworkImpl .. Note4
-
-note top of ContentRestEndpoint : directive STORE = only store content in content repository\nSTORE_AND_PROCESS = store content in content repository and parse content\nto create Metacard and create catalog entry in MDC
-....
 
 ==== DDF Content API Packaging
 
 The Content API consists of the Java interfaces that define the methods that this API supports. The following illustrations show these interfaces and how they are packaged.
 
-[plantuml, content_api_packaging, png]
+.Content API Packaging
+[ditaa, content_api_packaging, png]
 ....
-package "DDF Content API" <<Folder>> #DDDDDD {
-package ddf.content <<Node>> {
-interface ContentFramework
-}
-package ddf.content.operation <<Node>> {
-interface Operation
-interface Request
-interface Response
-interface CreateRequest
-interface CreateResponse
-interface ReadRequest
-interface ReadResponse
-interface UpdateRequest
-interface UpdateResponse
-interface DeleteRequest
-interface DeleteResponse 
-}
-package ddf.content.provider <<Node>> {
-interface StorageProvider
-}
-package ddf.content.plugin <<Node>> {
-interface ContentPlugin
-}
-}
-package "DDF Mime Types Support" <<Folder>> {
-package ddf.mime <<Node>> {
-interface MimeTypeMapper
-interface MimeTypeResolver
-}
-}
-"DDF Content API" --- "DDF Mime Types Support"
++---------------------------------------------------------------------------------------------------------------------------------\
+|DDF Content API cCCC                                                                                                             |
+|+------------------\ +-------------------\ +--------------------------------------------------------------\ +------------------\ |
+||ddf.content.plugin| |ddf.contentprovider| |ddf.content.operation                                         | |ddf.content       | |
+||   +-------------\| |  +---------------\| | +---------\ +-------\ +--------\ +-------------\             | |+----------------\| |
+||   |ContentPlugin|| |  |StorageProvider|| | |Operation| |Request| |Response| |CreateRequest|             | ||ContentFramework|| |
+||   |cFFC         || |  |cFFC           || | |cFFC     | |cFFC   | |cFFC    | |cFFC         |             | ||cFFC            || |
+||   \-------------/| |  \---------------/| | \---------/ \-------/ \--------/ \-------------/             | |\----------------/| |
+||cDEF              | |cDEF               | | +-------------\ +-----------\ +------------\ +-------------\ | |cDEF              | |
+|\------------------/ \-------------------/ | |CreateRequest| |ReadRequest| |ReadResponse| |UpdateRequest| | \------------------/ |
+|                                           | |cFFC         | | cFFC      | | cFFC       | | cFFC        | |                      |
+|                                           | \-------------/ \-----------/ \------------/ \-------------/ |                      | +-----------------------------------\
+|                                           | +--------------\ +-------------\ +--------------\            |                      | |DDF Mime Types Support             |
+|                                           | |UpdateResponse| |DeleteRequest| |DeleteResponse|  cDEF      |                      | |+----------------\ +--------------\|
+|                                           | |cFFC          | | cFFC        | |cFFC          |            |                      | ||MimeTypeResolver| |MimeTypeMapper||
+|                                           | \--------------/ \-------------/ \--------------/            |                      | ||cFFC            | |cFFC          ||
+|                                           \--------------------------------------------------------------/                      | |\----------------/ \--------------/|
+\---------------------------------------------------------------------------------------------------------------------------------/ \-----------------------------------/
 ....
 
 ==== DDF Content API Reference Implementation
 
 The Content API Reference Implementation consists of the Java classes that implement the methods defined in the Content API. The following illustrations show these classes and how they are packaged.
 
-[plantuml, content_api_reference_impl, png]
+[ditaa, content_api_reference_impl, png]
 ....
-package "DDF Content API Impl" <<Folder>> #DDDDDD {
-package ddf.content.impl <<Node>> {
-class ContentFrameworkImpl
-}
-package ddf.content.operation.impl <<Node>> {
-class OperationImpl
-class RequestImpl
-class ResponseImpl
-class CreateRequestImpl
-class CreateResponseImpl
-class ReadRequestImpl
-class ReadResponseImpl
-class UpdateRequestImpl
-class UpdateResponseImpl
-class DeleteRequestImpl
-class DeleteResponseImpl 
-}
-package ddf.content.provider.file <<Node>> {
-class FileSystemProvider
-}
-package ddf.content.plugin.catalog <<Node>> {
-class CatalogContentPlugin
-class Cataloger
-}
-}
-
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------\
+|DDF Content API Impl                                                                                                                                                        |
+|+----------------------------------\ +-------------------------\ +-------------------------------------------------------------------------------\ +----------------------\ |
+||ddf.content.plugin.catalog cDEF   | |ddf.content.provider.file| |ddf.content.operation.impl                                                     | |ddf.content.impl      | |
+||+---------\ +--------------------\| |     +------------------\| | +-------------\ +-----------\ +------------\ +-----------------\              | |+--------------------\| |
+|||Cataloger| |CatalogContentPlugin|| |     |FileSystemProvider|| | |OperationImpl| |RequestImpl| |ResponseImpl| |CreateRequestImpl|              | ||ContentFrameworkImpl|| | 
+||| cFFC    | | cFFC               || |     | cFFC             || | |cFFC         | |cFFC       | |cFFC        | |cFFC             |    cDEF      | ||cFFC                || |
+||\---------/ \--------------------/| |     \------------------/| | \-------------/ \-----------/ \------------/ \-----------------/              | |\--------------------/| |
+||                                  | |   cDEF                  | | +------------------\ +---------------\ +----------------\ +-----------------\ | | cDEF                 | |
+|\----------------------------------/ \-------------------------/ | |CreateResponseImpl| |ReadRequestImpl| |ReadresponseImpl| |UpdateRequestImpl| | \----------------------/ |
+|                                                                 | |cFFC              | |cFFC           | |cFFC            | |cFFC             | |                          |
+|                                                                 | \------------------/ \---------------/ \----------------/ \-----------------/ |                          |
+|                                                                 | +------------------\ +-----------------\ +------------------\                 |                          |
+|                                                                 | |UpdateResponseImpl| |DeleteRequestImpl| |DeleteResponseImpl|                 |                          |
+|                                                                 | |cFFC              | |cFFC             | | cFFC             |                 |                          |
+|                                                                 | \------------------/ \-----------------/ \------------------/                 |                          |
+|                                                                 |                                                                               |                          |
+|                                                                 \-------------------------------------------------------------------------------/                          |
+\----------------------------------------------------------------------------------------------------------------------------------------------------------------------------/
 ....
 
 
@@ -531,83 +415,6 @@ The following storage providers are provided with the Content Framework out of 
 
 * File System Storage Provider
 
-=== Content Framework Execution Flow
-
-On This Page
-
-==== Create Content and Catalog Entry from a GeoJson File
-
-The UML sequence diagram below illustrates how the DDF Content components interact when storing a GeoJson file and creating a catalog entry for it by parsing the GeoJson file and creating a Metacard.
-
-[plantuml, content_framework_execution_flow, png]
-....
-autonumber 
-
-title Content File Creation 
-hide footbox 
-
-skinparam sequence { 
-
-  ArrowColor #336699 
-
-  ActorBorderColor #666666 
-  ActorBackgroundColor #FFFFFF 
-
-  LifeLineBorderColor #336699 
-  LifeLineBackgroundColor #336699 
-
-  BoxBorderColor #666666 
-
-  ParticipantBorderColor #666666 
-  ParticipantBackgroundColor #336699 
-  ParticipantFontColor #FFFFFF 
-} 
-
-actor Client 
-box "DDF Content Framework" #DDEEFF 
-  participant "Content REST Service Endpoint" as ContentRestEndpoint <<Endpoint>>
-  participant "Incoming Content Item" as IncomingContentItem <<ContentItem>>
-  participant "Content Framework" as ContentFramework <<ContentFramework>>
-  participant "File System Provider" as FileSystemProvider <<StorageProvider>>
-  participant "Content File" as ContentFile <<ContentItem>>
-  participant "Mime Type Mapper" as MimeTypeMapper <<MimeTypeMapper>>
-  participant "DDF Custom Mime Type Resolver" as CustomMimeTypeResolver <<MimeTypeResolver>>
-  participant "Catalog Content Plugin" as CatalogContentPlugin <<ContentPlugin>>
-  participant "GeoJson Input Transformer" as GeoJsonInputTransformer <<InputTransformer>>
-end box 
-participant "Catalog Framework" as CatalogFramework <<CatalogFramework>>
-
- 
-
-Client -> ContentRestEndpoint : create content
-ContentRestEndpoint -> IncomingContentItem: create(stream,mimeType)
-ContentRestEndpoint -> ContentFramework: create(CreateRequest) 
-ContentFramework -> FileSystemProvider: create(CreateRequest)
-FileSystemProvider -> MimeTypeMapper: getFileExtensionForMimeType(mimeType)
-note right
-Searches all registered MimeTypeResolvers until file extension found
-The mime type will be application/json;id=geojson
-end note
-MimeTypeMapper -> CustomMimeTypeResolver: getFileExtensionForMimeType(mimeType)
-CustomMimeTypeResolver --> MimeTypeMapper: file extension
-MimeTypeMapper --> FileSystemProvider: file extension 
-FileSystemProvider -> FileSystemProvider: create GUID for content item to be stored
-FileSystemProvider -> ContentFile: create(stream,id,mimeType)
-FileSystemProvider -> FileSystemProvider: store content to file system
-FileSystemProvider --> ContentFramework: CreateResponse
-ContentFramework -> CatalogContentPlugin: processCreate(CreateResponse)
-CatalogContentPlugin -> CatalogContentPlugin: look up registered InputTransformer for mime type
-CatalogContentPlugin -> GeoJsonInputTransformer : InputStream
-GeoJsonInputTransformer -> GeoJsonInputTransformer : parse GeoJson and create Metacard
-GeoJsonInputTransformer --> CatalogContentPlugin: Metacard
-CatalogContentPlugin -> CatalogFramework: createRequest(CreateRequest) with GeoJson-parsed Metacard
-CatalogFramework --> CatalogContentPlugin: CreateResponse with new catalog ID
-CatalogContentPlugin -> CatalogContentPlugin: add new catalog ID to properties of CreateResponse
-CatalogContentPlugin --> ContentFramework: CreateResponse
-ContentFramework --> ContentRestEndpoint: CreateResponse
-ContentRestEndpoint -> Client: Response with contentID, catalogID, and Location URI
-....
-
 == DDF Content Core
 
 The `content-core` bundle is a collection of default catalog components that can be used for most situations.
@@ -811,7 +618,7 @@ As an example, if the content item's mime type was `image/nitf`, then:
 
 [WARNING]
 ====
- A sub-directory is created for each entry in the content store, so there will be limitations based on the file system that is used, i.e., the maximum amount of sub-directories supported for a file system.
+A sub-directory is created for each entry in the content store, so there will be limitations based on the file system that is used, i.e., the maximum amount of sub-directories supported for a file system.
 ====
 
 ==== Using
