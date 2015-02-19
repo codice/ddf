@@ -416,18 +416,21 @@ ddf.catalog.operation.QueryImpl query = new QueryImpl( filter );
 ====== Tree View of Example Creating-Filters-3 
 
 Filters used in DDF can always be represented in a tree diagram.
-[plantuml, tree, png]
+
+[ditaa,tree1, png]
 ....
-digraph tree {
- splines=false;
- node[style="filled", fillcolor="#FFFFFF",fontname="sansserif"];
- fontname="sansserif";
- node1[shape=box, label="And"];
- node2[shape=box, label="mission"];
- node3[shape=box, label="planning"];
- node1 -> node2
- node1 -> node3
-}
++--------------------\
+|cEEE /-------\      |
+|     |  And  |      |
+|     \-+---+-/      |
+|       |   |        |
+|     +-+   +-+      |
+|     |       |      |
+|     v       v      |
+|/-------\ /--------\|
+||mission| |planning||
+|\-------/ \--------/|
+\--------------------/
 ....
 
 ====== XML View of Example Creating-Filters-3
@@ -494,23 +497,23 @@ Alternately, `org.opengis.filter.Filter` implementations can be parsed using i
 If the `FilterAdapter` encountered or "visited" a `PropertyIsLike` filter with its property assigned as `title` and its literal expression assigned as `mission`, the `FilterDelegate` could create the proper SQL syntax similar to title LIKE mission.
 
 .Figure Parsing-Filters1
-[plantuml, tree, png]
+[ditaa,tree2,png]
 ....
-digraph tree {
- splines=false;
- node[style="box,filled", fillcolor="#FFFFFF",fontname="sansserif"];
- fontname="sansserif";
- node1[shape=box, label="PropertyIsLike"];
- node2[shape=box, label="Property:\ntitle"];
- node3[shape=box, label="Literal:\nmission"];
- node1 -> node2
- node1 -> node3
-}
++-------------------------\
+|    /----------------\   |
+|    | PropertyIsLike |   |
+|    \----------------/   |
+| cEEE      |  |          |
+|      /----/  \----\     |
+|      |            |     |
+|      v            v     |
+|/----------\  /---------\|
+||Property- |  |Literal- ||
+|| title    |  | mission ||
+|\----------/  \---------/|
+\-------------------------/
 ....
 
-////
-Fuzzy Function Usage
-////
 ====== Interpreting a Filter to Create XQuery
 
 If the 
@@ -523,27 +526,30 @@ ft:query(//inventory:book/@subject,'science').
 ----
 
 .Figure Parsing-Filters2
-[plantuml, tree, png]
+[ditaa, tree3, png]
+....	
++---------------------------------------------------\
+|                       /----\                      |
+|  cEEE                 | OR |                      |
+|                       \----/                      |
+|                        |  |                       |
+|             /----------/  \----------\            |
+|             |                        |            |
+|             v                        v            |
+|    /----------------\        /----------------\   |
+|    | PropertyIsLike |        | PropertyIsLike |   |
+|    \----------------/        \----------------/   |
+|           |  |                      |  |          |
+|      /----/  \----\            /----/  \----\     |
+|      |            |            |            |     |
+|      v            v            v            v     |
+|/----------\  /---------\  /---------\  /---------\|
+||Property- |  |Literal- |  |Property-|  |Literal- ||
+|| title    |  | mission |  | Subject |  | science ||
+|\----------/  \---------/  \---------/  \---------/|
+\---------------------------------------------------/
 ....
-digraph tree {
- splines=false;
- node[style="box,filled", fillcolor="#FFFFFF",fontname="sansserif"];
- fontname="sansserif";
- node1[shape=box, label="OR"];
- node2[shape=box, label="PropertyIsLike"];
- node3[shape=box, label="PropertyIsLike"];
- node4[shape=box, label="Property:\nsubject"];
- node5[shape=box, label="Literal:\nmath"];
- node6[shape=box, label="Property:\nsubject"];
- node7[shape=box, label="Literal:\nscience"];    
- node1 -> node2
- node1 -> node3
- node2 -> node4
- node2 -> node5
- node3 -> node6
- node3 -> node7 
-}
-....
+
 
 ====== FilterAdapter/Delegate Process for Figure Parsing-Filters2
 
@@ -673,7 +679,7 @@ Comparison operators compare the value associated with a property name with a gi
 
 |BINARY_TYPE
 |
-|image:check.png[]
+|*X*
 |
 |
 |
@@ -686,7 +692,7 @@ Comparison operators compare the value associated with a property name with a gi
 
 |BOOLEAN_TYPE
 |
-|image:check.png[]
+|*X*
 |
 |
 |
@@ -698,43 +704,43 @@ Comparison operators compare the value associated with a property name with a gi
 |
 
 |DATE_TYPE
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
 |
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
 
 |DOUBLE_TYPE
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
 |
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
 
 |FLOAT_TYPE
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
 |
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
 
  
 
@@ -749,85 +755,85 @@ Comparison operators compare the value associated with a property name with a gi
 |
 |
 |
-|image:check.png[]
+|*X*
 
 |INTEGER_TYPE
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
 |
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
 
 |LONG_TYPE
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
 |
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
 
 |OBJECT_TYPE
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
 |
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
 
 |SHORT_TYPE
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
 |
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
 
 |STRING_TYPE
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
+|*X*
 
 |XML_TYPE
 |
-|image:check.png[]
+|*X*
 |
 |
 |
 |
 |
 |
-|image:check.png[]
+|*X*
 |
-|image:check.png[]
+|*X*
  
 |===
 The following table describes each comparison operator.
@@ -880,9 +886,9 @@ Logical operators apply Boolean logic to one or more child filters.
 |Or
 
 |Supported Filters
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
+|*X*
 
 |===
 
@@ -904,12 +910,12 @@ Temporal operators compare a date associated with a property name to a given Lit
 |TContains
 
 |DATE_TYPE
-|image:check.png[]
+|*X*
 |
-|image:check.png[]
+|*X*
 |
 |
-|image:check.png[]
+|*X*
 |
 |
 |
@@ -956,14 +962,14 @@ Spatial operators compare a geometry associated with a property name to a given 
 
 |GEO_TYPE
 |
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
+|*X*
+|*X*
 |
-|image:check.png[]
-|image:check.png[]
-|image:check.png[]
+|*X*
+|*X*
+|*X*
 |
 
 |===
@@ -1116,36 +1122,30 @@ The Catalog Framework calls Catalog Plugins to process requests and responses a
 ==== Pre-Ingest Plugin
 
 .Ingest Plugin Flow
-[plantuml, test, png]
+[ditaa,ingest-plugin-flow,png]
 ....
-digraph ingest_plugins {
- compound=true;
- ranksep=0.8;
- nodesep=0.4;
- splines=false;
- node[style="rounded,filled", fillcolor="#99CCFF",fontname="sansserif"];
- fontname="sansserif";
- 
- nodeClient [shape=box, label="Client"];
- nodeClient -> nodeEndpoint [dir=both];
- subgraph clusterDdf {
- label = "DDF";
- style="filled";
- fillcolor="#808080";
- labeljust="l";
- 
- nodeEndpoint [shape=box, label="Endpoint"];
- nodePreIngestPlugin [shape=box, label="Pre-Ingest Plugins"];
- nodeCatalogFramework [shape=box, label="Catalog Framework"];
- nodePostIngestPlugin [shape=box, label="Post-Ingest Plugins"];
- nodeSource [shape=box, label="Source"];
- {rank=same;nodeEndpoint;nodeCatalogFramework;nodeSource}
- 
- nodeEndpoint -> nodeCatalogFramework -> nodePreIngestPlugin [dir=both];
- nodeCatalogFramework -> nodeSource  [dir=both];
- nodeCatalogFramework -> nodePostIngestPlugin  [dir=both];
- }
-}
+/------\
+|Client|
+|cDEF  |
+\------/
+    ^
+    |
++-------------------------------------------\
+|DDF|                                  cCCC |
+|   v                                       |
+|/--------\   /-----------------\   /------\|
+||Endpoint|<->|Catalog Framework|<->|Source||
+|| cDEF   |   | cDEF            |   | cDEF ||
+|\--------/   \-----------------/   \------/|
+|                     | |                   |
+|          /----------/ \--------\          |
+|          |                     |          |
+|          v                     v          |
+|/------------------\  /-------------------\|
+||PreIngest Plugins |  |PostIngest Plugins ||
+|| cDEF             |  | cDEF              ||
+|\------------------/  \-------------------/|
+\-------------------------------------------/
 ....
 
 ===== Using
@@ -1211,36 +1211,30 @@ In the event that this Catalog Plugin cannot operate but does not wish to fail t
 Because the event has already occurred and changes from one post-ingest plugin cannot affect others, all Post-Ingest plugins are invoked in parallel and no priority is enforced.
 
 .QueryPlugin Flow
-[plantuml, queryplugin, png]
+[ditaa,query-plugin-flow,png]
 ....
-digraph query_plugins {
- compound=true;
- ranksep=0.8;
- nodesep=0.4;
- splines=false;
- node[style="rounded,filled", fillcolor="#99CCFF",fontname="sansserif"];
- fontname="sansserif";
- 
- nodeClient [shape=box, label="Client"];
- nodeClient -> nodeEndpoint [dir=both];
- subgraph clusterDdf {
- label = "DDF";
- style="filled";
- fillcolor="#808080";
- labeljust="l";
- 
- nodeEndpoint [shape=box, label="Endpoint"];
- nodePreQueryPlugin [shape=box, label="Pre-Query Plugins"];
- nodeCatalogFramework [shape=box, label="Catalog Framework"];
- nodePostQueryPlugin [shape=box, label="Post-Query Plugins"];
- nodeSource [shape=box, label="Source"];
- {rank=same;nodeEndpoint;nodeCatalogFramework;nodeSource}
- 
- nodeEndpoint -> nodeCatalogFramework -> nodeSource  [dir=both];
- nodeCatalogFramework -> nodePreQueryPlugin  [dir=both];
- nodeCatalogFramework -> nodePostQueryPlugin  [dir=both];
- }
-}
+/------\
+|Client|
+|cDEF  |
+\------/
+    ^
+    |
++-------------------------------------------\
+|DDF|                                  cCCC |
+|   v                                       |
+|/--------\   /-----------------\   /------\|
+||Endpoint|<->|Catalog Framework|<->|Source||
+|| cDEF   |   | cDEF            |   | cDEF ||
+|\--------/   \-----------------/   \------/|
+|                     | |                   |
+|          /----------/ \--------\          |
+|          |                     |          |
+|          v                     v          |
+|/------------------\  /-------------------\|
+|| PreQuery Plugins |  | PostQuery Plugins ||
+||  cDEF            |  |  cDEF             ||
+|\------------------/  \-------------------/|
+\-------------------------------------------/
 ....
 
 ==== Pre-Query Plugin
@@ -2282,66 +2276,43 @@ The Fanout Catalog Framework (`fanout-catalogframework` bundle) provides an imp
 
 The Fanout Catalog Framework provides the capability to configure DDF to be a fanout proxy to other federated sources within the enterprise. The Fanout Catalog Framework has no catalog provider configured for it, so it does not allow catalog modifications to take place. Therefore, create, update, and delete operations are not supported.
 
-[plantuml, connectedsources, png]
+.Catalog Fanout Framework
+[ditaa,query-flow,png]
 ....
-digraph connected_sources {
-	compound=true;
-	ranksep=0.8;
- 	nodesep=0.4;
-	splines=false;
- 	node[style="rounded,filled", fillcolor="#99CCFF",fontname="sansserif"];
- 	fontname="sansserif";
- 
- 	nodeSoapClient [shape=box, label="SOAP Client"];
- 	nodeJsonClient [shape=box, label="JSON Client"];
- 	nodeOpenSearchClient [shape=box, label="OpenSearch Client"];
- 	nodeDdfDataSource1 [shape=box, label="DDF v2.X"];
- 	nodeDdfDataSource2 [shape=box, label="DDF v2.X\nSource A"];
- 	nodeDdfDataSourceMore [style=none,shape=plaintext, label="..."];
- 	nodeDdfDataSource3 [shape=box, label="DDF v2.X\nSource X"];
- 	nodeSoapClient -> nodeSoapEndpoint [dir=both];
- 	nodeJsonClient -> nodeJsonEndpoint [dir=both];
- 	nodeOpenSearchClient -> nodeOpenSearchEndpoint [dir=both];
- 
- 	nodeFederatedSource -> nodeDdfDataSource1 [dir=both];
- 	nodeFederatedSource -> nodeDdfDataSource2 [dir=both];
- 	nodeFederatedSource -> nodeDdfDataSourceMore [style=invis];
- 	nodeFederatedSource -> nodeDdfDataSource3 [dir=both];
- 	{rank=same;nodeDdfDataSource1;nodeDdfDataSource2;nodeDdfDataSourceMore;nodeDdfDataSource3;}
- 	subgraph clusterDdf {
- 		label = "DDF";
- 		style="filled";
- 		fillcolor="#808080";
- 		labeljust="l";
- 
- 		nodeSoapEndpoint [shape=box, label="SOAP Endpoint"];
- 		nodeJsonEndpoint [shape=box, label="JSON Endpoint"];
- 		nodeOpenSearchEndpoint [shape=box, label="Open Search Endpoint"];
- 
-	 	nodeFanoutCatalogFramework [shape=box, label="Fanout Catalog Framework"];
- 		nodeFederationStrategy [shape=box, label="Federation Strategy"];
- 
- 		nodeSoapEndpoint -> nodeFanoutCatalogFramework;
- 		nodeJsonEndpoint -> nodeFanoutCatalogFramework;
- 		nodeOpenSearchEndpoint -> nodeFanoutCatalogFramework;
- 		nodeFanoutCatalogFramework -> nodeFederationStrategy [dir=both];
- 
- 		nodeFederationStrategy -> nodeFederatedSource [dir=both, lhead="clusterFederated"];
- 
-	 	subgraph clusterEnterpriseQuery {
- 			label = "Enterprise\nQuery";
- 			style="filled";
- 			fillcolor="#CCFFFF";
- 			subgraph clusterFederated {
- 				label = "Federated Query";
- 				style="filled";
- 				fillcolor="#6699CC";
- 
- 				nodeFederatedSource [shape=box, label="Federated Source(s)"];
- 			}
- 		}
-	}
-}
+           /------\
+           |Client|
+           |cDEF  |
+           \------/
+              ^
+              |
++-------------|------------------------------------------------------------\
+|DDF          |                                                       cCCC |
+|             v                                                            |
+|         /--------\   /-----------------\   /-------------------\         |
+|         |Endpoint|<->|Catalog Framework|<->|Federation Strategy|         |
+|         | cDEF   |   | cDEF            |   | cDEF              |         | 
+|         \--------/   \-----------------/   \-------------------/         |
+|                                                     ^ ^                  |
+|                                                     | |                  |
+|                                          /----------/ \---------\        |
+|                                          |                      |        |
+| +----------------------------------------|----------------------|------+ |
+| |Enterprise Query c369                   v                      v      | |
+| |+--------------------------------------------+ +---------------------+| |
+| ||Local Query                                 | |Federated Query      || |
+| ||/------------------\ /---------------------\| |/-------------------\|| |
+| ||| Catalog Provider | | Connected Source(s) || ||Federated Source(s)||| |
+| |||  cDEF            | |  cDEF               || || cDEF              ||| |
+| ||\------------------/ \---------------------/| |\-------------------/|| |
+| |+-------^----------------------^-------------+ +----^----------^-----+| |
+| +--------|----------------------|--------------------|----------|------+ |
+\----------|----------------------|--------------------|----------|--------/
+           |                      |                    |          \-------------------\
+           |                      |                    |                              |
+           v                      v                    v                              v
+/=-------------------\ /----------------------\ /---------=------------\     /----------------------\
+|Internal Data Source| |External Data Source 1| |External Data Source 3| ... |External Data Source N|
+\--------------------/ \--------------------=-/ \----------------------/     \-------=--------------/
 .... 
 
 In addition, the Fanout Catalog Framework provides the following benefits:
@@ -2800,74 +2771,12 @@ Remote sources are read-only data sources that support query operations but cann
 ====
 Remote sources currently extend the ResourceReader interface. However, a RemoteSource is not treated as a ResourceReader. The getSupportedSchemes() method should never be called on a RemoteSource, thus the suggested implementation for a RemoteSource is to return an empty set. TheretrieveResource( ... ) and getOptions( ... ) methods will be called and MUST be properly implemented by a RemoteSource.
 ====
+
 ==== Connected Source
 A connected source is a remote source that is included in all local and federated queries but remains hidden from external clients. A connected source's identifier is removed in all query results by replacing it with DDF's source identifier. The Catalog Framework does not reveal a connected source as a separate source when returning source information responses.
 
-[plantuml, connectedsources, png]
-....
-digraph connected_sources {
- 	compound=true;
- 	ranksep=0.8;
- 	nodesep=0.4;
- 	splines=false;
- 	node[style="rounded,filled", fillcolor="#99CCFF",fontname="sansserif"];
- 	fontname="sansserif"; 
- 	
- 	nodeClient [shape=box, label="Client"];
- 	nodeInternalDataSource [shape=box, label="Internal Data Source",style="rounded,filled,dashed"];
- 	nodeExternalDataSource1 [shape=box, label="External Data Source 1",style="rounded,filled,dashed"];
- 	nodeExternalDataSource2 [shape=box, label="External Data Source 2",style="rounded,filled,dashed"];
- 	nodeExternalDataSourceMore [style=none,shape=plaintext, label="..."];
- 	nodeExternalDataSource3 [shape=box, label="External Data Source 3",style="rounded,filled,dashed"];
- 	nodeClient -> nodeEndpoint [dir=both];
- 	nodeCatalogProvider -> nodeInternalDataSource [dir=both, ltail="clusterLocal"];
- 	nodeConnectedSource -> nodeExternalDataSource1 [dir=both];
- 	nodeFederatedSource -> nodeExternalDataSource2 [dir=both];
- 	nodeFederatedSource -> nodeExternalDataSourceMore [style=invis];
- 	nodeFederatedSource -> nodeExternalDataSource3 [dir=both];
- 	{rank=same;nodeInternalDataSource;nodeExternalDataSource1;nodeExternalDataSource2;nodeExternalDataSourceMore;nodeExternalDataSource3}
- 	subgraph clusterDdf {
- 		label = "DDF";
- 		style="filled";
- 		fillcolor="#808080";
- 		labeljust="l";
- 
- 		nodeEndpoint [shape=box, label="Endpoint"];
- 		nodeCatalogFramework [shape=box, label="Catalog Framework"];
- 		nodeFederationStrategy [shape=box, label="Federation Strategy"];
- 		
- 		{rank=same;nodeEndpoint;nodeCatalogFramework;nodeFederationStrategy}
-		
-		nodeEndpoint -> nodeCatalogFramework -> nodeFederationStrategy [dir=both];
- 
- 		nodeFederationStrategy -> nodeFederatedSource [dir=both, lhead="clusterFederated"];
- 		nodeFederationStrategy -> nodeCatalogProvider [dir=both, lhead="clusterLocal"];
- 
- 		subgraph clusterEnterpriseQuery {
- 			label = "Enterprise Query";
- 			style="filled";
- 			fillcolor="#CCFFFF";
- 			subgraph clusterFederated {
- 				label = "Federated Query";
- 				style="filled";
- 				fillcolor="#6699CC";
- 
- 				nodeFederatedSource [shape=box, label="Federated Source(s)"];
- 			}
- 
-			subgraph clusterLocal {
- 				label = "Local Query";
- 				style="filled";
- 				fillcolor="#6699CC";
- 
- 				nodeCatalogProvider [shape=box, label="Catalog Provider"];
-	 			nodeConnectedSource [shape=box, label="Connected Source(s)"];
- 				{rank=same;nodeCatalogProvider;nodeConnectedSource}
- 			}
- 		}
-	}
-}
-....
+.Connected Sources
+image::query-flow.png[]
 
 ==== Federated Source
 A federated source is a remote source that can be included in federated queries by request or as part of an enterprise query. Federated sources support query and site information operations only. Catalog modification operations, such as create, update, and delete, are not allowed. Federated sources also expose an event service, which allows the Catalog Framework to subscribe to even notifications when metacards are created, updated, and deleted.
@@ -3308,35 +3217,29 @@ The current transformers do not support Non-Western Characters (e.g., Hebrew). I
 ====
 
 .Communication Diagram
-[plantuml, transformer_communication_diagram, png]
+[ditaa, transformer_communication_diagram, png]
 ....
-digraph transformer {
-	 compound=true;
-	 ranksep=0.8;
-	 nodesep=0.4;
-	 splines=false;
-	 node[style="rounded,filled", fillcolor="#99CCFF",fontname="sansserif"];
-	 fontname="sansserif";
-	 
-	 nodeClient [shape=box, label="Client"];
-	 nodeClient -> nodeEndpoint [dir=both];
-	 subgraph clusterDdf {
-		 label = "DDF";
-		 style="filled";
-		 fillcolor="#808080";
-		 labeljust="l";
-		 
-		 nodeEndpoint [shape=box, label="Endpoint"];
-		 nodeCatalogFramework [shape=box, label="Catalog Framework"];
-		 nodeTransformer [shape=box, label="Transformer"];
-		 nodeSource[shape=box, label="Source"];
-		 {rank=same;nodeEndpoint;nodeCatalogFramework;nodeSource}
-		 
-		 nodeEndpoint -> nodeCatalogFramework -> nodeTransformer [dir=both];
-		 nodeCatalogFramework -> nodeSource [dir=both];
-		  
-	}
-}
+/------\
+|Client|
+|cDEF  |
+\------/
+    ^
+    |
++-------------------------------------------\
+|DDF|                                  cCCC |
+|   v                                       |
+|/--------\   /-----------------\   /------\|
+||Endpoint|<->|Catalog Framework|<->|Source||
+|| cDEF   |   | cDEF            |   | cDEF ||
+|\--------/   \-----------------/   \------/|
+|                      ^                    |
+|                      |                    |
+|                      v                    |
+|               /-------------\             |
+|               | Transformer |             |
+|               |  cDEF       |             |
+|               \-------------/             |
+\-------------------------------------------/
 ....
 
 === Working with Transformers
@@ -4826,71 +4729,44 @@ The Catalog normalizes the incoming query into an OGC Filter format. When the qu
 +------------------------------------------------------------
 ....
 
-[plantuml, federation, png]
+[ditaa, federation, png]
 ....
-digraph connected_sources {
-	compound=true;
- 	ranksep=0.8;
- 	nodesep=0.4;
- 	splines=false;
- 	node[style="rounded,filled", fillcolor="#99CCFF",fontname="sansserif"];
- 	fontname="sansserif";
- 
- 	nodeClient [shape=box, label="Client"];
- 	nodeInternalDataSource [shape=box, label="Oracle Database"];
- 	nodeExternalDataSource1 [shape=box, label="Source A"];
- 	nodeExternalDataSource2 [shape=box, label="Source B"];
- 	nodeExternalDataSourceMore [style=none,shape=plaintext, label="..."];
- 	nodeExternalDataSource3 [shape=box, label="Source X"];
- 	nodeClient -> nodeEndpoint [dir=both];
- 	nodeCatalogProvider -> nodeInternalDataSource [dir=both, ltail="clusterLocal"];
- 	nodeConnectedSource -> nodeExternalDataSource1 [dir=both];
-	nodeFederatedSource -> nodeExternalDataSource2 [dir=both];
-	nodeFederatedSource -> nodeExternalDataSourceMore [style=invis];
-	nodeFederatedSource -> nodeExternalDataSource3 [dir=both];
-	{rank=same;nodeInternalDataSource;nodeExternalDataSource1;nodeExternalDataSource2;nodeExternalDataSourceMore;nodeExternalDataSource3}
-	subgraph clusterDdf {
-		label = "DDF";
-		style="filled";
-		fillcolor="#808080";
-		labeljust="l";
-		
-		nodeEndpoint [shape=box, label="Endpoint"];
-		nodeCatalogFramework [shape=box, label="Catalog Framework"];
-		nodeFederationStrategy [shape=box, label="Federation Strategy"];
-		
-		{rank=same;nodeEndpoint;nodeCatalogFramework;nodeFederationStrategy}
-		
-		nodeEndpoint -> nodeCatalogFramework -> nodeFederationStrategy [dir=both];
-		
-		nodeFederationStrategy -> nodeFederatedSource [dir=both, head="clusterFederated"];
-		nodeFederationStrategy -> nodeCatalogProvider [dir=both, lhead="clusterLocal"];
-		
-		subgraph clusterEnterpriseQuery {
-			label = "Enterprise Query";
-			style="filled";
-			fillcolor="#CCFFFF";
-			subgraph clusterFederated {
-				label = "Federated Query";
-				style="filled";
-				fillcolor="#6699CC";
-			 
-				nodeFederatedSource [shape=box, label="Federated Source(s)"];
-			}
- 
-			subgraph clusterLocal {
-				label = "Local Query";
-				style="filled";
-				fillcolor="#6699CC";
+           /------\
+           |Client|
+           |cDEF  |
+           \------/
+              ^
+              |
++-------------|------------------------------------------------------------\
+|DDF          |                                                       cCCC |
+|             v                                                            |
+|         /--------\   /-----------------\   /-------------------\         |
+|         |Endpoint|<->|Catalog Framework|<->|Federation Strategy|         |
+|         | cDEF   |   | cDEF            |   | cDEF              |         | 
+|         \--------/   \-----------------/   \-------------------/         |
+|                                                     ^ ^                  |
+|                                                     | |                  |
+|                                          /----------/ \---------\        |
+|                                          |                      |        |
+| +----------------------------------------|----------------------|------+ |
+| |Enterprise Query                        v                      v      | |
+| |+--------------------------------------------+ +---------------------+| |
+| ||Local Query                                 | |Federated Query      || |
+| ||/------------------\ /---------------------\| |/-------------------\|| |
+| ||| Catalog Provider | | Connected Source(s) || ||Federated Source(s)||| |
+| |||  cDEF            | |  cDEF               || || cDEF              ||| |
+| ||\------------------/ \---------------------/| |\-------------------/|| |
+| |+-------^----------------------^-------------+ +----^----------^-----+| |
+| +--------|----------------------|--------------------|----------|------+ |
+\----------|----------------------|--------------------|----------|--------/
+           |                      |                    |          \-------------------\
+           |                      |                    |                              |
+           v                      v                    v                              v
+/=-------------------\ /----------------------\ /---------=------------\     /----------------------\
+|  Oracle Database   | |       Source A       | |       Source B       | ... |       Source X       |
+\--------------------/ \--------------------=-/ \----------------------/     \-------=--------------/
+.... 
 
-				nodeCatalogProvider [shape=box, label="Catalog Provider"];
-				nodeConnectedSource [shape=box, label="Connected Source(s)"];
-				{rank=same;nodeCatalogProvider;nodeConnectedSource}
-			}
- 		}
-	}
-}
-....
 === Federation Strategy
 
 A federation strategy federates a query to all of the Remote Sources in the query's list, processes the results in a unique way, then returns the results to the client. For example, implementations can choose to block until all results return then perform a mass sort or return the results back to the client as soon as they are received back from a Federated Source.
@@ -5029,59 +4905,9 @@ Subscription durability is not provided by the Event Processor.  Thus, all sub
 Subscriptions must be explicitly persisted by an endpoint and are not persisted by the Catalog. The Catalog Framework, or more specifically the Event Processor itself, does not persist subscriptions. Certain endpoints, however, can persist the subscriptions on their own and recreate them on system startup.
 ====
 
-===== Eventing Sequence Diagrams
-
-This section describes the basic subscription creation flow, how an event is processed by the Catalog, and subsequently the broadcast to subscribers. These following flow charts are for illustrative purposes only and do not necessarily represent every step in each procedure.
-
 ====== Creating a Subscription
 
 Currently, the Catalog reference implementation does not contain a subscription endpoint. Nevertheless, an endpoint that exposes a web service interface to create, update, and delete subscriptions would provide a client's subscription's filtering criteria to be used by Catalog's Event Processor to determine which create, update, and delete events are of interest to the client. The endpoint client also provides the callback URL of the event consumer to be called when an event matching the subscription's criteria is found. This callback to the event consumer is made by a Delivery Method implementation that the client provides when the subscription is created.  Whenever an event occurs in the Catalog matching the subscription, the Delivery Method implementation will be called by the Event Processor.  The Delivery Method will, in turn, send the event notification out to the event consumer.  As part of the subscription creation process, the Catalog verifies that the event consumer at the specified callback URL is available to receive callbacks. Therefore, the client must ensure the event consumer is running prior to creating the subscription.  The Catalog completes the subscription creation by executing any pre-subscription Catalog Plugins, and then registering the subscription with the OSGi Service Registry. The Catalog does not persist subscriptions by default.
-
-[plantuml, eventing, png]
-....
-autonumber 
-
-title Subscription Creation 
-hide footbox 
-
-skinparam sequence { 
-
-  ArrowColor #336699 
-
-  ActorBorderColor #666666 
-  ActorBackgroundColor #FFFFFF 
-
-  LifeLineBorderColor #336699 
-  LifeLineBackgroundColor #336699 
-
-  BoxBorderColor #666666 
-
-  ParticipantBorderColor #666666 
-  ParticipantBackgroundColor #336699 
-  ParticipantFontColor #FFFFFF 
-} 
-
-actor Client 
-box "DDF" #DDEEFF 
-  participant "Event Service Endpoint" as EventServiceEndpoint <<Endpoint>> 
-  participant "Delivery Method Implementation" as DeliveryMethod <<DeliveryMethod>>  
-  participant "Subscription Implementation" as Subscription <<Subscription>> 
-  participant "Event Processor Implementation" as EventProcessorImpl <<EventProcessor>> <<PostIngestPlugin>>
-  participant "Pre-Subscription Plugin" as PreSubscriptionPlugin <<PreSubscriptionPlugin>>
-end box 
- 
-
-Client -> EventServiceEndpoint: createSubscription(criteria, id, callbackUrl) 
-EventServiceEndpoint -> DeliveryMethod: create(callbackUrl, id) 
-DeliveryMethod --> EventServiceEndpoint: deliveryMethod 
-EventServiceEndpoint -> Subscription: create(criteria, deliveryMethod)
-Subscription --> EventServiceEndpoint: subscription 
-EventServiceEndpoint -> EventProcessorImpl: createSubscription(subscription, id) 
-EventProcessorImpl -> PreSubscriptionPlugin: process(subscription)
-PreSubscriptionPlugin --> EventProcessorImpl: subscription
-EventProcessorImpl -> EventProcessorImpl: register subscription\nin OSGi registry
-
-....
 
 ==== Delivery Method
 
@@ -5101,60 +4927,6 @@ An internal subscription tracker monitors the OSGi registry, looking for subscri
 ===== Event Processing and Notification
 
 As metacards are created, updated, and deleted, the Catalog's Event Processor is invoked (as a post-ingest plugin) for each of these events. TheEvent Processor applies the filter criteria for each registered subscription to each of these ingest events to determine if they match the criteria. If an event matches a subscription's criteria, any pre-delivery plugins that are installed are invoked, the subscription's Delivery Method is retrieved, and its operation corresponding to the type of ingest event is invoked.  For example, the DeliveryMethod's `created()` function is called when a metacard is created. The Delivery Method's operations subsequently invoke the corresponding operation in the client's event consumer service, which is specified by the callback URL provided when the Delivery Method was created.
-
-[plantuml, event_processing_and_notification, png]
-....
-autonumber 
-
-title Subscription Creation 
-hide footbox 
-
-skinparam sequence { 
-
-  ArrowColor #336699 
-
-  ActorBorderColor #666666 
-  ActorBackgroundColor #FFFFFF 
-
-  LifeLineBorderColor #336699 
-  LifeLineBackgroundColor #336699 
-
-  BoxBorderColor #666666 
-
-  ParticipantBorderColor #666666 
-  ParticipantBackgroundColor #336699 
-  ParticipantFontColor #FFFFFF 
-} 
-
-actor Client 
-box "DDF" #DDEEFF 
-  participant "Ingest Service Endpoint" as IngestServiceEndpoint <<Endpoint>>
-  participant "Standard Catalog Framework" as CatalogFramework <<CatalogFramework>>
-  participant "Event Processor Implementation" as EventProcessorImpl <<EventProcessor>> <<PostIngestPlugin>>
-  participant "Pre-Delivery Plugin" as PreDeliveryPlugin <<PreDeliveryPlugin>>
-  participant "Subscription Implementation" as Subscription <<Subscription>>
-  participant "Delivery Method Implementation" as DeliveryMethod <<DeliveryMethod>>  
-end box 
-participant "Client's Event Consumer Service" as EventConsumer <<EventConsumer>>
- 
-
-Client -> IngestServiceEndpoint: create Metacard 
-IngestServiceEndpoint -> CatalogFramework: create(CreateRequest) 
-CatalogFramework -> CatalogFramework: normal ingest processing
-note right: see DDF Catalog->Types of Catalog Components->Catalog Framework page's\nIngest section for details
-CatalogFramework -> EventProcessorImpl: process(CreateResponse)
-loop process each registered subscription
-  EventProcessorImpl -> EventProcessorImpl: determines if created Metacard\nmatches subscription's criteria
-  group subscription criteria matched event
-    EventProcessorImpl -> PreDeliveryPlugin: processCreate(Metacard) 
-    PreDeliveryPlugin --> EventProcessorImpl: Metacard
-    EventProcessorImpl -> Subscription: getDeliveryMethod
-    Subscription --> EventProcessorImpl: deliveryMethod
-    EventProcessorImpl -> DeliveryMethod: created(Metacard)
-    DeliveryMethod -> EventConsumer: onCreateEvent(Metacard) 
-  end
-end
-....
 
 ==== Standard Event Processor
 

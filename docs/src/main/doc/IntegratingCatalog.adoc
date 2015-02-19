@@ -704,58 +704,7 @@ Because the Catalog Framework plays a central role to Catalog functionality, it 
 
 The Ingest Service Endpoint, the Catalog Framework, and the Catalog Provider are key components of the Reference Implementation. The Endpoint bundle implements a Web service that allows clients to create, update, and delete metacards. The Endpoint calls the `CatalogFramework` to execute the operations of its specification. The `CatalogFramework` routes the request through optional `PreIngest` and `PostIngest` Catalog Plugins, which may modify the ingest request/response before/after the Catalog Provider executes the ingest request and provides the response.  Note that a CatalogProvider must be present for any ingest requests to be successfully processed, otherwise a fault is returned.
 
-More details of this flow are shown in the diagram below:
-
-[plantuml, ingest_request, png]
-....
-autonumber
-
-title Ingest Request
-hide footbox
-
-skinparam sequence {
-
- ArrowColor #336699
- 
- ActorBorderColor #666666
- ActorBackgroundColor #FFFFFF
-
- LifeLineBorderColor #336699
- LifeLineBackgroundColor #336699
-
- BoxBorderColor #666666  
-
- ParticipantBorderColor #666666
- ParticipantBackgroundColor #336699
- ParticipantFontColor #FFFFFF
- }
-
-   
-actor Client
-box "Catalog" #DDEEFF
-   participant "Ingest Service Endpoint" as IngestServiceEndpoint <<Endpoint>>
-   participant "Standard Catalog Framework" as StandardCatalogFramework <<CatalogFramework>>
-   participant "PreIngestPlugin" as PreIngestPlugin <<PreIngestPlugin>> 
-   participant "PostIngestPlugin" as PostIngestPlugin <<PostIngestPlugin>> 
-   participant "Solr Catalog Provider" as CatalogProvider <<CatalogProvider>> 
-end box 
-participant "Solr Search Server" as DataSource <<External>>
-
-Client -> IngestServiceEndpoint: Web Service Ingest Request
-IngestServiceEndpoint -> StandardCatalogFramework: create(CreateRequest)
-StandardCatalogFramework -> PreIngestPlugin: process(CreateRequest)
-PreIngestPlugin --> StandardCatalogFramework: CreateRequest
-StandardCatalogFramework -> CatalogProvider: create(CreateRequest)
-CatalogProvider -> DataSource: create
- 
-DataSource --> CatalogProvider: response
-CatalogProvider --> StandardCatalogFramework: CreateResponse
-StandardCatalogFramework -> PostIngestPlugin: process(CreateResponse)
-PostIngestPlugin --> StandardCatalogFramework: CreateResponse
-StandardCatalogFramework --> IngestServiceEndpoint: CreateResponse
-IngestServiceEndpoint --> Client: Web Service Ingest Response 
-....
-This flow is similar for updating catalog entries, with update requests calling the `update(UpdateRequest)` methods on the Endpoint, `CatalogFramework`, and Catalog Provider. Similarly, for deletion of catalog entries, the delete requests call the delete(DeleteRequest) methods on the Endpoint, CatalogFramework, and Catalog Provider.
+This process is similar for updating catalog entries, with update requests calling the `update(UpdateRequest)` methods on the Endpoint, `CatalogFramework`, and Catalog Provider. Similarly, for deletion of catalog entries, the delete requests call the delete(DeleteRequest) methods on the Endpoint, CatalogFramework, and Catalog Provider.
 
 ==== Error Handling
 
@@ -773,56 +722,6 @@ log:set
 
 The Query Service Endpoint, the Catalog Framework, and the `CatalogProvider` are key components for processing a query request as well. The Endpoint bundle contains a Web service that exposes the interface to query for `Metacards`. The Endpoint calls the `CatalogFramework` to execute the operations of its specification. The `CatalogFramework` relies on the CatalogProvider to execute the actual query. Optional PreQuery and PostQuery Catalog Plugins may be invoked by the `CatalogFramework` to modify the query request/response prior to the Catalog Provider processing the query request and providing the query response. If a CatalogProvider is not configured and no other remote Sources are configured, a fault will be returned. It is possible to have only remote Sources configured and no local CatalogProvider configured and be able to execute queries to specific remote Sources by specifying the site name(s) in the query request.
 
-[plantuml, query_request, png]
-....
-autonumber
-
-title Query Request
-hide footbox
-
-skinparam sequence {
-
- ArrowColor #336699
- 
- ActorBorderColor #666666
- ActorBackgroundColor #FFFFFF
-
- LifeLineBorderColor #336699
- LifeLineBackgroundColor #336699
-
- BoxBorderColor #666666  
-
- ParticipantBorderColor #666666
- ParticipantBackgroundColor #336699
- ParticipantFontColor #FFFFFF
- }
-
-   
-actor Client
-box "Catalog" #DDEEFF
-   participant "Query Service Endpoint" as QueryServiceEndpoint <<Endpoint>>
-   participant "Standard Catalog Framework" as StandardCatalogFramework <<CatalogFramework>>
-   participant "PreQueryPlugin" as PreQueryPlugin <<PreQueryPlugin>> 
-   participant "PostQueryPlugin" as PostQueryPlugin <<PostQueryPlugin>> 
-   participant "Solr Catalog Provider" as CatalogProvider <<CatalogProvider>>
-end box 
-participant "Solr Search Server" as DataSource <<External>>
-
-Client -> QueryServiceEndpoint: Web Service Query Request
-QueryServiceEndpoint -> StandardCatalogFramework: query(QueryRequest)
-StandardCatalogFramework -> PreQueryPlugin: process(QueryRequest)
-PreQueryPlugin --> StandardCatalogFramework: QueryRequest
-StandardCatalogFramework -> CatalogProvider: query(QueryRequest)
-CatalogProvider -> DataSource: query
- 
-DataSource --> CatalogProvider: response
-CatalogProvider --> StandardCatalogFramework: QueryResponse
-StandardCatalogFramework -> PostQueryPlugin: process(QueryResponse)
-PostQueryPlugin --> StandardCatalogFramework: QueryResponse
-StandardCatalogFramework --> QueryServiceEndpoint: QueryResponse
-QueryServiceEndpoint --> Client: Web Service Query Response 
-....
-
 ==== Product Retrieval
 The Query Service Endpoint, the Catalog Framework, and the `CatalogProvider` are key components for processing a retrieve product request. The Endpoint bundle contains a Web service that exposes the interface to retrieve products, also referred to as Resources. The Endpoint calls the `CatalogFramework` to execute the operations of its specification. The `CatalogFramework` relies on the Sources to execute the actual product retrieval. Optional PreResource and PostResource Catalog Plugins may be invoked by the CatalogFramework to modify the product retrieval request/response prior to the Catalog Provider processing the request and providing the response. It is possible to retrieve products from specific remote Sources by specifying the site name(s) in the request.
 
@@ -833,45 +732,6 @@ The Catalog Framework optionally provides caching of products, so future request
 The Catalog Framework attempts to detect any network problems during the product retrieval, e.g., long pauses where no bytes are read implying a network connection was dropped. (The amount of time that a "long pause" is defined as is configurable, with the default value being five seconds.) The Catalog Framework will attempt to retrieve the product up to a configurable number of times (default = three), waiting for a configurable amount of time (default = 10 seconds) between each attempt, trying to successfully retrieve the product. If the Catalog Framework is unable to retrieve the product, an error message is returned to the client.
 
 If the admin has enabled the *Always Cache When Canceled* option, caching of the product will occur even if the client cancels the product retrieval so that future requests will be serviced quickly. Otherwise, caching is canceled if the user cancels the product download.
-
-==== Design
-[plantuml, product_download_cache, png]
-....
-title <b>Product Download and Caching Design</b>
- 
-class CatalogFramework
-class ReliableResourceDownloadManager
-interface ResourceRetriever
-interface Callable
-class ReliableResource
-class ReliableResourceInputStream
- 
-Client --> CatalogFramework : getResource
-CatalogFramework --> ReliableResourceDownloadManager : download
-ReliableResourceDownloadManager --> ResourceRetriever : retrieve
-ResourceRetriever --> RemoteSource : reads product
-ResourceRetriever --> ProductInputStream : returns
-ReliableResourceDownloadManager --> DownloadsStatusEventPublisher : post events
-ReliableResourceDownloadManager --> ReliableResource : creates
-ReliableResourceDownloadManager --> ReliableResourceInputStream : creates
-ResourceResponse --> ReliableResourceInputStream : contains
-ReliableResourceDownloadManager --> ResourceResponse : returns
-Client --> ResourceResponse : uses
-ReliableResourceDownloadManager --> ResourceCache : add/remove cache/pending entries
-ResourceCache --> ReliableResource : caches
-ReliableResourceDownloadManager --> DownloadManagerState : updates
-ReliableResourceDownloadManager --> ReliableResourceCallable : creates
-ReliableResourceDownloadManager --> ResourceRetrievalMonitor : creates
-TimerTask <|-- ResourceRetrievalMonitor
-ResourceRetrievalMonitor --> ReliableResourceCallable : monitors/interrupts
-Client --> ReliableResourceInputStream : reads/closes
-Callable <|.. ReliableResourceCallable
-ReliableResourceCallable --> ProductInputStream : reads
-ReliableResourceCallable --> FileBackedOutputStream : writes to
-ReliableResourceCallable --> FileOutputStream : writes to
-ReliableResourceInputStream --> FileBackedOutputStream : reads
-ReliableResourceInputStream --> DownloadManagerState : reads
-....
 
 ==== Product Download Status
 
