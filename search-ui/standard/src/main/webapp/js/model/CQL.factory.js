@@ -19,15 +19,18 @@ define([
 ],function (_, moment, Properties) {
 
     function normalizeLongitude(lon_deg) {
-        if (lon_deg >= -180 && lon_deg <= 180)
+        if (lon_deg >= -180 && lon_deg <= 180) {
             return lon_deg;//common case, and avoids slight double precision shifting
+        }
         var off = (lon_deg + 180) % 360;
-        if (off < 0)
+        if (off < 0) {
             return 180 + off;
-        else if (off === 0 && lon_deg > 0)
+        }
+        else if (off === 0 && lon_deg > 0) {
             return 180;
-        else
+        } else {
             return -180 + off;
+        }
     }
 
     var Filter = {};
