@@ -37,6 +37,11 @@ describe('Contextual', function () {
                 .elementById('searchButton').click();
         });
 
+        it("should hide progress bar if no new results", function () {
+            return this.browser
+                .waitForElementsByCssSelector('div#progressRegion:empty', 20000);
+        });
+
         it("should show result count", function () {
             return this.browser
                 .waitForElementByCssSelector('.result-count i', asserters.textInclude('results'), 10000);
@@ -81,7 +86,7 @@ describe('Contextual', function () {
         it("should allow previous and next navigation", function () {
             return this.browser
                 .waitForElementByCssSelector('#prevRecord.disabled')
-                .waitForElementById('nextRecord', asserters.isDisplayed).click()
+                .waitForElementById('nextRecord', asserters.isDisplayed, 10000).click()
                 .waitForElementByCssSelector('#prevRecord:not(.disabled)');
         });
     });

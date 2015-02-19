@@ -59,7 +59,7 @@ server.mockCometD = function (req, res) {
             server.clientChannel = dat.subscription;
         }
     } else if (dat.channel === '/service/user') {
-        json.unshift({'data':{'successful':'false'}, 'channel':'/service/user'});
+        json.unshift({"data":{"successful":true,"user":{"username":"Anonymous", "preferences": {"pointColor": "#FFA467"},"isAnonymous":"true"}},"channel":"/service/user"});
     } else if (dat.channel === '/service/query') {
         json.unshift({'successful':'true'});
     } else if (dat.channel === '/meta/connect') {

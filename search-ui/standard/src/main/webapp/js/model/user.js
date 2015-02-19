@@ -29,6 +29,7 @@ define([
             multiPolygonColor: '#FF6776',
             geometryCollectionColor: '#FFFF67'
         },
+        //this URL is not used for fetching, but for saving the preferences back to the user service
         url: '/service/user',
         initialize: function () {
             if (this.parents.length === 0 || this.parents[0].isGuestUser()) {
@@ -42,6 +43,7 @@ define([
             if (this.parents[0].isGuestUser()) {
                 window.localStorage.setItem('org.codice.ddf.search.preferences', JSON.stringify(this.toJSON()));
             } else {
+                //this call will use the above URL through the cometd backbone library
                 this.save();
             }
         }
@@ -56,7 +58,8 @@ define([
             }
         ],
         defaults: {
-            preferences: new User.Preferences()
+            preferences: new User.Preferences(),
+            isAnonymous: true
         },
         isGuestUser: function() {
             return this.get('isAnonymous') === 'true' || this.get('isAnonymous') === true;
@@ -71,9 +74,10 @@ define([
                 relatedModel: User.Model
             }
         ],
+        defaults: {
+            user: new User.Model()
+        },
         url: '/service/user',
-        syncUrl: "/search/standard/user",
-        useAjaxSync: false,
         parse: function (resp) {
             if (resp.data) {
                 return resp.data;
