@@ -15,7 +15,6 @@ define([
     'icanhaz',
     'text!templates/menu/menubar.handlebars',
     'text!templates/menu/menubarItem.handlebars',
-    'js/model/user',
     'backbone',
     'text!templates/notification/notification.menu.handlebars',
     'text!templates/notification/notification.category.handlebars',
@@ -36,7 +35,7 @@ define([
     'perfectscrollbar',
     'backbonecometd',
     'progressbar'
-], function(Marionette, ich, menubarTemplate, menubarItemTemplate, User, Backbone, notificationMenuTemplate, notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $,
+], function(Marionette, ich, menubarTemplate, menubarItemTemplate, Backbone, notificationMenuTemplate, notificationCategoryTemplate, wreqr, _, loginTemplate, logoutTemplate, taskTemplate, taskCategoryTemplate, helpTemplate, Cometd, $,
         IngestMenu, PreferencesMenu, Application, properties) {
 
     if (!ich.menubarItemTemplate) {
