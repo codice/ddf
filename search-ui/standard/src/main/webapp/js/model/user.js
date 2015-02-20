@@ -57,9 +57,11 @@ define([
                 relatedModel: User.Preferences
             }
         ],
-        defaults: {
-            preferences: new User.Preferences(),
-            isAnonymous: true
+        defaults: function() {
+            return {
+                isAnonymous: true,
+                preferences: new User.Preferences()
+            };
         },
         isGuestUser: function() {
             return this.get('isAnonymous') === 'true' || this.get('isAnonymous') === true;
@@ -74,17 +76,18 @@ define([
                 relatedModel: User.Model
             }
         ],
-        defaults: {
-            user: new User.Model()
-        },
         url: '/service/user',
+        defaults: function() {
+            return {
+                user: new User.Model()
+            };
+        },
         parse: function (resp) {
             if (resp.data) {
                 return resp.data;
             }
             return resp;
         }
-
     });
 
     return User;

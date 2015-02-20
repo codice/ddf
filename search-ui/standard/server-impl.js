@@ -51,21 +51,41 @@ server.mockRequest = function (req, res) {
 
 server.mockCometD = function (req, res) {
 	//parse req body to figure out how to respond
-    var dat = req.body[0];
-    var json = [{'id':dat.id, 'successful':true, 'channel':dat.channel}];
-    if (dat.subscription) {
-        json[0].subscription = dat.subscription;
-        if (dat.subscription.match(/[a-f0-9]*-/)) {
-            server.clientChannel = dat.subscription;
+    var json = [];
+    _.each(req.body, function(dat) {
+        if (dat.channel === '/meta/connect') {
+            json.unshift(JSON.parse(getTestResource('connect.json')
+                .replace('/e863f023-3b6f-4575-badf-a1f114e7b378', server.clientChannel)),
+                {
+                    "id": dat.id,
+                    "advice": {
+                        "interval": 0,
+                        "reconnect": "retry",
+                        "timeout": 30000
+                    },
+                    "channel": "/meta/connect"
+                });
+        } else {
+            json.unshift({'id': dat.id, 'successful': true, 'channel': dat.channel});
+            if (dat.subscription) {
+                json[0].subscription = dat.subscription;
+                if (dat.subscription.match(/[a-f0-9]*-/)) {
+                    server.clientChannel = dat.subscription;
+                }
+            } else if (dat.channel === '/service/user') {
+                json.unshift({
+                    "data": {
+                        "successful": true,
+                        "user": {
+                            "username": "Anonymous",
+                            "isAnonymous": "true"}
+                    },
+                    "channel": "/service/user"});
+            } else if (dat.channel === '/service/query') {
+                json.unshift({'successful': 'true'});
+            }
         }
-    } else if (dat.channel === '/service/user') {
-        json.unshift({"data":{"successful":true,"user":{"username":"Anonymous", "preferences": {"pointColor": "#FFA467"},"isAnonymous":"true"}},"channel":"/service/user"});
-    } else if (dat.channel === '/service/query') {
-        json.unshift({'successful':'true'});
-    } else if (dat.channel === '/meta/connect') {
-        json = getTestResource('connect.json')
-            .replace('/e863f023-3b6f-4575-badf-a1f114e7b378', server.clientChannel);
-    }
+    });
     sendJson(json, res);
 };
 
