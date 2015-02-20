@@ -299,11 +299,13 @@ define([
                         return word.charAt(0).toUpperCase() + word.substr(1);
                     });
                 }
+                return str;
             },
             safeString: function (str) {
                 if(str && typeof str === "string") {
                     return new Handlebars.SafeString(str);
                 }
+                return str;
             },
             splitDashes: function(str){
                 return str.split('-').join(' ');
@@ -312,6 +314,7 @@ define([
                 if(str && typeof str === "string") {
                     return encodeURIComponent(str);
                 }
+                return str;
             }
         };
 
