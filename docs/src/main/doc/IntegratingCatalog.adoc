@@ -1,0 +1,859 @@
+= Integrating DDF Catalog Application
+include::../includes/config.adoc[]
+
+== Overview
+
+The DDF Catalog provides a framework for storing, searching, processing, and transforming information.  Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.  At the core of the Catalog functionality is the `Catalog Framework`, which routes all requests and responses through the system, invoking additional processing per the system configuration.
+
+=== Design
+
+The Catalog is composed of several components and an API that connects them together. The Catalog API is central to DDF's architectural qualities of extensibility and flexibility. The Catalog API consists of Java interfaces that define Catalog functionality and specify interactions between components. These interfaces provide the ability for components to interact without a dependency on a particular underlying implementation, thus allowing the possibility of alternate implementations that can maintain interoperability and share developed components.  As such, new capabilities can be developed independently, in a modular fashion, using the Catalog API interfaces and reused by other DDF installations.
+
+=== Ensuring Compatibility
+
+The Catalog API will evolve, but great care is taken to retain backwards compatibility with developed components.  Compatibility is reflected in version numbers.  For more information, see the Software Versioning section in the Integrator's Guide Appendix.
+
+This guide supports integration of the Catalog Application.
+
+== Integrating Endpoints
+
+Endpoints act as a proxy between the client and the Catalog Framework. 
+
+Endpoints expose the Catalog Framework to clients using protocols and formats that they understand.
+
+Endpoint interface formats/protocols can include a variety of formats, including (but not limited to):
+
+* SOAP Web services
+
+* RESTful services
+
+* JMS
+
+* JSON
+
+* OpenSearch
+
+The endpoint may transform a client request into a compatible Catalog format and then transform the response into a compatible client format. Endpoints may use Transformers to perform these transformations. This allows an endpoint to interact with Source(s) that have different interfaces. For example, an OpenSearch Endpoint can send a query to the Catalog Framework, which could then query a federated source that has noOpenSearch interface.
+
+Endpoints are meant to be the only client-accessible components in the Catalog.
+
+[ditaa, endpoint_architecture, png]
+....
++------------------------------------------------------------+
+|                /-=-----------------\                       |
+|                |      Clients      |                       |
+|                \-------------------/                       |
+|                          |                                 |
+|                          v                                 |
+|                /-------------------\                       |
+|                |c369Endpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |cDEF               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||cDEF           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |cDEF   Resources      ||
+|\---------------+-------------------+----------------------/| 
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------
+....
+
+== Existing Endpoints
+
+The following endpoints are provided with the default Catalog out of the box:
+
+=== DDF Catalog RESTful CRUD Endpoint
+
+The Catalog REST Endpoint allows clients to perform CRUD operations on the Catalog using REST, a simple architectural style that performs communication using HTTP. The URL exposing the REST functionality is located at http://<HOST>:<PORT>/services/catalog, where `HOST` is the IP address of where the distribution is installed and `PORT` is the port number on which the distribution is listening.
+
+==== Installing and Uninstalling
+
+The RESTful CRUD Endpoint can be installed and uninstalled using the normal processes described in the Configuring DDF section.
+
+==== Configuring
+
+The RESTful CRUD Endpoint has no configurable properties. It can only be installed or uninstalled.
+
+==== Using the REST CRUD Endpoint
+
+The RESTful CRUD Endpoint provides the capability to query, create, update, and delete metacards in the catalog provider as follows:
+
+[cols="4*", options="header"]
+|===
+
+|Operation
+|HTTP Request
+|Details
+|Example URL
+
+|create
+|HTTP POST
+|HTTP request body contains the input to be ingested. See InputTransformers for more information.
+|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog`
+
+|update
+|HTTP PUT
+|The ID of the Metacard to be updated is appended to the end of the URL.
+
+The updated metadata is contained in the HTTP body.
+
+|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>`
+
+where `<metacardId>` is the Metacard.ID of the metacard to be updated
+
+|delete
+|HTTP DELETE
+|The ID of the Metacard to be deleted is appended to the end of the URL.
+
+|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>`
+
+where `<metacardId>` is the Metacard.ID of the metacard to be deleted
+
+
+|read
+|HTTP GET
+|The ID of the Metacard to be retrieved is appended to the end of the URL.
+
+By default, the response body will include the XML representation of the Metacard.
+
+|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>`
+
+where <metacardId> is the Metacard.ID of the metacard to be retrieved
+
+|federated read
+|HTTP GET
+|The SOURCE ID of a federated source is appended in the URL before the ID of the Metacard to be retrieved is appended to the end.
+
+|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/sources/<sourceId>/<metacardId>`
+
+where <sourceid> is the FEDERATED SOURCE ID and <metacardId> is the Metacard.ID of the Metacard to be retrieved
+
+|sources
+|HTTP GET
+|Retrieves information about federated sources, including sourceid, availability, contentTypes,and version.
+
+|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/sources/`
+
+|===
+
+==== Sources Operation Example
+
+In the example below there is the local DDF distribution and a DDF OpenSearch federated source with id "DDF-OS". 
+
+.Sources Response Example
+[source,javascript,linenums]
+----
+[
+   {
+      "id" : "DDF-OS",
+      "available" : true,
+      "contentTypes" :
+         [
+         ],
+      "version" : "2.0"
+   },
+   {
+      "id" : "ddf.distribution",
+      "available" : true,
+      "contentTypes" :
+         [
+         ],
+      "version" : "2.5.0-SNAPSHOT"
+   }
+] 
+----
+
+Note that for all RESTful CRUD commands only one metacard ID is supported in the URL, i.e., bulk operations are not supported.
+
+===== Interacting with the REST CRUD Endpoint
+
+Any web browser can be used to perform a REST read. Various other tools and libraries can be used to perform the other HTTP operations on the REST endpoint (e.g., soapUI, cURL, etc.)
+
+===== Metacard Transforms with the REST CRUD Endpoint
+
+The `read` operation can be used to retrieve metadata in different formats.
+
+. Install the appropriate feature for the desired transformer. If desired transformer is already installed such as those that come out of the box (`xml,html,etc`), then skip this step.
+
+. Make a read request to the REST URL specifying the catalog id.
+
+. Add a transform query parameter to the end of the URL specifying the shortname of the transformer to be used (e.g., `transform=kml`).+
+Example:
+
+[source,http]
+----
+http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>?transform=<TRANSFORMER_ID>
+----
+
+[TIP]
+====
+Transforms also work on read operations for metacards in federated sources.
+http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/sources/<sourceId>/<metacardId>?transform=<TRANSFORMER_ID>
+====
+
+===== Metacard Transforms Available in DDF
+
+Unable to render {children}. Page not found: Included Metacard Transformers.
+
+[NOTE]
+====
+MetacardTransformers can be added to the system at any time. This endpoint can make use of any registered MetacardTransformers.
+====
+===== InputTransformers 
+
+This REST Endpoint uses InputTransformers to create metacards from a `create` or a `HTTP POST` operation. The REST Endpoint dynamically finds InputTransformers that support the stated in the HTTP header of a `HTTP POST`. InputTransformers register as Services with a list of Content-Type mime-types. The REST Endpoint receives a list of InputTransformers that match the Content-Type and one-by-one calls the InputTransformers until a transformer is successful and creates a Metacard. For instance, if GeoJSON was in the body of the `HTTP POST`, then the HTTP header would need to include application/json in order to match the mime-type GeoJSON Input Transformer supports.
+
+[NOTE]
+====
+InputTransformers can be added to the system at any time.
+====
+===== Implementation Details
+====== Imported Services
+
+[cols="3*", options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|`ddf.mime.MimeTypeToTransformerMapper`
+|required
+|false
+
+|`ddf.catalog.CatalogFramework`
+|required
+|false
+
+|`ddf.catalog.filter.FilterBuilder`
+|required
+|false
+
+|===
+
+====== Exported Services
+
+[cols="3*", options="header"]
+|===
+
+|Registered Interface
+|Service Property
+|Value
+
+|ddf.action.ActionProvider
+|id
+|catalog.data.metacard.view
+
+|ddf.catalog.util.DdfConfigurationWatcher
+| 
+| 
+
+|===
+
+===== Known Issues
+None.
+
+=== OpenSearch Endpoint
+
+The OpenSearch Endpoint provides a CDR REST Search v3.0 and CDR REST Brokered Search 1.1 compliant DDF endpoint that a client accesses to send query parameters and receive search results.
+
+This endpoint uses the input query parameters to create an OpenSearch query. The client does not need to specify all of the query parameters, only the query parameters of interest.
+
+This endpoint is a JAX-RS RESTful service and is compliant with the CDR IPT BrokeredSearch, CDR IPT OpenSearch, and OpenSearch specifications. For more information on its parameters view the `OpenSearch Description Document` section below.
+
+==== Installing and Uninstalling
+
+The OpenSearch Endpoint can be installed and uninstalled using the normal processes described in the  Configuring DDF section.
+
+==== Configuring
+
+The OpenSearch Endpoint has no configurable properties. It can only be installed or uninstalled.
+
+==== Using the OpenSearch Endpoint
+
+Once installed, the OpenSearch endpoint is accessible from `http://<DDF_HOST>:<DDF_PORT>/services/catalog/query`.
+
+===== Using the endpoint
+
+====== From Code:
+
+The OpenSearch specification defines a file format to describe an OpenSearch endpoint. This file is XML-based and is used to programatically retrieve a site's endpoint, as well as the different parameter options a site holds. The parameters are defined via the OpenSearch and CDR IPT Specifications.
+
+====== From a Web Browser:
+
+Many modern web browsers currently act as OpenSearch clients. The request call is an HTTP GET with the query options being parameters that are passed.
+
+Example of an OpenSearch request:
+
+----
+http://<ddf_host>:8181/services/catalog/query?q=Predator
+----
+
+This request performs a full-text search for the phrase 'Predator' on the DDF providers and provides the results as Atom-formatted XML for the web browser to render.
+
+===== Parameter List
+
+====== Main OpenSearch Standard
+
+[cols="4*", options="header"]
+|===
+|OS Element
+|HTTP Parameter
+|Possible Values
+|Comments
+
+|searchTerms
+|q
+|URL-encoded string
+|Complex contextual search string.
+
+|count
+|count
+|integer >= 0
+|Maximum # of results to retrieve
+
+default: 10
+
+|startIndex
+|start
+|integer >= 1
+|Index of first result to return.
+
+default: 1
+
+This value uses a one based index for the results.
+
+|format
+|format
+|requires a transformer shortname as a string, possible values include, when available
+	
+	atom
+	
+	html
+	
+	kml
+
+see Included Query Response Transformers for more possible values.
+|default: atom
+|===
+
+====== Temporal Extension
+
+[cols="4*", options="header"]
+|===
+|OS Element
+|HTTP Parameter
+|Possible Values
+|Comments
+
+|start
+|dtstart
+|RFC-3399-defined value
+|yyyy-MM-dd'T'HH:mm:ss.SSSZZ
+
+|end
+|dtend
+|RFC-3399-defined value
+|yyyy-MM-dd'T'HH:mm:ss.SSSZZ
+|===
+
+[NOTE]
+====
+The start and end temporal criteria must be of the format specified above. Other formats are currently not supported. Example: 
+
+2011-01-01T12:00:00.111-04:00.
+
+*The start and end temporal elements are based on modified timestamps for a metacard.*
+====
+
+====== Geospatial Extension
+
+These geospatial query parameters are used to create a geospatial INTERSECTS query, where INTERSECTS = geometries that are not DISJOINT of the given geospatial parameter. 
+
+[cols="4*", options="header"]
+|===
+|OS Element
+|HTTP Parameter
+|Possible Values
+|Comments
+
+|lat
+|lat
+|EPSG:4326 decimal degrees
+|Expects a latitude and a radius to be specified.
+
+|lon
+|lon
+|EPSG:4326 decimal degrees
+|Expects a longitude and a radius to be specified.
+
+|radius
+|radius
+|Meters along the Earth's surface > 0
+|Used in conjunction with lat and lon query parameters.
+
+|polygon
+|polygon
+|clockwise lat lon pairs ending at the first one
+|example: -80, -170, 0, -170, 80, -170, 80, 170, 0, 170, -80, 170, -80, -170
+
+According to the OpenSearch Geo Specification this is *deprecated*.  Use geometry instead.
+
+|box
+|bbox
+|4 comma-separated EPSG:4326 decimal degrees
+|west, south, east, north
+
+|geometry
+|geometry 
+|WKT Geometries: POINT, POLYGON, MULTIPOINT, MULTIPOLYGON
+|Examples:
+
+POINT(10 20) where 10 is the longitude and 20 is the latitude.
+
+POLYGON ( ( 30 10, 10 20, 20 40, 40 40, 30 10 ) ). 30 is longitude and 10 is latitude
+for the first point. Make sure to repeat the starting point as the last point to close the polygon.
+
+|===
+
+====== Extensions
+[cols="4*", options="header"]
+|===
+|OS Element
+|HTTP Parameter
+|Possible Values
+|Comments
+
+|sort
+|sort
+|sbfield: 'date' or 'relevance' 
+sborder: 'asc' or 'desc'
+|sort=<sbfield>:<sborder> default: relevance:desc
+
+Sorting by date will sort the effective date.
+
+|maxResults
+|mr
+|Integer >= 0
+|Maximum # of results to return.
+
+If count is also specified, the count value will take precedence over the maxResults value
+
+|maxTimeout
+|mt
+|Integer > 0
+|Maximum timeout (milliseconds) for query to respond
+
+default: 300000 (5 minutes)
+|===
+
+====== Federated Search
+[cols="4*", options="header"]
+|===
+|OS Element
+|HTTP Parameter
+|Possible Values
+|Comments
+
+|routeTo
+|src
+|(varies depending on the names of the sites in the federation)
+|comma delimited list of site names to query.
+
+Also can specify src=local to query the local site.
+
+If src is not provided, the default behavior is to execute an enterprise search to the entire federation.
+
+|===
+
+====== DDF Extensions
+
+[cols="4*", options="header"]
+|===
+|OS Element
+|HTTP Parameter
+|Possible Values
+|Comments
+
+|dateOffset
+|dtoffset
+|integer > 0
+|Specifies an offset, backwards from the current time, to search on the modified time field for entries. Defined in milliseconds.
+
+|type
+|type
+|nitf
+|Specifies the type of data to search for.
+
+|version
+|version
+|20,30
+|Comma-delimited list of version values to search for.
+
+|selector
+|selector
+|//namespace:example,//example
+|Comma-delimited list of XPath string selectors that narrow down the search.
+
+|===
+
+====== Supported Complex Contextual Query Format
+
+The contextual query format is based on the "IC/DoD Keyword Query Language Specification, V2.0" DRAFT 9/4/2012. 
+
+The OpenSearch Endpoint supports the following operators: AND, OR, and NOT. These operators are case sensitive. Implicit ANDs are also supported.
+
+Using parenthesis to change the order of operations is supported. Using quotes to group keywords into literal expressions is supported.
+
+The following EBNF describes the grammar used for the contextual query format.
+
+.OpenSearch Complex Contextual Query EBNF
+----
+keyword query expression = optional whitespace, term, {boolean operator, term}, optional
+whitespace;
+boolean operator = or | not | and;
+and = (optional whitespace, "AND", optional whitespace) | mandatory whitespace;
+or = (optional whitespace, "OR", optional whitespace);
+not = (optional whitespace, "NOT", optional whitespace);
+term = group | phrase | keyword;
+phrase = optional whitespace, '"', optional whitespace, keyword, { optional whitespace,
+keyword}, optional whitespace, '"';
+group = optional whitespace, '(', optional whitespace, keyword query expression,
+optional whitespace, ')';
+optional whitespace = {' '};
+mandatory whitespace = ' ', optional whitespace;
+valid character = ? any printable character ? - ('"' | '(' | ')' | " ");
+keyword = valid character, {valid character};
+OpenSearch Description Document
+----
+
+The OpenSearch Description Document is an XML file is found inside of the OpenSearch Endpoint bundle and is named `ddf-os.xml`.
+
+===== Implementation Details
+
+====== Imported Services
+
+[cols="3*", options="header"]
+|===
+|Registered Interface
+|Availability
+|Multiple
+
+|`ddf.catalog.CatalogFramework`
+|required
+|false
+
+|`ddf.catalog.filter.FilterBuilder`
+|required
+|false
+
+|===
+====== Exported Services
+[cols="3*"]
+|===
+|Registered Interface
+|Service Property
+|Value
+
+|`ddf.catalog.util.DdfConfigurationWatcher`
+|
+|
+
+|===
+
+====== Example Output
+
+The default output for OpenSearch is Atom.  Detailed documentation on Atom output, including query result mapping and example output, can be Atom Query Response Transformer found on the page.
+
+====== Known Issues
+None
+
+== Developing a New Endpoint
+
+Complete the following procedure to create an endpoint. 
+
+. Create a Java class that implements the endpoint's business logic. Example: Creating a web service that external clients can invoke.
+
+. Add the endpoint's business logic, invoking CatalogFramework calls as needed.  
+
+. Import the DDF packages to the bundle's manifest for run-time (in addition to any other required packages): +
+`Import-Package: ddf.catalog, ddf.catalog.*`
+
+. Retrieve an instance of CatalogFramework from the OSGi registry. (Refer to the Working with OSGi - Service Registry section for examples.)
+
+Deploy the packaged service to DDF. (Refer to the Working with OSGi - Bundles section.)
+
+[NOTE]
+====
+It is recommended to use the maven bundle plugin to create the Endpoint bundle's manifest as opposed to directly editing the manifest file.
+====
+[TIP]
+====
+*No implementation of an interface is required* +
+Unlike other DDF components that require you to implement a standard interface, no implementation of an interface is required in order to create an endpoint.
+====
+=== Common Endpoint Business Logic
+
+[cols="2*", options="header"]
+|===
+|Methods
+|Use
+
+|Ingest
+|Add, modify, and remove metadata using the ingest-related CatalogFramework methods: +
+create, update, and delete. 
+
+|Query
+|Request metadata using the `query` method.
+
+|Source
+|Get available `Source` information.
+
+|Resource
+|Retrieve products referenced in Metacards from Sources.
+
+|Transform
+|Convert common Catalog Framework data types to and from other data formats.
+
+|===
+
+== DDF Data Migration
+
+Data migration is the process of moving metadata from one catalog provider to another. It is also the process of translating metadata from one format to another.  Data migration is necessary when a user decides to use metadata from one catalog provider in another catalog provider. The following steps define the procedure for transferring metadata from one catalog provider to another catalog provider. In addition, the procedures define the steps for converting metadata to different data formats.
+
+=== Set Up
+
+Set up DDF as instructed in Starting DDF section.
+
+=== Move Metadata from One Catalog Provider to Another
+
+==== Export Metadata Out of Catalog Provider
+
+. Configure a desired catalog provider.
+. From the command line of DDF console, use the command to export all metadata from the catalog provider into serialized data files dump. The following example shows a command for running on Linux and a command for running on Windows.
+
+.ddf@local
+----
+dump "/myDirectory/exportFolder" 
+or
+dump "C:/myDirectory/exportFolder"
+----
+
+==== Ingest Exported Metadata into Catalog Provider
+
+. Configure a different catalog provider.
+
+. From the command line of DDF console, use the ingest command to import exported metadata from serialized data files into catalog provider. The following example shows a command for running on Linux and a command for running on Windows.
+
+.ddf@local
+----
+ingest -p "/myDirectory/exportFolder"
+or 
+ingest -p "C:/myDirectory/exportFolder"
+----
+
+==== Translate Metadata from One Format to Another
+
+Metadata can be converted from one data format to another format.  Only the data format changes, but the content of the metadata does not, as long as `option -p` is used with the ingest command. The process for converting metadata is performed by ingesting a data file into a catalog provider in one format and dumping it out into a file in another format.  Additional information for ingest and dump commands can be at Catalog Commands.
+
+== Integrating Catalog Framework
+
+[ditaa, catalog_framework_architecture, png]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |cDEFEndpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |c369               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||cDEF           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |cDEF   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------
+....
+=== Catalog Framework
+
+The Catalog Framework wires all Catalog components together. It is responsible for routing Catalog requests and responses to the appropriate target. Endpoints send Catalog requests to the Catalog Framework. The Catalog Framework then invokes Catalog Plugins, Transformers, and Resource Components as needed before sending requests to the intended destination, such as one or more Sources. 
+
+=== Example Catalog Frameworks
+
+The Catalog comes with the following Catalog Frameworks out of the box:
+
+* Catalog Framework
+* Catalog Fanout Framework
+
+=== Catalog Framework Sequence Diagrams
+
+Because the Catalog Framework plays a central role to Catalog functionality, it interacts with many different Catalog components. To illustrate these relationships, high level sequence diagrams with notional class names are provided below. These examples are for illustrative purposes only and do not necessarily represent every step in each procedure.
+
+==== Ingest
+
+The Ingest Service Endpoint, the Catalog Framework, and the Catalog Provider are key components of the Reference Implementation. The Endpoint bundle implements a Web service that allows clients to create, update, and delete metacards. The Endpoint calls the `CatalogFramework` to execute the operations of its specification. The `CatalogFramework` routes the request through optional `PreIngest` and `PostIngest` Catalog Plugins, which may modify the ingest request/response before/after the Catalog Provider executes the ingest request and provides the response.  Note that a CatalogProvider must be present for any ingest requests to be successfully processed, otherwise a fault is returned.
+
+This process is similar for updating catalog entries, with update requests calling the `update(UpdateRequest)` methods on the Endpoint, `CatalogFramework`, and Catalog Provider. Similarly, for deletion of catalog entries, the delete requests call the delete(DeleteRequest) methods on the Endpoint, CatalogFramework, and Catalog Provider.
+
+==== Error Handling
+
+Any ingest attempts that fail inside the Catalog Framework  (whether the failure comes from the Catalog Framework itself, pre-ingest plugin failures, or issues with the Catalog Provider) will be logged to a separate log file for ease of error handling. The file is located at data/log/ingest_error.log and will log the Metacards that fail, their ID and Title name, and the stack trace associated with their failure. By default, successful ingest attempts are not logged. However, that functionality can be achieved by setting the log level of the ingestLogger to DEBUG (note that enabling DEBUG can cause a non-trivial performance hit).
+
+[TIP]
+====
+To turn off logging failed ingest attempts into a separate file, execute the following 
+via the command line console
+log:set
+ ERROR ingestLogger
+====
+
+==== Query
+
+The Query Service Endpoint, the Catalog Framework, and the `CatalogProvider` are key components for processing a query request as well. The Endpoint bundle contains a Web service that exposes the interface to query for `Metacards`. The Endpoint calls the `CatalogFramework` to execute the operations of its specification. The `CatalogFramework` relies on the CatalogProvider to execute the actual query. Optional PreQuery and PostQuery Catalog Plugins may be invoked by the `CatalogFramework` to modify the query request/response prior to the Catalog Provider processing the query request and providing the query response. If a CatalogProvider is not configured and no other remote Sources are configured, a fault will be returned. It is possible to have only remote Sources configured and no local CatalogProvider configured and be able to execute queries to specific remote Sources by specifying the site name(s) in the query request.
+
+==== Product Retrieval
+The Query Service Endpoint, the Catalog Framework, and the `CatalogProvider` are key components for processing a retrieve product request. The Endpoint bundle contains a Web service that exposes the interface to retrieve products, also referred to as Resources. The Endpoint calls the `CatalogFramework` to execute the operations of its specification. The `CatalogFramework` relies on the Sources to execute the actual product retrieval. Optional PreResource and PostResource Catalog Plugins may be invoked by the CatalogFramework to modify the product retrieval request/response prior to the Catalog Provider processing the request and providing the response. It is possible to retrieve products from specific remote Sources by specifying the site name(s) in the request.
+
+==== Product Caching
+
+The Catalog Framework optionally provides caching of products, so future requests to retrieve the same product will be serviced much quicker. If caching is enabled, each time a retrieve product request is received, the Catalog Framework will look in its cache (default location <INSTALL_DIR>/data/product-cache) to see if the product has been cached locally. If it has, the product is retrieved from the local site and returned to the client, providing a much quicker turnaround because remote product retrieval and network traffic was avoided. If the requested product is not in the cache, the product is retrieved from the Source (local or remote) and cached locally while returning the product to the client. The caching to a local file of the product and the streaming of the product to the client are done simultaneously so that the client does not have to wait for the caching to complete before receiving the product.  If errors are detected during the caching, caching of the product will be abandoned, and the product will be returned to the client. 
+
+The Catalog Framework attempts to detect any network problems during the product retrieval, e.g., long pauses where no bytes are read implying a network connection was dropped. (The amount of time that a "long pause" is defined as is configurable, with the default value being five seconds.) The Catalog Framework will attempt to retrieve the product up to a configurable number of times (default = three), waiting for a configurable amount of time (default = 10 seconds) between each attempt, trying to successfully retrieve the product. If the Catalog Framework is unable to retrieve the product, an error message is returned to the client.
+
+If the admin has enabled the *Always Cache When Canceled* option, caching of the product will occur even if the client cancels the product retrieval so that future requests will be serviced quickly. Otherwise, caching is canceled if the user cancels the product download.
+
+==== Product Download Status
+
+As part of the caching of products, the Catalog Framework also posts events to the OSGi notification framework. Information includes when the product download started, whether the download is retrying or failed (after the number of retrieval attempts configured for product caching has been exhausted), and when the download completes. These events are retrieved by the Search UI and presented to the user who initiated the download.
+
+=== DDF Catalog Schematron
+
+The Schematron Validation Plugin (`plugin-schematron-validation` bundle) provides a pre-ingest interceptor that validates the incoming request against a Schematron ruleset (or rule sets). If the request has warnings or errors based on the Schematron validation, the request is marked as invalid and a SOAP fault is returned with details on the exact reason why the request was invalid. This bundle has the following characteristics:
+
+* It provides the Schematron engine, meaning it provides the infrastructure to load, parse, and apply Schematron rule sets.
+* It does not contain any Schematron ruleset(s) - those must be installed (as features) separately.
+
+The Schematron validation bundle works with Schematron rule set bundles to obtain the rules for validation. The Schematron validation bundle and the Schematron rule set bundle are uninstalled by default. More information about Schematron in general can be found at http://www.schematron.com.
+
+==== Understanding Schematron
+
+Schematron is a language for making assertions about the presence or absence of patterns in XML documents. It is not a replacement for XML Schema (XSD) validation. Rather, it is used in conjunction with many grammar-based structure-validation languages, such as XSD.
+
+Schematron is an ISO standard:  ISO/IEC 19757-3:2006 Information technology -- Document Schema Definition Language (DSDL) -- Part 3: Rule-based validation -- Schematron
+
+Schematron assertions are based on two simple actions:
+
+. First, find context nodes in the document (typically an element) based on XPath criteria.
+
+. Then, check to see if some other XPath expressions are true, for each of the nodes returned in the first step.
+
+Schematron assertions (or rules) are defined in a `.sch` file by convention, which is an XML file conforming to Schematron's rules for defining assertions. This file is referred to as a "Schematron ruleset." These rules are contained in one `.sch` file or a hierarchy of `.sch` files. However, there is ultimately one `.sch` file that includes or uses all of the other `.sch` files. This one `.sch` file is the "ruleset" used by the DDF Schematron Validation Service.
+
+Schematron also includes SVRL (Schematron Validation Report Language) report generation, which is in XML format. This report includes the results of all of the Schematron rulesets' assertions, classifying them as warnings or errors (based on the ruleset).
+
+DDF implements Schematron as a Pre-Ingest Plugin, running the Schematron ruleset(s) against each catalog entry in each create and update ingest request that DDF receives. The DDF Schematron Validation Pre-Ingest Plugin consists of two components: the Schematron "engine" and the client ruleset bundle(s). Each are described below.
+
+===== Schematron Validation Plugin
+
+The Schematron Validation Service is in a single OSGi bundle named `plugin-schematron-validation`. This bundle includes all of the code to implement:
+
+. Loading and pre-compilation of the client ruleset bundle
+. Executing the ruleset against ingest requests
+. Generating the SVRL report. From this report, the Schematron Validation Service determines if errors and/or warnings were detected during validation. If errors or warnings exist, validation fails and the ingest request is rejected. A SOAP fault is then returned to the client, including details on why the request is invalid.
+
+The client's ruleset bundle determines what rules generate warnings and what rules generate errors. The Schematron Validation Service provides a configuration option (accessible via the Web Console's Configuration page) to suppress warnings. When this option is set, if only warnings are detected during Schematron validation, then the request is considered valid. By default, this suppress warnings option is unset (hence warnings result in invalid requests by default).
+
+Validation is executed per catalog entry in the ingest request. Note that if multiple catalog entries are in the request, Schematron validation stops once a catalog entry is determined to be invalid. For example, if ten catalog entries are in a singe create ingest request and entry #4 is invalid, entries 5 through 10 will not even be validated. Schematron returns an invalid status after entry #4 is validated.
+
+[TIP]
+====
+If only the Schematron Validation Service is installed, no Schematron validation occurs. This is because the Schematron Validation Service has no ruleset to validate the request against; it only provides the framework for Schematron rulesets to be applied to ingest requests. At least one client ruleset bundle must also be installed.
+====
+
+===== Schematron Client "Ruleset" Bundle(s)
+
+A client must deploy at least one Schematron ruleset bundle before Schematron validation occurs.
+
+The Schematron ruleset bundle consists of three required items:
+
+* The `.sch` ruleset file defining the Schematron applied rules
+* A bundle wiring specification file (e.g., Blueprint, Spring DM, Declarative Services, etc.) specifying the `.sch` file used and associating theruleset to the Schematron Validation Service
+* An OSGi metatype XML file that specifies the configurable options for the Schematron Validation Service (namely the suppress warnings option)
+
+The diagram below illustrates how these Schematron components interact:
+[ditaa, schematron_diagram]
+....
+| Schematron Validation Service OSGi Bundle
+                                          |
+                                          |     +---------------------------------+
+                                          |     | ISO Schematron XSLT             |
+                                          |     | implementation                  |
+                                          |     |                                 |
+                                          |     |   +-------------------------+   |
+                                          |     |   |{d}                      |   |
+                                          |     |   | Iso_abstract_expand.xsl |   |
+                                          |     |   |                         |   |
+                                          |     |   +-------------------------+   |
+                                          |     |                                 |
+                                          |     |   +-------------------------+   |
+                                          |     |   |{d}                      |   |
+                                          |     |   |  Iso_dsdl_include.xsl   |   |
+                                          |     |   |                         |   |
+                                          |     |   +-------------------------+   |
+                                          |     |                                 |
+                                          |     |   +-------------------------+   |
+                                          |     |   |{d}                      |   |
+                                          |     |   | Iso_svrl_for_xslt2.xsl  |   |
+                                          |     |   |                         |   |
+                                          |     |   +-------------------------+   |
+                                          |     |                                 |                           
+                                          |     +----------------+----------------+                           
+                                          |                      |                                            
+  OSGi Bundle(s) of                       |                      |                                            
+  Schematron schema                       |                      |                                            
+  provided by client                      |                      |                                            
++--------------------+                    |                      |                                                
+|                    |                    |                      |                                                  
+|   +------------+   |                    |                      v                                                  
+|   |{d}         |   |                    |         +-------------------------+                        +-------------------------+
+|   | Schematron |   |                    |         |                         |                        |                         |
+|   | schema     |   |                    |         |           XSL           |                        |  Schematron Validation  |
+|   |(.sch file) |   +----------input-----+-------->|      "Compilation"      +---------Provides------>|         Service         |
+|   |            |   |                    |         |                         |     Compiled Rules     |                         |
+|   +------------+   |                    |         |                         |                        |                         |
+|                    |                    |         +-------------------------+                        +------------+------------+
+|   +------------+   |                    |                                                                         |
+|   |{d}         |   |                    |                                                                      produces
+|   | blueprint  |   |                    |                                                                         |
+|   |(.xml file) |   |                    |                                                                         V
+|   |            |   |                    |                                                                  +------------+
+|   +------------+   |                    |                                                                  | Schematron |
+|                    |                    |                                                                  | SVRL Report|
++--------------------+                    |                                                                  |{d}  XML    |
+                                          |                                                                  +------------+
+                                          |
+                                          |
+                                          |
+                                          |
+....
+
+===== Installing and Uninstalling
+
+The Schematron Validation Library can be installed and uninstalled using the normal processes described in the 
+Configuring DDF
+ section.
+
+===== Configuring
+
+There are no configuration options for this application.
