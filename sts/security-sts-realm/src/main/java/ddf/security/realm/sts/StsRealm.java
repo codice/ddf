@@ -15,6 +15,8 @@
 package ddf.security.realm.sts;
 
 import ddf.security.PropertiesLoader;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.common.util.CommonSSLFactory;
 import ddf.security.encryption.EncryptionService;
@@ -45,6 +47,7 @@ import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -182,8 +185,8 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
      */
     @Override
     public boolean supports(AuthenticationToken token) {
-        boolean supported = token != null
-                && AuthenticationToken.class.isAssignableFrom(token.getClass()) ? true : false;
+        boolean supported = token instanceof SAMLAuthenticationToken ||
+                token instanceof BSTAuthenticationToken;
 
         if (supported) {
             LOGGER.debug("Token {} is supported by {}.", token.getClass(),
@@ -241,11 +244,9 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         LOGGER.debug("Creating token authentication information with SAML.");
         SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo();
         SimplePrincipalCollection principals = new SimplePrincipalCollection();
-        Object principal = token.getPrincipal();
-        if(principal != null) {
-            principals.add(principal, NAME);
-        }
-        principals.add(securityToken, NAME);
+        SecurityAssertion assertion = new SecurityAssertionImpl(securityToken);
+        principals.add(assertion.getPrincipal(), NAME);
+        principals.add(assertion, NAME);
         simpleAuthenticationInfo.setPrincipals(principals);
         simpleAuthenticationInfo.setCredentials(credential);
 

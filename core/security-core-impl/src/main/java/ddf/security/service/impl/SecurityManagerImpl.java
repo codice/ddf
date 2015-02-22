@@ -87,19 +87,14 @@ public class SecurityManagerImpl implements SecurityManager {
                 "CANNOT AUTHENTICATE USER: Authentication token did not contain any credentials. "
                 + "This is generally due to an error on the authentication server.");
         }
-        // authenticate the token - this will call the stsrealm
         AuthenticationInfo info = internalManager.authenticate(token);
-        SecurityToken secToken = info.getPrincipals().oneByType(SecurityToken.class);
-        if (secToken == null) {
-            throw new SecurityServiceException("Did not receive a security token back, cannot complete authentication.");
-        }
         try {
-            // create the subject that will be returned back to the user
-            return new SubjectImpl(createPrincipalFromToken(secToken), true, new SimpleSession(UUID
-                .randomUUID().toString()), internalManager);
+            return new SubjectImpl(info.getPrincipals(), true, new SimpleSession(UUID
+                    .randomUUID().toString()), internalManager);
         } catch (Exception e) {
             throw new SecurityServiceException("Could not create a new subject", e);
         }
+
     }
 
     /**

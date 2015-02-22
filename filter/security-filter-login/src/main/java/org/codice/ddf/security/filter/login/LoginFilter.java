@@ -36,7 +36,6 @@ import org.apache.ws.security.validate.Credential;
 import org.apache.ws.security.validate.SamlAssertionValidator;
 import org.apache.ws.security.validate.Validator;
 import org.codice.ddf.security.common.PropertiesLoader;
-import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.InvalidSAMLReceivedException;
@@ -191,10 +190,12 @@ public class LoginFilter implements Filter {
              * If the user has already authenticated they will have a valid SAML token. Validate
              * that here and create the subject from the token.
              */
-            if (thisToken instanceof SAMLAuthenticationToken)
-                subject = handleAuthenticationToken(httpRequest, (SAMLAuthenticationToken) thisToken);
-            else if (thisToken instanceof BSTAuthenticationToken)
-                subject = handleAuthenticationToken(httpRequest, (BSTAuthenticationToken) thisToken);
+            if (thisToken instanceof SAMLAuthenticationToken) {
+                subject = handleAuthenticationToken(httpRequest,
+                        (SAMLAuthenticationToken) thisToken);
+            } else if (thisToken != null) {
+                subject = handleAuthenticationToken(httpRequest, thisToken);
+            }
         }
 
         return subject;
@@ -358,7 +359,7 @@ public class LoginFilter implements Filter {
         return null;
     }
 
-    private Subject handleAuthenticationToken(HttpServletRequest httpRequest, BSTAuthenticationToken token) throws ServletException {
+    private Subject handleAuthenticationToken(HttpServletRequest httpRequest, BaseAuthenticationToken token) throws ServletException {
         Subject subject;
 
         HttpSession session = httpRequest.getSession(true);
