@@ -26,6 +26,7 @@ import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.shiro.subject.Subject;
 import org.apache.ws.security.WSSecurityException;
@@ -140,17 +141,15 @@ public class SecureCxfClientFactory<T> {
             throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
         }
 
-        WebClient newClient = WebClient.fromClient(cxfClient);
+        T newClient = getUnsecuredClient();
 
         if (subject instanceof ddf.security.Subject) {
-            RestSecurity.setSubjectOnClient((ddf.security.Subject) subject, newClient);
+            RestSecurity.setSubjectOnClient((ddf.security.Subject) subject, (Client) newClient);
         } else {
             throw new SecurityServiceException("Not a ddf subject " + subject);
         }
-        WebClient.getConfig(newClient).getRequestContext()
-                .put(org.apache.cxf.message.Message.MAINTAIN_SESSION, Boolean.TRUE);
 
-        return (T) newClient;
+        return newClient;
     }
 
     /**
@@ -194,6 +193,18 @@ public class SecureCxfClientFactory<T> {
                 | NoSuchAlgorithmException | KeyStoreException | WSSecurityException | CredentialException e) {
             throw new SecurityServiceException(e);
         }
+    }
+
+    /**
+     * Clients produced by this method will be completely unsecured.
+     * <p/>
+     * Since there is no security information to expire, this client may be reused.
+     */
+    public T getUnsecuredClient() {
+        WebClient webClient = WebClient.fromClient(cxfClient);
+        WebClient.getConfig(webClient).getRequestContext()
+                .put(Message.MAINTAIN_SESSION, Boolean.TRUE);
+        return (T) webClient;
     }
 
     private SecuritySettingsService getSecuritySettingsService() throws SecurityServiceException {
