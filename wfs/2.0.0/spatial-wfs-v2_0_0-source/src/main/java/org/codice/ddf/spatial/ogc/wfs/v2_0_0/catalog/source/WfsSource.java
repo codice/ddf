@@ -60,9 +60,9 @@ import net.opengis.wfs.v_2_0_0.GetFeatureType;
 import net.opengis.wfs.v_2_0_0.QueryType;
 import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
@@ -509,46 +509,58 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             }
         }
     }
-
+    
     private void lookupFeatureConverter(String ftSimpleName, FeatureMetacardType ftMetacard) {
         FeatureConverter featureConverter = null;
 
-        if (!CollectionUtils.isEmpty(featureConverterFactories)) {
+        /**
+         * The list of feature converter factories injected into this class is a live list.  So, feature converter factories
+         * can be added and removed from the system while running.
+         */
+        if (CollectionUtils.isNotEmpty(featureConverterFactories)) {
             for (FeatureConverterFactory factory : featureConverterFactories) {
                 if (ftSimpleName.equalsIgnoreCase(factory.getFeatureType())) {
                     featureConverter = factory.createConverter();
-                    LOGGER.debug(
-                            "WFS Source {}: Features of type: {} will be converted using {}",
-                            getId(), ftSimpleName, featureConverter.getClass()
-                                    .getSimpleName());
                     break;
                 }
-
             }
+        }
 
-            if (featureConverter == null) {
-                LOGGER.warn(
-                        "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
-                        getId(), ftSimpleName);
-                
-                MetacardMapper featurePropertyToMetacardAttributeMapper = 
-                        lookupMetacardAttributeToFeaturePropertyMapper(ftMetacard.getFeatureType());
-                
-                featureConverter = new GenericFeatureConverterWfs20(featurePropertyToMetacardAttributeMapper);
-            }
+        // Found a specific feature converter
+        if (featureConverter != null) {
+            LOGGER.debug("WFS Source {}: Features of type: {} will be converted using {}", getId(),
+                    ftSimpleName, featureConverter.getClass().getSimpleName());     
         } else {
             LOGGER.warn(
                     "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
                     getId(), ftSimpleName);
-            featureConverter = new GenericFeatureConverterWfs20();
 
+            // Since we have no specific converter, we will check to see if we have a mapper to do
+            // feature property to metacard attribute mappings.
+            MetacardMapper featurePropertyToMetacardAttributeMapper = lookupMetacardAttributeToFeaturePropertyMapper(ftMetacard
+                    .getFeatureType());
+
+            if (featurePropertyToMetacardAttributeMapper != null) {
+                featureConverter = new GenericFeatureConverterWfs20(
+                        featurePropertyToMetacardAttributeMapper);
+                LOGGER.debug(
+                        "WFS Source {}: Created {} for feature type {} with feature property to metacard attribute mapper.",
+                        getId(), featureConverter.getClass().getSimpleName(), ftSimpleName);
+            } else {
+                featureConverter = new GenericFeatureConverterWfs20();
+                LOGGER.debug(
+                        "WFS Source {}: Created {} for feature type {} with no feature property to metacard attribute mapper.",
+                        getId(), featureConverter.getClass().getSimpleName(), ftSimpleName);
+            }
         }
+
         featureConverter.setSourceId(getId());
         featureConverter.setMetacardType(ftMetacard);
         featureConverter.setWfsUrl(wfsUrl);
         featureConverter.setCoordinateOrder(coordinateOrder);
 
         // Add the Feature Type name as an alias for xstream
+        LOGGER.debug("Registering feature converter {} for feature type {}.", featureConverter.getClass().getSimpleName(), ftSimpleName);
         remoteWfs.getFeatureCollectionReader().registerConverter(featureConverter);
     }
     
@@ -1216,13 +1228,17 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
             }
             // Simple "ping" to ensure the source is responding
             newAvailability = (null != getCapabilities());
+            // If the source becomes available, configure it.
+            // When the source is available, we need to account for new feature converter factories being added
+            // while the system is running.
+            if (newAvailability) {
+                LOGGER.debug("WFS Source {} is available...configuring.", getId());
+                configureWfsFeatures();
+                newAvailability = !featureTypeFilters.isEmpty();
+            }
+            
             if (oldAvailability != newAvailability) {
                 availabilityChanged(newAvailability);
-                // If the source becomes available, configure it.
-                if (newAvailability) {
-                    configureWfsFeatures();
-                    newAvailability = !featureTypeFilters.isEmpty();
-                }
             }
             return newAvailability;
         }
