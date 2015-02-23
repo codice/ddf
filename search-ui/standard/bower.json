@@ -33,7 +33,7 @@
     "lato": "v0.2.1",
     "strapdown": "arturadib/strapdown#509f99f9c00e6b40f208a39e2a2c980331642fe5",
     "usng": "codice/usng.js#a09ec5a19dd432bc85317d9e99561bdaadd878a7",
-    "openlayers3": "v3.0.0",
+    "openlayers3": "codice/ol3#27933cf5dd10b31af2817d212ec518eb525f97a6",
     "jquery-file-upload": "9.5.7",
     "cesium-drawhelper":"leforthomas/cesium-drawhelper#4fbe1776f50a8b9dee0252725eab93a8e68fb539",
     "limby-resize": "danschumann/limby-resize",

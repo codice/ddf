@@ -126,7 +126,6 @@ define([
                 var that = this;
 
                 this.primitive = new ol.interaction.Draw({
-                    condition: ol.events.condition.always,
                     type: 'Polygon',
                     style: new ol.style.Style({
                         stroke: new ol.style.Stroke({

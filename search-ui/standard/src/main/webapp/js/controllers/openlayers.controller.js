@@ -95,8 +95,6 @@ define(['underscore',
                     });
 
                     map = new ol.Map({
-                        interactions: ol.interaction.defaults().extend(
-                            [new ol.interaction.Select()]),
                         layers: layers,
                         target: mapDivId,
                         view: new ol.View({
@@ -117,13 +115,18 @@ define(['underscore',
             setupEvents: function () {
                 var controller = this;
                 this.mapViewer.on('click', function(event) {
-                    var feature = controller.mapViewer.forEachFeatureAtPixel(event.pixel,
-                        function(feature) {
-                            return feature;
-                        });
-                    if (feature) {
-                        controller.trigger('click:left', feature);
-                    }
+                    var feature;
+
+                    controller.mapViewer.forEachLayerAtPixel(event.pixel, function (layer) {
+                        feature = controller.mapViewer.forEachFeatureAtPixel(event.pixel,
+                            function(feature) {
+                                controller.trigger('click:left', feature);
+                            }, this, function(testLayer) {
+                                if (testLayer === layer) {
+                                    return true;
+                                }
+                            });
+                    });
                 });
             },
 

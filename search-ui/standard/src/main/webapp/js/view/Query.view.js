@@ -196,32 +196,40 @@ define([
 
             swapLocationTypeLatLon: function() {
                 this.model.set('locationType', 'latlon');
-                //radius
-                this.$('#latdiv').show();
-                this.$('#londiv').show();
-                this.$('#usngdiv').hide();
-                //bbox
-                this.$('#westdiv').show();
-                this.$('#southdiv').show();
-                this.$('#eastdiv').show();
-                this.$('#northdiv').show();
-                this.$('#usngbbdiv').hide();
+                this.updateLocationFields();
             },
 
             swapLocationTypeUsng: function() {
                 this.model.set('locationType', 'usng');
                 this.model.setBboxLatLon();
                 this.model.repositionLatLon(false);
-                //radius
-                this.$('#latdiv').hide();
-                this.$('#londiv').hide();
-                this.$('#usngdiv').show();
-                //bbox
-                this.$('#westdiv').hide();
-                this.$('#southdiv').hide();
-                this.$('#eastdiv').hide();
-                this.$('#northdiv').hide();
-                this.$('#usngbbdiv').show();
+                this.updateLocationFields();
+            },
+
+            updateLocationFields: function() {
+                if (this.model.get('locationType') === 'latlon') {
+                    //radius
+                    this.$('#latdiv').css('display', 'table');
+                    this.$('#londiv').css('display', 'table');
+                    this.$('#usngdiv').css('display', 'none');
+                    //bbox
+                    this.$('#westdiv').css('display', 'table');
+                    this.$('#southdiv').css('display', 'table');
+                    this.$('#eastdiv').css('display', 'table');
+                    this.$('#northdiv').css('display', 'table');
+                    this.$('#usngbbdiv').css('display', 'none');
+                } else if (this.model.get('locationType') === 'usng') {
+                    //radius
+                    this.$('#latdiv').css('display', 'none');
+                    this.$('#londiv').css('display', 'none');
+                    this.$('#usngdiv').css('display', 'table');
+                    //bbox
+                    this.$('#westdiv').css('display', 'none');
+                    this.$('#southdiv').css('display', 'none');
+                    this.$('#eastdiv').css('display', 'none');
+                    this.$('#northdiv').css('display', 'none');
+                    this.$('#usngbbdiv').css('display', 'table');
+                }
             },
 
             updateSortField: function(e) {
@@ -408,6 +416,7 @@ define([
                 this.$('#scheduleUnits').multiselect(singleselectOptions);
 
                 this.updateZoomOnResults();
+                this.updateLocationFields();
             },
 
             beforeShowDatePicker: function(picker){

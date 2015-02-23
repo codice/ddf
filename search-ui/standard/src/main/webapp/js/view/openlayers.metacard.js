@@ -180,11 +180,22 @@ define([
             },
 
             toggleSelection: function () {
+                var radius, strokeColor;
                 if (this.model.get('context')) {
-                    this.billboard.scale = 0.5;
+                    radius = 7;
+                    strokeColor = '#000000';
                 } else {
-                    this.billboard.scale = 0.41;
+                    radius = 4;
+                    strokeColor = this.pointStrokeColor;
                 }
+                this.billboard.setStyle(new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: radius,
+                        fill: new ol.style.Fill({color: this.pointFillColor}),
+                        stroke: new ol.style.Stroke({color: strokeColor, width: 1})
+                    }),
+                    stroke: new ol.style.Stroke({color: this.lineStrokeColor, width: 1})
+                }));
             },
             onMapLeftClick: function (event) {
                 // find out if this click is on us
