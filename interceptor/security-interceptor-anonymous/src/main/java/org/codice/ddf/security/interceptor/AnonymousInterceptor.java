@@ -14,8 +14,12 @@
  **/
 package org.codice.ddf.security.interceptor;
 
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
+import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 import org.apache.cxf.Bus;
@@ -43,8 +47,7 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.wss4j.AbstractWSS4JInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.neethi.Policy;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.realm.Realm;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.ws.security.WSSConfig;
 import org.apache.ws.security.WSSecurityEngine;
 import org.apache.ws.security.WSSecurityException;
@@ -85,7 +88,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -100,9 +102,9 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     //Token Assertions
     private static final String TOKEN_SAML20 = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
 
-    private final List<Realm> realms;
-
     private EncryptionService encryptionService;
+
+    private SecurityManager securityManager;
 
     private STSClientConfiguration stsClientConfiguration;
 
@@ -113,9 +115,9 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
     private final Object lock = new Object();
 
-    public AnonymousInterceptor(List<Realm> realms, ContextPolicyManager contextPolicyManager) {
+    public AnonymousInterceptor(SecurityManager securityManager, ContextPolicyManager contextPolicyManager) {
         super();
-        this.realms = realms;
+        this.securityManager = securityManager;
         this.contextPolicyManager = contextPolicyManager;
         setPhase(Phase.PRE_PROTOCOL);
         //make sure this interceptor runs before the WSS4J one in the same Phase, otherwise it won't work
@@ -368,38 +370,36 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
         AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(BaseAuthenticationToken.DEFAULT_REALM);
 
         //synchronize the step of requesting the assertion, it is not thread safe
-        AuthenticationInfo authenticationInfo = null;
+        Subject subject = null;
         synchronized (lock) {
-            if (realms != null && !realms.isEmpty()) {
-                for (Realm realm : realms) {
-                    try {
-                        authenticationInfo = realm.getAuthenticationInfo(token);
-                        if (authenticationInfo != null) {
-                            break;
-                        }
-                    } catch (Exception e) {
-                        LOGGER.warn("Unable to request auth info for anonymous user.", e);
-                    }
-                }
+            try {
+                subject = securityManager.getSubject(token);
+            } catch (SecurityServiceException sse) {
+                LOGGER.warn("Unable to request subject for anonymous user.", sse);
             }
-        }
-        if (authenticationInfo != null) {
-            SecurityToken securityToken = null;
-            for (Object principal : authenticationInfo.getPrincipals()) {
-                if (principal instanceof SecurityToken) {
-                    securityToken = (SecurityToken) principal;
-                }
-            }
-            if (securityToken != null) {
-                Element samlElement = securityToken.getToken();
-                SOAPElement samlAssertion = null;
-                try {
-                    samlAssertion = soapFactory.createElement(samlElement);
-                    securityHeader.addChildElement(samlAssertion);
 
-                } catch (SOAPException e) {
-                    LOGGER.error("Unable to convert SecurityToken to SOAPElement.", e);
+        }
+        if (subject != null) {
+            PrincipalCollection principals = subject.getPrincipals();
+            if (principals != null) {
+                SecurityAssertion securityAssertion = principals.oneByType(SecurityAssertion.class);
+                if (securityAssertion != null) {
+                    SecurityToken securityToken = securityAssertion.getSecurityToken();
+                    Element samlElement = securityToken.getToken();
+                    SOAPElement samlAssertion = null;
+                    try {
+                        samlAssertion = soapFactory.createElement(samlElement);
+                        securityHeader.addChildElement(samlAssertion);
+
+                    } catch (SOAPException e) {
+                        LOGGER.error("Unable to convert SecurityToken to SOAPElement.", e);
+                    }
+                } else {
+                    LOGGER.warn("Subject did not contain a security assertion, could not assertion"
+                            + "to security header.");
                 }
+            } else {
+                LOGGER.warn("Subject did not contain any principals, could not create element.");
             }
         }
     }
