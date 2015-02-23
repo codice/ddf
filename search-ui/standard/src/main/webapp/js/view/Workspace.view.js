@@ -589,6 +589,9 @@ define([
 
             initialize: function () {
                 _.bindAll(this);
+                if (!maptype.isNone()) {
+                    this.model.set({isMap: true});
+                }
             }
         });
 
