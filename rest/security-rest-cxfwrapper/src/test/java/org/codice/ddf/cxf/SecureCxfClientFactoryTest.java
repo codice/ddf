@@ -15,30 +15,41 @@
 package org.codice.ddf.cxf;
 
 import ddf.security.Subject;
+import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
+import ddf.security.settings.SecuritySettingsService;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.support.DelegatingSubject;
 import org.junit.Test;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.notNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SecureCxfClientFactoryTest {
 
-    private String endpointUrl = "http://some.url.com/query";
+    private String insecureEndpoint = "http://some.url.com/query";
+
+    private String secureEndpoint = "https://some.url.com/query";
 
     @Test
     public void testInsecure() throws SecurityServiceException {
         // positive case
-        SecureCxfClientFactory secureCxfClientFactory = getSecureCxfClientFactory();
+        SecureCxfClientFactory secureCxfClientFactory = new SecureCxfClientFactory(insecureEndpoint,
+                Dummy.class);
         Client unsecuredClient = (Client) secureCxfClientFactory.getUnsecuredClient();
-        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(endpointUrl));
+        assertTrue(unsecuredClient.getBaseURI().toASCIIString().equals(insecureEndpoint));
         // negative cases
         boolean subject = false;
         try {
@@ -56,12 +67,15 @@ public class SecureCxfClientFactoryTest {
         assertTrue(system);
     }
 
-    private DummySubject getSubject() {
-        return new DummySubject(new DefaultSecurityManager(), null);
+    @Test
+    public void testSecure() throws SecurityServiceException {
+        SecureCxfClientFactory secureCxfClientFactory = new MockWrapper(secureEndpoint,
+                Dummy.class);
+        Client client = (Client) secureCxfClientFactory.getClientForSubject(getSubject());
     }
 
-    private SecureCxfClientFactory getSecureCxfClientFactory() throws SecurityServiceException {
-        return new SecureCxfClientFactory(endpointUrl, Dummy.class);
+    private DummySubject getSubject() {
+        return new DummySubject(new DefaultSecurityManager(), new SimplePrincipalCollection());
     }
 
     public interface Dummy {
@@ -81,4 +95,40 @@ public class SecureCxfClientFactoryTest {
             return false;
         }
     }
+
+    private class MockWrapper extends SecureCxfClientFactory<Dummy> {
+
+        public MockWrapper(String endpointUrl, Class interfaceClass)
+                throws SecurityServiceException {
+            super(endpointUrl, interfaceClass);
+        }
+
+        public MockWrapper(String endpointUrl, Class interfaceClass, String username,
+                String password) throws SecurityServiceException {
+            super(endpointUrl, interfaceClass, username, password);
+        }
+
+        public MockWrapper(String endpointUrl, Class interfaceClass, String username,
+                String password, List providers, boolean disableCnCheck)
+                throws SecurityServiceException {
+            super(endpointUrl, interfaceClass, username, password, providers, disableCnCheck);
+        }
+
+        @Override
+        <S> S getOsgiService(Class<S> clazz) throws SecurityServiceException {
+            if (clazz.getName().equals(SecuritySettingsService.class.getName())) {
+                SecuritySettingsService securitySettingsService = mock(
+                        SecuritySettingsService.class);
+                when(securitySettingsService.getTLSParameters())
+                        .thenReturn(new TLSClientParameters());
+                return (S) securitySettingsService;
+            } else if (clazz.getName().equals(SecurityManager.class.getName())) {
+                SecurityManager securityManager = mock(SecurityManager.class);
+                when(securityManager.getSubject(notNull())).thenReturn(getSubject());
+                return (S) securityManager;
+            }
+            return null;
+        }
+    }
+
 }

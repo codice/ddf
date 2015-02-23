@@ -142,7 +142,7 @@ public class SecureCxfClientFactory<T> {
             throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
         }
 
-        T newClient = getUnsecuredClient();
+        T newClient = getNewClient();
 
         if (subject instanceof ddf.security.Subject) {
             RestSecurity.setSubjectOnClient((ddf.security.Subject) subject, (Client) newClient);
@@ -207,6 +207,10 @@ public class SecureCxfClientFactory<T> {
             throw new SecurityServiceException(
                     "Cannot connect insecurely to https url " + asciiString);
         }
+        return getNewClient();
+    }
+
+    private T getNewClient() {
         WebClient webClient = WebClient.fromClient(cxfClient);
         WebClient.getConfig(webClient).getRequestContext()
                 .put(Message.MAINTAIN_SESSION, Boolean.TRUE);
@@ -214,33 +218,25 @@ public class SecureCxfClientFactory<T> {
     }
 
     private SecuritySettingsService getSecuritySettingsService() throws SecurityServiceException {
-        BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-        if (bundleContext != null) {
-            ServiceReference<SecuritySettingsService> serviceReference = bundleContext
-                    .getServiceReference(SecuritySettingsService.class);
-            if (serviceReference != null) {
-                SecuritySettingsService service = bundleContext.getService(serviceReference);
-                if (service != null) {
-                    return service;
-                }
-            }
-        }
-        throw new SecurityServiceException("Could not get SecuritySettingsService");
+        return getOsgiService(SecuritySettingsService.class);
     }
 
     private SecurityManager getSecurityManager() throws SecurityServiceException {
+        return getOsgiService(SecurityManager.class);
+    }
+
+    <S> S getOsgiService(Class<S> clazz) throws SecurityServiceException {
         BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
         if (bundleContext != null) {
-            ServiceReference<SecurityManager> serviceReference = bundleContext
-                    .getServiceReference(SecurityManager.class);
+            ServiceReference<S> serviceReference = bundleContext.getServiceReference(clazz);
             if (serviceReference != null) {
-                SecurityManager service = bundleContext.getService(serviceReference);
+                S service = bundleContext.getService(serviceReference);
                 if (service != null) {
                     return service;
                 }
             }
         }
-        throw new SecurityServiceException("Could not get SecurityManager");
+        throw new SecurityServiceException("Could not get " + clazz);
     }
 
     private void disableCnCheck(ClientConfiguration clientConfig) throws SecurityServiceException {
