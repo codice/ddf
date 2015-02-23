@@ -905,17 +905,18 @@ button.ui-multiselect {
     z-index: 1000;
     bottom: 50%;
     padding: 0px;
-
 }
 
 .collapse-btn {
     width: 10px;
-    height: 300px;
+    height: 100px;
     display: table-cell;
     vertical-align: middle;
     background-color: rgba(36,36,36,1);
     padding: 0px;
     border: none;
+    border-radius: 0;
+
 }
 
 .navbar-brand {
