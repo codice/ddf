@@ -56,18 +56,34 @@ public class SecureCxfClientFactory<T> {
 
     private final Client cxfClient;
 
+    /**
+     * @see #SecureCxfClientFactory(String, Class, String, String, java.util.List, boolean)
+     */
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass)
             throws SecurityServiceException {
         this(endpointUrl, interfaceClass, null, null);
     }
 
+    /**
+     * @see #SecureCxfClientFactory(String, Class, String, String, java.util.List, boolean)
+     */
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, String username,
             String password) throws SecurityServiceException {
         this(endpointUrl, interfaceClass, username, password, null, false);
     }
 
     /**
-     * Creates a factory that will return security-aware clients.
+     * Constructs a factory that will return security-aware cxf clients. Once constructed,
+     * use the getClient* methods to retrieve a fresh client  with the same configuration.
+     * <p/>
+     * This factory can and should be cached. The clients it constructs should not be.
+     *
+     * @param endpointUrl    the remote url to connect to
+     * @param interfaceClass an interface representing the resource at the remote url
+     * @param username       optional username for basic auth
+     * @param password       optional password for basic auth
+     * @param providers      optional list of providers to further configure the client
+     * @param disableCnCheck disable ssl check for common name / host name match
      */
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, String username,
             String password, List<?> providers, boolean disableCnCheck)
@@ -150,7 +166,11 @@ public class SecureCxfClientFactory<T> {
         if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
             throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
         }
-
+        // In order to get the system x509 user subject, we need to:
+        // A. Load the keystore from the filesystem.
+        // B. Figure out which private key to use, normally there's only one.
+        // C. Use Merlin to convert the private cert chain to bytes.
+        // D. Construct a pki token and request a subject for it.
         try (FileInputStream storeStream = new FileInputStream(
                 System.getProperty("javax.net.ssl.keyStore"))) {
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -158,12 +178,14 @@ public class SecureCxfClientFactory<T> {
                     System.getProperty("javax.net.ssl.keyStorePassword").toCharArray());
             Merlin merlin = new Merlin(
                     PropertiesLoader.loadProperties("etc/ws-security/server/signature.properties"));
+            // Assuming there is exactly one private key in the keystore...
+            // TODO: what if there are multiple keys?
             Certificate[] certificateChain = keyStore
                     .getCertificateChain(keyStore.aliases().nextElement());
             X509Certificate[] x509Certificates = Arrays
                     .copyOf(certificateChain, certificateChain.length, X509Certificate[].class);
-            PKIAuthenticationToken pkiAuthenticationToken = null;
-            pkiAuthenticationToken = new PKIAuthenticationToken(x509Certificates[0].getSubjectDN(),
+            PKIAuthenticationToken pkiAuthenticationToken = new PKIAuthenticationToken(
+                    x509Certificates[0].getSubjectDN(),
                     merlin.getBytesFromCertificates(x509Certificates),
                     PKIAuthenticationToken.DEFAULT_REALM);
             ddf.security.Subject subject = getSecurityManager().getSubject(pkiAuthenticationToken);
