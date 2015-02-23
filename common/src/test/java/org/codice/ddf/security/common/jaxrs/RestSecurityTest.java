@@ -14,7 +14,6 @@
  **/
 package org.codice.ddf.security.common.jaxrs;
 
-import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import org.apache.commons.lang.StringUtils;
@@ -22,7 +21,6 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.SimplePrincipalCollection;
-import org.codice.ddf.cxf.RestSecurity;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -57,7 +55,7 @@ public class RestSecurityTest {
         ArrayList cookies = (ArrayList) client.getHeaders().get("Cookie");
         boolean containsSaml = false;
         for (Object cookie : cookies) {
-            if (StringUtils.contains(cookie.toString(), SecurityConstants.SAML_COOKIE_NAME)) {
+            if (StringUtils.contains(cookie.toString(), RestSecurity.SECURITY_COOKIE_NAME)) {
                 containsSaml = true;
             }
         }

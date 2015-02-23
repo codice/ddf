@@ -12,9 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-package org.codice.ddf.cxf;
+package org.codice.ddf.security.common.jaxrs;
 
-import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import org.apache.cxf.common.util.Base64Utility;
@@ -36,6 +35,9 @@ import java.util.Date;
  * Provides methods that help with securing RESTful (jaxrs) communications.
  */
 public final class RestSecurity {
+
+    // SAML_COOKIE_NAME is not available in SecurityConstants 2.4.0
+    public static final String SECURITY_COOKIE_NAME = "org.codice.websso.saml.token";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestSecurity.class);
 
@@ -96,8 +98,7 @@ public final class RestSecurity {
                 }
             }
             if (samlToken != null) {
-                cookie = new NewCookie(
-                        new Cookie(SecurityConstants.SAML_COOKIE_NAME, encodeSaml(samlToken)), "",
+                cookie = new NewCookie(new Cookie(SECURITY_COOKIE_NAME, encodeSaml(samlToken)), "",
                         // gives us a checked exception for the cast
                         new BigDecimal((expires.getTime() - new Date().getTime()) / 1000)
                                 .intValueExact(), secure).toCookie();

@@ -33,6 +33,7 @@ import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.components.crypto.CredentialException;
 import org.apache.ws.security.components.crypto.Merlin;
 import org.codice.ddf.security.common.PropertiesLoader;
+import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -200,7 +201,12 @@ public class SecureCxfClientFactory<T> {
      * <p/>
      * Since there is no security information to expire, this client may be reused.
      */
-    public T getUnsecuredClient() {
+    public T getUnsecuredClient() throws SecurityServiceException {
+        String asciiString = cxfClient.getBaseURI().toASCIIString();
+        if (StringUtils.startsWithIgnoreCase(asciiString, "https")) {
+            throw new SecurityServiceException(
+                    "Cannot connect insecurely to https url " + asciiString);
+        }
         WebClient webClient = WebClient.fromClient(cxfClient);
         WebClient.getConfig(webClient).getRequestContext()
                 .put(Message.MAINTAIN_SESSION, Boolean.TRUE);
