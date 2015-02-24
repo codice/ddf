@@ -35,7 +35,7 @@ define([
             },
             drawPolygon: function (model) {
                 var polygonPoints = model.toJSON().polygon;
-                if(!polygonPoints){
+                if(!polygonPoints || polygonPoints.length < 3){
                     return;
                 }
 
@@ -124,8 +124,14 @@ define([
 
                             // get rid of the points drawhelper added when the user double clicks.
                             // this addresses the known issue of https://github.com/leforthomas/cesium-drawhelper/issues/7
-                            latLonRadPoints.pop();
-                            latLonRadPoints.pop();
+                            if (latLonRadPoints.length > 0) {
+                                latLonRadPoints.pop();
+                            }
+                            //this shouldn't ever get hit because the draw library should protect against it, but just in case it does, remove the point
+                            if (latLonRadPoints.length > 3 && latLonRadPoints[latLonRadPoints.length - 1][0] === latLonRadPoints[latLonRadPoints.length - 2][0] &&
+                                latLonRadPoints[latLonRadPoints.length - 1][1] === latLonRadPoints[latLonRadPoints.length - 2][1]) {
+                                latLonRadPoints.pop();
+                            }
 
                             model.set('polygon', latLonRadPoints);
 
