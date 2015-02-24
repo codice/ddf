@@ -244,7 +244,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
 
     private boolean isConstraintCql;
 
-    private SecuritySettingsService securitySettingsService;
+    protected SecuritySettingsService securitySettingsService;
 
     /**
      * Instantiates a CswSource. This constructor is for unit tests
