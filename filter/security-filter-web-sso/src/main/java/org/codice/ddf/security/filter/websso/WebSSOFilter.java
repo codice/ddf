@@ -158,6 +158,13 @@ public class WebSSOFilter implements Filter {
             }
         }
 
+        String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ? httpRequest
+                .getContextPath() : httpRequest.getServletPath()
+                + StringUtils.defaultString(httpRequest.getPathInfo());
+        String ipAddress = httpRequest.getHeader("X-FORWARDED-FOR");
+        if (ipAddress == null) {
+            ipAddress = httpRequest.getRemoteAddr();
+        }
         if (result != null) {
             switch (result.getStatus()) {
             case REDIRECTED:
@@ -167,12 +174,12 @@ public class WebSSOFilter implements Filter {
                 return;
             case NO_ACTION:
                 // should never occur - one of the handlers should have returned a token
-                LOGGER.warn("No handlers were able to determine required credentials, returning bad request.");
+                LOGGER.warn("No handlers were able to determine required credentials, returning bad request to {}. Check policy configuration for path: {}", ipAddress, path);
                 returnSimpleResponse(HttpServletResponse.SC_BAD_REQUEST, httpResponse);
                 return;
             case COMPLETED:
                 if (result.getToken() == null) {
-                    LOGGER.warn("Completed without credentials - check context policy configuration.");
+                    LOGGER.warn("Completed without credentials for {} - check context policy configuration for path: {}", ipAddress, path);
                     returnSimpleResponse(HttpServletResponse.SC_BAD_REQUEST, httpResponse);
                     return;
                 }
@@ -182,11 +189,11 @@ public class WebSSOFilter implements Filter {
                 httpRequest.setAttribute(DDF_AUTHENTICATION_TOKEN, result);
                 break;
             default:
-                LOGGER.warn("Unexpected response from handler - ignoring");
+                LOGGER.warn("Unexpected response from handler - ignoring. Remote IP: {}, Path: {}", ipAddress, path);
                 return;
             }
         } else {
-            LOGGER.warn("Expected login credentials - didn't find any. Returning a bad request.");
+            LOGGER.warn("Expected login credentials from {} - didn't find any. Returning a bad request for path: {}", ipAddress, path);
             returnSimpleResponse(HttpServletResponse.SC_BAD_REQUEST, httpResponse);
             return;
         }
