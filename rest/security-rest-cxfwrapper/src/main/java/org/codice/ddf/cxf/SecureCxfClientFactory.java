@@ -22,7 +22,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
-import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -56,7 +55,15 @@ public class SecureCxfClientFactory<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecureCxfClientFactory.class);
 
-    private final Client cxfClient;
+    private final JAXRSClientFactoryBean clientFactory;
+
+    private final String username;
+
+    private final String password;
+
+    private final boolean disableCnCheck;
+
+    private final Class<T> interfaceClass;
 
     /**
      * @see #SecureCxfClientFactory(String, Class, String, String, java.util.List, boolean)
@@ -95,6 +102,11 @@ public class SecureCxfClientFactory<T> {
                     "Called without a valid URL, will not be able to connect.");
         }
 
+        this.interfaceClass = interfaceClass;
+        this.username = username;
+        this.password = password;
+        this.disableCnCheck = disableCnCheck;
+
         JAXRSClientFactoryBean jaxrsClientFactoryBean = new JAXRSClientFactoryBean();
         jaxrsClientFactoryBean.setServiceClass(interfaceClass);
         jaxrsClientFactoryBean.setAddress(endpointUrl);
@@ -106,23 +118,7 @@ public class SecureCxfClientFactory<T> {
             jaxrsClientFactoryBean.setProviders(providers);
         }
 
-        Client cxfClient = WebClient.client(jaxrsClientFactoryBean.create(interfaceClass));
-        if (cxfClient == null) {
-            throw new SecurityServiceException("Could not construct base client");
-        }
-        ClientConfiguration clientConfig = WebClient.getConfig(cxfClient);
-
-        if (!StringUtils.startsWithIgnoreCase(endpointUrl, "https")) {
-            LOGGER.warn("Cannot secure non-https connection " + endpointUrl
-                    + ", only unsecured clients will be created");
-        } else {
-            initSecurity(clientConfig, username, password);
-            if (disableCnCheck) {
-                disableCnCheck(clientConfig);
-            }
-        }
-
-        this.cxfClient = cxfClient;
+        this.clientFactory = jaxrsClientFactoryBean;
     }
 
     /**
@@ -133,11 +129,9 @@ public class SecureCxfClientFactory<T> {
      * The returned client should NOT be reused between requests!
      * This method should be called for each new request in order to ensure
      * that the security subject is up-to-date each time.
-     *
-     * @see SecureCxfClientFactory
      */
     public T getClientForSubject(Subject subject) throws SecurityServiceException {
-        String asciiString = cxfClient.getBaseURI().toASCIIString();
+        String asciiString = clientFactory.getAddress();
         if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
             throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
         }
@@ -145,12 +139,22 @@ public class SecureCxfClientFactory<T> {
         T newClient = getNewClient();
 
         if (subject instanceof ddf.security.Subject) {
-            RestSecurity.setSubjectOnClient((ddf.security.Subject) subject, (Client) newClient);
+            RestSecurity.setSubjectOnClient((ddf.security.Subject) subject,
+                    WebClient.client(newClient));
         } else {
             throw new SecurityServiceException("Not a ddf subject " + subject);
         }
 
         return newClient;
+    }
+
+    /**
+     * Convenience method to get a {@link WebClient} instead of a {@link org.apache.cxf.jaxrs.client.ClientProxyImpl ClientProxyImpl}.
+     *
+     * @see #getClientForSubject(Subject subject)
+     */
+    public WebClient getWebClientForSubject(Subject subject) throws SecurityServiceException {
+        return WebClient.fromClient(WebClient.client(getClientForSubject(subject)));
     }
 
     /**
@@ -162,7 +166,7 @@ public class SecureCxfClientFactory<T> {
      * be cached. Acquire a new client instead by calling this method again.
      */
     public T getClientForSystem() throws SecurityServiceException {
-        String asciiString = cxfClient.getBaseURI().toASCIIString();
+        String asciiString = clientFactory.getAddress();
         if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
             throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
         }
@@ -197,12 +201,21 @@ public class SecureCxfClientFactory<T> {
     }
 
     /**
+     * Convenience method to get a {@link WebClient} instead of a {@link org.apache.cxf.jaxrs.client.ClientProxyImpl ClientProxyImpl}.
+     *
+     * @see #getClientForSystem()
+     */
+    public WebClient getWebClientForSystem() throws SecurityServiceException {
+        return WebClient.fromClient(WebClient.client(getClientForSystem()));
+    }
+
+    /**
      * Clients produced by this method will be completely unsecured.
      * <p/>
      * Since there is no security information to expire, this client may be reused.
      */
     public T getUnsecuredClient() throws SecurityServiceException {
-        String asciiString = cxfClient.getBaseURI().toASCIIString();
+        String asciiString = clientFactory.getAddress();
         if (StringUtils.startsWithIgnoreCase(asciiString, "https")) {
             throw new SecurityServiceException(
                     "Cannot connect insecurely to https url " + asciiString);
@@ -210,11 +223,31 @@ public class SecureCxfClientFactory<T> {
         return getNewClient();
     }
 
-    private T getNewClient() {
-        WebClient webClient = WebClient.fromClient(cxfClient);
-        WebClient.getConfig(webClient).getRequestContext()
-                .put(Message.MAINTAIN_SESSION, Boolean.TRUE);
-        return (T) webClient;
+    /**
+     * Convenience method to get a {@link WebClient} instead of a {@link org.apache.cxf.jaxrs.client.ClientProxyImpl ClientProxyImpl}.
+     *
+     * @see #getUnsecuredClient()
+     */
+    public WebClient getUnsecuredWebClient() throws SecurityServiceException {
+        return WebClient.fromClient(WebClient.client(getUnsecuredClient()));
+    }
+
+    private T getNewClient() throws SecurityServiceException {
+        T clientImpl = clientFactory.create(interfaceClass);
+        if (clientImpl == null) {
+            throw new SecurityServiceException("Could not construct base client");
+        }
+        ClientConfiguration clientConfig = WebClient.getConfig(clientImpl);
+        clientConfig.getRequestContext().put(Message.MAINTAIN_SESSION, Boolean.TRUE);
+
+        String endpointUrl = clientFactory.getAddress();
+        if (!StringUtils.startsWithIgnoreCase(endpointUrl, "https")) {
+            LOGGER.warn("Cannot secure non-https connection " + endpointUrl
+                    + ", only unsecured clients will be created");
+        } else {
+            initSecurity(clientConfig);
+        }
+        return clientImpl;
     }
 
     private SecuritySettingsService getSecuritySettingsService() throws SecurityServiceException {
@@ -225,6 +258,9 @@ public class SecureCxfClientFactory<T> {
         return getOsgiService(SecurityManager.class);
     }
 
+    /*
+     * package-private so unit tests can override
+     */
     <S> S getOsgiService(Class<S> clazz) throws SecurityServiceException {
         BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
         if (bundleContext != null) {
@@ -239,24 +275,11 @@ public class SecureCxfClientFactory<T> {
         throw new SecurityServiceException("Could not get " + clazz);
     }
 
-    private void disableCnCheck(ClientConfiguration clientConfig) throws SecurityServiceException {
-        HTTPConduit httpConduit = clientConfig.getHttpConduit();
-        if (httpConduit == null) {
-            throw new SecurityServiceException(
-                    "HTTPConduit was null for " + this + ". Unable to disable CN Check");
-        }
-
-        TLSClientParameters tlsParams = httpConduit.getTlsClientParameters();
-
-        tlsParams.setDisableCNCheck(true);
-    }
-
     /*
      * Add TLS and Basic Auth credentials to the underlying {@link org.apache.cxf.transport.http.HTTPConduit}
      * This includes two-way ssl assuming that the platform keystores are configured correctly
      */
-    private void initSecurity(ClientConfiguration clientConfig, String username, String password)
-            throws SecurityServiceException {
+    private void initSecurity(ClientConfiguration clientConfig) throws SecurityServiceException {
         HTTPConduit httpConduit = clientConfig.getHttpConduit();
         if (httpConduit == null) {
             throw new SecurityServiceException(
@@ -271,6 +294,9 @@ public class SecureCxfClientFactory<T> {
         }
 
         TLSClientParameters tlsParams = getSecuritySettingsService().getTLSParameters();
+        if (disableCnCheck) {
+            tlsParams.setDisableCNCheck(true);
+        }
         httpConduit.setTlsClientParameters(tlsParams);
     }
 
