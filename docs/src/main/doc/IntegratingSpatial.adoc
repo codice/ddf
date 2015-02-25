@@ -1,9 +1,5 @@
 = Integrating {branding} Spatial App
-<<<<<<< HEAD
 include::../includes/config.adoc[]
-=======
-include::../config.adoc[]
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 
 == Overview
 
@@ -41,10 +37,7 @@ http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=GetC
 The `HTTP POST` form of GetCapabilities operates on the root CSW endpoint URL (`http://<DDF_HOST>:<DDF_PORT>/services/csw`) with an XML message body that is defined by the GetCapabilities element of the CSW-Discovery XML Schema ( http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd).\
 
 .GetCapabilities XML Request
-<<<<<<< HEAD
 [source,xml,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 <?xml version="1.0" ?>
 <csw:GetCapabilities
@@ -58,10 +51,7 @@ The `HTTP POST` form of GetCapabilities operates on the root CSW endpoint URL (`
 The following is an example of an application/xml response to the GetCapabilities operation:
 
 .Sample Response
-<<<<<<< HEAD
 [source,xml,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 
 <Capabilities xmlns="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns2="http://www.opengis.net/ogc" xmlns:ns3="http://www.opengis.net/gml" xmlns:ns4="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/ows" xmlns:ns6="http://purl.org/dc/elements/1.1/" xmlns:ns7="http://purl.org/dc/terms/" xmlns:ns8="http://www.w3.org/2001/SMIL20/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" xsi:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-discovery.xsd">
@@ -253,10 +243,7 @@ http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=Desc
 The HTTP POST request DescribeRecordType has the typeName as a List of QName(s). The QNames are matched against the namespaces by prefix, if prefixes exist.
 ￼￼￼￼
 .DescribeRecord XML Request
-<<<<<<< HEAD
 [source,xml,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 <?xml version="1.0" ?>
   <DescribeRecord
@@ -272,12 +259,8 @@ The HTTP POST request DescribeRecordType has the typeName as a List of QName(s).
 
 The following is an example of an application/xml response to the DescribeRecord operation.
 
-<<<<<<< HEAD
 .DescribeRecord Response
 [source,xml,linenums]    
-=======
-.DescribeRecord Response    
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 <DescribeRecordResponse xsi:schemaLocation="http://www.opengis.net/csw/ogc/csw/2.0.2/CSW-discovery.xsd" xmlns="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns2="http://www.opengis.net/ogc" xmlns:ns3="http://www.opengis.net/gml" xmlns:ns4="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/ows" xmlns:ns6="http://purl.org/dc/elements/1.1/" xmlns:ns7="http://purl.org/dc/terms/" xmlns:ns8="http://www.w3.org/2001/SMIL20/"
 xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -396,10 +379,7 @@ ElementSetName=brief&ConstraintLanguage=CQL_TEXT&constraint=AnyText Like '%25'
 The `HTTP POST` request GetRecords has the "typeNames" as a List of QName(s). The QNames are matched against the namespaces by prefix, if prefixes exist.
 
 .GetRecords XML Request
-<<<<<<< HEAD
 [source,xml,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 <?xml version="1.0" ?>
 <GetRecords xmlns="http://www.opengis.net/cat/csw/2.0.2"
@@ -432,10 +412,7 @@ The `HTTP POST` request GetRecords has the "typeNames" as a List of QName(s). Th
 The following is an example of an application/xml response to the GetRecords operation.
 
 .GetRecords XML Request
-<<<<<<< HEAD
 [source,xml,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 <csw:GetRecordsResponse version="2.0.2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows" xmlns:xs="http://www.w3.org/2001/XMLSchema"  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
   <csw:SearchStatus timestamp="2014-02-19T15:33:44.602-05:00"/>
@@ -510,10 +487,7 @@ http://<DDF_HOST>:<DDF_PORT>/services/csw??service=CSW&version=2.0.2&request=Get
 The following is an example of a `HTTP POST` request:
 
 .GetRecordById XML Request
-<<<<<<< HEAD
 [source,xml,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 <GetRecordById xmlns="http://www.opengis.net/cat/csw/2.0.2"
   xmlns:ogc="http://www.opengis.net/ogc"
@@ -534,10 +508,7 @@ The following is an example of a `HTTP POST` request:
 The following is an example of an application/xml response to the GetRecordById operation:
 
 .Sample - GetRecordByIdResponse
-<<<<<<< HEAD
 [source,xml,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 <csw:GetRecordByIdResponse xmlns:dc="http://purl.org/dc/elements/1.1/"
 xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows"
@@ -1099,67 +1070,6 @@ Keyhole Markup Language (_KML_) is an XML notation for describing geographic ann
 The KML Network Link endpoint allows a user to generate a view-based KML Query Results Network Link. This network link can be opened with Google Earth, establishing a dynamic connection between Google Earth and DDF. The root network link will create a network link for each configured source, including the local catalog. The individual source network links will perform a query against the OpenSearch Endpoint periodically based on the current view in the KML client. The query parameters for this query are obtained by a bounding box generated by Google Earth. The root network link will refresh every 12 hours or can be forced to refresh.
 As a user changes their current view, the query will be re-executed with the bounding box of the new view. (This query gets re-executed two seconds after the user stops moving the view.)
 
-<<<<<<< HEAD
-[plantuml, kmlDiagram, png]
-=======
-[plantuml, kmlDiagram001, png]
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
-....
-
-@startuml 
-
-autonumber 
-
-hide footbox 
-
-skinparam sequence { 
-
-  ArrowColor #336699 
-
-  ActorBorderColor #666666 
-  ActorBackgroundColor #FFFFFF 
-
-  LifeLineBorderColor #336699 
-  LifeLineBackgroundColor #336699 
-
-  BoxBorderColor #666666
-  BoxBackgroundColor #DDEEFF
-
-  NoteBackgroundColor blue
-  NoteBorderColor #00FF00 
-   
-  ParticipantBorderColor #666666 
-  ParticipantBackgroundColor #336699 
-  ParticipantFontColor #FFFFFF 
-} 
-
-actor Client 
-box "DDF"
-  participant "KML Endpoint" as KmlEndpoint <<Endpoint>>   
-  participant "Open Search Endpoint" as OpenSearchEndpoint <<Endpoint>> 
-  participant "Standard\nCatalog Framework" as StandardCatalogFramework <<CatalogFramework>>
-  participant "KML QueryResponse\nTransformer" as KmlResponseQueueTransformer <<Transformer>>  
-end box 
-participant "Google Earth" as GoogleEarth <<External>> 
-
-Client -> KmlEndpoint: services/catalog/kml 
-note right #FFEEFF: All URLs start with http://<DDF_HOST>:<DDF_PORT>/
-KmlEndpoint --> Client: downloaded file containing KML network link
-Client -> GoogleEarth: open downloaded file
-GoogleEarth -> KmlEndpoint: services/catalog/kml/sources
-KmlEndpoint --> GoogleEarth: automatically opens Network Link for each source
-GoogleEarth -> OpenSearchEndpoint: services/catalog/query?source=<sourceId>&format=kml&bbox=<WEST>,<SOUTH>,<EAST>,<NORTH> 
-OpenSearchEndpoint -> StandardCatalogFramework: query(QueryRequest)
-note right #FFEEFF: Pre-Query plugin(s), if any, would be processed here
-StandardCatalogFramework -> KmlResponseQueueTransformer: transform 
-KmlResponseQueueTransformer --> StandardCatalogFramework: kml
-note right #FFEEFF: Post-Query plugin(s), if any, would be processed here
-StandardCatalogFramework --> OpenSearchEndpoint: QueryResponse 
-OpenSearchEndpoint --> GoogleEarth: query results formatted in KML  
-
-@enduml
-....
-
 ==== Using
 Once installed, the KML Network Link endpoint can be accessed at:
 ----
@@ -1170,10 +1080,7 @@ After the above request is sent, a KML Network Link document is returned as a re
 
 ===== Example Output
 
-<<<<<<< HEAD
 [source,xml,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:ns2="http://www.google.com/kml/ext/2.2" 
@@ -1264,10 +1171,7 @@ http://localhost:8181/services/catalog/query?q=schematypesearch&format=kml
 ----
 
 .Example Output
-<<<<<<< HEAD
 [source,xml,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <kml xmlns:ns2="http://www.google.com/kml/ext/2.2" xmlns="http://www.opengis.net/kml/2.2" xmlns:ns4="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0" xmlns:ns3="http://www.w3.org/2005/Atom">
@@ -1435,11 +1339,8 @@ Using the REST Endpoint for example, request a metacard with the transform optio
 
 
 ===== Example Output
-<<<<<<< HEAD
 
 [source,xml,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----    
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <kml xmlns:ns2="http://www.google.com/kml/ext/2.2" xmlns="http://www.opengis.net/kml/2.2" xmlns:ns4="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0" xmlns:ns3="http://www.w3.org/2005/Atom">
@@ -1562,8 +1463,10 @@ width="400"&gt;$[description]&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</text>
 </Placemark>
 </kml>
 ----
+
 ==== Installing and Uninstalling
 The spatial-kml-transformer feature is installed by default with the Spatial App. 
+
 ==== Configuring
 None.
 
@@ -1627,11 +1530,8 @@ The properties below describe how to configure a Style Mapping. The configuratio
 |===
 
 ==== Example Values
-<<<<<<< HEAD
 
 [source,xml,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 xmlns="http://www.opengis.net/kml/2.2"
   xmlns:ns4="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"
@@ -1780,11 +1680,8 @@ public class CustomConverterFactory implements FeatureConverterFactory {
 ----
 
 * Implement the `unmarshal` method required by the `FeatureConverter` interface. The `createMetacardFromFeature(reader, metacardType)` method implemented in the `AbstractFeatureConverter` is recommended.
-<<<<<<< HEAD
 
 [source,java,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 public Metacard unmarshal(HierarchicalStreamReader reader, UnmarshallingContext ctx) {
   MetacardImpl mc = createMetacardFromFeature(reader, metacardType);
@@ -1795,12 +1692,10 @@ public Metacard unmarshal(HierarchicalStreamReader reader, UnmarshallingContext 
   mc.setCreatedDate(mc.getAttribute("beginningDate").getValue());
 }
 ----
+
 * Export the `ConverterFactory` to the OSGi registry by creating a blueprint.xml file for its bundle. The bean id and argument value must match the WFS Feature type being converted.
-<<<<<<< HEAD
 
 [source,xml,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
@@ -2127,10 +2022,8 @@ The configurable properties for the WFS MetacardMapper are accessed from the Met
 There are two ways to configure the MetcardMapper, one is to use the Configuration Admin available via the Web Admin Console. Additionally, a feature.xml file can be created and copied into the "deploy" directory. The following shows how to configure the `MetacardMapper` to be used with the sample data provided with GeoServer. This configuration shows a custom mapping for the feature type ‘states’. For the given type, we are taking the feature property ‘states.STATE_NAME’ and mapping it to the metacard attribute ‘title’. In this particular case, since we mapped the state name to title in the metacard, it will now be fully searchable. More mappings can be added to the featurePropToMetacardAttrMap line through the use of comma as a delimiter.
 
 Below is an example of a MetacardMapper configuration within a feature.xml file:
-<<<<<<< HEAD
+
 [source,xml,linenums]
-=======
->>>>>>> 9648ab46634db6ffbcb1dddfae5c9664f2ef57f7
 ----
 <feature name="geoserver-states" version="${project.version}"
     description="WFS Feature to Metacard mappings for GeoServer Example {http://www.openplans.org/topp}states">
