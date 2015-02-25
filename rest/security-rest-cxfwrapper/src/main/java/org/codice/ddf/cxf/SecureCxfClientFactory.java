@@ -57,28 +57,16 @@ public class SecureCxfClientFactory<T> {
 
     private final JAXRSClientFactoryBean clientFactory;
 
-    private final String username;
-
-    private final String password;
-
     private final boolean disableCnCheck;
 
     private final Class<T> interfaceClass;
 
     /**
-     * @see #SecureCxfClientFactory(String, Class, String, String, java.util.List, boolean)
+     * @see #SecureCxfClientFactory(String, Class, java.util.List, boolean)
      */
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass)
             throws SecurityServiceException {
-        this(endpointUrl, interfaceClass, null, null);
-    }
-
-    /**
-     * @see #SecureCxfClientFactory(String, Class, String, String, java.util.List, boolean)
-     */
-    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, String username,
-            String password) throws SecurityServiceException {
-        this(endpointUrl, interfaceClass, username, password, null, false);
+        this(endpointUrl, interfaceClass, null, false);
     }
 
     /**
@@ -89,22 +77,17 @@ public class SecureCxfClientFactory<T> {
      *
      * @param endpointUrl    the remote url to connect to
      * @param interfaceClass an interface representing the resource at the remote url
-     * @param username       optional username for basic auth
-     * @param password       optional password for basic auth
      * @param providers      optional list of providers to further configure the client
      * @param disableCnCheck disable ssl check for common name / host name match
      */
-    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, String username,
-            String password, List<?> providers, boolean disableCnCheck)
-            throws SecurityServiceException {
+    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, List<?> providers,
+            boolean disableCnCheck) throws SecurityServiceException {
         if (StringUtils.isEmpty(endpointUrl) || interfaceClass == null) {
             throw new IllegalArgumentException(
                     "Called without a valid URL, will not be able to connect.");
         }
 
         this.interfaceClass = interfaceClass;
-        this.username = username;
-        this.password = password;
         this.disableCnCheck = disableCnCheck;
 
         JAXRSClientFactoryBean jaxrsClientFactoryBean = new JAXRSClientFactoryBean();
@@ -122,13 +105,12 @@ public class SecureCxfClientFactory<T> {
     }
 
     /**
-     * Clients produced by this method will be secured with basic authentication
-     * (if a username and password were provided), two-way ssl,
+     * Clients produced by this method will be secured with two-way ssl
      * and the provided security subject.
      * <p/>
      * The returned client should NOT be reused between requests!
      * This method should be called for each new request in order to ensure
-     * that the security subject is up-to-date each time.
+     * that the security token is up-to-date each time.
      */
     public T getClientForSubject(Subject subject) throws SecurityServiceException {
         String asciiString = clientFactory.getAddress();
@@ -136,7 +118,7 @@ public class SecureCxfClientFactory<T> {
             throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
         }
 
-        T newClient = getNewClient();
+        T newClient = getNewClient(null, null);
 
         if (subject instanceof ddf.security.Subject) {
             RestSecurity.setSubjectOnClient((ddf.security.Subject) subject,
@@ -158,6 +140,34 @@ public class SecureCxfClientFactory<T> {
     }
 
     /**
+     * Clients produced by this method will be secured with two-way ssl
+     * and basic authentication.
+     * <p/>
+     * The returned client should NOT be reused between requests!
+     * This method should be called for each new request in order to ensure
+     * that the security token is up-to-date each time.
+     */
+    public T getClientForBasicAuth(String username, String password)
+            throws SecurityServiceException {
+        String asciiString = clientFactory.getAddress();
+        if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
+            throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
+        }
+
+        return getNewClient(username, password);
+    }
+
+    /**
+     * Convenience method to get a {@link WebClient} instead of a {@link org.apache.cxf.jaxrs.client.ClientProxyImpl ClientProxyImpl}.
+     *
+     * @see #getClientForBasicAuth(String, String)
+     */
+    public WebClient getWebClientForBasicAuth(String username, String password)
+            throws SecurityServiceException {
+        return WebClient.fromClient(WebClient.client(getClientForBasicAuth(username, password)));
+    }
+
+    /**
      * Clients produced by this method will be secured with basic authentication
      * (if a username and password were provided), two-way ssl,
      * and the system security token (x509 cert).
@@ -165,7 +175,7 @@ public class SecureCxfClientFactory<T> {
      * The system security token does expire, so the returned client should not
      * be cached. Acquire a new client instead by calling this method again.
      */
-    public T getClientForSystem() throws SecurityServiceException {
+    private T getClientForSystem() throws SecurityServiceException {
         String asciiString = clientFactory.getAddress();
         if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
             throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
@@ -205,7 +215,7 @@ public class SecureCxfClientFactory<T> {
      *
      * @see #getClientForSystem()
      */
-    public WebClient getWebClientForSystem() throws SecurityServiceException {
+    private WebClient getWebClientForSystem() throws SecurityServiceException {
         return WebClient.fromClient(WebClient.client(getClientForSystem()));
     }
 
@@ -220,7 +230,7 @@ public class SecureCxfClientFactory<T> {
             throw new SecurityServiceException(
                     "Cannot connect insecurely to https url " + asciiString);
         }
-        return getNewClient();
+        return getNewClient(null, null);
     }
 
     /**
@@ -232,7 +242,7 @@ public class SecureCxfClientFactory<T> {
         return WebClient.fromClient(WebClient.client(getUnsecuredClient()));
     }
 
-    private T getNewClient() throws SecurityServiceException {
+    private T getNewClient(String username, String password) throws SecurityServiceException {
         T clientImpl = clientFactory.create(interfaceClass);
         if (clientImpl == null) {
             throw new SecurityServiceException("Could not construct base client");
@@ -245,7 +255,7 @@ public class SecureCxfClientFactory<T> {
             LOGGER.warn("Cannot secure non-https connection " + endpointUrl
                     + ", only unsecured clients will be created");
         } else {
-            initSecurity(clientConfig);
+            initSecurity(clientConfig, username, password);
         }
         return clientImpl;
     }
@@ -279,7 +289,8 @@ public class SecureCxfClientFactory<T> {
      * Add TLS and Basic Auth credentials to the underlying {@link org.apache.cxf.transport.http.HTTPConduit}
      * This includes two-way ssl assuming that the platform keystores are configured correctly
      */
-    private void initSecurity(ClientConfiguration clientConfig) throws SecurityServiceException {
+    private void initSecurity(ClientConfiguration clientConfig, String username, String password)
+            throws SecurityServiceException {
         HTTPConduit httpConduit = clientConfig.getHttpConduit();
         if (httpConduit == null) {
             throw new SecurityServiceException(

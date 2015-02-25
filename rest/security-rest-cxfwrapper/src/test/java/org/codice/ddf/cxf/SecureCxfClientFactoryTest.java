@@ -71,7 +71,7 @@ public class SecureCxfClientFactoryTest {
         assertTrue(subject);
         boolean system = false;
         try {
-            secureCxfClientFactory.getClientForSystem();
+            secureCxfClientFactory.getClientForBasicAuth(null, null);
         } catch (SecurityServiceException e) {
             system = true;
         }
@@ -83,11 +83,10 @@ public class SecureCxfClientFactoryTest {
         // positive cases
         MockWrapper<IDummy> mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class);
         validateConfig(mockWrapper, null, null, false);
-        mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class, "foobar", "foobaz");
+        mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class);
         validateConfig(mockWrapper, "foobar", "foobaz", false);
         List<MockProvider> providers = Arrays.asList(new MockProvider());
-        mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class, "bazfoo", "bazbar", providers,
-                true);
+        mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class, providers, true);
         validateConfig(mockWrapper, "bazfoo", "bazbar", true);
         // negative case
         boolean unsecured = false;
@@ -101,7 +100,7 @@ public class SecureCxfClientFactoryTest {
 
     private void validateConfig(MockWrapper<IDummy> factory, String username, String password,
             boolean disableCnCheck) throws SecurityServiceException {
-        IDummy clientForSubject = factory.getClientForSubject(getSubject());
+        IDummy clientForSubject = factory.getClientForBasicAuth(username, password);
         HTTPConduit httpConduit = WebClient.getConfig(WebClient.client(clientForSubject))
                 .getHttpConduit();
         AuthorizationPolicy authorization = httpConduit.getAuthorization();
@@ -147,15 +146,9 @@ public class SecureCxfClientFactoryTest {
             super(endpointUrl, interfaceClass);
         }
 
-        public MockWrapper(String endpointUrl, Class<T> interfaceClass, String username,
-                String password) throws SecurityServiceException {
-            super(endpointUrl, interfaceClass, username, password);
-        }
-
-        public MockWrapper(String endpointUrl, Class<T> interfaceClass, String username,
-                String password, List providers, boolean disableCnCheck)
-                throws SecurityServiceException {
-            super(endpointUrl, interfaceClass, username, password, providers, disableCnCheck);
+        public MockWrapper(String endpointUrl, Class<T> interfaceClass, List providers,
+                boolean disableCnCheck) throws SecurityServiceException {
+            super(endpointUrl, interfaceClass, providers, disableCnCheck);
         }
 
         @Override
