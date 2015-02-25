@@ -16,10 +16,13 @@ package org.codice.ddf.commands.catalog;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.gogo.commands.Argument;
@@ -240,7 +243,10 @@ public class RemoveAllCommand extends CatalogCommands {
 
         query.setPageSize(batchSize);
 
-        return new QueryRequestImpl(query);
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put("mode", "native");
+
+        return new QueryRequestImpl(query, properties);
     }
 
     private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, boolean isRequestForTotal) throws InterruptedException {
@@ -262,7 +268,10 @@ public class RemoveAllCommand extends CatalogCommands {
 
         query.setPageSize(batchSize);
 
-        return new QueryRequestImpl(query);
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put("mode", "native");
+
+        return new QueryRequestImpl(query, properties);
     }
 
 }

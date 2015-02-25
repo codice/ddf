@@ -339,50 +339,20 @@ public class SolrCache {
             return;
         }
 
-        /* 1. Query first for the records */
-
+        /* 1. Build query for the records */
         StringBuilder queryBuilder = new StringBuilder();
-
         for (int i = 0; i < identifiers.size(); i++) {
-
             if (i != 0) {
                 queryBuilder.append(" OR ");
             }
 
             queryBuilder.append(attributeName + ":" + QUOTE
                     + identifiers.get(i) + QUOTE);
-
         }
-
-        SolrQuery query = new SolrQuery(queryBuilder.toString());
-        query.setRows(identifiers.size());
-
-        QueryResponse solrResponse = null;
-
-        try {
-            solrResponse = server.query(query, METHOD.POST);
-        } catch (SolrServerException e) {
-            LOGGER.info("SOLR server exception deleting request message", e);
-            throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
-        }
-
-        SolrDocumentList docs = solrResponse.getResults();
 
         /* 2. Delete */
         try {
-            // solr deleteByQuery(queryBuilder.toString()) does not work,
-            // SOLR BUG back in 4.0.0
-            // so we have to delete by id
-            List<String> metacardIdentfiers = new ArrayList<String>();
-            for (SolrDocument doc : docs) {
-                metacardIdentfiers.add(resolver.getMetacardUniqueId(doc));
-            }
-            if (!metacardIdentfiers.isEmpty()) {
-                LOGGER.debug("metacard identifiers to be deleted: {}", StringUtils.join(metacardIdentfiers, ","));
-                server.deleteById(metacardIdentfiers);
-            } else {
-                LOGGER.debug("No metacard identifiers to be deleted");
-            }
+            server.deleteByQuery(queryBuilder.toString(), 1000);
         } catch (SolrServerException e) {
             LOGGER.error("SOLR server exception deleting request message", e);
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);

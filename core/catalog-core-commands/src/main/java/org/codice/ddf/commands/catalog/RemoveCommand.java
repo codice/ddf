@@ -14,8 +14,11 @@
  **/
 package org.codice.ddf.commands.catalog;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.SourceResponse;
@@ -64,7 +67,11 @@ public class RemoveCommand extends CatalogCommands {
             query.setRequestsTotalResultsCount(true);
             query.setPageSize(-1);
 
-            SourceResponse queryResponse = catalogProvider.query(new QueryRequestImpl(query));
+            Map<String, Serializable> properties = new HashMap<>();
+            properties.put("mode", "native");
+
+            SourceResponse queryResponse = catalogProvider.query(new QueryRequestImpl(query,
+                    properties));
 
             if (queryResponse.getResults().isEmpty()) {
                 printErrorMessage("No records found using CQL expression.");
