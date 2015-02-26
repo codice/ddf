@@ -79,6 +79,7 @@ public class SecureCxfClientFactory<T> {
      * @param endpointUrl    the remote url to connect to
      * @param interfaceClass an interface representing the resource at the remote url
      * @param providers      optional list of providers to further configure the client
+     * @param interceptor    optional message interceptor for the client
      * @param disableCnCheck disable ssl check for common name / host name match
      */
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, List<?> providers,
