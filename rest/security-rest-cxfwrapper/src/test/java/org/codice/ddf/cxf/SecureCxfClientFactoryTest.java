@@ -20,8 +20,10 @@ import ddf.security.settings.SecuritySettingsService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.session.mgt.SimpleSession;
@@ -86,7 +88,7 @@ public class SecureCxfClientFactoryTest {
         mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class);
         validateConfig(mockWrapper, "foobar", "foobaz", false);
         List<MockProvider> providers = Arrays.asList(new MockProvider());
-        mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class, providers, true);
+        mockWrapper = new MockWrapper<>(secureEndpoint, IDummy.class, providers, null, true);
         validateConfig(mockWrapper, "bazfoo", "bazbar", true);
         // negative case
         boolean unsecured = false;
@@ -147,8 +149,9 @@ public class SecureCxfClientFactoryTest {
         }
 
         public MockWrapper(String endpointUrl, Class<T> interfaceClass, List providers,
-                boolean disableCnCheck) throws SecurityServiceException {
-            super(endpointUrl, interfaceClass, providers, disableCnCheck);
+                Interceptor<? extends Message> interceptor, boolean disableCnCheck)
+                throws SecurityServiceException {
+            super(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck);
         }
 
         @Override

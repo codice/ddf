@@ -20,6 +20,7 @@ import ddf.security.settings.SecuritySettingsService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
@@ -62,11 +63,11 @@ public class SecureCxfClientFactory<T> {
     private final Class<T> interfaceClass;
 
     /**
-     * @see #SecureCxfClientFactory(String, Class, java.util.List, boolean)
+     * @see #SecureCxfClientFactory(String, Class, java.util.List, Interceptor, boolean)
      */
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass)
             throws SecurityServiceException {
-        this(endpointUrl, interfaceClass, null, false);
+        this(endpointUrl, interfaceClass, null, null, false);
     }
 
     /**
@@ -81,7 +82,8 @@ public class SecureCxfClientFactory<T> {
      * @param disableCnCheck disable ssl check for common name / host name match
      */
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, List<?> providers,
-            boolean disableCnCheck) throws SecurityServiceException {
+            Interceptor<? extends Message> interceptor, boolean disableCnCheck)
+            throws SecurityServiceException {
         if (StringUtils.isEmpty(endpointUrl) || interfaceClass == null) {
             throw new IllegalArgumentException(
                     "Called without a valid URL, will not be able to connect.");
@@ -99,6 +101,10 @@ public class SecureCxfClientFactory<T> {
 
         if (CollectionUtils.isNotEmpty(providers)) {
             jaxrsClientFactoryBean.setProviders(providers);
+        }
+
+        if (interceptor != null) {
+            jaxrsClientFactoryBean.getInInterceptors().add(interceptor);
         }
 
         this.clientFactory = jaxrsClientFactoryBean;
