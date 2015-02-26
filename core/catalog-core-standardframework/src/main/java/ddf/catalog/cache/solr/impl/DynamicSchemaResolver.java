@@ -15,11 +15,14 @@
 package ddf.catalog.cache.solr.impl;
 
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -38,6 +41,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -230,7 +234,8 @@ public class DynamicSchemaResolver {
 
         if (metacardTypeBytes == null) {
             MetacardType coreMetacardType = new MetacardTypeImpl(schema.getName(),
-                    schema.getAttributeDescriptors());
+                    convertAttributeDescriptors(schema.getAttributeDescriptors()));
+
             metacardTypesCache.put(schema.getName(), coreMetacardType);
 
             metacardTypeBytes = serialize(coreMetacardType);
@@ -597,5 +602,21 @@ public class DynamicSchemaResolver {
         LOGGER.debug("Parsing took {} ms", endTime - starttime);
 
         return builder.toString();
+    }
+    
+    private Set<AttributeDescriptor> convertAttributeDescriptors(Set<AttributeDescriptor> attributeDescriptors) {
+        Set<AttributeDescriptor> newAttributeDescriptors = new HashSet<AttributeDescriptor>(attributeDescriptors.size());
+        
+        for(AttributeDescriptor attributeDescriptor : attributeDescriptors) {
+            String name = attributeDescriptor.getName();
+            boolean isIndexed = attributeDescriptor.isIndexed();
+            boolean isStored = attributeDescriptor.isStored();
+            boolean isTokenized = attributeDescriptor.isTokenized();
+            boolean isMultiValued = attributeDescriptor.isMultiValued();
+            AttributeType<?> attributeType = attributeDescriptor.getType();
+            newAttributeDescriptors.add(new AttributeDescriptorImpl(name, isIndexed, isStored, isTokenized, isMultiValued, attributeType));
+        }
+        
+        return newAttributeDescriptors;
     }
 }
