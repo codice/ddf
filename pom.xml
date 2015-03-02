@@ -38,6 +38,8 @@
         <org.geotools.version>8.4</org.geotools.version>
         <karaf.version>2.3.8</karaf.version>
         <tika.version>1.6</tika.version>
+        <cas.client.version>3.1.10</cas.client.version>
+        <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
     </properties>
 
     <dependencyManagement>
@@ -319,6 +321,7 @@
         <module>metrics</module>
         <module>platform-scheduler</module>
         <module>security</module>
+        <module>security-services-app</module>
         <module>platform-commands</module>
         <module>util</module>
         <module>platform-filter-delegate</module>

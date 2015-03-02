@@ -14,10 +14,16 @@
  **/
 package org.codice.ddf.security.filter.login;
 
+import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.UPAuthenticationToken;
+import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -30,8 +36,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Enumeration;
@@ -42,7 +51,6 @@ import java.util.Map;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class LoginFilterTest {
@@ -119,6 +127,67 @@ public class LoginFilterTest {
         loginFilter.doFilter(servletRequest, servletResponse, filterChain);
 
         verify(filterChain, never()).doFilter(servletRequest, servletResponse);
+    }
+
+    @Test(expected = ServletException.class)
+    public void testExpiredSamlCookie()
+            throws IOException, XMLStreamException, ServletException, ParserConfigurationException, SAXException, SecurityServiceException {
+        FilterConfig filterConfig = mock(FilterConfig.class);
+        LoginFilter loginFilter = new LoginFilter();
+        ddf.security.service.SecurityManager securityManager = mock(ddf.security.service.SecurityManager.class);
+        loginFilter.setSecurityManager(securityManager);
+        loginFilter.setSignaturePropertiesFile("signature.properties");
+        try {
+            loginFilter.init(filterConfig);
+        } catch (ServletException e) {
+            fail(e.getMessage());
+        }
+
+        HttpServletRequest servletRequest = new TestHttpServletRequest();
+        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+        FilterChain filterChain = mock(FilterChain.class);
+        SecurityToken securityToken = new SecurityToken();
+        Element thisToken = readDocument("/good_saml.xml").getDocumentElement();
+        securityToken.setToken(thisToken);
+        SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken,
+                "karaf");
+        HandlerResult result = new HandlerResult(HandlerResult.Status.COMPLETED, samlToken);
+        servletRequest.setAttribute("ddf.security.token", result);
+
+        loginFilter.doFilter(servletRequest, servletResponse, filterChain);
+    }
+
+    @Test(expected = ServletException.class)
+    public void testBadSigSamlCookie()
+            throws IOException, XMLStreamException, ServletException, ParserConfigurationException, SAXException, SecurityServiceException {
+        FilterConfig filterConfig = mock(FilterConfig.class);
+        LoginFilter loginFilter = new LoginFilter();
+        ddf.security.service.SecurityManager securityManager = mock(SecurityManager.class);
+        loginFilter.setSecurityManager(securityManager);
+        loginFilter.setSignaturePropertiesFile("signature.properties");
+        try {
+            loginFilter.init(filterConfig);
+        } catch (ServletException e) {
+            fail(e.getMessage());
+        }
+
+        HttpServletRequest servletRequest = new TestHttpServletRequest();
+        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+        FilterChain filterChain = mock(FilterChain.class);
+        SecurityToken securityToken = new SecurityToken();
+        Element thisToken = readDocument("/bad_saml.xml").getDocumentElement();
+        securityToken.setToken(thisToken);
+        SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken,
+                "karaf");
+        HandlerResult result = new HandlerResult(HandlerResult.Status.COMPLETED, samlToken);
+        servletRequest.setAttribute("ddf.security.token", result);
+
+        loginFilter.doFilter(servletRequest, servletResponse, filterChain);
+    }
+
+    private Document readDocument(String name) throws SAXException, IOException, ParserConfigurationException {
+        InputStream inStream = getClass().getResourceAsStream(name);
+        return DOMUtils.readXml(inStream);
     }
 
     private class TestHttpServletRequest implements HttpServletRequest {

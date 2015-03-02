@@ -1,0 +1,27 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="_D9E607D7954AF55E2B1425324633626103" IssueInstant="2015-03-02T19:30:33.626Z" Version="2.0" xsi:type="saml2:AssertionType"><saml2:Issuer>localhost</saml2:Issuer><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><ds:Reference URI="#_D9E607D7954AF55E2B1425324633626103"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"><ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="xs"/></ds:Transform></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><ds:DigestValue>eTaFAuOkn1aJoW+TwEL37aZ9R4g=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>WLT3C7XvDl5nDKNKlSQtu54wVUn7zNV6K9ktMxLM5c0YZVnW52K/2tRrIPYN0YwBvJJsDBM+0036krqsrivfso99w2iI7nJfJq2FX5gVzIXK0CJayhjCDNAbQn3vmWK5v+RUXiMwzzhTX/q36/CGeVnGyhSSKt4kAh9mMLcmZoc=</ds:SignatureValue><ds:KeyInfo><ds:X509Data><ds:X509Certificate>MIIDEzCCAnygAwIBAgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNVBAYTAlVTMQsw
+    CQYDVQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYxGTAXBgNVBAMMEERERiBEZW1v
+    IFJvb3QgQ0ExJDAiBgkqhkiG9w0BCQEWFWRkZnJvb3RjYUBleGFtcGxlLm9yZzAeFw0xNDEyMTAy
+    MTU4MThaFw0xNTEyMTAyMTU4MThaMIGDMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQVoxETAPBgNV
+    BAcMCEdvb2R5ZWFyMQwwCgYDVQQKDANEREYxDDAKBgNVBAsMA0RldjESMBAGA1UEAwwJbG9jYWxo
+    b3N0MSQwIgYJKoZIhvcNAQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEB
+    BQADgY0AMIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4mRAe
+    b6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxUSuapbc+AS7+Pklr0
+    TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjgZkwgZYwCQYDVR0TBAIwADAnBglghkgB
+    hvhCAQ0EGhYYRk9SIFRFU1RJTkcgUFVSUE9TRSBPTkxZMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s
+    7C3BreFrsDAfBgNVHSMEGDAWgBThVMeX3wrCv6lfeF47CyvkSBe9xjAgBgNVHREEGTAXgRVsb2Nh
+    bGhvc3RAZXhhbXBsZS5vcmcwDQYJKoZIhvcNAQEFBQADgYEAtRUp7fAxU/E6JD2Kj/+CTWqu8Elx
+    13S0TxoIqv3gMoBW0ehyzEKjJi0bb1gUxO7n1SmOESp5sE3jGTnh0GtYV0D219z/09n90cd/imAE
+    hknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhsGAZ6EMTZCfT9m07XduxjsmDz0hlSGV0=</ds:X509Certificate></ds:X509Data></ds:KeyInfo></ds:Signature><saml2:Subject><saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" NameQualifier="http://cxf.apache.org/sts">admin</saml2:NameID><saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/></saml2:Subject><saml2:Conditions NotBefore="2015-03-02T19:30:33.626Z" NotOnOrAfter="2015-03-02T20:00:33.626Z"/><saml2:AuthnStatement AuthnInstant="2015-03-02T19:30:33.626Z"><saml2:AuthnContext><saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml2:AuthnContextClassRef></saml2:AuthnContext></saml2:AuthnStatement><saml2:AttributeStatement><saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified"><saml2:AttributeValue xsi:type="xs:string">admin</saml2:AttributeValue></saml2:Attribute><saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified"><saml2:AttributeValue xsi:type="xs:string">bad</saml2:AttributeValue></saml2:Attribute></saml2:AttributeStatement></saml2:Assertion>
