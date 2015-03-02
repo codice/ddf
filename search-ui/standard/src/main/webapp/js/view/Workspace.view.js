@@ -28,6 +28,8 @@ define([
         'text!templates/workspace/workspace.handlebars',
         'text!templates/workspace/workspaceQueryItem.handlebars',
         'text!templates/workspace/workspaceMetacardItem.handlebars',
+        'text!templates/workspace/workspaceVisibility.handlebars',
+        'text!templates/workspace/workspaceContainer.handlebars',
         'js/view/WorkspaceSaveResults.view',
         'maptype',
         'js/view/WorkspaceControl.view',
@@ -41,7 +43,7 @@ define([
         'perfectscrollbar'
     ],
     function ($, _, Marionette, Workspace, Backbone, dir, ich, wreqr, moment, workspacePanel, workspaceList,
-              workspaceItem, workspaceAdd, workspace, workspaceQueryItem, workspaceMetacardItem,
+              workspaceItem, workspaceAdd, workspace, workspaceQueryItem, workspaceMetacardItem, workspaceVisibility, workspaceContainer,
               WorkspaceSaveResults, maptype, WorkspaceControl, SlidingRegion, QueryView, QueryModel,
               MetacardList, MetacardDetail, Search) {
         "use strict";
@@ -54,6 +56,8 @@ define([
         ich.addTemplate('workspace', workspace);
         ich.addTemplate('workspaceQueryItem', workspaceQueryItem);
         ich.addTemplate('workspaceMetacardItem', workspaceMetacardItem);
+        ich.addTemplate('workspaceVisibility', workspaceVisibility);
+        ich.addTemplate('workspaceContainer', workspaceContainer);
 
         WorkspaceView.WorkspaceAdd = Marionette.ItemView.extend({
             template: 'workspaceAdd',
@@ -554,6 +558,53 @@ define([
                 }
 
                 wreqr.vent.trigger('workspace:tabshown', this.$('.nav-tabs > .active a').attr('href'));
+            }
+        });
+
+        WorkspaceView.WorkspaceVisibility = Marionette.ItemView.extend({
+            template: 'workspaceVisibility',
+            className: 'panel-collapse',
+            events: {
+                'click .collapse-btn': 'collapseSearchPanel'
+            },
+            model: new Backbone.Model(),
+            modelEvents: {
+                'change': 'render'
+            },
+
+            collapseSearchPanel: function() {
+                var $el = $('.search-controls');
+
+                var zIndex = $el.css('zIndex');
+
+                if (zIndex !== "-1") {
+                    $el.css('zIndex', -1);
+                    this.model.set({isCollapsed: true});
+                }
+                else {
+                    $el.css('zIndex', 100);
+                    this.model.set({isCollapsed: false});
+                }
+             },
+
+            initialize: function () {
+                _.bindAll(this);
+                if (!maptype.isNone()) {
+                    this.model.set({isMap: true});
+                }
+            }
+        });
+
+        WorkspaceView.PanelLayout = Marionette.Layout.extend({
+            template : 'workspaceContainer',
+            regions : {
+                panelRegion: "#workspace-panel",
+                visibilityRegion: "#workspace-visibility"
+            },
+
+            onRender : function(){
+                this.panelRegion.show(new WorkspaceView.WorkspaceLayout({model: this.model}));
+                this.visibilityRegion.show(new WorkspaceView.WorkspaceVisibility());
             }
         });
 

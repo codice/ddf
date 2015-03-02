@@ -899,6 +899,26 @@ button.ui-multiselect {
     top: 50px;
 }
 
+.panel-collapse {
+    position: absolute;
+    left: 5px;
+    z-index: 1000;
+    bottom: 50%;
+    padding: 0px;
+}
+
+.collapse-btn {
+    width: 10px;
+    height: 100px;
+    display: table-cell;
+    vertical-align: middle;
+    background-color: rgba(36,36,36,1);
+    padding: 0px;
+    border: none;
+    border-radius: 0;
+
+}
+
 .navbar-brand {
     float: left;
     padding: 0;
@@ -1254,7 +1274,7 @@ a.pause:hover, a.pause:focus {
     float: left;
     padding-left: 10px;
     overflow: hidden;
-    text-overflow: ellipsis;    
+    text-overflow: ellipsis;
 }
 
 .workspace-count {
