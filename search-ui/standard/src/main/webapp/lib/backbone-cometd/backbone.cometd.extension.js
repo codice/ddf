@@ -104,7 +104,7 @@
                     model.subscription = Cometd.Comet.subscribe(model.url, options.success);
                 }
 
-                Cometd.Comet.publish(model.url, options.data);
+                Cometd.Comet.publish(model.url, options.data || null);
             } else { //for now we are assuming that create, patch, and update all do the same thing
                 var success = options.success;
                 options.success = function (resp) {

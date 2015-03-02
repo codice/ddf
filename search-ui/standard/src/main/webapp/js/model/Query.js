@@ -486,6 +486,8 @@ define([
                 });
                 if (sourceArr.length > 0) {
                     this.set('src', sourceArr.join(','));
+                } else {
+                    this.set('src', '');
                 }
             },
 

@@ -13,23 +13,23 @@ describe('Contextual', function () {
 
         it("should show the map", function () {
             return this.browser
-                .waitForElementByCssSelector('canvas.ol-unselectable', 20000);
+                .waitForElementByCssSelector('canvas.ol-unselectable', shared.timeout);
         });
 
         it("should allow saving searches", function () {
             return this.browser
-                .waitForElementByCssSelector('form#searchForm input[name="q"]', 20000)
+                .waitForElementByCssSelector('form#searchForm input[name="q"]', shared.timeout)
                 // getLocationInView does not work in Firefox and IE
                 .safeExecute('document.querySelectorAll("#searchButton")[0].scrollIntoView(true)')
                 .elementById('saveButton').click()
-                .waitForElementByCssSelector('form#workspaceSelectForm input[name="searchName"]', 20000)
+                .waitForElementByCssSelector('form#workspaceSelectForm input[name="searchName"]', shared.timeout)
                 .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('search-save.png'))
                 .elementById('cancel').click();
         });
 
         it("should allow search", function () {
             return this.browser
-                .waitForElementByCssSelector('form#searchForm input[name="q"]', 20000)
+                .waitForElementByCssSelector('form#searchForm input[name="q"]', shared.timeout)
                 .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('search-form.png'))
                 .elementByCssSelector('input[name="q"]').type('*')
                 // getLocationInView does not work in Firefox and IE
@@ -37,32 +37,24 @@ describe('Contextual', function () {
                 .elementById('searchButton').click();
         });
 
-        it("should hide progress bar if no new results", function () {
-            return this.browser
-                .waitForElementsByCssSelector('div#progressRegion:empty', 20000);
-        });
-
-        it("should show result count", function () {
-            return this.browser
-                .waitForElementByCssSelector('.result-count i', asserters.textInclude('results'), 10000);
-        });
-
         it("should display results", function () {
             return this.browser
-                .waitForElementsByCssSelector('a.metacard-link', 10000)
-                .waitForConditionInBrowser('document.querySelectorAll("a.metacard-link").length >= 10', 10000)
+                .waitForElementsByCssSelector('div#progressRegion:empty', shared.timeout)
+                .waitForElementByCssSelector('.result-count i', asserters.textInclude('results'), shared.timeout)
+                .waitForElementsByCssSelector('a.metacard-link', shared.timeout)
+                .waitForConditionInBrowser('document.querySelectorAll("a.metacard-link").length >= 10', shared.timeout)
                 .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('results-list.png'));
         });
 
         it("should display source status and filter options", function () {
             return this.browser
-                .waitForElementById('status-icon', 10000).click()
-                .waitForElementById('status-table', asserters.isDisplayed, 10000)
-                .waitForElementByCssSelector('.filter-view.active', asserters.isDisplayed, 10000)
+                .waitForElementById('status-icon', shared.timeout).click()
+                .waitForElementById('status-table', asserters.isDisplayed, shared.timeout)
+                .waitForElementByCssSelector('.filter-view.active', asserters.isDisplayed, shared.timeout)
                 .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('results-filters.png'));
         });
 
-        it("should be able to display metacard details", function () {
+        it("should be able to display metacard summary", function () {
             return this.browser
                 .waitForElementByCssSelector('a.metacard-link').click()
                 .waitForElementByClassName('metacard-details', asserters.nonEmptyText)
@@ -86,7 +78,7 @@ describe('Contextual', function () {
         it("should allow previous and next navigation", function () {
             return this.browser
                 .waitForElementByCssSelector('#prevRecord.disabled')
-                .waitForElementById('nextRecord', asserters.isDisplayed, 10000).click()
+                .waitForElementById('nextRecord', asserters.isDisplayed, shared.timeout).click()
                 .waitForElementByCssSelector('#prevRecord:not(.disabled)');
         });
     });

@@ -93,7 +93,8 @@ module.exports = function (grunt) {
                 autoInstall: true,
                 usePromises: true,
                 reporter: 'spec',
-                timeout: 1000 * 30
+                timeout: 1000 * 30,
+                slow: 10000
             },
             phantom: {
                 src: ['src/test/js/wd/*.js'],
@@ -121,7 +122,7 @@ module.exports = function (grunt) {
                     autoInstall: false,
                     testName: 'Search UI',
                     concurrency: 3,
-                    timeout: 1000 * 60 * 3,
+                    timeout: 1000 * 60 * 2,
                     browsers: [
                         {platform: 'Windows 7', browserName: 'internet explorer', version: '9'},
                         {platform: 'Windows 7', browserName: 'chrome', version: '38'},

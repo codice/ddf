@@ -10,8 +10,8 @@ describe('Workspace', function () {
 
     it("should show workspace list", function () {
         return this.browser
-            .waitForElementByLinkText('Workspaces', asserters.isDisplayed, 20000).click()
-            .waitForElementByClassName('workspace-table');
+            .waitForElementByLinkText('Workspaces', asserters.isDisplayed, shared.timeout).click()
+            .waitForElementByClassName('workspace-table', shared.timeout);
     });
 
     it("should allow adding a workspace", function () {
@@ -20,10 +20,8 @@ describe('Workspace', function () {
             .waitForElementById('workspaceName', asserters.isDisplayed).type('foo')
             .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('workspace-add.png'))
             .elementByCssSelector('#workspaceAddForm a.submit').click()
-            .waitForElementByClassName('workspace-name')
-            .text().should.eventually.equal('foo')
-            .elementByClassName('workspace-row')
-            .click();
+            .waitForElementByClassName('workspace-name', asserters.textInclude('foo'), shared.timeout)
+            .elementByClassName('workspace-row').click();
     });
 
     it("should allow adding a search to a workspace", function () {
@@ -35,8 +33,8 @@ describe('Workspace', function () {
             .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('workspace-query.png'))
             .safeExecute('document.querySelectorAll("#workspaceSearchButton")[0].scrollIntoView(true)')
             .elementById('workspaceSearchButton').click()
-            .waitForElementByClassName('workspace-name')
-            .text().should.eventually.equal('bar')
+            .waitForConditionInBrowser('document.querySelectorAll("a.workspace-name").length === 1', shared.timeout)
+            .waitForConditionInBrowser('document.querySelectorAll(".fa-spin").length === 0', shared.timeout)
             .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('workspace-list.png'));
     });
 
@@ -51,21 +49,21 @@ describe('Workspace', function () {
     it("should allow viewing search in workspace", function () {
         return this.browser
             .waitForElementByClassName('workspace-row').click()
-            .waitForElementByCssSelector('#workspaces .result-count i', asserters.textInclude('results'), 10000)
-            .waitForConditionInBrowser('document.querySelectorAll("a.metacard-link").length >= 10', 10000);
+            .waitForElementByCssSelector('#workspaces .result-count i', asserters.textInclude('results'), shared.timeout)
+            .waitForConditionInBrowser('document.querySelectorAll("a.metacard-link").length >= 10', shared.timeout);
     });
 
     it("should allow saving results", function () {
         return this.browser
             .waitForElementById('Save').click()
-            .waitForElementByCssSelector('#workspaces input.select-record-checkbox', 10000).click()
+            .waitForElementByCssSelector('#workspaces input.select-record-checkbox', shared.timeout).click()
             .waitForElementById('Done').click()
-            .waitForElementByCssSelector('input[value="foo"]', asserters.isDisplayed).click()
+            .waitForElementByCssSelector('input[value="foo"]', asserters.isDisplayed, shared.timeout).click()
             .waitForElementByCssSelector('a.submit').click()
-            .waitForElementById('Workspace').click()
-            .waitForElementById('view-records').click()
-            .waitForElementsByCssSelector('a.metacard-link')
-            .waitForConditionInBrowser('document.querySelectorAll("a.metacard-link").length >= 1');
+            .waitForElementById('Workspace', shared.timeout).click()
+            .waitForElementById('view-records', shared.timeout).click()
+            .waitForElementsByCssSelector('a.metacard-link', shared.timeout)
+            .waitForConditionInBrowser('document.querySelectorAll("a.metacard-link").length >= 1', shared.timeout);
     });
 
 });

@@ -48,6 +48,8 @@ exports.asserters = wd.asserters;
 exports.setup = function() {
 
     before(function () {
+        exports.timeout = argv.timeout || this.mochaOptions.timeout || 30000;
+
         if (argv.browser) {
             this.browser = wd.promiseChainRemote()
                 .init({browserName: argv.browser || 'chrome'});
@@ -58,7 +60,7 @@ exports.setup = function() {
         }
 
         return this.browser
-            .setAsyncScriptTimeout(10000)
+            .setAsyncScriptTimeout(exports.timeout)
             .setWindowSize(1080, 1080)
             .get(url);
     });

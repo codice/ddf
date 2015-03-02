@@ -9,20 +9,166 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, require, window */
+/*global require, window */
 /*jslint nomen:false, -W064 */
+require.config({
+    paths: {
 
-define(['config'], function () {
-    require([
-        'jquery',
+        bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
+        cometd: 'lib/cometd/org/cometd',
+        jquerycometd: 'lib/cometd/jquery/jquery.cometd',
+        moment: 'lib/moment/min/moment.min',
+        perfectscrollbar: 'lib/perfect-scrollbar/min/perfect-scrollbar.min',
+        spin: 'lib/spin.js/spin',
+        q: 'lib/q/q',
+        strapdown: 'lib/strapdown/v/0.2',
+        spectrum: 'lib/spectrum/spectrum',
+
+        // backbone
+        backbone: 'lib/components-backbone/backbone-min',
+        backboneassociations: 'lib/backbone-associations/backbone-associations-min',
+        backbonecometd: 'lib/backbone-cometd/backbone.cometd.extension',
+        poller: 'lib/backbone-poller/backbone.poller',
+        underscore: 'lib/lodash/dist/lodash.underscore.min',
+        lodash: 'lib/lodash/dist/lodash.min',
+        marionette: 'lib/marionette/lib/backbone.marionette.min',
+        // TODO test combining
+        modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
+        collectionbinder: 'lib/backbone.modelbinder/Backbone.CollectionBinder.min',
+
+        // application
+        application: 'js/application',
+        cometdinit: 'js/cometd',
+        direction: 'js/direction',
+        webglcheck : 'js/webglcheck',
+        twodcheck : 'js/2dmapcheck',
+        maptype : 'js/maptype',
+        spinnerConfig : 'js/spinnerConfig',
+        wreqr: 'js/wreqr',
+        user: 'js/user',
+        properties: 'properties',
+
+        // jquery
+        jquery: 'lib/jquery/jquery.min',
+        jqueryCookie: 'lib/jquery-cookie/jquery.cookie',
+        jqueryuiCore: 'lib/jquery-ui/ui/minified/jquery.ui.core.min',
+        datepicker: 'lib/jquery-ui/ui/minified/jquery.ui.datepicker.min',
+        progressbar: 'lib/jquery-ui/ui/minified/jquery.ui.progressbar.min',
+        datepickerOverride: 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
+        datepickerAddon: 'lib/jqueryui-timepicker-addon/src/jquery-ui-timepicker-addon',
+        purl: 'lib/purl/purl',
+        multiselect: 'lib/multiselect/src/jquery.multiselect',
+        multiselectfilter: 'lib/multiselect/src/jquery.multiselect.filter',
+        "jquery.ui.widget": 'lib/jquery-ui/ui/minified/jquery.ui.widget.min',
+        fileupload: 'lib/jquery-file-upload/js/jquery.fileupload',
+
+        // handlebars
+        handlebars: 'lib/handlebars/handlebars.min',
+        icanhaz: 'lib/icanhandlebarz/ICanHandlebarz',
+
+        // require plugins
+        text: 'lib/requirejs-plugins/lib/text',
+        css: 'lib/require-css/css.min',
+
+        // pnotify
+        pnotify: 'lib/pnotify/jquery.pnotify.min',
+
+        // map
+        cesium: 'lib/cesiumjs/Build/Cesium/Cesium',
+        drawHelper: 'lib/cesium-drawhelper/DrawHelper',
+        openlayers: 'lib/openlayers3/build/ol',
+        usngs: 'lib/usng/usng'
+    },
+
+    shim: {
+
+        backbone: {
+            deps: ['underscore', 'jquery'],
+            exports: 'Backbone'
+        },
+        modelbinder: {
+            deps: ['underscore', 'jquery', 'backbone']
+        },
+        collectionbinder: {
+            deps: ['modelbinder']
+        },
+        poller: {
+            deps: ['backbone']
+        },
+        backboneassociations: ['backbone'],
+        backbonecometd: ['underscore', 'jquery', 'backbone', 'cometdinit'],
+        marionette: {
+            deps: ['jquery', 'underscore', 'backbone'],
+            exports: 'Marionette'
+        },
+
+        underscore: {
+            exports: '_'
+        },
+
+        handlebars: {
+            exports: 'Handlebars'
+        },
+        icanhaz: {
+            deps: ['jquery', 'handlebars'],
+            exports: 'ich'
+        },
+
+        moment: {
+            exports: 'moment'
+        },
+
+        jquerycometd: {
+            deps: ['jquery', 'cometd']
+        },
+        jqueryuiCore: ['jquery'],
+        jqueryCookie: ['jquery'],
+        datepicker: ['jquery', 'jqueryuiCore'],
+        datepickerOverride: ['datepicker'],
+        datepickerAddon: ['datepicker'],
+        progressbar: ['jquery', 'jqueryuiCore', 'jquery.ui.widget'],
+        multiselect: ['jquery', 'jquery.ui.widget'],
+        multiselectfilter: ['jquery', 'multiselect'],
+        fileupload: ['jquery', 'jquery.ui.widget'],
+
+        perfectscrollbar: ['jquery'],
+
+        purl: ['jquery'],
+
+        spectrum: ['jquery'],
+
+        bootstrap: ['jquery'],
+
+        cesium: {
+            exports: 'Cesium'
+        },
+        drawHelper: {
+            deps: ['cesium'],
+            exports: 'DrawHelper'
+        },
+        openlayers: {
+            exports: 'ol'
+        }
+    },
+
+    waitSeconds: 0
+});
+
+require.onError = function (err) {
+    if (typeof console !== 'undefined') {
+        console.error("RequireJS failed to load a module", err);
+    }
+};
+
+require(['jquery',
         'backbone',
         'marionette',
         'application',
         'icanhaz',
         'properties',
         'js/HandlebarsHelpers',
-        'js/ApplicationHelpers'
-    ], function ($, Backbone, Marionette, app, ich, properties) {
+        'js/ApplicationHelpers'],
+    function ($, Backbone, Marionette, app, ich, properties) {
         'use strict';
 
         var document = window.document;
@@ -57,4 +203,3 @@ define(['config'], function () {
         // Actually start up the application.
         app.App.start({});
     });
-});

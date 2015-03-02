@@ -20,9 +20,17 @@ define(['jquery', 'jquerycometd'], function ($) {
     Cometd.Comet.websocketEnabled = false;
     var path = location.protocol + '//' + location.hostname+(location.port ? ':' + location.port : '') + '/cometd';
     Cometd.Comet.configure({
-        url: path
+        url: path,
+        maxNetworkDelay: 30000
 //        logLevel: 'debug'
     });
+
+    Cometd.Comet.onListenerException = function(exception, subscriptionHandle, isListener, message) {
+        if (typeof console !== 'undefined') {
+            console.error("Cometd listener threw an exception", exception, message, subscriptionHandle, isListener);
+        }
+    };
+
     //TODO: we need some way to unsub/disconnect when we know it is finished
     Cometd.Comet.handshake({});
 

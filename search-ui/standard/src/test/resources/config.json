@@ -1,6 +1,6 @@
 {
     "branding": "DDF",
-    "timeout": 5000,
+    "timeout": 30000,
     "resultCount": 250,
     "gazetteer": false,
     "projection": "EPSG:4326",

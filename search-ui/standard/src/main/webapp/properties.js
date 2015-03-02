@@ -13,9 +13,9 @@
 
 define(function (require) {
     'use strict';
-    require('purl');
     var $ = require('jquery');
     var _ = require('underscore');
+    require('purl');
 
     var properties = {
         canvasThumbnailScaleFactor : 10,

@@ -559,7 +559,7 @@ define([
                 wreqr.vent.trigger('search:start', this.model, progress);
 
                 wreqr.reqres.setHandler('search:results', function () {
-                    return this.model.get('result');
+                    return view.model.get('result');
                 });
             },
 

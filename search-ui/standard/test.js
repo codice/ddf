@@ -11,6 +11,10 @@
  **/
 /*global require,__dirname*/
 var express = require('express'),
+    http = require('http'),
+    faye = require('faye'),
+    fs = require('node-fs'),
+    path = require('path'),
     server = require('./server-impl');
 
 var app = express();
@@ -32,10 +36,33 @@ app.all('/services/catalog/sources', server.mockRequest);
 app.all('/services/store/config', server.mockRequest);
 app.all('/services/platform/config/ui', server.mockRequest);
 app.all('/services/user', server.mockRequest);
-app.all('/cometd/handshake', server.mockRequest);
-app.all('/cometd/connect', server.mockCometD);
-app.all('/cometd/', server.mockCometD);
 
+var bayeux = new faye.NodeAdapter({mount: '/cometd', timeout: 60});
+app.listen = function() {
+    var server = http.createServer(this);
+    bayeux.attach(server);
+
+    bayeux.getClient().subscribe('/service/user', function(message) {
+        if (!message) {
+            bayeux.getClient().publish('/service/user', {
+                "successful": true,
+                "user": {
+                    "username": "Anonymous",
+                    "isAnonymous": "true"
+                }
+            });
+        }
+    });
+
+    bayeux.getClient().subscribe('/service/query', function(message) {
+        if (message && message.id && message.id.match(/[a-f0-9]*-/)) {
+            bayeux.getClient().publish('/' + message.id, JSON.parse(fs.readFileSync(
+                path.resolve('.', 'src/test/resources', 'query.json'), {'encoding': 'utf8'})));
+        }
+    });
+
+    return server.listen.apply(server, arguments);
+};
 
 exports = module.exports = app;
 
