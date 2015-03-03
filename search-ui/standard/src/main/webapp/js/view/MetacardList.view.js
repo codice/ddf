@@ -58,12 +58,15 @@ define([
             resultSelect: false,
 
             initialize: function() {
+                if (this.model.collection.parents[0] && this.model.collection.parents[0].get('selecting')) {
+                    this.resultSelect = true;
+                }
                 this.listenTo(wreqr.vent, 'search:resultsselect', this.resultSelectMode);
                 this.listenTo(wreqr.vent, 'search:resultssave', this.resultSaveMode);
             },
 
             changeRecordSelection: function(e) {
-                this.model.set('selectedForSave', e.target.checked);
+                this.model.set('selectedForSave', e.target.checked, {silent: true});
             },
 
             resultSelectMode: function() {
@@ -82,13 +85,7 @@ define([
                 //but our model is pretty deep and this was causing some big performance issues
                 //so with this change we simply need up adapt our templates to work with backbone
                 //objects instead of flat json records
-                var data = {};
-
-                if (this.model) {
-                    data = this.model;
-                }
-
-                return _.extend(data, {resultSelect: this.resultSelect});
+                return _.extend({}, this.model, {resultSelect: this.resultSelect});
             },
 
             onRender : function(){
@@ -321,6 +318,7 @@ define([
             },
             spinner: new Spinner(spinnerConfig),
             initialize: function() {
+                this.listenTo(wreqr.vent, 'search:resultsselect', this.selectingRecords);
                 this.listenTo(wreqr.vent, 'search:resultssave', this.saveSelectedRecords);
             },
             onRender: function () {
@@ -377,9 +375,13 @@ define([
                     }
                 });
             },
+            selectingRecords: function() {
+                this.model.set('selecting', true, {silent: true});
+            },
             saveSelectedRecords: function() {
+                this.model.unset('selecting', {silent: true});
                 var records = this.model.get('results').where({'metacard>selectedForSave': true});
-                if(records && records.length) {
+                if (records && records.length) {
                     _.each(records, function (record) {
                         record.unset('metacard.selectedForSave');
                     });

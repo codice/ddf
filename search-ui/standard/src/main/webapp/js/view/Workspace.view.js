@@ -179,7 +179,14 @@ define([
                         wreqr.vent.trigger('map:clear');
                         wreqr.vent.trigger('map:results', model, false);
                     };
+
                     this.model.startSearch(progressFunction);
+
+                    if (this.model.get('result') && this.model.get('result').get('status')) {
+                        this.model.get('result').get('status').forEach(function (model) {
+                            model.set('state', 'ACTIVE');
+                        });
+                    }
 
                     wreqr.vent.trigger('workspace:results', dir.forward, this.model);
                 }
