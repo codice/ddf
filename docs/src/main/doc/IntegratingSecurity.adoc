@@ -439,7 +439,7 @@ In some production environments it is suggested that the LDAP server be run sepa
 ==== Run a Standalone Embedded LDAP Instance
 
 . Obtain and unzip the DDF kernel (`ddf-distribution-kernel-<VERSION>.zip`). 
-. Start the distribution (https://login.macefusion.com/secure/login?service=https%3A%2F%2Fwiki.macefusion.com%2Fpages%2Fviewpage.action%3Ftitle%3DStarting%2Band%2BStopping%26spaceKey%3DDDF).
+. Start the distribution.
 . When the kernel is loaded up with the DDF logo at the command prompt, execute:
 ----
 la
@@ -1410,8 +1410,10 @@ The `AnonymousInterceptor` is installed by default with DDF Security Application
 . Navigate to the DDF Admin Console -> Configuration
 . Select “ Security STS Anonymous Claims Handler”
 . Click the + next to Attributes to add a new attribute
-. Add the following attribute: “http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous”
-. Repeat the steps above to add another new attribute: “http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous”
+. Add the following attribute: +
+ “http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous”
+. Repeat the steps above to add another new attribute: +
+ “http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=anonymous”
 . Click save
 . Now select “Security Simple AuthZ Realm”
 . Under role, add anonymous so Roles value is: “admin,anonymous”
