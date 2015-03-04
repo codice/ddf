@@ -14,6 +14,21 @@
  **/
 package ddf.catalog.source.solr;
 
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.source.IngestException;
+import org.apache.solr.client.solrj.SolrServer;
+import org.codice.solr.factory.ConfigurationFileProxy;
+import org.codice.solr.factory.ConfigurationStore;
+import org.codice.solr.factory.SolrServerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -23,23 +38,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-
-import org.apache.solr.client.solrj.SolrServer;
-import org.codice.solr.factory.ConfigurationFileProxy;
-import org.codice.solr.factory.ConfigurationStore;
-import org.codice.solr.factory.SolrServerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.catalog.source.IngestException;
 
 public class ReuterSolrImport implements Runnable {
 
@@ -61,7 +59,7 @@ public class ReuterSolrImport implements Runnable {
 
             this.solrServer = SolrServerFactory.getEmbeddedSolrServer("solrconfigSoft.xml",
                     "schema.xml",
-                    new ConfigurationFileProxy(null, ConfigurationStore.getInstance()));
+                    new ConfigurationFileProxy(ConfigurationStore.getInstance()));
 
             this.solrProvider = new SolrCatalogProvider(this.solrServer,
                     new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
@@ -88,7 +86,7 @@ public class ReuterSolrImport implements Runnable {
     }
 
     /**
-     * @param args
+     * @param paramArrayOfString
      */
     public static void main(String[] paramArrayOfString) {
         String str = "Usage: java -jar reutersparser.jar <datadir>";

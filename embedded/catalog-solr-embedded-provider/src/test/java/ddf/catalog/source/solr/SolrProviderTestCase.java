@@ -14,23 +14,6 @@
  **/
 package ddf.catalog.source.solr;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.codice.solr.factory.ConfigurationFileProxy;
-import org.codice.solr.factory.ConfigurationStore;
-import org.codice.solr.factory.SolrServerFactory;
-import org.joda.time.DateTime;
-import org.junit.BeforeClass;
-import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
@@ -47,6 +30,22 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
+import org.apache.commons.lang.StringUtils;
+import org.codice.solr.factory.ConfigurationFileProxy;
+import org.codice.solr.factory.ConfigurationStore;
+import org.codice.solr.factory.SolrServerFactory;
+import org.joda.time.DateTime;
+import org.junit.BeforeClass;
+import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public abstract class SolrProviderTestCase {
 
@@ -72,8 +71,7 @@ public abstract class SolrProviderTestCase {
         LOGGER.info("RUNNING one-time setup.");
         ConfigurationStore.getInstance().setDataDirectoryPath("target/solr");
         ConfigurationStore.getInstance().setForceAutoCommit(true);
-        ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(null,
-                ConfigurationStore.getInstance());
+        ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(ConfigurationStore.getInstance());
 
         provider = new SolrCatalogProvider(SolrServerFactory.getEmbeddedSolrServer(
                 "solrconfig.xml", "schema.xml", configurationFileProxy),
