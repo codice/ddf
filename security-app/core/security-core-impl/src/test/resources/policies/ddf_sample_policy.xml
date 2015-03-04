@@ -1,0 +1,111 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<!-- NOTE: THIS IS A SAMPLE DDF POLCIY AND SHOULD NOT BE USED FOR PRODUCTION -->
+<wsp:Policy wsu:Id="TransportSAML2Policy"
+            xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+            xmlns:wsp="http://www.w3.org/ns/ws-policy"
+            xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+            xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata"
+            xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702"
+            xmlns:t="http://docs.oasis-open.org/ws-sx/ws-trust/200512"
+            xmlns:wsaw="http://www.w3.org/2005/08/addressing"
+            xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex">
+  <wsp:ExactlyOne>
+    <wsp:All>
+      <wsam:Addressing wsp:Optional="false">
+        <wsp:Policy />
+      </wsam:Addressing>
+      <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+        <wsp:Policy>
+          <sp:TransportToken>
+            <wsp:Policy>
+              <sp:HttpsToken>
+                <wsp:Policy>
+                  <sp:RequireClientCertificate />
+                </wsp:Policy>
+              </sp:HttpsToken>
+            </wsp:Policy>
+          </sp:TransportToken>
+          <sp:AlgorithmSuite>
+            <wsp:Policy>
+              <sp:Basic128 />
+            </wsp:Policy>
+          </sp:AlgorithmSuite>
+          <sp:Layout>
+            <wsp:Policy>
+              <sp:Lax />
+            </wsp:Policy>
+          </sp:Layout>
+          <sp:IncludeTimestamp />
+          <sp:EncryptSignature />
+          <sp:OnlySignEntireHeadersAndBody />
+        </wsp:Policy>
+      </sp:TransportBinding>
+      <sp:SignedSupportingTokens xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+        <wsp:Policy>
+          <sp:IssuedToken
+            sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
+            <sp:RequestSecurityTokenTemplate>
+              <t:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
+              </t:TokenType>
+              <t:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey</t:KeyType>
+              <t:Claims Dialect="http://schemas.xmlsoap.org/ws/2005/05/identity" xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity">
+                  <!-- Add any additional claims you want to grab for the service -->
+                <ic:ClaimType Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
+                  Optional="true" />
+                <ic:ClaimType Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+                  Optional="true" />
+                <ic:ClaimType Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+                  Optional="true" />
+                <ic:ClaimType Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"
+                  Optional="true" />
+                <ic:ClaimType Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"
+                  Optional="true" />
+              </t:Claims>
+            </sp:RequestSecurityTokenTemplate>
+            <wsp:Policy>
+              <sp:RequireInternalReference />
+            </wsp:Policy>
+            <sp:Issuer>
+              <wsaw:Address>https://localhost:8993/services/SecurityTokenService/X509</wsaw:Address>
+              <wsaw:Metadata>
+                <wsx:Metadata>
+                  <wsx:MetadataSection>
+                    <wsx:MetadataReference>
+                      <wsaw:Address>https://localhost:8993/services/SecurityTokenService/X509/mex</wsaw:Address>
+                    </wsx:MetadataReference>
+                  </wsx:MetadataSection>
+                </wsx:Metadata>
+              </wsaw:Metadata>
+            </sp:Issuer>
+          </sp:IssuedToken>
+        </wsp:Policy>
+      </sp:SignedSupportingTokens>
+      <sp:Wss11>
+        <wsp:Policy>
+          <sp:MustSupportRefIssuerSerial />
+          <sp:MustSupportRefThumbprint />
+          <sp:MustSupportRefEncryptedKey />
+        </wsp:Policy>
+      </sp:Wss11>
+      <sp:Trust13>
+        <wsp:Policy>
+          <sp:MustSupportIssuedTokens />
+          <sp:RequireClientEntropy />
+          <sp:RequireServerEntropy />
+        </wsp:Policy>
+      </sp:Trust13>
+    </wsp:All>
+  </wsp:ExactlyOne>
+</wsp:Policy>

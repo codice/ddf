@@ -1,0 +1,49 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+	<OCD description="DDF CAS Client Configuration" name="Security CAS Client" id="ddf.security.cas">
+	    
+	    <AD name="Server Name:" id="serverName" required="true" type="String"
+	      default="https://localhost:8993"
+	      description="URL of the server that is calling CAS.">
+	    </AD>
+       
+        <AD name="CAS Server URL:" id="casServerUrl" required="true" type="String"
+          default="https://localhost:8443/cas"
+          description="URL to the CAS server (generally ends in /cas)">
+        </AD>
+	    
+	    <AD name="CAS Server Login URL:" id="casServerLoginUrl" required="true" type="String"
+	      default="https://localhost:8443/cas/login"
+	      description="URL to the login page of CAS (generally ends in /login).">
+	    </AD>
+	    
+	    <AD name="Proxy Callback URL:" id="proxyCallbackUrl" required="true" type="String"
+	      default="https://localhost:8993/sso"
+	      description="CAS client callback URL used when requesting proxy tickets.">
+	    </AD>
+	    
+	    <AD name="Proxy Receptor URL:" id="proxyReceptorUrl" required="true" type="String"
+	      default="/sso" 
+	      description="CAS Client proxy receptor URL.">
+	    </AD>
+	        
+	</OCD>
+	
+	<Designate pid="ddf.security.cas">
+	    <Object ocdref="ddf.security.cas" />
+  	</Designate>
+  	
+</metatype:MetaData>

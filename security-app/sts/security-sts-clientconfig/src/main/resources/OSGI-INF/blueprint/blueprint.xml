@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xsi:schemaLocation="
+  http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+  <bean id="stsClientConfig" class="ddf.security.sts.client.configuration.impl.STSClientConfigurationImpl">
+    <cm:managed-properties persistent-id="ddf.security.sts.client.configuration"
+      update-strategy="container-managed" />
+      <property name="address" value="https://localhost:8993/services/SecurityTokenService?wsdl" />
+      <property name="endpointName" value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port" />
+      <property name="serviceName" value="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService" />
+      <property name="signatureProperties" value="etc/ws-security/server/signature.properties" />
+      <property name="encryptionProperties" value="etc/ws-security/server/encryption.properties" />
+      <property name="tokenProperties" value="etc/ws-security/server/signature.properties" />
+      <property name="assertionType" value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0" />
+      <property name="keyType" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer" />
+      <property name="keySize" value="256" />
+      <property name="useKey" value="true" />
+      <property name="claims">
+        <list>
+          <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier</value>
+          <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress</value>
+          <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname</value>
+          <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname</value>
+          <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role</value>
+        </list>
+      </property>
+  </bean>
+  
+  <service ref="stsClientConfig" interface="ddf.security.sts.client.configuration.STSClientConfiguration" />
+
+
+</blueprint>

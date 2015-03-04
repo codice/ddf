@@ -1,0 +1,63 @@
+
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+	<OCD description="STS Configuration" name="Security STS Server" id="ddf.security.sts">
+
+        <AD name="SAML Assertion Lifetime:" id="lifetime" required="true" type="Long"
+            default="1800"
+            description="Set the number of seconds that an issued SAML assertion will be good for.">
+        </AD>
+	    
+	    <AD name="Token Issuer:" id="issuer" required="true" type="String"
+	      default="localhost"
+	      description="The name of the server issuing tokens. Generally this is the cn or hostname of this machine on the network.">
+	    </AD>
+	    
+	    <AD name="Signature Username:" id="signatureUsername" required="true" type="String"
+	      default="localhost"
+	      description="Alias of the private key in the STS Server's keystore used to sign messages.">
+	    </AD>
+
+        <AD name="Encryption Username:" id="encryptionUsername" required="true" type="String"
+            default="localhost"
+            description="Alias of the private key in the STS Server's keystore used to encrypt messages.">
+        </AD>
+        
+	</OCD>
+	
+	<Designate pid="ddf.security.sts">
+	    <Object ocdref="ddf.security.sts" />
+  	</Designate>
+    
+    <OCD name="Security STS CRL" description="Configuration for the STS CRL Interceptor." id="org.codice.ddf.security.sts.crl">
+
+        <AD name="CRL file location:" id="crlLocation" required="true" type="String"
+            default=""
+            description="Sets the location that the CRL file is at.">
+        </AD>
+
+        <AD name="Enable CRL Checking:" id="isEnabled" required="true" type="Boolean"
+          default="false" 
+          description="Enables checking incoming requests with a file-based CRL and revoking requests that contain invalid certificates.">
+        </AD>
+        
+    </OCD>
+    
+    <Designate pid="org.codice.ddf.security.sts.crl">
+        <Object ocdref="org.codice.ddf.security.sts.crl" />
+    </Designate>
+    
+</metatype:MetaData>

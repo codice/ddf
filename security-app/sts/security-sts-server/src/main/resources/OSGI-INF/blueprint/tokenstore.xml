@@ -1,0 +1,38 @@
+
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:jaxws="http://cxf.apache.org/blueprint/jaxws"
+    xmlns:sec="http://cxf.apache.org/blueprint/configuration/security" 
+    xmlns:httpj="http://cxf.apache.org/blueprint/transports/http-jetty/configuration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+    xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+    xsi:schemaLocation="
+        http://www.osgi.org/xmlns/blueprint/v1.0.0 
+        http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd 
+        http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0 
+        http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.0.0.xsd 
+        http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0 
+        http://aries.apache.org/schemas/blueprint-ext/blueprint-ext.xsd 
+        http://cxf.apache.org/blueprint/jaxws                                     
+        http://cxf.apache.org/blueprint/schemas/jaxws.xsd
+        http://cxf.apache.org/blueprint/configuration/security
+        http://cxf.apache.org/blueprint/schemas/configuration/security.xsd
+        http://cxf.apache.org/blueprint/transports/http-jetty/configuration
+        http://cxf.apache.org/blueprint/schemas/configuration/http-jetty.xsd">
+        
+    <bean id="defaultTokenStore" class="org.apache.cxf.sts.cache.DefaultInMemoryTokenStore" scope="singleton" />
+    
+</blueprint>

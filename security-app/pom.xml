@@ -1,0 +1,197 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ddf</groupId>
+        <artifactId>ddf-parent</artifactId>
+        <version>3.0.0</version>
+    </parent>
+
+    <groupId>ddf.security</groupId>
+    <artifactId>security</artifactId>
+    <version>2.6.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>DDF Security</name>
+
+    <properties>
+        <cas.client.version>3.1.10</cas.client.version>
+        <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
+        <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
+        <jasypt.version>1.9.0</jasypt.version>
+        <wss4j.version>1.6.16</wss4j.version>
+        <cxf.version>2.7.8</cxf.version>
+        <shiro.version>1.2.1</shiro.version>
+        <karaf.version>2.3.8</karaf.version>
+        <powermock.version>1.5.4</powermock.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <artifactId>karaf</artifactId>
+                <groupId>org.apache.karaf</groupId>
+                <version>${karaf.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>ddf.platform</groupId>
+                <artifactId>platform</artifactId>
+                <version>${ddf.platform.app.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>ddf.platform</groupId>
+                <artifactId>platform-configuration</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.platform.security</groupId>
+                <artifactId>security</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jasig.cas</groupId>
+                <artifactId>cas-client-core</artifactId>
+                <version>${cas.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security</groupId>
+                <artifactId>ddf-security-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security.sts</groupId>
+                <artifactId>security-sts-clientconfig</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security.pdp</groupId>
+                <artifactId>security-pdp-authzrealm</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security.encryption</groupId>
+                <artifactId>security-encryption-impl</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security.encryption</groupId>
+                <artifactId>security-encryption-api</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security.expansion</groupId>
+                <artifactId>security-expansion-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security.expansion</groupId>
+                <artifactId>security-expansion-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security.core</groupId>
+                <artifactId>security-core-api</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security.core</groupId>
+                <artifactId>security-core-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.security.handler</groupId>
+                <artifactId>security-handler-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jasypt</groupId>
+                <artifactId>jasypt</artifactId>
+                <version>${jasypt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ws.security</groupId>
+                <artifactId>wss4j</artifactId>
+                <version>${wss4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-core</artifactId>
+                <version>${shiro.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>3.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>0.9.24</version>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4</artifactId>
+                <version>${powermock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito</artifactId>
+                <version>${powermock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-security-xml</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-security-sso-saml</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
+    <modules>
+        <module>expansion</module>
+        <module>common</module>
+        <module>core</module>
+        <module>policy</module>
+        <module>sts</module>
+        <module>cas</module>
+        <module>pdp</module>
+        <module>pep</module>
+        <module>handler</module>
+        <module>filter</module>
+        <module>servlet</module>
+        <module>interceptor</module>
+        <module>security-services-app</module>
+        <module>rest</module>
+        <module>docs</module>
+    </modules>
+
+    <repositories>
+        <repository>
+            <id>codice</id>
+            <name>Codice Repository</name>
+            <url>http://artifacts.codice.org/content/groups/public/</url>
+        </repository>
+    </repositories>
+</project>

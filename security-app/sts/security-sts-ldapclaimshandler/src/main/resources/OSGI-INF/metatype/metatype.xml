@@ -1,0 +1,73 @@
+
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<metatype:MetaData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0"
+                   xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
+
+	<OCD description="STS Ldap and Roles Claims Handler Configuration. WARNING: The server must be restarted for these updates to take affect."
+	 	name="Security STS LDAP and Roles Claims Handler" id="ddf.security.sts.claimsHandler">
+
+	    <AD name="LDAP URL:" id="url" required="true" type="String"
+	      default="ldaps://localhost:1636"
+	      description="LDAP or LDAPS server and port">
+	    </AD>
+
+	    <AD name="LDAP Bind User DN:" id="userDn" required="true" type="String"
+	      default="cn=admin"
+	      description="DN of the user to bind with LDAP. This user should have the ability to verify passwords and read attributes for any user.">
+	    </AD>
+
+	    <AD name="LDAP Bind User Password:" id="password" required="true" type="Password"
+            default="ENC(c+GitDfYAMTDRESXSDDsMw==)"
+            description="Password used to bind user with LDAP.">
+	    </AD>
+
+	    <AD name="LDAP Username Attribute:" id="userNameAttribute" required="true" type="String"
+	      default="uid"
+	      description="Attribute used to designate the user's name in LDAP. Usually this is uid, cn, or something similar.">
+	    </AD>
+
+	    <AD name="LDAP Base User DN:" id="userBaseDn" required="true" type="String"
+	      default="ou=users\,dc=example\,dc=com"
+	      description="Full LDAP path to where users can be found.">
+	    </AD>
+
+        <AD name="LDAP Group ObjectClass:" id="objectClass" required="true" type="String"
+            default="groupOfNames"
+            description="ObjectClass that defines structure for group membership in LDAP. Usually this is groupOfNames or groupOfUniqueNames.">
+        </AD>
+
+        <AD name="LDAP Membership Attribute:" id="memberNameAttribute" required="true" type="String"
+            default="member"
+            description="Attribute used to designate the user's name as a member of the group in LDAP. Usually this is member or uniqueMember.">
+        </AD>
+
+        <AD name="LDAP Base Group DN:" id="groupBaseDn" required="true" type="String"
+	      default="ou=groups\,dc=example\,dc=com"
+	      description="Full LDAP path to where groups can be found.">
+	    </AD>
+
+        <AD name="Attribute Map File:" id="propertyFileLocation" required="true" type="String"
+          default="etc/ws-security/attributeMap.properties"
+          description="Location of the file which contains user attribute maps to use.">
+        </AD>
+
+	</OCD>
+
+	<Designate pid="ddf.security.sts.claimsHandler">
+	    <Object ocdref="ddf.security.sts.claimsHandler" />
+  	</Designate>
+
+</metatype:MetaData>
