@@ -21,7 +21,6 @@
     <bean id="configAdminMbean" class="org.codice.ddf.ui.admin.api.ConfigurationAdmin" init-method="init" destroy-method="destroy">
         <cm:managed-properties persistent-id="ddf.ui.admin.api"
             update-strategy="container-managed" />
-        <argument ref="blueprintBundleContext" />
         <argument ref="configurationAdmin" />
         <property name="configurationAdminPluginList" ref="configurationAdminPluginList" />
         <property name="moduleList" ref="moduleList" />

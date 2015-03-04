@@ -14,21 +14,6 @@
  **/
 package org.codice.ddf.admin.application.service.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.bundle.core.BundleStateService;
 import org.apache.karaf.features.BundleInfo;
@@ -49,6 +34,21 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleRevision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ApplicationServiceImplTest {
 
@@ -126,9 +126,12 @@ public class ApplicationServiceImplTest {
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(
-
-        bundleContext, bundleStateServices);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         Set<Application> applications = appService.getApplications();
         assertNotNull(applications);
@@ -158,8 +161,12 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(mainFeatureRepo, null, null);
 
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
-        ApplicationService appService = new ApplicationServiceImpl(bundleContext,
-                bundleStateServices);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         assertEquals(ApplicationService.class.getName()
                 + " does not contain the expected number of Applications", 1, appService
@@ -221,9 +228,12 @@ public class ApplicationServiceImplTest {
                 notInstalledFeatures, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(
-
-        bundleContext, bundleStateServices);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         assertEquals("More than one application was returned from mainFeatureRepo", 1, appService
                 .getApplications().size());
@@ -273,8 +283,12 @@ public class ApplicationServiceImplTest {
                 + TEST_MAIN_FEATURES_1_FEATURE_1_NAME + "\"",
                 featuresService.getFeature(TEST_MAIN_FEATURES_1_FEATURE_1_NAME));
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleContext,
-                bundleStateServices);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         assertEquals(ApplicationService.class.getName()
                 + " does not contain the expected number of Applications", 1, appService
@@ -496,8 +510,12 @@ public class ApplicationServiceImplTest {
                 inactiveBundleNames);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleContext,
-                bundleStateServices);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         assertEquals(ApplicationService.class.getName()
                 + " does not contain the expected number of Applications", 1, appService
@@ -552,8 +570,12 @@ public class ApplicationServiceImplTest {
                 notInstalledFeatures, inactiveBundles);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(bundleContext,
-                bundleStateServices);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         assertEquals(ApplicationService.class.getName()
                 + " does not contain the expected number of Applications", 1, appService
@@ -743,9 +765,12 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(mainFeatureRepo, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(
-
-        bundleContext, bundleStateServices);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         assertTrue(appService.isApplicationStarted(appService
                 .getApplication(TEST_MAIN_FEATURES_1_MAIN_FEATURE_NAME)));
@@ -770,9 +795,12 @@ public class ApplicationServiceImplTest {
                 notInstalledFeatures, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(
-
-        bundleContext, bundleStateServices);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         assertFalse(appService.isApplicationStarted(appService
                 .getApplication(TEST_MAIN_FEATURES_1_MAIN_FEATURE_NAME)));
@@ -797,9 +825,12 @@ public class ApplicationServiceImplTest {
                 inactiveBundles);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(
-
-        bundleContext, bundleStateServices);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         assertFalse(appService.isApplicationStarted(appService
                 .getApplication(TEST_MAIN_FEATURES_1_MAIN_FEATURE_NAME)));
@@ -816,9 +847,12 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationService appService = new ApplicationServiceImpl(
-
-        bundleContext, bundleStateServices);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         Set<Application> applications = appService.getApplications();
         assertEquals(1, applications.size());
@@ -846,9 +880,12 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationServiceImpl appService = new ApplicationServiceImpl(
-
-        bundleContext, bundleStateServices);
+        ApplicationServiceImpl appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         // just ignore the first application
         appService.setIgnoredApplications(noMainFeatureRepo1.getName());
@@ -886,9 +923,12 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationServiceImpl appService = new ApplicationServiceImpl(
-
-        bundleContext, bundleStateServices);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         Set<ApplicationNode> rootApps = appService.getApplicationTree();
 
@@ -922,9 +962,12 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationServiceImpl appService = new ApplicationServiceImpl(
-
-        bundleContext, bundleStateServices);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         Set<ApplicationNode> rootApps = appService.getApplicationTree();
 
@@ -946,7 +989,12 @@ public class ApplicationServiceImplTest {
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
 
-        ApplicationServiceImpl appService = new ApplicationServiceImpl(bundleContext, bundleStateServices);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         List<Feature> profiles = appService.getInstallationProfiles();
 
@@ -1017,7 +1065,12 @@ public class ApplicationServiceImplTest {
 
         if (null != bundle) {
             when(bundle.getState()).thenReturn(bundleState);
-            appService = new ApplicationServiceImpl(bundleContext, bundleStateServices);
+            appService = new ApplicationServiceImpl(bundleStateServices) {
+                @Override
+                protected BundleContext getContext() {
+                    return bundleContext;
+                }
+            };
         }
 
         return appService;
@@ -1054,7 +1107,12 @@ public class ApplicationServiceImplTest {
         if (null != bundle) {
             when(bundleStateServices.get(0).getState(bundle)).thenReturn(bundleState);
 
-            appService = new ApplicationServiceImpl(bundleContext, bundleStateServices);
+            appService = new ApplicationServiceImpl(bundleStateServices) {
+                @Override
+                protected BundleContext getContext() {
+                    return bundleContext;
+                }
+            };
         }
 
         return appService;

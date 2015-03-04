@@ -14,21 +14,6 @@
  **/
 package org.codice.ddf.admin.application.service.impl;
 
-import java.lang.management.ManagementFactory;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.BundleInfo;
@@ -43,12 +28,27 @@ import org.codice.ddf.ui.admin.api.ConfigurationAdminExt;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.lang.management.ManagementFactory;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementation of the Application Service MBean. Provides an MBean interface
@@ -107,9 +107,6 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     
     /** the service tracker.*/
     private ServiceTracker<Object, Object> serviceTracker;
-    
-    /** bundle context for this bean.*/
-    private BundleContext bundleContext;
 
     /**
      * Creates an instance of an ApplicationServiceBean
@@ -120,10 +117,9 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
      *             If an error occurs when trying to construct the MBean
      *             objects.
      */
-    public ApplicationServiceBean(ApplicationService appService, ConfigurationAdminExt configAdminExt, BundleContext bundleContext) throws ApplicationServiceException {
+    public ApplicationServiceBean(ApplicationService appService, ConfigurationAdminExt configAdminExt) throws ApplicationServiceException {
         this.appService = appService;
         this.configAdminExt = configAdminExt;
-        this.bundleContext = bundleContext;
         try {
             objectName = new ObjectName(ApplicationService.class.getName()
                     + ":service=application-service");
@@ -359,6 +355,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 	public List<Map<String, Object>> getServices(String applicationID) {
 		List<Map<String, Object>> services = configAdminExt.listServices(getDefaultFactoryLdapFilter(), getDefaultLdapFilter());
 		List<Map<String, Object>> returnValues = new ArrayList<Map<String, Object>>();
+        BundleContext context = getContext();
 
 		if (!services.isEmpty()) {
 			Application app = appService.getApplication(applicationID);
@@ -374,7 +371,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 						bundleLocations.add(info.getLocation());
 					}
 					
-					for (Bundle bundle : this.bundleContext.getBundles()) {
+					for (Bundle bundle : context.getBundles()) {
 					    for (BundleInfo info : bundles) {
 					        if (info.getLocation().equals(bundle.getLocation())) {
 			                       metatypeInformation.add(metatypeService.getMetaTypeInformation(bundle));
@@ -499,7 +496,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
 	/**
 	 * Setter method for the plugin list.
-	 * @param pluginList the plugin list.
+	 * @param applicationPlugins the plugin list.
 	 */
 	public void setApplicationPlugins(List<ApplicationPlugin> applicationPlugins) {
 		this.applicationPlugins = applicationPlugins;
@@ -532,17 +529,24 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     /**
      * Gets the service with the specified class name. Will create a new {@link ServiceTracker} if
      * the service is not already retrieved.
-     * 
-     * @param serviceName
-     *            the service name to obtain
+     *
      * @return the service or <code>null</code> if missing.
      */
     final MetaTypeService getMetaTypeService() {
         if (serviceTracker == null) {
-            serviceTracker = new ServiceTracker<Object, Object>(this.bundleContext, META_TYPE_NAME, null);
+            BundleContext context = getContext();
+            serviceTracker = new ServiceTracker<Object, Object>(context, META_TYPE_NAME, null);
             serviceTracker.open();
         }
         return (MetaTypeService) serviceTracker.getService();
+    }
+
+    protected BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(ApplicationServiceBean.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 
     /** {@inheritDoc}.*/

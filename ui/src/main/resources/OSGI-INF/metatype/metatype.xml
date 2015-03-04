@@ -59,7 +59,7 @@
 
 
         <AD id="disabledInstallerApps" type="String" name="Ignored Installer Applications"
-            description="Comma delimited list (appName,appName2,...appNameN) of applications that will be disabled in the installer" default="admin-app,platform-app,security-services-app">
+            description="Comma delimited list (appName,appName2,...appNameN) of applications that will be disabled in the installer" default="admin-app,platform-app">
         </AD>
 
     </OCD>

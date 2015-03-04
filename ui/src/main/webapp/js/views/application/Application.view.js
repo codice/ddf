@@ -37,8 +37,7 @@ define([
     // assume hard-coded apps unless configuration is set.  then we use that.
     var disableList = [
         'platform-app',
-        'admin-app',
-        'security-services-app'
+        'admin-app'
     ];
     if(Properties.admin.disabledInstallerApps && Properties.admin.disabledInstallerApps !== ""){
         disableList = Properties.admin.disabledInstallerApps.split(",");

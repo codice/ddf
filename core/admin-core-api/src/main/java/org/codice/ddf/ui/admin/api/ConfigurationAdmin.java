@@ -14,6 +14,18 @@
  **/
 package org.codice.ddf.ui.admin.api;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.ui.admin.api.module.AdminModule;
+import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.cm.Configuration;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -26,20 +38,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.ui.admin.api.module.AdminModule;
-import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.cm.Configuration;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 /**
  * @author Scott Tustison
@@ -81,10 +79,9 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
      * @param configurationAdmin
      *            instance of org.osgi.service.cm.ConfigurationAdmin service
      */
-    public ConfigurationAdmin(BundleContext bundleContext,
-            org.osgi.service.cm.ConfigurationAdmin configurationAdmin) {
+    public ConfigurationAdmin(org.osgi.service.cm.ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
-        configurationAdminExt = new ConfigurationAdminExt(bundleContext, configurationAdmin);
+        configurationAdminExt = new ConfigurationAdminExt(configurationAdmin);
     }
 
     /**

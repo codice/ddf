@@ -30,6 +30,7 @@ import org.codice.ddf.admin.application.service.ApplicationStatus;
 import org.codice.ddf.admin.application.service.ApplicationStatus.ApplicationState;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.service.cm.Configuration;
@@ -60,8 +61,6 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private FeaturesService featuresService = null;
 
-    private BundleContext context = null;
-
     private List<BundleStateService> bundleStateServices = null;
 
     private Set<String> ignoredApplicationNames = null;
@@ -84,17 +83,15 @@ public class ApplicationServiceImpl implements ApplicationService {
     /**
      * Creates a new instance of Application Service.
      *
-     * @param context             BundleContext for this bundle.
      * @param bundleStateServices List of BundleStateServices that allow fine-grained
      *                            information about bundle status for deployment services (like
      *                            blueprint and spring).
      */
-    public ApplicationServiceImpl(BundleContext context,
-            List<BundleStateService> bundleStateServices) {
+    public ApplicationServiceImpl(List<BundleStateService> bundleStateServices) {
+        BundleContext context = getContext();
         ServiceReference<FeaturesService> featuresServiceRef = context
                 .getServiceReference(FeaturesService.class);
         this.featuresService = context.getService(featuresServiceRef);
-        this.context = context;
         this.bundleStateServices = bundleStateServices;
         ignoredApplicationNames = new HashSet<String>();
 
@@ -211,6 +208,7 @@ public class ApplicationServiceImpl implements ApplicationService {
      */
     public void setConfigFileName(String configFileName) {
         try {
+            BundleContext context = getContext();
             ServiceReference<ConfigurationAdmin> configAdminRef = context
                     .getServiceReference(ConfigurationAdmin.class);
             ConfigurationAdmin configAdmin = context.getService(configAdminRef);
@@ -232,6 +230,14 @@ public class ApplicationServiceImpl implements ApplicationService {
         } catch (Exception e) {
             logger.warn("Could not check for installer application configuration file.", e);
         }
+    }
+
+    protected BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(ApplicationServiceImpl.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 
     @Override
@@ -490,6 +496,7 @@ public class ApplicationServiceImpl implements ApplicationService {
      */
     private final BundleStateSet getCurrentBundleStates(Set<Feature> features) {
         BundleStateSet bundleStateSet = new BundleStateSet();
+        BundleContext context = getContext();
 
         for (Feature curFeature : features) {
             for (BundleInfo curBundleInfo : curFeature.getBundles()) {

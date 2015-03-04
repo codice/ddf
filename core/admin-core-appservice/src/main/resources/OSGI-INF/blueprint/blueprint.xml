@@ -15,7 +15,6 @@
     <bean id="appService" class="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl">
         <cm:managed-properties persistent-id="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl"
         update-strategy="container-managed" />
-        <argument ref="blueprintBundleContext" />
         <argument ref="bundleStateServices" />
         <property name="configFileName" value="etc/org.codice.ddf.admin.applicationlist.properties" />
     </bean>
@@ -77,12 +76,10 @@
           destroy-method="destroy">
         <argument ref="appService" />
         <argument ref="configurationAdminExt"></argument>
-    	<argument ref="blueprintBundleContext"></argument>
         <property name="applicationPlugins" ref="applicationPluginList" />
     </bean>
     
     <bean id="configurationAdminExt" class="org.codice.ddf.ui.admin.api.ConfigurationAdminExt">
-    	<argument ref="blueprintBundleContext"></argument>
     	<argument ref="configurationAdmin"></argument>
     </bean>
 

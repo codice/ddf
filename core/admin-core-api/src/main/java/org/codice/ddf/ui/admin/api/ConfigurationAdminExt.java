@@ -14,24 +14,12 @@
  **/
 package org.codice.ddf.ui.admin.api;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
@@ -46,13 +34,24 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+
 public class ConfigurationAdminExt {
 
     static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
 
     private final XLogger logger = new XLogger(LoggerFactory.getLogger(ConfigurationAdminExt.class));
-
-    private final BundleContext bundleContext;
 
     private final ConfigurationAdmin configurationAdmin;
 
@@ -81,18 +80,20 @@ public class ConfigurationAdminExt {
     private static final String MAP_FACTORY              = "factory";
 
     /**
-     * @param bundleContext
      * @param configurationAdmin
      * @throws ClassCastException
      *             if {@code service} is not a MetaTypeService instances
      */
-    public ConfigurationAdminExt(final BundleContext bundleContext, final Object configurationAdmin) {
-        this.bundleContext = bundleContext;
+    public ConfigurationAdminExt(final Object configurationAdmin) {
         this.configurationAdmin = (ConfigurationAdmin) configurationAdmin;
     }
 
     BundleContext getBundleContext() {
-        return bundleContext;
+        Bundle cxfBundle = FrameworkUtil.getBundle(ConfigurationAdminExt.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 
     final Configuration getConfiguration(String pid) {
@@ -282,7 +283,7 @@ public class ConfigurationAdminExt {
         if (configurationAdminPluginList != null) {
             for (ConfigurationAdminPlugin plugin : configurationAdminPluginList) {
                 Map<String, Object> pluginDataMap = plugin.getConfigurationData(servicePid,
-                        dataMap, bundleContext);
+                        dataMap, getBundleContext());
                 allPluginMap.putAll(pluginDataMap);
             }
         }
