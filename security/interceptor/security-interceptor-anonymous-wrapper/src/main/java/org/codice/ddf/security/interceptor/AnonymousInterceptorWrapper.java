@@ -15,48 +15,41 @@
 
 package org.codice.ddf.security.interceptor;
 
-import java.util.Set;
-
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
 import org.apache.cxf.ws.security.wss4j.AbstractWSS4JInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+
 public class AnonymousInterceptorWrapper extends AbstractWSS4JInterceptor {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AnonymousInterceptorWrapper.class);
-	private BundleContext context = null;
-	
-	public AnonymousInterceptorWrapper(BundleContext context) {
+
+    private PhaseInterceptor anonIntercep;
+
+	public AnonymousInterceptorWrapper() {
         super();
-        this.context = context;
         setPhase(Phase.PRE_PROTOCOL);
         //make sure this interceptor runs before the WSS4J one in the same Phase, otherwise it won't work
         Set<String> before = getBefore();
         before.add(WSS4JInInterceptor.class.getName());
 	}
 
-	@Override
+    public void setAnonIntercep(PhaseInterceptor anonIntercep) {
+        this.anonIntercep = anonIntercep;
+    }
+
+    @Override
 	public void handleMessage(SoapMessage msg) throws Fault {
-	    PhaseInterceptor anonIntercep = null;
-	    ServiceReference anonIntercepRef = context
-                .getServiceReference(PhaseInterceptor.class.getName());
-	    
-	    if (anonIntercepRef != null) {
-	        anonIntercep = (PhaseInterceptor) context.getService(anonIntercepRef);
-	        if (anonIntercep != null) {
-	            anonIntercep.handleMessage(msg);
-	        } else {
-	            LOGGER.debug("Anonymous Interceptor is null");
-	        }
-	    } else {
-	        LOGGER.warn("Anonymous Interceptor is not installed, ignoring.");
-	    }
+        if (anonIntercep != null) {
+            anonIntercep.handleMessage(msg);
+        } else {
+            LOGGER.debug("Anonymous Interceptor is not installed, ignoring");
+        }
 	}
 
 }

@@ -30,8 +30,6 @@ public class CXFFilterAdder {
 
     private ServiceRegistration filterService;
 
-    private BundleContext cxfContext;
-
     private Hashtable<String, String> properties = new Hashtable<String, String>();
 
     private Filter casProxyFilter;
@@ -46,16 +44,9 @@ public class CXFFilterAdder {
 
     public CXFFilterAdder(Filter proxyFilter) {
         casProxyFilter = proxyFilter;
-        Bundle cxfBundle = FrameworkUtil.getBundle(CXFNonSpringServlet.class);
-        if (cxfBundle != null) {
-            logger.debug("Found CXF Servlet Bundle with id: {}", cxfBundle.getBundleId());
-            cxfContext = cxfBundle.getBundleContext();
-            properties.put(FILTER_NAME_KEY, FILTER_NAME);
-            properties.put(URL_PATTERNS_KEY, DEFAULT_URL_PATTERN);
-            registerService();
-        } else {
-            logger.debug("Could not find CXF Servlet Bundle");
-        }
+        properties.put(FILTER_NAME_KEY, FILTER_NAME);
+        properties.put(URL_PATTERNS_KEY, DEFAULT_URL_PATTERN);
+        registerService();
     }
 
     public void setUrlPattern(String urlPattern) {
@@ -72,12 +63,21 @@ public class CXFFilterAdder {
     private void registerService() {
         logger.debug("Registering Filter with CXF Context for url {}",
                 properties.get(URL_PATTERNS_KEY));
+        BundleContext cxfContext = getContext();
         if (cxfContext != null) {
             filterService = cxfContext.registerService("javax.servlet.Filter", casProxyFilter, properties);
         } else {
             logger.debug("Attempting to register service with null CXF context.");
         }
         logger.debug("Filter registered.");
+    }
+
+    private BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(CXFNonSpringServlet.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 
 }

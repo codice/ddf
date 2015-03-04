@@ -14,22 +14,22 @@
  **/
 package ddf.mime.mapper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-
+import ddf.mime.MimeTypeToTransformerMapper;
 import org.apache.commons.lang.StringUtils;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.mime.MimeTypeToTransformerMapper;
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * {@link MimeTypeToTransformerMapper} Implementation that finds mimeType matches among transformer
@@ -41,19 +41,23 @@ import ddf.mime.MimeTypeToTransformerMapper;
  */
 public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMapper {
 
-    private BundleContext bundleContext;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(MimeTypeToTransformerMapperImpl.class);
 
-    public MimeTypeToTransformerMapperImpl(BundleContext bundleContext) {
+    public MimeTypeToTransformerMapperImpl() {
 
-        this.bundleContext = bundleContext;
+    }
 
+    protected BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(MimeTypeToTransformerMapperImpl.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 
     @Override
     public <T> List<T> findMatches(Class<T> clazz, MimeType userMimeType) {
-
+        BundleContext bundleContext = getContext();
         ServiceReference[] refs = null;
         List<T> list = new ArrayList<T>();
 

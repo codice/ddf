@@ -67,11 +67,14 @@ public class ClaimsHandlerManagerTest {
      */
     @Test
     public void registerHandlers() {
-        ClaimsHandlerManager manager = new ClaimsHandlerManager(encryptService, context) {
+        ClaimsHandlerManager manager = new ClaimsHandlerManager(encryptService) {
             protected LdapConnection createLdapConnection(String url, String userDn, String password)
                     throws LdapException {
                 LdapConnectionConfig config = new LdapConnectionConfig();
                 return new LdapNetworkConnection(config);
+            }
+            protected BundleContext getContext() {
+                return context;
             }
         };
 

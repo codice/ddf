@@ -16,7 +16,9 @@ package org.codice.solr.factory;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,24 +46,16 @@ public class ConfigurationFileProxy {
     
     public static final String CATALOG_SOLR_COLLECTION_NAME = "metacard";
 
-    private BundleContext bundleContext;
-
     private File dataDirectory = null;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileProxy.class);
 
     /**
      * Constructor for the proxy
-     * 
-     * @param bundleContext
-     *            This is mandatory for running in an OSGi container; the BundleContext is used to
-     *            find the location of configuration files within this bundle
+     *
      */
-    public ConfigurationFileProxy(BundleContext bundleContext,
-            ConfigurationStore configurationStore) {
+    public ConfigurationFileProxy(ConfigurationStore configurationStore) {
         LOGGER.debug("Creating new instance of {}", ConfigurationFileProxy.class.getSimpleName());
-
-        this.bundleContext = bundleContext;
         String storedDataDirectoryPath = configurationStore.getDataDirectoryPath();
 
         if (isNotBlank(storedDataDirectoryPath)) {
@@ -73,6 +67,14 @@ public class ConfigurationFileProxy {
         }
     }
 
+    protected BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(ConfigurationFileProxy.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
+    }
+
     /**
      * Writes the solr configuration files out of the bundle onto the disk. This method requires
      * that the dataDirectoryPath has been set. If the code is run in an OSGi container, it will
@@ -80,6 +82,7 @@ public class ConfigurationFileProxy {
      * dataDirectory ahead of time.
      */
     public void writeBundleFilesTo(File configDir) {
+        BundleContext bundleContext = getContext();
         if (bundleContext != null && configDir != null) {
             boolean directoriesMade = configDir.mkdirs();
             LOGGER.info("Solr Config directories made?  {}", directoriesMade);
@@ -118,6 +121,7 @@ public class ConfigurationFileProxy {
     }
 
     public URL getResource(String name) {
+        BundleContext bundleContext = getContext();
         if (bundleContext != null) {
             try {
                 return new File(new File(DEFAULT_SOLR_DATA_PARENT_DIR + "/" + CATALOG_SOLR_COLLECTION_NAME + "/conf"),

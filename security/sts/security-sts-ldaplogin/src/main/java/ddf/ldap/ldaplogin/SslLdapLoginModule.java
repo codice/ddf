@@ -15,26 +15,25 @@
 
 package ddf.ldap.ldaplogin;
 
-import java.util.Hashtable;
-import java.util.Map;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.encryption.EncryptionService;
+import org.apache.karaf.jaas.config.KeystoreManager;
+import org.apache.karaf.jaas.modules.ldap.LDAPLoginModule;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleReference;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.net.ssl.SSLSocketFactory;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
-
-import org.apache.karaf.jaas.boot.principal.RolePrincipal;
-import org.apache.karaf.jaas.config.KeystoreManager;
-import org.apache.karaf.jaas.modules.ldap.LDAPLoginModule;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleReference;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.encryption.EncryptionService;
+import java.util.Hashtable;
+import java.util.Map;
 
 public class SslLdapLoginModule extends LDAPLoginModule {
 
@@ -51,26 +50,27 @@ public class SslLdapLoginModule extends LDAPLoginModule {
             LOGGER.debug("Setting up SSL");
             env.put(Context.SECURITY_PROTOCOL, "ssl");
             env.put("java.naming.ldap.factory.socket", ManagedSSLSocketFactory.class.getName());
-            ref = bundleContext.getServiceReference(KeystoreManager.class.getName());
-            KeystoreManager manager = (KeystoreManager) bundleContext.getService(ref);
+            bundleContext = getContext();
+            if (bundleContext != null) {
+                ref = bundleContext.getServiceReference(KeystoreManager.class.getName());
+                KeystoreManager manager = (KeystoreManager) bundleContext.getService(ref);
 
-            // The following lines of code may be needed when working DDF-2471.
-            // SSLSocketFactory factory = CommonSSLFactory.createSocket((String)
-            // options.get(SSL_TRUSTSTORE),
-            // "changeit", (String) options.get(SSL_KEYSTORE),
-            // "changeit");
+                // The following lines of code may be needed when working DDF-2471.
+                // SSLSocketFactory factory = CommonSSLFactory.createSocket((String)
+                // options.get(SSL_TRUSTSTORE),
+                // "changeit", (String) options.get(SSL_KEYSTORE),
+                // "changeit");
 
-            LOGGER.debug("parameters passed to createSSLFactory: " + options.get(SSL_PROVIDER)
-                    + " " + options.get(SSL_PROTOCOL) + " " + options.get(SSL_ALGORITHM) + " "
-                    + options.get(SSL_KEYSTORE) + " " + options.get(SSL_KEYALIAS) + " "
-                    + options.get(SSL_TRUSTSTORE) + " " + "10000");
+                LOGGER.debug("parameters passed to createSSLFactory: " + options.get(SSL_PROVIDER) + " " + options.get(SSL_PROTOCOL) + " " + options
+                        .get(SSL_ALGORITHM) + " " + options.get(SSL_KEYSTORE) + " " + options.get(SSL_KEYALIAS) + " " + options.get(SSL_TRUSTSTORE) + " " + "10000");
 
-            SSLSocketFactory factory = manager.createSSLFactory((String) options.get(SSL_PROVIDER),
-                    (String) options.get(SSL_PROTOCOL), (String) options.get(SSL_ALGORITHM),
-                    (String) options.get(SSL_KEYSTORE), (String) options.get(SSL_KEYALIAS),
-                    (String) options.get(SSL_TRUSTSTORE), CREATE_SSL_FACTORY_ARG_6);
+                SSLSocketFactory factory = manager
+                        .createSSLFactory((String) options.get(SSL_PROVIDER), (String) options.get(SSL_PROTOCOL), (String) options.get(SSL_ALGORITHM),
+                                (String) options.get(SSL_KEYSTORE), (String) options.get(SSL_KEYALIAS), (String) options.get(SSL_TRUSTSTORE),
+                                CREATE_SSL_FACTORY_ARG_6);
 
-            ManagedSSLSocketFactory.setSocketFactory(factory);
+                ManagedSSLSocketFactory.setSocketFactory(factory);
+            }
             Thread.currentThread().setContextClassLoader(
                     ManagedSSLSocketFactory.class.getClassLoader());
         } catch (Exception e) {
@@ -81,6 +81,14 @@ public class SslLdapLoginModule extends LDAPLoginModule {
                 bundleContext.ungetService(ref);
             }
         }
+    }
+
+    protected BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(SslLdapLoginModule.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 
     @Override

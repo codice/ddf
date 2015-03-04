@@ -14,8 +14,10 @@
  **/
 package org.codice.ddf.platform.filter.delegate;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -45,10 +47,12 @@ public class DelegateServletFilter implements Filter {
 
     private FilterConfig filterConfig;
 
-    private BundleContext context;
-
-    public DelegateServletFilter(BundleContext context) {
-        this.context = context;
+    protected BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(DelegateServletFilter.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 
     @Override
@@ -60,6 +64,7 @@ public class DelegateServletFilter implements Filter {
             FilterChain filterChain) throws IOException, ServletException {
 
         Collection<ServiceReference<Filter>> referenceCollection = null;
+        BundleContext context = getContext();
 
         try {
             referenceCollection = context.getServiceReferences(Filter.class, null);

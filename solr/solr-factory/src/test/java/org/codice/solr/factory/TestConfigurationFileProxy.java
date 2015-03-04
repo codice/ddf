@@ -85,10 +85,14 @@ public class TestConfigurationFileProxy {
     @Test
     public void testWritingToDisk() {
 
-        BundleContext bundleContext = givenBundleContext();
+        final BundleContext bundleContext = givenBundleContext();
 
-        ConfigurationFileProxy proxy = new ConfigurationFileProxy(bundleContext,
-                ConfigurationStore.getInstance());
+        ConfigurationFileProxy proxy = new ConfigurationFileProxy(ConfigurationStore.getInstance()) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         File tempLocation = new File("target/temp");
 
@@ -113,10 +117,14 @@ public class TestConfigurationFileProxy {
 
         delete(file1, file2);
 
-        BundleContext bundleContext = givenBundleContext();
+        final BundleContext bundleContext = givenBundleContext();
 
-        ConfigurationFileProxy proxy = new ConfigurationFileProxy(bundleContext,
-                ConfigurationStore.getInstance());
+        ConfigurationFileProxy proxy = new ConfigurationFileProxy(ConfigurationStore.getInstance()) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         proxy.writeBundleFilesTo(tempLocation);
 
@@ -161,10 +169,14 @@ public class TestConfigurationFileProxy {
             assertThat(tempLocation.list().length, is(0));
         }
 
-        BundleContext bundleContext = givenBundleContext();
+        final BundleContext bundleContext = givenBundleContext();
 
-        ConfigurationFileProxy proxy = new ConfigurationFileProxy(bundleContext,
-                ConfigurationStore.getInstance());
+        ConfigurationFileProxy proxy = new ConfigurationFileProxy(ConfigurationStore.getInstance()) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
 
         // when
         proxy.writeBundleFilesTo(tempLocation);

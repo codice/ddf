@@ -14,23 +14,23 @@
  **/
 package ddf.ldap.ldaplogin;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.karaf.jaas.config.JaasRealm;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests out LdapLoginConfig functionality.
@@ -62,7 +62,12 @@ public class LdapLoginConfigTest {
     public void testRegisterLdapModule() {
         Map<String, String> ldapProps = new HashMap<String, String>();
 
-        LdapLoginConfig ldapConfig = new LdapLoginConfig(context);
+        LdapLoginConfig ldapConfig = new LdapLoginConfig() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         ldapConfig.setLdapBindUserDn("cn=admin");
         ldapConfig.setLdapBindUserPass("ENC(c+GitDfYAMTDRESXSDDsMw==)");
         ldapConfig.setLdapUrl("ldaps://ldap:1636");

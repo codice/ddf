@@ -14,19 +14,7 @@
  **/
 package ddf.ldap.ldaplogin;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.never;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Map;
-
+import ddf.security.encryption.EncryptionService;
 import org.apache.karaf.jaas.config.KeystoreInstance;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.junit.Before;
@@ -36,7 +24,18 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 
-import ddf.security.encryption.EncryptionService;
+import java.io.File;
+import java.io.IOException;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests out KeystoreManager functionality.
@@ -71,7 +70,11 @@ public class KeystoreManagerTest {
      */
     @Test
     public void testKeystoreChanged() {
-        KeystoreManager manager = new KeystoreManager(encryptService, context);
+        KeystoreManager manager = new KeystoreManager(encryptService) {
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         Map<String, String> updateMap = new HashMap<String, String>();
         updateMap.put(ConfigurationManager.KEY_STORE, "/test/keystore.jks");
         updateMap.put(ConfigurationManager.KEY_STORE_PASSWORD, "password");

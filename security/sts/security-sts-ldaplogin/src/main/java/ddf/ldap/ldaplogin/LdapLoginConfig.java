@@ -17,7 +17,9 @@ package ddf.ldap.ldaplogin;
 import org.apache.karaf.jaas.config.JaasRealm;
 import org.apache.karaf.jaas.config.impl.Config;
 import org.apache.karaf.jaas.config.impl.Module;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,21 +51,9 @@ public class LdapLoginConfig {
 
     private ServiceRegistration<JaasRealm> registration = null;
 
-    private BundleContext context;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapLoginConfig.class);
 
     private Map<String, String> ldapProperties = new HashMap<String, String>();
-
-    /**
-     * Create new LDAP Login configuration.
-     *
-     * @param context
-     *            BundleContext to register services under.
-     */
-    public LdapLoginConfig(BundleContext context) {
-        this.context = context;
-    }
 
     /**
      * Registers the passed-in modules under a new JaasRealm.
@@ -81,12 +71,23 @@ public class LdapLoginConfig {
             }
         }
         Config config = new Config();
+        BundleContext context = getContext();
         config.setBundleContext(context);
         config.setName(CONFIG_NAME);
         config.setRank(2);
         config.setModules(modules);
         LOGGER.debug("Registering new service as a JaasRealm.");
-        registration = context.registerService(JaasRealm.class, config, null);
+        if (context != null) {
+            registration = context.registerService(JaasRealm.class, config, null);
+        }
+    }
+
+    protected BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(LdapLoginConfig.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 
     /**

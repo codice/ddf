@@ -215,7 +215,12 @@ public class LoginFilter implements Filter {
                     LOGGER.trace("Http Session assertion - class: {}  loader: {}", sessionToken.getClass().getName(), sessionToken.getClass().getClassLoader());
                     LOGGER.trace("SecurityToken class: {}  loader: {}", SecurityToken.class.getName(), SecurityToken.class.getClassLoader());
                 }
-                SecurityToken savedToken = (SecurityToken) sessionToken;
+                SecurityToken savedToken = null;
+                try {
+                    savedToken = (SecurityToken) sessionToken;
+                } catch (ClassCastException e) {
+                    httpRequest.getSession(false).invalidate();
+                }
                 if (savedToken != null) {
                     token.replaceReferenece(savedToken);
                 }

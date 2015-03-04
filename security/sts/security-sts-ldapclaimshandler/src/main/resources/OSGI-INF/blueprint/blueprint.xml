@@ -45,7 +45,6 @@
         <cm:managed-properties persistent-id="ddf.security.sts.claimsHandler"
             update-strategy="component-managed" update-method="update" />
         <argument ref="encryptionService" />
-        <argument ref="blueprintBundleContext" />
         <!-- Default properties -->
         <property name="url" value="ldaps://localhost:1636" />
         <property name="ldapBindUserDn" value="cn=admin" />

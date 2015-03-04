@@ -14,26 +14,6 @@
  **/
 package org.codice.ddf.platform.filter.delegate;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.codice.ddf.platform.filter.delegate.DelegateServletFilter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -44,6 +24,24 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests that the DelegateServletFilter is functionality properly.
@@ -79,7 +77,14 @@ public class DelegateServletFilterTest {
         ServletRequest request = mock(HttpServletRequest.class);
         ServletResponse response = mock(HttpServletResponse.class);
 
-        DelegateServletFilter filter = new DelegateServletFilter(createMockContext(true));
+        final BundleContext context = createMockContext(true);
+
+        DelegateServletFilter filter = new DelegateServletFilter() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
 
         filter.doFilter(request, response, initialChain);
 
@@ -100,7 +105,14 @@ public class DelegateServletFilterTest {
         ServletRequest request = mock(HttpServletRequest.class);
         ServletResponse response = mock(HttpServletResponse.class);
 
-        DelegateServletFilter filter = new DelegateServletFilter(createMockContext(false));
+        final BundleContext context = createMockContext(false);
+
+        DelegateServletFilter filter = new DelegateServletFilter() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
 
         filter.doFilter(request, response, initialChain);
 

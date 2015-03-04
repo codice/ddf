@@ -24,7 +24,9 @@ import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +55,6 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
 
     private EncryptionService encryptService;
 
-    private BundleContext context;
-
     private ServiceRegistration<ClaimsHandler> roleHandlerRegistration = null;
 
     private ServiceRegistration<ClaimsHandler> ldapHandlerRegistration = null;
@@ -75,11 +75,9 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
      * Creates a new instance of the ClaimsHandlerManager.
      *
      * @param encryptService Encryption service used to decrypt passwords from the configurations.
-     * @param context BundleContext that should be used to register services.
      */
-    public ClaimsHandlerManager(EncryptionService encryptService, BundleContext context) {
+    public ClaimsHandlerManager(EncryptionService encryptService) {
         this.encryptService = encryptService;
-        this.context = context;
     }
 
     /**
@@ -215,7 +213,19 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
         if (registration != null) {
             registration.unregister();
         }
-        return context.registerService(ClaimsHandler.class, handler, null);
+        BundleContext context = getContext();
+        if (context != null) {
+            return context.registerService(ClaimsHandler.class, handler, null);
+        }
+        return null;
+    }
+
+    protected BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(ClaimsHandlerManager.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 
     public void setUrl(String url) {

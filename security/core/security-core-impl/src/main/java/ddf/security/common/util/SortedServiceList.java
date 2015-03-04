@@ -14,7 +14,9 @@
  **/
 package ddf.security.common.util;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
@@ -64,8 +66,6 @@ public class SortedServiceList<T> implements List<T> {
                 }
             }));
 
-    private BundleContext context;
-
     private static final XLogger logger = new XLogger(LoggerFactory.getLogger(SortedServiceList.class));
 
     /**
@@ -73,11 +73,8 @@ public class SortedServiceList<T> implements List<T> {
      * ddf-catalog-framework bundle's blueprint and the fanout-catalogframework bundle's blueprint
      * upon framework construction.
      *
-     * @param bundleContext
-     *            the OSGi bundle's context
      */
-    public SortedServiceList(BundleContext bundleContext) {
-        context = bundleContext;
+    public SortedServiceList() {
     }
 
     /**
@@ -92,12 +89,23 @@ public class SortedServiceList<T> implements List<T> {
 
         logger.debug(this + " Binding " + ref);
 
-        T service = (T) context.getService(ref);
+        BundleContext context = getContext();
+        if (context != null) {
+            T service = (T) context.getService(ref);
 
-        serviceMap.put(ref, service);
+            serviceMap.put(ref, service);
 
-        logger.debug(Arrays.asList(serviceMap.values()).toString());
+            logger.debug(Arrays.asList(serviceMap.values()).toString());
+        }
 
+    }
+
+    protected BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(SortedServiceList.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 
     /**

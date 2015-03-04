@@ -274,7 +274,7 @@ public final class SolrServerFactory {
         ConfigurationFileProxy configProxy = givenConfigFileProxy;
 
         if (givenConfigFileProxy == null) {
-            configProxy = new ConfigurationFileProxy(null, ConfigurationStore.getInstance());
+            configProxy = new ConfigurationFileProxy(ConfigurationStore.getInstance());
         }
 
         File solrConfigFile = getConfigFile(solrConfigFileName, configProxy);

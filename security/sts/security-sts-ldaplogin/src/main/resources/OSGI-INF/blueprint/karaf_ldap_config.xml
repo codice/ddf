@@ -25,7 +25,6 @@
     <bean id="LdapConfig" class="ddf.ldap.ldaplogin.LdapLoginConfig" init-method="configure">
         <cm:managed-properties persistent-id="ddf.security.sts.ldap" update-strategy="component-managed"
             update-method="update" />
-        <argument ref="blueprintBundleContext" />
         <!-- Default properties -->
         <property name="ldapBindUserDn" value="cn=admin" />
         <property name="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)" />
@@ -39,7 +38,6 @@
 
     <bean id="keystoreManager" class="ddf.ldap.ldaplogin.KeystoreManager">
         <cm:managed-properties persistent-id="ddf.security.sts.ldap" update-strategy="container-managed" />
-        <argument ref="blueprintBundleContext" />
         <argument ref="encryptionService" />
         <property name="keyAlias" value="localhost" />
     </bean>

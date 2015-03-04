@@ -14,7 +14,9 @@
  **/
 package org.codice.ddf.platform.util;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,18 +66,22 @@ public class SortedServiceList<T> implements List<T> {
                 }
             }));
 
-    private BundleContext context;
-
     /**
      * Constructor accepting OSGi bundle context. This constructor is currently invoked by the
      * ddf-catalog-framework bundle's blueprint and the fanout-catalogframework bundle's blueprint
      * upon framework construction.
      *
-     * @param bundleContext
-     *            the OSGi bundle's context
      */
-    public SortedServiceList(BundleContext bundleContext) {
-        context = bundleContext;
+    public SortedServiceList() {
+
+    }
+
+    protected BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(SortedServiceList.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 
     /**
@@ -89,10 +95,15 @@ public class SortedServiceList<T> implements List<T> {
     public void bindPlugin(ServiceReference ref) {
 
         logger.debug(this + " Binding " + ref);
+        BundleContext context = getContext();
 
-        T service = (T) context.getService(ref);
+        if (context != null) {
+            T service = (T) context.getService(ref);
 
-        serviceMap.put(ref, service);
+            serviceMap.put(ref, service);
+        } else {
+            logger.debug("BundleContext was null, unable to add service reference");
+        }
 
         logger.debug(Arrays.asList(serviceMap.values()).toString());
 

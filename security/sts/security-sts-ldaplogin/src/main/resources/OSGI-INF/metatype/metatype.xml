@@ -12,7 +12,9 @@
  *
  **/
 -->
-<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+<metatype:MetaData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0"
+                   xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
 
 	<OCD description="STS Ldap Login Configuration" name="Security STS LDAP Login" id="ddf.security.sts.ldap">
 	    
@@ -26,7 +28,7 @@
 	      description="DN of the user to bind with LDAP. This user should have the ability to verify passwords and read attributes for any user.">
 	    </AD>
 	    
-	    <AD name="LDAP Bind User Password:" id="ldapBindUserPass" required="true" type="String"
+	    <AD name="LDAP Bind User Password:" id="ldapBindUserPass" required="true" type="Password"
 	      default="ENC(c+GitDfYAMTDRESXSDDsMw==)" 
 	      description="Password used to bind user with LDAP.">
 	    </AD>

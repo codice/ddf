@@ -16,7 +16,6 @@
 
 	<!-- Creating MimeTypeToTransformerMapper implementation -->
 	<bean id="mimeTypeToTransformerMapper" class="ddf.mime.mapper.MimeTypeToTransformerMapperImpl">
-		<argument ref="blueprintBundleContext" />
 	</bean>
 	
 	<!-- export the bean on the service registry -->

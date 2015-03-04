@@ -20,7 +20,9 @@ import org.apache.karaf.jaas.config.KeystoreInstance;
 import org.apache.karaf.jaas.config.impl.ResourceKeystoreInstance;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +50,6 @@ public class KeystoreManager implements ConfigurationWatcher {
 
     private static final String HOME_LOCATION = System.getProperty("ddf.home");
 
-    private BundleContext context;
-
     private EncryptionService encryptService;
 
     /**
@@ -57,12 +57,9 @@ public class KeystoreManager implements ConfigurationWatcher {
      * 
      * @param encryptService
      *            Service that can encrypt and decrypt passwords.
-     * @param context
-     *            Bundlecontext to use for service registration.
      */
-    public KeystoreManager(EncryptionService encryptService, BundleContext context) {
+    public KeystoreManager(EncryptionService encryptService) {
         this.encryptService = encryptService;
-        this.context = context;
     }
 
     /**
@@ -147,7 +144,12 @@ public class KeystoreManager implements ConfigurationWatcher {
             keystore.setKeystorePassword(password);
             keystore.setPath(new File(location).toURI().toURL());
 
-            return context.registerService(KeystoreInstance.class, keystore, null);
+            BundleContext context = getContext();
+
+            if (context != null) {
+                return context.registerService(KeystoreInstance.class, keystore, null);
+            }
+            return null;
         } catch (Exception e) {
             LOGGER.warn(
                     "Encountered an error while trying to register the keystore at "
@@ -156,5 +158,13 @@ public class KeystoreManager implements ConfigurationWatcher {
                     e);
             return null;
         }
+    }
+
+    protected BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(KeystoreManager.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 }

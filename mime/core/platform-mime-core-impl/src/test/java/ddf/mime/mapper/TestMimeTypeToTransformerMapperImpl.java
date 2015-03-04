@@ -14,27 +14,25 @@
  **/
 package ddf.mime.mapper;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.List;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.ws.rs.core.MediaType;
-
+import ddf.mime.MimeTypeToTransformerMapper;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
-import ddf.mime.MimeTypeToTransformerMapper;
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.ws.rs.core.MediaType;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TestMimeTypeToTransformerMapperImpl {
 
@@ -47,10 +45,15 @@ public class TestMimeTypeToTransformerMapperImpl {
     public void testNullBundleContext() throws MimeTypeParseException {
 
         // given
-        BundleContext context = null;
+        final BundleContext context = null;
 
         // when
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, null);
 
         // then
@@ -69,13 +72,18 @@ public class TestMimeTypeToTransformerMapperImpl {
     public void testEmptyServiceList() throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
         ServiceReference[] refs = {};
 
         // when
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_ATOM_XML));
 
@@ -95,7 +103,7 @@ public class TestMimeTypeToTransformerMapperImpl {
     public void testNullMimeType() throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref1 = mock(ServiceReference.class);
         ServiceReference ref2 = mock(ServiceReference.class);
@@ -128,7 +136,12 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, null);
 
         // then
@@ -153,13 +166,18 @@ public class TestMimeTypeToTransformerMapperImpl {
         InvalidSyntaxException {
 
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
         ServiceReference[] refs = {};
 
         // when
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, null);
 
         // then
@@ -186,7 +204,7 @@ public class TestMimeTypeToTransformerMapperImpl {
     public void testNoMatch() throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
         ServiceReference ref1 = createMockReference(1,
                 Arrays.asList(MediaType.APPLICATION_ATOM_XML), null);
         ServiceReference ref2 = createMockReference(2, Arrays.asList(MediaType.APPLICATION_JSON),
@@ -203,7 +221,12 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_XML));
 
@@ -234,7 +257,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         InvalidSyntaxException {
 
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref1 = createMockReference(1,
                 Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
@@ -247,7 +270,12 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_XML));
 
@@ -278,7 +306,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         InvalidSyntaxException {
 
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref1 = createMockReference(1,
                 Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
@@ -291,7 +319,12 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_ATOM_XML + "; id=a2"));
 
@@ -310,7 +343,7 @@ public class TestMimeTypeToTransformerMapperImpl {
     public void testOnlyBaseTypeMatch() throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref1 = createMockReference(1,
                 Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
@@ -330,7 +363,12 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON));
 
@@ -350,7 +388,7 @@ public class TestMimeTypeToTransformerMapperImpl {
     public void testOnlyBaseTypeMatch2() throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref1 = createMockReference(1,
                 Arrays.asList(MediaType.APPLICATION_ATOM_XML), "a1");
@@ -377,7 +415,12 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON));
 
@@ -398,7 +441,7 @@ public class TestMimeTypeToTransformerMapperImpl {
     public void testSingleIdMatch() throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref1 = createMockReference(1, Arrays.asList(MediaType.APPLICATION_JSON),
                 "");
@@ -418,7 +461,12 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON + "; id=a1"));
 
@@ -433,7 +481,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         InvalidSyntaxException {
 
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref1 = createMockReference(1, Arrays.asList("!INVALID@!"), null);
         ServiceReference[] refs = {ref1};
@@ -444,7 +492,12 @@ public class TestMimeTypeToTransformerMapperImpl {
         when(context.getService(ref1)).thenReturn(simpleTransformer1);
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON + "; id=a1"));
 
@@ -464,7 +517,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         InvalidSyntaxException {
 
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref = mock(ServiceReference.class);
         ServiceReference[] refs = {ref};
@@ -480,7 +533,12 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON));
 
@@ -493,7 +551,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         InvalidSyntaxException {
 
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref1 = createMockReference(1, Arrays.asList("!INVALID!"), null);
         ServiceReference ref2 = createMockReference(2,
@@ -509,7 +567,12 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON + "; id=a1"));
 
@@ -529,7 +592,7 @@ public class TestMimeTypeToTransformerMapperImpl {
         InvalidSyntaxException {
 
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
 
         ServiceReference ref1 = createMockReference(1, Arrays.asList(MediaType.APPLICATION_JSON),
                 "a1");
@@ -557,7 +620,12 @@ public class TestMimeTypeToTransformerMapperImpl {
 
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_JSON + "; id=a1;charset=UTF-8"));
 
@@ -579,13 +647,18 @@ public class TestMimeTypeToTransformerMapperImpl {
     public void testNullServiceList() throws MimeTypeParseException, InvalidSyntaxException {
  
         // given
-        BundleContext context = mock(BundleContext.class);
+        final BundleContext context = mock(BundleContext.class);
         ServiceReference[] refs = null;
  
         // when
         when(context.getServiceReferences(isA(String.class), isNull(String.class)))
                 .thenReturn(refs);
-        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl(context);
+        MimeTypeToTransformerMapper matcher = new MimeTypeToTransformerMapperImpl() {
+            @Override
+            protected BundleContext getContext() {
+                return context;
+            }
+        };
         List<Object> matches = matcher.findMatches(Object.class, new MimeType(
                 MediaType.APPLICATION_ATOM_XML));
  

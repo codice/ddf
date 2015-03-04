@@ -22,7 +22,6 @@
   </reference-list>
 
     <bean id="sortedServiceList" class="org.codice.ddf.platform.util.SortedServiceList">
-        <argument ref="blueprintBundleContext" />
     </bean>
 
     <reference-list id="filters" interface="javax.servlet.Filter" availability="optional" >
@@ -30,7 +29,6 @@
     </reference-list>
 
   <bean id="delegatingServletFilter" class="org.codice.ddf.platform.filter.delegate.DelegateServletFilter" >
-    <argument ref="blueprintBundleContext" />
   </bean>
 
   <bean id="filterInjector" class="org.codice.ddf.platform.filter.delegate.FilterInjector">

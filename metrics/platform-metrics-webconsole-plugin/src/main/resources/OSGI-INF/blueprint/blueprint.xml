@@ -24,7 +24,6 @@
     
     <bean id="metricsWebConsolePlugin" class="ddf.metrics.plugin.webconsole.MetricsWebConsolePlugin" 
         init-method="start" destroy-method="stop">
-        <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
     
     <service ref="metricsWebConsolePlugin" interface="javax.servlet.Servlet">
