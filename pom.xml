@@ -327,6 +327,7 @@
         <module>platform-filter-delegate</module>
         <module>error</module>
         <module>platform-app</module>
+        <module>docs</module>
     </modules>
 
     <repositories>
