@@ -11,9 +11,19 @@ CA="$OPENSSL ca"
 PKCS12="openssl pkcs12"
 
 export OPENSSL_CONF=openssl-demo.cnf
+if [[ ! -w ${CATOP}/index.txt ]]; then
+  touch ${CATOP}/index.txt
+fi
+if [[ ! -w ${CATOP}/serial ]]; then
+  echo 01 > ${CATOP}/serial
+fi
 
 read -p "Enter server or user name (common name): " CN
-
+if [[ -d ${CN} ]]; then
+  echo "${CN} already has been generated. Use a different name or clean up ${CN}/
+    and openssl's index and serial lists in ${CATOP}/ first."
+  exit 1
+fi
 mkdir -p "$CN"
 
 # Create new CSR
