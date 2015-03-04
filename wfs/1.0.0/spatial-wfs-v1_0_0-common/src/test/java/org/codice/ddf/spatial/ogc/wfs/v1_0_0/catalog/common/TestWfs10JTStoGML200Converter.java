@@ -42,16 +42,14 @@ import ogc.schema.opengis.gml.v_2_1_2.PointType;
 import ogc.schema.opengis.gml.v_2_1_2.PolygonMemberType;
 import ogc.schema.opengis.gml.v_2_1_2.PolygonType;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.opengis.geometry.coordinate.GeometryFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXB;
@@ -60,7 +58,6 @@ import javax.xml.bind.JAXBException;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
@@ -141,6 +138,10 @@ public class TestWfs10JTStoGML200Converter {
                     + "</gml:LinearRing></gml:innerBoundaryIs></gml:Polygon></gml:polygonMember></gml:MultiPolygon>";
 
     private static final String GEOMETRYCOLLECTION = "GEOMETRYCOLLECTION(POINT(4 6),LINESTRING(4 6,7 10))";
+
+    private static final String GEOMETRYCOLLECTION_POINT_COORD = "4.0,6.0";
+
+    private static final String GEOMETRYCOLLECTION_LINESTRING_COORD = "4.0,6.0 7.0,10.0";
 
     private static final String GEOMETRYCOLLECTION_GML =
             "<gml:MultiGeometry xmlns:gml='http://www.opengis.net/gml'><gml:geometryMember>"
@@ -546,7 +547,25 @@ public class TestWfs10JTStoGML200Converter {
         GeometryCollectionType geometryCollectionType = (GeometryCollectionType) Wfs10JTStoGML200Converter
                 .convertGMLToGeometryType(geometryCollectionGML,
                         Wfs10Constants.GEOMETRY_COLLECTION);
+        assertFalse(geometryCollectionType == null);
+        List<JAXBElement<? extends GeometryAssociationType>> geometryMembers = geometryCollectionType.getGeometryMember();
+        assertThat(CollectionUtils.isEmpty(geometryMembers), is(Boolean.FALSE));
+        assertThat(geometryMembers.size() == 2, is(Boolean.TRUE));
 
+        GeometryAssociationType geometryAssociationType = geometryMembers.get(0).getValue();
+        JAXBElement<? extends AbstractGeometryType> jaxbElement = geometryAssociationType.getGeometry();
+        assertThat(Wfs10Constants.POINT.getLocalPart().equals(jaxbElement.getName().getLocalPart()), is(Boolean.TRUE));
+        PointType pointType = (PointType) jaxbElement.getValue();
+        assertThat(pointType == null, is(Boolean.FALSE));
+        assertThat(GEOMETRYCOLLECTION_POINT_COORD.equals(
+                pointType.getCoordinates().getValue().trim()), is(Boolean.TRUE));
+
+        GeometryAssociationType geometryAssociationType2 = geometryMembers.get(1).getValue();
+        JAXBElement<? extends AbstractGeometryType> jaxbElement2 = geometryAssociationType2.getGeometry();
+        assertThat(Wfs10Constants.LINESTRING.getLocalPart().equals(jaxbElement2.getName().getLocalPart()), is(Boolean.TRUE));
+        LineStringType lineStringType = (LineStringType) jaxbElement2.getValue();
+        assertThat(lineStringType == null, is(Boolean.FALSE));
+        assertThat(GEOMETRYCOLLECTION_LINESTRING_COORD.equals(lineStringType.getCoordinates().getValue().trim()), is(Boolean.TRUE));
     }
 
     @Test public void testGeometryCollectionTypeToJAXB()

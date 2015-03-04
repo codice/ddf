@@ -111,7 +111,7 @@
             <artifactId>guava</artifactId>
             <version>17.0</version>
         </dependency>
-        
+
     </dependencies>
     <build>
         <resources>

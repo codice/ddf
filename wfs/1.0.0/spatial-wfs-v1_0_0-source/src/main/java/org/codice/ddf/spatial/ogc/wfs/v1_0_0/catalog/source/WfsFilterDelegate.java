@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 
 import ogc.schema.opengis.filter.v_1_0_0.BBOXType;
 import ogc.schema.opengis.filter.v_1_0_0.BinaryComparisonOpType;
@@ -42,10 +44,18 @@ import ogc.schema.opengis.filter.v_1_0_0.PropertyNameType;
 import ogc.schema.opengis.filter.v_1_0_0.SpatialOpsType;
 import ogc.schema.opengis.filter.v_1_0_0.UnaryLogicOpType;
 import ogc.schema.opengis.filter.v_1_0_0.UpperBoundaryType;
+
+import ogc.schema.opengis.gml.v_2_1_2.AbstractGeometryType;
+import ogc.schema.opengis.gml.v_2_1_2.GeometryCollectionType;
+import ogc.schema.opengis.gml.v_2_1_2.MultiPolygonType;
+
 import ogc.schema.opengis.gml.v_2_1_2.BoxType;
 import ogc.schema.opengis.gml.v_2_1_2.CoordinatesType;
+import ogc.schema.opengis.gml.v_2_1_2.LineStringType;
 import ogc.schema.opengis.gml.v_2_1_2.LinearRingMemberType;
 import ogc.schema.opengis.gml.v_2_1_2.LinearRingType;
+import ogc.schema.opengis.gml.v_2_1_2.MultiLineStringType;
+import ogc.schema.opengis.gml.v_2_1_2.MultiPointType;
 import ogc.schema.opengis.gml.v_2_1_2.PointType;
 import ogc.schema.opengis.gml.v_2_1_2.PolygonType;
 
@@ -54,14 +64,23 @@ import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants.SPATIAL_OPERATORS;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10JTStoGML200Converter;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
@@ -73,7 +92,6 @@ import ddf.catalog.filter.FilterDelegate;
  * The purpose of this class is to convert DDF OGC Filters into WFS compatible OGC Filters. This
  * class will return an "Invalid"(null) filter if a translation could not be made. It will return an
  * "Empty" filter, meaning no filters are set, only if it is a Content Type filter.
- * 
  */
 public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
@@ -90,6 +108,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     private static final String PROPERTY_NOT_QUERYABLE = "'%s' is not a queryable property.";
 
     private List<String> supportedGeo;
+
+    private List<QName> geometryOperands;
 
     private String srsName;
 
@@ -111,6 +131,15 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     "Unable to convert geometry to {}. All geospatial queries for this featureType will be invalidated!",
                     srsName);
         }
+        setSupportedGeometryOperands(Wfs10Constants.wktOperandsAsList());
+    }
+
+    public void setSupportedGeometryOperands(List<QName> geometryOperands) {
+        this.geometryOperands = geometryOperands;
+    }
+
+    private boolean isGeometryOperandSupported(QName geoOperand) {
+        return geometryOperands.contains(geoOperand);
     }
 
     public void setSupportedGeoFilters(List<String> supportedGeos) {
@@ -1126,7 +1155,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     private JAXBElement<BinarySpatialOpType> buildBinarySpatialOpType(
             JAXBElement<BinarySpatialOpType> bsot, String propertyName, String wkt) {
         bsot.getValue().setPropertyName(createPropertyNameType(propertyName).getValue());
-        bsot.getValue().setGeometry(createPolygon(wkt));
+        bsot.getValue().setGeometry(createGeometryOperand(wkt));
 
         return bsot;
     }
@@ -1171,8 +1200,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             StringBuffer coordString = new StringBuffer();
 
             for (Coordinate coordinate : coordinates) {
-                coordString.append(coordinate.x).append(",").append(coordinate.y)
-                        .append(" ");
+                coordString.append(coordinate.x).append(",").append(coordinate.y).append(" ");
             }
 
             CoordinatesType coordinatesType = new CoordinatesType();
@@ -1200,8 +1228,7 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
         if (coordinates != null && coordinates.length > 0) {
             StringBuilder coordString = new StringBuilder();
-            coordString.append(coordinates[0].x).append(",")
-                    .append(coordinates[0].y);
+            coordString.append(coordinates[0].x).append(",").append(coordinates[0].y);
 
             CoordinatesType coordinatesType = new CoordinatesType();
             coordinatesType.setValue(coordString.toString());
@@ -1219,9 +1246,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     private String buildCoordinateString(Envelope envelope) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(envelope.getMinX()).append(",").append(envelope.getMinY())
-                .append(" ").append(envelope.getMaxX()).append(",")
-                .append(envelope.getMaxY());
+        sb.append(envelope.getMinX()).append(",").append(envelope.getMinY()).append(" ")
+                .append(envelope.getMaxX()).append(",").append(envelope.getMaxY());
 
         return sb.toString();
     }
@@ -1312,9 +1338,9 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     /**
      * This method approximates the degrees in latitude for the given distance (in meters) using the
      * formula for the meridian distance on Earth.
-     * 
+     * <p/>
      * degrees = distance in meters/radius of Earth in meters * 180.0/pi
-     * 
+     * <p/>
      * The approximate degrees in latitude can be used to compute a buffer around a given geometry
      * (see bufferGeometry()).
      */
@@ -1323,6 +1349,117 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                 * WfsConstants.RADIANS_TO_DEGREES;
         LOGGER.debug("{} meter(s) is approximately {} degree(s) of latitude.", distance, degrees);
         return degrees;
+    }
+
+    private JAXBElement<LineStringType> createLineString(Geometry geometry) {
+        JAXBElement<LineStringType> jaxbElement = null;
+        try {
+            String gml = Wfs10JTStoGML200Converter.convertGeometryToGML(geometry);
+            LineStringType lineStringType = (LineStringType) Wfs10JTStoGML200Converter
+                    .convertGMLToGeometryType(gml, Wfs10Constants.LINESTRING);
+            jaxbElement = (JAXBElement<LineStringType>) Wfs10JTStoGML200Converter
+                    .convertGeometryTypeToJAXB(lineStringType);
+        } catch (JAXBException jbe) {
+            LOGGER.error("Unable to create LineString with geometry: [{}]", geometry);
+        }
+        return jaxbElement;
+    }
+
+    private JAXBElement<MultiPointType> createMultiPoint(Geometry geometry) {
+        JAXBElement<MultiPointType> jaxbElement = null;
+        try {
+            String gml = Wfs10JTStoGML200Converter.convertGeometryToGML(geometry);
+            MultiPointType multiPointType = (MultiPointType) Wfs10JTStoGML200Converter
+                    .convertGMLToGeometryType(gml, Wfs10Constants.POINT);
+            jaxbElement = (JAXBElement<MultiPointType>) Wfs10JTStoGML200Converter
+                    .convertGeometryTypeToJAXB(multiPointType);
+        } catch (JAXBException jbe) {
+            LOGGER.error("Unable to create MultiPointType with geometry: [{}]", geometry);
+        }
+        return jaxbElement;
+    }
+
+    private JAXBElement<MultiLineStringType> createMultiLineString(Geometry geometry) {
+        JAXBElement<MultiLineStringType> jaxbElement = null;
+        try {
+            String gml = Wfs10JTStoGML200Converter.convertGeometryToGML(geometry);
+            MultiLineStringType multiLineStringType = (MultiLineStringType) Wfs10JTStoGML200Converter
+                    .convertGMLToGeometryType(gml, Wfs10Constants.MULTI_LINESTRING);
+            jaxbElement = (JAXBElement<MultiLineStringType>) Wfs10JTStoGML200Converter
+                    .convertGeometryTypeToJAXB(multiLineStringType);
+        } catch (JAXBException jbe) {
+            LOGGER.error("Unable to create MultiLineStringType with geometry: [{}]", geometry);
+        }
+        return jaxbElement;
+    }
+
+    private JAXBElement<MultiPolygonType> createMultiPolygon(Geometry geometry) {
+        JAXBElement<MultiPolygonType> jaxbElement = null;
+        try {
+            String gml = Wfs10JTStoGML200Converter.convertGeometryToGML(geometry);
+            MultiLineStringType multiLineStringType = (MultiLineStringType) Wfs10JTStoGML200Converter
+                    .convertGMLToGeometryType(gml, Wfs10Constants.MULTI_LINESTRING);
+            jaxbElement = (JAXBElement<MultiPolygonType>) Wfs10JTStoGML200Converter
+                    .convertGeometryTypeToJAXB(multiLineStringType);
+        } catch (JAXBException jbe) {
+            LOGGER.error("Unable to create MultiPolygonType with geometry: [{}]", geometry);
+        }
+        return jaxbElement;
+    }
+
+    private JAXBElement<GeometryCollectionType> createGeometryCollection(Geometry geometry) {
+        JAXBElement<GeometryCollectionType> jaxbElement = null;
+        try {
+            String gml = Wfs10JTStoGML200Converter.convertGeometryToGML(geometry);
+            GeometryCollectionType geometryCollectionType = (GeometryCollectionType) Wfs10JTStoGML200Converter
+                    .convertGMLToGeometryType(gml, Wfs10Constants.GEOMETRY_COLLECTION);
+            jaxbElement = (JAXBElement<GeometryCollectionType>) Wfs10JTStoGML200Converter
+                    .convertGeometryTypeToJAXB(geometryCollectionType);
+        } catch (JAXBException jbe) {
+            LOGGER.error("Unable to create MultiPolygonType with geometry: [{}]", geometry);
+        }
+        return jaxbElement;
+    }
+
+    private JAXBElement<? extends AbstractGeometryType> createGeometryOperand(String wkt) {
+        String convertedWkt = wkt;
+        Geometry wktGeometry = null;
+        try {
+            wktGeometry = getGeometryFromWkt(convertedWkt);
+        } catch (ParseException e) {
+            throw new IllegalArgumentException(
+                    "Unable to parse WKT Geometry [" + convertedWkt + "]", e);
+        }
+        if (wktGeometry instanceof Polygon) {
+            if (isGeometryOperandSupported(Wfs10Constants.POLYGON)) {
+                return createPolygon(convertedWkt);
+            }
+        } else if (wktGeometry instanceof Point) {
+            if (isGeometryOperandSupported(Wfs10Constants.POINT)) {
+                return createPoint(convertedWkt);
+            }
+        } else if (wktGeometry instanceof LineString) {
+            if (isGeometryOperandSupported(Wfs10Constants.LINESTRING)) {
+                return createLineString(wktGeometry);
+            }
+        } else if (wktGeometry instanceof MultiPoint) {
+            if (isGeometryOperandSupported(Wfs10Constants.MULTI_POINT)) {
+                return createMultiPoint(wktGeometry);
+            }
+        } else if (wktGeometry instanceof MultiLineString) {
+            if (isGeometryOperandSupported(Wfs10Constants.MULTI_LINESTRING)) {
+                return createMultiLineString(wktGeometry);
+            }
+        } else if (wktGeometry instanceof MultiPolygon) {
+            if (isGeometryOperandSupported(Wfs10Constants.MULTI_POLYGON)) {
+                return createMultiPolygon(wktGeometry);
+            }
+        } else if (wktGeometry instanceof GeometryCollection) {
+            if (isGeometryOperandSupported(Wfs10Constants.GEOMETRY_COLLECTION)) {
+                return createGeometryCollection(wktGeometry);
+            }
+        }
+        throw new IllegalArgumentException("Unable to create Geometry from WKT String");
     }
 
 }
