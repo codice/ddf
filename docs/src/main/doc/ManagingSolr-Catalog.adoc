@@ -1,0 +1,26 @@
+= Managing DDF Solr Catalog Application
+include::../includes/config.adoc[]
+                     
+== Overview
+
+The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using Apache Solr (http://lucene.apache.org/solr/) as a data store.
+
+Some notable features of the SCP include:
+
+* Supports extensible metacards
+* Fast, simple contextual searching
+* Indexes XML Attributes (https://tools.codice.org/#DDFSolrCatalogApplicationUser'sGuide-IndexingText) as well as CDATA sections and XML text elements
+* Full XPath support.
+* Works with an embedded, local Solr Server (all-in-one Catalog)
+** No configuration necessary on a single-node distribution
+** Data directory of Solr indexes are configurable
+* Works with a standalone Solr Server
+
+== Solr Catalog Provider Implementations
+
+=== Implementation Details
+
+==== Indexing Text
+
+When storing fields, the Solr Catalog Provider will analyze and tokenize the text values of STRING_TYPE and XML_TYPE `AttributeTypes`. These types of fields are indexed in at least three ways: in raw form, analyzed with case sensitivity, and analyzed without concern to case sensitivity. Concerning XML, the Solr Catalog Provider will analyze and tokenize XML CDATA sections, XML element text values, and XML attribute values. 
+
