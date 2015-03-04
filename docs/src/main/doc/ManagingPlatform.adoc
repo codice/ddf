@@ -1,0 +1,130 @@
+= Managing {branding} Platform Application
+include::../includes/config.adoc[]
+
+== Overview
+
+The Platform application is considered to be a core application of the distribution. The Platform application provides the fundamental building blocks that the distribution needs to run. These building blocks include subsets of:
+
+* Karaf (http://karaf.apache.org/), 
+* CXF (http://cxf.apache.org/), 
+* Cellar (http://karaf.apache.org/index/subprojects/cellar.html), and 
+* Camel (http://camel.apache.org/). 
+
+
+Included as part of the Platform application is also a Command Scheduler. The Command Scheduler allows users to schedule Command Line Shell Commands to run at certain specified intervals.
+
+== Usage
+
+The Platform application is a core building block for any application and should be referenced for its core component versions so that developers can ensure compatibility with their own applications. The Command Scheduler that is included in the Platform application should be used by those that need or like the convenience of a  "platform independent" method of running certain commands, such as backing up data or logging settings. More information can be found on the Command Scheduler page.
+
+== Install and Uninstall
+
+=== Prerequisites
+Before the DDF Platform application can be installed:
+
+* the DDF Kernel must be running.
+
+=== Installing
+
+. Before installing a DDF application, verify that its prerequisites have been met. 
+. Copy the DDF application's KAR file to the `<INSTALL_DIRECTORY>/deploy` directory.
+
+[NOTE]
+====
+These Installation steps are the same whether DDF was installed from a distribution zip or a custom installation using the DDF Kernel zip.
+====
+
+=== Verifying
+
+. Verify the appropriate features for the DDF application have been installed using the `features:list` command to view the KAR file's features.
+. Verify that the bundles within the installed features are in an active state.
+
+=== Uninstalling
+[WARNING]
+====
+It is very important to save the KAR file or the feature repository URL for the application prior to an uninstall so that the uninstall can be reverted if necessary.
+====
+
+If the DDF application is deployed on the DDF Kernel in a custom installation (or the application has been upgraded previously), i.e., its KAR file is in the `<INSTALL_DIRECTORY>/deploy` directory, uninstall it by deleting this KAR file.
+
+Otherwise, if the DDF application is running as part of the DDF distribution zip, it is uninstalled  *_the first time and only the first time_* using the `features:removeurl` command:
+
+[source,terminal,linenums]
+.Uninstall DDF application from DDF distribution
+----
+features:removeurl -u <DDF application's feature repository URL>
+
+Example:   features:removeurl -u mvn:ddf.platform/platform-app/2.4.0/xml/features
+----
+
+The uninstall of the application can be verified by the absence of any of the DDF application's features in the `features:list` command output.
+
+[NOTE]
+====
+The repository URLs for installed applications can be obtained by entering:
+
+`features:listrepositories -u`
+====
+
+==== Reverting the Uninstall
+
+If the uninstall of the DDF application needs to be reverted, this is accomplished by either:
+
+* copying the application's KAR file previously in the `<INSTALL_DIRECTORY>/deploy` directory, OR 
+* adding the application's feature repository back into DDF and installing its main feature, which typically is of the form `<applicationName>-app` , e.g., `platform-app`.
+
+[source,terminal,linenums]
+.Reverting DDF application's uninstall
+----
+features:addurl <DDF application's feature repository URL>
+features:install <DDF application's main feature>
+
+Example:
+
+    ddf@local>features:addurl mvn:ddf.platform/platform-app/2.4.0/xml/features
+    ddf@local>features:install platform-app
+----
+
+==== Upgrading
+
+To upgrade an application, complete the following procedure.
+. Uninstall the application by following the Uninstall Applications instructions above.
+. Install the new application KAR file by copying the platform-app-X.Y.Z..kar file to the `<INSTALL_DIRECTORY>/deploy` directory.
+. Start the application. +
+`features:install platform-app`
+. Complete the steps in the Verifying section above to determine if the upgrade was successful.
+
+== Configuration
+
+This component can be configured using the normal processes described in the Configuring DDF section. The configurable properties are accessed from the *Schedule Command* Configuration in the Admin Console.
+
+=== Configurable Properties
+[cols="5*" options="header"]
+|===
+
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|`command`
+|String
+|Shell command to be used within the container. For example,`log:set DEBUG`.
+
+
+| 
+|yes
+
+|`intervalInSeconds`
+|Integer
+|The interval of time in seconds between each execution. This must be a positive integer. For example, 3600 is 1 hour.
+|  
+|yes
+
+|===
+
+[TIP]
+====
+The Platform application includes other third party packages, such as Apache CXF and Apache Camel. These are available for use by third party developers, but their versions can change at anytime with future releases of the Platform application. The exact versions of the third party applications that are used can be found in the Release Notes for the Platform application.
+====

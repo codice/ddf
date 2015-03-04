@@ -1,0 +1,836 @@
+= Integrating {branding} Platform Application
+include::../includes/config.adoc[]
+
+== Overview
+
+This page supports integration of this application with external frameworks.
+
+== Platform Global Settings
+
+The Platform Global Settings are the system-wide configuration settings used throughout {branding} to specify the information about the machine hosting {branding}.
+
+=== Configuration
+
+Configuration can be performed using the processes described in the Configuring DDF section. The configurable properties for the platform-wide configuration are accessed from *Configuration -> Platform Global Configuration* in the Web Console.
+
+==== Configurable Properties
+
+[cols="6" options="header"]
+|===
+
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Protocol
+|protocol
+|String
+|Default protocol that should be used to connect to this machine.
+|http
+|yes
+
+|Host
+|host
+|String
+|The host name or IP address of the machine that DDF is running on. Do not enter localhost.
+|
+|yes
+
+|Port
+|port
+|String
+|The port that DDF is running on.
+|
+|yes
+
+|Site Name
+|id
+|String
+|The site name for this DDF instance.
+|ddf.distribution
+|yes
+
+|Version
+|version
+|String
+|The version of DDF that is running. This value should not be changed from the factory default.
+|DDF 2.3.0
+|yes
+
+|Organization
+|organization
+|String
+|The organization responsible for this installation of DDF
+|Codice Foundation
+|yes
+
+|===
+
+== {branding} Mime Framework
+
+=== Mime Type Mapper
+
+The MimeTypeMapper is the entry point in DDF for resolving file extensions to mime types, and vice versa.
+
+MimeTypeMappers are used by the ResourceReader to determine the file extension for a given mime type in aid of retrieving a product. MimeTypeMappers are also used by the FileSystemProvider in the Content Framework to read a file from the content file repository.
+
+The MimeTypeMapper maintains a list of all of the MimeTypeResolvers in DDF.
+
+The MimeTypeMapper accesses each MimeTypeResolver according to its priority until the provided file extension is successfully mapped to its corresponding mime type. If no mapping is found for the file extension, `null` is returned for the mime type. Similarly, the MimeTypeMapper accesses each MimeTypeResolver according to its priority until the provided mime type is successfully mapped to its corresponding file extension. If no mapping is found for the mime type, `null` is returned for the file extension.
+
+=== Included Mime Type Mappers
+
+==== {branding} Mime Type Mapper
+
+The {branding} Mime Type Mapper is the core implementation of the {branding} Mime API. It provides access to all MimeTypeResolvers within {branding}, which provide mapping of mime types to file extensions and file extensions to mime types.
+
+===== Installing and Uninstalling
+
+The {branding} Mime Type Mapper is bundled in the `mime-core` feature, which is part of the `mime-core-app` application. This feature can be installed and uninstalled using the normal processes described in the Configuration section.
+
+The `mime-core` feature is installed by default.
+
+===== Configuring
+
+There is no configuration for this feature.
+
+==== Mime Type Resolver
+
+A MimeTypeResolver is a DDF service that can map a file extension to its corresponding mime type and, conversely, can map a mime type to its file extension.
+
+MimeTypeResolvers are assigned a priority (0-100, with the higher the number indicating the higher priority). This priority is used to sort all of the MimeTypeResolvers in the order they should be checked for mapping a file extension to a mime type (or vice versa). This priority also allows custom MimeTypeResolvers to be invoked before default MimeTypeResolvers if the custom resolver's priority is set higher than the default's.
+
+MimeTypeResolvers are not typically invoked directly. Rather, the MimeTypeMapper maintains a list of MimeTypeResolvers (sorted by their priority) that it invokes to resolve a mime type to its file extension (or to resolve a file extension to its mime type).
+
+===== Tika Mime Type Resolver
+
+The TikaMimeTypeResolver is a MimeTypeResolver that is implemented using the Apache Tika open source product.
+
+Using the Apache Tika content analysis toolkit, the TikaMimeTypeResolver provides support for resolving over 1300 mime types. (The `tika-mimetypes.xml` file that Apache Tika uses to define all of its default mime types that it supports is attached to this page.)
+
+The TikaMimeTypeResolver is assigned a default priority of -1 to insure that it is always invoked last by the MimeTypeMapper. This insures that any custom MimeTypeResolvers that may be installed will be invoked before the TikaMimeTypeResolver.
+
+====== Using
+
+The TikaMimeTypeResolver provides the bulk of the default mime type support for DDF.
+
+====== Installing and Uninstalling
+
+The TikaMimeTypeResolver is bundled as the `mime-tika-resolver` feature in the `mime-tika-app` application. This feature can be installed and uninstalled using the normal processes described in the Configuring DDF section.
+
+This feature is installed by default.
+
+====== Configuring
+
+There are no configuration properties for the `mime-tika-resolver`.
+
+====== Implementation Details
+
+*Exported Services*
+
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Service Property
+|Value
+
+|`ddf.mime.MimeTypeResolver`
+|
+|tika-mimetypes.xml
+
+|===
+
+===== Custom Mime Type Resolver
+
+The Custom Mime Type Resolver is a MimeTypeResolver that defines the custom mime types that DDF will support out of the box. These are mime types not supported by the default TikaMimeTypeResolver.
+
+Currently, the custom mime types supported by the Custom Mime Type Resolver that are configured for DDF out-of-the-box are:
+
+[cols="2" options="header"]
+|===
+
+|File Extension
+|Mime Type
+
+|nitf
+|image/nitf
+
+|ntf
+|image/nitf
+
+|json
+|json=application/json;id=geojson
+
+|===
+
+New custom mime type resolver mappings can be added using the Web Console.
+
+As a MimeTypeResolver, the Custom Mime Type Resolver will provide methods to map the file extension to the corresponding mime type, and vice versa.
+
+====== Using
+
+The Custom Mime Type Resolver is used when mime types that are not supported by DDF out of the box need to be added. By adding custom mime type resolvers to DDF, new content with that mime type can be processed by DDF.
+
+====== Installing and Uninstalling
+
+One Custom Mime Type Resolver is configured and installed out of the box for the image/nitf mime type. This custom resolver is bundled in the `mime-core-app` application and is part of the `mime-core` feature. This feature can be installed and uninstalled using the normal processes described in the Configuration section.
+
+Additional Custom Mime Type Resolvers can be added for other custom mime types.
+
+====== Configuring
+
+This component can be configured using the normal processes described in the Configuring DDF section.
+
+The configurable properties for the Custom Mime Type Resolver are accessed from the *MIME Custom Types* configuration in the Web Console.
+
+*Managed Service Factory PID*
+
+* DDF_Custom_Mime_Type_Resolver
+
+.Configurable Properties
+[cols="1,1,1,3,1,1" options="header"]
+|===
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Resolver Name
+|name
+|String
+|Unique name for the custom mime type resolver.
+|N/A
+|Yes
+
+|Priority
+|priority
+|Integer
+|Execution priority of the resolver.
+
+Range is 0 to 100, with 100 being the highest priority.
+|10
+|Yes
+
+|File Extensions to Mime Types
+|customMimeTypes
+|String
+|Comma-delimited list of key/value pairs where key is the file extension and value is the mime type, e.g., `nitf=image/nitf`.
+|N/A
+|Yes
+
+|===
+
+====== Implementation Details
+
+.Imported Services
+[cols="4,1,1" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|`ddf.catalog.transform.InputTransformer`
+|optional
+|true
+
+|`ddf.catalog.transform.QueryResponseTransformer`
+|optional
+|true
+
+|`ddf.mime.MimeTypeResolver`
+|optional
+|true
+
+|===
+
+.Exported Services
+[cols="4,2,1" options="header"]
+|===
+
+|Registered Interface
+|Service Property
+|Value
+
+|`ddf.mime.MimeTypeToTransformerMapper`
+|
+|
+ 
+|`ddf.mime.MimeTypeMapper`
+|
+|
+ 
+|===
+
+== Metrics Collection
+
+The Metrics Collection collects data for all of the pre-configured metrics in DDF and stores them in custom JMX Management Bean (MBean) attributes. Samples of each metric's data is collected every 60 seconds and stored in the `<DDF_INSTALL_DIR>/data/metrics` directory with each metric stored in its own `.rrd` file. Refer to the Metrics Reporting Application for how the stored metrics data can be viewed.
+
+[WARNING]
+====
+Do not remove the `<DDF_INSTALL_DIR>/data/metrics` directory or any files in it. If this is done, all existing metrics data will bepermanently lost.
+
+Also note that if DDF is uninstalled/re-installed that all existing metrics data will be permanently lost.
+====
+
+The metrics currently being collected by DDF are:
+
+[cols="1,3,1,3" options="header"]
+|===
+
+|Metric
+|JMX MBean Name
+|MBean Attribute Name
+|Description
+
+|Catalog Exceptions
+|ddf.metrics.catalog:name=Exceptions
+|Count
+|A count of the total number of exceptions, of all types, thrown across all catalog queries executed.
+
+|Catalog Exceptions Federation
+|ddf.metrics.catalog:name=Exceptions.Federation
+|Count
+|A count of the total number of Federation exceptions thrown across all catalog queries executed.
+
+|Catalog Exceptions Source Unavailable
+|ddf.metrics.catalog:name=Exceptions.SourceUnavailable
+|Count
+|A count of the total number of SourceUnavailable exceptions thrown across all catalog queries executed. These exceptions occur when the source being queried is currently not available.
+
+|Catalog Exceptions Unsupported Query
+|ddf.metrics.catalog:name=Exceptions.UnsupportedQuery
+|Count
+|A count of the total number of UnsupportedQuery exceptions thrown across all catalog queries executed. These exceptions occur when the query being executed is not supported or is invalid.
+
+|Catalog Ingest Created
+|ddf.metrics.catalog:name=Ingest.Created
+|Count
+|A count of the number of catalog entries created in the Metadata Catalog.
+
+|Catalog Ingest Deleted
+|ddf.metrics.catalog:name=Ingest.Deleted
+|Count
+|A count of the number of catalog entries updated in the Metadata Catalog.
+
+|Catalog Ingest Updated
+|ddf.metrics.catalog:name=Ingest.Updated
+|Count
+|A count of the number of catalog entries deleted from the Metadata Catalog.
+
+|Catalog Queries
+|ddf.metrics.catalog:name=Queries
+|Count
+|A count of the number of queries attempted.
+
+|Catalog Queries Comparison
+|ddf.metrics.catalog:name=Queries.Comparison
+|Count
+|A count of the number of queries attempted that included a string comparison criteria as part of the search criteria, e.g., PropertyIsLike, PropertyIsEqualTo, etc.
+
+|Catalog Queries Federated
+|ddf.metrics.catalog:name=Queries.Federated
+|Count
+|A count of the number of federated queries attempted.
+
+|Catalog Queries Fuzzy
+|ddf.metrics.catalog:name=Queries.Fuzzy
+|Count
+|A count of the number of queries attempted that included a string comparison criteria with fuzzy searching enabled as part of the search criteria.
+
+|Catalog Queries Spatial
+|ddf.metrics.catalog:name=Queries.Spatial
+|Count
+|A count of the number of queries attempted that included a spatial criteria as part of the search criteria.
+
+|Catalog Queries Temporal
+|ddf.metrics.catalog:name=Queries.Temporal
+|Count
+|A count of the number of queries attempted that included a temporal criteria as part of the search criteria.
+
+|Catalog Queries Total Results
+|ddf.metrics.catalog:name=Queries.TotalResults
+|Mean
+|An average of the total number of results returned from executed queries. This total results data is averaged over the metric's sample rate.
+
+|Catalog Queries Xpath
+|ddf.metrics.catalog:name=Queries.Xpath
+|Count
+|A count of the number of queries attempted that included a Xpath criteria as part of the search criteria.
+
+|Catalog Resource Retrieval
+|ddf.metrics.catalog:name=Resource
+|Count
+|A count of the number of products retrieved.
+
+|Services Latency
+|ddf.metrics.services:name=Latency
+|Mean
+|The response time (in milliseconds) from receipt of the request at the endpoint until the response is about to be sent to the client from the endpoint. This response time data is averaged over the metric's sample rate.
+
+|=== 
+
+=== Source Metrics
+
+Metrics are also collected on a per source basis for each configured Federated Source and Catalog Provider. When the source is configured, the metrics listed in the table below are automatically created. With each request that is either an enterprise query or a query that lists the source(s) to query these metrics are collected. When the source is deleted (or renamed), the associated metrics' MBeans and Collectors are also deleted. However, the RRD file in the `data/metrics` directory containing the collected metrics remain indefinitely and remain accessible from the Metrics tab in the Web Console.
+
+In the table below, the metric name is based on the Source's ID (indicated by `<sourceId>`).
+
+[cols="1,3,1,3" options="header"]
+|===
+|Metric
+|JMX MBean Name
+|MBean AttributeName
+|Description
+
+|Source <sourceId> Exceptions
+|ddf.metrics.catalog.source:name=<sourceId>.Exceptions
+|Count
+|A count of the total number of exceptions, of all types, thrown from catalog queries executed on this source.
+
+|Source <sourceId> Queries
+|ddf.metrics.catalog.source:name=<sourceId>.Queries
+|Count
+|A count of the number of queries attempted on this source.
+
+|Source <sourceId> Queries Total Results
+|ddf.metrics.catalog.source:name=<sourceId>.Queries.TotalResults
+|Mean
+|An average of the total number of results returned from executed queries on this source.
+
+This total results data is averaged over the metric's sample rate.
+
+|===
+
+For example, if a Federated Source was created with a name of `fs-1`, then the following metrics would be created for it: 
+
+* `Source Fs1 Exceptions`
+* `Source Fs1 Queries`
+* `Source Fs1 Queries Total Results`
+
+If this federated source is then renamed to `fs-1-rename`, the MBeans and Collectors for the `fs-1` metrics are deleted, and new MBeans and Collectors are created with the new names: 
+
+* `Source Fs1 Rename Exceptions`
+* `Source Fs1 Rename Queries`
+* `Source Fs1 Rename Queries Total Results`
+
+Note that the metrics with the previous name remain on the Metrics tab because the data collected while the Source had this name remains valid and thus needs to be accessible. Therefore, it is possible to access metrics data for sources renamed months ago, i.e., until DDF is reinstalled or the metrics data is deleted from the `<DDF_INSTALL_DIR>/data/metrics` directory. Also note that the source metrics' names are modified to remove all non-alphanumeric characters and renamed in camelCase.
+
+=== Usage
+
+The Metrics Collection is used when collection of historical metrics data, such as catalog query metrics, message latency, or individual sources' metrics type of data, is desired.
+
+=== Install and Uninstall
+
+The Metrics Collecting application is installed by default.
+
+The catalog level metrics (packaged as the `catalog-core-metricsplugin` feature) can be installed and uninstalled using the normal processes described in the Configuration section.
+
+Similarly, the source-level metrics (packaged as the `catalog-core-sourcemetricsplugin` feature) can be installed and uninstalled using the normal processes described in the Configuration section.
+
+=== Configuration
+
+No configuration is made for the Metrics Collecting application. All of the metrics that it collects data on are either pre-configured in DDF out of the box or dynamically created as sources are created or deleted.
+
+=== Known Issues
+None
+
+== Metrics Reporting Application
+
+The DDF Metrics Reporting application provides access to historical data in a graphic, a comma-separated values file, a spreadsheet, a PowerPoint file, XML, and JSON formats for system metrics collected while DDF is running. Aggregate reports (weekly, monthly, and yearly) are also provided where all collected metrics are included in the report. Aggregate reports are available in Excel and PowerPoint formats.
+
+=== Usage
+
+The DDF Metrics Reporting application provides a web console plugin that adds a new tab to the Admin Console with the title of Metrics. When selected, the Metrics tab displays a list of all of the metrics being collected by DDF, e.g., Catalog Queries, Catalog Queries Federated, Catalog Ingest Created, etc.
+
+With each metric in the list, a set of hyperlinks is displayed under each column. Each column's header is displayed with the available time ranges. The time ranges currently supported are all measured from the time that the hyperlink is selected. They are 15 minutes, 1 hour, 1 day, 1 week, 1 month, 3 months, 6 months, and 1 year.
+
+All metrics reports are generated by accessing the collected metric data stored in the `<DDF_INSTALL_DIR>/data/metrics` directory. All files in this directory are generated by the JmxCollector using RRD4J, a Round Robin Database for a Java open source product. All files in this directory will have the `.rrd` file extension and are binary files, hence they cannot be opened directly. These files should only be accessed using the Metrics tab's hyperlinks. There is one RRD file per metric being collected. Each RRD file is sized at creation time and will never increase in size as data is collected. One year's worth of metric data requires approximately 1 MB file storage.
+
+[WARNING]
+====
+Do not remove the `<DDF_INSTALL_DIR>/data/metrics` directory or any files in the directory. If this is done, all existing metrics data will be permanently lost.
+
+Also note that if DDF is uninstalled/re-installed, all existing metrics data will be permanently lost.
+====
+
+There is a hyperlink per format in which the metric's historical data can be displayed. For example, the PNG hyperlink for 15m for the Catalog Queries metric maps to http://<DDF_HOST>:<DDF_PORT>/services/internal/metrics/catalogQueries.png?dateOffset=900, where the `dateOffset=900` indicates the previous 900 seconds (15 minutes) to be graphed.
+
+Note that the date format will vary according to the regional/locale settings for the server.
+
+All of the metric graphs displayed are in PNG format and are displayed on their own page. The user may use the back button in the browser to return to the Admin Console, or, when selecting the hyperlink for a graph, they can use the right mouse button in the browser to display the graph in a separate browser tab or window, which will keep the Admin console displayed. The screen shot below is a sample graph of the Catalog Queries metrics data for the previous 15 minutes from when the link was selected. Note that the y-axis label and the title use the metrics name (Catalog Queries) by default. The average min and max of all of the metrics data is summarized in the lower left corner of the graph.
+
+The user can also specify custom time ranges by adjusting the URL used to access the metric's graph. The Catalog Queries metric data may also be graphed for a specific time range by specifying the `startDate` and `endDate` query parameters in the URL.
+
+[WARNING]
+====
+Note that the Metrics endpoint URL says "internal." This indicates that this endpoint is intended for internal use by the DDF code. This endpoint is likely to change in future versions; therefore, any custom applications built to make use of it, as described below, should be made with caution.
+====
+
+For example, to map the Catalog Queries metric data for March 31, 6:00 am, to April 1, 2013, 11:00 am, (Arizona timezone, which is -07:00) the URL would be: 
+
+[source,http,linenums]
+----
+http://<DDF_HOST><DDF_PORT>/services/internal/metrics/catalogQueries.png?startDate=2013-03-31T06:00:00-07:00&endDate=2013-04-01T11:00:00-07:00
+----
+
+Or to view the last 30 minutes of data for the Catalog Queries metric, a custom URL with a `dateOffset=1800` (30 minutes in seconds) could be used:
+
+[source,http,linenums]
+----
+http://<DDF_HOST>:<DDF_PORT>/services/internal/metrics/catalogQueries.png?dateOffset=1800
+----
+
+The table below lists all of the options for the Metrics endpoint URL to execute custom metrics data requests:
+
+[cols="1,5,3" options="header"]
+|===
+
+|Parameter
+|Description
+|Example
+
+|startDate
+|Specifies the start of the time range of the search on the metric's data (RFC-3339 - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Date/time must be earlier than the endDate. +
+_This parameter cannot be used with the dateOffset parameter._
+|startDate=2013-03-31T06:00:00-07:00
+
+|endDate
+|Specifies the endof the time range of the search on the metric's data (RFC-3339 - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Date/time must be later than the startDate. +
+_This parameter cannot be used with the dateOffset parameter._
+|endDate=2013-04-01T11:00:00-07:00
+
+|dateOffset
+|Specifies an offset, backwards from the current time, to search on the modified time field for entries. Defined in seconds and must be a positive Integer. +
+_This parameter cannot be used with the startDate or endDate parameters._
+|dateOffset=1800
+
+|yAxisLabel
+|(optional) the label to apply to the graph's y-axis. Will default to the metric's name, e.g., Catalog Queries. +
+_This parameter is only applicable for the metric's graph display format.
+|Catalog Query Count
+
+|title
+|(optional) the title to be applied to the graph.
+
+Will default to the metric's name plus the time range used for the graph.
+
+_This parameter is only applicable for the metric's graph display format._
+|Catalog Query Count for the last 15 minutes
+
+|===
+
+==== Metric Data Supported Formats
+
+The metric's historical data can be displayed in several formats, including the PNG format previously mentioned, a CSV file, an Excel .xls file, a PowerPoint .ppt file, an XML file, and a JSON file. The PNG, CSV, and XLS formats are accessed via hyperlinks provided in the Metrics tab web page. The PPT, XML, and JSON formats are accessed by specifying the format in the custom URL, e.g., `http://<DDF_HOST>:<DDF_PORT>/services/internal/metrics/catalogQueries.json?dateOffset=1800`.
+
+The table below describes each of the supported formats, how to access them, and an example where applicable. (NOTE: all example URLs begin with 
+----
+http://<DDF_HOST>:<DDF_PORT>
+----
+which is omitted in the table for brevity.)
+
+[cols="1,2,1,5a" options="header"]
+|===
+
+|Display Format
+|Description
+|How To Access
+|Example URL
+
+|PNG
+|Displays the metric's data as a PNG-formatted graph, where the x-axis is time and the y-axis is the metric's sampled data values.
+
+|Via hyperlink on the Metrics tab or directly via custom URL.
+|Accessing Catalog Queries metric data for last 8 hours (8 * 60 * 60 = 28800 seconds):
+
+/services/internal/metrics/catalogQueries.png?dateOffset=28800&
+
+yAxisLabel=my%20label&title=my%20graph%20title
+
+Accessing Catalog Queries metric data between 6:00 am on March 10, 2013, and 10:00 am on April 2, 2013:
+
+/services/internal/metrics/catalogQueries.png?
+
+startDate=2013-03-10T06:00:00-07:00&endDate=2013-04-02T10:00:00-07:00&
+
+yAxisLabel=my%20label&title=my%20graph%20title
+
+_Note that the yAxisLabel and title parameters are optional_.
+
+|CSV
+|Displays the metric's data as a Comma-Separated Value (CSV) file, which can be auto-displayed in Excel based on browser settings.
+
+The generated CSV file will consist of two columns of data: Timestamp and Value, where the first row are the column headers and the remaining rows are the metric's sampled data over the specified time range.
+|Via hyperlink on the Metrics tab or directly via custom URL.
+|Accessing Catalog Queries metric data for last 8 hours (8 * 60 * 60 = 28800 seconds):
+
+/services/internal/metrics/catalogQueries.csv?dateOffset=28800
+
+Accessing Catalog Queries metric data between 6:00 am on March 10, 2013, and 10:00 am on April 2, 2013:
+
+/services/internal/metrics/catalogQueries.csv?
+
+startDate=2013-03-10T06:00:00-07:00&endDate=2013-04-02T10:00:00-07:00
+
+|XLS
+|Displays the metric's data as an Excel (XLS) file, which can be auto-displayed in Excel based on browser settings. The generated XLS file will consist of: Title in first row based on metric's name and specified time range Column headers for Timestamp and Value; Two columns of data containing the metric's sampled data over the specified time range; The total count, if applicable, in the last row 
+|Via hyperlink on the Metrics tab or directly via custom URL.
+|Accessing Catalog Queries metric data for last 8 hours (8 * 60 * 60 = 28800 seconds):
+
+/services/internal/metrics/catalogQueries.xls?dateOffset=28800
+
+Accessing Catalog Queries metric data between 6:00 am on March 10, 2013, and 10:00 am on April 2, 2013:
+
+/services/internal/metrics/catalogQueries.xls?
+
+startDate=2013-03-10T06:00:00-07:00&endDate=2013-04-02T10:00:00-07:00
+
+|PPT
+|Displays the metric's data as a PowerPoint (PPT) file, which can be auto-displayed in PowerPoint based on browser settings. The generated PPT file will consist of a single slide containing: A title based on the metric's name; The metric's PNG graph embedded as a picture in the slide The total count, if applicable 
+|Via custom URL only 
+|Accessing Catalog Queries metric data for last 8 hours (8 * 60 * 60 = 28800 seconds):
+
+/services/internal/metrics/catalogQueries.ppt?dateOffset=28800
+
+Accessing Catalog Queries metric data between 6:00 am on March 10, 2013, and 10:00 am on
+
+April 2, 2013:
+
+/services/internal/metrics/catalogQueries.ppt?
+
+startDate=2013-03-10T06:00:00-07:00&endDate=2013-04-02T10:00:00-07:00
+
+|XML
+|Displays the metric's data as an XML-formatted file. 
+|via custom URL only
+|Accessing Catalog Queries metric data for last 8 hours (8 * 60 * 60 = 28800 seconds):
+
+/services/internal/metrics/catalogQueries.xml?dateOffset=28800
+
+Accessing Catalog Queries metric data between 6:00 am on March 10, 2013, and 10:00 am on April 2, 2013:
+
+/services/internal/metrics/catalogQueries.xml?
+
+startDate=2013-03-10T06:00:00-07:00&endDate=2013-04-02T10:00:00-07:00
+
+Sample XML-formatted output would look like:
+
+[source,xml,linenums]
+----
+<catalogQueries>
+    <title>Catalog Queries for Apr 15 2013 08:45:53 to Apr 15 2013 09:00:53</title>
+        <data>
+            <sample>
+                 <timestamp>Apr 15 2013 08:45:00</timestamp>
+                 <value>361</value>
+            </sample>
+            <sample>
+                <timestamp>Apr 15 2013 09:00:00</timestamp>
+                <value>353</value>
+            </sample>
+            <totalCount>5721</totalCount>
+        </data>
+</catalogQueries>
+----
+
+|JSON
+|Displays the metric's data as an JSON-formatted file. 
+|via custom URL only 
+|Accessing Catalog Queries metric data for last 8 hours (8 * 60 * 60 = 28800 seconds):
+
+/services/internal/metrics/catalogQueries.json?dateOffset=28800
+
+Accessing Catalog Queries metric data between 6:00 am on March 10, 2013, and 10:00 am on April 2, 2013:
+
+/services/internal/metrics/catalogQueries.json?
+
+startDate=2013-03-10T06:00:00-07:00&endDate=2013-04-02T10:00:00-07:00
+
+Sample JSON-formatted output would look like:
+[source,json,linenums]
+----
+{
+ "title":"Query Count for Jul 9 1998 09:00:00 to Jul 9 1998 09:50:00",
+ "totalCount":322,
+ "data":[
+    {
+       "timestamp":"Jul 9 1998 09:20:00",
+       "value":54
+    },
+    {
+       "timestamp":"Jul 9 1998 09:45:00",
+       "value":51
+    }
+  ]
+}
+----
+|===
+
+==== Metrics Aggregate Reports
+
+The Metrics tab also provides aggregate reports for the collected metrics. These are reports that include data for all of the collected metrics for the specified time range.
+
+The aggregate reports provided are:
+
+* Weekly reports for each week up to the past four *complete* weeks from current time. A complete week is defined as a week from Monday through Sunday. For example, if current time is Thursday, April 11, 2013, the past complete week would be from April 1 through April 7.
+* Monthly reports for each month up to the past 12 *complete* months from current time. A complete month is defined as the full month(s) preceding current time. For example, if current time is Thursday, April 11, 2013, the past complete 12 months would be from April 2012 through March 2013.
+* Yearly reports for the past *complete* year from current time.  A complete year is defined as the full year preceding current time. For example, if current time is Thursday, April 11, 2013, the past complete year would be 2012.
+
+An aggregate report in XLS format would consist of a single workbook (spreadsheet) with multiple worksheets in it, where a separate worksheet exists for each collected metric's data. Each worksheet would display:
+
+* the metric's name and the time range of the collected data, 
+* two columns: Timestamp and Value, for each sample of the metric's data that was collected during the time range, and 
+* a total count (if applicable) at the bottom of the worksheet.
+
+An aggregate report in PPT format would consist of a single slideshow with a separate slide for each collected metric's data. Each slide would display:
+
+* a title with the metric's name,
+* the PNG graph for the metric's collected data during the time range, and
+* a total count (if applicable) at the bottom of the slide.
+
+Hyperlinks are provided for each aggregate report's time range in the supported display formats, which include Excel (XLS) and PowerPoint (PPT). Aggregate reports for custom time ranges can also be accessed directly via the URL: 
+----
+http://<DDF_HOST>:<DDF_PORT>/services/internal/metrics/report.<format>?startDate=<start_date_value>&endDate=<end_date_value>
+----
+where `<format>` is either `xls` or `ppt` and the `<start_date_value>` and `<end_date_value>` specify the custom time range for the report.
+
+The table below list several examples for custom aggregate reports. (NOTE: all example URLs begin with:
+----
+http://<DDF_HOST>:<DDF_PORT>
+----
+which is omitted in the table for brevity.)
+
+[cols="2" options="header"]
+|===
+
+|Description
+|URL
+
+|XLS aggregate report for March 15, 2013 to April 15, 2013
+|/services/internal/metrics/report.xls?startDate=2013-03-15T12:00:00-07:00&endDate=2013-04-15T12:00:00-07:00
+
+|XLS aggregate report for last 8 hours
+|/services/internal/metrics/report.xls?dateOffset=28800
+
+|PPT aggregate report for March 15, 2013 to April 15, 2013
+|/services/internal/metrics/report.ppt?startDate=2013-03-15T12:00:00-07:00&endDate=2013-04-15T12:00:00-07:00
+
+|PPT aggregate report for last 8 hours
+|/services/internal/metrics/report.ppt?dateOffset=28800
+
+|===
+
+==== Add Custom Metrics to the Metrics Tab
+
+It is possible to add custom (or existing, but non-collected) metrics to the Metrics tab by writing an application. Refer to the SDK example source code for Sample Metrics located in the DDF source code at `sdk/sample-metrics` and `sdk/sdk-app`.
+
+[WARNING]
+====
+The Metrics framework is not an open API, but rather a closed, internal framework that can change at any time in future releases. Be aware that any custom code written may not work with future releases.
+====
+
+=== Install and Uninstall
+
+The Metrics Reporting application can be installed and uninstalled using the normal processes described in the Configuring DDF section.
+
+=== Configuration
+
+No configuration can be made for the Metrics Reporting application. All of the metrics that it collects data on are pre-configured in DDF out of the box.
+
+The `metrics-reporting` feature can only be installed and uninstalled. It is installed by default.
+
+=== Known Issues
+
+The Metrics Collecting Application uses a “round robin” database. It uses one that does not store individual values but, instead, stores the rate of change between values at different times.  Due to the nature of this method of storage, along with the fact that some processes can cross time frames, small discrepancies  (differences in values of one or two have been experienced) may appear in values for different time frames.  These will be especially apparent for reports covering shorter time frames such as 15 minutes or one hour.  These are due to the averaging of data over time periods and should not impact the values over longer periods of time.
+
+== Security Core API
+
+The Security Core API contains all of the DDF Security Framework APIs that are used to perform security operations within DDF. More information on the APIs can be found on the 
+Managing Web Service Security page.
+
+=== Configuration
+
+None
+
+=== Install and Uninstall
+
+The Security Core App installs this bundle by default. Do not uninstall the Security Core API as it is integral to system function and is depended on by all of the other security services.
+
+=== Implementation Details
+
+==== Imported Services
+
+None
+
+==== Exported Services
+
+None
+
+== Compression Services
+
+The compression services offer CXF-based message encoding that allows for compression of outgoing and incoming messages.
+
+=== Configuration
+
+None
+
+=== Install and Uninstall
+
+The compression services are not installed by default within the platform application. Installing them can be done by doing:
+
+[source,terminal,linenums]
+----
+features:install compression-[DESIRED COMPRESSION SERVICE]
+----
+
+Where [DESIRED COMPRESSION SERVICE] is one of the following:
+
+[cols="2,6" options="header"]
+|===
+
+|Compression Type
+|Description
+
+|exi
+|Adds Efficient XML Interchange (EXI) support to outgoing responses. EXI is an W3C standard for XML encoding that shrinks xml to a smaller size than normal GZip compression. More information is available at http://www.w3.org/XML/EXI/
+
+|gzip
+|Adds GZip compression to in and outgoing messages through CXF components. Code comes with CXF.
+
+|===
+
+[WARNING]
+====
+Due to the way CXF features work, the compression services either need to be installed BEFORE the desired CXF service is started or the CXF service needs to be refreshed / restarted after the compression service is installed.
+====
+
+=== Implementation Details
+
+==== Imported Services
+
+None
+
+==== Exported Services
+
+[cols="2,3,2,1" options="header"]
+|===
+|Registered Interface
+|Implemented Class(es)
+|Service Property
+|Value
+
+|org.apache.cxf.feature.Feature
+|ddf.compression.exi.EXIFeature
+
+org.apache.cxf.transport.common.gzip.GZIPFeature
+|N/A
+|N/A
+
+|===
