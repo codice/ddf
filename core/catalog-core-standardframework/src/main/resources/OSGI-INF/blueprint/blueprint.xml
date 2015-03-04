@@ -26,34 +26,24 @@
 
 	<!-- START Sorted Plugin lists that are sorted by their ServiceReferences -->
 	<bean id="preIngestSortedList" class="ddf.catalog.util.impl.SortedServiceList">
-		<argument ref="blueprintBundleContext" />
 	</bean>
 	<bean id="postIngestSortedList" class="ddf.catalog.util.impl.SortedServiceList">
-		<argument ref="blueprintBundleContext" />
 	</bean>
 	<bean id="preQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
-		<argument ref="blueprintBundleContext" />
 	</bean>
 	<bean id="postQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
-		<argument ref="blueprintBundleContext" />
 	</bean>
 	<bean id="preFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
-		<argument ref="blueprintBundleContext" />
 	</bean>
 	<bean id="postFederatedQuerySortedList" class="ddf.catalog.util.impl.SortedServiceList">
-		<argument ref="blueprintBundleContext" />
 	</bean>
 	<bean id="preResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList">
-		<argument ref="blueprintBundleContext" />
 	</bean>
 	<bean id="postResourceSortedList" class="ddf.catalog.util.impl.SortedServiceList">
-		<argument ref="blueprintBundleContext" />
 	</bean>
 	<bean id="catalogProviderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
-		<argument ref="blueprintBundleContext" />
 	</bean>
 	<bean id="resourceReaderSortedList" class="ddf.catalog.util.impl.SortedServiceList">
-		<argument ref="blueprintBundleContext" />
 	</bean>
 
 

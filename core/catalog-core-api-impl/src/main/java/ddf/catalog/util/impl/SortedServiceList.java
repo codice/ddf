@@ -14,6 +14,15 @@
  **/
 package ddf.catalog.util.impl;
 
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.plugin.PreIngestPlugin;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,14 +32,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.plugin.PreIngestPlugin;
 
 /**
  * <p>
@@ -63,20 +64,24 @@ public class SortedServiceList<T> implements List<T> {
     private Map<ServiceReference, T> serviceMap = Collections
             .synchronizedMap(new TreeMap<ServiceReference, T>(new ServiceComparator()));
 
-    private BundleContext context;
-
     private static final XLogger logger = new XLogger(LoggerFactory.getLogger(SortedServiceList.class));
 
     /**
      * Constructor accepting OSGi bundle context. This constructor is currently invoked by the
      * ddf-catalog-framework bundle's blueprint and the fanout-catalogframework bundle's blueprint
      * upon framework construction.
-     * 
-     * @param bundleContext
-     *            the OSGi bundle's context
+     *
      */
-    public SortedServiceList(BundleContext bundleContext) {
-        context = bundleContext;
+    public SortedServiceList() {
+
+    }
+
+    protected BundleContext getContext() {
+        Bundle cxfBundle = FrameworkUtil.getBundle(SortedServiceList.class);
+        if (cxfBundle != null) {
+            return cxfBundle.getBundleContext();
+        }
+        return null;
     }
 
     /**
@@ -90,10 +95,15 @@ public class SortedServiceList<T> implements List<T> {
     public void bindPlugin(ServiceReference ref) {
 
         logger.debug(this + " Binding " + ref);
+        BundleContext context = getContext();
 
-        T service = (T) context.getService(ref);
+        if (context != null) {
+            T service = (T) context.getService(ref);
 
-        serviceMap.put(ref, service);
+            serviceMap.put(ref, service);
+        } else {
+            logger.debug("BundleContext was null, unable to add service reference");
+        }
 
         logger.debug(Arrays.asList(serviceMap.values()).toString());
 
