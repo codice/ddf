@@ -99,6 +99,11 @@
                 <version>${cxf.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-security-sso-saml</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
+            <dependency>
                 <artifactId>karaf</artifactId>
                 <groupId>org.apache.karaf</groupId>
                 <version>${karaf.version}</version>
