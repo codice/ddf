@@ -331,6 +331,7 @@
         <module>wcs</module>
         <module>csw</module>
         <module>spatial-app</module>
+        <module>docs</module>
     </modules>
 
     <repositories>

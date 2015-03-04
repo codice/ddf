@@ -1,0 +1,2039 @@
+= Integrating {branding} Spatial App
+include::../includes/config.adoc[]
+
+== Overview
+
+The DDF Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
+
+This guide supports integration of this application with external frameworks.
+
+== Integrating DDF with CSW
+Catalog Services for Web (_CSW_) is an Open Geospatial Consortium (OGC) standard.
+
+=== CSW v2.0.2 Endpoint
+
+The CSW endpoint provides an XML-RPC endpoint that a client accesses to search collections of descriptive information (metadata) about geospatial data and services.
+The CSW endpoint implements version 2.0.2 of the CSW specification (http://www.opengeospatial.org/standards/cat).
+
+==== Using the CSW Endpoint
+Once installed, the CSW endpoint is accessible from `http://<DDF_HOST>:<DDF_PORT>/services/csw`.
+
+===== GetCapabilities Operation
+The GetCapabilites operation is meant to describe the operations the catalog supports and the URLs used to access those operations.
+
+The CSW endpoint supports both `HTTP GET` and `HTTP POST` requests for the GetCapabilties operation. The response to either request will always be a csw:Capabilities XML document. This XML document is defined by the CSW-Discovery XML Schema ( http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd).
+
+===== GetCapabilities `HTTP GET`
+￼￼￼
+The `HTTP GET` form of GetCapabilities uses query parameters via the following URL:
+
+.GetCapabilities KVP Encoding
+----
+http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=GetCapabilities
+----
+
+===== GetCapabilities `HTTP POST`
+
+The `HTTP POST` form of GetCapabilities operates on the root CSW endpoint URL (`http://<DDF_HOST>:<DDF_PORT>/services/csw`) with an XML message body that is defined by the GetCapabilities element of the CSW-Discovery XML Schema ( http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd).\
+
+.GetCapabilities XML Request
+[source,xml,linenums]
+----
+<?xml version="1.0" ?>
+<csw:GetCapabilities
+  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+  service="CSW"
+  version="2.0.2" >
+</csw:GetCapabilities>
+----
+
+===== GetCapabilities Response
+The following is an example of an application/xml response to the GetCapabilities operation:
+
+.Sample Response
+[source,xml,linenums]
+----
+
+<Capabilities xmlns="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns2="http://www.opengis.net/ogc" xmlns:ns3="http://www.opengis.net/gml" xmlns:ns4="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/ows" xmlns:ns6="http://purl.org/dc/elements/1.1/" xmlns:ns7="http://purl.org/dc/terms/" xmlns:ns8="http://www.w3.org/2001/SMIL20/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" xsi:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-discovery.xsd">
+  <ns5:ServiceIdentification>
+    <ns5:Title>Catalog Service for the Web</ns5:Title>
+    <ns5:Abstract>DDF CSW Endpoint</ns5:Abstract>
+    <ns5:ServiceType>CSW</ns5:ServiceType>
+    <ns5:ServiceTypeVersion>2.0.2</ns5:ServiceTypeVersion>
+  </ns5:ServiceIdentification>
+  <ns5:ServiceProvider>
+    <ns5:ProviderName>DDF</ns5:ProviderName>
+    <ns5:ProviderSite/>
+    <ns5:ServiceContact/>
+  </ns5:ServiceProvider>
+  <ns5:OperationsMetadata>
+    <ns5:Operation name="GetCapabilities">
+      <ns5:DCP>
+        <ns5:HTTP>
+          <ns5:Get ns4:href="http://localhost:8181/services/csw"/>
+          <ns5:Post ns4:href="http://localhost:8181/services/csw">
+            <ns5:Constraint name="PostEncoding">
+              <ns5:Value>XML</ns5:Value>
+            </ns5:Constraint>
+￼￼￼￼      </ns5:Post>
+        </ns5:HTTP>
+      </ns5:DCP>
+      <ns5:Parameter name="sections">
+        <ns5:Value>ServiceIdentification</ns5:Value>
+        <ns5:Value>ServiceProvider</ns5:Value>
+        <ns5:Value>OperationsMetadata</ns5:Value>
+        <ns5:Value>Filter_Capabilities</ns5:Value>
+      </ns5:Parameter>
+    </ns5:Operation>
+    <ns5:Operation name="DescribeRecord">
+      <ns5:DCP>
+        <ns5:HTTP>
+          <ns5:Get ns4:href="http://localhost:8181/services/csw"/>
+          <ns5:Post ns4:href="http://localhost:8181/services/csw">
+            <ns5:Constraint name="PostEncoding">
+              <ns5:Value>XML</ns5:Value>
+            </ns5:Constraint>
+          </ns5:Post>
+        </ns5:HTTP>
+      </ns5:DCP>
+      <ns5:Parameter name="typeName">
+        <ns5:Value>csw:Record</ns5:Value>
+      </ns5:Parameter>
+      <ns5:Parameter name="OutputFormat">
+        <ns5:Value>text/xml</ns5:Value>
+        <ns5:Value>application/xml</ns5:Value>
+      </ns5:Parameter>
+       <ns5:Parameter name="schemaLanguage">
+        <ns5:Value>http://www.w3.org/XMLSchema</ns5:Value>
+        <ns5:Value>http://www.w3.org/XML/Schema</ns5:Value>
+        <ns5:Value>http://www.w3.org/2001/XMLSchema</ns5:Value>
+        <ns5:Value>http://www.w3.org/TR/xmlschema-1/
+        </ns5:Value>
+      </ns5:Parameter>
+    </ns5:Operation>
+    <ns5:Operation name="GetRecords">
+      <ns5:DCP>
+        <ns5:HTTP>
+          <ns5:Get ns4:href="http://localhost:8181/services/csw"/>
+          <ns5:Post ns4:href="http://localhost:8181/services/csw">
+            <ns5:Constraint name="PostEncoding">
+              <ns5:Value>XML</ns5:Value>
+            </ns5:Constraint>
+          </ns5:Post>
+        </ns5:HTTP>
+      </ns5:DCP>
+      <ns5:Parameter name="ResultType">
+        <ns5:Value>hits</ns5:Value>
+        <ns5:Value>results</ns5:Value>
+        <ns5:Value>validate</ns5:Value>
+      </ns5:Parameter>
+      <ns5:Parameter name="OutputFormat">
+        <ns5:Value>text/xml</ns5:Value>
+        <ns5:Value>application/xml</ns5:Value>
+      </ns5:Parameter>
+      <ns5:Parameter name="OutputSchema">
+        <ns5:Value>http://www.opengis.net/cat/csw/2.0.2</ns5:Value>
+      </ns5:Parameter>
+      <ns5:Parameter name="typeNames">
+        <ns5:Value>csw:Record</ns5:Value>
+  ￼￼￼ </ns5:Parameter>
+      <ns5:Parameter name="ConstraintLanguage">
+        <ns5:Value>Filter</ns5:Value>
+      </ns5:Parameter>
+    </ns5:Operation>
+    <ns5:Operation name="GetRecordById">
+      <ns5:DCP>
+        <ns5:HTTP>
+          <ns5:Get ns4:href="http://localhost:8181/services/csw"/>
+          <ns5:Post ns4:href="http://localhost:8181/services/csw">
+            <ns5:Constraint name="PostEncoding">
+              <ns5:Value>XML</ns5:Value>
+            </ns5:Constraint>
+          </ns5:Post>
+        </ns5:HTTP>
+      </ns5:DCP>
+      <ns5:Parameter name="OutputSchema">
+        <ns5:Value>http://www.opengis.net/cat/csw/2.0.2</ns5:Value>
+      </ns5:Parameter>
+      <ns5:Parameter name="OutputFormat">
+        <ns5:Value>text/xml</ns5:Value>
+        <ns5:Value>application/xml</ns5:Value>
+      </ns5:Parameter>
+      <ns5:Parameter name="ResultType">
+        <ns5:Value>hits</ns5:Value>
+        <ns5:Value>results</ns5:Value>
+        <ns5:Value>validate</ns5:Value>
+      </ns5:Parameter>
+      <ns5:Parameter name="ElementSetName">
+        <ns5:Value>brief</ns5:Value>
+        <ns5:Value>summary</ns5:Value>
+        <ns5:Value>full</ns5:Value>
+      </ns5:Parameter>
+    </ns5:Operation>
+    <ns5:Parameter name="service">
+      <ns5:Value>CSW</ns5:Value>
+    </ns5:Parameter>
+    <ns5:Parameter name="version">
+      <ns5:Value>2.0.2</ns5:Value>
+    </ns5:Parameter>
+  </ns5:OperationsMetadata>
+  <ns2:Filter_Capabilities>
+    <ns2:Spatial_Capabilities>
+      <ns2:GeometryOperands>
+        <ns2:GeometryOperand>ns3:Point</ns2:GeometryOperand>
+        <ns2:GeometryOperand>ns3:Polygon</ns2:GeometryOperand>
+        <ns2:GeometryOperand>ns3:LineString</ns2:GeometryOperand>
+      </ns2:GeometryOperands>
+      <ns2:SpatialOperators>
+        <ns2:SpatialOperator name="BBOX"/>
+         <ns2:SpatialOperator name="Beyond"/>
+         <ns2:SpatialOperator name="Contains"/>
+         <ns2:SpatialOperator name="Crosses"/>
+         <ns2:SpatialOperator name="Disjoint"/>
+         <ns2:SpatialOperator name="DWithin"/>
+         <ns2:SpatialOperator name="Intersects"/>
+         <ns2:SpatialOperator name="Overlaps"/>
+         <ns2:SpatialOperator name="Touches"/>
+         <ns2:SpatialOperator name="Within"/>
+      </ns2:SpatialOperators>
+￼￼￼</ns2:Spatial_Capabilities>
+  <ns2:Scalar_Capabilities>
+    <ns2:LogicalOperators/>
+      <ns2:ComparisonOperators>
+        <ns2:ComparisonOperator>Between</ns2:ComparisonOperator>
+        <ns2:ComparisonOperator>NullCheck</ns2:ComparisonOperator>
+        <ns2:ComparisonOperator>Like</ns2:ComparisonOperator>
+        <ns2:ComparisonOperator>EqualTo</ns2:ComparisonOperator>
+        <ns2:ComparisonOperator>GreaterThan</ns2:ComparisonOperator>
+        <ns2:ComparisonOperator>GreaterThanEqualTo</ns2:ComparisonOperator>
+        <ns2:ComparisonOperator>LessThan</ns2:ComparisonOperator>
+        <ns2:ComparisonOperator>LessThanEqualTo</ns2:ComparisonOperator>
+        <ns2:ComparisonOperator>EqualTo</ns2:ComparisonOperator>
+        <ns2:ComparisonOperator>NotEqualTo</ns2:ComparisonOperator>
+      </ns2:ComparisonOperators>
+    </ns2:Scalar_Capabilities>
+    <ns2:Id_Capabilities>
+      <ns2:EID/>
+    </ns2:Id_Capabilities>
+  </ns2:Filter_Capabilities>
+</Capabilities>
+----
+
+===== DescribeRecord Operation
+
+The describeRecord operation retrieves the type definition used by metadata of one or more registered resource types. There are two request types one for `GET` and one for `POST`. Each request has the following common data parameters:
+
+Namespace:: In `POST` operations, namespaces are defined in the xml. In `GET` operations, namespaces are defined in a comma separated list of the form: `xmlns([prefix=]namespace-url)(,xmlns([prefix=]namespace-url))*`
+Service:: The service being used, in this case it is fixed at CSW.
+Version:: The version of the service being used (2.0.2).
+OutputFormat:: The requester wants the response to be in this intended output. Currently, only one format is supported (application/xml). If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
+OutputSchema:: The schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema).
+
+===== DescribeRecord `HTTP GET`
+
+The `HTTP GET` request differs from the `POST` request in that the typeName is a comma-separated list of namespace prefix qualified types as strings (e.g., csw:Record,xyz:MyType). These prefixes are then matched against the prefix qualified namespaces in the request. This is converted to a list of QName(s). In this way, it behaves exactly as the post request that uses a list of QName(s) in the first place.
+
+.DescribeRecord KVP Encoding
+----
+http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=DescribeRecord&NAMESPACE=xmlns(http://www.opengis.net/cat/csw/2.0.2)&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2
+----
+
+===== DescribeRecord HTTP POST
+
+The HTTP POST request DescribeRecordType has the typeName as a List of QName(s). The QNames are matched against the namespaces by prefix, if prefixes exist.
+￼￼￼￼
+.DescribeRecord XML Request
+[source,xml,linenums]
+----
+<?xml version="1.0" ?>
+  <DescribeRecord
+    version="2.0.2"
+    service="CSW"
+    outputFormat="application/xml"
+    outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+    xmlns="http://www.opengis.net/cat/csw/2.0.2">
+  </DescribeRecord>
+----
+
+===== DescribeRecord Response
+
+The following is an example of an application/xml response to the DescribeRecord operation.
+
+.DescribeRecord Response
+[source,xml,linenums]    
+----
+<DescribeRecordResponse xsi:schemaLocation="http://www.opengis.net/csw/ogc/csw/2.0.2/CSW-discovery.xsd" xmlns="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns2="http://www.opengis.net/ogc" xmlns:ns3="http://www.opengis.net/gml" xmlns:ns4="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/ows" xmlns:ns6="http://purl.org/dc/elements/1.1/" xmlns:ns7="http://purl.org/dc/terms/" xmlns:ns8="http://www.w3.org/2001/SMIL20/"
+xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SchemaComponent targetNamespace="http://www.opengis.net/cat/csw/2.0.2" schemaLanguage="http://www.w3.org/XML/Schema">
+    <xsd:schema elementFormDefault="qualified" id="csw-record" targetNamespace="http://www.opengis.net/cat/csw/2.0.2" version="2.0.2" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows">
+      <xsd:annotation>
+        <xsd:appinfo>
+          <dc:identifier>http://schemas.opengis.net/csw/2.0.2/record.xsd</dc:identifier>
+        </xsd:appinfo>
+        <xsd:documentation xml:lang="en">This schema defines the basic record types that must be supported          by all CSW implementations. These correspond to full, summary, and brief views based on DCMI metadata terms.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:import namespace="http://purl.org/dc/terms/" schemaLocation="rec-dcterms.xsd"/>
+        <xsd:import namespace="http://purl.org/dc/elements/1.1/" schemaLocation="rec-dcmes.xsd"/>
+        <xsd:import namespace="http://www.opengis.net/ows" schemaLocation="../../ows/1.0.0/owsAll.xsd"/>
+        <xsd:element abstract="true" id="AbstractRecord" name="AbstractRecord" type="csw:AbstractRecordType"/>
+        <xsd:complexType abstract="true" id="AbstractRecordType" name="AbstractRecordType"/>
+        <xsd:element name="DCMIRecord" substitutionGroup="csw:AbstractRecord" type="csw:DCMIRecordType"/>
+          <xsd:complexType name="DCMIRecordType">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">This type encapsulates all of the standard DCMI metadata terms, including the Dublin Core refinements; these terms may be mapped to the profile-specific information model.
+              </xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexContent>
+               <xsd:extension base="csw:AbstractRecordType">
+                  <xsd:sequence>
+                    <xsd:group ref="dct:DCMI-terms"/>
+                  </xsd:sequence>
+               </xsd:extension>
+            </xsd:complexContent>
+          </xsd:complexType>
+          <xsd:element name="BriefRecord" substitutionGroup="csw:AbstractRecord" type="csw:BriefRecordType"/>
+          <xsd:complexType final="#all" name="BriefRecordType">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">This type defines a brief representation of the common record format. It extends AbstractRecordType to include only the dc:identifier and dc:type properties.
+              </xsd:documentation>
+            </xsd:annotation>
+            <xsd:complexContent>
+              <xsd:extension base="csw:AbstractRecordType">
+                <xsd:sequence>
+                  <xsd:element maxOccurs="unbounded" minOccurs="1" ref="dc:identifier"/>
+                  <xsd:element maxOccurs="unbounded" minOccurs="1" ref="dc:title"/>
+                  <xsd:element minOccurs="0" ref="dc:type"/>
+                  <xsd:element maxOccurs="unbounded" minOccurs="0" ref="ows:BoundingBox"/>
+                </xsd:sequence>
+              </xsd:extension>
+            </xsd:complexContent>
+         </xsd:complexType>
+         <xsd:element name="SummaryRecord" substitutionGroup="csw:AbstractRecord" type="csw:SummaryRecordType"/>
+         <xsd:complexType final="#all" name="SummaryRecordType">
+            <xsd:annotation>
+              <xsd:documentation xml:lang="en">This type defines a summary representation of the common record format. It extends AbstractRecordType to include the core properties.
+              </xsd:documentation>
+            </xsd:annotation>
+          <xsd:complexContent>
+            <xsd:extension base="csw:AbstractRecordType">
+              <xsd:sequence>
+                <xsd:element maxOccurs="unbounded" minOccurs="1" ref="dc:identifier"/>
+                <xsd:element maxOccurs="unbounded" minOccurs="1" ref="dc:title"/>
+                <xsd:element minOccurs="0" ref="dc:type"/>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dc:subject"/>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dc:format"/>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dc:relation"/>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dct:modified"/>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dct:abstract"/>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" ref="dct:spatial"/>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" ref="ows:BoundingBox"/>
+              </xsd:sequence>
+            </xsd:extension>
+          </xsd:complexContent>
+        </xsd:complexType>
+        <xsd:element name="Record" substitutionGroup="csw:AbstractRecord" type="csw:RecordType"/>
+        <xsd:complexType final="#all" name="RecordType">
+          <xsd:annotation>
+            <xsd:documentation xml:lang="en">This type extends DCMIRecordType to add ows:BoundingBox; it may be used to specify a spatial envelope for the catalogued resource.
+            </xsd:documentation>
+          </xsd:annotation>
+          <xsd:complexContent>
+            <xsd:extension base="csw:DCMIRecordType">
+              <xsd:sequence>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" name="AnyText" type="csw:EmptyType"/>
+                <xsd:element maxOccurs="unbounded" minOccurs="0" ref="ows:BoundingBox"/>
+              </xsd:sequence>
+            </xsd:extension>
+￼         </xsd:complexContent>
+        </xsd:complexType>
+        <xsd:complexType name="EmptyType"/>
+      </xsd:schema>
+    </SchemaComponent>
+￼￼</DescribeRecordResponse>
+----
+
+===== GetRecords Operation
+
+The GetRecords operation is the principal means of searching the catalog. The matching entries may be included with the response. The client may assign a requestId (absolute URI). A distributed search is performed if the DistributedSearch element is present and the catalog is a member of a federation. Profiles may allow alternative query expressions. There are two types of request types: one for `GET` and one for `POST`. Each request has the following common data parameters:
+
+Namespace:: In POST operations, namespaces are defined in the XML. In GET operations, namespaces are defined in a comma-separated list of the form xmlns([prefix=]namespace-url)(,xmlns([pref::=]namespace-url))*.
+Service:: The service being used, in this case it is fixed at CSW.
+Version:: The version of the service being used (2.0.2).
+OutputFormat:: The requester wants the response to be in this intended output. Currently, only one format is supported (application/xml). If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
+OutputSchema:: This is the schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema).
+ElementSetName:: CodeList with allowed values of “brief”, “summary”, or “full”. The default value is "summary". The predefined set names of “brief”, “summary”, and “full” represent different levels of detail for the source record. "Brief" represents the least amount of detail, and "full" represents all the metadata record elements.
+
+===== GetRecords `HTTP GET`
+
+The `HTTP GET` request differs from the `POST` request in that it has the "typeNames" as a comma-separated list of namespace prefix qualified types as strings. For example "csw:Record,xyz:MyType". These prefixes are then matched against the prefix qualified namespaces in the request. This is converted to a list QName(s). In this way it behaves exactly as the post request that uses a list of QName(s) in the first place.
+
+.GetRecords KVP Encoding
+----
+http://<DDF_HOST>:<DDF_PORT>/services/csw?service=CSW&version=2.0.2&request=GetRecords&o
+utputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&NAMESPACE=
+xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)&resultType=results&typeNames=csw:Record&
+ElementSetName=brief&ConstraintLanguage=CQL_TEXT&constraint=AnyText Like '%25'
+----
+
+===== GetRecords `HTTP POST`
+The `HTTP POST` request GetRecords has the "typeNames" as a List of QName(s). The QNames are matched against the namespaces by prefix, if prefixes exist.
+
+.GetRecords XML Request
+[source,xml,linenums]
+----
+<?xml version="1.0" ?>
+<GetRecords xmlns="http://www.opengis.net/cat/csw/2.0.2"
+        xmlns:ogc="http://www.opengis.net/ogc"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        service="CSW"
+        version="2.0.2"
+        maxRecords="4"
+        startPosition="1"
+        resultType="results"
+        outputFormat="application/xml"
+        outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+        xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2 ../../../csw/2.0.2/CSW-discovery.xsd">
+    <Query typeNames="Record">
+        <ElementSetName>summary</ElementSetName>
+        <Constraint version="1.1.0">
+            <ogc:Filter>
+                <ogc:PropertyIsLike wildCard="%" singleChar="_" escapeChar="\">
+                    <ogc:PropertyName>AnyText</ogc:PropertyName>
+                    <ogc:Literal>%</ogc:Literal>
+                </ogc:PropertyIsLike>
+            </ogc:Filter>
+        </Constraint>
+    </Query>
+</GetRecords>
+----
+
+===== GetRecords Response
+
+The following is an example of an application/xml response to the GetRecords operation.
+
+.GetRecords XML Request
+[source,xml,linenums]
+----
+<csw:GetRecordsResponse version="2.0.2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows" xmlns:xs="http://www.w3.org/2001/XMLSchema"  xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"> 
+  <csw:SearchStatus timestamp="2014-02-19T15:33:44.602-05:00"/>
+    <csw:SearchResults numberOfRecordsMatched="41" numberOfRecordsReturned="4" nextRecord="5" recordSchema="http://www.opengis.net/cat/csw/2.0.2" elementSet="summary">
+      <csw:SummaryRecord>
+        <dc:identifier>182fb33103414e5cbb06f8693b526239</dc:identifier>
+        <dc:title>Product10</dc:title>
+        <dc:type>pdf</dc:type>
+        <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
+        <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+          <ows:LowerCorner>20.0 10.0</ows:LowerCorner>
+          <ows:UpperCorner>20.0 10.0</ows:UpperCorner>
+        </ows:BoundingBox>
+      </csw:SummaryRecord>
+      <csw:SummaryRecord>
+        <dc:identifier>c607440db9b0407e92000d9260d35444</dc:identifier>
+        <dc:title>Product03</dc:title>
+        <dc:type>pdf</dc:type>
+        <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
+        <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+          <ows:LowerCorner>6.0 3.0</ows:LowerCorner>
+          <ows:UpperCorner>6.0 3.0</ows:UpperCorner>
+        </ows:BoundingBox>
+      </csw:SummaryRecord>
+      <csw:SummaryRecord>
+        <dc:identifier>034cc757abd645f0abe6acaccfe194de</dc:identifier>
+        <dc:title>Product03</dc:title>
+        <dc:type>pdf</dc:type>
+        <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
+        <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+          <ows:LowerCorner>6.0 3.0</ows:LowerCorner>
+          <ows:UpperCorner>6.0 3.0</ows:UpperCorner>
+        </ows:BoundingBox>
+      </csw:SummaryRecord>
+      <csw:SummaryRecord>
+        <dc:identifier>5d6e987bd6084bd4919d06b63b77a007</dc:identifier>
+        <dc:title>Product01</dc:title>
+        <dc:type>pdf</dc:type>
+        <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
+        <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+          <ows:LowerCorner>2.0 1.0</ows:LowerCorner>
+          <ows:UpperCorner>2.0 1.0</ows:UpperCorner>
+        </ows:BoundingBox>
+      </csw:SummaryRecord>
+    </csw:SearchResults>
+  </csw:GetRecordsResponse>
+----
+
+===== GetRecordById Operation
+
+The GetRecords operation request retrieves the default representation of catalog records using their identifier. This operation presumes that a previous query has been performed in order to obtain the identifiers that may be used with this operation. For example, records returned by a GetRecords operation may contain references to other records in the catalog that may be retrieved using the GetRecordById operation. This operation is also a subset of the GetRecords operation and is included as a convenient short form for retrieving and linking to records in a catalog. There are two request types: one for `GET` and one for `POST`. Each request has the following common data parameters:
+
+Namespace:: In POST operations, namespaces are defined in the XML. In GET operations namespaces are defined in a comma separated list of the form: xmlns([prefix=]namespace-url)(,xmlns([prefix=]namespace-url))*
+Service:: The service being used, in this case it is fixed at "CSW"
+Version:: The version of the service being used (2.0.2).
+OutputFormat:: The requester wants the response to be in this intended output. Currently, only one format is supported (application/xml). If this parameter is supplied, it is validated against the known type. If this parameter is not supported, it passes through and returns the XML response upon success.
+OutputSchema:: This is the schema language from the request. This is validated against the known list of schema languages supported (refer to http://www.w3.org/XML/Schema).
+ElementSetName:: CodeList with allowed values of “brief”, “summary”, or “full”. The default value is "summary". The predefined set names of “brief”, “summary”, and “full” represent different levels of detail for the source record. "Brief" represents the least amount of detail, and "full" represents all the metadata record elements.
+Id:: The Id parameter is a comma-separated list of record identifiers for the records that CSW returns to the client. In the XML encoding, one or more <Id> elements may be used to specify the record identifier to be retrieved.
+
+===== GetRecordById `HTTP GET`
+
+The following is an example of a `HTTP GET` request:
+
+.GetRecords KVP Encoding
+----
+http://<DDF_HOST>:<DDF_PORT>/services/csw??service=CSW&version=2.0.2&request=GetRecordById&NAMESPACE=xmlns="http://www.opengis.net/cat/csw/2.0.2"&ElementSetName=full&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&id=fd7ff1535dfe47db8793b550d4170424,ba908634c0eb439b84b5d9c42af1f871
+----
+
+===== GetRecordById `HTTP POST`
+
+The following is an example of a `HTTP POST` request:
+
+.GetRecordById XML Request
+[source,xml,linenums]
+----
+<GetRecordById xmlns="http://www.opengis.net/cat/csw/2.0.2"
+  xmlns:ogc="http://www.opengis.net/ogc"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  service="CSW"
+  version="2.0.2"
+  outputFormat="application/xml"
+  outputSchema="http://www.opengis.net/cat/csw/2.0.2"
+  xsi:schemaLocation="http://www.opengis.net/cat/csw/2.0.2
+../../../csw/2.0.2/CSW-discovery.xsd">
+ <ElementSetName>full</ElementSetName>
+ <Id>182fb33103414e5cbb06f8693b526239</Id>
+ <Id>c607440db9b0407e92000d9260d35444</Id>
+</GetRecordById>
+----
+
+===== GetRecordByIdResponse
+The following is an example of an application/xml response to the GetRecordById operation:
+
+.Sample - GetRecordByIdResponse
+[source,xml,linenums]
+----
+<csw:GetRecordByIdResponse xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows"
+xmlns:xs="http://www.w3.org/2001/XMLSchema"
+xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <csw:Record>
+      <dc:identifier>182fb33103414e5cbb06f8693b526239</dc:identifier>
+<dct:bibliographicCitation>182fb33103414e5cbb06f8693b526239</dct:bibliographicCitation>
+      <dc:title>Product10</dc:title>
+      <dct:alternative>Product10</dct:alternative>
+      <dc:type>pdf</dc:type>
+      <dc:date>2014-02-19T15:22:51.563-05:00</dc:date>
+      <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
+      <dct:created>2014-02-19T15:22:51.563-05:00</dct:created>
+      <dct:dateAccepted>2014-02-19T15:22:51.563-05:00</dct:dateAccepted>
+      <dct:dateCopyrighted>2014-02-19T15:22:51.563-05:00</dct:dateCopyrighted>
+      <dct:dateSubmitted>2014-02-19T15:22:51.563-05:00</dct:dateSubmitted>
+      <dct:issued>2014-02-19T15:22:51.563-05:00</dct:issued>
+      <dc:source>ddf.distribution</dc:source>
+      <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+         <ows:LowerCorner>20.0 10.0</ows:LowerCorner>
+         <ows:UpperCorner>20.0 10.0</ows:UpperCorner>
+      </ows:BoundingBox>
+   </csw:Record>
+   <csw:Record>
+      <dc:identifier>c607440db9b0407e92000d9260d35444</dc:identifier>
+<dct:bibliographicCitation>c607440db9b0407e92000d9260d35444</dct:bibliographicCitation>
+      <dc:title>Product03</dc:title>
+      <dct:alternative>Product03</dct:alternative>
+      <dc:type>pdf</dc:type>
+      <dc:date>2014-02-19T15:22:51.563-05:00</dc:date>
+      <dct:modified>2014-02-19T15:22:51.563-05:00</dct:modified>
+      <dct:created>2014-02-19T15:22:51.563-05:00</dct:created>
+      <dct:dateAccepted>2014-02-19T15:22:51.563-05:00</dct:dateAccepted>
+      <dct:dateCopyrighted>2014-02-19T15:22:51.563-05:00</dct:dateCopyrighted>
+      <dct:dateSubmitted>2014-02-19T15:22:51.563-05:00</dct:dateSubmitted>
+      <dct:issued>2014-02-19T15:22:51.563-05:00</dct:issued>
+      <dc:source>ddf.distribution</dc:source>
+      <ows:BoundingBox crs="urn:x-ogc:def:crs:EPSG:6.11:4326">
+         <ows:LowerCorner>6.0 3.0</ows:LowerCorner>
+         <ows:UpperCorner>6.0 3.0</ows:UpperCorner>
+      </ows:BoundingBox>
+   </csw:Record>
+</csw:GetRecordByIdResponse>
+----
+
+[cols="5*" options="header"]
+.CSW Record to Metacard Mapping
+|===
+
+|CSW Record Field
+|Metacard Field
+|Brief Record
+|Summary Record
+|Record
+
+|dc:title
+|title
+|1-n
+|1-n
+|0-n
+
+|dc:creator
+| 
+|
+|
+|0-n
+
+|dc:subject
+| 
+|
+|0-n
+|0-n
+
+|dc:description
+| 
+| 
+| 
+|0-n
+
+|dc:publisher 
+| 
+| 
+| 
+|0-n
+￼￼￼￼￼￼￼￼￼
+|dc:contributor 
+| 
+| 
+| 
+|0-n
+
+|dc:date 
+|modified 
+|
+|
+|0-n
+
+|dc:type 
+|metadata-content-type 
+|0-1 
+|0-1 
+|0-n
+
+|dc:format 
+|
+|
+|0-n 
+|0-n
+
+|dc:identifier 
+|id 
+|1-n 
+|1-n 
+|0-n
+
+|dc:source 
+|source-id 
+|
+|
+|0-n
+
+|dc:language 
+|
+|
+|
+|0-n
+
+|dc:relation 
+|
+|
+|0-n
+|0-n
+
+|dc:coverage 
+|
+|
+|
+|0-n
+
+|dc:rights 
+|
+|
+|
+|0-n
+
+|dct:abstract 
+|
+|
+|0-n
+|0-n
+
+|dct:accessRights 
+|
+|
+|
+|0-n
+
+|dct:alternative 
+|title 
+|
+|
+|0-n
+
+|dct:audience 
+|
+|
+|
+|0-n
+
+|dct:available 
+|
+|
+|
+|0-n
+
+|dct:bibliographicCitation 
+|id
+|
+| 
+|0-n
+
+|dct:conformsTo 
+|
+|
+|
+|0-n
+
+|dct:created 
+|created 
+|
+|
+|0-n
+
+|dct:dateAccepted 
+|effective 
+|
+|
+|0-n
+
+|dct:Copyrighted 
+|effective 
+|
+|
+|0-n
+
+|dct:dateSubmitted 
+|modified 
+|
+|
+|0-n
+￼
+|dct:educationLevel 
+|
+|
+|
+|0-n
+￼
+|dct:extent 
+|
+|
+|
+|0-n
+
+|dct:hasFormat 
+|
+|
+|
+|0-n
+
+|dct:hasPart 
+|
+|
+|
+|0-n
+
+|dct:hasVersion 
+|
+|
+|
+|0-n
+
+￼
+|dct:isFormatOf 
+|
+|
+|
+|0-n
+
+￼
+|dct:isPartOf 
+|
+|
+|
+|0-n
+
+|dct:isReferencedBy 
+|
+|
+|
+|0-n
+
+|dct:isReplacedBy 
+|
+|
+|
+|0-n
+
+|dct:isRequiredBy 
+|
+|
+|
+|0-n
+￼
+|dct:issued 
+|modified 
+|
+|
+|0-n
+
+￼
+|dct:isVersionOf 
+|
+|
+|
+|0-n
+
+|dct:license 
+|
+|
+|
+|0-n
+
+|dct:mediator
+|
+|
+| 
+|0-n
+
+|dct:medium 
+|
+|
+|
+|0-n
+
+|dct:modified 
+|modified 
+|
+|0-n 
+|0-n
+
+|dct:provenance 
+|
+|
+|
+|0-n
+
+|dct:references
+|
+|
+|
+|0-n
+
+|dct:replaces
+|
+|
+|
+|0-n
+
+|dct:requires
+|
+|
+|
+|0-n
+
+|dct:rightsHolder
+|
+|
+|
+|0-n
+
+|dct:spatial
+|location
+|
+|0-n
+|0-n
+￼
+|dct:tableOfContents
+|
+|
+|
+|0-n
+
+|dct:temporal
+|effective + " - " + expiration
+|
+|
+|0-n
+
+|dct:valid
+|expiration
+|
+|
+|0-n
+￼
+|ows:BoundingBox
+|
+|0-n
+|0-n
+|0-n
+
+|===
+
+==== Install and Uninstall
+The CSW endpoint can be installed and uninstalled using the normal processes described in the Configuration section. 
+
+==== Configuration
+The CSW endpoint has no configurable properties. It can only be installed or uninstalled.
+
+==== Known Issues
+None
+
+=== CSW v2.0.2 Source
+The CSW source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects.
+
+==== Using
+Use the CSW source if querying a CSW version 2.0.2 compliant service.
+==== Installing and Uninstalling
+The CSW source can be installed and uninstalled using the normal processes described in the Configuring DDF section.
+
+==== Configuring
+This component can be configured using the normal processes described in the Configuring DDF section.
+The configurable properties for the CSW source are accessed from the CSW Federated Source Configuration in the Web Console or Admin Console.
+
+===== Configure the CSW Source
+
+[cols="6*", options="header"]
+.Configurable Properties
+|===
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+￼
+|Source ID
+|id
+|String
+|Unique Name of this Source.
+|CSW
+|Yes
+
+|CSW URL
+|cswUrl
+|String
+|URL to the Catalogue Services for the Web site that will be queried by this source
+|
+|Yes
+
+|Username
+|username
+|String
+|Username to log into the CSW service
+|
+|No
+￼
+|Password
+|password
+|String
+|Password to log into the CSW service
+|
+|No
+￼
+|Disable CN Check
+|disableCnCheck
+|Boolean
+|Disable the CN Check for the server certificate
+|false
+|Yes
+
+|Force Longitude/Latitude coordinate order
+|isLonLatOrder
+|Boolean
+|Force Longitude/Latitude coordinate order
+|false
+|Yes
+
+|Use posList in LInearRing
+|
+|Boolean
+|Use a <posList> element rather that a series of <pos> elements when issuing geospatial queries containing a LinearRing
+|false
+|Yes
+
+|Effective Date maps to
+|effectiveDateMapping
+|String
+|The field in the CSW Record that should be mapped to a Metacard's effective date. This field will have a default mapping, but the user can change this to be any date formatted field in a CSW Record. Relevant CSW fields would include dateSubmitted, created and modified. If no value is specified, the default value of created will be used. Note that the same CSW Record field cannot be used more than once in these date mapping properties.
+|created
+|No
+￼
+|Created Date maps to
+|createdDateMapping
+|String
+|The field in the CSW Record that should be mapped to a Metacard's created date. This field will have a default mapping, but the user can change this to be any date formatted field in a CSW Record. Relevant CSW fields would include dateSubmitted, created and modified. If no value is specified, the default value of dateSubmitted will be used. 
+Note that the same CSW Record field cannot be used more than once in these date mapping properties.
+|dateSubmitted
+|No
+
+|Modified Date maps to
+|modifiedDateMapping
+|String
+|The field in the CSW Record that should be mapped to a Metacard's effective date. This field will have a default mapping, but the user can change this to be any date formatted field in a CSW Record. Relevant CSW fields would include dateSubmitted, created and modified. If no value is specified, the default value of created will be used. Note that the same CSW Record field cannot be used more than once in these date mapping properties.
+|modified
+|No
+￼
+|Resource URI maps to
+|resourceUriMapping
+|String
+|CSW field to map to Metacard's resource URI to retrieve product associated with the CSW record.
+|source
+|No
+
+|Thumbnail maps to
+|thumbnailMapping
+|String
+|CSW field to map to Metacard's thumbnail URI to retrieve thumbnail data associated with the CSW record.
+|references
+|No
+￼
+|Content type maps to
+|contentTypemapping
+|String
+|CSW field to map to Metacard's content type.
+|type
+|No
+￼￼￼
+|Content Types
+|contentTypeNames
+|List of Strings
+|A list of content types that can be searched on. The user can add any content types to the list, e.g., doc, or even wildcarded types. The list of content types currently in the CSW source will be added to this list during configuration when the GetCapabilities response is returned.
+|
+|No
+
+|Poll Interval
+|pollInterval
+|Integer
+|Poll Interval to Check if the Source is available (in minutes - minimum 1)
+|5
+|Yes
+
+|Connection Timeout
+|connectionTimeout
+|Integer
+|Amount of time (in milliseconds) to attempt to establish a connection before timing out.
+|30000
+|Yes
+￼
+|Receive Timeout
+|receiveTimeout
+|Integer
+|Amount of time (in milliseconds) to attempt to establish a connection before timing out.
+|60000
+|Yes
+
+|Output schema
+|outputSchema
+|String
+|Output Schema
+|http://www.opengis.net/cat/csw/2.0.2
+|Yes
+
+|Force CQL Text as the Query Language
+|isCqlForced
+|Boolean
+|Force CQL Text
+|false
+|Yes
+
+|Forced Spatial Filter Type
+|Known Issues
+|forceSpatialFilter
+|String
+|Force only the selected None No Spatial Filter Type as the only available Spatial Filter.
+|===
+
+==== Known Issues
+* The CSW Source does not support text path searches.
+* All contextual searches are case sensitive; case-insensitive searches are not supported. 
+* Nearest neighbor spatial searches are not supported.
+* Fuzzy contextual searches are not supported.
+
+== Integrating DDF with KML
+Keyhole Markup Language (_KML_) is an XML notation for describing geographic annotation and visualization for 2- and 3- dimensional maps.
+
+=== KML Network Link Endpoint
+The KML Network Link endpoint allows a user to generate a view-based KML Query Results Network Link. This network link can be opened with Google Earth, establishing a dynamic connection between Google Earth and DDF. The root network link will create a network link for each configured source, including the local catalog. The individual source network links will perform a query against the OpenSearch Endpoint periodically based on the current view in the KML client. The query parameters for this query are obtained by a bounding box generated by Google Earth. The root network link will refresh every 12 hours or can be forced to refresh.
+As a user changes their current view, the query will be re-executed with the bounding box of the new view. (This query gets re-executed two seconds after the user stops moving the view.)
+
+==== Using
+Once installed, the KML Network Link endpoint can be accessed at:
+----
+http://<DDF_HOST>:<DDF_PORT>/services/catalog/kml
+----
+
+After the above request is sent, a KML Network Link document is returned as a response to download or open. This KML Network Link can then be opened in Google Earth.
+
+===== Example Output
+
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:ns2="http://www.google.com/kml/ext/2.2" 
+  xmlns:ns3="http://www.w3.org/2005/Atom" xmlns:ns4="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0">
+  <NetworkLink>
+    <name>DDF</name>
+    <open xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:boolean">true</open>
+    <Snippet maxLines="0"/>
+    <Link>
+      <href>http://0.0.0.0:8181/services/catalog/kml/sources</href>
+      <refreshMode>onInterval</refreshMode>
+      <refreshInterval>43200.0</refreshInterval>
+      <viewRefreshMode>never</viewRefreshMode>
+      <viewRefreshTime>0.0</viewRefreshTime>
+      <viewBoundScale>0.0</viewBoundScale>
+    </Link>
+  </NetworkLink>
+</kml>
+----
+
+When configured to do so, the KML endpoint can serve up a KML style document. The request below will return the configured KML style document. For more information on how to configure the KML style document, see Configuration.
+----
+http://<DDF_HOST>:<DDF_PORT>/services/catalog/kml/style
+----
+The KML endpoint can also serve up Icons to be used in conjunction with the KML style document. The request below shows the format to return an icon. For more information on how to configure the KML Icons document, see Configuration.
+
+----
+http://<DDF_HOST>:<DDF_PORT>/services/catalog/kml/icons?<icon-name>
+#NOTE: <icon-name> must be the name of an icon contained in the directory being served
+up like:
+http://<DDF_HOST>:<DDF_PORT>/services/catalog/kml/icons?sample-icon.png
+----
+
+==== Installing and Uninstalling
+The spatial-kml-networklinkendpoint feature is installed by default with the Spatial App. 
+
+==== Configuring
+This KML Network Link endpoint has the ability to serve up custom KML style documents and Icons to be used within that document.
+The KML style document must be a valid XML document containing a KML style.
+The KML Icons should be placed in a single level directory and must be an image type (png, jpg, tif, etc.).
+The Description will be displayed as a pop-up from the root network link on Google Earth. This may contain the general purpose of the network and URLs to external resources.￼￼￼
+
+===== Configurable Properties
+
+[cols="6*", options="header"]
+|===
+|Title
+|Property
+|Type 
+|Description
+|Default Value 
+|Required
+
+|Style Document
+|styleUrl
+|String 
+|KML document containing custom styling. This will be served up by the KmlEndpoint (e.g., file:///path/to/kml/style/doc.kml).
+|
+|No
+
+|Icons Location
+|iconLoc 
+|String 
+|Location of icons for KmlEndpoint. 
+|
+|No
+
+|Description 
+|description
+|String 
+|Description of this NetworkLink. Enter a short description of what this NetworkLink provides.
+|
+|No
+
+|===
+
+==== Known Issues
+None.
+
+=== KML Query Response Transformer
+The KML Query Response Transformer is responsible for translating a query response into a KML-formatted document. The KML will contain an HTML description for each metacard that will display in the pop-up bubble in Google Earth. The HTML contains links to the full metadata view as well as the product.
+
+==== Using
+Using the OpenSearch Endpoint, for example, query with the format option set to the KML shortname: `kml`.
+
+----
+http://localhost:8181/services/catalog/query?q=schematypesearch&format=kml
+----
+
+.Example Output
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<kml xmlns:ns2="http://www.google.com/kml/ext/2.2" xmlns="http://www.opengis.net/kml/2.2" xmlns:ns4="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0" xmlns:ns3="http://www.w3.org/2005/Atom">
+  <Document id="f0884d8c-cf9b-44a1-bb5a-d3c6fb9a96b6">
+    <name>Results (1)</name>
+    <open xsi:type="xs:boolean" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">false</open>
+    <Style id="bluenormal">
+      <LabelStyle>
+        <scale>0.0</scale>
+      </LabelStyle>
+      <LineStyle>
+        <color>33ff0000</color>
+        <width>3.0</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>33ff0000</color>
+        <fill xsi:type="xs:boolean" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">true</fill>
+      </PolyStyle>
+      <BalloonStyle>
+        <text>&lt;h3&gt;&lt;b&gt;$[name]&lt;/b&gt;&lt;/h3&gt;&lt;table&gt;&lt;tr&gt;&lt;td width="400"&gt;$[description]&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</text>
+      </BalloonStyle>
+    </Style>
+    <Style id="bluehighlight">
+      <LabelStyle>
+        <scale>1.0</scale>
+      </LabelStyle>
+      <LineStyle>
+        <color>99ff0000</color>
+        <width>6.0</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>99ff0000</color>
+        <fill xsi:type="xs:boolean" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">true</fill>
+      </PolyStyle>
+      <BalloonStyle>
+        <text>&lt;h3&gt;&lt;b&gt;$[name]&lt;/b&gt;&lt;/h3&gt;&lt;table&gt;&lt;tr&gt;&lt;td width="400"&gt;$[description]&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="default">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#bluenormal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#bluehighlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark id="Placemark-0103c77e66d9428d8f48fab939da528e">
+      <name>MultiPolygon</name>
+      <description>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta content="text/html; charset=windows-1252" http-equiv="content-type"&gt;
+    &lt;style media="screen" type="text/css"&gt;
+      .label {
+        font-weight: bold
+      }
+      .linkTable {
+width: 100% }
+      .thumbnailDiv {
+        text-align: center
+} img {
+        max-width: 100px;
+        max-height: 100px;
+        border-style:none
+      }
+    &lt;/style&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+        &lt;div class="thumbnailDiv"&gt;&lt;a
+href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f
+48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail"
+src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
+    &lt;table&gt;
+      &lt;tr&gt;
+        &lt;td class="label"&gt;Source:&lt;/td&gt;
+        &lt;td&gt;ddf.distribution&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="label"&gt;Created:&lt;/td&gt;
+        &lt;td&gt;Wed Oct 30 09:46:29 MDT 2013&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+￼￼￼        &lt;td class="label"&gt;Effective:&lt;/td&gt;
+        &lt;td&gt;2014-01-07T14:48:47-0700&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+    &lt;table class="linkTable"&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;a
+href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f
+48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;a
+href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f
+48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</description>
+      <TimeSpan>
+        <begin>2014-01-07T21:48:47</begin>
+      </TimeSpan>
+      <styleUrl>#default</styleUrl>
+      <MultiGeometry>
+        <Point>
+          <coordinates>102.0,2.0</coordinates>
+        </Point>
+        <MultiGeometry>
+          <Polygon>
+            <outerBoundaryIs>
+              <LinearRing>
+                <coordinates>102.0,2.0 103.0,2.0 103.0,3.0 102.0,3.0
+102.0,2.0</coordinates>
+              </LinearRing>
+100.8,0.2
+  </outerBoundaryIs>
+</Polygon>
+<Polygon>
+  <outerBoundaryIs>
+    <LinearRing>
+      <coordinates>100.0,0.0 101.0,0.0 101.0,1.0 100.0,1.0 100.0,0.0 100.2,0.2
+        100.8,0.8 100.2,0.8 100.2,0.2</coordinates>
+              </LinearRing>
+            </outerBoundaryIs>
+          </Polygon>
+        </MultiGeometry>
+      </MultiGeometry>
+    </Placemark>
+  </Document>
+</kml>
+----
+
+==== Installing and Uninstalling
+
+The spatial-kml-transformer feature is installed by default with the Spatial App.
+
+----
+http://localhost:8181/services/catalog/0103c77e66d9428d8f48fab939da528e?transform=kml
+----
+
+==== Configuring
+None.
+
+==== Implementation Details
+
+[cols="2*", options="header"]
+|===
+|Transformer Shortname 
+|kml
+
+|MIME Type 
+|application/vnd.google-earth.kml+xml
+|===
+
+==== Known Issues
+None.
+
+=== KML Metacard Transformer
+The KML Metacard Transformer is responsible for translating a metacard into a KML-formatted document. The KML will contain an HTML description that will display in the pop-up bubble in Google Earth. The HTML contains links to the full metadata view as well as the product.
+
+==== Using
+Using the REST Endpoint for example, request a metacard with the transform option set to the KML shortname.
+
+
+===== Example Output
+
+[source,xml,linenums]
+----    
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<kml xmlns:ns2="http://www.google.com/kml/ext/2.2" xmlns="http://www.opengis.net/kml/2.2" xmlns:ns4="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0" xmlns:ns3="http://www.w3.org/2005/Atom">
+  <Placemark id="Placemark-0103c77e66d9428d8f48fab939da528e">
+    <name>MultiPolygon</name>
+    <description>&lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+      &lt;head&gt;
+        &lt;meta content="text/html; charset=windows-1252" http-equiv="content-type"&gt;
+        &lt;style media="screen" type="text/css"&gt;
+          .label {
+            font-weight: bold
+          }
+          .linkTable {
+width: 100% }
+          .thumbnailDiv {
+            text-align: center
+          } 
+          img {
+            max-width: 100px;
+￼￼￼         max-height: 100px;
+            border-style:none
+          }
+    &lt;/style&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+        &lt;div class="thumbnailDiv"&gt;&lt;a href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail" src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
+    &lt;table&gt;
+      &lt;tr&gt;
+        &lt;td class="label"&gt;Source:&lt;/td&gt;
+        &lt;td&gt;ddf.distribution&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="label"&gt;Created:&lt;/td&gt;
+        &lt;td&gt;Wed Oct 30 09:46:29 MDT 2013&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="label"&gt;Effective:&lt;/td&gt;
+        &lt;td&gt;2014-01-07T14:58:16-0700&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+    &lt;table class="linkTable"&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;a href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;a href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</description>
+    <TimeSpan>
+      <begin>2014-01-07T21:58:16</begin>
+    </TimeSpan>
+    <Style id="bluenormal">
+      <LabelStyle>
+        <scale>0.0</scale>
+      </LabelStyle>
+      <LineStyle>
+        <color>33ff0000</color>
+        <width>3.0</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>33ff0000</color>
+        <fill xsi:type="xs:boolean" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">true</fill>
+      </PolyStyle>
+      <BalloonStyle>
+<text>&lt;h3&gt;&lt;b&gt;$[name]&lt;/b&gt;&lt;/h3&gt;&lt;table&gt;&lt;tr&gt;&lt;td
+width="400"&gt;$[description]&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</text>
+      </BalloonStyle>
+    </Style>
+    <Style id="bluehighlight">
+      <LabelStyle>
+        <scale>1.0</scale>
+      </LabelStyle>
+      <LineStyle>
+        <color>99ff0000</color>
+        <width>6.0</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>99ff0000</color>
+        <fill xsi:type="xs:boolean" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">true</fill>
+      </PolyStyle>
+      <BalloonStyle>
+        <text>&lt;h3&gt;&lt;b&gt;$[name]&lt;/b&gt;&lt;/h3&gt;&lt;table&gt;&lt;tr&gt;&lt;td width="400"&gt;$[description]&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</text>
+      </BalloonStyle>
+    </Style>
+    <StyleMap id="default">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#bluenormal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#bluehighlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <MultiGeometry>
+      <Point>
+        <coordinates>102.0,2.0</coordinates>
+      </Point>
+      <MultiGeometry>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>102.0,2.0 103.0,2.0 103.0,3.0 102.0,3.0 102.0,2.0</coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+        <Polygon>
+100.8,0.2
+    <outerBoundaryIs>
+      <LinearRing>
+        <coordinates>100.0,0.0 101.0,0.0 101.0,1.0 100.0,1.0 100.0,0.0 100.2,0.2 100.8,0.8 100.2,0.8 100.2,0.2</coordinates>
+      </LinearRing>
+    </outerBoundaryIs>
+  </Polygon>
+</MultiGeometry>
+</Placemark>
+</kml>
+----
+
+==== Installing and Uninstalling
+The spatial-kml-transformer feature is installed by default with the Spatial App. 
+
+==== Configuring
+None.
+
+==== Implementation Details
+
+[cols="2*", options="header"]
+|===
+|Transformer Shortname 
+|kml
+
+|MIME Type 
+|application/vnd.google-earth.kml+xml
+|===
+
+==== Known Issues
+None.
+
+=== KML Style Mapper
+The KML Style Mapper provides the ability for the KmlTransformer to map a KML Style URL to a metacard based on that metacard's attributes. For example, if a user wanted all JPEGs to be blue, the KML Style Mapper provides the ability to do so. This would also allow an administrator to configure metacards from each source to be different colors.
+
+The configured style URLs are expected to be HTTP URLs. For more information on style URL's, refer to the KML Reference ( https://developers.google.com/kml/documentation/kmlreference#styleurl).
+
+The KML Style Mapper supports all basic and extended metacard attributes.
+When a style mapping is configured, the resulting transformed KML contain a <styleUrl> tag pointing to that style, rather than the default KML style supplied by the KmlTransformer.
+
+==== Configuring
+The properties below describe how to configure a Style Mapping. The configuration name is `Spatial KML Style Map Entry`. 
+
+[cols="6*", options="header"]
+.Configurable Properties
+|===
+
+|Title
+|Property
+|Type 
+|Description
+|Default Value
+|Required
+
+|Attribute Name
+|attributeName
+|The name of the metacard attribute to match against (e.g., title, metadata-content-type).
+|String 
+|
+|Yes
+
+|Attribute Value
+|attributeValue
+|String 
+|The value of the metacard attribute.
+|
+|Yes
+
+|Style URL
+|styleUrl
+|String 
+|The full qualified URL to the KML style (e.g., http://example.com/styles#myStyle).
+|
+|Yes
+  
+|===
+
+==== Example Values
+
+[source,xml,linenums]
+----
+xmlns="http://www.opengis.net/kml/2.2"
+  xmlns:ns4="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"
+xmlns:ns3="http://www.w3.org/2005/Atom">
+  <Placemark id="Placemark-0103c77e66d9428d8f48fab939da528e">
+    <name>MultiPolygon</name>
+    <description>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta content="text/html; charset=windows-1252" http-equiv="content-type"&gt;
+    &lt;style media="screen" type="text/css"&gt;
+      .label {
+        font-weight: bold
+      }
+      .linkTable {
+width: 100% }
+      .thumbnailDiv {
+        text-align: center
+} img {
+        max-width: 100px;
+        max-height: 100px;
+        border-style:none
+      }
+    &lt;/style&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+        &lt;div class="thumbnailDiv"&gt;&lt;a
+href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;&lt;img alt="Thumnail"
+src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
+    &lt;table&gt;
+      &lt;tr&gt;
+        &lt;td class="label"&gt;Source:&lt;/td&gt;
+        &lt;td&gt;ddf.distribution&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="label"&gt;Created:&lt;/td&gt;
+        &lt;td&gt;Wed Oct 30 09:46:29 MDT 2013&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+        &lt;td class="label"&gt;Effective:&lt;/td&gt;
+        &lt;td&gt;2014-01-07T14:58:16-0700&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+    &lt;table class="linkTable"&gt;
+      &lt;tr&gt;
+        &lt;td&gt;&lt;a
+href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f48fab939da528e?transform=html"&gt;View Details...&lt;/a&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;a href="http://localhost:8181/services/catalog/sources/ddf.distribution/0103c77e66d9428d8f48fab939da528e?transform=resource"&gt;Download...&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</description>
+    <TimeSpan>
+      <begin>2014-01-07T21:58:16</begin>  
+    </TimeSpan>
+ <styleUrl>http://example.com/kml/style#sampleStyle</styleUrl>
+    <MultiGeometry>
+      <Point>
+        <coordinates>102.0,2.0</coordinates>
+      </Point>
+      <MultiGeometry>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>102.0,2.0 103.0,2.0 103.0,3.0 102.0,3.0
+102.0,2.0</coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+        <Polygon>
+100.8,0.2
+<outerBoundaryIs>
+  <LinearRing>
+    <coordinates>100.0,0.0 101.0,0.0 101.0,1.0 100.0,1.0 100.0,0.0 100.2,0.2
+      100.8,0.8 100.2,0.8 100.2,0.2</coordinates>
+  </LinearRing>
+    </outerBoundaryIs>
+  </Polygon>
+</MultiGeometry>
+</MultiGeometry>
+</Placemark>
+</kml>
+----
+
+==== Installing and Uninstalling
+The KML Style Mapper is included in the spatial-kml-transformer feature and is installed by default with the Spatial App. 
+
+==== Implementation Details
+
+[cols="2*", options="header"]
+|===
+|Transformer Shortname 
+|kml
+|MIME Type 
+|application/vnd.google-earth.kml+xml
+|===
+
+==== Known Issues
+None.
+
+== Integrating DDF with WFS
+The Web Feature Service (WFS) is an Open Geospatial Consortium (OGC) Specification. DDF supports the ability to integrate WFS 1.0 and WFS 2.0 Web Services.
+
+[NOTE]
+====
+DDF does not include a supported WFS Web Service (Endpoint) implementation. |Therefore, federation for 2 DDF instances is not possible via WFS.
+====
+
+=== Working with WFS Sources
+A Web Feature Service (WFS) source is an implementation of the FederatedSource interface provided by the DDF Framework. A WFS source provides capabilities for querying an Open Geospatial Consortium (OGC) WFS 1.0.0-compliant server. The results are made available to DDF clients.
+
+==== WFS Features
+When a query is issued to a WFS server, the output of the query is an XML document that contains a collection of feature member elements. Each WFS server can have one or more feature types with each type being defined by a schema that extends the WFS featureMember schema. The schema for each type can be discovered by issuing a DescribeFeatureType request to the WFS server for the feature type in question. The WFS source handles WFS |capability discovery and requests for feature type description when an |instance of the WFS source is configured and created.
+
+See the WFS v1.0.0 Source for more information about how to configure a WFS source.
+
+===== Convert a WFS Feature
+In order to expose WFS features to DDF clients, the WFS feature must be converted into the common data format of the DDF, a metacard. The OGC package contains a `GenericFeatureConverter` that attempts to populate mandatory metacard fields with properties from the WFS feature XML.
+All properties will be mapped directly to new attributes in the metacard. However, the `GenericFeatureConverter` may not be able to populate the default metacard fields with properties from the feature XML.
+
+===== Create a Custom Converter
+To more accurately map WFS feature properties to fields in the metacard, a custom converter can be created. The OGC package contains an interface, `FeatureConverter`, which extends the Converter ( http://xstream.codehaus.org/javadoc/com/thoughtworks/xstream/converters/Converter.html) interface provided by the XStream ( http://xstream.codehaus.org/) project. XStream is an open source API for serializing XML into Java objects and vice-versa. Additionally, a base class, `AbstractFeatureConverter`, has been created to handle the mapping of many fields to reduce code duplication in the custom converter classes.
+
+* Create the `CustomConverter` class extending the `ogc.catalog.common.converter.AbstractFeatureConverter` class.
+￼￼
+----
+public class CustomConverter extends
+ogc.catalog.common.converter.AbstractFeatureConverter
+----
+
+* Implement the `FeatureConverterFactory` interface and the `createConverter()` method for the `CustomConverter`.
+￼￼
+----
+public class CustomConverterFactory implements FeatureConverterFactory {
+ private final featureType;
+ public CustomConverterFactory(String featureType) {
+  this.featureType = featureType;
+ }
+ public FeatureConverter createConverter() {
+  return new CustomConverter();
+ }
+ public String getFeatureType() {
+  return featureType;
+} }
+----
+
+* Implement the `unmarshal` method required by the `FeatureConverter` interface. The `createMetacardFromFeature(reader, metacardType)` method implemented in the `AbstractFeatureConverter` is recommended.
+
+[source,java,linenums]
+----
+public Metacard unmarshal(HierarchicalStreamReader reader, UnmarshallingContext ctx) {
+  MetacardImpl mc = createMetacardFromFeature(reader, metacardType);
+  //set your feature specific fields on the metacard object here
+  //
+  //if you want to map a property called "beginningDate" to the Metacard.createdDate field
+  //you would do:
+  mc.setCreatedDate(mc.getAttribute("beginningDate").getValue());
+}
+----
+
+* Export the `ConverterFactory` to the OSGi registry by creating a blueprint.xml file for its bundle. The bean id and argument value must match the WFS Feature type being converted.
+
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+  <bean id="custom_type" class="com.example.converter.factory.CustomConverterFactory">
+    <argument value="custom_type"/>
+  </bean>
+  <service ref="custom_type" interface="ogc.catalog.common.converter.factory.FeatureConverterFactory"/>
+</blueprint>
+----
+
+For more information about registering services, see Working with OSGi.
+
+=== WFS v1.0.0 Source
+The WFS Source allows for requests for geographical features across the web using platform-independent calls.
+
+==== Using
+Use the WFS Source if querying a WFS version 1.0.0 compliant service. Also see Working with WFS Sources.
+
+==== Installing and Uninstalling
+The WFS Source can be installed and uninstalled using the normal processes described in the Configuring DDF section.
+
+==== Configuring
+This component can be configured using the normal processes described in the Configuring DDF section.
+
+The configurable properties for the WFS Source are accessed from the WFS Federated Source Configuration in the Admin Console.
+
+===== Configuring WFS Source
+
+====== Configurable Properties
+[cols="6*", options="header"]
+|===
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Source ID
+|id
+|String
+|Unique name of the Source.
+|WFS_v1_0_0 
+|Yes
+
+|WFS URL
+|wfsUrl
+|String
+|URL to the Web Feature Service (WFS) that will be queried by this source (see below).
+|
+|Yes
+
+|Disable CN Check
+|disableCnCheck
+|Boolean
+|Disable CN check for the server certificate. This should only be used when testing.
+|false 
+|Yes
+
+|Username 
+|username
+|String
+|Username to log in to the WFS service. Password to log in to the WFS service.
+|
+|No
+
+|Password
+|password 
+|String
+|Password to log in to the WFS service.
+|
+|No 
+
+|Non Queryable Properties
+|nonQueryableProperties
+|List of Strings
+|Multivalued list of properties in the feature XML that should not be used as filters.
+|
+|No 
+
+|Poll Interval
+|pollInterval
+|Integer
+|Poll interval to check if the source is available (in minutes; minimum = 1).
+|5 
+|Yes
+
+|Forced Spatial Filter Type
+|forceSpatialFilter
+|String
+|Force the selected Spatial Filter Type to be the only available Spatial Filter.
+|None 
+|No
+
+|Connection Timeout
+|connectionTimeout
+|Integer
+|Amount of time to attempt to establish a connection before timing out, in milliseconds
+|30000 
+|Yes
+
+|Receive Timeout
+|receiveTimeout
+|Integer
+|Amount of time to wait for a response before timing out, in milliseconds.
+|60000
+|Yes
+
+|===
+
+==== WFS URL
+The WFS URL must match the endpoint for the service being used. The type of service and version are added automatically, so they do not need to be included. Some servers will throw an exception if they are included twice, so do not include those.
+
+The syntax depends on the server. However, in most cases, the syntax will be everything before the ? character in the URL that corresponds to the GetCapabilities query.
+
+As an example, GeoServer 2.5 syntax might look like:
+----
+http://www.example.org:8080/geoserver/ows?service=wfs&version=1.0.0&request=GetCapabilities
+----
+In this case, the WFS URL would be
+----
+http://www.example.org:8080/geoserver/ows
+----
+
+==== Known Issues
+None.
+
+=== WFS v2.0.0 Source
+The WFS 2.0 Source allows for requests for geographical features across the web using platform-independent calls.
+
+==== Using
+Use the WFS Source if querying a WFS version 2.0.0 compliant service. Also see Working with WFS Sources.
+
+==== Installing and Uninstalling
+The WFS Source can be installed and uninstalled using the normal processes described in the Configuring DDF section.
+
+==== Configuring
+This component can be configured using the normal processes described in the Configuring DDF section.
+
+The configurable properties for the WFS 2.0.0 Source are accessed from the WFS 2.0.0 Federated Source Configuration in the Admin Console.
+
+===== Configuring WFS 2.0.0 Source
+
+====== Configurable Properties
+
+[cols="6*", options="header"]
+|===
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Source ID
+|id
+|String
+|Unique name of the source
+|WFS_v2_0_0
+|Yes
+
+|WFS URL
+|wfsUrl
+|String
+|URL to the endpoint implementing the Web Feature Service (WFS) 2.0.0 spec.
+|
+|Yes
+
+|Disable CN Check
+|disableCnCheck
+|Boolean
+|Disable CN Check for the server certificate. This should only be used when testing.
+|false
+|Yes
+
+|Coordinate Order
+|coordinateOrder
+|String
+|Coordinate order that remote source expects and returns spatial data in.
+|Lat/Lon
+|Yes
+
+|Disable Sorting
+|disableSorting
+|Boolean
+|When selected, the system will not specify sort criteria with the query.
+This should only be used if the remote source is unable to handle sorting even when the capabilities states 'ImplementsSorting' is supported.
+|false
+|Yes
+
+|Username
+|username
+|String
+|Username for the WFS service.
+|
+|No
+
+|Password
+|password
+|String
+|Password for the WFS service.
+|
+|No
+
+|Non Queryable Properties
+|nonQueryableProperties
+|List of Strings
+|Properties listed here will NOT be queryable and any attempt to filter on these properties will result in an exception.
+|
+|No
+
+|Poll Interval
+|pollInterval
+|Integer
+|Poll interval to check if the source is available (in minutes; minimum = 1).
+|5
+|Yes
+
+|Forced Spatial Filter Type
+|forceSpatialFilter
+|String
+|Force only the selected Spatial Filter Type as the only available Spatial Filter.
+|
+|No
+
+|Connection Timeout
+|connectionTimeout
+|Integer
+|Amount of time to attempt to establish a connection before timing out, in milliseconds
+|30000
+|Yes
+
+|Receive Timeout
+|receiveTimeout
+|Integer
+|Amount of time to wait for a response before timing out, in milliseconds.
+|60000
+|Yes
+|===
+
+==== WFS URL
+The WFS URL must match the endpoint for the service being used. The type of service and version is added automatically, so they do not need to be included. Some servers will throw an exception if they are included twice, so do not include those.
+
+The syntax depends on the server. However, in most cases, the syntax will be everything before the ? character in the URL that corresponds to the GetCapabilities query.
+
+As an example, GeoServer 2.5 syntax might look like:
+----
+http://www.example.org:8080/geoserver/ows?service=wfs&version=2.0.0&request=GetCapabilities
+----
+In this case, the WFS URL would be
+----
+http://www.example.org:8080/geoserver/ows
+----
+
+==== Known Issues
+None.
+
+=== Mapping WFS Feature Properties to Metacard Attributes
+The WFS 2.0 Source allows for virtually any schema to be used to describe a feature. A feature is relatively equivalent to a metacard. The `MetacardMapper` was added to allow an administrator to configure which feature properties map to which metacard attributes.
+
+==== Using
+Use the WFS `MetacardMapper` to configure which feature properties map to which metacard attributes when querying a WFS version 2.0.0 compliant service. When feature collection responses are returned from WFS sources, a default mapping occurs which places the feature properties into metacard attributes, which are then presented to the user via DDF. There can be situations where this automatic mapping is not optimal for your solution. Custom mappings of feature property responses to metacard attributes can be achieved through the `MetacardMapper`. The `MetacardMapper` is set by creating a feature file configuration which specifies the appropriate mapping. The mappings are specific to a given feature type.
+
+Also see Working with WFS Sources for more advanced use cases.
+
+==== Installing and Uninstalling
+The WFS MetacardMapper can be installed and uninstalled using the normal processes described in the Configuring DDF section.
+
+==== Configuring
+This component can be configured using the normal processes described in the 
+Configuring DDF section.
+
+The configurable properties for the WFS MetacardMapper are accessed from the Metacard to WFS Feature Map Configuration in the Admin Console.
+
+===== Configuring WFS MetacardMapper
+====== Configurable Properties
+[cols="6*", options="header"]
+|===
+|Title 
+|Property 
+|Type
+|Description
+|Default Value
+|Required
+
+
+|Feature Type
+|featureType 
+|String 
+|Feature Type. Format is {URI}local-name
+|
+|Yes 
+
+|Metacard Attribute to WFS Feature Property Mapping
+|metacardAttrToFeaturePropMap
+|String 
+|Metacard Attribute to WFS Feature Property Mapping. Format is metacardAttribute=featureProperty
+|
+|Yes
+
+|Temporal Sort By Feature Property
+|sortByTemporalFeatureProperty
+|String 
+|When Sorting Temporally, Sort By This Feature Property.
+|
+|No
+
+|Relevance Sort By Feature Property
+|sortByRelevanceFeatureProperty
+|String 
+|When Sorting By Distance, Sort By This Feature Property.
+|
+|No
+
+|Distance Sort By Feature Property
+|sortByDistanceFeatureProperty
+|String 
+|When Sorting By Relevance, Sort By This Feature Property.
+|
+|No
+|===
+
+===== Example Configuration
+There are two ways to configure the MetcardMapper, one is to use the Configuration Admin available via the Web Admin Console. Additionally, a feature.xml file can be created and copied into the "deploy" directory. The following shows how to configure the `MetacardMapper` to be used with the sample data provided with GeoServer. This configuration shows a custom mapping for the feature type ‘states’. For the given type, we are taking the feature property ‘states.STATE_NAME’ and mapping it to the metacard attribute ‘title’. In this particular case, since we mapped the state name to title in the metacard, it will now be fully searchable. More mappings can be added to the featurePropToMetacardAttrMap line through the use of comma as a delimiter.
+
+Below is an example of a MetacardMapper configuration within a feature.xml file:
+
+[source,xml,linenums]
+----
+<feature name="geoserver-states" version="${project.version}"
+    description="WFS Feature to Metacard mappings for GeoServer Example {http://www.openplans.org/topp}states">
+    <config name="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper-geoserver.http://www.openplans.org/topp.states">
+        featureType = {http://www.openplans.org/topp}states
+        service.factoryPid = org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper
+        featurePropToMetacardAttrMap = states.STATE_NAME=title
+    </config>
+</feature>
+----
+
+===== Known Issues
+None.
