@@ -262,6 +262,28 @@ define([
                         }
                     });
                 }
+            },
+            mergeLatest: function () {
+                if (this.lastResponse) {
+                    var update = this.parse(this.lastResponse);
+                    if (update && this.get('results') && this.get('results').length > 0) {
+                        var selectedForSave = this.get('results').filter(function (result) {
+                            return result.get('metacard').has('selectedForSave') &&
+                                result.get('metacard').get('selectedForSave') === true;
+                        });
+
+                        _.forEach(update.results, function (result) {
+                            if (_.some(selectedForSave, function (saved) {
+                                return saved.get('metacard').get('properties').get('id') ===
+                                    result.metacard.properties.id;
+                            })) {
+                                result.metacard.selectedForSave = true;
+                            }
+                        });
+                    }
+
+                    return this.set(update);
+                }
             }
         });
         return MetaCard;
