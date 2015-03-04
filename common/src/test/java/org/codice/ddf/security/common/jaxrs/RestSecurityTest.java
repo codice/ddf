@@ -67,8 +67,8 @@ public class RestSecurityTest {
      *
      * @param name the name of the classpath resource
      */
-    private Document readDocument(String name) throws SAXException, IOException,
-            ParserConfigurationException {
+    private Document readDocument(String name)
+            throws SAXException, IOException, ParserConfigurationException {
         InputStream inStream = getClass().getResourceAsStream(name);
         return DOMUtils.readXml(inStream);
     }
