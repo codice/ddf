@@ -1,0 +1,79 @@
+= Integrating {branding}
+include::../includes/config.adoc[]
+
+== Overview
+Distributed Data Framework (DDF) is an agile and modular integration framework.  It is primarily focused on data integration, enabling clients to insert, query and transform information from disparate data sources via the DDF Catalog. A Catalog API allows integrators to insert new capabilities at various stages throughout each operation.  DDF is designed with the following architectural qualities to benefit integrators.
+
+This page supports integrating {branding} with existing applications or frameworks. 
+
+== Using the CometD Endpoint for Asynchronous Communication
+
+=== CometD Basics
+DDF uses the CometD framework (http://cometd.org/) to perform asynchronous operations on the catalog. This is most apparent in the UI application, which is able to perform multiple queries and display them asynchronously as the results are returned. CometD has a comprehensive manual (http://docs.cometd.org/2/reference/) that details how to interact with and best use the framework with a variety of clients (e.g., javascript, java, perl, and python). This page is used to help developers understand how the UI application uses CometD, so the developer can build off of this same interface with their own implementations.
+
+==== General Operations
+
+===== Initialization
+CometD offers both Dojo and jQuery bindings that allow CometD to be easily used with those frameworks. For more information on the individual bindings, refer to the JavaScript Library (http://docs.cometd.org/2/reference/javascript.html) page in the CometD reference manual. The UI application uses the jQuery library.
+To initialize the CometD connection, an instance of CometD must be created and configured to point to the server and call the handshake, which creates the network connection. 
+ 
+[WARNING]
+====
+The DDF CometD endpoint is exposed at /cometd, and it is recommended to not use websockets when connecting.
+====
+
+.Example Initialization with JQuery
+[source,javascript,linenums]
+----
+// create a reference to the standard cometd object
+Cometd.Comet = $.cometd;
+// disable websocket protocol
+Cometd.Comet.websocketEnabled = false;
+// configure the location of the cometd endpoint on the server
+Cometd.Comet.configure({
+    url: 'http://server:8181/cometd'
+});
+// create network connection to server
+Cometd.Comet.handshake({});
+----
+
+===== Subscribe
+A client can asynchronously receive information from the server using subscriptions. Once the client subscribes to a particular topic, it is sent information when the server sends a response on that topic. Subscriptions are performed in the UI to retrieve information for notifications, tasks, and query results.
+
+.Example Subscription
+[source,javascript,linenums]
+----
+// subscribe to a topic, calling the function whenever a new message comes in
+var subscription = Cometd.Comet.subscribe("/ddf/notifications/**", function(resp) { ... } );
+ 
+// unsubscribe from a topic
+Cometd.Comet.unsubscribe(subscription);
+----
+
+[NOTE]
+====
+Further documentation is available at http://docs.cometd.org/2/reference/javascript_subscribe.html.
+====
+
+===== Publish
+Publishing allows clients to send information to the server. This allows the UI to perform queries on the server and perform operations on tasks, such as canceling a download.
+
+.Example Publish
+[source,javascript,linenums]
+----
+// perform a query on the server where data contains the search criteria
+Cometd.Comet.publish('/service/query', { data: { ... } });
+----
+
+[NOTE]
+====
+Futher documentation is available at http://docs.cometd.org/2/reference/javascript_publish.html.
+====
+
+=== DDF Specifics
+
+[IMPORTANT]
+====
+The CometD endpoint is still undergoing changes, and the following pages describing the interfaces may change during development. Although breakage changes are not anticipated, it is recommended to watch these pages when developing components that use the CometD endpoint, so any changes made will be immediately known.
+====
+

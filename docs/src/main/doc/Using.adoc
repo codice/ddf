@@ -1,0 +1,99 @@
+= Using {branding}
+include::../includes/config.adoc[]
+
+== Overview
+Distributed Data Framework (DDF) is an agile and modular integration framework.  It is primarily focused on data integration, enabling clients to insert, query and transform information from disparate data sources via the DDF Catalog. A Catalog API allows integrators to insert new capabilities at various stages throughout each operation.  DDF is designed with the following architectural qualities to benefit integrators.
+
+== Understanding Metadata and Metacards
+Metadata is information about a resource, organized into a schema to make it possible to search against. The DDF Catalog stores this metadata and allows access to it. If desired, the DDF Content application can be installed to store the resources themselves. Metacards are single instances of metadata, representing a single record, in the Metadata Catalog (MDC). Metacards follow one of several schemas to ensure reliable, accurate, and complee metadata. Essentially, Metacards function as containers of metadata.
+
+== Populating Metacards (during ingest)
+Upon ingest, a metacard transformer will read the data from the ingested file and populate the fields of the metacard. Exactly how this is accomplished depends on the origin of the data, but most fields (except id) are imported directly.
+
+== Searching Metadata
+
+DDF provides the capability to search the Metadata Catalog (MDC) for metadata. There are a number of different types of searches that can be performed on the MDC, and these searches are accessed using one of several interfaces.
+This section provides are very high level overview of introductory concepts of searching with DDF. These concepts are expanded upon in later sections.
+
+=== Search Types
+There are four basic types of metadata search. Additionally, any of the types can be combined to create a compound search.
+
+==== Contextual Search
+A contextual search is used when searching for textual information. It is similar to a Google search over the metadata contained in the MDC. Contextual searches may use wildcards, logical operators, and approximate matches. 
+
+==== Spatial Search
+A spatial search is used for Area of Interest (AOI) searches. Polygon and point radius searches are supported. Specifically, the spatial search looks at the metacards' location attribute and coordinates are specified in WGS 84 decimal degrees. 
+
+==== Temporal Search
+A temporal search finds information from a specific time range.  Two types of temporal searches are supported, relative and absolute.  Relative searches contain an offset from the current time, while absolute searches contain a start and an end timestamp. Temporal searches can look at the effective date attribute or the modified date. 
+
+==== Datatype
+A datatype search is used to search for metadata based on the datatype, and optional versions.  Wildcards (*) can be used in both the datatype and version fields.  Metadata that matches any of the datatypes (and associated versions if specified) will be returned.  If a version is not specified, then all metadata records for the specified datatype(s) regardless of version will be returned.
+
+==== Compound Search
+These search types may be combined to create Compound searches. For example, a Contextual and Spatial search could be combined into one Compound search to search for certain text in metadata in a particular region of the world.
+
+=== Search Interfaces
+
+==== DDF Search UI Application
+The DDF Search UI application provides a graphic interface to return results in HTML format and locate them on an interactive globe or map. For more details on using this application, go to DDF Search UI User's Guide.
+
+==== SSH
+Additionally, it is possible to use a client script to remotely access DDF via SSH and send console commands to search and ingest data.
+
+== Catalog Search Result Objects
+Data is returned from searches as Catalog Search Result objects. This is a subtype of Catalog Entry that also contains additional data based on what type of sort policy was applied to the search.
+Because it is a subtype of Catalog Entry, a Catalog Search Result has all Catalog Entry’s fields such as metadata, effective time, and modified time. It also contains some of the following fields, depending on type of search, that are populated by DDF when the search occurs:
+
+* Distance: Populated when a point radius spatial search occurs. Numerical value that indicates the result’s distance from the center point of the search.
+* Units: Populated when a point radius spatial search occurs. Indicates the units (kilometer, mile, etc.) for the distance field.
+* Relevance: Populated when a contextual search occurs. Numerical value that indicates how relevant the text in the result is to the text originally searched for.
+
+=== Search Programmatic Flow
+Searching the catalog involves three basic steps:
+
+. Define the search criteria (contextual, spatial, temporal, or compound – a combination of two or more types of searches).
+.. Optionally define a sort policy and assign it to the criteria.
+.. For contextual search, optionally set the `fuzzy` flag to `true` or `false` (the default value for the `Metadata Catalog` `fuzzy` flag is `true`, while the `portal` default value is `false`).
+.. For contextual search, optionally set the caseSensitive flag to true (the default is that caseSensitive flag is NOT set and queries are not case sensitive). Doing so enables case sensitive matching on the search criteria. For example, if caseSensitive is set to true and the phrase is “Baghdad” then only metadata containing “Baghdad” with the same matching case will be returned. Words such as “baghdad”, “BAGHDAD”,  and “baghDad” will not be returned because they do not match the exact case of the search term.
+. Issue a search
+. Examine the results
+
+These steps are performed in the same basic order but using different classes depending on whether the Web services or Search UI interfaces are used.
+
+==== Sort Policies
+Searches can also be sorted according to various built-in policies. A sort policy is applied to the search criteria after its creation but before the search is issued. The policy specifies to the DDF the order the MDC search results should be in when they are returned to the requesting client. Only one sort policy may be defined per search.
+There are three policies available.
+
+[cols="4" options="header"]
+|===
+
+|Sort Policy
+|Sorts By
+|Default Order
+|Available for
+
+|Temporal	
+|The catalog search result’s effective time field	
+|Newest to oldest	
+|All Search Types
+
+|Distance	
+|The catalog search result’s distance field	
+|Nearest to farthest	
+|Point-Radius Spatial searches
+
+|Relevance	
+|The catalog search result’s relevance field	
+|Most to least relevant	
+|Contextual
+
+|===
+
+If no sort policy is defined for a particular search, the temporal policy will automatically be applied.
+
+[WARNING]
+====
+For Compound searches, the parent Compound search’s sort policy is used.
+For example, if a Spatial search and Contextual search are the components of a Compound search, the Spatial search might have a distance policy and the Contextual search might have a relevance policy. The parent Compound search, though, does not use the policy of its child objects to define its sorting approach. The Compound search itself has its own temporal sort policy field that it will use to order the results of the search.
+====
