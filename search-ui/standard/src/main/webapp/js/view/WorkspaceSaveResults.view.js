@@ -90,6 +90,7 @@ define([
             saveResultsOnEnter: function (e) {
                 if (e.keyCode === 13) {
                     this.saveResults();
+                    e.preventDefault();
                 } else {
                     this.selectNewWorkspace();
                 }

@@ -48,6 +48,7 @@ define([
                 if (this.model.get('searchText')) {
                     this.search();
                 }
+                e.preventDefault();
             }
         },
         changedSearchText: function() {

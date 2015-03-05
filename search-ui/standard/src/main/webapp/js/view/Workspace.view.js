@@ -72,6 +72,7 @@ define([
             addWorkspaceOnEnter: function(e) {
                 if (e.keyCode === 13) {
                     this.addWorkspace();
+                    e.preventDefault();
                 }
             },
             addWorkspace: function() {

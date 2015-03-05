@@ -453,6 +453,7 @@ define([
                             view.search();
                         });
                     }
+                    e.preventDefault();
                 }
 
             },
