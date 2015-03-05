@@ -21,7 +21,7 @@ define(['application',
 
             var mapView;
             if (maptype.is3d()) {
-                var Map3d = Marionette.Layout.extend({
+                var Map3d = Marionette.LayoutView.extend({
                     template: 'map',
                     className: 'height-full',
                     regions: {
@@ -63,7 +63,7 @@ define(['application',
 
                 mapView = new Map3d();
             } else if (maptype.is2d()) {
-                var Map2d = Marionette.Layout.extend({
+                var Map2d = Marionette.LayoutView.extend({
                     template: 'map',
                     className: 'height-full',
                     regions: {

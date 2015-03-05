@@ -120,7 +120,7 @@ define([ 'backbone',
             return text;
         },
 
-        onClose : function() {
+        onDestroy : function() {
             if(this.notification) {
                 this.notification.pnotify_remove();
             }
@@ -130,7 +130,7 @@ define([ 'backbone',
     // This loops through all models in provided collection. Renders each model.
     // Appends results of to collection view's el element. Which corresponds to the region it is placed in.
     NotificationView.NotificationListView = Backbone.Marionette.CollectionView.extend({
-        itemView : NotificationView.NotificationItemView
+        childView : NotificationView.NotificationItemView
     });
 
     return NotificationView;

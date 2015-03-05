@@ -170,8 +170,8 @@ function (Marionette, Backbone, Cesium, _, wreqr) {
 
     var FilterGeometryCollection = Marionette.CollectionView.extend({
         // this will control the collection via crud events through the model.
-        itemView: FilterGeometryItem,
-        itemViewOptions: function(){
+        childView: FilterGeometryItem,
+        childViewOptions: function(){
             return {
                 geoController: this.options.geoController
             };
@@ -195,7 +195,7 @@ function (Marionette, Backbone, Cesium, _, wreqr) {
         },
         clear: function () {
             if (this.view){
-                this.view.close();
+                this.view.destroy();
             }
         }
     });

@@ -435,7 +435,7 @@ define([
                 wreqr.vent.trigger("search:drawbbox", this.model);
             },
 
-            onClose: function () {
+            onDestroy: function () {
                 this.modelBinder.unbind();
                 this.sourcesCollectionBinder.unbind();
             },

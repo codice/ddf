@@ -359,7 +359,7 @@ define([
                     }).render();
                     bboxModel.trigger('BeginExtent');
                     this.listenToOnce(bboxModel, 'EndExtent', function () {
-                        this.notificationView.close();
+                        this.notificationView.destroy();
                     });
 
                     return bboxModel;
@@ -369,7 +369,7 @@ define([
                 if (this.enabled && this.view) {
                     this.view.stop();
                     if(this.notificationView) {
-                        this.notificationView.close();
+                        this.notificationView.destroy();
                     }
                 }
             },
@@ -379,7 +379,7 @@ define([
                     this.view.destroyPrimitive();
                     this.view = undefined;
                     if(this.notificationView) {
-                        this.notificationView.close();
+                        this.notificationView.destroy();
                     }
                 }
             }

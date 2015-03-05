@@ -19,7 +19,7 @@
     "jquery-ui": "1.10.4",
     "jqueryui-timepicker-addon": "v1.4.5",
     "lodash": "2.4.1",
-    "marionette": "1.8.8",
+    "marionette": "2.4.1",
     "moment": "2.5.1",
     "multiselect": "ehynds/jquery-ui-multiselect-widget#2489720d3b06cf52025d5b7bbd3187ea15a8253f",
     "perfect-scrollbar": "0.5.7",

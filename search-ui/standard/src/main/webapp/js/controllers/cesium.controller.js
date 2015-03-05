@@ -317,7 +317,7 @@ define(['underscore',
 
             showResults: function (results) {
                 if (this.mapViews) {
-                    this.mapViews.close();
+                    this.mapViews.destroy();
                 }
                 this.mapViews = new CesiumMetacard.ResultsView({
                     collection: results,
@@ -332,7 +332,7 @@ define(['underscore',
 
             clearResults: function () {
                 if (this.mapViews) {
-                    this.mapViews.close();
+                    this.mapViews.destroy();
                 }
             }
 

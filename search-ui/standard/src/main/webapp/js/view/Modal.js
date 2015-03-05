@@ -21,18 +21,18 @@ define([
         /**
          * This provides us with a base view for modals. It contains the base close/hide and destroy functionality.
          */
-        var BaseModal = Marionette.Layout.extend({
+        var BaseModal = Marionette.LayoutView.extend({
 // use the Backbone constructor paradigm to allow extending of classNames
             constructor: function () {
                 this.className = 'modal fade ' + this.className; // add on modal specific classes.
-                Marionette.Layout.prototype.constructor.apply(this, arguments);
+                Marionette.LayoutView.prototype.constructor.apply(this, arguments);
             },
-// be default, "close" just closes the modal
+// be default, "destroy" just destroys the modal
             destroy: function () {
                 var view = this;
 // we add this listener because we do not want to remove the dom before the animation completes.
                 this.$el.one('hidden.bs.modal', function () {
-                    view.close();
+                    view.destroy();
                 });
                 this.hide();
             },

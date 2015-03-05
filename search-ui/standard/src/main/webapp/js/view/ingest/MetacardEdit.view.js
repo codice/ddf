@@ -265,7 +265,7 @@ define([
             },
             cancelMetacard: function () {
                 wreqr.vent.trigger('ingest:metacardEditDone');
-                this.close();
+                this.destroy();
             },
             saveMetacard: function () {
                 var view = this;
@@ -279,7 +279,7 @@ define([
                     },
                     success: function() {
                         view.$('.error-text').val('');
-                        view.close();
+                        view.destroy();
                     }
                 });
                 wreqr.vent.trigger('ingest:metacardEditDone');
@@ -294,7 +294,7 @@ define([
                     },
                     success: function() {
                         view.$('.error-text').val('');
-                        view.close();
+                        view.destroy();
                     }
                 });
                 wreqr.vent.trigger('ingest:metacardEditDone');

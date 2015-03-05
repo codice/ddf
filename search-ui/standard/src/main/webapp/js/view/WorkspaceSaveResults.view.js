@@ -103,7 +103,7 @@ define([
                 }
                 this.$('#workspaceNameRadio').click();
             },
-            onClose: function () {
+            onDestroy: function () {
                 this.search = undefined;
                 this.records = undefined;
                 this.workspace = undefined;

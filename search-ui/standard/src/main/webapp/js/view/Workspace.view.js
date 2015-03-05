@@ -83,7 +83,7 @@ define([
                 wreqr.vent.trigger('workspace:list', this.model, true);
             },
             cancel: function() {
-                this.close();
+                this.destroy();
                 wreqr.vent.trigger('workspace:list', this.model, false);
             }
         });
@@ -192,24 +192,24 @@ define([
                     wreqr.vent.trigger('workspace:results', dir.forward, this.model);
                 }
             },
-            onClose: function() {
+            onDestroy: function() {
                 clearInterval(this.updateInterval);
             }
         });
 
         WorkspaceView.MetacardList = Marionette.CollectionView.extend({
-            itemView : WorkspaceView.MetacardItem,
+            childView : WorkspaceView.MetacardItem,
             tagName: 'table',
             className: 'table'
         });
 
         WorkspaceView.SearchList = Marionette.CollectionView.extend({
-            itemView : WorkspaceView.SearchItem,
+            childView : WorkspaceView.SearchItem,
             tagName: 'table',
             className: 'table'
         });
 
-        WorkspaceView.Workspace = Marionette.Layout.extend({
+        WorkspaceView.Workspace = Marionette.LayoutView.extend({
             template: 'workspace',
             className: 'search-form',
             initialize: function() {
@@ -220,8 +220,7 @@ define([
                 this.listenTo(wreqr.vent, 'workspace:save', this.doneMode);
             },
             regions: {
-                workspaceSearchPanelRegion: '#workspaceSearchPanel',
-                workspaceMetacardPanelRegion: '#workspaceMetacardPanel'
+                workspaceSearchPanelRegion: '#workspaceSearchPanel'
             },
             events: {
                 'click #addSearch': 'addSearch',
@@ -237,7 +236,6 @@ define([
             },
             onRender: function() {
                 this.workspaceSearchPanelRegion.show(new WorkspaceView.SearchList({collection: this.model.get('searches')}));
-                this.workspaceMetacardPanelRegion.show(new WorkspaceView.MetacardList({collection: this.model.get('metacards')}));
             },
             editMode: function() {
                 this.model.set('editing', true, {silent: true});
@@ -347,19 +345,19 @@ define([
 
         WorkspaceView.WorkspaceList = Marionette.CollectionView.extend({
             template: 'workspaceList',
-            itemView : WorkspaceView.WorkspaceItem,
+            childView : WorkspaceView.WorkspaceItem,
             tagName: 'table',
             className: 'table workspace-table'
         });
 
-        WorkspaceView.WorkspacesLayoutView = Marionette.Layout.extend({
+        WorkspaceView.WorkspacesLayoutView = Marionette.LayoutView.extend({
             template: 'workspaceList',
             className: 'height-full',
             regions: {
                 workspaceControlRegion: '#workspaceControl',
                 workspaceRegion: {
                     selector: "#workspace",
-                    regionType:  SlidingRegion
+                    regionClass:  SlidingRegion
                 }
             },
 
@@ -416,7 +414,7 @@ define([
                     this.stopListening(wreqr.vent, 'workspace:cancel');
                     this.stopListening(wreqr.vent, 'workspace:saveresults');
                     this.stopListening(wreqr.vent, 'workspace:resultssavecancel');
-                    this.workspaceRegion.close();
+                    this.workspaceRegion.destroy();
                 }
             },
 
@@ -541,7 +539,7 @@ define([
             }
         });
 
-        WorkspaceView.WorkspaceLayout = Marionette.Layout.extend({
+        WorkspaceView.WorkspaceLayout = Marionette.LayoutView.extend({
             template : 'workspacePanel',
             className: 'partialaffix span3 row-fluid nav well well-small search-controls',
             regions : {
@@ -603,7 +601,7 @@ define([
             }
         });
 
-        WorkspaceView.PanelLayout = Marionette.Layout.extend({
+        WorkspaceView.PanelLayout = Marionette.LayoutView.extend({
             template : 'workspaceContainer',
             regions : {
                 panelRegion: "#workspace-panel",

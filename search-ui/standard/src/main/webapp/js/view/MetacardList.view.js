@@ -71,12 +71,16 @@ define([
 
             resultSelectMode: function() {
                 this.resultSelect = true;
-                this.render();
+                if (!this.isDestroyed) {
+                    this.render();
+                }
             },
 
             resultSaveMode: function() {
                 this.resultSelect = false;
-                this.render();
+                if (!this.isDestroyed) {
+                    this.render();
+                }
             },
 
             serializeData: function(){
@@ -101,15 +105,15 @@ define([
         });
 
         List.MetacardTable = Marionette.CollectionView.extend({
-            itemView : List.MetacardRow,
+            childView : List.MetacardRow,
             tagName: 'table',
             className: 'table resultTable',
-            itemViewOptions : function(model){
+            childViewOptions : function(model){
                 return {
                     model : model.get('metacard')
                 };
             },
-            appendHtml: function (collectionView, itemView, index) {
+            appendHtml: function (collectionView, childView, index) {
                 var childAtIndex;
 
                 if (collectionView.isBuffering) {
@@ -117,60 +121,60 @@ define([
                     // use prepend
                     if (index === 0) {
                         collectionView._bufferedChildren.reverse();
-                        collectionView._bufferedChildren.push(itemView);
+                        collectionView._bufferedChildren.push(childView);
                         collectionView._bufferedChildren.reverse();
                         if(collectionView.elBuffer.firstChild) {
-                            return collectionView.elBuffer.insertBefore(itemView.el, collectionView.elBuffer.firstChild);
+                            return collectionView.elBuffer.insertBefore(childView.el, collectionView.elBuffer.firstChild);
                         } else {
-                            return collectionView.elBuffer.appendChild(itemView.el);
+                            return collectionView.elBuffer.appendChild(childView.el);
                         }
                     } else {
                         // see if there is already
                         // a child at the index
                         childAtIndex = collectionView.$el.children().eq(index);
                         if (childAtIndex.length) {
-                            return childAtIndex.before(itemView.el);
+                            return childAtIndex.before(childView.el);
                         } else {
-                            return collectionView.elBuffer.appendChild(itemView.el);
+                            return collectionView.elBuffer.appendChild(childView.el);
                         }
                     }
                 } else {
                     // If we've already rendered the main collection, just
                     // append the new items directly into the element.
-                    var $container = this.getItemViewContainer(collectionView);
+                    var $container = this.getChildViewContainer(collectionView);
                     if (index === 0) {
                         $container.empty();
-                        return $container.prepend(itemView.el);
+                        return $container.prepend(childView.el);
                     } else {
                         // see if there is already
                         // a child at the index
                         childAtIndex = $container.children().eq(index);
                         if (childAtIndex.length) {
-                            return childAtIndex.before(itemView.el);
+                            return childAtIndex.before(childView.el);
                         } else {
-                            return $container.append(itemView.el);
+                            return $container.append(childView.el);
                         }
                     }
                 }
             },
             getItemViewContainer: function(containerView){
-                if ("$itemViewContainer" in containerView){
-                    return containerView.$itemViewContainer;
+                if ("$childViewContainer" in containerView){
+                    return containerView.$childViewContainer;
                 }
 
                 var container;
-                var itemViewContainer = Marionette.getOption(containerView, "itemViewContainer");
-                if (itemViewContainer) {
-                    var selector = _.isFunction(itemViewContainer) ? itemViewContainer.call(this) : itemViewContainer;
+                var childViewContainer = Marionette.getOption(containerView, "childViewContainer");
+                if (childViewContainer) {
+                    var selector = _.isFunction(childViewContainer) ? childViewContainer.call(this) : childViewContainer;
                     container = containerView.$(selector);
                     if (container.length <= 0) {
-                        throwError("The specified `itemViewContainer` was not found: " + containerView.itemViewContainer, "ItemViewContainerMissingError");
+                        throwError("The specified `childViewContainer` was not found: " + containerView.childViewContainer, "ItemViewContainerMissingError");
                     }
                 } else {
                     container = containerView.$el;
                 }
 
-                containerView.$itemViewContainer = container;
+                containerView.$childViewContainer = container;
                 return container;
             }
         });
@@ -208,8 +212,8 @@ define([
     
         List.StatusTable = Marionette.CompositeView.extend({
             template: 'statusTemplate',
-            itemView : List.StatusRow,
-            itemViewContainer: '.included tbody',
+            childView : List.StatusRow,
+            childViewContainer: '.included tbody',
             events: {
                 'click #status-icon': 'toggleStatus',
                 'click #refresh-icon': 'refreshResults',
@@ -225,7 +229,6 @@ define([
                 var excludedSources = new Backbone.Collection(this.options.sources.filter(function(source){
                     return !_.contains(includedSourceIds, source.get('id'));
                 })).toJSON();
-
 
                 return {
                     excludedSources: excludedSources
@@ -283,9 +286,6 @@ define([
         });
     
         List.CountView = Marionette.ItemView.extend({
-            modelEvents: {
-                "change": "render"
-            },
             serializeData: function() {
                 var count = 0;
                 if (this.model.has('results')) {
@@ -300,11 +300,13 @@ define([
                     } else {
                         return 'countHighTemplate';
                     }
+                } else {
+                    return false;
                 }
             }
         });
 
-        List.MetacardListView = Marionette.Layout.extend({
+        List.MetacardListView = Marionette.LayoutView.extend({
             className: 'slide-animate height-full',
             template: 'resultListTemplate',
             regions: {
@@ -326,8 +328,8 @@ define([
                 view.listRegion.show(new List.MetacardTable({
                     collection: view.model.get("results")
                 }));
-                if(view.model.get("status")) {
-                    wreqr.reqres.request('getSourcePromise').then(function(sources){
+                if (view.model.get("status")) {
+                    wreqr.reqres.request('getSourcePromise').then(function (sources) {
                         view.statusRegion.show(new List.StatusTable({
                             collection: view.model.get("status"),
                             sources: sources
@@ -346,7 +348,7 @@ define([
                 this.updateScrollbar();
                 this.updateScrollPos();
             },
-            onClose: function() {
+            onDestroy: function() {
                 this.spinner.stop();
             },
             updateSpinner: function () {

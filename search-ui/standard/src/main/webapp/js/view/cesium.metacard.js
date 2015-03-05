@@ -89,18 +89,20 @@ define([
             },
 
             toggleSelection: function () {
-                if (this.billboard.eyeOffset.z < 0) {
-                    this.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, 0);
-                } else {
-                    this.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, -10);
-                }
+                if (this.billboard) {
+                    if (this.billboard.eyeOffset.z < 0) {
+                        this.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, 0);
+                    } else {
+                        this.billboard.eyeOffset = new Cesium.Cartesian3(0, 0, -10);
+                    }
 
-                if (this.model.get('context')) {
-                    this.billboard.scale = selectedPointScale;
-                    this.billboard.image = this.billboards[1];
-                } else {
-                    this.billboard.scale = pointScale;
-                    this.billboard.image = this.billboards[0];
+                    if (this.model.get('context')) {
+                        this.billboard.scale = selectedPointScale;
+                        this.billboard.image = this.billboards[1];
+                    } else {
+                        this.billboard.scale = pointScale;
+                        this.billboard.image = this.billboards[0];
+                    }
                 }
             },
             onMapLeftClick: function (event) {
@@ -117,7 +119,7 @@ define([
                 }
             },
 
-            onClose: function () {
+            onDestroy: function () {
                 // If there is already a billboard for this view, remove it
                 if (!_.isUndefined(this.billboard)) {
                     this.geoController.billboardCollection.remove(this.billboard);
@@ -185,7 +187,7 @@ define([
                 }
             },
 
-            onClose: function () {
+            onDestroy: function () {
                 var view = this;
 
                 if (!_.isUndefined(view.points)) {
@@ -244,7 +246,7 @@ define([
                 view.geoController.scene.primitives.add(view.lines);
             },
 
-            onClose: function () {
+            onDestroy: function () {
                 // If there is already a billboard for this view, remove it
                 if (!_.isUndefined(this.billboard)) {
                     this.geoController.billboardCollection.remove(this.billboard);
@@ -429,7 +431,7 @@ define([
                 fillAttributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(false, fillAttributes.show);
             },
 
-            onClose: function () {
+            onDestroy: function () {
                 var view = this;
 
                 // If there is already a billboard for this view, remove it
@@ -600,11 +602,11 @@ define([
                 }
             },
 
-            onClose: function () {
+            onDestroy: function () {
                 var view = this;
 
                 _.each(view.geometries, function(geometry) {
-                    geometry.onClose();
+                    geometry.onDestroy();
                 });
 
                 this.stopListening();
@@ -613,7 +615,7 @@ define([
 
 
         Views.ResultsView = Marionette.CollectionView.extend({
-            itemView: Backbone.View,
+            childView: Backbone.View,
             initialize: function (options) {
                 this.geoController = options.geoController;
             },
@@ -625,16 +627,20 @@ define([
                 this.checkEmpty();
             },
 
-            buildItemView: function (item, ItemViewType, itemViewOptions) {
+            buildChildView: function (item, ItemViewType, childViewOptions) {
                 var metacard = item.get('metacard'),
                     geometry = metacard.get('geometry'),
                     ItemView;
                 if (!geometry) {
-                    var opts = _.extend({model: metacard}, itemViewOptions);
+                    var opts = _.extend({model: metacard, template: false}, childViewOptions);
                     return new ItemViewType(opts);
                 }
                 // build the final list of options for the item view type.
-                var options = _.extend({model: metacard, geoController: this.geoController}, itemViewOptions);
+                var options = _.extend({
+                    model: metacard,
+                    geoController: this.geoController,
+                    template: false
+                }, childViewOptions);
 
                 if (geometry.isPoint()) {
                     ItemView = Views.PointView;

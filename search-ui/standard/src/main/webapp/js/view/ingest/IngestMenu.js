@@ -26,7 +26,7 @@ define([
             ich.addTemplate('ingestMenuItem', ingestMenuItem);
         }
 
-        var IngestMenu = Marionette.Layout.extend({
+        var IngestMenu = Marionette.LayoutView.extend({
             tagName: 'li',
             modelEvents: {
                 'change': 'render'

@@ -30,7 +30,7 @@ define([
                 this.rendered = true;
                 return this;
             },
-            close: function () {
+            destroy: function () {
                 this.$el.animate({
                     height: 'hide'
                 }, 425);

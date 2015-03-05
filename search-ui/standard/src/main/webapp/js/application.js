@@ -121,7 +121,7 @@ define(['jquery',
 
         // Once the application has been initialized (i.e. all initializers have completed), start up
         // Backbone.history.
-        Application.App.on('initialize:after', function() {
+        Application.App.on('start', function() {
             Backbone.history.start();
         });
 

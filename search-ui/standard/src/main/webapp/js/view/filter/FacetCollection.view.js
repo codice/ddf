@@ -24,16 +24,16 @@ define([
         ich.addTemplate('facetCollectionTemplate', facetCollectionTemplate);
 
         var FacetCollectionView = Marionette.CompositeView.extend({
-            itemView: FacetItemView,
+            childView: FacetItemView,
             template: 'facetCollectionTemplate',
-            itemViewOptions: function(){
+            childViewOptions: function(){
                 // TODO Hopefully later down the road we can make this more generic instead of hard-coding metadata-content-type
                 var queryObject = this.model.parents[0];
                 return {
                     isAny: queryObject.filters.getGroupedFilterValues(Properties.filters.METADATA_CONTENT_TYPE).length === 0
                 };
             },
-            itemViewContainer: '.facet-items',
+            childViewContainer: '.facet-items',
             initialize: function(options){
                 if (!this.model.parents || this.model.parents[0] === undefined) {
                     return; // just quit.

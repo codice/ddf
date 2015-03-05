@@ -83,8 +83,8 @@ define([
                 this.model = options.model;
                 this.queryModel = options.queryModel;
                 this.resultList = options.resultList;
-                this.listenTo(wreqr.vent, 'search:clear', this.close);
-                this.listenTo(wreqr.vent, 'search:error', this.close);
+                this.listenTo(wreqr.vent, 'search:clear', this.destroy);
+                this.listenTo(wreqr.vent, 'search:error', this.destroy);
             },
             onRender: function() {
                 this.configureProgress();
@@ -93,7 +93,7 @@ define([
                 var view = this;
                 if ((this.model.get("total") === 1 || this.model.get("hits") <= 0 ) && this.model.isComplete()) {
                     this.merge();
-                    this.close();
+                    this.destroy();
                 }
 
                 if (this.model.get('current') > 0) {
@@ -141,9 +141,10 @@ define([
                 var page = $.find('#searchPages').pop();
                 this.$el.find('#progress-text').hide();
                 this.$el.find('#searching-text').show();
+
                 var spinner = new Spinner(spinnerConfig).spin(page);
                 if (this.model.isComplete()) {
-                    this.close();
+                    this.destroy();
                 }
 
                 var deferred = Q.defer();

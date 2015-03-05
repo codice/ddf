@@ -26,13 +26,13 @@ define([
 
         var FilterCollectionView = Marionette.CompositeView.extend({
             template: 'filterCollectionTemplate',
-            itemView: FilterItemView,
+            childView: FilterItemView,
             className: 'filter-collection-view',
-            itemViewContainer: '.filter-items',
+            childViewContainer: '.filter-items',
             collectionEvents: {
                 'removePressed': 'removePressed'
             },
-            itemViewOptions: function(){
+            childViewOptions: function(){
                 return {
                     collection: this.collection,
                     fields: this.options.fields
@@ -55,10 +55,10 @@ define([
             removePressed: function(modelToRemove){
                 this.collection.remove(modelToRemove);
             },
-            addItemView: function(item){
+            addChild: function(item){
                 var fieldName = item.get('fieldName');
                 if (fieldName !== Properties.filters.SOURCE_ID && fieldName !== Properties.filters.METADATA_CONTENT_TYPE) {
-                    Backbone.Marionette.CollectionView.prototype.addItemView.apply(this, arguments);
+                    Backbone.Marionette.CollectionView.prototype.addChild.apply(this, arguments);
                 }
             }
         });

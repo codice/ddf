@@ -210,7 +210,7 @@ define([
                 }
             },
 
-            onClose: function () {
+            onDestroy: function () {
                 // If there is already a billboard for this view, remove it
                 if (!_.isUndefined(this.billboard)) {
                     this.geoController.mapViewer.removeLayer(this.vectorLayer);
@@ -245,7 +245,7 @@ define([
         });
 
         Views.ResultsView = Marionette.CollectionView.extend({
-            itemView: Backbone.View,
+            childView: Backbone.View,
             initialize: function (options) {
                 this.geoController = options.geoController;
             },
@@ -257,16 +257,20 @@ define([
                 this.checkEmpty();
             },
 
-            buildItemView: function (item, ItemViewType, itemViewOptions) {
+            buildChildView: function (item, ItemViewType, childViewOptions) {
                 var metacard = item.get('metacard'),
                     geometry = metacard.get('geometry'),
                     ItemView;
                 if (!geometry) {
-                    var opts = _.extend({model: metacard}, itemViewOptions);
+                    var opts = _.extend({model: metacard, template: false}, childViewOptions);
                     return new ItemViewType(opts);
                 }
                 // build the final list of options for the item view type.
-                var options = _.extend({model: metacard, geoController: this.geoController}, itemViewOptions);
+                var options = _.extend({
+                    model: metacard,
+                    geoController: this.geoController,
+                    template: false
+                }, childViewOptions);
 
                 if (geometry.isPoint()) {
                     ItemView = Views.PointView;

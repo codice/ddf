@@ -25,7 +25,7 @@ define([
 
         ich.addTemplate('filterLayoutTemplate', filterLayoutTemplate);
 
-        var FilterView = Marionette.Layout.extend({
+        var FilterView = Marionette.LayoutView.extend({
             template: 'filterLayoutTemplate',
             className: 'filter-view',
             events: {

@@ -71,7 +71,7 @@ define([
 
                 this.scene.primitives.add(this.primitive);
             },
-            close: function(){
+            destroy: function(){
                 if(this.primitive){
                     this.scene.primitives.remove(this.primitive);
                 }
@@ -98,7 +98,7 @@ define([
                     this.drawHelper.stopDrawing();
                     // remove old polygon
                     if(this.view){
-                        this.view.close();
+                        this.view.destroy();
                     }
                     this.view = new Draw.PolygonRenderView({model: model, scene: this.scene});
                 }
@@ -115,7 +115,7 @@ define([
                         callback: function(positions) {
 
                             if(controller.notificationView) {
-                                controller.notificationView.close();
+                                controller.notificationView.destroy();
                             }
                             var latLonRadPoints =_.map(positions, function(cartPos){
                                 var latLon = controller.geoController.ellipsoid.cartesianToCartographic(cartPos);
@@ -149,7 +149,7 @@ define([
                     // stop drawing
                     this.drawHelper.stopDrawing();
                     if(this.notificationView) {
-                        this.notificationView.close();
+                        this.notificationView.destroy();
                     }
                 }
             },
@@ -157,10 +157,10 @@ define([
                 if (this.enabled) {
                     // I don't think we need this method.
                     if(this.notificationView) {
-                        this.notificationView.close();
+                        this.notificationView.destroy();
                     }
                     if(this.view){
-                        this.view.close();
+                        this.view.destroy();
                     }
                 }
             }

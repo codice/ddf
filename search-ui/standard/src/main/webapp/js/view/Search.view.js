@@ -41,7 +41,7 @@ define([
 
         ich.addTemplate('searchPanel', searchPanel);
 
-        Search.SearchLayout = Marionette.Layout.extend({
+        Search.SearchLayout = Marionette.LayoutView.extend({
             template : 'searchPanel',
             className: 'height-full',
             regions : {
@@ -49,7 +49,7 @@ define([
                 searchControlRegion: "#searchControlRegion",
                 searchRegion: {
                     selector: "#searchPages",
-                    regionType:  SlidingRegion
+                    regionClass:  SlidingRegion
                 }
             },
 
@@ -95,7 +95,7 @@ define([
                     this.stopListening(wreqr.vent, 'workspace:saveresults');
                     this.stopListening(wreqr.vent, 'workspace:resultssavecancel');
                     this.stopListening(wreqr.vent, 'workspace:searchsavecancel');
-                    this.searchRegion.close();
+                    this.searchRegion.destroy();
                 }
             },
 
@@ -133,7 +133,7 @@ define([
             },
             onQueryClear: function () {
                 if (this.progressRegion.currentView) {
-                    this.progressRegion.close();
+                    this.progressRegion.destroy();
                 }
                 delete this.result;
             },

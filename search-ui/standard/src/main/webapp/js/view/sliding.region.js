@@ -34,7 +34,7 @@ define([
         show: function (view, direction) {
             var region = this;
             direction = _.isUndefined(direction, dir.forward) ? dir.forward : direction;
-            this.ensureEl();
+            this._ensureElement();
 
             if(!view) {
                 if(this.currentView) {
@@ -44,26 +44,31 @@ define([
                 }
             }
 
-            var isViewClosed = view.isClosed || _.isUndefined(view.$el);
+            var isViewClosed = view.isDestroyed || _.isUndefined(view.$el);
 
             var isDifferentView = view !== this.currentView;
-            var closePromise;
+            var destroyPromise;
             // if we had a previous promise we need to chain onto it so we execute in the order we expect.
             if (!_.isUndefined(this.currentPromise) && Q.isPromise(this.currentPromise) && this.currentPromise.isPending()){
-                closePromise = this.currentPromise;
+                destroyPromise = this.currentPromise;
             }
-            if (isDifferentView && !closePromise) {
-                closePromise = region.close(direction);
-            } else if (isDifferentView && closePromise) {
-                closePromise.then(function(){
-                    return region.close();
+            if (isDifferentView && !destroyPromise) {
+                destroyPromise = region.destroy(direction);
+            } else if (isDifferentView && destroyPromise) {
+                destroyPromise.then(function(){
+                    return region.destroy();
                 });
-            } else if (!isDifferentView && !closePromise){
-                closePromise = Q();
+            } else if (!isDifferentView && !destroyPromise){
+                destroyPromise = Q();
             }
-            this.currentPromise = closePromise.then(function () {
-                if(isViewClosed) {
+            this.currentPromise = destroyPromise.then(function () {
+                if (isViewClosed) {
                     view.initialize(view.options);
+                    // Check if view is a Marionette view
+                    if (_.isFunction(view.constructor)) {
+                        view.constructor(view.options);
+                    }
+                    view.isDestroyed = false;
                 }
                 view.render();
                 var openPromise;
@@ -119,7 +124,7 @@ define([
                 opacity : 0
             });
 
-            view.isClosed = false;
+            view.isDestroyed = false;
 
             return this.slide(view, direction, flyIn)
                 .then(function(){
@@ -130,26 +135,26 @@ define([
 
         // Close the current view, if there is one. If there is no
         // current view, it does nothing and returns immediately.
-        close: function (direction) {
+        destroy: function (direction) {
             var view = this.currentView;
             var region = this;
-            if (!view || view.isClosed) {
+            if (!view || view.isDestroyed) {
                 return Q();
             }
             this.$el.perfectScrollbar('destroy');
             return this.slide(view,direction,flyOut)
                 .then(function(){
-                    // call 'close' or 'remove', depending on which is found
-                    if (view.close) {
-                        view.close();
-                        view.isClosed = true;
+                    // call 'destroy' or 'remove', depending on which is found
+                    if (view.destroy) {
+                        view.destroy();
+                        view.isDestroyed = true;
                     }
                     else if (view.remove) {
                         view.remove();
-                        view.isClosed = true;
+                        view.isDestroyed = true;
                     }
 
-                    Marionette.triggerMethod.call(region, "close");
+                    Marionette.triggerMethod.call(region, "destroy");
 
 //                    delete region.currentView;
                 });

@@ -244,7 +244,7 @@ define([
                         el: this.notificationEl
                     }).render();
                     this.listenToOnce(circleModel, 'EndExtent', function () {
-                        this.notificationView.close();
+                        this.notificationView.destroy();
                     });
 
                     return circleModel;
@@ -255,7 +255,7 @@ define([
                     this.view.stop();
                     this.view.handleRegionStop();
                     if(this.notificationView) {
-                        this.notificationView.close();
+                        this.notificationView.destroy();
                     }
                 }
             },
@@ -265,7 +265,7 @@ define([
                     this.view.destroyPrimitive();
                     this.view = undefined;
                     if(this.notificationView) {
-                        this.notificationView.close();
+                        this.notificationView.destroy();
                     }
                 }
             }

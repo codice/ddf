@@ -137,8 +137,8 @@ define([
 
         var FilterGeometryCollection = Marionette.CollectionView.extend({
             // this will control the collection via crud events through the model.
-            itemView: FilterGeometryItem,
-            itemViewOptions: function(){
+            childView: FilterGeometryItem,
+            childViewOptions: function(){
                 return {
                     geoController: this.options.geoController,
                     vectorSource: this.vectorSource
@@ -154,7 +154,7 @@ define([
                 });
                 this.options.geoController.mapViewer.addLayer(this.vectorLayer);
             },
-            onClose: function(){
+            onDestroy: function(){
                 this.options.geoController.mapViewer.removeLayer(this.vectorLayer);
             }
         });
@@ -176,7 +176,7 @@ define([
                 },
                 clear: function () {
                     if (this.view){
-                        this.view.close();
+                        this.view.destroy();
                     }
                 }
             });

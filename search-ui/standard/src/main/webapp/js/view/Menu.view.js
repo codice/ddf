@@ -74,7 +74,7 @@ define([
         modelEvents: {
             'change': 'render'
         },
-        onClose: function() {
+        onDestroy: function() {
             clearTimeout(this.timeout);
         },
         onRender: function() {
@@ -243,7 +243,7 @@ define([
 
     Menu.TaskList = Marionette.CollectionView.extend({
         className: 'dropdown-width',
-        itemView: Menu.TaskItem,
+        childView: Menu.TaskItem,
         emptyView: Menu.TaskEmpty,
         showCollection: function(){
             var ItemView;
@@ -251,18 +251,18 @@ define([
             var view = this;
             this.collection.each(function(item, index){
                 if(category !== item.get('category')) {
-                    this.addItemView(new Backbone.Model({category: item.get('category'), collection: view.collection}), Menu.TaskCategory);
+                    this.addChild(new Backbone.Model({category: item.get('category'), collection: view.collection}), Menu.TaskCategory);
                 }
                 category = item.get('category');
-                ItemView = this.getItemView(item);
-                this.addItemView(item, ItemView, index);
+                ItemView = this.getChildView(item);
+                this.addChild(item, ItemView, index);
             }, this);
         }
     });
 
     Menu.NotificationList = Marionette.CollectionView.extend({
         className: 'dropdown-width',
-        itemView: Menu.NotificationItem,
+        childView: Menu.NotificationItem,
         emptyView: Menu.NotificationEmpty,
 
         showCollection: function(){
@@ -271,16 +271,16 @@ define([
             var view = this;
             this.collection.each(function(item, index){
                 if(category !== item.get('application')) {
-                    this.addItemView(new Backbone.Model({category: item.get('application'), collection: view.collection}), Menu.NotificationCategory);
+                    this.addChild(new Backbone.Model({category: item.get('application'), collection: view.collection}), Menu.NotificationCategory);
                 }
                 category = item.get('application');
-                ItemView = this.getItemView(item);
-                this.addItemView(item, ItemView, index);
+                ItemView = this.getChildView(item);
+                this.addChild(item, ItemView, index);
             }, this);
         }
     });
 
-    Menu.Item = Marionette.Layout.extend({
+    Menu.Item = Marionette.LayoutView.extend({
         tagName: 'li',
         template: 'menubarItemTemplate',
         regions: {
@@ -381,7 +381,7 @@ define([
         }
     });
 
-    Menu.Bar = Marionette.Layout.extend({
+    Menu.Bar = Marionette.LayoutView.extend({
         template: 'menubarTemplate',
         className: 'container-fluid navbar',
         regions: {
@@ -468,7 +468,7 @@ define([
                     onRender: function () {
                         var view = this;
                         if (this.collection) {
-                            this.children.show(new Menu.TaskList({collection: this.collection, itemViewContainer: this.children.$el}));
+                            this.children.show(new Menu.TaskList({collection: this.collection, childViewContainer: this.children.$el}));
                             var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
                             this.modelBinder.bind(this.model, this.$el, bindings);
                         } else {
@@ -544,7 +544,7 @@ define([
                 onRender: function() {
                 var view = this;
                     if(this.collection) {
-                        this.children.show(new Menu.NotificationList({collection: this.collection, itemViewContainer: this.children.$el}));
+                        this.children.show(new Menu.NotificationList({collection: this.collection, childViewContainer: this.children.$el}));
                         var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
                         this.modelBinder.bind(this.model, this.$el, bindings);
                     } else {

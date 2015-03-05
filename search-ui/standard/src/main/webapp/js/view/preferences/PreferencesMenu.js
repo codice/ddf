@@ -26,7 +26,7 @@ define([
             ich.addTemplate('preferencesMenuItem', preferencesMenuItem);
         }
 
-        return Marionette.Layout.extend({
+        return Marionette.LayoutView.extend({
             tagName: 'li',
             className: 'dropdown',
             template: 'preferencesMenuItem',

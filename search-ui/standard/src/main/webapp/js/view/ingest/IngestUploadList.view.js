@@ -21,7 +21,7 @@ define([
         var UploadList = Marionette.CollectionView.extend({
             tagName: 'ul',
             className: 'file-list',
-            itemView: UploadListItem,
+            childView: UploadListItem,
 
             initialize: function() {
                 this.listenTo(this.collection, "startUpload", this.startUpload);
