@@ -1,6 +1,7 @@
 language: java
-install: mvn install --quiet -DskipTests=true -B
-script: mvn test --quiet -B
+install: mvn install --quiet -DskipTests=true -B >> ~/build.log
+script: mvn test --quiet -B >> ~/build.log
+after_failure: tail -n 300 ~/build.log
 jdk:
   - openjdk7
   - oraclejdk7
