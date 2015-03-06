@@ -29,8 +29,7 @@
     <properties>
         <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
         <jasypt.version>1.9.0</jasypt.version>
-        <wss4j.version>1.6.16</wss4j.version>
-        <cxf.version>2.7.8</cxf.version>
+        <wss4j.version>1.6.18</wss4j.version>
         <shiro.version>1.2.1</shiro.version>
         <karaf.version>2.3.8</karaf.version>
         <powermock.version>1.5.4</powermock.version>

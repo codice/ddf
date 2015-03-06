@@ -168,6 +168,7 @@
         <bundle start-level='25' dependency="true">mvn:joda-time/joda-time/${cxf.joda.time.version}</bundle>
         <bundle start-level='25' dependency="true">mvn:org.apache.santuario/xmlsec/${cxf.xmlsec.bundle.version}</bundle>
         <bundle start-level='25' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${cxf.opensaml.osgi.version}</bundle>
+        <bundle start-level="25">mvn:org.jvnet.staxex/stax-ex/${cxf.stax-ex.version}</bundle>
         <bundle start-level='25'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saaj-impl/${cxf.saaj-impl.bundle.version}</bundle>
         <bundle start-level='25'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${cxf.xmlresolver.bundle.version}</bundle>
         <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/${cxf.xerces.bundle.version}</bundle>
@@ -776,7 +777,7 @@
         <bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-optional-jcl/${org.ops4j.pax.swissbox.version}</bundle>
         <bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-extender/${org.ops4j.pax.swissbox.version}</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saxon/${saxon.bundle.plugin}</bundle>
-        <bundle>mvn:joda-time/joda-time/${joda-time.version}</bundle>
+        <bundle>mvn:org.joda/joda-convert/${joda-convert.version}</bundle>
     </feature>
 
     <feature name="platform-security-session" install="manual" version="${project.version}" description="Custom Session Manager">

@@ -101,6 +101,7 @@
 				sun.nio.ch;resolution:=optional,
 				com.sun.image.codec.jpeg;resolution:=optional,
 				org.apache.cxf.jaxrs.utils,
+                org.joda.convert;resolution:=optional,
 				*
             </Import-Package>
             <Export-Package />

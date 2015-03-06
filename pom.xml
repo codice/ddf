@@ -28,10 +28,11 @@
     <packaging>pom</packaging>
 
     <properties>
-        <cxf.version>2.7.8</cxf.version>
-        <cxf.jaxb.version>2.2.4</cxf.jaxb.version>
+        <cxf.version>2.7.12</cxf.version>
+        <cxf.jaxb.version>2.2.6</cxf.jaxb.version>
         <commons-io.version>2.1</commons-io.version>
-        <joda-time.version>1.6.2</joda-time.version>
+        <joda-time.version>2.2</joda-time.version>
+        <joda-convert.version>1.7</joda-convert.version>
         <org.slf4j.version>1.7.1</org.slf4j.version>
         <osgi.version>4.3.1</osgi.version>
         <shiro.version>1.2.1</shiro.version>

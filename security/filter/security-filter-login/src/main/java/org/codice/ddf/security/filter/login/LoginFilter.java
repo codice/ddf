@@ -35,7 +35,7 @@ import org.apache.ws.security.saml.ext.OpenSAMLUtil;
 import org.apache.ws.security.validate.Credential;
 import org.apache.ws.security.validate.SamlAssertionValidator;
 import org.apache.ws.security.validate.Validator;
-import org.codice.ddf.security.common.PropertiesLoader;
+import ddf.security.PropertiesLoader;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.InvalidSAMLReceivedException;

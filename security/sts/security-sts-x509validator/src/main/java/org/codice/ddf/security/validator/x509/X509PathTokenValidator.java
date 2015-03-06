@@ -32,7 +32,7 @@
  */
 package org.codice.ddf.security.validator.x509;
 
-import org.codice.ddf.security.common.PropertiesLoader;
+import ddf.security.PropertiesLoader;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
