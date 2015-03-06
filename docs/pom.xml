@@ -146,6 +146,8 @@
                 </dependencies>
                 <configuration>
                     <sourceDirectory>target/adoc</sourceDirectory>
+                    <headerFooter>true</headerFooter>
+                    <imagesDir>./images</imagesDir>
                     <gemPath>${project.build.directory}/gems-provided</gemPath>
                     <requires>
                         <require>asciidoctor-diagram</require>
@@ -153,10 +155,22 @@
                     <!-- Attributes common to all output formats -->
                     <attributes>
                         <sourcedir>${project.build.sourceDirectory}</sourcedir>
-                        <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                     </attributes>
                 </configuration>
                 <executions>
+                    <execution>
+                        <id>output-html</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>html</backend>
+                            <doctype>book</doctype>
+                            <sourceHighlighter>coderay</sourceHighlighter>
+                            <outputDirectory>target/docs/html</outputDirectory>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>generate-pdf-doc</id>
                         <phase>generate-resources</phase>
@@ -166,7 +180,6 @@
                         <configuration>
                             <backend>pdf</backend>
                             <sourceDirectory>target/adoc</sourceDirectory>
-                            <sourceDirectory>src/main/doc</sourceDirectory>
                             <outputDirectory>target/docs/pdf</outputDirectory>
                             <!-- WARNING callout bullets don't yet work with CodeRay -->
                             <sourceHighlighter>coderay</sourceHighlighter>
