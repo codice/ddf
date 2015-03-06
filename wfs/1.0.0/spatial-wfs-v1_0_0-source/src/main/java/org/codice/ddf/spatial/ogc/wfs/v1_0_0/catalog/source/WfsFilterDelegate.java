@@ -1433,30 +1433,44 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         if (wktGeometry instanceof Polygon) {
             if (isGeometryOperandSupported(Wfs10Constants.POLYGON)) {
                 return createPolygon(convertedWkt);
+            } else {
+                throw new IllegalArgumentException("The Polygon operand is not supported.");
             }
         } else if (wktGeometry instanceof Point) {
             if (isGeometryOperandSupported(Wfs10Constants.POINT)) {
                 return createPoint(convertedWkt);
+            } else {
+                throw new IllegalArgumentException("The Point operand is not supported.");
             }
         } else if (wktGeometry instanceof LineString) {
             if (isGeometryOperandSupported(Wfs10Constants.LINESTRING)) {
                 return createLineString(wktGeometry);
+            } else {
+                throw new IllegalArgumentException("The LineString operand is not supported.");
             }
         } else if (wktGeometry instanceof MultiPoint) {
             if (isGeometryOperandSupported(Wfs10Constants.MULTI_POINT)) {
                 return createMultiPoint(wktGeometry);
+            } else {
+                throw new IllegalArgumentException("The MultiPoint operand is not supported.");
             }
         } else if (wktGeometry instanceof MultiLineString) {
             if (isGeometryOperandSupported(Wfs10Constants.MULTI_LINESTRING)) {
                 return createMultiLineString(wktGeometry);
+            } else {
+                throw new IllegalArgumentException("The MultiLineString operand is not supported.");
             }
         } else if (wktGeometry instanceof MultiPolygon) {
             if (isGeometryOperandSupported(Wfs10Constants.MULTI_POLYGON)) {
                 return createMultiPolygon(wktGeometry);
+            } else {
+                throw new IllegalArgumentException("The MultiPolygon operand is not supported.");
             }
         } else if (wktGeometry instanceof GeometryCollection) {
             if (isGeometryOperandSupported(Wfs10Constants.GEOMETRY_COLLECTION)) {
                 return createGeometryCollection(wktGeometry);
+            } else {
+                throw new IllegalArgumentException("The GeometryCollection operand is not supported.");
             }
         }
         throw new IllegalArgumentException("Unable to create Geometry from WKT String");

@@ -26,9 +26,6 @@ import ogc.schema.opengis.gml.v_2_1_2.ObjectFactory;
 import ogc.schema.opengis.gml.v_2_1_2.PointType;
 import ogc.schema.opengis.gml.v_2_1_2.PolygonType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -39,22 +36,17 @@ import com.vividsolutions.jts.io.gml2.GMLWriter;
 
 public class Wfs10JTStoGML200Converter {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(Wfs10JTStoGML200Converter.class);
-
     private static final ObjectFactory gmlObjectFactory = new ObjectFactory();
 
-    private static final String GEOMETRYCOLLECTION_GML_INVALID_START = "<gml:MultiGeometry xmlns:gml='http://www.opengis.net/gml'>";
+    private static final String MULTIGEOMETRY_GML = "multigeometry";
 
-    private static final String GEOMETRYCOLLECTION_GML_INVALID_END = "</gml:MultiGeometry>";
-
-    private static final String GEOMETRYCOLLECTION_GML_START_TAG = "<gml:GeometryCollection xmlns:gml='http://www.opengis.net/gml'>";
-
-    private static final String GEOMETRYCOLLECTION_GML_END_TAG = "</gml:GeometryCollection>";
+    private static final String GEOMETRYCOLLECTION_GML = "GeometryCollection";
 
     public static String convertGeometryToGML(Geometry geometry) throws JAXBException {
         GMLWriter gmlWriter = new GMLWriter(true);
-        String gml = gmlWriter.write(geometry);
-        return gml.replaceAll("\n", "");
+        return gmlWriter.write(geometry);
+//        String gml = gmlWriter.write(geometry);
+//        return gml.replaceAll("\n", "");
     }
 
     public static AbstractGeometryType convertGMLToGeometryType(String gml, QName qName)
@@ -110,10 +102,9 @@ public class Wfs10JTStoGML200Converter {
     }
 
     public static String convertGeometryCollectionToGML(Geometry geometry) throws JAXBException {
-        String invalidGML = convertGeometryToGML(geometry);
-        String gml = invalidGML
-                .replaceAll(GEOMETRYCOLLECTION_GML_INVALID_START, GEOMETRYCOLLECTION_GML_START_TAG)
-                .replaceAll(GEOMETRYCOLLECTION_GML_INVALID_END, GEOMETRYCOLLECTION_GML_END_TAG);
+        String invalidGML = convertGeometryToGML(geometry).toLowerCase();
+        String gml = invalidGML.replaceAll(MULTIGEOMETRY_GML, GEOMETRYCOLLECTION_GML);
+
         return gml;
     }
 
