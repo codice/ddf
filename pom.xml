@@ -114,8 +114,8 @@
     </dependencyManagement>
 	
 	<modules>
-		<module>embedded</module>
-		<module>external</module>
+		<module>catalog-solr-embedded-provider</module>
+		<module>catalog-solr-external-provider</module>
 		<module>solr-app</module>
         <module>docs</module>
     </modules>

@@ -16,20 +16,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>catalog-solr-embedded-pom</artifactId>
-        <groupId>ddf.catalog.solr.embedded</groupId>
+        <artifactId>solr</artifactId>
+        <groupId>ddf.catalog.solr</groupId>
         <version>2.4.5-SNAPSHOT</version>
     </parent>
 
+    <groupId>ddf.catalog.solr.embedded</groupId>
     <artifactId>catalog-solr-embedded-provider</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: Catalog :: Solr :: Embedded :: Provider</name>
     <description>A Catalog Provider library for an Apache Solr Server and for using an embedded Solr Server</description>
-
-    <organization>
-        <name>Codice</name>
-        <url>http://www.codice.org/</url>
-    </organization>
 
     <dependencies>
         <dependency>

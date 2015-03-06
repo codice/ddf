@@ -13,12 +13,13 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<artifactId>catalog-solr-external-pom</artifactId>
-		<groupId>ddf.catalog.solr.external</groupId>
-		<version>2.4.5-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <artifactId>solr</artifactId>
+        <groupId>ddf.catalog.solr</groupId>
+        <version>2.4.5-SNAPSHOT</version>
+    </parent>
 
+    <groupId>ddf.catalog.solr.external</groupId>
 	<artifactId>catalog-solr-external-provider</artifactId>
 	<name>DDF :: Catalog :: Solr :: External :: Provider</name>
 	<packaging>bundle</packaging>
@@ -34,17 +35,19 @@
             <artifactId>solr-factory</artifactId>
         </dependency>
 
-		<dependency>
-			<groupId>ddf.catalog.solr.embedded</groupId>
-			<artifactId>catalog-solr-embedded-provider</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>ddf.catalog.solr.embedded</groupId>
+            <artifactId>catalog-solr-embedded-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>ddf.catalog.solr.embedded</groupId>
-			<artifactId>catalog-solr-embedded-provider</artifactId>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>ddf.catalog.solr.embedded</groupId>
+            <artifactId>catalog-solr-embedded-provider</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
 
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
