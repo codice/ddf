@@ -81,7 +81,6 @@
 						   metrics-collector,
 						   rrd4j;scope=compile|runtime;artifactId=!slf4j-api</Embed-Dependency> 
 						<Embed-Transitive>true</Embed-Transitive>
-
 						<Import-Package>
 							<!-- START: imports specific for embedding rrd4j -->
 							!com.mongodb, 
@@ -90,6 +89,7 @@
 							sun.nio.ch;resolution:=optional,
 							com.sun.image.codec.jpeg;resolution:=optional,
 							<!-- END: imports specific for embedding rrd4j -->
+                            org.joda.time;version="[1.6.0,3.0.0)",
 							*
 			            </Import-Package>
                         <Export-Package>

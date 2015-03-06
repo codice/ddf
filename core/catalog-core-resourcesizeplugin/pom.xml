@@ -86,6 +86,11 @@
                             ddf.catalog.resource.download
                         </Private-Package>
                         <Export-Package />
+                        <Import-Package>
+                            *,
+                            org.joda.time;version="[1.6.0,3.0.0)",
+                            org.joda.time.format;version="[1.6.0,3.0.0)"
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

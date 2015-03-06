@@ -58,7 +58,8 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
-                            *
+                            *,
+                            org.joda.time;version="[1.6.0,3.0.0)"
                         </Import-Package>
                         <Export-Package />
                     </instructions>

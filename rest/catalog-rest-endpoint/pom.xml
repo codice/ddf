@@ -123,6 +123,7 @@
 						<Embed-Dependency>json-smart,catalog-core-api-impl,guava</Embed-Dependency>
 						<Import-Package>
 						    org.apache.cxf.jaxrs.utils,
+                            org.joda.time;version="[1.6.0,3.0.0)",
 							*
 						</Import-Package>
 						<DynamicImport-Package>javax.ws.rs.*</DynamicImport-Package>

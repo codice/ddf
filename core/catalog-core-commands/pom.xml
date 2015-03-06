@@ -106,7 +106,9 @@
                             org.apache.felix.gogo.commands,
                             org.apache.karaf.shell.console,
                             org.osgi.framework;version="[1.5,2)",
-                            *</Import-Package>
+                            org.joda.time;version="[1.6.0,3.0.0)",
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

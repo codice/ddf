@@ -100,6 +100,7 @@
 						<Private-Package>ddf.catalog.operation.impl,ddf.catalog.util.impl,ddf.catalog.federation.base</Private-Package>
 						<Import-Package>
 							sun.misc;resolution:=optional,
+                            org.joda.time;version="[1.6.0,3.0.0)",
 							*
                         </Import-Package>
 						<Export-Package>

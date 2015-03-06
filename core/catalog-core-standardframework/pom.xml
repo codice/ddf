@@ -419,6 +419,7 @@
                             org.xml.sax,
                             org.xml.sax.ext,
                             org.xml.sax.helpers,
+                            org.joda.time;version="[1.6.0,3.0.0)",
                             *;resolution:=optional
                             <!-- End of Solr imports -->
                         </Import-Package>

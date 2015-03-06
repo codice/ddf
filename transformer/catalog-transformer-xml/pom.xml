@@ -99,6 +99,10 @@
 							ddf.catalog.util.impl
 						</Private-Package>
 						<Export-Package />
+                        <Import-Package>
+                            *,
+                            org.joda.time;version="[1.6.0,3.0.0)"
+                        </Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>

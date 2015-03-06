@@ -54,6 +54,10 @@
 						<Private-Package>ddf.catalog.plugin.groomer.metacard,ddf.catalog.data.impl</Private-Package>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Export-Package />
+                        <Import-Package>
+                            *,
+                            org.joda.time;version="[1.6.0,3.0.0)"
+                        </Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>

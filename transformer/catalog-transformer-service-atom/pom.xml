@@ -112,7 +112,8 @@
 							org.apache.abdera.i18n.text.io, <!-- needed by AbstractWriter -->
 							org.apache.abdera.i18n.iri, <!-- Element -->
 							org.apache.abdera.i18n.rfc4646, <!-- Element -->
-							com.ctc.wstx.stax, <!-- needed by FOMWriter --> 
+							com.ctc.wstx.stax, <!-- needed by FOMWriter -->
+                            org.joda.time;version="[1.6.0,3.0.0)",
 							*
 						</Import-Package>
 						<Export-Package />
