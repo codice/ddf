@@ -42,9 +42,9 @@
 		</repository>
 	</repositories>
 	<properties>
-		<cxf.version>2.7.8</cxf.version>
+		<cxf.version>2.7.12</cxf.version>
 	    <ddf.catalog.app.version>2.7.0-SNAPSHOT</ddf.catalog.app.version>
-	    <ddf.security.app.version>2.6.0-SNAPSHOT</ddf.security.app.version>
+	    <ddf.security.app.version>2.7.0-SNAPSHOT</ddf.security.app.version>
 	    <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
 	</properties>
 </project>
