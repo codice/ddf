@@ -293,6 +293,8 @@ public class BasicTypes {
                 true /* stored */, false /* tokenized */, false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.TITLE, true /* indexed */,
                 true /* stored */, true /* tokenized */, false /* multivalued */, STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Metacard.POINT_OF_CONTACT, true /* indexed */,
+                true /* stored */, false /* tokenized */, false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.CONTENT_TYPE, true /* indexed */,
                 true /* stored */, false /* tokenized */, false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.CONTENT_TYPE_VERSION,

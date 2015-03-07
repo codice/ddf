@@ -129,6 +129,12 @@ public interface Metacard extends Serializable {
     public static final String EFFECTIVE = "effective";
 
     /**
+     * {@link Attribute} name for accessing the point of contact to the product this
+     * {@link Metacard} represents. <br/>
+     */
+    public static final String POINT_OF_CONTACT = "point-of-contact";
+
+    /**
      * {@link Attribute} name for accessing the {@link URI} reference to the product this
      * {@link Metacard} represents. <br/>
      */
