@@ -32,8 +32,11 @@ import ddf.content.operation.impl.UpdateResponseImpl;
 import ddf.content.plugin.ContentPlugin;
 import ddf.content.plugin.PluginExecutionException;
 import ddf.mime.MimeTypeToTransformerMapper;
+import ddf.security.SubjectUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
@@ -222,6 +225,16 @@ public class CatalogContentPlugin implements ContentPlugin {
                 try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
                     generatedMetacard = transformer.transform(inputStreamMessageCopy);
                     if (generatedMetacard != null) {
+                        try {
+                            Subject subject = SecurityUtils.getSubject();
+                            if(subject != null) {
+                                generatedMetacard.setAttribute(new AttributeImpl(
+                                        Metacard.POINT_OF_CONTACT, SubjectUtils.getName(subject)));
+                            }
+                        } catch(IllegalStateException e) {
+                            LOGGER.debug("Unable to retrieve user from request.", e);
+                        }
+
                         if (uri != null) {
                             //Setting the non-transformer specific information not including creation and modification dates/times
                             generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, uri));

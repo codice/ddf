@@ -46,6 +46,11 @@
 			<artifactId>catalog-core-api-impl</artifactId>
 			<version>${ddf.catalog.app.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+            <version>${ddf.platform.app.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
