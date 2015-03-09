@@ -4775,9 +4775,9 @@ A federation strategy federates a query to all of the Remote Sources in the qu
 
 An endpoint can optionally specify the federation strategy to use when it invokes the query operation. Otherwise, the Catalog provides a default federation strategy that will be used.
 
-==== Sorted Federation Strategy
+==== Catalog Federation Strategy
 
-The Sorted Federation Strategy is the default federation strategy and is based on sorting metacards by the sorting parameter specified in the federated query.
+The Catalog Federation Strategy is the default federation strategy and is based on sorting metacards by the sorting parameter specified in the federated query.
 
 The possible sorting values are:
 
@@ -4792,13 +4792,14 @@ The default sorting value/order automatically used is relevance descending.
 
 [WARNING]
 ====
-The `SortedFederationStrategy` expects the results returned from the Source to be sorted based on whatever sorting criteria were specified. If a metadata record in the query results contains null values for the sorting criteria elements, the `SortedFederationStrategy` expects that result to come at the end of the result list.
+The Catalog Federation Strategy expects the results returned from the Source to be sorted based on
+whatever sorting criteria were specified. If a metadata record in the query results contains null values for the sorting criteria elements, the Catalog Federation Strategy expects that result to come at the end of the result list.
 ====
 
 ===== Configuration
 
-The Sorted Federation Strategy configuration can be found in the web console under 
-Configuration -> Catalog Sorted Federation Strategy.
+The Catalog Federation Strategy configuration can be found in the web console under 
+Configuration -> Catalog Federation Strategy.
 
 [cols="1,1,4a,1,1" options="header"]
 |===
@@ -4819,13 +4820,31 @@ Configuration -> Catalog Sorted Federation Strategy.
 |50000
 |yes
 
+|expirationIntervalInMinutes
+|Long
+|Interval that Solr Cache checks for expired documents to remove.
+|10
+|yes
+
+|expirationAgeInMinutes
+|Long
+|The number of minutes a document will remain in the cache before it will expire. Default is 7 days.
+|10080
+|yes
+
+|url
+|String
+|Interval that Solr Cache checks for expired documents to remove.
+|10080
+|yes
+
 |===
 
 [cols="2" options="header"]
 |===
 
 |Managed Service PID
-|`ddf.catalog.SortedFederationStrategy`
+|`ddf.catalog.federation.impl.CachingFederationStrategy`
 
 |Managed Service Factory PID
 |N/A

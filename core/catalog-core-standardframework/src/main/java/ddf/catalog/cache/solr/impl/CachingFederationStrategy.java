@@ -462,6 +462,10 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         cache.setExpirationIntervalInMinutes(expirationIntervalInMinutes);
     }
 
+    public void setExpirationAgeInMinutes(long expirationAgeInMinutes) {
+        cache.setExpirationAgeInMinutes(expirationAgeInMinutes);
+    }
+
     protected Runnable createMonitor(final CompletionService<SourceResponse> completionService,
             final Map<Future<SourceResponse>, Source> futures,
             final QueryResponseImpl returnResults, final QueryRequest request) {
