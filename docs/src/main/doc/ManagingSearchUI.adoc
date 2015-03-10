@@ -47,6 +47,26 @@ Configure individual features within the application with the
 Admin Console.
 
 === Configurable Properties
+
+==== Search UI Endpoint
+[cols="1,1,1,4,1" options="header"]
+|===
+
+|Title really
+|Property
+|Type
+|Description
+|Required
+
+|Disable Cache
+|cacheDisabled
+|Boolean
+|Disables use of cache.
+|no
+
+|===
+
+==== Standard Search UI
 [cols="1,1,1,4,1" options="header"]
 |===
 
@@ -99,9 +119,8 @@ TMS (TileMapService), +
 GE (GoogleEarth).
 
 Example: TYPE={url=
-{"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}
+{"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}}
 |no
-}
 
 |Terrain Providers
 |terrainProvider

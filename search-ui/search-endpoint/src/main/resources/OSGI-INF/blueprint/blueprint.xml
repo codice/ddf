@@ -13,7 +13,8 @@
  **/
 -->
 
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
     <bean id="comet" class="org.cometd.server.CometdServlet">
     </bean>
@@ -42,6 +43,8 @@
 
     <bean class="org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint"
           depends-on="defaultCometdServlet" init-method="init" destroy-method="destroy">
+        <cm:managed-properties persistent-id="org.codice.ddf.ui.search.standard.endpoint"
+                               update-strategy="container-managed" />
         <argument ref="comet"/>
         <argument ref="catalog"/>
         <argument ref="filterBuilder"/>

@@ -14,6 +14,9 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Ordering;
 import ddf.action.Action;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
@@ -33,6 +36,9 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
+import ddf.catalog.util.impl.DistanceResultComparator;
+import ddf.catalog.util.impl.RelevanceResultComparator;
+import ddf.catalog.util.impl.TemporalResultComparator;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import net.minidev.json.JSONArray;
@@ -47,6 +53,9 @@ import org.cometd.bayeux.server.ConfigurableServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.ServerMessageImpl;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +64,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -69,6 +83,8 @@ public class SearchController {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchController.class);
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
+
+    private Boolean cacheDisabled = false;
 
     // TODO: just store the searches in memory for now, change this later
     private final Map<String, Search> searchMap = Collections
@@ -143,62 +159,128 @@ public class SearchController {
 
         final SearchController controller = this;
 
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                Map<String, Serializable> properties = new HashMap<String, Serializable>();
-                // check if there are any currently cached results
-                properties.put("mode", "cache");
-                // search cache for all sources
-                QueryResponse response = executeQuery(null, request,
-                        subject, properties);
-
-                try {
-                    Search search = addQueryResponseToSearch(request, response);
-                    pushResults(request.getId(),
-                            controller.transform(search, request),
-                            session);
-                } catch (InterruptedException e) {
-                    LOGGER.error("Failed adding cached search results.", e);
-                } catch (CatalogTransformerException e) {
-                    LOGGER.error("Failed to transform cached search results.", e);
-                }
-            }
-        });
-
-        for (final String sourceId : request.getSourceIds()) {
-            LOGGER.debug("Executing async query on: {}", sourceId);
+        if (!cacheDisabled) {
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
                     Map<String, Serializable> properties = new HashMap<String, Serializable>();
-                    // update index from federated sources
-                    properties.put("mode", "index");
-                    QueryResponse indexResponse = executeQuery(sourceId, request,
-                            subject, properties);
-
-                    // query updated cache
+                    // check if there are any currently cached results
                     properties.put("mode", "cache");
-                    QueryResponse cachedResponse = executeQuery(null, request,
+                    // search cache for all sources
+                    QueryResponse response = executeQuery(null, request,
                             subject, properties);
 
                     try {
-                        Search search = addQueryResponseToSearch(request, cachedResponse);
-                        search.updateStatus(sourceId, indexResponse);
+                        Search search = addQueryResponseToSearch(request, response);
                         pushResults(request.getId(),
-                                    controller.transform(search, request),
-                                    session);
-                        if (search.isFinished()) {
-                            searchMap.remove(request.getId());
-                        }
+                                controller.transform(search, request),
+                                session);
                     } catch (InterruptedException e) {
-                        LOGGER.error("Failed adding federated search results.", e);
+                        LOGGER.error("Failed adding cached search results.", e);
                     } catch (CatalogTransformerException e) {
-                        LOGGER.error("Failed to transform federated search results.", e);
+                        LOGGER.error("Failed to transform cached search results.", e);
                     }
                 }
             });
+
+            for (final String sourceId : request.getSourceIds()) {
+                LOGGER.debug("Executing async query on: {}", sourceId);
+                executorService.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        Map<String, Serializable> properties = new HashMap<String, Serializable>();
+                        // update index from federated sources
+                        properties.put("mode", "index");
+                        QueryResponse indexResponse = executeQuery(sourceId, request,
+                                subject, properties);
+
+                        // query updated cache
+                        properties.put("mode", "cache");
+                        QueryResponse cachedResponse = executeQuery(null, request,
+                                subject, properties);
+
+                        try {
+                            Search search = addQueryResponseToSearch(request, cachedResponse);
+                            search.updateStatus(sourceId, indexResponse);
+                            pushResults(request.getId(),
+                                    controller.transform(search, request),
+                                    session);
+                            if (search.isFinished()) {
+                                searchMap.remove(request.getId());
+                            }
+                        } catch (InterruptedException e) {
+                            LOGGER.error("Failed adding federated search results.", e);
+                        } catch (CatalogTransformerException e) {
+                            LOGGER.error("Failed to transform federated search results.", e);
+                        }
+                    }
+                });
+            }
+        } else {
+            final Comparator<Result> sortComparator = getResultComparator(request.getQuery());
+            final int maxResults = request.getQuery().getPageSize() > 0 ?
+                    request.getQuery().getPageSize() : Integer.MAX_VALUE;
+            final List<Result> results = Collections.synchronizedList(new ArrayList<Result>());
+
+            for (final String sourceId : request.getSourceIds()) {
+                LOGGER.debug("Executing async query without cache on: {}", sourceId);
+                executorService.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        QueryResponse sourceResponse = executeQuery(sourceId, request,
+                                subject, new HashMap<String, Serializable>());
+
+                        results.addAll(sourceResponse.getResults());
+
+                        List<Result> sortedResults = Ordering
+                                .from(sortComparator).immutableSortedCopy(results);
+
+                        sourceResponse.getResults().clear();
+                        sourceResponse.getResults().addAll(sortedResults.size() > maxResults ?
+                                sortedResults.subList(0, maxResults): sortedResults);
+
+                        try {
+                            Search search = addQueryResponseToSearch(request, sourceResponse);
+                            search.updateStatus(sourceId, sourceResponse);
+                            pushResults(request.getId(),
+                                    controller.transform(search, request),
+                                    session);
+                            if (search.isFinished()) {
+                                searchMap.remove(request.getId());
+                            }
+                        } catch (InterruptedException e) {
+                            LOGGER.error("Failed adding federated search results.", e);
+                        } catch (CatalogTransformerException e) {
+                            LOGGER.error("Failed to transform federated search results.", e);
+                        }
+                    }
+                });
+            }
         }
+    }
+
+    private Comparator<Result> getResultComparator(Query query) {
+        Comparator<Result> sortComparator = new RelevanceResultComparator(SortOrder.DESCENDING);
+        SortBy sortBy = query.getSortBy();
+
+        if (sortBy != null && sortBy.getPropertyName() != null) {
+            PropertyName sortingProp = sortBy.getPropertyName();
+            String sortType = sortingProp.getPropertyName();
+            SortOrder sortOrder = (sortBy.getSortOrder() == null) ? SortOrder.DESCENDING
+                    : sortBy.getSortOrder();
+
+            // Temporal searches are currently sorted by the effective time
+            if (Metacard.EFFECTIVE.equals(sortType) || Result.TEMPORAL.equals(sortType)) {
+                sortComparator = new TemporalResultComparator(sortOrder);
+            } else if (Metacard.CREATED.equals(sortType) || Metacard.MODIFIED.equals(sortType)) {
+                sortComparator = new TemporalResultComparator(sortOrder, sortType);
+            } else if (Result.DISTANCE.equals(sortType)) {
+                sortComparator = new DistanceResultComparator(sortOrder);
+            } else if (Result.RELEVANCE.equals(sortType)) {
+                sortComparator = new RelevanceResultComparator(sortOrder);
+            }
+        }
+        return sortComparator;
     }
 
     private Search addQueryResponseToSearch(SearchRequest searchRequest,
@@ -438,5 +520,9 @@ public class SearchController {
 
     public synchronized void setBayeuxServer(BayeuxServer bayeuxServer) {
         this.bayeuxServer = bayeuxServer;
+    }
+
+    public void setCacheDisabled(Boolean cacheDisabled) {
+        this.cacheDisabled = cacheDisabled;
     }
 }

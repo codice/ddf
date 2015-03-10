@@ -114,6 +114,11 @@
             <artifactId>gt-cql</artifactId>
             <version>8.4</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>17.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
@@ -152,7 +157,8 @@
                             jackson-mapper-asl,
                             jackson-core-asl,
                             joda-time,
-                            json-smart
+                            json-smart,
+                            guava
                         </Embed-Dependency>
                         <Web-ContextPath>/search/cometd</Web-ContextPath>
                         <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>

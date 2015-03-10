@@ -153,4 +153,7 @@ public class CometdEndpoint {
         return searchService;
     }
 
+    public void setCacheDisabled(Boolean cacheDisabled) {
+        this.searchController.setCacheDisabled(cacheDisabled);
+    }
 }
