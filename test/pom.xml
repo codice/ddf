@@ -33,7 +33,6 @@
 		<module>itests</module>
 	</modules>
 
-
 	<repositories>
 		<repository>
 			<id>codice</id>
@@ -41,6 +40,17 @@
 			<url>http://artifacts.codice.org/content/groups/public/</url>
 		</repository>
 	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+	</dependencies>
 
     <dependencyManagement>
         <dependencies>
