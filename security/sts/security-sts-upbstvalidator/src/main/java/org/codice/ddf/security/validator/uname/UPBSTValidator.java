@@ -61,7 +61,10 @@ import org.apache.ws.security.message.token.UsernameToken;
 import org.apache.ws.security.validate.Credential;
 import org.apache.ws.security.validate.JAASUsernameTokenValidator;
 import org.apache.ws.security.validate.Validator;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -73,12 +76,11 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.security.Principal;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DDFUsername BST validator for the STS.
@@ -86,32 +88,26 @@ import java.util.Set;
 public class UPBSTValidator implements TokenValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(UPBSTValidator.class);
 
-    public static final String UPBST_VALUE_TYPE = "urn:ddf:security:sso#DDFToken";
-
-    public static final String UPBST_ID = "DDFUsername";
-
-    public static final String BASE64_ENCODING = WSConstants.SOAPMESSAGE_NS + "#Base64Binary";
-
     private UsernameTokenRealmCodec usernameTokenRealmCodec;
 
-    private List<JaasRealm> realms;
+    private Map<String, Validator> validators = new ConcurrentHashMap<>();
 
-    private Map<String, Validator> validators = new HashMap<>();
-
-    public void init() {
-        if (realms != null) {
-            validators.clear();
-            for (JaasRealm realm : realms) {
-                JAASUsernameTokenValidator validator = new JAASUsernameTokenValidator();
-                validator.setContextName(realm.getName());
-                validators.put(realm.getName(), validator);
-            }
-        }
+    public void addRealm(ServiceReference<JaasRealm> serviceReference) {
+        JaasRealm realm = FrameworkUtil.getBundle(UPBSTValidator.class).getBundleContext()
+                .getService(
+                        serviceReference);
+        LOGGER.trace("Adding validator for JaasRealm {}", realm.getName());
+        JAASUsernameTokenValidator validator = new JAASUsernameTokenValidator();
+        validator.setContextName(realm.getName());
+        validators.put(realm.getName(), validator);
     }
 
-    public void setJaasRealmList(List<JaasRealm> realms) {
-        this.realms = realms;
-        init();
+    public void removeRealm(ServiceReference<JaasRealm> serviceReference) {
+        JaasRealm realm = FrameworkUtil.getBundle(UPBSTValidator.class).getBundleContext()
+                .getService(
+                        serviceReference);
+        LOGGER.trace("Removing validator for JaasRealm {}", realm.getName());
+        validators.remove(realm.getName());
     }
 
     /**
@@ -146,34 +142,23 @@ public class UPBSTValidator implements TokenValidator {
     public boolean canHandleToken(ReceivedToken validateTarget, String cxfRealm) {
         Object token = validateTarget.getToken();
         boolean canHandle = false;
-        if ((token instanceof BinarySecurityTokenType)
-            && UPBST_VALUE_TYPE.equals(((BinarySecurityTokenType) token).getValueType())) {
-            // Now look inside to see what realm this is for
-            String encodedCredential = ((BinarySecurityTokenType) token).getValue();
-            LOGGER.debug("Encoded username/password credential: {}", encodedCredential);
-            UPAuthenticationToken usernameToken = UPAuthenticationToken.parse(encodedCredential, true);
-
+        UPAuthenticationToken usernameToken = getUsernameTokenFromTarget(validateTarget);
+        if (usernameToken != null) {
             // currently realm is not being passed through (no RealmParser that determines the realm
             // based on the web context. So this just looks at the realm passed in the credentials.
             // This generic instance just looks for the default realms (DDF and Karaf)
-            if (usernameToken != null) {
-                if (usernameToken.getRealm() == null) {
-                    LOGGER.trace("No realm specified in request, canHandletoken = true");
-                    canHandle = (realms != null);
-                } else {
-                    if (realms != null) {
-                        for (JaasRealm realm : realms) {
-                            if (realm.getName().equals(usernameToken.getRealm())) {
-                                LOGGER.trace("Realm '{}' recognized - canHandleToken = true", usernameToken.getRealm());
-                                canHandle = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!canHandle) {
-                        LOGGER.trace("Realm '{}' unrecognized - canHandleToken = false", usernameToken.getRealm());
-                    }
-                }
+            if (usernameToken.getRealm() == null) {
+                LOGGER.trace("No realm specified in request");
+                canHandle = (validators != null);
+            } else if (validators != null && validators
+                    .containsKey(usernameToken.getRealm())) {
+                LOGGER.trace("Realm '{}' recognized - canHandleToken = true",
+                        usernameToken.getRealm());
+                canHandle = true;
+            }
+            if (!canHandle) {
+                LOGGER.trace("Realm '{}' unrecognized - canHandleToken = false",
+                        usernameToken.getRealm());
             }
         }
         LOGGER.debug("Returning canHandle: {}", canHandle);
@@ -206,16 +191,17 @@ public class UPBSTValidator implements TokenValidator {
             return response;
         }
 
-        BinarySecurityTokenType binarySecurityType = (BinarySecurityTokenType) validateTarget.getToken();
+        BinarySecurityTokenType binarySecurityType = (BinarySecurityTokenType) validateTarget
+                .getToken();
 
         // Test the encoding type
         String encodingType = binarySecurityType.getEncodingType();
-        if (!BASE64_ENCODING.equals(encodingType)) {
+        if (!UPAuthenticationToken.BASE64_ENCODING.equals(encodingType)) {
             LOGGER.trace("Bad encoding type attribute specified: {}", encodingType);
             return response;
         }
 
-        UPAuthenticationToken usernameToken = UPAuthenticationToken.parse(binarySecurityType.getValue(), true);
+        UPAuthenticationToken usernameToken = getUsernameTokenFromTarget(validateTarget);
         if (usernameToken == null) {
             return response;
         }
@@ -225,19 +211,21 @@ public class UPBSTValidator implements TokenValidator {
         try {
             Set<Class<?>> classes = new HashSet<Class<?>>();
             classes.add(ObjectFactory.class);
-            classes.add(org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
+            classes.add(
+                    org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class);
 
             JAXBContextCache.CachedContextAndSchemas cache =
-                JAXBContextCache.getCachedContextAndSchemas(classes, null, null, null, false);
+                    JAXBContextCache.getCachedContextAndSchemas(classes, null, null, null, false);
             JAXBContext jaxbContext = cache.getContext();
 
             Marshaller marshaller = jaxbContext.createMarshaller();
             Document doc = DOMUtils.createDocument();
             Element rootElement = doc.createElement("root-element");
             JAXBElement<UsernameTokenType> tokenType =
-                new JAXBElement<UsernameTokenType>(
-                    QNameConstants.USERNAME_TOKEN, UsernameTokenType.class, usernameTokenType
-                );
+                    new JAXBElement<UsernameTokenType>(
+                            QNameConstants.USERNAME_TOKEN, UsernameTokenType.class,
+                            usernameTokenType
+                    );
             marshaller.marshal(tokenType, rootElement);
             usernameTokenElement = (Element) rootElement.getFirstChild();
         } catch (JAXBException ex) {
@@ -251,10 +239,11 @@ public class UPBSTValidator implements TokenValidator {
         WSSConfig wssConfig = WSSConfig.getNewInstance();
         try {
             boolean allowNamespaceQualifiedPasswordTypes =
-                wssConfig.getAllowNamespaceQualifiedPasswordTypes();
+                    wssConfig.getAllowNamespaceQualifiedPasswordTypes();
             boolean bspCompliant = wssConfig.isWsiBSPCompliant();
             UsernameToken ut =
-                new UsernameToken(usernameTokenElement, allowNamespaceQualifiedPasswordTypes, bspCompliant);
+                    new UsernameToken(usernameTokenElement, allowNamespaceQualifiedPasswordTypes,
+                            bspCompliant);
 
             // The parsed principal is set independent whether validation is successful or not
             response.setPrincipal(new CustomTokenPrincipal(ut.getName()));
@@ -275,10 +264,19 @@ public class UPBSTValidator implements TokenValidator {
             if (secToken == null) {
                 Credential credential = new Credential();
                 credential.setUsernametoken(ut);
+
                 if (usernameToken.getRealm() != null) {
                     Validator validator = validators.get(usernameToken.getRealm());
                     if (validator != null) {
-                        validator.validate(credential, requestData);
+                        try {
+                            validator.validate(credential, requestData);
+                            validateTarget.setState(STATE.VALID);
+                            LOGGER.debug("Validated user against realm {}",
+                                    usernameToken.getRealm());
+                        } catch (WSSecurityException ex) {
+                            LOGGER.debug("Not able to validate user against realm {}",
+                                    usernameToken.getRealm());
+                        }
                     }
                 } else {
                     Set<Map.Entry<String, Validator>> entries = validators.entrySet();
@@ -289,16 +287,18 @@ public class UPBSTValidator implements TokenValidator {
                             LOGGER.debug("Validated user against realm {}", entry.getKey());
                             break;
                         } catch (WSSecurityException ex) {
-                            LOGGER.debug("Not able to validate user against realm {}", entry.getKey());
+                            LOGGER.debug("Not able to validate user against realm {}",
+                                    entry.getKey());
                         }
                     }
                 }
             }
 
             Principal principal =
-                createPrincipal(
-                    ut.getName(), ut.getPassword(), ut.getPasswordType(), ut.getNonce(), ut.getCreated()
-                );
+                    createPrincipal(
+                            ut.getName(), ut.getPassword(), ut.getPasswordType(), ut.getNonce(),
+                            ut.getCreated()
+                    );
 
             // Get the realm of the UsernameToken
             String tokenRealm = null;
@@ -329,7 +329,6 @@ public class UPBSTValidator implements TokenValidator {
 
             response.setPrincipal(principal);
             response.setTokenRealm(tokenRealm);
-            validateTarget.setState(STATE.VALID);
         } catch (WSSecurityException ex) {
             LOGGER.warn("", ex);
         }
@@ -341,11 +340,11 @@ public class UPBSTValidator implements TokenValidator {
      * Create a principal based on the authenticated UsernameToken.
      */
     private Principal createPrincipal(
-        String username,
-        String passwordValue,
-        String passwordType,
-        String nonce,
-        String createdTime
+            String username,
+            String passwordValue,
+            String passwordType,
+            String nonce,
+            String createdTime
     ) {
         boolean hashed = false;
         if (WSConstants.PASSWORD_DIGEST.equals(passwordType)) {
@@ -369,10 +368,34 @@ public class UPBSTValidator implements TokenValidator {
         PasswordString password = new PasswordString();
         password.setValue(token.getPassword());
         password.setType(WSConstants.PASSWORD_TEXT);
-        JAXBElement<PasswordString> passwordType = new JAXBElement<PasswordString>(QNameConstants.PASSWORD, PasswordString.class, password);
+        JAXBElement<PasswordString> passwordType = new JAXBElement<PasswordString>(
+                QNameConstants.PASSWORD, PasswordString.class, password);
         usernameTokenType.getAny().add(passwordType);
 
         return usernameTokenType;
+    }
+
+    private UPAuthenticationToken getUsernameTokenFromTarget(ReceivedToken validateTarget) {
+        Object token = validateTarget.getToken();
+        if ((token instanceof BinarySecurityTokenType)
+                && UPAuthenticationToken.UP_TOKEN_VALUE_TYPE
+                .equals(((BinarySecurityTokenType) token).getValueType())) {
+            String encodedCredential = ((BinarySecurityTokenType) token).getValue();
+            LOGGER.debug("Encoded username/password credential: {}", encodedCredential);
+            BaseAuthenticationToken base = null;
+            try {
+                base = UPAuthenticationToken
+                        .parse(encodedCredential, true);
+                return new UPAuthenticationToken(
+                        base.getPrincipal().toString(), base.getCredentials().toString(),
+                        base.getRealm());
+            } catch (WSSecurityException e) {
+                LOGGER.warn("Unable to parse {} from encodedToken.",
+                        UPAuthenticationToken.class.getSimpleName(), e);
+                return null;
+            }
+        }
+        return null;
     }
 
 }

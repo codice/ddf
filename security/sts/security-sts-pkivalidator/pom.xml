@@ -1,3 +1,4 @@
+
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -20,8 +21,8 @@
         <version>2.7.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>security-sts-upbstvalidator</artifactId>
-    <name>DDF :: Security :: STS :: Username BST Validator</name>
+    <artifactId>security-sts-pkivalidator</artifactId>
+    <name>DDF :: Security :: STS :: PKI Validator</name>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -38,23 +39,25 @@
             <artifactId>cxf-rt-ws-security</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+        </dependency>
+                <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-crlinterceptor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-x509delegationhandler</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.karaf.jaas</groupId>
-            <artifactId>org.apache.karaf.jaas.config</artifactId>
-            <version>${karaf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-        </dependency>
-    </dependencies>
+   </dependencies>
 
     <build>
         <plugins>

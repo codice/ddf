@@ -14,40 +14,57 @@
  **/
 package org.codice.ddf.security.handler.api;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class PKIAuthenticationTokenTest extends TestCase {
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class PKIAuthenticationTokenTest {
 
     protected static final String encodedCert =
-      "MIIDejCCAmKgAwIBAgIBBTANBgkqhkiG9w0BAQUFADBgMQswCQYDVQQGEwJVUzEY\n"
-        + "MBYGA1UEChMPVS5TLiBHb3Zlcm5tZW50MQwwCgYDVQQLEwNEb0QxDDAKBgNVBAsT\n"
-        + "A1BLSTEbMBkGA1UEAxMSRG9EIEpJVEMgUm9vdCBDQSAyMB4XDTA1MDcxNTAzMzEz\n"
-        + "MVoXDTMwMDcwNDAzMzEzMVowYDELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD1UuUy4g\n"
-        + "R292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kxGzAZBgNVBAMT\n"
-        + "EkRvRCBKSVRDIFJvb3QgQ0EgMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC\n"
-        + "ggEBALRIymMpeEOhlGWsnArSdyuDMN8vs5LUze6XjepHVgXqBPQx2AWb9x2BOIfj\n"
-        + "SqCIyl8GOBynJLwayGYpURJGScnfLZMSXrt6SHPof2gnl+hqA71Ssbw+jtM8tADl\n"
-        + "fgaT21ko1iYm88namlb3FRbTz4G2cBsHIaD0DhkD2DVtPUJhW4abViTQYPf4/n49\n"
-        + "64BdC26O66WtKsftWsgVeQd9D1efCpKfMs/mptwgTEJqIvKuvhV+/rAzGfTkDUm4\n"
-        + "148U1/HuEYJvI++h0pZpS+wzQEkB5QJm8rrp7beHBiLD6YZ0OnATgnlSoAP46OLu\n"
-        + "LfHlX8dn3N0L+xfIMc3wOoatTDsCAwEAAaM/MD0wHQYDVR0OBBYEFPngP4dW/9Ih\n"
-        + "gLo9E37FT1Sw37wCMAsGA1UdDwQEAwIBhjAPBgNVHRMBAf8EBTADAQH/MA0GCSqG\n"
-        + "SIb3DQEBBQUAA4IBAQA/sLzl//ueBYzj3C6wRb74sUww3Yya9k5Ny3f17i5YsbOz\n"
-        + "ABv/UcandBbFmfYnrAXw7ZzCpmgXgcpZRntxIHVeJU/WzFhEBuMqXAdc19g+bkzh\n"
-        + "/OE5fEODBMpVzLUsvRQLFBp12GP60AULXkje8k1h0NXx4ENtKFbOYLrb0zwJVMqT\n"
-        + "RGgnnYM9dzfqxA03dXnvCVZaZ5VlYwMvqyfxTt8pSI+i4vMzerNojZqug0PX1tA7\n"
-        + "hjKk7gPS7bD62fwkoVZ6wT+XxtZ0IFcqSxPVm0Kg20TbtfGoHsEKcf2ao1PxEvKx\n"
-        + "mO9cW65lIW96mu2pKjJNb+FmW6RAjaDJXFHkN8uP";
+            "MIIFGDCCBACgAwIBAgICJe0wDQYJKoZIhvcNAQEFBQAwXDELMAkGA1UEBhMCVVMxGDAWBgNVBAoT\n"
+                    + "D1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kxFzAVBgNVBAMTDkRP\n"
+                    + "RCBKSVRDIENBLTI3MB4XDTEzMDUwNzAwMjU0OVoXDTE2MDUwNzAwMjU0OVowaTELMAkGA1UEBhMC\n"
+                    + "VVMxGDAWBgNVBAoTD1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kx\n"
+                    + "EzARBgNVBAsTCkNPTlRSQUNUT1IxDzANBgNVBAMTBmNsaWVudDCCASIwDQYJKoZIhvcNAQEBBQAD\n"
+                    + "ggEPADCCAQoCggEBAOq6L1/jjZ5cyhjhHEbOHr5WQpboKACYbrsn8lg85LGNoAfcwImr9KBmOxGb\n"
+                    + "ZCxHYIhkW7pJ+kppyH8DDMviIvvdkvrAIU0l8OBRn2wReCBGQ01Imdc3+WzFF2svW75d6wii2ZVd\n"
+                    + "eMvUO15p/pAD/sdIfXmAfyu8+tqtiO8KVZGkTnlg3AMzfeSrkci5UHMVWj0qUSuzLk9SAg/9STgb\n"
+                    + "Kf2xBpHUYecWFSB+dTpdZN2pC85tj9xIoWGh5dFWG1fPcYRgzGPxsybiGOylbJ7rHDJuL7IIIyx5\n"
+                    + "EnkCuxmQwoQ6XQAhiWRGyPlY08w1LZixI2v+Cv/ZjUfIHv49I9P4Mt8CAwEAAaOCAdUwggHRMB8G\n"
+                    + "A1UdIwQYMBaAFCMUNCBNXy43NZLBBlnDjDplNZJoMB0GA1UdDgQWBBRPGiX6zZzKTqQSx/tjg6hx\n"
+                    + "9opDoTAOBgNVHQ8BAf8EBAMCBaAwgdoGA1UdHwSB0jCBzzA2oDSgMoYwaHR0cDovL2NybC5nZHMu\n"
+                    + "bml0LmRpc2EubWlsL2NybC9ET0RKSVRDQ0FfMjcuY3JsMIGUoIGRoIGOhoGLbGRhcDovL2NybC5n\n"
+                    + "ZHMubml0LmRpc2EubWlsL2NuJTNkRE9EJTIwSklUQyUyMENBLTI3JTJjb3UlM2RQS0klMmNvdSUz\n"
+                    + "ZERvRCUyY28lM2RVLlMuJTIwR292ZXJubWVudCUyY2MlM2RVUz9jZXJ0aWZpY2F0ZXJldm9jYXRp\n"
+                    + "b25saXN0O2JpbmFyeTAjBgNVHSAEHDAaMAsGCWCGSAFlAgELBTALBglghkgBZQIBCxIwfQYIKwYB\n"
+                    + "BQUHAQEEcTBvMD0GCCsGAQUFBzAChjFodHRwOi8vY3JsLmdkcy5uaXQuZGlzYS5taWwvc2lnbi9E\n"
+                    + "T0RKSVRDQ0FfMjcuY2VyMC4GCCsGAQUFBzABhiJodHRwOi8vb2NzcC5uc24wLnJjdnMubml0LmRp\n"
+                    + "c2EubWlsMA0GCSqGSIb3DQEBBQUAA4IBAQCGUJPGh4iGCbr2xCMqCq04SFQ+iaLmTIFAxZPFvup1\n"
+                    + "4E9Ir6CSDalpF9eBx9fS+Z2xuesKyM/g3YqWU1LtfWGRRIxzEujaC4YpwHuffkx9QqkwSkXXIsim\n"
+                    + "EhmzSgzxnT4Q9X8WwalqVYOfNZ6sSLZ8qPPFrLHkkw/zIFRzo62wXLu0tfcpOr+iaJBhyDRinIHr\n"
+                    + "hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj\n"
+                    + "8KASjJBFeHPirMV1oddJ5ydZCQ+Jmnpbwq+XsCxg1LjC4dmbjKVr9s4QK+/JLNjxD8IkJiZE";
 
-    public void testGetDn() throws Exception {
+    private static final String TEST_PRINCIPAL = "DN:someDomainName";
 
-    }
+    private static final String TEST_REALM = "someRealm";
 
-    public void testGetCertificate() throws Exception {
-
-    }
-
-    public void testGetEncodedCredentials() throws Exception {
-
+    @Test
+    public void testEncodeAndParse() throws Exception {
+        PKIAuthenticationToken pkiToken = new PKIAuthenticationToken(TEST_PRINCIPAL,
+                encodedCert.getBytes(), TEST_REALM);
+        assertNotNull(pkiToken);
+        String encodedCreds = pkiToken.getEncodedCredentials();
+        BaseAuthenticationToken bat = PKIAuthenticationToken.parse(encodedCreds, true);
+        PKIAuthenticationToken pki = new PKIAuthenticationToken(bat.getPrincipal(),
+                bat.getCredentials().toString(), bat.getRealm());
+        assertNotNull(pki);
+        assertEquals(TEST_PRINCIPAL, pki.getDn());
+        assertArrayEquals(encodedCert.getBytes(), pki.getCertificate());
+        assertEquals(TEST_REALM, pki.getRealm());
+        assertEquals(PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE, pki.tokenValueType);
+        assertEquals(PKIAuthenticationToken.BST_X509_LN, pki.tokenId);
     }
 }

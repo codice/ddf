@@ -20,7 +20,9 @@ import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
 import org.apache.ws.security.CustomTokenPrincipal;
+import org.apache.ws.security.WSSecurityException;
 import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,21 +30,25 @@ import java.util.List;
 
 public class AnonymousValidator implements TokenValidator {
 
-    public static final String ANON_VALUE_TYPE = "urn:ddf:security:sso#DDFToken";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AnonymousValidator.class);
 
     private List<String> supportedRealm;
 
-    private AnonymousAuthenticationToken parse(ReceivedToken validateTarget) {
+    private AnonymousAuthenticationToken getAnonTokenFromTarget(ReceivedToken validateTarget) {
         Object token = validateTarget.getToken();
         if ((token instanceof BinarySecurityTokenType)
-                && ANON_VALUE_TYPE.equals(((BinarySecurityTokenType) token).getValueType())) {
-            // Now look inside to see what realm this is for
+                && AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE
+                .equals(((BinarySecurityTokenType) token).getValueType())) {
             String credential = ((BinarySecurityTokenType) token).getValue();
-            AnonymousAuthenticationToken anonToken = AnonymousAuthenticationToken
-                    .parse(credential, true);
-            return anonToken;
+            try {
+                BaseAuthenticationToken base = AnonymousAuthenticationToken
+                        .parse(credential, true);
+                return new AnonymousAuthenticationToken(base.getRealm());
+            } catch (WSSecurityException e) {
+                LOGGER.warn("Unable to parse {} from encodedToken.",
+                        AnonymousAuthenticationToken.class.getSimpleName(), e);
+                return null;
+            }
         }
         return null;
     }
@@ -54,7 +60,7 @@ public class AnonymousValidator implements TokenValidator {
 
     @Override
     public boolean canHandleToken(ReceivedToken validateTarget, String realm) {
-        AnonymousAuthenticationToken anonToken = parse(validateTarget);
+        AnonymousAuthenticationToken anonToken = getAnonTokenFromTarget(validateTarget);
         // currently realm is not being passed through (no RealmParser that determines the realm
         // based on the web context. So this just looks at the realm passed in the credentials.
         // This generic instance just looks for the default realms (DDF and Karaf)
@@ -82,15 +88,18 @@ public class AnonymousValidator implements TokenValidator {
         ReceivedToken validateTarget = tokenParameters.getToken();
         validateTarget.setState(ReceivedToken.STATE.INVALID);
         response.setToken(validateTarget);
-        response.setPrincipal(new CustomTokenPrincipal(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS));
-        AnonymousAuthenticationToken anonToken = parse(validateTarget);
+        response.setPrincipal(
+                new CustomTokenPrincipal(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS));
+        AnonymousAuthenticationToken anonToken = getAnonTokenFromTarget(validateTarget);
 
         if (anonToken != null) {
             if (anonToken.getRealm() != null) {
-                if(supportedRealm.contains(anonToken.getRealm()) && anonToken.getCredentials().equals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS)) {
+                if (supportedRealm.contains(anonToken.getRealm()) && anonToken.getCredentials()
+                        .equals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS)) {
                     validateTarget.setState(ReceivedToken.STATE.VALID);
                 }
-            } else if (anonToken.getCredentials().equals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS)) {
+            } else if (anonToken.getCredentials()
+                    .equals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS)) {
                 validateTarget.setState(ReceivedToken.STATE.VALID);
             }
         }
@@ -100,6 +109,7 @@ public class AnonymousValidator implements TokenValidator {
     /**
      * Set the realm that this validator supports. This can be used to differentiate between
      * two instances of this validator where each contains a differnent token validator.
+     *
      * @param supportedRealm string representing the realm supported by this validator
      */
     public void setSupportedRealm(List<String> supportedRealm) {

@@ -15,23 +15,21 @@
 package org.codice.ddf.security.handler.api;
 
 import ddf.security.principal.AnonymousPrincipal;
+import org.junit.Test;
 
-/**
- * Authentication token representing an anonymous user's credentials
- */
-public class AnonymousAuthenticationToken extends BSTAuthenticationToken {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-    public static final String ANONYMOUS_CREDENTIALS = "Anonymous";
+public class AnonymousAuthenticationTokenTest {
 
-    public static final String BST_ANONYMOUS_LN = "Anonymous";
-
-    public static final String ANONYMOUS_TOKEN_VALUE_TYPE =
-            BSTAuthenticationToken.BST_NS + BSTAuthenticationToken.TOKEN_VALUE_SEPARATOR
-                    + BST_ANONYMOUS_LN;
-
-    public AnonymousAuthenticationToken(String realm) {
-        super(new AnonymousPrincipal(), ANONYMOUS_CREDENTIALS, realm);
-        setTokenValueType(BSTAuthenticationToken.BST_NS, BST_ANONYMOUS_LN);
-        setTokenId(BST_ANONYMOUS_LN);
+    @Test
+    public void testConstructor() {
+        final String realm = "someRealm";
+        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(realm);
+        assertTrue(token.getPrincipal() instanceof AnonymousPrincipal);
+        assertEquals(AnonymousAuthenticationToken.ANONYMOUS_CREDENTIALS, token.getCredentials());
+        assertEquals(realm, token.getRealm());
+        assertEquals(AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE, token.tokenValueType);
+        assertEquals(AnonymousAuthenticationToken.BST_ANONYMOUS_LN, token.tokenId);
     }
 }

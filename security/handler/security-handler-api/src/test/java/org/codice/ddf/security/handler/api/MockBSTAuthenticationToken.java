@@ -24,31 +24,12 @@ public class MockBSTAuthenticationToken extends BSTAuthenticationToken {
     public static final String REALM = "realm";
 
     public MockBSTAuthenticationToken(Object p, Object c, String r) {
-        super(PRINCIPAL, CREDS, REALM);
+        super(p, c, r);
     }
 
-    @Override
-    public String getEncodedCredentials() {
-        return Base64.encode(getBinarySecurityToken().getBytes());
-    }
+//    public static BaseAuthenticationToken parse(String creds) {
+//        return new MockBSTAuthenticationToken(PRINCIPAL, CREDS, REALM);
+//    }
 
-    public static BaseAuthenticationToken parse(String creds) {
-        return new MockBSTAuthenticationToken(PRINCIPAL, CREDS, REALM);
-    }
 
-    /**
-     * Simple version just separates each field by a ':'
-     *
-     * @return
-     */
-    @Override
-    public String getBinarySecurityToken() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(principal);
-        sb.append(':');
-        sb.append(credentials);
-        sb.append(':');
-        sb.append(realm);
-        return sb.toString();
-    }
 }

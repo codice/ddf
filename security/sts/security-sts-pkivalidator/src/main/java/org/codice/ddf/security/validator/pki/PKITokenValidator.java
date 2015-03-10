@@ -30,9 +30,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.codice.ddf.security.validator.x509;
+package org.codice.ddf.security.validator.pki;
 
-import ddf.security.PropertiesLoader;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
@@ -41,7 +40,6 @@ import org.apache.cxf.sts.token.validator.TokenValidator;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
-import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.WSSConfig;
 import org.apache.ws.security.WSSecurityException;
 import org.apache.ws.security.components.crypto.CredentialException;
@@ -53,6 +51,9 @@ import org.apache.ws.security.message.token.X509Security;
 import org.apache.ws.security.validate.Credential;
 import org.apache.ws.security.validate.SignatureTrustValidator;
 import org.apache.ws.security.validate.Validator;
+import org.codice.ddf.security.common.PropertiesLoader;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
@@ -60,25 +61,23 @@ import org.w3c.dom.Text;
 import javax.security.auth.callback.CallbackHandler;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * X509PKIPathv1 validator for the STS.  This validator is responsible for validating X509 tokens
- * that are directly presented to the STS without going through any SSO Filters.  It will validate
- * the certificate chain instead of the specific certificate.
+ * PKIAuthenticationToken validator for the STS.
  */
-public class X509PathTokenValidator implements TokenValidator {
+public class PKITokenValidator implements TokenValidator {
 
-    public static final String X509_PKI_PATH = WSConstants.X509TOKEN_NS + "#X509PKIPathv1";
-
-    public static final String BASE64_ENCODING = WSConstants.SOAPMESSAGE_NS + "#Base64Binary";
-
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(X509PathTokenValidator.class);
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PKITokenValidator.class);
 
     private Validator validator = new SignatureTrustValidator();
 
     private Merlin merlin;
 
     private String signaturePropertiesPath;
+
+    private List<String> realms = new ArrayList<>();
 
     /**
      * Initialize Merlin crypto object.
@@ -95,15 +94,21 @@ public class X509PathTokenValidator implements TokenValidator {
 
     /**
      * Set the WSS4J Validator instance to use to validate the token.
+     *
      * @param validator the WSS4J Validator instance to use to validate the token
      */
     public void setValidator(Validator validator) {
         this.validator = validator;
     }
 
+    public void setRealms(List<String> realms) {
+        this.realms = realms;
+    }
+
     /**
      * Return true if this TokenValidator implementation is capable of validating the
      * ReceivedToken argument.
+     *
      * @param validateTarget
      * @return true if the token can be handled
      */
@@ -114,14 +119,15 @@ public class X509PathTokenValidator implements TokenValidator {
     /**
      * Return true if this TokenValidator implementation is capable of validating the
      * ReceivedToken argument. The realm is ignored in this token Validator.
+     *
      * @param validateTarget
      * @param realm
      * @return true if the token can be handled
      */
     public boolean canHandleToken(ReceivedToken validateTarget, String realm) {
         Object token = validateTarget.getToken();
-        if ((token instanceof BinarySecurityTokenType)
-                && X509_PKI_PATH.equals(((BinarySecurityTokenType)token).getValueType())) {
+        PKIAuthenticationToken pkiToken = getPKITokenFromTarget(validateTarget);
+        if (pkiToken != null && realms != null && realms.contains(pkiToken.getRealm())) {
             return true;
         }
         return false;
@@ -129,11 +135,12 @@ public class X509PathTokenValidator implements TokenValidator {
 
     /**
      * Validate a Token using the given TokenValidatorParameters.
+     *
      * @param tokenParameters
      * @return TokenValidatorResponse
      */
     public TokenValidatorResponse validateToken(TokenValidatorParameters tokenParameters) {
-        LOGGER.trace("Validating X.509 Token");
+        LOGGER.trace("Validating PKI Token");
         STSPropertiesMBean stsProperties = tokenParameters.getStsProperties();
         Crypto sigCrypto = stsProperties.getSignatureCrypto();
         CallbackHandler callbackHandler = stsProperties.getCallbackHandler();
@@ -148,15 +155,18 @@ public class X509PathTokenValidator implements TokenValidator {
         validateTarget.setState(STATE.INVALID);
         response.setToken(validateTarget);
 
-        if (!validateTarget.isBinarySecurityToken()) {
+        PKIAuthenticationToken pkiToken = getPKITokenFromTarget(validateTarget);
+
+        if (pkiToken == null) {
             return response;
         }
 
-        BinarySecurityTokenType binarySecurityType = (BinarySecurityTokenType)validateTarget.getToken();
+        BinarySecurityTokenType binarySecurityType = pkiToken.createBinarySecurityTokenType(
+                pkiToken.getCredentials());
 
         // Test the encoding type
         String encodingType = binarySecurityType.getEncodingType();
-        if (!BASE64_ENCODING.equals(encodingType)) {
+        if (!PKIAuthenticationToken.BASE64_ENCODING.equals(encodingType)) {
             LOGGER.trace("Bad encoding type attribute specified: {}", encodingType);
             return response;
         }
@@ -169,7 +179,7 @@ public class X509PathTokenValidator implements TokenValidator {
         binarySecurity.setEncodingType(encodingType);
         binarySecurity.setValueType(binarySecurityType.getValueType());
         String data = binarySecurityType.getValue();
-        ((Text)binarySecurity.getElement().getFirstChild()).setData(data);
+        ((Text) binarySecurity.getElement().getFirstChild()).setData(data);
 
         //
         // Validate the token
@@ -190,7 +200,8 @@ public class X509PathTokenValidator implements TokenValidator {
             }
 
             Credential returnedCredential = validator.validate(credential, requestData);
-            response.setPrincipal(returnedCredential.getCertificates()[0].getSubjectX500Principal());
+            response.setPrincipal(
+                    returnedCredential.getCertificates()[0].getSubjectX500Principal());
             validateTarget.setState(STATE.VALID);
         } catch (WSSecurityException ex) {
             LOGGER.warn("Unable to validate credentials.", ex);
@@ -204,5 +215,28 @@ public class X509PathTokenValidator implements TokenValidator {
 
     public void setSignaturePropertiesPath(String signaturePropertiesPath) {
         this.signaturePropertiesPath = signaturePropertiesPath;
+    }
+
+    private PKIAuthenticationToken getPKITokenFromTarget(ReceivedToken validateTarget) {
+        Object token = validateTarget.getToken();
+        if ((token instanceof BinarySecurityTokenType)
+                && PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE
+                .equals(((BinarySecurityTokenType) token).getValueType())) {
+            String encodedCredential = ((BinarySecurityTokenType) token).getValue();
+            LOGGER.debug("Encoded username/password credential: {}", encodedCredential);
+            BaseAuthenticationToken base = null;
+            try {
+                base = PKIAuthenticationToken
+                        .parse(encodedCredential, true);
+                return new PKIAuthenticationToken(base.getPrincipal(),
+                        base.getCredentials().toString(),
+                        base.getRealm());
+            } catch (WSSecurityException e) {
+                LOGGER.warn("Unable to parse {} from encodedToken.",
+                        PKIAuthenticationToken.class.getSimpleName(), e);
+                return null;
+            }
+        }
+        return null;
     }
 }

@@ -38,7 +38,7 @@ public class BSTDelegationHandler implements TokenDelegationHandler {
     public static final String X509_V3 = WSConstants.X509TOKEN_NS + "#X509v3";
     public static final String BASE64_ENCODING = WSConstants.SOAPMESSAGE_NS + "#Base64Binary";
 
-    public static final String BST_VALUE_TYPE = BSTAuthenticationToken.DDF_BST_NS + "#" + BSTAuthenticationToken.DDF_BST_LN;
+    public static final String BST_VALUE_TYPE = BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN;
 
     //private boolean checkAudienceRestriction;
 

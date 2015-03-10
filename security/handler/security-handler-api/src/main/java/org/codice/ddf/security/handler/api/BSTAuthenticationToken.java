@@ -14,8 +14,11 @@
  **/
 package org.codice.ddf.security.handler.api;
 
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
 import org.apache.ws.security.WSConstants;
+import org.apache.ws.security.WSSecurityException;
+import org.apache.ws.security.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,24 +32,28 @@ import java.io.Writer;
 
 public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
 
-    public static final String DDF_BST_NS = "urn:ddf:security:sso";
+    public static final String BASE64_ENCODING = WSConstants.SOAPMESSAGE_NS + "#Base64Binary";
 
-    public static final String DDF_BST_LN = "DDFToken";
+    public static final String BST_NS = "urn:org:codice:security:sso";
 
-    public static final String DDF_BST_SAML_LN = "DDFSAML";
+    public static final String BST_LN = "Token";
 
-    public static final String DDF_BST_X509_LN = "DDFX509";
+    public static final String TOKEN_VALUE_SEPARATOR = "#";
 
-    public static final String DDF_BST_USERNAME_LN = "DDFUsername";
+    protected static final String BST_PRINCIPAL = "Principal:";
 
-    public static final String DDF_BST_ANONYMOUS_LN = "DDFAnonymous";
+    protected static final String BST_CREDENTIALS = "Credentials:";
+
+    protected static final String BST_REALM = "Realm:";
+
+    protected static final String NEWLINE = "\n";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BSTAuthenticationToken.class);
 
     // values to be included in the binary security token - specific to each subclass
-    protected String tokenValueType = DDF_BST_NS + '#' + DDF_BST_LN;
+    protected String tokenValueType = BST_NS + TOKEN_VALUE_SEPARATOR + BST_LN;
 
-    protected String tokenId = DDF_BST_LN;
+    protected String tokenId = BST_LN;
 
     private static final JAXBContext binaryTokenContext = initContext();
 
@@ -67,15 +74,80 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         super(principal, realm, credentials);
     }
 
+    /**
+     * Creates an instance of BaseAuthenticationToken by parsing the given credential string. The
+     * passed boolean indicates if the provided credentials are encoded or not.
+     * If the string contains the necessary components (username, password, realm), a new instance of
+     * BaseAuthenticationToken is created and initialized with the credentials. If not, a null value
+     * is returned.
+     *
+     * @param stringBST unencoded credentials string
+     * @return initialized username/password token if parsed successfully, null otherwise
+     */
+    public static BaseAuthenticationToken parse(String stringBST, boolean isEncoded)
+            throws WSSecurityException {
+        BaseAuthenticationToken baseAuthenticationToken = null;
+
+        String unencodedCreds = isEncoded ? new String(Base64.decode(stringBST)) : stringBST;
+        if (!StringUtils.isEmpty(unencodedCreds) && unencodedCreds.startsWith(BST_PRINCIPAL)) {
+            String[] components = unencodedCreds.split(NEWLINE);
+            if (components.length == 3) {
+                String p = parseComponent(components[0], BST_PRINCIPAL);
+                String c = parseComponent(components[1], BST_CREDENTIALS);
+                String r = parseComponent(components[2], BST_REALM);
+
+                baseAuthenticationToken = new BaseAuthenticationToken(p, r, c);
+            }
+        }
+
+        if (baseAuthenticationToken == null) {
+            throw new WSSecurityException(
+                    "Exception decoding specified credentials. Unable to find required components.");
+        }
+
+        return baseAuthenticationToken;
+    }
+
+    protected static String parseComponent(String s, String expectedStartsWith) {
+        String value = "";
+        int minLength = expectedStartsWith == null ? 1 : expectedStartsWith.length() + 1;
+        if ((s != null) && (s.length() > minLength)) {
+            value = s.substring(minLength - 1);
+        }
+        return value;
+    }
+
     @Override
     public String getCredentialsAsXMLString() {
         return getBinarySecurityToken();
     }
 
-    public abstract String getEncodedCredentials();
-
     public String getBinarySecurityToken() {
         return getBinarySecurityToken(getEncodedCredentials());
+    }
+
+    public String getEncodedCredentials() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(BST_PRINCIPAL);
+        builder.append(getPrincipal());
+        builder.append(NEWLINE);
+        builder.append(BST_CREDENTIALS);
+        builder.append(getCredentials());
+        builder.append(NEWLINE);
+        builder.append(BST_REALM);
+        builder.append(getRealm());
+        String retVal = builder.toString();
+        if (LOGGER.isTraceEnabled()) {
+            String[] lines = retVal.split(NEWLINE);
+            if (lines.length >= 3) {
+                LOGGER.trace("Credentials String: {}\n{}\n{}", lines[0], BST_CREDENTIALS + "******",
+                        lines[2]);
+            }
+        }
+        LOGGER.trace("Credential String: {}", retVal);
+        String encodedCreds = Base64.encode(builder.toString().getBytes());
+        LOGGER.trace("BST: {}", encodedCreds);
+        return encodedCreds;
     }
 
     /**
@@ -86,16 +158,12 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
 
         Marshaller marshaller = null;
 
-        BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
-        binarySecurityTokenType.setValueType(tokenValueType);
-        binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
-        binarySecurityTokenType.setId(tokenId);
-        binarySecurityTokenType.setValue(credential);
+        BinarySecurityTokenType binarySecurityTokenType = createBinarySecurityTokenType(credential);
         JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement = new JAXBElement<BinarySecurityTokenType>(
-          new QName(
-            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-            "BinarySecurityToken"), BinarySecurityTokenType.class,
-          binarySecurityTokenType
+                new QName(
+                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                        "BinarySecurityToken"), BinarySecurityTokenType.class,
+                binarySecurityTokenType
         );
 
         if (binaryTokenContext != null) {
@@ -124,11 +192,21 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         return binarySecurityToken;
     }
 
+
+    public BinarySecurityTokenType createBinarySecurityTokenType(String credentials) {
+        BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
+        binarySecurityTokenType.setValueType(tokenValueType);
+        binarySecurityTokenType.setEncodingType(BASE64_ENCODING);
+        binarySecurityTokenType.setId(tokenId);
+        binarySecurityTokenType.setValue(credentials);
+        return binarySecurityTokenType;
+    }
     public void setTokenValueType(String ns, String ln) {
-        this.tokenValueType = ns + '#' + ln;
+        this.tokenValueType = ns + TOKEN_VALUE_SEPARATOR + ln;
     }
 
     public void setTokenId(String tid) {
         this.tokenId = tid;
     }
+
 }

@@ -18,7 +18,6 @@ import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
-import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.util.Base64;
 import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
@@ -28,7 +27,6 @@ import org.junit.Test;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -48,12 +46,13 @@ public class AnonymousValidatorTest {
     public void setup() {
         validator = new AnonymousValidator();
         validator.setSupportedRealm(Arrays.asList("DDF"));
-        AnonymousAuthenticationToken anonymousAuthenticationToken = new AnonymousAuthenticationToken("DDF");
+        AnonymousAuthenticationToken anonymousAuthenticationToken = new AnonymousAuthenticationToken(
+                "DDF");
 
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
-        binarySecurityTokenType.setValueType(BSTAuthenticationToken.DDF_BST_NS + '#' + BSTAuthenticationToken.DDF_BST_LN);
-        binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
-        binarySecurityTokenType.setId(BSTAuthenticationToken.DDF_BST_ANONYMOUS_LN);
+        binarySecurityTokenType.setValueType(AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE);
+        binarySecurityTokenType.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
+        binarySecurityTokenType.setId(AnonymousAuthenticationToken.BST_ANONYMOUS_LN);
         binarySecurityTokenType.setValue(anonymousAuthenticationToken.getEncodedCredentials());
         JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement = new JAXBElement<BinarySecurityTokenType>(
                 new QName(
@@ -63,9 +62,9 @@ public class AnonymousValidatorTest {
         );
 
         BinarySecurityTokenType binarySecurityTokenType2 = new BinarySecurityTokenType();
-        binarySecurityTokenType2.setValueType(BSTAuthenticationToken.DDF_BST_NS + '#' + BSTAuthenticationToken.DDF_BST_LN);
-        binarySecurityTokenType2.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
-        binarySecurityTokenType2.setId(BSTAuthenticationToken.DDF_BST_ANONYMOUS_LN);
+        binarySecurityTokenType.setValueType(AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE);
+        binarySecurityTokenType2.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
+        binarySecurityTokenType2.setId(AnonymousAuthenticationToken.BST_ANONYMOUS_LN);
         binarySecurityTokenType2.setValue(Base64.encode("NotAnonymous".getBytes()));
         JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement2 = new JAXBElement<BinarySecurityTokenType>(
                 new QName(
