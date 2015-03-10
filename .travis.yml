@@ -1,6 +1,6 @@
 language: java
 install: mvn install --quiet -DskipTests=true -B
-script: mvn test --quiet -B
+script: mvn -Dorg.codice.test.defaultLoglevel=WARN test --quiet -B
 jdk:
   - openjdk7
   - oraclejdk7

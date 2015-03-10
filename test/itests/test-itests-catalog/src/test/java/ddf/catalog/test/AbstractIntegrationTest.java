@@ -111,6 +111,12 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String OPENSEARCH_PATH = REST_PATH + "query";
 
+    protected static final String DEFAULT_LOG_LEVEL = "TRACE";
+
+    protected String logLevel = "";
+
+    public static final String TEST_LOGLEVEL_PROPERTY = "org.codice.test.defaultLoglevel";
+
     @Rule
     public TestName testName = new TestName();
 
@@ -228,10 +234,13 @@ public abstract class AbstractIntegrationTest {
 
     protected Option[] configureSystemSettings() {
         return options(
+                when(System.getProperty(TEST_LOGLEVEL_PROPERTY) != null).useOptions(
+                        systemProperty(TEST_LOGLEVEL_PROPERTY)
+                                .value(System.getProperty(TEST_LOGLEVEL_PROPERTY, ""))),
                 when(Boolean.getBoolean("isDebugEnabled")).useOptions(
                         vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
-                when(System.getProperty("maven.repo.local") != null)
-                        .useOptions(systemProperty("org.ops4j.pax.url.mvn.localRepository")
+                when(System.getProperty("maven.repo.local") != null).useOptions(
+                        systemProperty("org.ops4j.pax.url.mvn.localRepository")
                                 .value(System.getProperty("maven.repo.local", ""))));
     }
 
@@ -296,10 +305,18 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected void setLogLevels() throws IOException {
+
+        logLevel = System.getProperty(TEST_LOGLEVEL_PROPERTY);
+
         Configuration logConfig = configAdmin.getConfiguration(LOG_CONFIG_PID, null);
         Dictionary<String, Object> properties = logConfig.getProperties();
-        properties.put(LOGGER_PREFIX + "ddf", "TRACE");
-        properties.put(LOGGER_PREFIX + "org.codice", "TRACE");
+        if (StringUtils.isEmpty(logLevel)) {
+            properties.put(LOGGER_PREFIX + "ddf", DEFAULT_LOG_LEVEL);
+            properties.put(LOGGER_PREFIX + "org.codice", DEFAULT_LOG_LEVEL);
+        } else {
+            properties.put(LOGGER_PREFIX + "*", logLevel);
+        }
+
         logConfig.update(properties);
     }
 
