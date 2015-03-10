@@ -4834,8 +4834,8 @@ Configuration -> Catalog Federation Strategy.
 
 |url
 |String
-|Interval that Solr Cache checks for expired documents to remove.
-|10080
+|HTTP URL of Solr 4.x Server
+|https://localhost:8993/solr
 |yes
 
 |===
