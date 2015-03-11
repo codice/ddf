@@ -37,18 +37,12 @@
 			</dependency>
 			<dependency>
 		  		<groupId>net.sf.saxon</groupId>
-		  		<artifactId>saxon</artifactId>
+		  		<artifactId>Saxon-HE</artifactId>
 		  		<type>jar</type>
 		  		<scope>compile</scope>
 		  	</dependency>
 		  	
 		  	<!-- saxon-dom.jar is needed for DOMResult class usage -->
-		  	<dependency>
-				<groupId>net.sf.saxon</groupId>
-				<artifactId>saxon-dom</artifactId>
-				<type>jar</type>
-				<scope>compile</scope>
-			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-ext</artifactId>

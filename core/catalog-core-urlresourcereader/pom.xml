@@ -26,7 +26,7 @@
 	<packaging>bundle</packaging>
 
     <properties>
-        <ddf.security.app.version>2.5.1</ddf.security.app.version>
+        <ddf.security.app.version>2.7.0-SNAPSHOT</ddf.security.app.version>
     </properties>
 
 	<dependencies>
@@ -82,6 +82,10 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-client</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.security</groupId>

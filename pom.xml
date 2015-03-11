@@ -37,11 +37,11 @@
         <opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>
         <tika.version>1.6</tika.version>
         <xalan.version>2.7.1</xalan.version>
-        <xerces.version>2.9.1</xerces.version>
-        <saxon.version>9.1.0.8</saxon.version>
+        <xerces.version>2.11.0</xerces.version>
+        <saxon.version>9.6.0-4</saxon.version>
         <karaf.version>2.3.8</karaf.version>
         <camel.version>2.12.1</camel.version>
-        <cxf.version>2.7.12</cxf.version>
+        <cxf.version>3.0.4</cxf.version>
     </properties>
 
     <dependencyManagement>
@@ -72,7 +72,17 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-client</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-security</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-security-sso-saml</artifactId>
                 <version>${cxf.version}</version>
             </dependency>
             <dependency>
@@ -234,12 +244,7 @@
             </dependency>
             <dependency>
                 <groupId>net.sf.saxon</groupId>
-                <artifactId>saxon</artifactId>
-                <version>${saxon.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.saxon</groupId>
-                <artifactId>saxon-dom</artifactId>
+                <artifactId>Saxon-HE</artifactId>
                 <version>${saxon.version}</version>
             </dependency>
             <dependency>
