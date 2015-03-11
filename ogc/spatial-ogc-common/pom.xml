@@ -27,7 +27,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+            <artifactId>cxf-rt-rs-client</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>

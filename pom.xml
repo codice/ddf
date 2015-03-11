@@ -31,7 +31,7 @@
     <properties>
         <ddf.catalog.app.version>2.7.0-SNAPSHOT</ddf.catalog.app.version>
         <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
-        <ddf.security.app.version>2.6.0-SNAPSHOT</ddf.security.app.version>
+        <ddf.security.app.version>2.7.0-SNAPSHOT</ddf.security.app.version>
         <org.geotools.version>8.4</org.geotools.version>     
         <handlebars.version>2.0.0</handlebars.version>
         <antlr.version>4.3</antlr.version>
@@ -52,6 +52,26 @@
                 <version>${ddf.platform.app.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>2.2.11</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-osgi</artifactId>
+                <version>2.2.11</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-xjc</artifactId>
+                <version>2.2.11</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-core</artifactId>
+                <version>2.2.11</version>
             </dependency>
             <dependency>
                 <groupId>ddf.catalog.core</groupId>
@@ -82,11 +102,6 @@
 				<groupId>ddf.security.core</groupId>
 				<artifactId>security-core-api</artifactId>
 				<version>${ddf.platform.app.version}</version>
-			</dependency>
-			<dependency>
-			  <groupId>org.apache.servicemix.specs</groupId>
-			  <artifactId>org.apache.servicemix.specs.jsr311-api-1.1</artifactId>
-			  <version>2.0.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.camel</groupId>

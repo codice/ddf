@@ -40,7 +40,6 @@
                             javax.xml.bind.annotation.adapters,
                             javax.xml.namespace
                         </Import-Package>
-                        <Require-Bundle>org.apache.cxf.bundle</Require-Bundle>
                     </instructions>
                 </configuration>
             </plugin>

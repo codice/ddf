@@ -14,24 +14,22 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source;
 
+import ogc.schema.opengis.wfs.exception.v_1_0_0.ServiceExceptionReport;
+import ogc.schema.opengis.wfs.exception.v_1_0_0.ServiceExceptionType;
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
+import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
+
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-
-import ogc.schema.opengis.wfs.exception.v_1_0_0.ServiceExceptionReport;
-import ogc.schema.opengis.wfs.exception.v_1_0_0.ServiceExceptionType;
-
-import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
-import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 
 public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsException> {
 
@@ -66,7 +64,9 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
                 wfsEx = new WfsException("Error reading response, entity type not understood: "
                         + response.getEntity().getClass().getName());
             }
-            wfsEx.setHttpStatus(response.getStatus());
+            if (wfsEx != null) {
+                wfsEx.setHttpStatus(response.getStatus());
+            }
         } else {
             wfsEx = new WfsException("Error handling response, response is null");
         }

@@ -27,6 +27,10 @@
 	<packaging>bundle</packaging>
 
 	<dependencies>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-client</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>ddf.catalog.core</groupId>
 			<artifactId>catalog-core-api</artifactId>

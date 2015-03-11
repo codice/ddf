@@ -14,42 +14,18 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.ClientException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.xml.bind.JAXBException;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.namespace.QName;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.stream.StreamSource;
-
+import ddf.catalog.data.ContentType;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.UnsupportedQueryException;
 import ogc.schema.opengis.filter.v_1_0_0.BinaryLogicOpType;
 import ogc.schema.opengis.filter.v_1_0_0.LogicOpsType;
 import ogc.schema.opengis.filter.v_1_0_0.PropertyIsLikeType;
@@ -64,10 +40,8 @@ import ogc.schema.opengis.wfs.v_1_0_0.QueryType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.FeatureTypeListType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.FeatureTypeType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType;
-
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
-import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
@@ -82,20 +56,30 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
-import org.xml.sax.SAXException;
 
-import ddf.catalog.data.ContentType;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.UnsupportedQueryException;
+import javax.xml.namespace.QName;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayInputStream;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TestWfsSource {
 
@@ -1006,48 +990,6 @@ public class TestWfsSource {
         // when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(null);
 
         source.query(new QueryRequestImpl(propertyIsLikeQuery));
-    }
-
-    @Test
-    public void testHandleClientException() {
-        try {
-            setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
-            source.setId("TestWfsServer");
-        } catch (WfsException e) {
-            fail("Unable to do test setup for testHandleClientException()");
-        }
-
-        String serviceExceptionReportXml = "<?xml version='1.0'?>\r\n"
-                + "<ServiceExceptionReport version='1.2.0'\r\n"
-                + "    xmlns='http://www.opengis.net/ogc'\r\n"
-                + "    xsi:schemaLocation='http://www.opengis.net/ogc http://schemas.opengis.net/wfs/1.0.0/OGC-exception.xsd'\r\n"
-                + "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>\r\n"
-                + "    <ServiceException code='GeneralException'>Exception text goes here</ServiceException>\r\n"
-                + "</ServiceExceptionReport>";
-        ByteArrayInputStream bis = new ByteArrayInputStream(serviceExceptionReportXml.getBytes());
-        ResponseBuilder responseBuilder = Response.ok(bis);
-        responseBuilder.type("text/xml");
-        Response jaxrsResponse = responseBuilder.build();
-
-        WebApplicationException webApplicationException = new WebApplicationException(jaxrsResponse);
-        ClientException clientException = mock(ClientException.class);
-        when(clientException.getCause()).thenReturn(webApplicationException);
-        try {
-            when(mockWfs.getFeature(any(GetFeatureType.class))).thenThrow(clientException);
-        } catch (WfsException e1) {
-            fail("Unable to do test setup for testHandleClientException()");
-        }
-
-        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
-                .like().text("literal"));
-        propertyIsLikeQuery.setPageSize(MAX_FEATURES);
-
-        try {
-            source.query(new QueryRequestImpl(propertyIsLikeQuery));
-            fail("Did not get expected UnsupportedQueryException");
-        } catch (UnsupportedQueryException e) {
-            assertThat(e.getMessage(), containsString("Exception text goes here"));
-        }
     }
 
     @Test

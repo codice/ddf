@@ -36,7 +36,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.ws.rs.client.ClientException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.SocketException;
@@ -154,7 +153,7 @@ public class TestTrustedRemoteSource {
             if (remoteSource.get() != null) {
                 fail("Server should have errored out with bad certificate but request passed instead.");
             }
-        } catch (ClientException e) {
+        } catch (Exception e) {
             assertThat(e.getCause(),
                     anyOf(is(SSLHandshakeException.class), is(SocketException.class)));
         }
@@ -173,7 +172,7 @@ public class TestTrustedRemoteSource {
             if (remoteSource.get() != null) {
                 fail("Client should have errored out with no valid certification path found, but request passed instead.");
             }
-        } catch (ClientException e) {
+        } catch (Exception e) {
             assertThat(e.getCause(), is(SSLHandshakeException.class));
         }
 

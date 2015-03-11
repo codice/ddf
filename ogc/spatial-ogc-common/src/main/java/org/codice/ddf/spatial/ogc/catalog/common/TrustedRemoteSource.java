@@ -15,16 +15,10 @@
 
 package org.codice.ddf.spatial.ogc.catalog.common;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
+import ddf.security.PropertiesLoader;
+import ddf.security.service.SecurityManager;
 import ddf.security.settings.SecuritySettingsService;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
@@ -47,8 +41,14 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.PropertiesLoader;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 public abstract class TrustedRemoteSource {
     
@@ -73,6 +73,8 @@ public abstract class TrustedRemoteSource {
     protected HashMap<String, String> wsdlSuffixMap = new HashMap<String, String>();
 
     protected SecuritySettingsService securitySettingsService;
+
+    protected SecurityManager securityManager;
 
     /**
      * Configures the connection and receive timeouts. If any of the parameters are null, the timeouts
@@ -386,6 +388,10 @@ public abstract class TrustedRemoteSource {
 
     public void setSecuritySettings(SecuritySettingsService securitySettings) {
         this.securitySettingsService = securitySettings;
+    }
+
+    public void setSecurityManager(SecurityManager securityManager) {
+        this.securityManager = securityManager;
     }
 
     /**

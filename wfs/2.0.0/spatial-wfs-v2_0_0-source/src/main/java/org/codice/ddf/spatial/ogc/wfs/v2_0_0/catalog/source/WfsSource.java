@@ -14,39 +14,30 @@
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.math.BigInteger;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.ClientException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-
+import ddf.catalog.Constants;
+import ddf.catalog.data.ContentType;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.ContentTypeImpl;
+import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.ResourceResponseImpl;
+import ddf.catalog.operation.impl.SourceResponseImpl;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
+import ddf.catalog.resource.impl.ResourceImpl;
+import ddf.catalog.source.ConnectedSource;
+import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.SourceMonitor;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.settings.SecuritySettingsService;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
@@ -59,7 +50,6 @@ import net.opengis.wfs.v_2_0_0.FeatureTypeType;
 import net.opengis.wfs.v_2_0_0.GetFeatureType;
 import net.opengis.wfs.v_2_0_0.QueryType;
 import net.opengis.wfs.v_2_0_0.WFSCapabilitiesType;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -89,30 +79,36 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.Constants;
-import ddf.catalog.data.ContentType;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.ContentTypeImpl;
-import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.ResourceResponseImpl;
-import ddf.catalog.operation.impl.SourceResponseImpl;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.resource.impl.ResourceImpl;
-import ddf.catalog.source.ConnectedSource;
-import ddf.catalog.source.FederatedSource;
-import ddf.catalog.source.SourceMonitor;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.util.impl.MaskableImpl;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.math.BigInteger;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Provides a Federated and Connected source implementation for OGC WFS servers.
@@ -677,7 +673,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         } catch (WfsException wfse) {
             LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
             throw new UnsupportedQueryException("Error received from WFS Server", wfse);
-        }  catch (ClientException ce) {
+        }  catch (Exception ce) {
             String msg = handleClientException(ce);
             throw new UnsupportedQueryException(msg, ce);
         }
@@ -1111,7 +1107,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         return msg;
     }
     
-    private String handleClientException(ClientException ce) {
+    private String handleClientException(Exception ce) {
         String msg = "";
         if (ce.getCause() instanceof WebApplicationException) {
             msg = handleWebApplicationException((WebApplicationException) ce.getCause());

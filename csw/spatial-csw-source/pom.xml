@@ -137,6 +137,12 @@
 			<artifactId>ogc-tools-gml-jts</artifactId>
 			<version>1.0.3</version>
 		</dependency>
+        <dependency>
+            <groupId>xmlunit</groupId>
+            <artifactId>xmlunit</artifactId>
+            <version>1.6</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

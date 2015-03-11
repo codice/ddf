@@ -28,14 +28,12 @@ import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import net.opengis.filter.v_1_1_0.SortOrderType;
-import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswTransformProvider;
 import org.geotools.filter.FilterFactoryImpl;
 import org.joda.time.DateTime;
@@ -56,12 +54,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.ClientException;
-import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,7 +69,6 @@ import java.util.Set;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -690,55 +683,6 @@ public class TestCswSource extends TestCswSourceBase {
         String xml = getGetRecordsTypeAsXml(getRecordsType, CswConstants.VERSION_2_0_2);
         LOGGER.debug(xml);
         assertXMLEqual(expectedXml, xml);
-    }
-
-    @Test
-    public void testHandleClientException() throws JAXBException, UnsupportedQueryException,
-        DatatypeConfigurationException, SAXException, IOException {
-
-        // Setup
-        try {
-            configureMockRemoteCsw();
-        } catch (CswException e) {
-            fail("Could not configure Mock Remote CSW: " + e.getMessage());
-        }
-
-        QueryImpl propertyIsLikeQuery = new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is()
-                .like().text("junk"));
-        propertyIsLikeQuery.setPageSize(10);
-
-        String exceptionReportXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n"
-                + "<ows:ExceptionReport version=\"1.2.0\" xmlns:ns16=\"http://www.opengis.net/ows/1.1\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:cat=\"http://www.opengis.net/cat/csw\" xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\" xmlns:fra=\"http://www.cnig.gouv.fr/2005/fra\" xmlns:ins=\"http://www.inspire.org\" xmlns:gmx=\"http://www.isotc211.org/2005/gmx\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:dct=\"http://purl.org/dc/terms/\" xmlns:ows=\"http://www.opengis.net/ows\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:gmi=\"http://www.isotc211.org/2005/gmi\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
-                + "    <ows:Exception exceptionCode=\"INVALID_PARAMETER_VALUE\" locator=\"QueryConstraint\">\r\n"
-                + "        <ows:ExceptionText>Only dc:title,dct:modified,dc:subject,dct:dateSubmitted,dct:alternative,dc:format,dct:created,dc:type,dct:abstract,dc:identifier,dc:creator  are currently supported</ows:ExceptionText>\r\n"
-                + "    </ows:Exception>\r\n" + "</ows:ExceptionReport>";
-        ByteArrayInputStream bis = new ByteArrayInputStream(exceptionReportXml.getBytes());
-        Response.ResponseBuilder responseBuilder = Response.ok(bis);
-        responseBuilder.type("text/xml");
-        Response jaxrsResponse = responseBuilder.build();
-
-        WebApplicationException webApplicationException = new WebApplicationException(jaxrsResponse);
-        ClientException clientException = mock(ClientException.class);
-        when(clientException.getCause()).thenReturn(webApplicationException);
-        try {
-            when(mockCsw.getRecords(any(GetRecordsType.class))).thenThrow(clientException);
-        } catch (CswException e) {
-            fail("Could not verify Mock CSW record count " + e.getMessage());
-        }
-
-        CswSource cswSource = getCswSource(mockCsw, mockContext, new ArrayList<String>());
-
-        // Perform test
-        try {
-            cswSource.query(new QueryRequestImpl(propertyIsLikeQuery));
-            fail();
-        } catch (UnsupportedQueryException e) {
-            assertThat(e.getMessage(), containsString("exceptionCode = INVALID_PARAMETER_VALUE"));
-            assertThat(e.getMessage(), containsString("Error received from CSW Server"));
-            assertThat(
-                    e.getMessage(),
-                    containsString("Only dc:title,dct:modified,dc:subject,dct:dateSubmitted,dct:alternative,dc:format,dct:created,dc:type,dct:abstract,dc:identifier,dc:creator  are currently supported"));
-        }
     }
 
     @Test(expected = UnsupportedQueryException.class)

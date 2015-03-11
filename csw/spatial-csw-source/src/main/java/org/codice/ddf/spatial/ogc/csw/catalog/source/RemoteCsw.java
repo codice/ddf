@@ -14,21 +14,10 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.MediaType;
-import javax.xml.namespace.QName;
-
 import com.thoughtworks.xstream.converters.Converter;
+import ddf.security.Subject;
+import ddf.security.service.SecurityManager;
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
@@ -38,15 +27,12 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 import net.opengis.cat.csw.v_2_0_2.TransactionType;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
@@ -65,8 +51,17 @@ import org.codice.ddf.spatial.ogc.csw.catalog.source.reader.GetRecordsMessageBod
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.Subject;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.xml.namespace.QName;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A client to a CSW 2.0.2 Service. This class uses the {@link Csw} interface to create a client
@@ -139,10 +134,8 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
             SecurityToken securityToken = stsClient.requestSecurityToken(stsClientConfig.getAddress());
             org.w3c.dom.Element samlToken = securityToken.getToken();
             if (samlToken != null) {
-                Cookie cookie = new Cookie(RestSecurity.SECURITY_COOKIE_NAME, RestSecurity.encodeSaml(
-                        samlToken));
-                client.reset();
-                client.cookie(cookie);
+                Subject subject = securityManager.getSubject(securityToken);
+                RestSecurity.setSubjectOnClient(subject, client);
             } else {
                 LOGGER.debug("Attempt to retrieve SAML token resulted in null token - could not add token to request");
             }
@@ -282,5 +275,9 @@ public class RemoteCsw extends TrustedRemoteSource implements Csw {
         outTransformElements.put("{" + CswConstants.CSW_OUTPUT_SCHEMA + "}*",
                 "{http://www.opengis.net/cat/csw}*");
         getRecordsTypeProvider.setOutTransformElements(outTransformElements);
+    }
+
+    public void setSecurityManager(SecurityManager securityManager) {
+        this.securityManager = securityManager;
     }
 }

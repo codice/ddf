@@ -72,7 +72,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.ClientException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBContext;
@@ -645,7 +644,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         } catch (WfsException wfse) {
             LOGGER.warn(WFS_ERROR_MESSAGE, wfse);
             throw new UnsupportedQueryException("Error received from WFS Server", wfse);
-        } catch (ClientException ce) {
+        } catch (Exception ce) {
             String msg = handleClientException(ce);
             throw new UnsupportedQueryException(msg, ce);
         }
@@ -919,7 +918,7 @@ public class WfsSource extends MaskableImpl implements FederatedSource, Connecte
         return msg;
     }
 
-    private String handleClientException(ClientException ce) {
+    private String handleClientException(Exception ce) {
         String msg = "";
         if (ce.getCause() instanceof WebApplicationException) {
             msg = handleWebApplicationException((WebApplicationException) ce.getCause());
