@@ -250,7 +250,7 @@ public class ApplicationServiceImplTest {
      * Test method for
      * {@link ApplicationService#getApplicationStatus(Application)}
      * 
-     * Verifies method returns an {@link ApplicationState#INACTIVE} state for an
+     * Verifies method returns an {@link ApplicationState#ACTIVE} state for an
      * {@code Application} under the following conditions:
      * 
      * <ul>
@@ -269,7 +269,7 @@ public class ApplicationServiceImplTest {
      * @throws Exception
      */
     @Test
-    public void testGetApplicationStatusReturnsInactiveStatusForNotInstalledFeatureDependencyThatContainsActiveBundle()
+    public void testGetApplicationStatusReturnsActiveStatusForNotInstalledFeatureDependencyThatContainsActiveBundle()
             throws Exception {
 
         Set<String> notInstalledFeatureNames = new HashSet<String>();
@@ -296,7 +296,7 @@ public class ApplicationServiceImplTest {
 
         assertEquals(
                 mainFeatureRepo.getName() + " returned unexpected state",
-                ApplicationState.INACTIVE,
+                ApplicationState.ACTIVE,
                 appService.getApplicationStatus(
                         appService.getApplications().toArray(new Application[] {})[0]).getState());
     }
@@ -789,7 +789,7 @@ public class ApplicationServiceImplTest {
     public void testIsApplicationStartedReturnsFalseForInactiveApplicationState() throws Exception {
 
         Set<String> notInstalledFeatures = new HashSet<String>();
-        notInstalledFeatures.add(TEST_MAIN_FEATURES_1_FEATURE_1_NAME);
+        notInstalledFeatures.add(TEST_MAIN_FEATURES_1_MAIN_FEATURE_NAME);
 
         FeaturesService featuresService = createMockFeaturesService(mainFeatureRepo,
                 notInstalledFeatures, null);

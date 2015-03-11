@@ -118,8 +118,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                     applications.add(newApp);
                 }
             } catch (ApplicationServiceException ase) {
-                logger.warn("Exception while trying to find information for application named "
-                        + newApp.getName() + ". It will be excluded from the application list.",
+                logger.warn("Exception while trying to find information for application named {}. "
+                                + "It will be excluded from the application list.", newApp.getName(),
                         ase);
             }
         }
@@ -162,6 +162,14 @@ public class ApplicationServiceImpl implements ApplicationService {
                     application.getName(), requiredFeatures.size());
 
             uninstalledFeatures = getNotInstalledFeatures(requiredFeatures);
+            boolean isMainFeatureUninstalled = false;
+            for (Feature curFeature : uninstalledFeatures) {
+                if (curFeature.getName()
+                        .equals(application.getName())) { //check if main feature is uninstalled
+                    isMainFeatureUninstalled = true;
+                }
+            }
+
             BundleStateSet bundleStates = getCurrentBundleStates(requiredFeatures);
             errorBundles.addAll(bundleStates.getFailedBundles());
             errorBundles.addAll(bundleStates.getInactiveBundles());
@@ -170,14 +178,14 @@ public class ApplicationServiceImpl implements ApplicationService {
                 // Any failed bundles, regardless of feature state, indicate a
                 // failed application state
                 installState = ApplicationState.FAILED;
-            } else if (!uninstalledFeatures.isEmpty() || bundleStates.getNumInactiveBundles() > 0) {
+            } else if (isMainFeatureUninstalled || bundleStates.getNumInactiveBundles() > 0) {
                 installState = ApplicationState.INACTIVE;
             } else {
                 installState = ApplicationState.ACTIVE;
             }
         } catch (Exception e) {
-            logger.warn("Encountered an error while trying to determine status of application ("
-                    + application.getName() + "). Setting status as UNKNOWN.", e);
+            logger.warn("Encountered an error while trying to determine status of application {}. "
+                    + "Setting status as UNKNOWN.", application.getName(), e);
             installState = ApplicationState.UNKNOWN;
         }
 
@@ -450,8 +458,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
             } catch (Exception e) {
                 logger.warn(
-                        "Encountered and error when trying to check features in application named "
-                                + curApp + ". Skipping and checking other applications.", e);
+                        "Encountered and error when trying to check features in application named {}. "
+                                + "Skipping and checking other applications.", curApp, e);
             }
         }
         logger.warn("Could not find feature {} in any known application, returning null.",
@@ -640,7 +648,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                                         curFeature.getVersion());
                             }
                         } catch (Exception e) {
-                            logger.debug("Error while trying to uninstall " + curFeature.getName(),
+                            logger.debug("Error while trying to uninstall {}", curFeature.getName(),
                                     e);
                         }
                     }
