@@ -48,23 +48,19 @@ define([
         getValue: function(value) {
             switch (typeof value) {
                 case 'string':
-                    if(moment(value).isValid()){
-                        return moment(value).format(Properties.CQL_DATE_FORMAT);
-                    } else {
-                        return "'" + value.replace(/'/g, "''") + "'";
-                    }
-                    break;
+                    return "'" + value.replace(/'/g, "''") + "'";
                 case 'number':
                     return String(value);
-                case 'object':
-                    if (_.isDate(value)) {
-                        return moment(value).format(Properties.CQL_DATE_FORMAT);
-                    } else {
-                        throw new Error("Can't write object to CQL: " + value);
-                    }
-                    break;
                 default:
                     throw new Error("Can't write value to CQL: " + value);
+            }
+        },
+
+        getDateValue: function(value) {
+            if (_.isDate(value) || moment(value).isValid()) {
+                return moment(value).format(Properties.CQL_DATE_FORMAT);
+            } else {
+                throw new Error("Can't write date value to CQL: " + value);
             }
         },
 
@@ -118,10 +114,10 @@ define([
         },
         date: {
             'before': function(filter){
-                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' BEFORE ' + Filter.CQLFactory.getValue(filter.get('dateValue1'));
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' BEFORE ' + Filter.CQLFactory.getDateValue(filter.get('dateValue1'));
             },
             'after': function(filter){
-                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' AFTER ' + Filter.CQLFactory.getValue(filter.get('dateValue1'));
+                return Filter.CQLFactory.formatFieldName(filter.get('fieldName')) + ' AFTER ' + Filter.CQLFactory.getDateValue(filter.get('dateValue1'));
             }
         },
         number: {
