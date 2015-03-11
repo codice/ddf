@@ -94,7 +94,7 @@ require.config({
             deps: ['modelbinder']
         },
         poller: {
-            deps: ['backbone']
+            deps: ['underscore', 'backbone']
         },
         backboneassociations: ['backbone'],
         backbonecometd: ['underscore', 'jquery', 'backbone', 'cometdinit'],
