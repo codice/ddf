@@ -355,7 +355,12 @@ define([
                 // before the model bindings attempt to select them.
                 this.sourcesCollectionBinder.bind(this.sources, this.$('#federationSources'));
                 this.typesCollectionBinder.bind(this.types, this.$('#typeList'));
-                this.modelBinder.bind(this.model, this.$el, queryModelBindings);
+                this.modelBinder.bind(this.model, this.$el, queryModelBindings, {
+                    changeTriggers: {
+                        '':'change',
+                        'input[name=q]':'input'
+                    }
+                });
 
                 // Refresh the sources multiselect widget to reflect
                 // changes when sources are added/removed or

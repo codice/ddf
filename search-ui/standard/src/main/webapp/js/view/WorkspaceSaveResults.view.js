@@ -48,7 +48,12 @@ define([
             },
             onRender: function() {
                 var modelBindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
-                this.modelBinder.bind(this.viewModel, this.$el, modelBindings);
+                this.modelBinder.bind(this.viewModel, this.$el, modelBindings, {
+                    changeTriggers: {
+                        '':'change',
+                        'input[name=workspaceName]':'input'
+                    }
+                });
             },
             onShow: function() {
                 this.$('input[name=workspaceName]').val('New Workspace');
