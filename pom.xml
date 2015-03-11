@@ -33,32 +33,12 @@
 
     <dependencyManagement>
         <dependencies>
-		      <dependency>
-		      	<groupId>ddf.platform</groupId>
-				<artifactId>platform</artifactId>
-				<version>${ddf.platform.app.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-		      </dependency>
             <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-core</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-transports-http</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-ws-security</artifactId>
-                <version>${cxf.version}</version>
+                <groupId>ddf.platform</groupId>
+                <artifactId>platform</artifactId>
+                <version>${ddf.platform.app.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>ddf.content.core</groupId>
@@ -80,7 +60,6 @@
                 <artifactId>mime-core-impl</artifactId>
                 <version>${ddf.platform.app.version}</version>
             </dependency>
-            
         </dependencies>
     </dependencyManagement>
     
