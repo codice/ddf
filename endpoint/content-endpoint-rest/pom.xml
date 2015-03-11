@@ -28,16 +28,10 @@
       <cxf.servicemix.specs.version>2.2.0</cxf.servicemix.specs.version>
   </properties>
   
-	<dependencies>		
-		<dependency>
-			<groupId>org.apache.servicemix.specs</groupId>
-			<artifactId>org.apache.servicemix.specs.jsr311-api-1.1</artifactId>
-			<version>${cxf.servicemix.specs.version}</version>
-		</dependency>
-		
+	<dependencies>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-bundle-jaxrs</artifactId>
+			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
 		</dependency>
 		
 	    <dependency>
@@ -94,7 +88,6 @@
             <Embed-Dependency>
                 guava
             </Embed-Dependency>
-            <DynamicImport-Package>javax.ws.rs.*</DynamicImport-Package>
             <Export-Package />
           </instructions>
         </configuration>

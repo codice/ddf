@@ -41,6 +41,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -247,8 +248,7 @@ public class ContentEndpointCreateTest {
         }
 
         if (size != null) {
-            assertThat((String) response.getMetadata().getFirst(HttpHeaders.CONTENT_LENGTH),
-                    equalTo(String.valueOf(size)));
+            assertEquals(response.getMetadata().getFirst(HttpHeaders.CONTENT_LENGTH), size);
         } else {
             assertThat(response.getMetadata().getFirst(HttpHeaders.CONTENT_LENGTH), is(nullValue()));
         }
