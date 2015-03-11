@@ -29,7 +29,7 @@
     <properties>
         <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
         <jasypt.version>1.9.0</jasypt.version>
-        <wss4j.version>1.6.18</wss4j.version>
+        <wss4j.version>2.0.3</wss4j.version>
         <shiro.version>1.2.1</shiro.version>
         <karaf.version>2.3.8</karaf.version>
         <powermock.version>1.5.4</powermock.version>
@@ -41,11 +41,6 @@
                 <groupId>ddf.platform</groupId>
                 <artifactId>platform-configuration</artifactId>
                 <version>${ddf.platform.app.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jasig.cas</groupId>
-                <artifactId>cas-client-core</artifactId>
-                <version>${cas.client.version}</version>
             </dependency>
             <dependency>
                 <groupId>ddf.security.sts</groupId>
@@ -103,6 +98,11 @@
                 <version>${cxf.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-client</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
+            <dependency>
                 <artifactId>karaf</artifactId>
                 <groupId>org.apache.karaf</groupId>
                 <version>${karaf.version}</version>
@@ -142,11 +142,6 @@
                 <version>${jasypt.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.ws.security</groupId>
-                <artifactId>wss4j</artifactId>
-                <version>${wss4j.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.shiro</groupId>
                 <artifactId>shiro-core</artifactId>
                 <version>${shiro.version}</version>
@@ -172,6 +167,21 @@
                 <artifactId>powermock-api-mockito</artifactId>
                 <version>${powermock.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wss4j</groupId>
+                <artifactId>wss4j-ws-security-dom</artifactId>
+                <version>${wss4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wss4j</groupId>
+                <artifactId>wss4j-ws-security-common</artifactId>
+                <version>${wss4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wss4j</groupId>
+                <artifactId>wss4j-policy</artifactId>
+                <version>${wss4j.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

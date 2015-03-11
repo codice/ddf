@@ -14,11 +14,11 @@
  **/
 package ddf.security.sts.claimsHandler;
 
-import org.apache.cxf.sts.claims.Claim;
-import org.apache.cxf.sts.claims.ClaimCollection;
+import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.RequestClaimCollection;
+import org.apache.cxf.sts.claims.ProcessedClaim;
+import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -178,17 +178,17 @@ public class RoleClaimsHandler implements ClaimsHandler {
     }
 
     @Override
-    public ClaimCollection retrieveClaimValues(RequestClaimCollection claims,
+    public ProcessedClaimCollection retrieveClaimValues(ClaimCollection claims,
             ClaimsParameters parameters) {
         String[] attributes = {groupNameAttribute, memberNameAttribute};
-        ClaimCollection claimsColl = new ClaimCollection();
+        ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
         try {
             Principal principal = parameters.getPrincipal();
 
             String user = AttributeMapLoader.getUser(principal);
             if (user == null) {
                 logger.warn("Could not determine user name, possible authentication error. Returning no claims.");
-                return new ClaimCollection();
+                return new ProcessedClaimCollection();
             }
 
             AndFilter filter = new AndFilter();
@@ -211,7 +211,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
                 if (attr == null) {
                     logger.trace("Claim '{}' is null", roleClaimType);
                 } else {
-                    Claim c = new Claim();
+                    ProcessedClaim c = new ProcessedClaim();
                     c.setClaimType(getRoleURI());
                     c.setPrincipal(principal);
 

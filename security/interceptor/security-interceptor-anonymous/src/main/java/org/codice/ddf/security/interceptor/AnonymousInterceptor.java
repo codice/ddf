@@ -21,7 +21,6 @@ import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -35,9 +34,9 @@ import org.apache.cxf.message.MessageUtils;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.cxf.ws.addressing.impl.AddressingPropertiesImpl;
 import org.apache.cxf.ws.policy.AssertionInfo;
 import org.apache.cxf.ws.policy.AssertionInfoMap;
 import org.apache.cxf.ws.policy.EffectivePolicy;
@@ -48,13 +47,15 @@ import org.apache.cxf.ws.security.wss4j.AbstractWSS4JInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.neethi.Policy;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.apache.ws.security.WSSConfig;
-import org.apache.ws.security.WSSecurityEngine;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.handler.RequestData;
-import org.apache.ws.security.handler.WSHandlerConstants;
-import org.apache.ws.security.util.WSSecurityUtil;
-import org.apache.ws.security.validate.Validator;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.WSSConfig;
+import org.apache.wss4j.dom.WSSecurityEngine;
+import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.dom.handler.WSHandlerConstants;
+import org.apache.wss4j.dom.util.WSSecurityUtil;
+import org.apache.wss4j.dom.validate.Validator;
+import org.apache.wss4j.policy.SP12Constants;
 import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
@@ -83,7 +84,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -182,11 +182,11 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                     if (soapFactory != null) {
                         //Create security header
                         try {
-                            securityHeader = soapFactory.createElement(org.apache.ws.security.WSConstants.WSSE_LN,
-                                                                       org.apache.ws.security.WSConstants.WSSE_PREFIX,
-                                                                       org.apache.ws.security.WSConstants.WSSE_NS);
-                            securityHeader.addAttribute(new QName(org.apache.ws.security.WSConstants.URI_SOAP11_ENV,
-                                                                  org.apache.ws.security.WSConstants.ATTR_MUST_UNDERSTAND), "1");
+                            securityHeader = soapFactory.createElement(WSConstants.WSSE_LN,
+                                                                       WSConstants.WSSE_PREFIX,
+                                                                       WSConstants.WSSE_NS);
+                            securityHeader.addAttribute(new QName(WSConstants.URI_SOAP11_ENV,
+                                                                  WSConstants.ATTR_MUST_UNDERSTAND), "1");
                         } catch (SOAPException e) {
                             LOGGER.error("Unable to create security header for anonymous user.", e);
                             return;  // can't create the security - just return
@@ -209,9 +209,9 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                 if (effectivePolicy == null) {
                     if (policyEngine != null) {
                         if (MessageUtils.isRequestor(message)) {
-                            effectivePolicy = policyEngine.getEffectiveClientResponsePolicy(endpointInfo, bindingOperationInfo);
+                            effectivePolicy = policyEngine.getEffectiveClientResponsePolicy(endpointInfo, bindingOperationInfo, message);
                         } else {
-                            effectivePolicy = policyEngine.getEffectiveServerRequestPolicy(endpointInfo, bindingOperationInfo);
+                            effectivePolicy = policyEngine.getEffectiveServerRequestPolicy(endpointInfo, bindingOperationInfo, message);
                         }
                     }
                 }
@@ -273,11 +273,11 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                                 LOGGER.debug("Assertion XML: {}", out.toString());
                                 String xml = out.toString();
 
-                                if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.TRANSPORT_BINDING)) {
+                                if (qName.equals(SP12Constants.TRANSPORT_BINDING)) {
                                     secBindingAssertion = qName;
-                                } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.INCLUDE_TIMESTAMP)) {
+                                } else if (qName.equals(SP12Constants.INCLUDE_TIMESTAMP)) {
                                     createIncludeTimestamp(soapFactory, securityHeader);
-                                } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.LAYOUT)) {
+                                } else if (qName.equals(SP12Constants.LAYOUT)) {
                                     String xpathLax = "/Layout/Policy/Lax";
                                     String xpathStrict = "/Layout/Policy/Strict";
                                     String xpathLaxTimestampFirst = "/Layout/Policy/LaxTimestampFirst";
@@ -287,12 +287,12 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                                     layoutLaxTimestampFirst = evaluateExpression(xml, xpathLaxTimestampFirst);
                                     layoutLaxTimestampLast = evaluateExpression(xml, xpathLaxTimestampLast);
 
-                                } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.TRANSPORT_TOKEN)) {
-                                } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.HTTPS_TOKEN)) {
+                                } else if (qName.equals(SP12Constants.TRANSPORT_TOKEN)) {
+                                } else if (qName.equals(SP12Constants.HTTPS_TOKEN)) {
                                     String xpath = "/HttpsToken/Policy/RequireClientCertificate";
                                     requireClientCert = evaluateExpression(xml, xpath);
 
-                                } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.SIGNED_SUPPORTING_TOKENS)) {
+                                } else if (qName.equals(SP12Constants.SIGNED_SUPPORTING_TOKENS)) {
                                     String xpath = "/SignedSupportingTokens/Policy/IssuedToken/RequestSecurityTokenTemplate/TokenType";
                                     tokenType = retrieveXmlValue(xml, xpath);
                                     supportingTokenAssertion = qName;
@@ -300,14 +300,14 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                                 } else if (qName.equals(org.apache.cxf.ws.addressing.policy.MetadataConstants.ADDRESSING_ASSERTION_QNAME)) {
                                     createAddressing(message, soapMessage, soapFactory);
 
-                                } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.TRUST_13)) {
+                                } else if (qName.equals(SP12Constants.TRUST_13)) {
 
-                                } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.ISSUED_TOKEN)) {
+                                } else if (qName.equals(SP12Constants.ISSUED_TOKEN)) {
                                     //Check Token Assertion
                                     String xpath = "/IssuedToken/@IncludeToken";
                                     tokenAssertion = retrieveXmlValue(xml, xpath);
 
-                                } else if (qName.equals(org.apache.cxf.ws.security.policy.SP12Constants.WSS11)) {
+                                } else if (qName.equals(SP12Constants.WSS11)) {
 
                                 }
                             }
@@ -315,7 +315,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
                         //Check security and token policies
                         if (tokenAssertion != null && tokenType != null &&
-                            tokenAssertion.trim().equals(org.apache.cxf.ws.security.policy.SP12Constants.INCLUDE_ALWAYS_TO_RECIPIENT) &&
+                            tokenAssertion.trim().equals(SP12Constants.INCLUDE_ALWAYS_TO_RECIPIENT) &&
                             tokenType.trim().equals(TOKEN_SAML20)) {
                             policyRequirementsSupported = true;
                         } else {
@@ -408,16 +408,16 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
         SOAPElement timestamp = null;
         try {
             timestamp = soapFactory
-                    .createElement(org.apache.ws.security.WSConstants.TIMESTAMP_TOKEN_LN, org.apache.ws.security.WSConstants.WSU_PREFIX,
-                            org.apache.ws.security.WSConstants.WSU_NS);
+                    .createElement(WSConstants.TIMESTAMP_TOKEN_LN, WSConstants.WSU_PREFIX,
+                            WSConstants.WSU_NS);
             SOAPElement created = soapFactory
-                    .createElement(org.apache.ws.security.WSConstants.CREATED_LN, org.apache.ws.security.WSConstants.WSU_PREFIX,
-                            org.apache.ws.security.WSConstants.WSU_NS);
+                    .createElement(WSConstants.CREATED_LN, WSConstants.WSU_PREFIX,
+                            WSConstants.WSU_NS);
             DateTime dateTime = new DateTime();
             created.addTextNode(dateTime.toString());
             SOAPElement expires = soapFactory
-                    .createElement(org.apache.ws.security.WSConstants.EXPIRES_LN, org.apache.ws.security.WSConstants.WSU_PREFIX,
-                            org.apache.ws.security.WSConstants.WSU_NS);
+                    .createElement(WSConstants.EXPIRES_LN, WSConstants.WSU_PREFIX,
+                            WSConstants.WSU_NS);
             expires.addTextNode(dateTime.plusMinutes(5).toString());
             timestamp.addChildElement(created);
             timestamp.addChildElement(expires);
@@ -430,7 +430,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
     private void createAddressing(SoapMessage message, SOAPMessage soapMessage, SOAPFactory soapFactory) {
 
         String addressingProperty = org.apache.cxf.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
-        AddressingPropertiesImpl addressingProperties = new AddressingPropertiesImpl();
+        AddressingProperties addressingProperties = new AddressingProperties();
         SOAPElement action = null;
 
         try {
@@ -635,7 +635,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                 } catch (RuntimeException t) {
                     throw t;
                 } catch (Throwable t) {
-                    throw new WSSecurityException(t.getMessage(), t);
+                    throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, t.getMessage(), t);
                 }
             }
             return super.getValidator(qName);

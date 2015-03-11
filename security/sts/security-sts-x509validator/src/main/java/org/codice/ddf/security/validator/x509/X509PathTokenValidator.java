@@ -41,18 +41,17 @@ import org.apache.cxf.sts.token.validator.TokenValidator;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSSConfig;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.components.crypto.CredentialException;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.components.crypto.Merlin;
-import org.apache.ws.security.handler.RequestData;
-import org.apache.ws.security.message.token.BinarySecurity;
-import org.apache.ws.security.message.token.X509Security;
-import org.apache.ws.security.validate.Credential;
-import org.apache.ws.security.validate.SignatureTrustValidator;
-import org.apache.ws.security.validate.Validator;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.crypto.Merlin;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.WSSConfig;
+import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.dom.message.token.BinarySecurity;
+import org.apache.wss4j.dom.message.token.X509Security;
+import org.apache.wss4j.dom.validate.Credential;
+import org.apache.wss4j.dom.validate.SignatureTrustValidator;
+import org.apache.wss4j.dom.validate.Validator;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
@@ -85,10 +84,8 @@ public class X509PathTokenValidator implements TokenValidator {
      */
     public void init() {
         try {
-            merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath));
-        } catch (CredentialException e) {
-            LOGGER.error("Unable to read merlin properties file for crypto operations.", e);
-        } catch (IOException e) {
+            merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath), X509PathTokenValidator.class.getClassLoader(), null);
+        } catch (WSSecurityException | IOException e) {
             LOGGER.error("Unable to read merlin properties file.", e);
         }
     }
@@ -139,7 +136,7 @@ public class X509PathTokenValidator implements TokenValidator {
         CallbackHandler callbackHandler = stsProperties.getCallbackHandler();
 
         RequestData requestData = new RequestData();
-        requestData.setSigCrypto(sigCrypto);
+        requestData.setSigVerCrypto(sigCrypto);
         requestData.setWssConfig(WSSConfig.getNewInstance());
         requestData.setCallbackHandler(callbackHandler);
 

@@ -18,11 +18,11 @@ import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
-import org.apache.ws.security.util.Base64;
 import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.junit.Before;
 import org.junit.Test;
+import org.opensaml.xml.util.Base64;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -65,7 +65,7 @@ public class AnonymousValidatorTest {
         binarySecurityTokenType.setValueType(AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE);
         binarySecurityTokenType2.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
         binarySecurityTokenType2.setId(AnonymousAuthenticationToken.BST_ANONYMOUS_LN);
-        binarySecurityTokenType2.setValue(Base64.encode("NotAnonymous".getBytes()));
+        binarySecurityTokenType2.setValue(Base64.encodeBytes("NotAnonymous".getBytes(), Base64.DONT_BREAK_LINES));
         JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement2 = new JAXBElement<BinarySecurityTokenType>(
                 new QName(
                         "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",

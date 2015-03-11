@@ -14,8 +14,7 @@
  **/
 package org.codice.ddf.security.handler.api;
 
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.util.Base64;
+import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +35,7 @@ public class PKIAuthenticationToken extends BSTAuthenticationToken {
 
     public PKIAuthenticationToken(Object principal, String encodedCerts, String realm) {
         this(principal, encodedCerts.getBytes(), realm);
-        try {
-            credentials = Base64.decode(encodedCerts);
-        } catch (WSSecurityException e) {
-            LOGGER.warn("Unable to decode certs", e);
-        }
-
+        credentials = Base64.decode(encodedCerts);
     }
 
     public PKIAuthenticationToken(Object principal, byte[] certificates, String realm) {
@@ -69,7 +63,7 @@ public class PKIAuthenticationToken extends BSTAuthenticationToken {
     @Override
     public String getCredentials() {
         if (credentials instanceof byte[]) {
-            return Base64.encode((byte[]) credentials);
+            return Base64.encodeBytes((byte[]) credentials, Base64.DONT_BREAK_LINES);
         }
         return "";
     }

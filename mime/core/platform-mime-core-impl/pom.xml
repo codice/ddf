@@ -51,11 +51,6 @@
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.compendium</artifactId>
 		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-ext</artifactId>
-		</dependency>
 		
 		<dependency>
             <groupId>commons-io</groupId>
@@ -75,8 +70,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.servicemix.specs</groupId>
-			<artifactId>org.apache.servicemix.specs.jsr311-api-1.1</artifactId>
-			<version>2.2.0</version>
+			<artifactId>org.apache.servicemix.specs.jsr339-api-2.0</artifactId>
+			<version>2.4.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

@@ -14,11 +14,11 @@
  **/
 package org.codice.ddf.security.claims.anonymous;
 
-import org.apache.cxf.sts.claims.Claim;
-import org.apache.cxf.sts.claims.ClaimCollection;
+import org.apache.cxf.rt.security.claims.Claim;
+import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.RequestClaim;
-import org.apache.cxf.sts.claims.RequestClaimCollection;
+import org.apache.cxf.sts.claims.ProcessedClaim;
+import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.junit.Test;
 
 import java.net.URI;
@@ -83,16 +83,16 @@ public class AnonymousClaimsHandlerTest {
         AnonymousClaimsHandler claimsHandler = new AnonymousClaimsHandler();
         claimsHandler.setAttributes(Arrays.asList("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Anonymous", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Anonymous@anon.com|someguy@somesite.com|somedude@cool.com", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Anon"));
 
-        RequestClaimCollection requestClaims = new RequestClaimCollection();
-        RequestClaim requestClaim = new RequestClaim();
+        ClaimCollection requestClaims = new ClaimCollection();
+        Claim requestClaim = new Claim();
         URI nameURI = new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
         requestClaim.setClaimType(nameURI);
         requestClaims.add(requestClaim);
-        requestClaim = new RequestClaim();
+        requestClaim = new Claim();
         URI emailURI = new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
         requestClaim.setClaimType(emailURI);
         requestClaims.add(requestClaim);
-        requestClaim = new RequestClaim();
+        requestClaim = new Claim();
         URI fooURI = new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/foobar");
         requestClaim.setClaimType(fooURI);
         requestClaim.setOptional(true);
@@ -104,17 +104,17 @@ public class AnonymousClaimsHandlerTest {
 
         assertEquals(3, supportedClaims.size());
 
-        ClaimCollection claimsCollection = claimsHandler.retrieveClaimValues(requestClaims, claimsParameters);
+        ProcessedClaimCollection claimsCollection = claimsHandler.retrieveClaimValues(requestClaims, claimsParameters);
 
         assertEquals(2, claimsCollection.size());
 
-        for(Claim claim : claimsCollection) {
+        for(ProcessedClaim claim : claimsCollection) {
             if(claim.getClaimType().equals(nameURI)) {
                 assertEquals(1, claim.getValues().size());
                 assertEquals("Anonymous", claim.getValues().get(0));
             } else if(claim.getClaimType().equals(emailURI)) {
                 assertEquals(3, claim.getValues().size());
-                List<String> values = claim.getValues();
+                List<Object> values = claim.getValues();
                 assertEquals("Anonymous@anon.com", values.get(0));
                 assertEquals("someguy@somesite.com", values.get(1));
                 assertEquals("somedude@cool.com", values.get(2));

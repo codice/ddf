@@ -14,9 +14,9 @@
  **/
 package org.codice.ddf.security.handler.cas;
 
-import org.apache.ws.security.util.Base64;
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +65,7 @@ public class CASAuthenticationToken extends BSTAuthenticationToken {
 
     @Override
     public String getEncodedCredentials() {
-        String encodedTicket = Base64.encode(getTicketWithService().getBytes());
+        String encodedTicket = Base64.encodeBytes(getTicketWithService().getBytes(), Base64.DONT_BREAK_LINES);
         LOGGER.trace("BST: {}", encodedTicket);
         return encodedTicket;
     }

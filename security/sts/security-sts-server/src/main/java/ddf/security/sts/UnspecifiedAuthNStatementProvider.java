@@ -16,8 +16,8 @@ package ddf.security.sts;
 
 import org.apache.cxf.sts.token.provider.AuthenticationStatementProvider;
 import org.apache.cxf.sts.token.provider.TokenProviderParameters;
-import org.apache.ws.security.saml.ext.bean.AuthenticationStatementBean;
-import org.apache.ws.security.saml.ext.builder.SAML2Constants;
+import org.apache.wss4j.common.saml.bean.AuthenticationStatementBean;
+import org.apache.wss4j.common.saml.builder.SAML2Constants;
 
 /**
  * This class will always return the unspecified string to the SAML Token Provider

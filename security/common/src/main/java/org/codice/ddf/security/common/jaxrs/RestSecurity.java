@@ -20,8 +20,8 @@ import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.saml.ext.AssertionWrapper;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.saml.SamlAssertionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +117,7 @@ public final class RestSecurity {
      * @throws WSSecurityException if the assertion in the token cannot be converted
      */
     public static String encodeSaml(org.w3c.dom.Element token) throws WSSecurityException {
-        AssertionWrapper assertion = new AssertionWrapper(token);
+        SamlAssertionWrapper assertion = new SamlAssertionWrapper(token);
         String samlStr = assertion.assertionToString();
         DeflateEncoderDecoder deflateEncoderDecoder = new DeflateEncoderDecoder();
         byte[] deflatedToken = deflateEncoderDecoder

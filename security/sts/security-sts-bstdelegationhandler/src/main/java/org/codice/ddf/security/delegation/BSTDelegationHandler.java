@@ -14,16 +14,14 @@
  **/
 package org.codice.ddf.security.delegation;
 
+import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.token.delegation.TokenDelegationHandler;
 import org.apache.cxf.sts.token.delegation.TokenDelegationParameters;
 import org.apache.cxf.sts.token.delegation.TokenDelegationResponse;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
-import org.slf4j.LoggerFactory;
-
+import org.apache.wss4j.dom.WSConstants;
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
-
-import org.apache.cxf.sts.request.ReceivedToken;
-import org.apache.ws.security.WSConstants;
+import org.slf4j.LoggerFactory;
 
 /**
  * The SAML TokenDelegationHandler implementation. It disallows ActAs or OnBehalfOf for

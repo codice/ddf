@@ -46,17 +46,18 @@ import org.apache.cxf.ws.security.sts.provider.model.ObjectFactory;
 import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.karaf.jaas.config.JaasRealm;
-import org.apache.ws.security.CustomTokenPrincipal;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSSConfig;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.WSUsernameTokenPrincipal;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.handler.RequestData;
-import org.apache.ws.security.message.token.UsernameToken;
-import org.apache.ws.security.validate.Credential;
-import org.apache.ws.security.validate.JAASUsernameTokenValidator;
-import org.apache.ws.security.validate.Validator;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.principal.CustomTokenPrincipal;
+import org.apache.wss4j.common.principal.WSUsernameTokenPrincipalImpl;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.WSSConfig;
+import org.apache.wss4j.dom.bsp.BSPEnforcer;
+import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.dom.message.token.UsernameToken;
+import org.apache.wss4j.dom.validate.Credential;
+import org.apache.wss4j.dom.validate.JAASUsernameTokenValidator;
+import org.apache.wss4j.dom.validate.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -142,7 +143,7 @@ public class UsernameTokenValidator implements TokenValidator {
         CallbackHandler callbackHandler = stsProperties.getCallbackHandler();
 
         RequestData requestData = new RequestData();
-        requestData.setSigCrypto(sigCrypto);
+        requestData.setSigVerCrypto(sigCrypto);
         WSSConfig wssConfig = WSSConfig.getNewInstance();
         requestData.setWssConfig(wssConfig);
         requestData.setCallbackHandler(callbackHandler);
@@ -192,9 +193,8 @@ public class UsernameTokenValidator implements TokenValidator {
         try {
             boolean allowNamespaceQualifiedPasswordTypes =
                     wssConfig.getAllowNamespaceQualifiedPasswordTypes();
-            boolean bspCompliant = wssConfig.isWsiBSPCompliant();
             UsernameToken ut =
-                    new UsernameToken(usernameTokenElement, allowNamespaceQualifiedPasswordTypes, bspCompliant);
+                    new UsernameToken(usernameTokenElement, allowNamespaceQualifiedPasswordTypes, new BSPEnforcer());
             // The parsed principal is set independent whether validation is successful or not
             response.setPrincipal(new CustomTokenPrincipal(ut.getName()));
             if (ut.getPassword() == null) {
@@ -251,7 +251,7 @@ public class UsernameTokenValidator implements TokenValidator {
             }
 
             // Store the successfully validated token in the cache
-            if (tokenParameters.getTokenStore() != null && secToken == null) {
+            if (tokenParameters.getTokenStore() != null && secToken == null && ReceivedToken.STATE.VALID.equals(validateTarget.getState())) {
                 secToken = new SecurityToken(ut.getID());
                 secToken.setToken(ut.getElement());
                 int hashCode = ut.hashCode();
@@ -284,8 +284,10 @@ public class UsernameTokenValidator implements TokenValidator {
         if (WSConstants.PASSWORD_DIGEST.equals(passwordType)) {
             hashed = true;
         }
-        WSUsernameTokenPrincipal principal = new WSUsernameTokenPrincipal(username, hashed);
-        principal.setNonce(nonce);
+        WSUsernameTokenPrincipalImpl principal = new WSUsernameTokenPrincipalImpl(username, hashed);
+        if (nonce != null) {
+            principal.setNonce(nonce.getBytes());
+        }
         principal.setPassword(passwordValue);
         principal.setCreatedTime(createdTime);
         principal.setPasswordType(passwordType);

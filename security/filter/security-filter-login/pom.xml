@@ -99,11 +99,11 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>ddf-security-common, guava</Embed-Dependency>
                         <Import-Package>
-                            *,
                             org.apache.log4j,
                             javax.servlet; version="[2.5.0,3.0.0)",
                             javax.servlet.http; version="[2.5.0,3.0.0)",
-                            org.joda.time;version="[1.6.0,3.0.0)"
+                            org.joda.time;version="[1.6.0,3.0.0)",
+                            *
                         </Import-Package>
                         <Export-Package>
                             org.codice.ddf.security.filter.login

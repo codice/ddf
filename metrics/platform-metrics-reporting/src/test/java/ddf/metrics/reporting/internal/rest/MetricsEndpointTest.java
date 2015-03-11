@@ -14,19 +14,35 @@
  **/
 package ddf.metrics.reporting.internal.rest;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import ddf.metrics.reporting.internal.MetricsEndpointException;
+import ddf.metrics.reporting.internal.MetricsGraphException;
+import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
+import org.apache.poi.hslf.model.Slide;
+import org.apache.poi.hslf.usermodel.SlideShow;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.custommonkey.xmlunit.XMLTestCase;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.ContainerFactory;
+import org.json.simple.parser.JSONParser;
+import org.junit.Test;
+import org.rrd4j.ConsolFun;
+import org.rrd4j.DsType;
+import org.rrd4j.core.FetchData;
+import org.rrd4j.core.FetchRequest;
+import org.rrd4j.core.RrdDb;
+import org.rrd4j.core.RrdDbPool;
+import org.rrd4j.core.RrdDef;
+import org.rrd4j.core.Sample;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,37 +56,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-
-import org.apache.poi.hslf.model.Slide;
-import org.apache.poi.hslf.usermodel.SlideShow;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.ContainerFactory;
-import org.json.simple.parser.JSONParser;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.rrd4j.ConsolFun;
-import org.rrd4j.DsType;
-import org.rrd4j.core.FetchData;
-import org.rrd4j.core.FetchRequest;
-import org.rrd4j.core.RrdDb;
-import org.rrd4j.core.RrdDbPool;
-import org.rrd4j.core.RrdDef;
-import org.rrd4j.core.Sample;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ddf.metrics.reporting.internal.MetricsEndpointException;
-import ddf.metrics.reporting.internal.MetricsGraphException;
-import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MetricsEndpointTest extends XMLTestCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsEndpointTest.class);
@@ -99,9 +96,11 @@ public class MetricsEndpointTest extends XMLTestCase {
         // Delete all .rrd files in test directory to ensure starting with clean directory
         File testDir = new File(TEST_DIR);
         File[] fileList = testDir.listFiles();
-        for (File file : fileList) {
-            if (file.isFile()) {
-                file.delete();
+        if (fileList != null) {
+            for (File file : fileList) {
+                if (file.isFile()) {
+                    file.delete();
+                }
             }
         }
 

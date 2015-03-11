@@ -14,13 +14,14 @@
  **/
 package org.codice.ddf.security.handler.api;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.util.Base64;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.opensaml.xml.util.Base64;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class BSTAuthenticationTokenTest {
 
@@ -120,7 +121,7 @@ public class BSTAuthenticationTokenTest {
     public void testParseDecode() throws WSSecurityException {
         // make sure we unencode if necessary
         BaseAuthenticationToken bat = BSTAuthenticationToken
-                .parse(Base64.encode(TEST_STRING.getBytes()), true);
+                .parse(Base64.encodeBytes(TEST_STRING.getBytes(), Base64.DONT_BREAK_LINES), true);
         MockBSTAuthenticationToken mockToken = new MockBSTAuthenticationToken(bat.getPrincipal(),
                 bat.getCredentials(), bat.getRealm());
         assertNotNull(mockToken);

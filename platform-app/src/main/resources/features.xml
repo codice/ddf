@@ -124,82 +124,89 @@
      DO NOT EDIT
      -->
     <feature name="cxf-specs" install="manual" version="${cxf.version}" resolver='(obr)'>
-        <bundle start-level='9'>mvn:org.apache.geronimo.specs/geronimo-osgi-registry/1.1</bundle>
-        <bundle start-level='10' dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${cxf.servicemix.specs.version}</bundle>
-        <bundle start-level='10'>mvn:org.apache.geronimo.specs/geronimo-annotation_1.0_spec/${cxf.geronimo.annotation.version}</bundle>
-        <bundle start-level='10' dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${cxf.servicemix.specs.version}</bundle>
-        <bundle start-level='10' dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxb-api-2.2/${cxf.servicemix.specs.version}</bundle>
-        <bundle start-level='10' dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxws-api-2.2/${cxf.servicemix.specs.version}</bundle>
-        <bundle start-level='10' dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.saaj-api-1.3/${cxf.servicemix.specs.version}</bundle>
-        <bundle start-level='10'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-m10/${cxf.servicemix.specs.version}</bundle>
-        <bundle start-level='10' dependency="true">mvn:javax.mail/mail/${cxf.javax.mail.version}</bundle>
-
-        <bundle start-level='20'>mvn:org.codehaus.woodstox/stax2-api/${cxf.woodstox.stax2-api.version}</bundle>
-        <bundle start-level='20'>mvn:org.codehaus.woodstox/woodstox-core-asl/${cxf.woodstox.core.version}</bundle>
-
-        <bundle start-level='20'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/${cxf.jaxb.bundle.version}</bundle>
-        <bundle start-level='20'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-xjc/${cxf.jaxb.bundle.version}</bundle>
+        <bundle start-level="9">mvn:org.apache.geronimo.specs/geronimo-osgi-registry/1.1</bundle>
+        <bundle start-level="10" dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${cxf.servicemix.specs.version}</bundle>
+        <bundle start-level="10">mvn:javax.annotation/javax.annotation-api/${cxf.javax.annotation-api.version}</bundle>
+        <bundle start-level="10" dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${cxf.servicemix.specs.version}</bundle>
+        <bundle start-level="10" dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxb-api-2.2/${cxf.servicemix.specs.version}</bundle>
+        <bundle start-level="10" dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jaxws-api-2.2/${cxf.servicemix.specs.version}</bundle>
+        <bundle start-level="10" dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.saaj-api-1.3/${cxf.servicemix.specs.version}</bundle>
+        <bundle start-level="10">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0/${cxf.servicemix.specs.version.jaxrs}</bundle>
+        <bundle start-level="10" dependency="true">mvn:javax.mail/mail/${cxf.javax.mail.version}</bundle>
+        <bundle start-level="20">mvn:org.codehaus.woodstox/stax2-api/${cxf.woodstox.stax2-api.version}</bundle>
+        <bundle start-level="20">mvn:org.codehaus.woodstox/woodstox-core-asl/${cxf.woodstox.core.version}</bundle>
+        <bundle start-level="20">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/${cxf.jaxb.bundle.version}</bundle>
+        <bundle start-level="20">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-xjc/${cxf.jaxb.bundle.version}</bundle>
     </feature>
 
     <feature name='cxf-jaxb' install="manual" version='${cxf.version}' resolver='(obr)'>
         <feature version="${cxf.version}">cxf-specs</feature>
-        <bundle start-level='20'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/${cxf.jaxb.bundle.version}</bundle>
-        <bundle start-level='20'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-xjc/${cxf.jaxb.bundle.version}</bundle>
+        <bundle start-level="20">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-impl/${cxf.jaxb.bundle.version}</bundle>
+        <bundle start-level="20">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jaxb-xjc/${cxf.jaxb.bundle.version}</bundle>
     </feature>
 
     <!-- Current the abdera bundle is not working as we expect -->
     <feature name='cxf-abdera' install="manual" version='${cxf.version}' resolver='(obr)'>
-        <feature version='${cxf.version}'>cxf-specs</feature>
-        <bundle start-level='35' dependency="true">mvn:commons-codec/commons-codec/${cxf.commons-codec.version}</bundle>
-
-        <bundle start-level='35'>mvn:org.apache.abdera/abdera-core/${cxf.abdera.version}</bundle>
-        <bundle start-level='35'>mvn:org.apache.abdera/abdera-extensions-main/${cxf.abdera.version}</bundle>
-        <bundle start-level='35'>mvn:org.apache.abdera/abdera-i18n/${cxf.abdera.version}</bundle>
-        <bundle start-level='35'>mvn:org.apache.james/apache-mime4j-core/${cxf.james.mim4j.version}</bundle>
-        <bundle start-level='35'>mvn:org.apache.abdera/abdera-parser/${cxf.abdera.version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/${cxf.jdom.bundle.version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/${cxf.dom4j.bundle.version}</bundle>
+        <feature version="${cxf.version}">cxf-specs</feature>
+        <bundle start-level="35" dependency="true">mvn:commons-codec/commons-codec/${cxf.commons-codec.version}</bundle>
+        <bundle start-level="35">mvn:org.apache.abdera/abdera-core/${cxf.abdera.version}</bundle>
+        <bundle start-level="35">mvn:org.apache.abdera/abdera-extensions-main/${cxf.abdera.version}</bundle>
+        <bundle start-level="35">mvn:org.apache.abdera/abdera-i18n/${cxf.abdera.version}</bundle>
+        <bundle start-level="35">mvn:org.apache.james/apache-mime4j-core/${cxf.james.mim4j.version}</bundle>
+        <bundle start-level="35">mvn:org.apache.abdera/abdera-parser/${cxf.abdera.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/${cxf.jdom.bundle.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/${cxf.dom4j.bundle.version}</bundle>
         <!--bundle start-level='35'>mvn:org.apache.abdera/abdera-extensions-html/${cxf.abdera.version}</bundle>
-<bundle start-level='35'>mvn:org.apache.abdera/abdera-extensions-json/${cxf.abdera.version}</bundle>-->
+        <bundle start-level='35'>mvn:org.apache.abdera/abdera-extensions-json/${cxf.abdera.version}</bundle>-->
     </feature>
 
     <feature name="wss4j" install="manual" version="${cxf.wss4j.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-specs</feature>
-        <bundle start-level='25' dependency="true">mvn:joda-time/joda-time/${cxf.joda.time.version}</bundle>
-        <bundle start-level='25' dependency="true">mvn:org.apache.santuario/xmlsec/${cxf.xmlsec.bundle.version}</bundle>
-        <bundle start-level='25' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${cxf.opensaml.osgi.version}</bundle>
+        <bundle start-level="25" dependency="true">mvn:joda-time/joda-time/${cxf.joda.time.version}</bundle>
+        <bundle start-level="25" dependency="true">mvn:commons-codec/commons-codec/${cxf.commons-codec.version}</bundle>
+        <bundle start-level="25" dependency="true">mvn:org.apache.santuario/xmlsec/${cxf.xmlsec.bundle.version}</bundle>
+        <bundle start-level="25" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${cxf.opensaml.osgi.version}</bundle>
         <bundle start-level="25">mvn:org.jvnet.staxex/stax-ex/${cxf.stax-ex.version}</bundle>
-        <bundle start-level='25'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saaj-impl/${cxf.saaj-impl.bundle.version}</bundle>
-        <bundle start-level='25'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${cxf.xmlresolver.bundle.version}</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/${cxf.xerces.bundle.version}</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcel/${cxf.bcel.bundle.version}</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan/${cxf.xalan.bundle.version}</bundle>
-        <bundle start-level='30'>mvn:org.apache.ws.security/wss4j/${cxf.wss4j.version}</bundle>
+        <bundle start-level="25">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saaj-impl/${cxf.saaj-impl.bundle.version}</bundle>
+        <bundle start-level="25">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${cxf.xmlresolver.bundle.version}</bundle>
+        <!--we are exposing this through bundle 0 so commenting out here-->
+        <!--<bundle start-level="30" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xerces/${cxf.xerces.bundle.version}</bundle>-->
+        <bundle start-level="30" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcel/${cxf.bcel.bundle.version}</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xalan/${cxf.xalan.bundle.version}</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.apache.neethi/neethi/${cxf.neethi.version}</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/${cxf.jasypt.bundle.version}</bundle>
+        <bundle start-level="30">mvn:org.apache.wss4j/wss4j-bindings/${cxf.wss4j.version}</bundle>
+        <bundle start-level="30">mvn:org.apache.wss4j/wss4j-ws-security-common/${cxf.wss4j.version}</bundle>
+        <bundle start-level="30">mvn:org.apache.wss4j/wss4j-ws-security-dom/${cxf.wss4j.version}</bundle>
+        <bundle start-level="30">mvn:org.apache.wss4j/wss4j-policy/${cxf.wss4j.version}</bundle>
+        <bundle start-level="30">mvn:org.apache.wss4j/wss4j-ws-security-stax/${cxf.wss4j.version}</bundle>
+        <bundle start-level="30">mvn:org.apache.wss4j/wss4j-ws-security-policy-stax/${cxf.wss4j.version}</bundle>
     </feature>
 
     <feature name="cxf-core" install="manual" version="${cxf.version}" resolver='(obr)'>
-        <feature version='${cxf.version}'>cxf-specs</feature>
-
-        <bundle start-level='30' dependency="true">mvn:org.apache.ws.xmlschema/xmlschema-core/${cxf.xmlschema.version}</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.wsdl4j/${cxf.wsdl4j.bundle.version}</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${cxf.xmlresolver.bundle.version}</bundle>
-        <bundle start-level='30' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.fastinfoset/${cxf.fastinfoset.bundle.version}</bundle>
-
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-api/${cxf.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-core/${cxf.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-management/${cxf.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf.karaf/cxf-karaf-commands/${cxf.version}</bundle>
+        <feature version="${cxf.version}">cxf-specs</feature>
+        <bundle start-level="30" dependency="true">mvn:org.apache.ws.xmlschema/xmlschema-core/${cxf.xmlschema.version}</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlresolver/${cxf.xmlresolver.bundle.version}</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.fastinfoset/${cxf.fastinfoset.bundle.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-core/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-management/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf.karaf/cxf-karaf-commands/${cxf.version}</bundle>
+    </feature>
+    <feature name="cxf-wsdl" version="${cxf.version}" install="manual" resolver="(obr)">
+        <feature version="${cxf.version}">cxf-core</feature>
+        <bundle start-level="30" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.wsdl4j/${cxf.wsdl4j.bundle.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-wsdl/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-ws-policy" install="manual" version="${cxf.version}" resolver='(obr)'>
-        <feature version="${cxf.version}">cxf-core</feature>
-        <bundle start-level='30' dependency="true">mvn:org.apache.neethi/neethi/${cxf.neethi.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-ws-policy/${cxf.version}</bundle>
+        <feature version="${cxf.version}">cxf-wsdl</feature>
+        <bundle start-level="30" dependency="true">mvn:org.apache.neethi/neethi/${cxf.neethi.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-ws-policy/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-ws-addr" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-ws-policy</feature>
         <feature version="${cxf.version}">cxf-bindings-soap</feature>
         <feature version="${cxf.version}">cxf-databinding-jaxb</feature>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-ws-addr/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-ws-addr/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-ws-rm" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-ws-policy</feature>
@@ -217,59 +224,60 @@
         <feature version="${cxf.version}">cxf-ws-policy</feature>
         <feature version="${cxf.wss4j.version}">wss4j</feature>
         <feature version="${cxf.version}">cxf-ws-addr</feature>
-        <bundle start-level='40' dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.ehcache/${cxf.ehcache.bundle.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-ws-security/${cxf.version}</bundle>
+        <bundle start-level="40" dependency="true">mvn:net.sf.ehcache/ehcache/${cxf.ehcache.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-ws-security/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-security/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-rt-security" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
+        <feature version="${cxf.version}">cxf-wsdl</feature>
         <feature version="${cxf.wss4j.version}">wss4j</feature>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-security/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-security/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-http" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-transports-http/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-http-jetty" install="manual" version="${cxf.version}" resolver='(obr)'>
-        <feature version="[2,3)">cxf-http</feature>
+        <feature version="[3,4)">cxf-http</feature>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-transports-http-jetty/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-http-async" install="manual" version="${cxf.version}" resolver='(obr)'>
-        <feature version="[2,3)">cxf-http</feature>
+        <feature version="[3,4)">cxf-http</feature>
         <bundle start-level='40'>mvn:org.apache.httpcomponents/httpcore-osgi/${cxf.httpcomponents.core.version}</bundle>
         <bundle start-level='40'>mvn:org.apache.httpcomponents/httpclient-osgi/${cxf.httpcomponents.client.version}</bundle>
         <bundle start-level='40'>mvn:org.apache.httpcomponents/httpasyncclient-osgi/${cxf.httpcomponents.asyncclient.version}</bundle>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-transports-http-hc/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-bindings-soap" install="manual" version="${cxf.version}" resolver='(obr)'>
-        <feature version="${cxf.version}">cxf-core</feature>
+        <feature version="${cxf.version}">cxf-wsdl</feature>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-bindings-xml/${cxf.version}</bundle>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-bindings-soap/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-jaxws" install="manual" version="${cxf.version}" resolver='(obr)'>
-        <feature version="${cxf.version}">cxf-core</feature>
+        <feature version="${cxf.version}">cxf-wsdl</feature>
         <feature version="${cxf.version}">cxf-databinding-jaxb</feature>
         <feature version="${cxf.version}">cxf-bindings-soap</feature>
         <feature version="${cxf.version}">cxf-http</feature>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-frontend-simple/${cxf.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-frontend-jaxws/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-frontend-simple/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-frontend-jaxws/${cxf.version}</bundle>
     </feature>
 
     <feature name="cxf-jaxrs" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
         <feature version="${cxf.version}">cxf-http</feature>
-
         <bundle start-level="30" dependency="true">mvn:org.codehaus.jettison/jettison/${cxf.jettison.version}</bundle>
-
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-bindings-xml/${cxf.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-rs-extension-providers/${cxf.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-rs-extension-search/${cxf.version}</bundle>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-frontend-jaxrs/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-extension-providers/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-extension-search/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-service-description/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-frontend-jaxrs/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-client/${cxf.version}</bundle>
     </feature>
 
     <feature name="cxf-rs-security-xml" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-jaxrs</feature>
-        <feature version="${cxf.wss4j.version}">wss4j</feature>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-rs-security-xml/${cxf.version}</bundle>
+        <feature version="${cxf.version}">cxf-rt-security</feature>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-xml/${cxf.version}</bundle>
     </feature>
 
     <feature name="cxf-rs-security-sso-saml" install="manual" version="${cxf.version}"
@@ -284,11 +292,16 @@
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-rs-security-cors/${cxf.version}</bundle>
     </feature>
 
+    <feature name="cxf-rs-security-jose" install="manual" version="${cxf.version}" resolver="(obr)">
+        <feature version="${cxf.version}">cxf-jaxrs</feature>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-jose/${cxf.version}</bundle>
+    </feature>
+
     <feature name="cxf-databinding-aegis" install="manual" version="${cxf.version}"
              resolver='(obr)'>
-        <feature version="${cxf.version}">cxf-core</feature>
+        <feature version="${cxf.version}">cxf-wsdl</feature>
         <feature version="${cxf.version}">cxf-bindings-soap</feature>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-databinding-aegis/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-databinding-aegis/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-databinding-jibx" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
@@ -320,7 +333,7 @@
     </feature>
 
     <feature name="cxf-bindings-corba" install="manual" version="${cxf.version}" resolver='(obr)'>
-        <feature version="${cxf.version}">cxf-core</feature>
+        <feature version="${cxf.version}">cxf-wsdl</feature>
         <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-bindings-corba/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-bindings-coloc" install="manual" version="${cxf.version}" resolver='(obr)'>
@@ -341,10 +354,25 @@
     </feature>
     <feature name="cxf-transports-jms" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
-        <feature version="[3,4)">spring</feature>
-        <feature version="[3,4)">spring-jms</feature>
         <feature version="${cxf.version}">cxf-bindings-soap</feature>
-        <bundle start-level='40'>mvn:org.apache.cxf/cxf-rt-transports-jms/${cxf.version}</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
+        <bundle>mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${cxf.geronimo.jms.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-transports-jms/${cxf.version}</bundle>
+    </feature>
+    <feature name="cxf-transports-udp" install="manual" version="${cxf.version}" resolver="(obr)">
+        <feature version="${cxf.version}">cxf-core</feature>
+        <bundle dependency="true">mvn:org.apache.mina/mina-core/${cxf.mina.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-transports-udp/${cxf.version}</bundle>
+    </feature>
+    <feature name="cxf-transports-websocket-client" install="manual" version="${cxf.version}" resolver="(obr)">
+        <feature version="[3,4)">cxf-http</feature>
+        <bundle dependency='true'>mvn:com.ning/async-http-client/${cxf.ahc.version}</bundle>
+        <bundle dependency='true'>mvn:io.netty/netty/${cxf.netty3.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-transports-websocket/${cxf.version}</bundle>
+    </feature>
+    <feature name="cxf-transports-websocket-server" install="manual" version="${cxf.version}" resolver="(obr)">
+        <feature version="[3,4)">cxf-http</feature>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-transports-websocket/${cxf.version}</bundle>
     </feature>
     <feature name="cxf-javascript" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
@@ -365,19 +393,16 @@
     </feature>
     <feature name="cxf-tools" install="manual" version="${cxf.version}" resolver='(obr)'>
         <feature version="${cxf.version}">cxf-core</feature>
-
+        <feature version="${cxf.version}">cxf-wsdl</feature>
         <feature version="${cxf.version}">cxf-databinding-jaxb</feature>
         <feature version="${cxf.version}">cxf-databinding-aegis</feature>
         <feature version="${cxf.version}">cxf-bindings-soap</feature>
         <feature version="${cxf.version}">cxf-jaxrs</feature>
         <feature version="${cxf.version}">cxf-jaxws</feature>
         <feature version="${cxf.version}">cxf-javascript</feature>
-
         <bundle>mvn:commons-lang/commons-lang/${cxf.commons-lang.version}</bundle>
         <bundle>mvn:org.apache.velocity/velocity/${cxf.velocity.version}</bundle>
         <bundle>mvn:commons-collections/commons-collections/${cxf.commons-collections.version}</bundle>
-
-
         <bundle>mvn:org.apache.cxf/cxf-tools-common/${cxf.version}</bundle>
         <bundle>mvn:org.apache.cxf/cxf-tools-java2ws/${cxf.version}</bundle>
         <bundle>mvn:org.apache.cxf/cxf-tools-misctools/${cxf.version}</bundle>
@@ -387,9 +412,8 @@
         <bundle>mvn:org.apache.cxf/cxf-tools-wsdlto-databinding-jaxb/${cxf.version}</bundle>
         <bundle>mvn:org.apache.cxf/cxf-tools-wsdlto-frontend-javascript/${cxf.version}</bundle>
         <bundle>mvn:org.apache.cxf/cxf-tools-wsdlto-frontend-jaxws/${cxf.version}</bundle>
-
         <!-- need antlr
-<bundle>mvn:org.apache.cxf/cxf-tools-corba/${cxf.version}</bundle-->
+        <bundle>mvn:org.apache.cxf/cxf-tools-corba/${cxf.version}</bundle-->
     </feature>
 
     <feature name="cxf" install="manual" version="${cxf.version}" resolver='(obr)'>
@@ -398,20 +422,16 @@
         <feature version="${cxf.version}">cxf-core</feature>
         <feature version="${cxf.version}">cxf-jaxws</feature>
         <feature version="${cxf.version}">cxf-jaxrs</feature>
-
         <feature version="${cxf.version}">cxf-databinding-jaxb</feature>
         <feature version="${cxf.version}">cxf-databinding-aegis</feature>
         <feature version="${cxf.version}">cxf-databinding-xmlbeans</feature>
         <feature version="${cxf.version}">cxf-bindings-corba</feature>
         <feature version="${cxf.version}">cxf-bindings-coloc</feature>
         <feature version="${cxf.version}">cxf-bindings-object</feature>
-
         <feature version="${cxf.version}">cxf-http-jetty</feature>
-
         <feature version="${cxf.version}">cxf-transports-local</feature>
         <feature version="${cxf.version}">cxf-transports-jms</feature>
-
-
+        <feature version="${cxf.version}">cxf-transports-udp</feature>
         <feature version="${cxf.version}">cxf-xjc-runtime</feature>
         <feature version="${cxf.version}">cxf-ws-security</feature>
         <feature version="${cxf.version}">cxf-ws-rm</feature>
@@ -420,24 +440,19 @@
         <feature version="${cxf.version}">cxf-frontend-javascript</feature>
         <feature version="${cxf.version}">cxf-features-clustering</feature>
         <!-- Compatibility bundle for the Require-Bundle use cases -->
-        <bundle start-level='50'>mvn:org.apache.cxf/cxf-bundle-compatible/${cxf.version}</bundle>
-
+        <!--bundle start-level='50'>mvn:org.apache.cxf/cxf-bundle-compatible/${cxf.version}</bundle-->
         <!-- tools really aren't needed in OSGi by default
-<feature version="${cxf.version}">cxf-tools</feature>
--->
+        <feature version="${cxf.version}">cxf-tools</feature>
+        -->
         <!-- need msv
-<bundle>mvn:org.apache.cxf/cxf-wstx-msv-validation/${cxf.version}</bundle-->
+        <bundle>mvn:org.apache.cxf/cxf-wstx-msv-validation/${cxf.version}</bundle-->
         <!-- need sdo deps
-<bundle>mvn:org.apache.cxf/cxf-rt-databinding-sdo/${cxf.version}</bundle-->
+        <bundle>mvn:org.apache.cxf/cxf-rt-databinding-sdo/${cxf.version}</bundle-->
     </feature>
 
     <feature name="cxf-sts" install="manual" version="${cxf.version}" resolver='(obr)'>
-        <bundle start-level='40' dependency="true">
-            mvn:com.hazelcast/hazelcast/${cxf.hazelcast.version}
-        </bundle>
-        <bundle start-level='40' dependency="true">
-            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.ehcache/${cxf.ehcache.bundle.version}
-        </bundle>
+        <bundle start-level="40" dependency="true">mvn:com.hazelcast/hazelcast/${cxf.hazelcast.version}</bundle>
+        <bundle start-level="40" dependency="true">mvn:net.sf.ehcache/ehcache/${cxf.ehcache.version}</bundle>
         <feature version="${cxf.version}">cxf-core</feature>
         <feature version="${cxf.version}">cxf-ws-security</feature>
         <bundle>mvn:org.apache.cxf.services.sts/cxf-services-sts-core/${cxf.version}</bundle>
@@ -447,6 +462,27 @@
         <feature version="${cxf.version}">cxf-ws-addr</feature>
         <feature version="${cxf.version}">cxf-jaxws</feature>
         <bundle>mvn:org.apache.cxf.services.wsn/cxf-services-wsn-api/${cxf.version}</bundle>
+    </feature>
+    <feature name="cxf-ws-discovery-api" install="manual" version="${cxf.version}" resolver="(obr)">
+        <feature version="${cxf.version}">cxf-transports-udp</feature>
+        <feature version="${cxf.version}">cxf-ws-addr</feature>
+        <feature version="${cxf.version}">cxf-jaxws</feature>
+        <bundle>mvn:org.apache.cxf.services.ws-discovery/cxf-services-ws-discovery-api/${cxf.version}</bundle>
+    </feature>
+    <feature name="cxf-ws-discovery" install="manual" version="${cxf.version}" resolver="(obr)">
+        <feature version="${cxf.version}">cxf-ws-discovery-api</feature>
+        <bundle>mvn:org.apache.cxf.services.ws-discovery/cxf-services-ws-discovery-service/${cxf.version}</bundle>
+    </feature>
+
+    <feature name="cxf-bean-validation-core" install="manual" version="${cxf.version}" resolver="(obr)">
+        <bundle start-level="10" dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr303-api-${cxf.osgi.validation.api.version}/${cxf.servicemix.specs.version}</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.hibernate-validator/${cxf.hibernate-validator.bundle.version}</bundle>
+    </feature>
+    <!-- This feature can only be activated if Java 7 is used -->
+    <feature name="cxf-bean-validation" install="manual" version="${cxf.version}" resolver="(obr)">
+        <feature version="${cxf.version}">cxf-bean-validation-core</feature>
+        <bundle start-level="30" dependency="true">mvn:javax.el/javax.el-api/${cxf.javax.el.version}</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.glassfish/javax.el/${cxf.javax.el.version}</bundle>
     </feature>
     <!-- End CXF Features -->
 

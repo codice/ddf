@@ -28,15 +28,6 @@
  */
 package ddf.security.sts;
 
-import java.net.URL;
-import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
@@ -44,24 +35,32 @@ import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.cxf.ws.security.trust.STSUtils;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSDocInfo;
-import org.apache.ws.security.WSSConfig;
-import org.apache.ws.security.WSSecurityEngineResult;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.components.crypto.CryptoFactory;
-import org.apache.ws.security.components.crypto.CryptoType;
-import org.apache.ws.security.handler.RequestData;
-import org.apache.ws.security.message.token.UsernameToken;
-import org.apache.ws.security.message.token.X509Security;
-import org.apache.ws.security.processor.Processor;
-import org.apache.ws.security.processor.SAMLTokenProcessor;
-import org.apache.ws.security.saml.ext.AssertionWrapper;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.crypto.CryptoFactory;
+import org.apache.wss4j.common.crypto.CryptoType;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.saml.SamlAssertionWrapper;
+import org.apache.wss4j.dom.WSConstants;
+import org.apache.wss4j.dom.WSDocInfo;
+import org.apache.wss4j.dom.WSSConfig;
+import org.apache.wss4j.dom.WSSecurityEngineResult;
+import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.dom.message.token.UsernameToken;
+import org.apache.wss4j.dom.message.token.X509Security;
+import org.apache.wss4j.dom.processor.Processor;
+import org.apache.wss4j.dom.processor.SAMLTokenProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.net.URL;
+import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Some unit tests for the CXF STSClient Issue Binding.
@@ -172,7 +171,7 @@ public class StsIssueTest {
         Document doc = builder.newDocument();
 
         // Create a Username Token
-        org.apache.ws.security.message.token.UsernameToken oboToken = new UsernameToken(false, doc,
+        UsernameToken oboToken = new UsernameToken(false, doc,
                 WSConstants.PASSWORD_TEXT);
         oboToken.setName("pangerer");
         oboToken.setPassword("password");
@@ -221,7 +220,7 @@ public class StsIssueTest {
         Document doc = builder.newDocument();
 
         // Create a Username Token
-        org.apache.ws.security.message.token.UsernameToken oboToken = new UsernameToken(false, doc,
+        UsernameToken oboToken = new UsernameToken(false, doc,
                 WSConstants.PASSWORD_TEXT);
 
         // Workout the details of how to fill out the username token
@@ -317,7 +316,7 @@ public class StsIssueTest {
             results = processToken(token);
 
             assert (results != null && results.size() == 1);
-            AssertionWrapper assertion = (AssertionWrapper) results.get(0).get(
+            SamlAssertionWrapper assertion = (SamlAssertionWrapper) results.get(0).get(
                     WSSecurityEngineResult.TAG_SAML_ASSERTION);
             assert (assertion != null);
             assert (assertion.getSaml1() == null && assertion.getSaml2() != null);
@@ -386,7 +385,6 @@ public class StsIssueTest {
         throws WSSecurityException {
         RequestData requestData = new RequestData();
         WSSConfig wssConfig = WSSConfig.getNewInstance();
-        wssConfig.setWsiBSPCompliant(false);
         requestData.setWssConfig(wssConfig);
         /*DDF-733
         CallbackHandler callbackHandler = new CommonCallbackHandler();
@@ -394,7 +392,7 @@ public class StsIssueTest {
         */
         Crypto crypto = CryptoFactory.getInstance("serverKeystore.properties");
         requestData.setDecCrypto(crypto);
-        requestData.setSigCrypto(crypto);
+        requestData.setSigVerCrypto(crypto);
 
         Processor processor = new SAMLTokenProcessor();
         return processor.handleToken(token.getToken(), requestData, new WSDocInfo(token.getToken()

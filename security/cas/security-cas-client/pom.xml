@@ -109,7 +109,6 @@
                             ddf.security.sts.client.configuration;version="[2.4,3)",
                             javax.servlet;version="[2.5.0,3.0.0)",
                             javax.servlet.http,
-                            org.apache.ws.security.util;version="[1.6,2)",
                             org.codice.ddf.security.handler.api;version="[2.4,3)",
                             org.jasig.cas.client.authentication,
                             org.jasig.cas.client.proxy,

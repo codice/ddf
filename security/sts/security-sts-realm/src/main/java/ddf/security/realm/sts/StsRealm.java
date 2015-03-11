@@ -66,7 +66,6 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -364,7 +363,6 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
         builder.append("STS WSDL location: " + stsClient.getWsdlLocation() + "\n");
         builder.append("STS service name: " + stsClient.getServiceQName() + "\n");
         builder.append("STS endpoint name: " + stsClient.getEndpointQName() + "\n");
-        builder.append("STS claims: " + getFormattedXml(stsClient.getClaims()) + "\n");
 
         Map<String, Object> map = stsClient.getProperties();
         Set<String> keys = map.keySet();
@@ -757,7 +755,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
                 writer.writeEndElement();
 
                 claimsElement = writer.getDocument().getDocumentElement();
-            } catch (ParserConfigurationException | XMLStreamException e) {
+            } catch (XMLStreamException e) {
                 String msg = "Unable to create claims.";
                 LOGGER.error(msg, e);
                 claimsElement = null;

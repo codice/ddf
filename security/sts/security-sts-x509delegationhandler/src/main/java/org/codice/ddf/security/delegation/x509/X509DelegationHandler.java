@@ -14,26 +14,16 @@
  **/
 package org.codice.ddf.security.delegation.x509;
 
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.token.delegation.TokenDelegationHandler;
 import org.apache.cxf.sts.token.delegation.TokenDelegationParameters;
 import org.apache.cxf.sts.token.delegation.TokenDelegationResponse;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
+import org.apache.wss4j.dom.WSConstants;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
+
 import java.util.logging.Logger;
-
-import org.w3c.dom.Element;
-
-import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.sts.request.ReceivedToken;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.saml.ext.AssertionWrapper;
-import org.apache.ws.security.saml.ext.builder.SAML1Constants;
-import org.apache.ws.security.saml.ext.builder.SAML2Constants;
-import org.opensaml.saml1.core.AudienceRestrictionCondition;
 
 /**
  * The SAML TokenDelegationHandler implementation. It disallows ActAs or OnBehalfOf for

@@ -14,6 +14,19 @@
  **/
 package org.codice.ddf.security.sts.claims.property;
 
+import ddf.security.PropertiesLoader;
+import org.apache.cxf.rt.security.claims.Claim;
+import org.apache.cxf.rt.security.claims.ClaimCollection;
+import org.apache.cxf.sts.claims.ClaimsHandler;
+import org.apache.cxf.sts.claims.ClaimsParameters;
+import org.apache.cxf.sts.claims.ProcessedClaim;
+import org.apache.cxf.sts.claims.ProcessedClaimCollection;
+import org.apache.cxf.sts.token.realm.RealmSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
@@ -21,21 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.x500.X500Principal;
-
-import org.apache.cxf.sts.claims.Claim;
-import org.apache.cxf.sts.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsHandler;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.RequestClaim;
-import org.apache.cxf.sts.claims.RequestClaimCollection;
-import org.apache.cxf.sts.token.realm.RealmSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ddf.security.PropertiesLoader;
 
 public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
 
@@ -63,12 +61,12 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
     }
 
     @Override
-    public ClaimCollection retrieveClaimValues(RequestClaimCollection claims,
+    public ProcessedClaimCollection retrieveClaimValues(ClaimCollection claims,
             ClaimsParameters parameters) {
-        ClaimCollection claimsColl = new ClaimCollection();
+        ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
         Principal principal = parameters.getPrincipal();
         boolean needsRoleClaim = false;
-        for (RequestClaim claim : claims) {
+        for (Claim claim : claims) {
             if (roleClaimType.equals(claim.getClaimType().toString())) {
                 needsRoleClaim = true;
             } else {
@@ -86,7 +84,7 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
             String userAttributes = userMapping.get(user);
             if (userAttributes != null) {
                 String[] attributes = userAttributes.split(",");
-                Claim c = new Claim();
+                ProcessedClaim c = new ProcessedClaim();
                 c.setClaimType(getSupportedClaimTypes().get(0));
                 c.setPrincipal(principal);
                 for (int i = 1; i < attributes.length; i++) {

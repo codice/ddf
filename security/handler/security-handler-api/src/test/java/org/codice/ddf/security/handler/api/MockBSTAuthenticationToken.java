@@ -14,7 +14,7 @@
  **/
 package org.codice.ddf.security.handler.api;
 
-import org.apache.ws.security.util.Base64;
+import org.opensaml.xml.util.Base64;
 
 public class MockBSTAuthenticationToken extends BSTAuthenticationToken {
     public static final String PRINCIPAL = "principal";

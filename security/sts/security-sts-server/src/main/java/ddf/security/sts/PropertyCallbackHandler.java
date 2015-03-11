@@ -15,8 +15,8 @@
 package ddf.security.sts;
 
 import ddf.security.PropertiesLoader;
-import org.apache.ws.security.WSPasswordCallback;
-import org.apache.ws.security.components.crypto.Merlin;
+import org.apache.wss4j.common.crypto.Merlin;
+import org.apache.wss4j.common.ext.WSPasswordCallback;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -57,11 +57,19 @@ public class PropertyCallbackHandler implements CallbackHandler {
             if (callback instanceof WSPasswordCallback) {
                 WSPasswordCallback passwordCallback = (WSPasswordCallback) callback;
                 if (WSPasswordCallback.DECRYPT == passwordCallback.getUsage()) {
-                    if (encryptionPropertiesMap.get(Merlin.KEYSTORE_ALIAS).equals(passwordCallback.getIdentifier())) {
+                    String alias = encryptionPropertiesMap.get(Merlin.PREFIX + Merlin.KEYSTORE_ALIAS);
+                    if (alias == null) {
+                        alias = encryptionPropertiesMap.get(Merlin.OLD_PREFIX + Merlin.KEYSTORE_ALIAS);
+                    }
+                    if (alias != null && alias.equals(passwordCallback.getIdentifier())) {
                         passwordCallback.setPassword(encryptionPropertiesMap.get(Merlin.KEYSTORE_PASSWORD));
                     }
                 } else if (WSPasswordCallback.SIGNATURE == passwordCallback.getUsage()) {
-                    if (signaturePropertiesMap.get(Merlin.KEYSTORE_ALIAS).equals(passwordCallback.getIdentifier())) {
+                    String alias = signaturePropertiesMap.get(Merlin.PREFIX + Merlin.KEYSTORE_ALIAS);
+                    if (alias == null) {
+                        alias = signaturePropertiesMap.get(Merlin.OLD_PREFIX + Merlin.KEYSTORE_ALIAS);
+                    }
+                    if (alias != null && alias.equals(passwordCallback.getIdentifier())) {
                         passwordCallback.setPassword(signaturePropertiesMap.get(Merlin.KEYSTORE_PASSWORD));
                     }
                 }

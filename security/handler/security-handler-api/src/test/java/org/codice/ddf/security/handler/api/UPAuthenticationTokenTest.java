@@ -14,7 +14,7 @@
  **/
 package org.codice.ddf.security.handler.api;
 
-import org.apache.ws.security.util.Base64;
+import org.opensaml.xml.util.Base64;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +70,7 @@ public class UPAuthenticationTokenTest {
     @Test
     public void testGetBinarySecurityToken() throws Exception {
         UPAuthenticationToken token = new UPAuthenticationToken(TEST_NAME, TEST_PW, TEST_REALM);
-        String expectedBST = Base64.encode(TEST_CREDS.getBytes());
+        String expectedBST = Base64.encodeBytes(TEST_CREDS.getBytes(), Base64.DONT_BREAK_LINES);
         assertEquals(expectedBST, token.getEncodedCredentials());
     }
 

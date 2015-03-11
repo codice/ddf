@@ -16,9 +16,9 @@ package org.codice.ddf.security.handler.api;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.util.Base64;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.dom.WSConstants;
+import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +87,7 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
     public static BaseAuthenticationToken parse(String stringBST, boolean isEncoded)
             throws WSSecurityException {
         BaseAuthenticationToken baseAuthenticationToken = null;
+        org.apache.xml.security.Init.init();
 
         String unencodedCreds = isEncoded ? new String(Base64.decode(stringBST)) : stringBST;
         if (!StringUtils.isEmpty(unencodedCreds) && unencodedCreds.startsWith(BST_PRINCIPAL)) {
@@ -101,7 +102,7 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
         }
 
         if (baseAuthenticationToken == null) {
-            throw new WSSecurityException(
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE,
                     "Exception decoding specified credentials. Unable to find required components.");
         }
 
@@ -145,7 +146,7 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
             }
         }
         LOGGER.trace("Credential String: {}", retVal);
-        String encodedCreds = Base64.encode(builder.toString().getBytes());
+        String encodedCreds = Base64.encodeBytes(builder.toString().getBytes(), Base64.DONT_BREAK_LINES);
         LOGGER.trace("BST: {}", encodedCreds);
         return encodedCreds;
     }

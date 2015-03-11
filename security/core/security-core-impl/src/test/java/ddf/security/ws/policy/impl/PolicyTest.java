@@ -14,16 +14,6 @@
  **/
 package ddf.security.ws.policy.impl;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.net.URL;
-
 import org.apache.cxf.helpers.DOMUtils;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -36,6 +26,21 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the policy adding logic (loading policies and converting the WSDLs).
@@ -90,7 +95,7 @@ public class PolicyTest {
     public void combinePolicyTest() {
         try {
         	FilePolicyLoader policyLoader = new FilePolicyLoader(mockContext, POLICY_LOCATION);
-            Document wsdlDoc = DOMUtils.readXml(
+            Document wsdlDoc = readXml(
             		getClass().getResourceAsStream(WSDL_LOCATION));
             
             assertNotNull(wsdlDoc);
@@ -119,6 +124,25 @@ public class PolicyTest {
     public void notXmlFile() throws IOException {
         new FilePolicyLoader(mockContext, TXT_POLICY_LOCATION);
         fail("Should have thrown an exception when passed in a non-xml file.");
+    }
+
+    public static Document readXml(InputStream is) throws SAXException, IOException, ParserConfigurationException {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        dbf.setValidating(false);
+        dbf.setIgnoringComments(false);
+        dbf.setIgnoringElementContentWhitespace(true);
+        dbf.setNamespaceAware(true);
+        // dbf.setCoalescing(true);
+        // dbf.setExpandEntityReferences(true);
+
+        DocumentBuilder db = null;
+        db = dbf.newDocumentBuilder();
+        db.setEntityResolver(new DOMUtils.NullResolver());
+
+        // db.setErrorHandler( new MyErrorHandler());
+
+        return db.parse(is);
     }
 
 }

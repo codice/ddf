@@ -14,11 +14,10 @@
  **/
 package org.codice.ddf.security.handler.api;
 
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.components.crypto.CredentialException;
-import org.apache.ws.security.components.crypto.Merlin;
 import ddf.security.PropertiesLoader;
-import org.apache.ws.security.util.Base64;
+import org.apache.wss4j.common.crypto.Merlin;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,22 +36,16 @@ public class PKIAuthenticationTokenFactory {
      */
     public void init() {
         try {
-            merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath));
-        } catch (CredentialException e) {
-            LOGGER.error("Unable to read merlin properties file for crypto operations.", e);
-        } catch (IOException e) {
+            merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath), PKIAuthenticationTokenFactory.class.getClassLoader(), null);
+        } catch (WSSecurityException | IOException e) {
             LOGGER.error("Unable to read merlin properties file.", e);
         }
     }
 
     public PKIAuthenticationToken getTokenFromString(String certString, boolean isEncoded, String realm) {
-        PKIAuthenticationToken token = null;
-        try {
-            byte[] certBytes = isEncoded ? Base64.decode(certString) : certString.getBytes();
-            token = getTokenFromBytes(certBytes, realm);
-        } catch (WSSecurityException e) {
-            LOGGER.error("Unable to decode given string certificate: {}", e.getMessage(), e);
-        }
+        PKIAuthenticationToken token;
+        byte[] certBytes = isEncoded ? Base64.decode(certString) : certString.getBytes();
+        token = getTokenFromBytes(certBytes, realm);
         return token;
     }
 

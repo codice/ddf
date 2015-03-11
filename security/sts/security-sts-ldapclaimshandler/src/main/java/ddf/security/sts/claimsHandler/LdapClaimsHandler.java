@@ -14,11 +14,11 @@
  **/
 package ddf.security.sts.claimsHandler;
 
-import org.apache.cxf.sts.claims.Claim;
-import org.apache.cxf.sts.claims.ClaimCollection;
+import org.apache.cxf.rt.security.claims.Claim;
+import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.RequestClaim;
-import org.apache.cxf.sts.claims.RequestClaimCollection;
+import org.apache.cxf.sts.claims.ProcessedClaim;
+import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -82,7 +82,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
     }
 
     @Override
-    public ClaimCollection retrieveClaimValues(RequestClaimCollection claims,
+    public ProcessedClaimCollection retrieveClaimValues(ClaimCollection claims,
             ClaimsParameters parameters) {
 
         Principal principal = parameters.getPrincipal();
@@ -90,10 +90,10 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
         String user = AttributeMapLoader.getUser(principal);
         if (user == null) {
             LOGGER.warn("Could not determine user name, possible authentication error. Returning no claims.");
-            return new ClaimCollection();
+            return new ProcessedClaimCollection();
         }
 
-        ClaimCollection claimsColl = new ClaimCollection();
+        ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
         try {
 
             AndFilter filter = new AndFilter();
@@ -101,7 +101,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
                     new EqualsFilter(this.getUserNameAttribute(), user));
 
             List<String> searchAttributeList = new ArrayList<String>();
-            for (RequestClaim claim : claims) {
+            for (Claim claim : claims) {
                 if (getClaimsLdapAttributeMapping().keySet().contains(claim.getClaimType().toString())) {
                     searchAttributeList.add(getClaimsLdapAttributeMapping().get(
                             claim.getClaimType().toString()));
@@ -122,14 +122,14 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
             Entry entry;
             while(entryCursor.next()) {
                 entry = entryCursor.get();
-                for (RequestClaim claim : claims) {
+                for (Claim claim : claims) {
                     URI claimType = claim.getClaimType();
                     String ldapAttribute = getClaimsLdapAttributeMapping().get(claimType.toString());
                     Attribute attr = entry.get(ldapAttribute);
                     if (attr == null) {
                         LOGGER.trace("Claim '{}' is null", claim.getClaimType());
                     } else {
-                        Claim c = new Claim();
+                        ProcessedClaim c = new ProcessedClaim();
                         c.setClaimType(claimType);
                         c.setPrincipal(principal);
 

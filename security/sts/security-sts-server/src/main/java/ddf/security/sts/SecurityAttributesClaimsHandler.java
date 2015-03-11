@@ -15,18 +15,18 @@
 package ddf.security.sts;
 
 import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.sts.claims.Claim;
-import org.apache.cxf.sts.claims.ClaimCollection;
+import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.RequestClaimCollection;
-import org.apache.ws.security.WSConstants;
+import org.apache.cxf.sts.claims.ProcessedClaim;
+import org.apache.cxf.sts.claims.ProcessedClaimCollection;
+import org.apache.wss4j.dom.WSConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -155,6 +155,49 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
         return uriList;
     }
 
+    @Override
+    public ProcessedClaimCollection retrieveClaimValues(ClaimCollection claims, ClaimsParameters claimsParameters) {
+        String[] attributes = buildAttributes();
+        ProcessedClaimCollection claimCollection = new ProcessedClaimCollection();
+        try {
+
+            String user = getUserFromClaimsParameters(claimsParameters);
+
+            if (user == null) {
+                LOGGER.warn("User must not be null");
+                return claimCollection;
+            } else {
+                LOGGER.trace("Retrieve securityAttributes claims for user {}", user);
+            }
+
+            AndFilter filter = buildLdapFilter(user);
+
+            AttributesMapper mapper = new DdfAttributesMapper();
+
+            List<?> results = ldapTemplate.search(userBaseDn, filter.toString(),
+                    SearchControls.SUBTREE_SCOPE, attributes, mapper);
+
+            for (Object result : results) {
+                Map<String, Attribute> ldapAttributes = null;
+                ldapAttributes = CastUtils.cast((Map<?, ?>) result);
+
+                // Get each of the mapped Attributes from the result.
+                for (Entry<String, String> claimAttr : claimsLdapAttributeMapping.entrySet()) {
+                    Attribute attr = ldapAttributes.get(claimAttr.getValue());
+                    if (attr == null) {
+                        LOGGER.trace("Claim '{}' is null", claimAttr.getKey());
+                    } else {
+                        ProcessedClaim c = buildClaim(claimsParameters, claimAttr, attr);
+                        claimCollection.add(c);
+                    }
+                }
+            }
+        } catch (URISyntaxException e) {
+            LOGGER.error("Unable to set role claims.", e);
+        }
+        return claimCollection;
+    }
+
     private URI getSecurityAttributeURI() {
         URI uri = null;
         try {
@@ -188,87 +231,34 @@ public class SecurityAttributesClaimsHandler implements ClaimsHandler {
             }
             return map;
         }
-    };
-
-    @Override
-    public ClaimCollection retrieveClaimValues(RequestClaimCollection claims,
-            ClaimsParameters parameters) {
-        String[] attributes = buildAttributes();
-        ClaimCollection claimsColl = new ClaimCollection();
-        try {
-
-            String user = getUserFromClaimsParameters(parameters);
-
-            if (user == null) {
-                LOGGER.warn("User must not be null");
-                return claimsColl;
-            } else {
-                LOGGER.trace("Retrieve securityAttributes claims for user {}", user);
-            }
-
-            AndFilter filter = buildLdapFilter(user);
-
-            AttributesMapper mapper = new DdfAttributesMapper();
-
-            List<?> results = ldapTemplate.search(userBaseDn, filter.toString(),
-                    SearchControls.SUBTREE_SCOPE, attributes, mapper);
-
-            for (Object result : results) {
-                Map<String, Attribute> ldapAttributes = null;
-                ldapAttributes = CastUtils.cast((Map<?, ?>) result);
-
-                // Get each of the mapped Attributes from the result.
-                for (Entry<String, String> claimAttr : claimsLdapAttributeMapping.entrySet()) {
-                    Attribute attr = ldapAttributes.get(claimAttr.getValue());
-                    if (attr == null) {
-                        LOGGER.trace("Claim '{}' is null", claimAttr.getKey());
-                    } else {
-                        Claim c = buildClaim(parameters, claimAttr, attr);
-                        claimsColl.add(c);
-                    }
-                }
-            }
-        } catch (URISyntaxException e) {
-            LOGGER.error("Unable to set role claims.", e);
-        }
-        return claimsColl;
     }
 
     /*
      * Helper method to build a Claim.
      */
-    private Claim buildClaim(ClaimsParameters parameters, Entry<String, String> claimAttr,
-            Attribute attr) throws URISyntaxException {
-        Claim c = new Claim();
+    private ProcessedClaim buildClaim(ClaimsParameters claimsParameters, Entry<String, String> claimAttr, Attribute attr) throws URISyntaxException {
+        ProcessedClaim c = new ProcessedClaim();
         c.setClaimType(new URI(claimAttr.getKey()));
-        c.setPrincipal(parameters.getPrincipal());
+        c.setPrincipal(claimsParameters.getPrincipal());
 
-        StringBuilder claimValue = new StringBuilder();
         try {
-            NamingEnumeration<?> list = (NamingEnumeration<?>) attr.getAll();
+            NamingEnumeration<?> list = attr.getAll();
             while (list.hasMore()) {
                 Object obj = list.next();
                 if (!(obj instanceof String)) {
                     LOGGER.warn("LDAP attribute '{}' has an unsupported value type", claimAttr.getValue());
                     break;
                 }
-                claimValue.append((String) obj);
-                if (list.hasMore()) {
-                    claimValue.append(ATTRIBUTE_DELIMITER);
-                }
+                c.addValue(obj);
             }
         } catch (NamingException ex) {
             LOGGER.warn("Failed to read value of LDAP attribute '{}'", claimAttr.getValue());
         }
-
-        c.setValue(claimValue.toString());
         return c;
     }
 
     /**
      * @param parameters
-     * @param claimsColl
-     * @param principal
      * @return
      */
     private String getUserFromClaimsParameters(ClaimsParameters parameters) {

@@ -14,12 +14,12 @@
  **/
 package org.codice.ddf.security.claims.anonymous;
 
-import org.apache.cxf.sts.claims.Claim;
-import org.apache.cxf.sts.claims.ClaimCollection;
+import org.apache.cxf.rt.security.claims.Claim;
+import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.RequestClaim;
-import org.apache.cxf.sts.claims.RequestClaimCollection;
+import org.apache.cxf.sts.claims.ProcessedClaim;
+import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.apache.cxf.sts.token.realm.RealmSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,15 +115,15 @@ public class AnonymousClaimsHandler implements ClaimsHandler, RealmSupport {
     }
 
     @Override
-    public ClaimCollection retrieveClaimValues(RequestClaimCollection claims,
+    public ProcessedClaimCollection retrieveClaimValues(ClaimCollection claims,
             ClaimsParameters parameters) {
-        ClaimCollection claimsColl = new ClaimCollection();
+        ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
         Principal principal = parameters.getPrincipal();
-        for (RequestClaim claim : claims) {
+        for (Claim claim : claims) {
             URI claimType = claim.getClaimType();
             List<String> value = claimsMap.get(claimType);
             if (value != null) {
-                Claim c = new Claim();
+                ProcessedClaim c = new ProcessedClaim();
                 c.setClaimType(claimType);
                 c.setPrincipal(principal);
                 for(String val : value) {

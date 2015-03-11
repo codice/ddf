@@ -14,13 +14,9 @@
  **/
 package ddf.security.cas;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Map;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.security.auth.callback.CallbackHandler;
-
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.util.CommonSSLFactory;
+import ddf.security.encryption.EncryptionService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
@@ -29,23 +25,25 @@ import org.apache.cxf.sts.token.validator.TokenValidator;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
-import org.apache.ws.security.WSSConfig;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.handler.RequestData;
-import org.apache.ws.security.util.Base64;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.dom.WSSConfig;
+import org.apache.wss4j.dom.handler.RequestData;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.Cas20ProxyTicketValidator;
 import org.jasig.cas.client.validation.TicketValidationException;
+import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.util.CommonSSLFactory;
-import ddf.security.encryption.EncryptionService;
+import javax.net.ssl.HttpsURLConnection;
+import javax.security.auth.callback.CallbackHandler;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Map;
 
 /**
  * Validates Web Single Sign-On Tokens.
@@ -125,7 +123,7 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
         CallbackHandler callbackHandler = stsProperties.getCallbackHandler();
 
         RequestData requestData = new RequestData();
-        requestData.setSigCrypto(sigCrypto);
+        requestData.setSigVerCrypto(sigCrypto);
         WSSConfig wssConfig = WSSConfig.getNewInstance();
         requestData.setWssConfig(wssConfig);
         requestData.setCallbackHandler(callbackHandler);
@@ -161,11 +159,11 @@ public class WebSSOTokenValidator implements TokenValidator, ConfigurationWatche
                     ticket = parts[0];
                     service = parts[1];
                 } else {
-                    throw new WSSecurityException(
+                    throw new WSSecurityException(WSSecurityException.ErrorCode.INVALID_SECURITY_TOKEN,
                             "Was not able to parse out BST propertly. Should be in ticket|service format.");
                 }
             } else {
-                throw new WSSecurityException(
+                throw new WSSecurityException(WSSecurityException.ErrorCode.INVALID_SECURITY_TOKEN,
                         "Binary security token NOT successfully decoded, is empty or null.");
             }
         } catch (WSSecurityException wsse) {

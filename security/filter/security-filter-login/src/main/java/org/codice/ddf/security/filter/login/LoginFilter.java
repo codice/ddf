@@ -14,6 +14,7 @@
  **/
 package org.codice.ddf.security.filter.login;
 
+import ddf.security.PropertiesLoader;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
@@ -21,21 +22,21 @@ import ddf.security.common.audit.SecurityLogger;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.ws.security.WSDocInfo;
-import org.apache.ws.security.WSSConfig;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.components.crypto.Crypto;
-import org.apache.ws.security.components.crypto.CryptoFactory;
-import org.apache.ws.security.handler.RequestData;
-import org.apache.ws.security.saml.ext.AssertionWrapper;
-import org.apache.ws.security.saml.ext.OpenSAMLUtil;
-import org.apache.ws.security.validate.Credential;
-import org.apache.ws.security.validate.SamlAssertionValidator;
-import org.apache.ws.security.validate.Validator;
-import ddf.security.PropertiesLoader;
+import org.apache.wss4j.common.crypto.Crypto;
+import org.apache.wss4j.common.crypto.CryptoFactory;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.saml.OpenSAMLUtil;
+import org.apache.wss4j.common.saml.SamlAssertionWrapper;
+import org.apache.wss4j.dom.WSDocInfo;
+import org.apache.wss4j.dom.WSSConfig;
+import org.apache.wss4j.dom.handler.RequestData;
+import org.apache.wss4j.dom.saml.WSSSAMLKeyInfoProcessor;
+import org.apache.wss4j.dom.validate.Credential;
+import org.apache.wss4j.dom.validate.SamlAssertionValidator;
+import org.apache.wss4j.dom.validate.Validator;
+import org.apache.xml.security.utils.XMLUtils;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.InvalidSAMLReceivedException;
@@ -242,7 +243,7 @@ public class LoginFilter implements Filter {
                 }
                 if(!wasReference) {
                     // wrap the token
-                    AssertionWrapper assertion = new AssertionWrapper(securityToken.getToken());
+                    SamlAssertionWrapper assertion = new SamlAssertionWrapper(securityToken.getToken());
 
                     // get the crypto junk
                     Crypto crypto = getSignatureCrypto();
@@ -260,10 +261,10 @@ public class LoginFilter implements Filter {
                     doc.appendChild(policyElement);
 
                     Credential credential = new Credential();
-                    credential.setAssertion(assertion);
+                    credential.setSamlAssertion(assertion);
 
                     RequestData requestData = new RequestData();
-                    requestData.setSigCrypto(crypto);
+                    requestData.setSigVerCrypto(crypto);
                     WSSConfig wssConfig = WSSConfig.getNewInstance();
                     requestData.setWssConfig(wssConfig);
 
@@ -276,9 +277,10 @@ public class LoginFilter implements Filter {
 
                         // Verify the signature
                         try {
-                            assertion.verifySignature(requestData, new WSDocInfo(samlResponse.getDOM().getOwnerDocument()));
+                            WSSSAMLKeyInfoProcessor wsssamlKeyInfoProcessor = new WSSSAMLKeyInfoProcessor(requestData, new WSDocInfo(samlResponse.getDOM().getOwnerDocument()));
+                            assertion.verifySignature(wsssamlKeyInfoProcessor, crypto);
                         } catch (WSSecurityException e) {
-                            throw new WSSecurityException(WSSecurityException.FAILURE, "invalidSAMLsecurity");
+                            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "invalidSAMLsecurity");
                         }
                     }
 
@@ -286,7 +288,7 @@ public class LoginFilter implements Filter {
                     try {
                         assertionValidator.validate(credential, requestData);
                     } catch (WSSecurityException ex) {
-                        throw new WSSecurityException(WSSecurityException.FAILURE, "invalidSAMLsecurity");
+                        throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "invalidSAMLsecurity");
                     }
                 }
 
@@ -310,7 +312,7 @@ public class LoginFilter implements Filter {
             long beforeMil = System.currentTimeMillis();
             if (afterMil == null) {
                 synchronized (lock) {
-                    AssertionWrapper assertion = new AssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
+                    SamlAssertionWrapper assertion = new SamlAssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
                     if (assertion.getSaml2() != null) {
                         DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
                         afterMil = after.getMillis();
@@ -338,7 +340,7 @@ public class LoginFilter implements Filter {
                                 }
                                 session.setAttribute(SecurityConstants.SAML_ASSERTION, token);
 
-                                AssertionWrapper assertion = new AssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
+                                SamlAssertionWrapper assertion = new SamlAssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
                                 if (assertion.getSaml2() != null) {
                                     DateTime after = assertion.getSaml2().getConditions().getNotOnOrAfter();
                                     afterMil = after.getMillis();
@@ -387,7 +389,7 @@ public class LoginFilter implements Filter {
                                 .getToken();
                         if (LOGGER.isTraceEnabled()) {
                             LOGGER.trace("SAML assertion returned: {}",
-                                    XMLUtils.toString(samlToken));
+                                    XMLUtils.getStrFromNode(samlToken));
                         }
                         SecurityToken securityToken = ((SecurityAssertion) principal)
                                 .getSecurityToken();
@@ -503,10 +505,10 @@ public class LoginFilter implements Filter {
                     LOGGER.trace("Creating token in session - class: {}  classloader: {}", securityToken.getClass().getName(), securityToken.getClass().getClassLoader());
                 }
                 session.setAttribute(SecurityConstants.SAML_ASSERTION, securityToken);
-                AssertionWrapper assertion = null;
+                SamlAssertionWrapper assertion = null;
                 DateTime after = null;
                 try {
-                    assertion = new AssertionWrapper(securityToken.getToken());
+                    assertion = new SamlAssertionWrapper(securityToken.getToken());
                     after = assertion.getSaml2().getConditions().getNotOnOrAfter();
                     session.setAttribute(SAML_EXPIRATION, after.getMillis());
                 } catch (Exception e) {

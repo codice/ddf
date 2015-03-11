@@ -14,12 +14,11 @@
  **/
 package org.codice.ddf.security.handler.basic;
 
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.util.Base64;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,17 +167,12 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
             String authInfo = parts[1];
 
             if (authType.equalsIgnoreCase(AUTHENTICATION_SCHEME_BASIC)) {
-                String decoded;
-                try {
-                    decoded = new String(Base64.decode(authInfo));
-                    parts = decoded.split(":");
-                    if (parts.length == 2) {
-                        token = new UPAuthenticationToken(parts[0], parts[1], realm);
-                    } else if ((parts.length == 1) && (decoded.endsWith(":"))) {
-                        token = new UPAuthenticationToken(parts[0], "", realm);
-                    }
-                } catch (WSSecurityException e) {
-                    LOGGER.warn("Unexpected error decoding username/password: " + e.getMessage(), e);
+                String decoded = new String(Base64.decode(authInfo));
+                parts = decoded.split(":");
+                if (parts.length == 2) {
+                    token = new UPAuthenticationToken(parts[0], parts[1], realm);
+                } else if ((parts.length == 1) && (decoded.endsWith(":"))) {
+                    token = new UPAuthenticationToken(parts[0], "", realm);
                 }
             }
         }

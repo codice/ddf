@@ -19,8 +19,8 @@ import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.ws.security.WSSecurityException;
-import org.apache.ws.security.saml.ext.AssertionWrapper;
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.wss4j.common.saml.SamlAssertionWrapper;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -31,6 +31,8 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,7 +97,26 @@ public class SAMLAssertionHandlerTest {
     private Document readDocument(String name) throws SAXException, IOException,
       ParserConfigurationException {
         InputStream inStream = getClass().getResourceAsStream(name);
-        return DOMUtils.readXml(inStream);
+        return readXml(inStream);
+    }
+
+    public static Document readXml(InputStream is) throws SAXException, IOException, ParserConfigurationException {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        dbf.setValidating(false);
+        dbf.setIgnoringComments(false);
+        dbf.setIgnoringElementContentWhitespace(true);
+        dbf.setNamespaceAware(true);
+        // dbf.setCoalescing(true);
+        // dbf.setExpandEntityReferences(true);
+
+        DocumentBuilder db = null;
+        db = dbf.newDocumentBuilder();
+        db.setEntityResolver(new DOMUtils.NullResolver());
+
+        // db.setErrorHandler( new MyErrorHandler());
+
+        return db.parse(is);
     }
 
     /**
@@ -106,7 +127,7 @@ public class SAMLAssertionHandlerTest {
      * @throws WSSecurityException
      */
     private String encodeSaml(org.w3c.dom.Element token) throws WSSecurityException {
-        AssertionWrapper assertion = new AssertionWrapper(token);
+        SamlAssertionWrapper assertion = new SamlAssertionWrapper(token);
         String samlStr = assertion.assertionToString();
         DeflateEncoderDecoder deflateEncoderDecoder = new DeflateEncoderDecoder();
         byte[] deflatedToken = deflateEncoderDecoder.deflateToken(samlStr.getBytes());
