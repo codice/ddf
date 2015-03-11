@@ -28,6 +28,7 @@ require.config({
         backbone: 'lib/components-backbone/backbone-min',
         backboneassociations: 'lib/backbone-associations/backbone-associations-min',
         backbonecometd: 'lib/backbone-cometd/backbone.cometd.extension',
+        backboneundo: 'lib/Backbone.Undo.js/Backbone.Undo',
         poller: 'lib/backbone-poller/backbone.poller',
         underscore: 'lib/lodash/dist/lodash.underscore.min',
         lodash: 'lib/lodash/dist/lodash.min',

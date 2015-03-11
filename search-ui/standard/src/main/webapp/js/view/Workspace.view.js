@@ -40,6 +40,7 @@ define([
         'js/view/MetacardDetail.view',
         'js/view/Search.view',
         // Load non attached libs and plugins
+        "backboneundo",
         'perfectscrollbar'
     ],
     function ($, _, Marionette, Workspace, Backbone, dir, ich, wreqr, moment, workspacePanel, workspaceList,
@@ -80,11 +81,11 @@ define([
                 this.collection.add(workspace);
 
                 this.collection.parents[0].save();
-                wreqr.vent.trigger('workspace:list', this.model, true);
+                wreqr.vent.trigger('workspace:list', this.model);
             },
             cancel: function() {
                 this.destroy();
-                wreqr.vent.trigger('workspace:list', this.model, false);
+                wreqr.vent.trigger('workspace:list', this.model);
             }
         });
 
@@ -167,6 +168,7 @@ define([
                 this.render();
             },
             editSearch: function() {
+                wreqr.vent.trigger('workspace:editcancel');
                 wreqr.vent.trigger('workspace:searchedit', dir.forward, this.model,
                         this.model.collection.indexOf(this.model));
             },
@@ -213,11 +215,13 @@ define([
             template: 'workspace',
             className: 'search-form',
             initialize: function() {
-                this.realModel = this.model;
-                this.model = this.realModel.clone();
                 this.listenTo(wreqr.vent, 'workspace:edit', this.editMode);
+                this.listenTo(wreqr.vent, 'workspace:editcancel', this.cancelMode);
                 this.listenTo(wreqr.vent, 'workspace:searcheditcancel', this.cancelMode);
                 this.listenTo(wreqr.vent, 'workspace:save', this.doneMode);
+
+                this.undoManager = new Backbone.UndoManager();
+                this.undoManager.register(this.model.get('searches'));
             },
             regions: {
                 workspaceSearchPanelRegion: '#workspaceSearchPanel'
@@ -239,15 +243,25 @@ define([
             },
             editMode: function() {
                 this.model.set('editing', true, {silent: true});
+                this.undoManager.startTracking();
+
                 this.render();
             },
             doneMode: function() {
+                this.undoManager.stopTracking();
+                this.undoManager.clear();
+
                 this.model.unset('editing', {silent: true});
-                this.realModel.set(this.model.attributes);
+
                 this.render();
             },
             cancelMode: function() {
-                this.model.set(this.realModel.attributes);
+                this.undoManager.undoAll();
+                this.undoManager.stopTracking();
+                this.undoManager.clear();
+
+                this.model.unset('editing', {silent: true});
+
                 this.render();
             }
         });
@@ -269,7 +283,10 @@ define([
                 this.listenTo(wreqr.vent, 'workspace:editall', this.editMode);
                 this.listenTo(wreqr.vent, 'workspace:saveall', this.doneMode);
                 this.listenTo(wreqr.vent, 'workspace:editcancel', this.cancelMode);
-                this.realModel = this.model.clone();
+
+                this.undoManager = new Backbone.UndoManager();
+                this.undoManager.register(this.model, this.model.collection);
+
                 if(this.model.get('searches')) {
                     var searches = this.model.get('searches');
                     searches.forEach(function(search) {
@@ -310,16 +327,23 @@ define([
                 return _.extend(this.model.toJSON(), {working: working, hits: hits, editing: this.editing});
             },
             editMode: function() {
+                 this.undoManager.startTracking();
+
                 this.editing = true;
                 this.render();
             },
             doneMode: function() {
-                this.realModel.set(this.model.attributes);
+                this.undoManager.stopTracking();
+                this.undoManager.clear();
+
                 this.editing = false;
                 this.render();
             },
             cancelMode: function() {
-                this.model.set(this.realModel.attributes);
+                this.undoManager.undoAll();
+                this.undoManager.stopTracking();
+                this.undoManager.clear();
+
                 this.editing = false;
                 this.render();
             },
@@ -368,14 +392,14 @@ define([
             initialize: function() {
                 _.bindAll(this);
 
-                this.realModel = this.model;
-                this.model = this.realModel.clone();
-
                 this.listenTo(wreqr.vent, 'workspace:tabshown', this.setupEvents);
                 this.listenTo(wreqr.vent, 'workspace:save', this.workspaceSave);
+                this.listenTo(wreqr.vent, 'workspace:editall', this.editWorkspaceList);
                 this.listenTo(wreqr.vent, 'workspace:saveall', this.workspaceSave);
-                this.listenTo(wreqr.vent, 'workspace:editcancel', this.cancelEditWorkspaceList);
                 this.listenTo(wreqr.vent, 'workspace:searcheditcancel', this.workspaceCancelEdit);
+
+                this.undoManager = new Backbone.UndoManager();
+                this.undoManager.register(this.model.get('workspaces'));
             },
 
             setupEvents: function(tabHash) {
@@ -386,6 +410,13 @@ define([
                     if(this.currentSearch) {
                         this.updateMapPrimitive();
                     }
+                }
+
+                _.each(this.model.get('workspaces').models, function(workspace) {
+                    workspace.unset('editing', {silent: true});
+                });
+                if(this.model.get('editingList')) {
+                    this.cancelEditWorkspaceList();
                 }
 
                 if(tabHash === '#workspaces') {
@@ -399,9 +430,6 @@ define([
                     this.listenTo(wreqr.vent, 'workspace:cancel', this.workspaceCancelAdd);
                     this.listenTo(wreqr.vent, 'workspace:saveresults', this.saveResultsToWorkspace);
                     this.listenTo(wreqr.vent, 'workspace:resultssavecancel', this.cancelResultsToWorkspace);
-                    if(this.workspaceRegion.currentView && this.workspaceRegion.currentView.realModel) {
-                        this.workspaceRegion.currentView.model.set(this.workspaceRegion.currentView.realModel.attributes);
-                    }
                     this.workspaceRegion.show(undefined, dir.none);
                 } else {
                     this.stopListening(wreqr.vent, 'workspace:show');
@@ -427,7 +455,6 @@ define([
             },
 
             workspaceCancelAdd: function(model) {
-                this.model.set(this.realModel.attributes);
                 if(model && !model.get('name')) {
                     if(this.currentWorkspace) {
                         this.currentWorkspace.get('searches').remove(model);
@@ -451,7 +478,10 @@ define([
                         return view.currentWorkspace;
                     });
                 }
-                this.realModel.set(this.model.attributes);
+                this.undoManager.stopTracking();
+                this.undoManager.clear();
+                this.model.unset('editingList', {silent: true});
+
                 this.model.save();
             },
             workspaceCancelEdit: function() {
@@ -468,8 +498,18 @@ define([
                 this.workspaces.remove(workspace);
             },
 
+            editWorkspaceList: function() {
+                this.undoManager.startTracking();
+                this.model.set('editingList', true, {silent: true});
+            },
+
             cancelEditWorkspaceList: function() {
-                this.showWorkspaceList(dir.backward, false);
+                this.undoManager.undoAll();
+                this.undoManager.stopTracking();
+                this.undoManager.clear();
+                this.model.unset('editingList', {silent: true});
+
+                this.showWorkspaceList(dir.backward);
             },
 
             showWorkspace: function(direction, model) {
@@ -479,12 +519,7 @@ define([
                 this.workspaceRegion.show(new WorkspaceView.Workspace({model: this.currentWorkspace}), direction);
             },
 
-            showWorkspaceList: function(direction, updated) {
-                if(updated) {
-                    this.realModel.set(this.model.attributes);
-                } else {
-                     this.model.set(this.realModel.attributes);
-               }
+            showWorkspaceList: function(direction) {
                 this.workspaceRegion.show(new WorkspaceView.WorkspaceList({collection: this.model.get('workspaces')}), direction);
             },
 

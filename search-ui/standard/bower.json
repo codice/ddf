@@ -6,6 +6,7 @@
     "backbone-poller": "0.2.8",
     "backbone-associations": "v0.6.2",
     "backbone.modelbinder": "v1.0.5",
+    "Backbone.Undo.js": "osartun/Backbone.Undo.js#cb50f8da0968b699b8507bcd3b9254c7a3e2c2b5",
     "bootswatch": "v3.2.0",
     "cesiumjs": "v1.2.0",
     "components-backbone": "1.1.0",
@@ -40,6 +41,7 @@
     "spectrum": "1.6.0"
   },
   "resolutions": {
-    "jquery": "1.11.0"
+    "jquery": "1.11.0",
+    "underscore": "1.8.2"
   }
 }
