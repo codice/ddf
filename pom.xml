@@ -40,7 +40,7 @@
         <xerces.version>2.11.0</xerces.version>
         <saxon.version>9.6.0-4</saxon.version>
         <karaf.version>2.3.8</karaf.version>
-        <camel.version>2.12.1</camel.version>
+        <camel.version>2.14.2</camel.version>
         <cxf.version>3.0.4</cxf.version>
     </properties>
 
