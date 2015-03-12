@@ -187,7 +187,7 @@
         <cxf.dom4j.bundle.version>1.6.1_5</cxf.dom4j.bundle.version>
         <cxf.jdom.bundle.version>1.1_4</cxf.jdom.bundle.version>
         <cxf.olingo.version>1.2.0</cxf.olingo.version>
-        <cxf.tika.version>1.6</cxf.tika.version>
+        <cxf.tika.version>1.7</cxf.tika.version>
         <cxf.jexl.version>2.1.1</cxf.jexl.version>
         <!-- End apache-cxf-3.0.4-src/parent/pom.xml-->
 
