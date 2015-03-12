@@ -66,41 +66,6 @@
 					<configuration>
 						<instructions>
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-							<Import-Package>
-								ddf.catalog,
-								javax.xml.transform,
-								javax.xml.transform.dom, 
-								javax.xml.validation,
-								org.osgi.framework, 
-								org.osgi.service.blueprint,
-								org.w3c.dom,
-								org.xml.sax,
-								net.sf.saxon,
-								net.sf.saxon.charcode,
-								net.sf.saxon.codenorm,
-								net.sf.saxon.event,
-								net.sf.saxon.evpull,
-								net.sf.saxon.expr,
-								net.sf.saxon.exslt,
-								net.sf.saxon.functions,
-								net.sf.saxon.instruct,
-								net.sf.saxon.java,
-								net.sf.saxon.number,
-								net.sf.saxon.om,
-								net.sf.saxon.pattern,
-								net.sf.saxon.pull,
-								net.sf.saxon.query,
-								net.sf.saxon.regex,
-								net.sf.saxon.sort,
-								net.sf.saxon.style,
-								net.sf.saxon.sxpath,
-								net.sf.saxon.tinytree,
-								net.sf.saxon.trace,
-								net.sf.saxon.trans,
-								net.sf.saxon.tree,
-								net.sf.saxon.type,
-								net.sf.saxon.value,*
-							</Import-Package>
 							<Export-Package>
 							ddf.services.schematron;version=${project.version}
 							</Export-Package>
