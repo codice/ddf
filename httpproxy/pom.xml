@@ -32,8 +32,8 @@
         <org.slf4j.version>1.7.1</org.slf4j.version>
 
         <!-- Karaf-defined Properties -->
-        <karaf.version>2.3.3</karaf.version>
-        <camel.version>2.12.1</camel.version>
+        <karaf.version>2.3.8</karaf.version>
+        <camel.version>2.14.2</camel.version>
 
     </properties>
 
