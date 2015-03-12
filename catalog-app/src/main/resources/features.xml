@@ -26,6 +26,7 @@
 <features name="${project.artifactId}-${project.version}">
     
     <feature name="catalog-core-api" install="manual" version="${project.version}" description="Catalog API interfaces and simple implementations.">
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.junit/4.11_2</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-api/${ddf.platform.app.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
