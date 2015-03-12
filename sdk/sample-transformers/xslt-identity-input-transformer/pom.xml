@@ -20,7 +20,7 @@
   </parent>
   
   <properties>
-    <camel.version>2.12.1</camel.version>
+    <camel.version>2.14.2</camel.version>
     <osgi.version>4.3.1</osgi.version>
   </properties>
   
