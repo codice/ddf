@@ -25,7 +25,7 @@
   <packaging>bundle</packaging>
   
   <properties>
-      <camel.version>2.12.1</camel.version>
+      <camel.version>2.14.2</camel.version>
   </properties>
   
   <dependencies>
