@@ -30,7 +30,7 @@ define([
             className: 'filter-view',
             events: {
                 'click .add-filter':'addFilterPressed',
-                'click .apply':'applyPressed',
+                'click .apply':'refreshSearch',
                 'click .filter-status': 'toggleFilterView'
             },
             regions: {
@@ -39,23 +39,19 @@ define([
                 geospatialRegion: '.geospatial-region'
             },
             initialize: function(){
-                var view = this;
                 if (!this.model.parents || this.model.parents.length === 0) {
                     return; // just quit.  This is an invalid state.
                 }
-                view.queryObject = this.model.parents[0];
+                this.queryObject = this.model.parents[0];
 
-                if(this.queryObject){
-                    view.collection = this.queryObject.filters;
+                if (this.queryObject) {
+                    this.collection = this.queryObject.filters;
                 } else {
                     return;  // lets just exit.
                 }
                 this.listenTo(wreqr.vent, 'toggleFilterMenu', this.toggleFilterVisibility);
                 this.listenTo(wreqr.vent, 'facetSelected', this.addFacet);
                 this.listenTo(wreqr.vent, 'facetDeSelected', this.removeFacet);
-                this.listenTo(wreqr.vent, 'facetFocused', this.focusFacet);
-                this.listenTo(wreqr.vent, 'geoUpdated', this.geoUpdated);
-                this.listenTo(wreqr.vent, 'anyFacetClicked', this.anyFacetClicked);
 
                 wreqr.vent.trigger('processSearch', this.model);
             },
@@ -65,18 +61,11 @@ define([
                 };
             },
 
-            anyFacetClicked: function(fieldName){
-                var view = this;
-                view.collection.removeAllFromGroupFilter(fieldName);
-                view.refreshSearch();
-            },
-
             onRender: function(){
-                var view = this;
                 var facetCounts = wreqr.reqres.request('getFacetCounts');
                 var fields = wreqr.reqres.request('getFields');
-                view.facetsRegion.show(new FacetCollectionView({model: view.model, facetCounts: facetCounts}));
-                view.filtersRegion.show(new FilterCollectionView({model: view.model, fields: fields}));
+                this.facetsRegion.show(new FacetCollectionView({model: this.model, facetCounts: facetCounts}));
+                this.filtersRegion.show(new FilterCollectionView({model: this.model, fields: fields}));
                 this.initShowFilter();
             },
             initShowFilter: function(){
@@ -86,18 +75,13 @@ define([
                 }
             },
             addFilterPressed: function(){
-                var view = this;
                 var fields = wreqr.reqres.request('getFields');
                 var initialSelection = _.first(fields);
-                view.collection.add(new Filter.Model({
+                this.collection.add(new Filter.Model({
                     fieldName: initialSelection.name,
                     fieldType: initialSelection.type,
                     fieldOperator: Properties.filters.OPERATIONS[initialSelection.type][0]
                 }));
-            },
-            applyPressed: function(){
-                var view = this;
-                view.refreshSearch();
             },
             toggleFilterVisibility: function(){
                 this.$el.toggleClass('active');
@@ -107,32 +91,41 @@ define([
                 wreqr.vent.trigger('toggleFilterMenu');
             },
             addFacet: function(facet){
-                var view = this;
-                view.collection.addValueToGroupFilter(facet.fieldName, facet.fieldValue);
-                view.refreshSearch();
+                this.collection.addValueToGroupFilter(facet.fieldName, facet.fieldValue);
             },
             removeFacet: function(facet){
-                var view = this;
-                view.collection.removeValueFromGroupFilter(facet.fieldName, facet.fieldValue);
-                view.refreshSearch();
-            },
-            focusFacet: function(facet){
-                var view = this;
-                view.collection.replaceGroupFilter(facet.fieldName, facet.fieldValue);
-                view.refreshSearch();
+                this.collection.removeValueFromGroupFilter(facet.fieldName, facet.fieldValue, facet.defaultValue);
             },
             refreshSearch: function(){
-                var view = this;
-                view.collection.trimUnfinishedFilters();
+                this.collection.trimUnfinishedFilters();
                 var progressFunction = function (value, model) {
                     model.mergeLatest();
                     wreqr.vent.trigger('map:clear');
                     wreqr.vent.trigger('map:results', model, false);
                 };
+
+                if (this.queryObject.get('result') && this.queryObject.get('result').get('status')) {
+                    var sourceModels = this.collection.where({fieldName: Properties.filters.SOURCE_ID});
+                    var sources = [];
+                    if (sourceModels.length > 0) {
+                        sources = sourceModels[0].get('stringValue1').split(',');
+                    } else {
+                        wreqr.reqres.request('workspace:getsources').each(function (src) {
+                            sources.push(src.get('id'));
+                        });
+                    }
+
+                    var status = _.reduce(sources, function (memo, src) {
+                        memo.push({
+                            'id': src,
+                            'state': 'ACTIVE'
+                        });
+                        return memo;
+                    }, []);
+                    this.queryObject.get('result').get('status').reset(status);
+                }
+
                 this.queryObject.startSearch(progressFunction);
-            },
-            geoUpdated: function(){
-                this.refreshSearch();
             }
         });
 

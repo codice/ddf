@@ -87,9 +87,6 @@ Title – The title of the record is displayed in blue text. Select the title of
 
 Source – The gray text displayed below the record title is the data source and the amount of time that has passed since the record was created.
 
-|image:refresh.png[Refresh]
-|Refreshes the list of results. The most relevant records continue to be displayed at the top of the results list. 
-
 |===
 
 === Enhanced Search

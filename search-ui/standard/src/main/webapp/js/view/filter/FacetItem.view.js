@@ -27,9 +27,7 @@ define([
             template: 'facetItemTemplate',
             tagName: 'div',
             events: {
-                'click .remove-facet': 'removeClicked',
-                'click .add-facet': 'addClicked',
-                'click .focus-facet': 'focusClicked',
+                'click .toggle-facet': 'toggleFacet',
                 'click .any-button':'anyButtonClicked',
                 'click .toggle-button':'toggleState'
             },
@@ -53,7 +51,14 @@ define([
                     state: this.stateModel.get('state') === 'any' ? 'specific' : 'any'
                 });
             },
-            removeClicked: function(evt){
+            toggleFacet: function(evt){
+                if (evt.target.checked) {
+                    this.addFacet(evt);
+                } else {
+                    this.removeFacet(evt);
+                }
+            },
+            removeFacet: function(evt){
                 var element = this.$(evt.currentTarget);
                 var valueCount = element.attr('data-value-count');
                 var fieldValue = element.attr('data-field-value');
@@ -67,7 +72,7 @@ define([
 
                 return false;
             },
-            addClicked: function(evt){
+            addFacet: function(evt){
 
                 var element = this.$(evt.currentTarget);
                 var valueCount = element.attr('data-value-count');
@@ -75,21 +80,6 @@ define([
                 var fieldName = element.attr('data-field-name');
 
                 wreqr.vent.trigger('facetSelected', {
-                    valueCount: valueCount,
-                    fieldValue: fieldValue,
-                    fieldName: fieldName
-                });
-
-                return false;
-            },
-
-            focusClicked: function(evt){
-                var element = this.$(evt.currentTarget);
-                var valueCount = element.attr('data-value-count');
-                var fieldValue = element.attr('data-field-value');
-                var fieldName = element.attr('data-field-name');
-
-                wreqr.vent.trigger('facetFocused', {
                     valueCount: valueCount,
                     fieldValue: fieldValue,
                     fieldName: fieldName

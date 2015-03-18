@@ -58,7 +58,7 @@ define([
             resultSelect: false,
 
             initialize: function() {
-                if (this.model.collection.parents[0] && this.model.collection.parents[0].get('selecting')) {
+                if (this.model.collection.parents && this.model.collection.parents[0] && this.model.collection.parents[0].get('selecting')) {
                     this.resultSelect = true;
                 }
                 this.listenTo(wreqr.vent, 'search:resultsselect', this.resultSelectMode);
@@ -181,32 +181,29 @@ define([
 
         List.StatusRow = Marionette.ItemView.extend({
             events: {
-                'click .hit-count-text':'hitCountClicked',
-                'click .remove':'removedClicked'
+                'click .source-toggle':'toggle'
             },
             tagName: 'tr',
             template: 'statusItemTemplate',
             modelEvents: {
                 "change": "render"
             },
-            hitCountClicked: function(){
-
-                var valueCount = this.model.get('hit-count');
-                var fieldValue = this.model.get('id');
-                var fieldName = 'source-id';
-
-                wreqr.vent.trigger('facetFocused', {
-                    valueCount: valueCount,
-                    fieldValue: fieldValue,
-                    fieldName: fieldName
-                });
-
-            },
-            removedClicked: function(){
-                wreqr.vent.trigger('facetDeSelected', {
-                    fieldName: properties.filters.SOURCE_ID,
-                    fieldValue: this.model.get('id')
-                });
+            toggle: function(e){
+                if (e.target.checked) {
+                    wreqr.vent.trigger('facetSelected', {
+                        fieldName: properties.filters.SOURCE_ID,
+                        fieldValue: this.model.get('id')
+                    });
+                } else {
+                    wreqr.vent.trigger('facetDeSelected', {
+                        fieldName: properties.filters.SOURCE_ID,
+                        fieldValue: this.model.get('id'),
+                        defaultValue: _.reduce(wreqr.reqres.request('workspace:getsources').models, function (memo, src) {
+                            memo.push(src.get('id'));
+                            return memo;
+                        } ,[]).join(',')
+                    });
+                }
             }
         });
     
@@ -216,13 +213,11 @@ define([
             childViewContainer: '.included tbody',
             events: {
                 'click #status-icon': 'toggleStatus',
-                'click #refresh-icon': 'refreshResults',
                 'click .add': 'addSourceClicked'
             },
-            initialize: function() {
-                if (this.collection) {
-                    this.listenTo(this.collection, 'change', this.setRefreshIcon);
-                }
+            collectionEvents: {
+                "change": "render",
+                "reset": "render"
             },
             serializeData: function(){
                 var includedSourceIds = this.collection.pluck('id');
@@ -241,40 +236,13 @@ define([
             },
             initFromFilter: function(){
                 var showFilter = wreqr.reqres.request('getShowFilterFlag');
-                if(showFilter){
+                if (showFilter) {
                     this.toggleStatus();  // this should enable it.
                     wreqr.vent.trigger('toggleFilterMenu', true);
                 }
             },
-            refreshResults: function() {
-                if (!this.isSearchRunning()) {
-                    this.collection.parents[0].parents[0].startSearch();
-                }
-            },
-            toggleFilter: function(){
-                wreqr.vent.trigger('toggleFilterMenu');
-            },
             onRender: function() {
-                this.setRefreshIcon();
                 this.initFromFilter();
-            },
-            setRefreshIcon: function() {
-                if (this.isSearchRunning()) {
-                    this.$('#refresh-icon').removeClass('fa-refresh');
-                    this.$('#refresh-icon').addClass('fa-circle-o-notch fa-spin');
-                } else {
-                    this.$('#refresh-icon').removeClass('fa-circle-o-notch fa-spin');
-                    this.$('#refresh-icon').addClass('fa-refresh');
-                }
-            },
-            isSearchRunning: function() {
-                var working = false;
-                this.collection.forEach(function (source) {
-                    if (source.get('state') === "ACTIVE") {
-                        working = true;
-                    }
-                });
-                return working;
             },
             addSourceClicked: function(evt){
                 var sourceIdToAdd = this.$(evt.currentTarget).attr('data-source-id');
@@ -329,12 +297,10 @@ define([
                     collection: view.model.get("results")
                 }));
                 if (view.model.get("status")) {
-                    wreqr.reqres.request('getSourcePromise').then(function (sources) {
-                        view.statusRegion.show(new List.StatusTable({
-                            collection: view.model.get("status"),
-                            sources: sources
-                        }));
-                    }).done();
+                    view.statusRegion.show(new List.StatusTable({
+                        collection: view.model.get("status"),
+                        sources: wreqr.reqres.request('workspace:getsources')
+                    }));
                 }
                 view.countRegion.show(new List.CountView({
                     model: view.model

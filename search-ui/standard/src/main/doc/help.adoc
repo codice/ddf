@@ -111,9 +111,6 @@ more details.
 Source – The gray text displayed below the record title is the data source (e.g., ddf.distribution)
 and the amount of time that has passed since the record was created (e.g., an hour ago).
 
-Refresh button	Refreshes the list of results. The most relevant records continue to be displayed
-at the top of the results list.
-
 |===
 
 image:results-list.png[Search results]

@@ -151,7 +151,7 @@ define([
             this.remove(existingFilters);
         },
 
-        removeValueFromGroupFilter: function(fieldName, value){
+        removeValueFromGroupFilter: function(fieldName, value, defaultValue){
             var existingFilters = this.where({fieldName: fieldName});
             var groupedFilterValues = [];
             _.each(existingFilters, function(existingFilter){
@@ -166,11 +166,15 @@ define([
                 }
             });
             this.remove(existingFilters);
+            var fieldValue = groupedFilterValues.join(',');
+            if (fieldValue === '' && defaultValue) {
+                fieldValue = defaultValue;
+            }
             this.add(new Filter.Model({
                 fieldName: fieldName,
                 fieldType: 'string',
                 fieldOperator: 'contains',
-                stringValue1: groupedFilterValues.join(',')
+                stringValue1: fieldValue
             }));
         },
 
