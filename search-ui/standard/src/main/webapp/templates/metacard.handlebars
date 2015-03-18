@@ -83,9 +83,17 @@
 
 
                             <li class="attribute" title="Location">
+                            <span class="attribute-label muted"><i class='fa fa-compass fa-2x'></i></span>
                             {{#isNotBlank geometry}}
-                                <span class="attribute-label muted"><i class='fa fa-compass fa-2x'></i></span>
-                                <span class="attribute-value">{{#if mapAvailable}}<a href="#" class="location-link">Locate</a>{{else}}<a href="/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=kml" target="_blank">KML</a>{{/if}}</span>
+                                <span class="attribute-value">
+                                    {{#if mapAvailable}}
+                                        <a href="#" class="location-link">Locate</a>
+                                    {{else}}
+                                        <a href="/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=kml" target="_blank">KML</a>
+                                    {{/if}}
+                                </span>
+                            {{else}}
+                                <span class="attribute-value">Unknown</span>
                             {{/isNotBlank}}
                             </li>
 
