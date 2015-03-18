@@ -129,7 +129,6 @@
                             org.apache.cxf.sts.token.renewer;version=${cxf.version},
                             org.apache.cxf.sts.token.validator;version=${cxf.version},
                             org.codice.ddf.security.common;version=${project.version},
-                            org.springframework.ldap.core,
                             ddf.security.sts;version=${project.version}
                         </Export-Package>
                     </instructions>
