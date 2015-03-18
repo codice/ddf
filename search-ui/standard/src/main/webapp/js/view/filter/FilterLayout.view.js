@@ -94,7 +94,7 @@ define([
                 this.collection.addValueToGroupFilter(facet.fieldName, facet.fieldValue);
             },
             removeFacet: function(facet){
-                this.collection.removeValueFromGroupFilter(facet.fieldName, facet.fieldValue, facet.defaultValue);
+                this.collection.removeValueFromGroupFilter(facet.fieldName, facet.fieldValue);
             },
             refreshSearch: function(){
                 this.collection.trimUnfinishedFilters();
@@ -106,23 +106,17 @@ define([
 
                 if (this.queryObject.get('result') && this.queryObject.get('result').get('status')) {
                     var sourceModels = this.collection.where({fieldName: Properties.filters.SOURCE_ID});
-                    var sources = [];
                     if (sourceModels.length > 0) {
-                        sources = sourceModels[0].get('stringValue1').split(',');
-                    } else {
-                        wreqr.reqres.request('workspace:getsources').each(function (src) {
-                            sources.push(src.get('id'));
-                        });
+                        var sources = sourceModels[0].get('stringValue1').split(',');
+                        var status = _.reduce(sources, function (memo, src) {
+                            memo.push({
+                                'id': src,
+                                'state': 'ACTIVE'
+                            });
+                            return memo;
+                        }, []);
+                        this.queryObject.get('result').get('status').reset(status);
                     }
-
-                    var status = _.reduce(sources, function (memo, src) {
-                        memo.push({
-                            'id': src,
-                            'state': 'ACTIVE'
-                        });
-                        return memo;
-                    }, []);
-                    this.queryObject.get('result').get('status').reset(status);
                 }
 
                 this.queryObject.startSearch(progressFunction);

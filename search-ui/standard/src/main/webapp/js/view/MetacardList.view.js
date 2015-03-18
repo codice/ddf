@@ -14,6 +14,7 @@
 define([
         'marionette',
         'backbone',
+        'jquery',
         'underscore',
         'icanhaz',
         'direction',
@@ -29,7 +30,7 @@ define([
         'text!templates/resultlist/status.handlebars',
         'properties'
     ],
-    function (Marionette, Backbone, _, ich, dir, Spinner, spinnerConfig, wreqr, FilterLayoutView,resultListItemTemplate, resultListTemplate, countLowTemplate, countHighTemplate, statusItemTemplate, statusTemplate, properties) {
+    function (Marionette, Backbone, $, _, ich, dir, Spinner, spinnerConfig, wreqr, FilterLayoutView,resultListItemTemplate, resultListTemplate, countLowTemplate, countHighTemplate, statusItemTemplate, statusTemplate, properties) {
         "use strict";
 
         var List = {};
@@ -38,6 +39,24 @@ define([
           var error = new Error(message);
           error.name = name || 'Error';
           throw error;
+        }
+
+        function toggleSourceCheckbox(evt, sourceId) {
+            if ($('.source-toggle:checked, .excluded-source-toggle:checked').length < 1) {
+                return evt.preventDefault();
+            }
+
+            if (evt.target.checked) {
+                wreqr.vent.trigger('facetSelected', {
+                    fieldName: properties.filters.SOURCE_ID,
+                    fieldValue: sourceId
+                });
+            } else {
+                wreqr.vent.trigger('facetDeSelected', {
+                    fieldName: properties.filters.SOURCE_ID,
+                    fieldValue: sourceId
+                });
+            }
         }
 
         ich.addTemplate('resultListItem', resultListItemTemplate);
@@ -181,29 +200,15 @@ define([
 
         List.StatusRow = Marionette.ItemView.extend({
             events: {
-                'click .source-toggle':'toggle'
+                'click .source-toggle':'toggleSource'
             },
             tagName: 'tr',
             template: 'statusItemTemplate',
             modelEvents: {
                 "change": "render"
             },
-            toggle: function(e){
-                if (e.target.checked) {
-                    wreqr.vent.trigger('facetSelected', {
-                        fieldName: properties.filters.SOURCE_ID,
-                        fieldValue: this.model.get('id')
-                    });
-                } else {
-                    wreqr.vent.trigger('facetDeSelected', {
-                        fieldName: properties.filters.SOURCE_ID,
-                        fieldValue: this.model.get('id'),
-                        defaultValue: _.reduce(wreqr.reqres.request('workspace:getsources').models, function (memo, src) {
-                            memo.push(src.get('id'));
-                            return memo;
-                        } ,[]).join(',')
-                    });
-                }
+            toggleSource: function(e){
+                toggleSourceCheckbox(e, this.model.get('id'));
             }
         });
     
@@ -213,7 +218,7 @@ define([
             childViewContainer: '.included tbody',
             events: {
                 'click #status-icon': 'toggleStatus',
-                'click .add': 'addSourceClicked'
+                'click .excluded-source-toggle': 'toggleSource'
             },
             collectionEvents: {
                 "change": "render",
@@ -244,12 +249,8 @@ define([
             onRender: function() {
                 this.initFromFilter();
             },
-            addSourceClicked: function(evt){
-                var sourceIdToAdd = this.$(evt.currentTarget).attr('data-source-id');
-                wreqr.vent.trigger('facetSelected', {
-                    fieldName: properties.filters.SOURCE_ID,
-                    fieldValue: sourceIdToAdd
-                });
+            toggleSource: function(e){
+                toggleSourceCheckbox(e, this.$(e.currentTarget).attr('data-source-id'));
             }
         });
     
