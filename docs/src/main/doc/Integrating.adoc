@@ -1,15 +1,15 @@
 = Integrating {branding}
-include::../includes/config.adoc[]
+include::../classes/config.adoc[]
 
 == Overview
-Distributed Data Framework (DDF) is an agile and modular integration framework.  It is primarily focused on data integration, enabling clients to insert, query and transform information from disparate data sources via the DDF Catalog. A Catalog API allows integrators to insert new capabilities at various stages throughout each operation.  DDF is designed with the following architectural qualities to benefit integrators.
+Distributed Data Framework ({branding}) is an agile and modular integration framework.  It is primarily focused on data integration, enabling clients to insert, query and transform information from disparate data sources via the {branding} Catalog. A Catalog API allows integrators to insert new capabilities at various stages throughout each operation.  {branding} is designed with the following architectural qualities to benefit integrators.
 
 This page supports integrating {branding} with existing applications or frameworks. 
 
 == Using the CometD Endpoint for Asynchronous Communication
 
 === CometD Basics
-DDF uses the CometD framework (http://cometd.org/) to perform asynchronous operations on the catalog. This is most apparent in the UI application, which is able to perform multiple queries and display them asynchronously as the results are returned. CometD has a comprehensive manual (http://docs.cometd.org/2/reference/) that details how to interact with and best use the framework with a variety of clients (e.g., javascript, java, perl, and python). This page is used to help developers understand how the UI application uses CometD, so the developer can build off of this same interface with their own implementations.
+{branding} uses the CometD framework (http://cometd.org/) to perform asynchronous operations on the catalog. This is most apparent in the UI application, which is able to perform multiple queries and display them asynchronously as the results are returned. CometD has a comprehensive manual (http://docs.cometd.org/2/reference/) that details how to interact with and best use the framework with a variety of clients (e.g., javascript, java, perl, and python). This page is used to help developers understand how the UI application uses CometD, so the developer can build off of this same interface with their own implementations.
 
 ==== General Operations
 
@@ -19,7 +19,7 @@ To initialize the CometD connection, an instance of CometD must be created and c
  
 [WARNING]
 ====
-The DDF CometD endpoint is exposed at /cometd, and it is recommended to not use websockets when connecting.
+The {branding} CometD endpoint is exposed at /cometd, and it is recommended to not use websockets when connecting.
 ====
 
 .Example Initialization with JQuery
@@ -70,7 +70,7 @@ Cometd.Comet.publish('/service/query', { data: { ... } });
 Futher documentation is available at http://docs.cometd.org/2/reference/javascript_publish.html.
 ====
 
-=== DDF Specifics
+=== {branding} Specifics
 
 [IMPORTANT]
 ====

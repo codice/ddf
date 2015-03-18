@@ -1,9 +1,9 @@
 = Quick Start
-include::../includes/config.adoc[]
+include::../classes/config.adoc[]
 
 == Overview
 
-Distributed Data Framework (DDF) is an agile and modular integration framework.  It is primarily focused on data integration, enabling clients to insert, query and transform information from disparate data sources via the DDF Catalog. A Catalog API allows integrators to insert new capabilities at various stages throughout each operation.  DDF is designed with the following architectural qualities to benefit integrators.
+Distributed Data Framework ({branding}) is an agile and modular integration framework.  It is primarily focused on data integration, enabling clients to insert, query and transform information from disparate data sources via the {branding} Catalog. A Catalog API allows integrators to insert new capabilities at various stages throughout each operation.  {branding} is designed with the following architectural qualities to benefit integrators.
 
 == Quick Start
 This quick tutorial will demonstrate:
@@ -16,10 +16,10 @@ This quick tutorial will demonstrate:
 === Prerequisites
 Review link:prerequisites.html[Prerequisites] to ensure all system prerequisites are met.
 
-=== Install DDF
+=== Install {branding}
 
-. Install DDF by unzipping the zip file. This will create an installation directory, which is typically created with the name and version of the application. This installation directory will be referred to as `<DISTRIBUTION_INSTALL_DIR>`. Substitute the actual directory name in place of this.
-. Start DDF by running the `<DISTRIBUTION_INSTALL_DIR>/bin/ddf` script (or `ddf.bat` on Windows).
+. Install {branding} by unzipping the zip file. This will create an installation directory, which is typically created with the name and version of the application. This installation directory will be referred to as `<DISTRIBUTION_INSTALL_DIR>`. Substitute the actual directory name in place of this.
+. Start {branding} by running the `<DISTRIBUTION_INSTALL_DIR>/bin/ddf` script (or `ddf.bat` on Windows).
 . Verify the distribution is running.
 . Go to https://localhost:8993/admin.
 . Enter the default username of "admin" (no quotes) and the password of "admin" (no quotes).

@@ -1,4 +1,4 @@
-Copyright (c) Codice Foundation
+Version ${version}. Copyright (c) Codice Foundation
 :imagesdir: images
 :toc: right
 :branding: DDF

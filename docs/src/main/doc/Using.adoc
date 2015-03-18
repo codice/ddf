@@ -1,19 +1,19 @@
 = Using {branding}
-include::../includes/config.adoc[]
+include::../classes/config.adoc[]
 
 == Overview
-Distributed Data Framework (DDF) is an agile and modular integration framework.  It is primarily focused on data integration, enabling clients to insert, query and transform information from disparate data sources via the DDF Catalog. A Catalog API allows integrators to insert new capabilities at various stages throughout each operation.  DDF is designed with the following architectural qualities to benefit integrators.
+Distributed Data Framework ({branding}) is an agile and modular integration framework.  It is primarily focused on data integration, enabling clients to insert, query and transform information from disparate data sources via the {branding} Catalog. A Catalog API allows integrators to insert new capabilities at various stages throughout each operation.  {branding} is designed with the following architectural qualities to benefit integrators.
 
 == Understanding Metadata and Metacards
-Metadata is information about a resource, organized into a schema to make it possible to search against. The DDF Catalog stores this metadata and allows access to it. If desired, the DDF Content application can be installed to store the resources themselves. Metacards are single instances of metadata, representing a single record, in the Metadata Catalog (MDC). Metacards follow one of several schemas to ensure reliable, accurate, and complee metadata. Essentially, Metacards function as containers of metadata.
+Metadata is information about a resource, organized into a schema to make it possible to search against. The {branding} Catalog stores this metadata and allows access to it. If desired, the {branding} Content application can be installed to store the resources themselves. Metacards are single instances of metadata, representing a single record, in the Metadata Catalog (MDC). Metacards follow one of several schemas to ensure reliable, accurate, and complee metadata. Essentially, Metacards function as containers of metadata.
 
 == Populating Metacards (during ingest)
 Upon ingest, a metacard transformer will read the data from the ingested file and populate the fields of the metacard. Exactly how this is accomplished depends on the origin of the data, but most fields (except id) are imported directly.
 
 == Searching Metadata
 
-DDF provides the capability to search the Metadata Catalog (MDC) for metadata. There are a number of different types of searches that can be performed on the MDC, and these searches are accessed using one of several interfaces.
-This section provides are very high level overview of introductory concepts of searching with DDF. These concepts are expanded upon in later sections.
+{branding} provides the capability to search the Metadata Catalog (MDC) for metadata. There are a number of different types of searches that can be performed on the MDC, and these searches are accessed using one of several interfaces.
+This section provides are very high level overview of introductory concepts of searching with {branding}. These concepts are expanded upon in later sections.
 
 === Search Types
 There are four basic types of metadata search. Additionally, any of the types can be combined to create a compound search.
@@ -35,15 +35,15 @@ These search types may be combined to create Compound searches. For example, a C
 
 === Search Interfaces
 
-==== DDF Search UI Application
-The DDF Search UI application provides a graphic interface to return results in HTML format and locate them on an interactive globe or map. For more details on using this application, go to DDF Search UI User's Guide.
+==== {branding} Search UI Application
+The {branding} Search UI application provides a graphic interface to return results in HTML format and locate them on an interactive globe or map. For more details on using this application, go to {branding} Search UI User's Guide.
 
 ==== SSH
-Additionally, it is possible to use a client script to remotely access DDF via SSH and send console commands to search and ingest data.
+Additionally, it is possible to use a client script to remotely access {branding} via SSH and send console commands to search and ingest data.
 
 == Catalog Search Result Objects
 Data is returned from searches as Catalog Search Result objects. This is a subtype of Catalog Entry that also contains additional data based on what type of sort policy was applied to the search.
-Because it is a subtype of Catalog Entry, a Catalog Search Result has all Catalog Entry’s fields such as metadata, effective time, and modified time. It also contains some of the following fields, depending on type of search, that are populated by DDF when the search occurs:
+Because it is a subtype of Catalog Entry, a Catalog Search Result has all Catalog Entry’s fields such as metadata, effective time, and modified time. It also contains some of the following fields, depending on type of search, that are populated by {branding} when the search occurs:
 
 * Distance: Populated when a point radius spatial search occurs. Numerical value that indicates the result’s distance from the center point of the search.
 * Units: Populated when a point radius spatial search occurs. Indicates the units (kilometer, mile, etc.) for the distance field.
@@ -62,7 +62,7 @@ Searching the catalog involves three basic steps:
 These steps are performed in the same basic order but using different classes depending on whether the Web services or Search UI interfaces are used.
 
 ==== Sort Policies
-Searches can also be sorted according to various built-in policies. A sort policy is applied to the search criteria after its creation but before the search is issued. The policy specifies to the DDF the order the MDC search results should be in when they are returned to the requesting client. Only one sort policy may be defined per search.
+Searches can also be sorted according to various built-in policies. A sort policy is applied to the search criteria after its creation but before the search is issued. The policy specifies to the {branding} the order the MDC search results should be in when they are returned to the requesting client. Only one sort policy may be defined per search.
 There are three policies available.
 
 [cols="4" options="header"]

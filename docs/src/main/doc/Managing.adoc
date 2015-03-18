@@ -1,5 +1,5 @@
 = Managing {branding}
-include::../includes/config.adoc[]
+include::../classes/config.adoc[]
 
 == Overview
 Distributed Data Framework ({branding}) is an agile and modular integration framework. It is primarily focused on data integration, enabling clients to insert, query and transform information from disparate data sources via the {branding} Catalog. A Catalog API allows integrators to insert new capabilities at various stages throughout each operation. {branding} is designed with the following architectural qualities to benefit integrators.
@@ -43,7 +43,7 @@ echo %JAVA_HOME%
 ----
 ====
 
-* DDF installation zip file.
+* {branding} installation zip file.
 * A web browser.
 * For Linux systems, increase the file descriptor limit by editing `/etc/sysctl.conf` to include or change the following: 
 
@@ -74,20 +74,20 @@ The Administration Web Console is not compatible with Internet Explorer.
 The *NIX commands listed next to the steps were performed on a default installation of Red Hat Enterprise Linux 5.4. Permission maintenance is not mentioned in this article, but all files should be owned by the running user, regardless of platform.
 ====
 
-.DDF Installation Types
+.{branding} Installation Types
 [NOTE]
 ====
-DDF can be installed using a single distribution zip file that contains all of the DDF applications already installed,
+{branding} can be installed using a single distribution zip file that contains all of the {branding} applications already installed,
 OR
-A custom DDF installation can be performed by using the DDF kernel distribution zip file then hot deploying the desired DDF apps into the running DDF kernel's <INSTALL_DIRECTORY>/deploy directory.
+A custom {branding} installation can be performed by using the {branding} kernel distribution zip file then hot deploying the desired {branding} apps into the running {branding} kernel's <INSTALL_DIRECTORY>/deploy directory.
 ====
 
 [IMPORTANT]
 ====
-Although DDF can be installed by any user, it is recommended for security reasons to have a non-root user execute the DDF installation.
+Although {branding} can be installed by any user, it is recommended for security reasons to have a non-root user execute the {branding} installation.
 ====
 
-=== Use the DDF Distribution Zip to Install
+=== Use the {branding} Distribution Zip to Install
 * After the prerequisites have been met, as a root user if for *NIX, change the current directory to the desired install location. This will be referred to as <INSTALL_DIRECTORY>.
 
 .*NIX Tip
@@ -109,7 +109,7 @@ su - ddf-user
 cd /home/user/cdrom
 ----
 
-.Windows (Example assumes DDF has been downloaded to the D drive)
+.Windows (Example assumes {branding} has been downloaded to the D drive)
 ----
 cd D:\
 ----
@@ -132,7 +132,7 @@ copy ddf-X.Y.zip <INSTALL_DIRECTORY>
 cd <INSTALL_DIRECTORY>
 ----
 
-* The DDF zip is now located within the `<INSTALL_DIRECTORY>`. Unzip ddf-X.Y.zip.
+* The {branding} zip is now located within the `<INSTALL_DIRECTORY>`. Unzip ddf-X.Y.zip.
 
 .*NIX
 ----
@@ -144,7 +144,7 @@ unzip ddf-X.Y.zip
 "C:\Program Files\Java\jdk1.7.0\bin\jar.exe" xf ddf-X.Y.zip
 ----
 
-* Run DDF using the appropriate script.
+* Run {branding} using the appropriate script.
 
 .*NIX
 ----
@@ -174,7 +174,7 @@ ddf@local>list
 ==== (Option 1/Preferred Method) Continue Setup and Installation Using the Installer Module of the Admin UI
 Installer Module.
 
-==== (Option 2/Part 1) Custom Installation Using the DDF Kernel Distribution Zip
+==== (Option 2/Part 1) Custom Installation Using the {branding} Kernel Distribution Zip
 * After the prerequisites have been met, as a root user if for *NIX, change the current directory to the desired install location. This will be referred to as `<INSTALL_DIRECTORY>`.
 
 [NOTE]
@@ -197,7 +197,7 @@ su - ddf-user
 cd /home/user/cdrom
 ----
 
-.Windows (Example Assumes DDF has been Downloaded to the D Drive)
+.Windows (Example Assumes {branding} has been Downloaded to the D Drive)
 ----
 cd D:\
 ----
@@ -221,7 +221,7 @@ copy ddf-kernel-X.Y.zip <INSTALL_DIRECTORY>
 cd <INSTALL_DIRECTORY>
 ----
 
-* The DDF kernel zip is now located within the `<INSTALL_DIRECTORY>`. Unzip `ddf-kernel-X.Y.zip`.
+* The {branding} kernel zip is now located within the `<INSTALL_DIRECTORY>`. Unzip `ddf-kernel-X.Y.zip`.
 
 .*NIX
 ----
@@ -233,7 +233,7 @@ unzip ddf-kernel-X.Y.zip
 "C:\Program Files\Java\jdk1.7.0\bin\jar.exe" xf ddf-kernel-X.Y.zip
 ----
 
-* If the DDF Standalone Solr Server will be installed later, an additional configuration step is required for the DDF kernel. Add the following lines to the bottom of the `<INSTALL_DIR>/etc/org.ops4j.pax.web.cfg` file:
+* If the {branding} Standalone Solr Server will be installed later, an additional configuration step is required for the {branding} kernel. Add the following lines to the bottom of the `<INSTALL_DIR>/etc/org.ops4j.pax.web.cfg` file:
 
 .Additional Configuration Step
 ----
@@ -241,7 +241,7 @@ unzip ddf-kernel-X.Y.zip
 org.ops4j.pax.web.config.file=${karaf.home}/etc/jetty.xml
 ----
 
-* Run the DDF kernel using the appropriate script.
+* Run the {branding} kernel using the appropriate script.
 
 .*NIX
 ----
@@ -266,41 +266,41 @@ ddf@local>list
 ----
 The list of bundles should look similar to this:
 
-.DDF Kernel List of Apps Installed
+.{branding} Kernel List of Apps Installed
 ----
 ddf@local>list
 START LEVEL 100 , List Threshold: 50
    ID   State         Blueprint      Spring    Level  Name
 [ 111] [Active     ] [            ] [       ] [   80] Commons IO (2.1.0)
-[ 112] [Resolved   ] [            ] [       ] [   80] DDF :: Distribution :: Web Console (2.3.0)
+[ 112] [Resolved   ] [            ] [       ] [   80] {branding} :: Distribution :: Web Console (2.3.0)
                                        Hosts: 76
-[ 113] [Active     ] [Created     ] [       ] [   80] DDF :: Distribution :: Console Branding Plugin (2.3.0)
+[ 113] [Active     ] [Created     ] [       ] [   80] {branding} :: Distribution :: Console Branding Plugin (2.3.0)
 ----
 
-* Verify that the following DDF kernel's features are installed by executing the `features:list` command and filtering for kernel distribution features:
+* Verify that the following {branding} kernel's features are installed by executing the `features:list` command and filtering for kernel distribution features:
 
-.DDF Kernel's Installed Features List
+.{branding} Kernel's Installed Features List
 ----
 ddf@local>features:list | grep kernel
 [uninstalled] [2.3.1-SNAPSHOT ] custom-karaf-bundles      kernel-2.3.1-SNAPSHOT Customized KARAF Bundles
-[installed  ] [2.3.1-SNAPSHOT ] kernel-webconsolebranding kernel-2.3.1-SNAPSHOT DDF Web Admin Console branding
+[installed  ] [2.3.1-SNAPSHOT ] kernel-webconsolebranding kernel-2.3.1-SNAPSHOT {branding} Web Admin Console branding
 ----
 
-.DDF Application Installation Dependencies
+.{branding} Application Installation Dependencies
 [WARNING]
 ====
-Please read the installation instructions carefully for each DDF application because some of the applications depend on other DDF applications having been previously installed.
+Please read the installation instructions carefully for each {branding} application because some of the applications depend on other {branding} applications having been previously installed.
 
-The order the DDF applications are listed below is the recommended order of installation. Each application must be active before installing the next application is installed. The app:list console command can be used to verify the state of each app as it is installed.
+The order the {branding} applications are listed below is the recommended order of installation. Each application must be active before installing the next application is installed. The app:list console command can be used to verify the state of each app as it is installed.
 ====
 
-* Install the DDF Platform application by following the Platform Application Installation instructions.
-* Install any optional DDF applications that may be needed for the desired DDF configuration.
-** DDF Catalog Application Installation instructions
-** DDF Security Application Installation instructions
-** DDF Content Application Installation instructions
-** DDF Spatial Application Installation instructions
-** DDF Solr Catalog Application Installation instructions are included in each of the Solr Catalog configurations. Refer to the appropriate section for the desired Solr Catalog Provider configuration's installation instructions.
+* Install the Platform application by following the Platform Application Installation instructions.
+* Install any optional applications that may be needed for the desired configuration.
+** Catalog Application Installation instructions
+** Security Application Installation instructions
+** Content Application Installation instructions
+** Spatial Application Installation instructions
+** Solr Catalog Application Installation instructions are included in each of the Solr Catalog configurations. Refer to the appropriate section for the desired Solr Catalog Provider configuration's installation instructions.
 *** Embedded Solr Catalog Provider
 *** External Solr Catalog Provider
 *** Standalone Solr Server
@@ -312,18 +312,18 @@ The order the DDF applications are listed below is the recommended order of inst
 .. Select Platform Global Configuration.  
 ... In the Host field, enter the IP address or hostname of the installation.  
 ... In the Port field, enter 8181. The port can be changed later, if necessary.
-... Enter the site name (e.g., the name DDF will return in federation and web service responses).
+... Enter the site name (e.g., the name {branding} will return in federation and web service responses).
 ... Select the Save button.
 .. Select Catalog Sorted Federation Strategy.  
 ... In the Maximum start index field, enter the maximum query offset number or keep the default setting. Refer to Standard Catalog Framework for additional information.
 ... Select the Save button.
 
 ==== Verification
-At this point, DDF should be configured and running with a Solr Catalog Provider. New features (endpoints, services, and sites) can be added as needed.
+At this point, {branding} should be configured and running with a Solr Catalog Provider. New features (endpoints, services, and sites) can be added as needed.
 
-Verification is achieved by checking that all of the DDF bundles are in an Active state (excluding fragment bundles which remain in a Resolved state).
+Verification is achieved by checking that all of the {branding} bundles are in an Active state (excluding fragment bundles which remain in a Resolved state).
 
-The following command displays the status of all the DDF bundles:
+The following command displays the status of all the {branding} bundles:
 
 .View Status
 ----
@@ -331,22 +331,22 @@ ddf@local>list | grep -i ddf
 ----
 [WARNING]
 ====
-If displayed, the *DDF :: Distribution :: Web Console* entry should be in the *Resolved* state. This is expected. The DDF Distribution Web Console is an OSGi bundle fragment. Bundle fragments are distinguished from other bundles in the command line console list by a new line under the its bundle status that states `Hosts`, followed by a bundle number. Bundle fragments remain in the *Resolved* state and can never move to the *Active* state.
+If displayed, the *{branding} :: Distribution :: Web Console* entry should be in the *Resolved* state. This is expected. The {branding} Distribution Web Console is an OSGi bundle fragment. Bundle fragments are distinguished from other bundles in the command line console list by a new line under the its bundle status that states `Hosts`, followed by a bundle number. Bundle fragments remain in the *Resolved* state and can never move to the *Active* state.
 ====
 
 .Example: Bundle Fragment in the Command Line Console
 ----
-[ 261] [Resolved   ] [            ] [       ] [   80] DDF :: Distribution :: Web Console (2.2.0)
+[ 261] [Resolved   ] [            ] [       ] [   80] {branding} :: Distribution :: Web Console (2.2.0)
                                        Hosts: 76
 ----
 [NOTE]
 ====
-For a complete list of installed features/bundles see the DDF Included Features document.
+For a complete list of installed features/bundles see the {branding} Included Features document.
 ====
 
-=== DDF Directory Contents after Installation
+=== {branding} Directory Contents after Installation
 
-During DDF installation, the major directories shown in the table below are created, modified, or replaced in the destination directory.
+During {branding} installation, the major directories shown in the table below are created, modified, or replaced in the destination directory.
 
 [cols="1,8"]
 |===
@@ -355,42 +355,42 @@ During DDF installation, the major directories shown in the table below are crea
 |Description
 
 |bin
-|Scripts to start and stop DDF
+|Scripts to start and stop {branding}
 
 |data	
 |The working directory of the system – installed bundles and their data
 
 |data/log/ddf.log
-|Log file for DDF, logging all errors, warnings, and (optionally) debug statements. This log rolls up to 10 times, frequency based on a configurable setting (default=1 MB)
+|Log file for {branding}, logging all errors, warnings, and (optionally) debug statements. This log rolls up to 10 times, frequency based on a configurable setting (default=1 MB)
 
 |deploy
-|Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon DDF installation)
+|Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon {branding} installation)
 
 |docs	
-|The DDF Catalog API Javadoc
+|The {branding} Catalog API Javadoc
 
 |etc
 |Directory monitored for addition/modification/deletion of third party .cfg configuration files
 
 |etc/ddf
-|Directory monitored for addition/modification/deletion of DDF-related .cfg configuration files (e.g., Schematron configuration file)
+|Directory monitored for addition/modification/deletion of {branding}-related .cfg configuration files (e.g., Schematron configuration file)
 
 |etc/templates
-|Template .cfg files for use in configuring DDF sources, settings, etc., by copying to the etc/ddf directory.
+|Template .cfg files for use in configuring {branding} sources, settings, etc., by copying to the etc/ddf directory.
 
 |lib
-|The system's bootstrap libraries. Includes the ddf-branding.jar file which is used to brand the system console with the DDF logo.
+|The system's bootstrap libraries. Includes the ddf-branding.jar file which is used to brand the system console with the {branding} logo.
 
 |licenses	
 |Licensing information related to the system
 
 |system
-|Local bundle repository. Contains all of the JARs required by DDF, including third-party JARs.
+|Local bundle repository. Contains all of the JARs required by {branding}, including third-party JARs.
  
 |===
 
 == Configuring
-DDF can be configured in several ways, depending on need.
+{branding} can be configured in several ways, depending on need.
 
 === Configuring via the Admin Console
 
@@ -404,7 +404,7 @@ The default username/password in admin/admin. To change this, refer to Password 
 ====
 
 ==== Initial Configuration
-The first time the DDF administrator portal runs, the initial configuration steps appear. Click Start to begin.
+The first time the {branding} administrator portal runs, the initial configuration steps appear. Click Start to begin.
 
 image::start.png[Start]
 
@@ -488,7 +488,7 @@ Configuration via this page could result in an unstable system.
 Proceed with caution!
 ====
 
-=== Configuring DDF Using the Web Console
+=== Configuring {branding} Using the Web Console
 
 ==== Access the Web Console
 
@@ -501,14 +501,14 @@ Proceed with caution!
 The default username/password is admin/admin. To change this, refer to Security Hardening.
 ====
 
-==== Configure DDF Platform Global Settings
+==== Configure {branding} Platform Global Settings
 
 . Open the web administration console.
 .. `http://localhost:8181/system/console`
 .. Enter Username and Password
 . Select the Configuration tab.
 . Select the *Platform Global Configuration bundle*.
-. Enter the  DDF configuration values per the Configurable Properties table below.
+. Enter the  {branding} configuration values per the Configurable Properties table below.
 . Select the *Save* button.
 
 ===== Configurable Properties
@@ -578,14 +578,14 @@ NOTE: Does not change the port the system runs on.
 |Site Name	
 |id	
 |String	
-|The site name for DDF.	
+|The site name for {branding}.	
 |ddf.distribution	
 |yes
 
 |Version	
 |version	
 |String	
-|The version of DDF that is running.
+|The version of {branding} that is running.
 
 This value should not be changed from the factory default.
 |2.3.0	
@@ -594,14 +594,14 @@ This value should not be changed from the factory default.
 |Organization	
 |organization	
 |String	
-|The organization responsible for this installation of DDF.	
+|The organization responsible for this installation of {branding}.	
 |Codice Foundation	
 |yes
 
 |===
 
 ==== Manage Features
-DDF includes many components, packaged as features, that can be installed and/or uninstalled without restarting the system. Features are collections of OSGi bundles, configuration data, and/or other features. For more information on the features that come with DDF, including a list of the ones included, consult the DDF Included Features page in the Software Version Description Document (SVDD).
+{branding} includes many components, packaged as features, that can be installed and/or uninstalled without restarting the system. Features are collections of OSGi bundles, configuration data, and/or other features. For more information on the features that come with {branding}, including a list of the ones included, consult the {branding} Included Features page in the Software Version Description Document (SVDD).
 
 .Transitive Dependencies
 [NOTE]
@@ -645,9 +645,9 @@ image:toolbar.png[Toolbar]
 There are several ways a new feature repository can be discovered based on the URL entered:
 
 * The URL can contain the fully qualified path to the feature repository, e.g., mvn:https://tools.codice.org/artifacts/content/groups/public/ddf-standard/2.2.0/xml/features. This URL can include the username and password credentials if necessary. e.g., mvn:https://user/password@tools.codice.org/artifacts/content/groups/public/ddf-standard/2.2.0/xml/features. Note that the password will be in clear text.
-* The URL can only be the mvn URL, e.g., `mvn:ddf.features/ddf-standard/2.2/xml/features ddf-standard/2.2.0/xml/features`. The feature repositories configured for DDF will be searched.
+* The URL can only be the mvn URL, e.g., `mvn:ddf.features/ddf-standard/2.2/xml/features ddf-standard/2.2.0/xml/features`. The feature repositories configured for {branding} will be searched.
 
-Repositories to be searched by DDF can be configured in one of several ways:
+Repositories to be searched by {branding} can be configured in one of several ways:
 
 * Set the org.ops4j.pax.url.mvn.repositories property in the `<DDF_INSTALL_DIR>/etc/org.ops4j.pax.url.mvn.cfg` file (most common).
 * Set the org.ops4j.pax.url.mvn.settings property in the `<DDF_INSTALL_DIR>/etc/org.ops4j.pax.url.mvn.cfg` file to the maven `settings.xml` file that specifies the repository(ies) to be searched. A `settings.xml` template file for this configuration is provided in `<DDF_INSTALL_DIR>/etc/templates/settings.xml`
@@ -657,7 +657,7 @@ Repositories to be searched by DDF can be configured in one of several ways:
 ==== Known Issues
 
 ===== Blank Web Console
-DDF uses Pax Web as part of its HTTP support. Modifying the Pax Web runtime configuration in the web console may cause the web console to freeze.
+{branding} uses Pax Web as part of its HTTP support. Modifying the Pax Web runtime configuration in the web console may cause the web console to freeze.
 
 ===== Solution
 Use the configuration instructions according to the hardening instructions.
@@ -668,7 +668,7 @@ For more information on the Web Console refer to http://felix.apache.org/site/ap
 For more information on the Web Console refer to http://felix.apache.org/site/apache-felix-web-console.html
 
 === Configuring {branding} Using the System Console
-Follow these steps to configure DDF using the system console.
+Follow these steps to configure {branding} using the system console.
 
 [NOTE]
 ====
@@ -676,7 +676,7 @@ System Console instructions are provided in the Console Commands section.
 ====
 
 ==== Manage Features
-DDF includes many components, packaged as features, that can be installed and/or uninstalled without restarting the system. Features are collections of OSGi bundles, configuration data, and/or other features. For more information on the features that come with DDF, including a list of the ones included, consult the DDF Included Features page in the Software Version Description Document (SVDD).
+{branding} includes many components, packaged as features, that can be installed and/or uninstalled without restarting the system. Features are collections of OSGi bundles, configuration data, and/or other features. For more information on the features that come with {branding}, including a list of the ones included, consult the {branding} Included Features page in the Software Version Description Document (SVDD).
 
 .Transitive Dependencies
 [NOTE]
@@ -685,9 +685,9 @@ Features may have dependencies on other features and will auto-install them as n
 ====
 
 ===== Install Features
-. Determine which feature to install by viewing the available features on DDF. +
+. Determine which feature to install by viewing the available features on {branding}. +
 `ddf@local>features:list`
-. The console outputs a list of all features available (installed and uninstalled). A snippet of the list output is shown below (the versions may differ based on the version of DDFbeing run):
+. The console outputs a list of all features available (installed and uninstalled). A snippet of the list output is shown below (the versions may differ based on the version of {branding}being run):
 
 ----
 State         Version          Name                          Repository  Description
@@ -716,7 +716,7 @@ State         Version          Name                          Repository  Descrip
 
 The console output should show an entry similar to the following:
 ----
-[ 117] [Active     ] [            ] [Started] [   75] DDF :: Catalog :: Source :: Dummy (<version>)
+[ 117] [Active     ] [            ] [Started] [   75] {branding} :: Catalog :: Source :: Dummy (<version>)
 ----
 
 ===== Uninstall Features
@@ -753,7 +753,7 @@ State         Version          Name                          Repository  Descrip
 ----
 
 === Configuring {branding} using Configuration (.cfg) files
-The DDF can also be configured with configuration (.cfg) files. 
+The {branding} can also be configured with configuration (.cfg) files. 
 
 ==== HTTP Port Configuration
 [IMPORTANT]
@@ -761,8 +761,8 @@ The DDF can also be configured with configuration (.cfg) files.
 Do not use the Web Administration Console to change the HTTP port. While the Web Administration Console's Pax Web Runtime offers this configuration option, it has proven to be unreliable and may crash the system.
 ====
 
-===== Multiple Local DDF Nodes
-Edit the port numbers in the files in the DDF install folder. The line numbers relate to 2.1.X releases.
+===== Multiple Local {branding} Nodes
+Edit the port numbers in the files in the {branding} install folder. The line numbers relate to 2.1.X releases.
 
 [cols="4" options="header"]
 |===
@@ -801,16 +801,16 @@ Edit the port numbers in the files in the DDF install folder. The line numbers r
 
 [WARNING]
 ====
-Be sure to note the port number that replaced 8181 then enter that number in the Web Console under the Configuration tab for the *Platform Global Configuration → DDF Port* entry. Also edit the sitename so that there are no duplicates on your local machine.
+Be sure to note the port number that replaced 8181 then enter that number in the Web Console under the Configuration tab for the *Platform Global Configuration → {branding} Port* entry. Also edit the sitename so that there are no duplicates on your local machine.
 ====
 
 [WARNING]
 ====
-Only root can access ports<1024 on Unix systems. For suggested ways to run DDF with ports < 1024 see How do I use port 80 as a non-root user?.
+Only root can access ports<1024 on Unix systems. For suggested ways to run {branding} with ports < 1024 see How do I use port 80 as a non-root user?.
 ====
 
 ==== Enable SSL for Clients
-In order for outbound secure connections (HTTPS) to be made from components like Federated Sources and Resource Readers configuration may need to be updated with keystores and security properties. These values are configured in the <DDF_INSTALL_DIR>/etc/system.properties file. The following values can be set:
+In order for outbound secure connections (HTTPS) to be made from components like Federated Sources and Resource Readers configuration may need to be updated with keystores and security properties. These values are configured in the <{branding}_INSTALL_DIR>/etc/system.properties file. The following values can be set:
 
 [cols="3" options="header"]
 |===
@@ -910,7 +910,7 @@ After the keystore is successfully created, delete the jetty files used to perfo
 ==== Configure the Solr Catalog Provider Data Directory
 The Solr Catalog Provider writes index files to the file system. By default, these files are stored under `$DDF_HOME/data/solr/catalog/data`.  If there is inadequate space in `$DDF_HOME`, or if it is desired to maintain backups of the indexes only, this directory can be changed.
 
-In order to change the Data Directory, the `system.properties` file in `$DDF_HOME/etc` must be edited prior to starting DDF.
+In order to change the Data Directory, the `system.properties` file in `$DDF_HOME/etc` must be edited prior to starting {branding}.
 
 .Edit the system.properties file
 [source,bash,linenums]
@@ -919,9 +919,9 @@ In order to change the Data Directory, the `system.properties` file in `$DDF_HOM
 #solr.catalog.data.dir=/opt/solr/catalog/data
 ----
 
-==== Changing the Data Directory after DDF has ingested data
+==== Changing the Data Directory after {branding} has ingested data
 
-. Shut down DDF.
+. Shut down {branding}.
 . Create the new directory to hold the indexes.
 +
 .Make new Data Directory
@@ -946,20 +946,20 @@ cp /path/to/old/data/dir/* /path/to/new/data/dir/.
 solr.catalog.data.dir=/path/to/new/data/dir
 ----
 +
-. Restart DDF.
+. Restart {branding}.
 
 === Configuring {branding} Application and Configuration Clustering
 
-An essential part to the DDF Clustering solution is the ability to manage applications and configurations among cluster nodes. The following documentation will help in setting up a set of DDF server nodes in a cluster, and allow an administrator to manage the applications and configurations that are deployed.
+An essential part to the {branding} Clustering solution is the ability to manage applications and configurations among cluster nodes. The following documentation will help in setting up a set of {branding} server nodes in a cluster, and allow an administrator to manage the applications and configurations that are deployed.
 
-==== Set Up DDF Cluster
+==== Set Up {branding} Cluster
 
 ===== Initial Setup
 
-The goal of the DDF Cluster solution is to keep applications and configurations synchronized on every DDF server. When setting up a DDF server, it is recommended that only one server is setup per machine (virtual or non-virtual). This means that for each physical machine or virtual machine (VM) that is setup, only one instance of the DDF is deployed on it. This configuration provides the least complexity in configuration of the DDF Cluster and allows the DDF server itself to utilize the resources of the entire system. It is also recommended that all DDF servers and systems be configured the same. This means that all DDF server platforms have the same configurations and applications running initially. Also, ensure that all physical and virtual systems running the DDF servers have the same configuration (e.g., operating system, memory, CPU, etc.).
+The goal of the {branding} Cluster solution is to keep applications and configurations synchronized on every {branding} server. When setting up a {branding} server, it is recommended that only one server is setup per machine (virtual or non-virtual). This means that for each physical machine or virtual machine (VM) that is setup, only one instance of the {branding} is deployed on it. This configuration provides the least complexity in configuration of the {branding} Cluster and allows the {branding} server itself to utilize the resources of the entire system. It is also recommended that all {branding} servers and systems be configured the same. This means that all {branding} server platforms have the same configurations and applications running initially. Also, ensure that all physical and virtual systems running the {branding} servers have the same configuration (e.g., operating system, memory, CPU, etc.).
 
-===== Start and Configure New DDF Server Node Clusters
-Before starting your DDF cluster nodes, you must first setup your node network configurations. See the Configuring DDF Clustering For Multicast & Unicast section for more information. To view all of the available nodes, navigate in your browser to the DDF Web Console (http://localhost:8181/system/console) and click on the tab labeled “Clustered Groups”. Under the group “default”, you should see all running DDF nodes that have been clustered. It is also possible to move all instances into a named group. In order to perform this action, you must have access to one of the DDF command line shells directly or utilize Gogo located at http://localhost:8181/system/console/gogo.
+===== Start and Configure New {branding} Server Node Clusters
+Before starting your {branding} cluster nodes, you must first setup your node network configurations. See the Configuring {branding} Clustering For Multicast & Unicast section for more information. To view all of the available nodes, navigate in your browser to the {branding} Web Console (http://localhost:8181/system/console) and click on the tab labeled “Clustered Groups”. Under the group “default”, you should see all running {branding} nodes that have been clustered. It is also possible to move all instances into a named group. In order to perform this action, you must have access to one of the {branding} command line shells directly or utilize Gogo located at http://localhost:8181/system/console/gogo.
 
 [source,bash]
 ----
@@ -985,14 +985,14 @@ Group Members
 * [default ] [192.168.1.110:5701* ]
 [mygroup ] []
 ----
-As you can see, there are now two groups, the default group and the new group that you have just created. We now need to move the DDF node out of the “default” group and into “mygroup”. Execute the following commands:
+As you can see, there are now two groups, the default group and the new group that you have just created. We now need to move the {branding} node out of the “default” group and into “mygroup”. Execute the following commands:
 [source,bash]
 ----
 cluster:group-join mygroup 192.168.1.110:5701
  
 cluster:group-quit default 192.168.1.110:5701
 ----
-The first command allows the DDF node to join the new group. The second command removes the DDF node from the “default” group.
+The first command allows the {branding} node to join the new group. The second command removes the {branding} node from the “default” group.
 
 [source,bash]
 ----
@@ -1000,13 +1000,13 @@ Group Members
 [default ] []
 * [mygroup ] [192.168.1.110:5701* ]
 ----
-These commands should be executed on all “production” nodes located in the default group. Note: The default group will always remain and cannot be deleted. It is possible for DDF nodes to be separated into multiple groups. It is also possible for one DDF node to exist in multiple groups. These are advanced topics and can be addressed in additional documentation links.
+These commands should be executed on all “production” nodes located in the default group. Note: The default group will always remain and cannot be deleted. It is possible for {branding} nodes to be separated into multiple groups. It is also possible for one {branding} node to exist in multiple groups. These are advanced topics and can be addressed in additional documentation links.
 
-===== Add a DDF Server Node to the Cluster
-There may be a need for an additional DDF server node after an existing DDF cluster has already been configured and deployed. It is important that when adding additional nodes, the new node must match the existing nodes in terms of applications and configurations. Therefore it is good practice to copy one of the existing nodes and push that copy to a new virtual machine or server machine instance. This will provide a stabler transition of the new node into the cluster. Once you have setup the new node, you can follow the instructions above to add the new node into the cluster group, if needed.
+===== Add a {branding} Server Node to the Cluster
+There may be a need for an additional {branding} server node after an existing {branding} cluster has already been configured and deployed. It is important that when adding additional nodes, the new node must match the existing nodes in terms of applications and configurations. Therefore it is good practice to copy one of the existing nodes and push that copy to a new virtual machine or server machine instance. This will provide a stabler transition of the new node into the cluster. Once you have setup the new node, you can follow the instructions above to add the new node into the cluster group, if needed.
 
 ==== Manage Applications
-Application management within the cluster has been designed to function as if you were only managing one instance of DDF. All DDF applications are handled at the feature level. Therefore, the Features section of the Web Console can be used to manage all applications within the DDF Cluster. The Features section of the Web Console can be accessed by navigating to http://localhost:8181/system/console/features/features in a web browser. Credentials may be required (username and password) to access the console.
+Application management within the cluster has been designed to function as if you were only managing one instance of {branding}. All {branding} applications are handled at the feature level. Therefore, the Features section of the Web Console can be used to manage all applications within the {branding} Cluster. The Features section of the Web Console can be accessed by navigating to http://localhost:8181/system/console/features/features in a web browser. Credentials may be required (username and password) to access the console.
 
 From the Features console, the following functions are available:
 
@@ -1016,10 +1016,10 @@ From the Features console, the following functions are available:
 * Install features from repositories into the cluster
 * Uninstall or remove features from the cluster
 
-For more information on using the console, refer to the DDF User documentation.
+For more information on using the console, refer to the {branding} User documentation.
 ==== Manage Configurations
 
-Just as with Application Management, managing configurations within a cluster was designed to function as if you were configuring one instance of DDF. There are two areas where DDF configurations can be modified. Most modifications will occur within the Configurations section of the Web Console. The Web Console can be accessed by navigating to http://localhost:8181/system/console in a web browser. Credentials may be required (username and password) to access the console.
+Just as with Application Management, managing configurations within a cluster was designed to function as if you were configuring one instance of {branding}. There are two areas where {branding} configurations can be modified. Most modifications will occur within the Configurations section of the Web Console. The Web Console can be accessed by navigating to http://localhost:8181/system/console in a web browser. Credentials may be required (username and password) to access the console.
 
 From the Configuration console, the following features are available:
 
@@ -1028,11 +1028,11 @@ From the Configuration console, the following features are available:
 * Unbind the configuration from the bundle
 * Remove the configuration from the cluster
 
-For more information on using the console, refer to the DDF User's Guide.
+For more information on using the console, refer to the {branding} User's Guide.
 
 ===== Control Feature and Configuration Synchronization 
 
-There may be instances where certain configurations are to remain local to a certain DDF node. This behavior can be controlled through the cellar groups configuration. To open this configuration, navigate to Within the configuration list, search for the configuration with name “org.apache.karaf.cellar.groups”. Click on the configuration to view / edit. Within the file you will see many configurations listed with the following format:
+There may be instances where certain configurations are to remain local to a certain {branding} node. This behavior can be controlled through the cellar groups configuration. To open this configuration, navigate to Within the configuration list, search for the configuration with name “org.apache.karaf.cellar.groups”. Click on the configuration to view / edit. Within the file you will see many configurations listed with the following format:
 
 [source,bash]
 ----
@@ -1062,8 +1062,8 @@ Once you have made your changes, you can save the configuration by pressing the 
 
 ==== Additional Details
 
-===== Configure DDF Clustering for Unicast and Multicast
-By default, DDF clustering utilizes TCP-IP unicast for discoverying other DDF nodes. The hazelcast.xml file located under <DDF root>/etc/ contains the port and address configurations for network setup. The TCP-IP unicast mode has been setup to allow for manual configuration and control of initial clustering. This configuration is also beneficial for cases where a particular network cannot support multicast or multicast has been turned off for certain reasons. There is a configuration which allows auto-discovery of DDF nodes and utilizes multicast as a transport. The hazelcast.xml file is configured like the following to allow for TCP-IP unicast discovery of cluster nodes:
+===== Configure {branding} Clustering for Unicast and Multicast
+By default, {branding} clustering utilizes TCP-IP unicast for discoverying other {branding} nodes. The hazelcast.xml file located under <{branding} root>/etc/ contains the port and address configurations for network setup. The TCP-IP unicast mode has been setup to allow for manual configuration and control of initial clustering. This configuration is also beneficial for cases where a particular network cannot support multicast or multicast has been turned off for certain reasons. There is a configuration which allows auto-discovery of {branding} nodes and utilizes multicast as a transport. The hazelcast.xml file is configured like the following to allow for TCP-IP unicast discovery of cluster nodes:
 
 [source,xml,linenums]
 ----
@@ -1106,9 +1106,9 @@ The following hazelcast.xml configuration would be used for multicast auto-disco
 
 As you can see, the multicast option has been set to true and the tcp-ip option is set to false. A multicast group and port can be specified in the file as highlighted above. These modifications must be made for each node. Once these modifications have been made to the hazelcast.xml file, it is recommended that the nodes be restarted.
 
-===== Verify Synchronized DDF Nodes
+===== Verify Synchronized {branding} Nodes
 
-In most cases, the DDF system console should provide you with a listing of all features, repositories, and configurations that are installed on the cluster. There are times when the cluster can become out of sync. This instance may occur if a system has been offline for some time. One way to verify the synchronized lists of the cluster is to run cluster commands from the command line. In order to perform these actions, you must have access to one of the DDF command line shells directly or through the use of Gogo (http://localhost:8181/system/console/gogo). Once at the command line, execute the following command to see the list of deployed features for your cluster:
+In most cases, the {branding} system console should provide you with a listing of all features, repositories, and configurations that are installed on the cluster. There are times when the cluster can become out of sync. This instance may occur if a system has been offline for some time. One way to verify the synchronized lists of the cluster is to run cluster commands from the command line. In order to perform these actions, you must have access to one of the {branding} command line shells directly or through the use of Gogo (http://localhost:8181/system/console/gogo). Once at the command line, execute the following command to see the list of deployed features for your cluster:
 
 [source,bash]
 ----
@@ -1156,18 +1156,18 @@ mvn:org.apache.activemq/activemq-karaf/5.6.0/xml/features
 mvn:ddf.catalog.kml/catalog-kml-app/2.1.0/xml/features
 mvn:ddf.mime.tika/mime-tika-app/1.0.0/xml/features
 ----
-If for any reason, any of the lists above do not match the list of features, repositories, or configurations found in the DDF system consoles, the following command can be executed:
+If for any reason, any of the lists above do not match the list of features, repositories, or configurations found in the {branding} system consoles, the following command can be executed:
 
 [source,bash]
 ----
 cluster:sync
 ----
 
-This command should allow for a DDF node to be synchronized with the rest of the cluster.
+This command should allow for a {branding} node to be synchronized with the rest of the cluster.
 
 ==== Check for Active Nodes
 
-Checking whether a node is active or not can be done utilizing the node ping command. In order to use this command you must have access to one of the the DDF command line shells. A list of nodes can be shown by executing the following command:
+Checking whether a node is active or not can be done utilizing the node ping command. In order to use this command you must have access to one of the the {branding} command line shells. A list of nodes can be shown by executing the following command:
 
 [source,bash]
 ----
@@ -1181,7 +1181,7 @@ ID Host Name Port
 * [192.168.1.110:5701 ] [192.168.1.110 ] [ 5701]
 ----
 
-The output will show the ID, host name, and port of each active DDF node in the cluster. The asterisk shows which node you are currently accessing the shell on. Now that you have a listing of node IDs, you can use these to ping other nodes. Execute the following command:
+The output will show the ID, host name, and port of each active {branding} node in the cluster. The asterisk shows which node you are currently accessing the shell on. Now that you have a listing of node IDs, you can use these to ping other nodes. Execute the following command:
 
 [source,bash]
 ----
@@ -1205,22 +1205,22 @@ from 7: req=192.168.1.110:5701 time=2 ms
 The output will provide you with a typical ping result showing connectivity and response times.
 
 === Configuring Catalog Provider
-This scenario describes how to reconfigure DDF to use a different catalog provider.
-This scenario assumes DDF is already running.
+This scenario describes how to reconfigure {branding} to use a different catalog provider.
+This scenario assumes {branding} is already running.
 
 .Use of the Dummy Catalog Provider
 [NOTE]
 ====
-This scenario uses the Dummy Catalog Provider as the catalog provider DDF is being reconfigured to use. This is because the Dummy Catalog Provider is the only other catalog provider shipped with DDF out of the box. The Dummy Catalog Provider should never be used in a production environment. It is only used for testing purposes.
+This scenario uses the Dummy Catalog Provider as the catalog provider {branding} is being reconfigured to use. This is because the Dummy Catalog Provider is the only other catalog provider shipped with {branding} out of the box. The Dummy Catalog Provider should never be used in a production environment. It is only used for testing purposes.
 ====
 
 ==== Reconfigure
 
 . Uninstall a Catalog Provider (if installed) by completing the procedure in the Uninstalling Features section.
 . Install the new Catalog Provider, which will be the , by installing its feature ddf-provider-dummy by completing the instructions in the Installing Features section.
-. Verify DDF is running with the Dummy Provider as its Catalog Provider.
+. Verify {branding} is running with the Dummy Provider as its Catalog Provider.
 .. Select the Services tab in the Web Console. 
-.. Locate the column labeled Bundle on the right. If DDF is running with the Dummy Provider, there is an entry labeled ddf.providers.provider-dummy, as shown below.
+.. Locate the column labeled Bundle on the right. If {branding} is running with the Dummy Provider, there is an entry labeled ddf.providers.provider-dummy, as shown below.
 
 .New catalog provider Dummy Provider installed
 
@@ -1233,21 +1233,21 @@ Id      Type(s)                                              Bundle
 
 === Configuring Notifications
 
-Notifications are messages that are sent to clients to inform them of some significant event happening in DDF.  Clients must subscribe to a DDF notification channel to receive these messages.
+Notifications are messages that are sent to clients to inform them of some significant event happening in {branding}.  Clients must subscribe to a {branding} notification channel to receive these messages.
 
 ==== Usage
-DDF notifications are currently being utilized in the DDF Catalog application for resource retrieval.  When a user initiates a resource retrieval via the DDF Standard UI, DDF opens the channel `/ddf/notification/catalog/downloads`, where notifications indicating the progress of that resource download are sent.  Any client interested in receiving these progress notifications must subscribe to that channel.  When DDF starts downloading the resource to the client that requested it, a notification with a status of "Started" will be broadcast.  If the resource download fails, a notification with a status of "Failed" will be broadcast.  Or, if the resource download is being attempted again after a failure, "Retry" will be broadcast. 
+{branding} notifications are currently being utilized in the {branding} Catalog application for resource retrieval.  When a user initiates a resource retrieval via the {branding} Standard UI, {branding} opens the channel `/ddf/notification/catalog/downloads`, where notifications indicating the progress of that resource download are sent.  Any client interested in receiving these progress notifications must subscribe to that channel.  When {branding} starts downloading the resource to the client that requested it, a notification with a status of "Started" will be broadcast.  If the resource download fails, a notification with a status of "Failed" will be broadcast.  Or, if the resource download is being attempted again after a failure, "Retry" will be broadcast. 
 
-When a notification is received, DDF Standard UI displays a popup containing the contents of the notification, so a user is made aware of how their downloads are proceeding.  
+When a notification is received, {branding} Standard UI displays a popup containing the contents of the notification, so a user is made aware of how their downloads are proceeding.  
 
-Behind the scenes, the DDF Standard UI invokes the REST endpoint to retrieve a resource.  In this request, it adds the query parameter "user" with the CometD session ID or the unique User ID as the value.  This allows the CometD server to know which subscriber is interested in the notification.  For example,  http://DDF_HOST:8181/services/catalog/sources/dib.distribution/2f5db9e5131444279a1293c541c106cd?transform=resource&user=1w1qlo79j6tscii19jszwp9s2i55 notifications contain the following information:
+Behind the scenes, the {branding} Standard UI invokes the REST endpoint to retrieve a resource.  In this request, it adds the query parameter "user" with the CometD session ID or the unique User ID as the value.  This allows the CometD server to know which subscriber is interested in the notification.  For example,  http://{branding}_HOST:8181/services/catalog/sources/dib.distribution/2f5db9e5131444279a1293c541c106cd?transform=resource&user=1w1qlo79j6tscii19jszwp9s2i55 notifications contain the following information:
 
 [cols="1,4,1" options="header"]
 |===
 
 |Parameter Name
 |Description
-|Required by DDF Standard UI
+|Required by {branding} Standard UI
 
 |application	
 |"Downloads" for resource retrieval.  This is used as a "type" or category of messages.
@@ -1288,11 +1288,11 @@ Behind the scenes, the DDF Standard UI invokes the REST endpoint to retrieve a r
 * If interested in retrieve resource notifications, a client must subscribe to the CometD `channel/ddf/notification/catalog/downloads`.   
 * If interested in all notification types, a client must subscribe to the CometD `channel/ddf/notification/**`
 * A client will only receive notifications for resources they have requested.  
-* DDF Standard UI is subscribed to all notifications of interest to that `user/browser session: /ddf/notification/**`
+* {branding} Standard UI is subscribed to all notifications of interest to that `user/browser session: /ddf/notification/**`
 * See the Usage section for the data that a notification contains.
 
 ==== Publish Notifications
-Any application running in DDF can publish notifications that can be viewed by the DDF Standard UI or received by another notifications client.  
+Any application running in {branding} can publish notifications that can be viewed by the {branding} Standard UI or received by another notifications client.  
 . Set a properties map containing entries for each of the parameters listed above in the Usage section.
 +
 . Set the OSGi event topic to `ddf/notification/<application-name>/<notification-type>`.  Notice that there is no preceding slash on an OSGi event topic name, while there is one on the CometD channel name. The OSGi event topic corresponds to the CometD channel this is published on.
@@ -1319,18 +1319,18 @@ eventAdmin.postEvent(event);
 
 == Managing Web Service Security
 
-The Web Service Security (WSS) functionality that comes with DDF is integrated throughout the system. This page acts as a central point to show how all of the pieces work together and point out where they live inside of the system. 
+The Web Service Security (WSS) functionality that comes with {branding} is integrated throughout the system. This page acts as a central point to show how all of the pieces work together and point out where they live inside of the system. 
 
-DDF comes with a Security Framework and Security Services. The Security Framework is the set of APIs that define the integration with the DDF framework and the Security Services are the reference implementations of those APIs built for a realistic end-to-end use case.
+{branding} comes with a Security Framework and Security Services. The Security Framework is the set of APIs that define the integration with the {branding} framework and the Security Services are the reference implementations of those APIs built for a realistic end-to-end use case.
 
 === Security Framework
-The DDF Security Framework utilizes Apache Shiro (http://shiro.apache.org/) as the underlying security framework. The classes mentioned in this section will have their full package name listed, so it is easy to tell which classes come with the core Shiro framework and which are added by DDF. 
+The {branding} Security Framework utilizes Apache Shiro (http://shiro.apache.org/) as the underlying security framework. The classes mentioned in this section will have their full package name listed, so it is easy to tell which classes come with the core Shiro framework and which are added by {branding}. 
 
 ==== Subject
 
 `ddf.security.Subject <extends> org.apache.shiro.subject.Subject`
 
-The Subject is the key object in the security framework. Most of the workflow and implementations revolve around creating and using a Subject. The Subject object in DDF is a class that encapsulates all information about the user performing the current operation. The Subject can also be used to perform permission checks to see if the calling user has acceptable permission to perform a certain action (e.g., calling a service or returning a metacard). This class was made DDF-specific because the Shiro interface cannot be added to the Query Request property map.
+The Subject is the key object in the security framework. Most of the workflow and implementations revolve around creating and using a Subject. The Subject object in {branding} is a class that encapsulates all information about the user performing the current operation. The Subject can also be used to perform permission checks to see if the calling user has acceptable permission to perform a certain action (e.g., calling a service or returning a metacard). This class was made {branding}-specific because the Shiro interface cannot be added to the Query Request property map.
 
 ===== Implementations of Subject:
 
@@ -1349,7 +1349,7 @@ The Subject is the key object in the security framework. Most of the workflow an
 
 `ddf.security.service.SecurityManager`
 
-The Security Manager is a service that handles the creation of Subject objects. A proxy to this service should be obtained by an endpoint to create a Subject and add it to the outgoing QueryRequest. The Shiro framework relies on creating the subject by obtaining it from the current thread. Due to the multi-threaded and stateless nature of the DDF framework, utilizing the Security Manager interface makes retrieving Subjects easier and safer.
+The Security Manager is a service that handles the creation of Subject objects. A proxy to this service should be obtained by an endpoint to create a Subject and add it to the outgoing QueryRequest. The Shiro framework relies on creating the subject by obtaining it from the current thread. Due to the multi-threaded and stateless nature of the {branding} framework, utilizing the Security Manager interface makes retrieving Subjects easier and safer.
 
 ===== Implementations of Security Managers:
 [cols="2" options="header"]
@@ -1366,7 +1366,7 @@ The Security Manager is a service that handles the creation of Subject objects. 
 ==== Authentication Tokens
 `org.apache.shiro.authc.AuthenticationToken`
 
-Authentication Tokens are used to verify authentication of a user when creating a subject. A common use-case is when a user is logging directly in to the DDF framework.
+Authentication Tokens are used to verify authentication of a user when creating a subject. A common use-case is when a user is logging directly in to the {branding} framework.
 
 [cols="2" options="header"]
 |===
@@ -1385,7 +1385,7 @@ Authentication Tokens are used to verify authentication of a user when creating 
 `org.apache.shiro.realm.AuthenticatingRealm`
 Authenticating Realms are used to authenticate an incoming authentication token and create a Subject on successfully authentication.
 
-====== Implementations of Authenticating Realms that come with DDF: 
+====== Implementations of Authenticating Realms that come with {branding}: 
 
 [cols="2" options="header"]
 |===
@@ -1403,7 +1403,7 @@ Authenticating Realms are used to authenticate an incoming authentication token 
 
 Authorizing Realms are used to perform authorization on the current Subject. These are used when performing both Service AuthZ and Filtering/Redaction. They are passed in the AuthorizationInfo of the Subject along with the Permissions of the object wanting to be accessed. The response from these realms is a true (if the Subject has permission to access) or false (if the Subject does not).
 
-====== Implementations of Authorizing Realms that come with DDF:
+====== Implementations of Authorizing Realms that come with {branding}:
 |===
 
 |Classname
@@ -1615,7 +1615,7 @@ SAML ASSERTION WILL BE LOCATED HERE
 
 === CAS SSO Configuration
 
-The Web Service Security (WSS) Implementation that comes with DDF was built to run independent of an SSO or authentication mechanism. Testing out the security functionality of DDF was performed by using the Central Authentication Server (CAS) software. This is a popular SSO appliance and allowed DDF to be tested using realistic use cases. This page contains configurations and settings that were used to help enable CAS to work within the DDF environment.
+The Web Service Security (WSS) Implementation that comes with {branding} was built to run independent of an SSO or authentication mechanism. Testing out the security functionality of {branding} was performed by using the Central Authentication Server (CAS) software. This is a popular SSO appliance and allowed {branding} to be tested using realistic use cases. This page contains configurations and settings that were used to help enable CAS to work within the {branding} environment.
 
 ==== General Server Setup and Configuration
 
@@ -1624,8 +1624,8 @@ The Web Service Security (WSS) Implementation that comes with DDF was built to r
 The following procedure defines the steps for installing CAS to a Tomcat 7.x server running in Linux and Windows. Newer versions of tomcat (8.x) are incompatible with the included server.xml file and will need additional changes.
 ====
 
-===== Install using DDF CAS WAR
-DDF comes with a custom distribution of the CAS Web application that comes with LDAP and X.509 support configured and built-in. Using this configuration may save time and make setup easier.
+===== Install using {branding} CAS WAR
+{branding} comes with a custom distribution of the CAS Web application that comes with LDAP and X.509 support configured and built-in. Using this configuration may save time and make setup easier.
 
 [NOTE]
 ====
@@ -1670,7 +1670,7 @@ $ cp cas-distribution/src/main/resources/tomcat/conf/server.xml <TOMCAT_INSTALLA
 mkdir <TOMCAT_INSTALLATION_DIR>/certs
 ----
 +
-Copy casKeystore.jks from the DDF installation directory into <TOMCAT_INSTALLATION_DIR>/certs/.  This will allow CAS to use a "cas" private key and to trust anything signed by "server", "ca", or "ca-root".  
+Copy casKeystore.jks from the {branding} installation directory into <TOMCAT_INSTALLATION_DIR>/certs/.  This will allow CAS to use a "cas" private key and to trust anything signed by "server", "ca", or "ca-root".  
 Linux  Expand source
 Windows  Expand source
 +
@@ -1707,7 +1707,7 @@ then comment out:
 <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
 ----
 +
-. Deploy the DDF CAS WAR to Tomcat.
+. Deploy the {branding} CAS WAR to Tomcat.
 +
 .. Obtain the CAS WAR by building it from cas-distribution.
 .. Copy it into the webapps folder on Tomcat:
@@ -1724,23 +1724,23 @@ INFO: Deploying web application archive /apache-tomcat-7.0.39/webapps/cas.war
 2013-04-25 10:55:43,540 INFO [org.jasig.cas.util.AutowiringSchedulerFactoryBean] - <Starting Quartz Scheduler now>
 ----
 CAS will try to authenticate first with X.509 (using the keystore provided as the truststore) and failover to LDAP username/password.
-The DDF distribution of CAS is configured to use the embedded DDF instance running on localhost. Configuring the LDAP location may be performed by modifying the bottom of the `cas.properties` file located in `TOMCAT/webapps/cas/WEB-INF/` after the web application is deployed.
+The {branding} distribution of CAS is configured to use the embedded {branding} instance running on localhost. Configuring the LDAP location may be performed by modifying the bottom of the `cas.properties` file located in `TOMCAT/webapps/cas/WEB-INF/` after the web application is deployed.
 
 ===== Configure an Existing CAS Installation
 If upgrading an existing CAS installation or using the standard CAS web application, refer to the Configure CAS for LDAP page or the Configure CAS for X509 User Certificates page for directions on specific configurations that need to be performed.
 
 [WARNING]
 ====
-As part of setting up the server, it is critical to make sure that Tomcat trusts the DDF server certificate and that DDF trusts the certificate from Tomcat. If this is not done correctly, CAS and/or DDF will throw certificate warnings in their logs and will not allow access.
+As part of setting up the server, it is critical to make sure that Tomcat trusts the {branding} server certificate and that {branding} trusts the certificate from Tomcat. If this is not done correctly, CAS and/or {branding} will throw certificate warnings in their logs and will not allow access.
 ====
 
-==== Configure CAS for DDF
-When configuring CAS to integrate with DDF, there are two main configurations that need to be modified. By default, DDF uses 'server' as the hostname for the local DDF instance and 'cas' as the hostname for the CAS server.
+==== Configure CAS for {branding}
+When configuring CAS to integrate with {branding}, there are two main configurations that need to be modified. By default, {branding} uses 'server' as the hostname for the local {branding} instance and 'cas' as the hostname for the CAS server.
 
 ===== CAS Client
 The CAS client bundle contains CAS client code that can be used by other bundles when validating and retrieving tickets from CAS. This bundle is extensively used when performing authentication. 
 
-When setting up DDF, the 'Server Name' and 'Proxy Callback URL' must be set to the hostname of the local DDF instance.
+When setting up {branding}, the 'Server Name' and 'Proxy Callback URL' must be set to the hostname of the local {branding} instance.
 
 The 'CAS Server URL' configuration should point to the hostname of the CAS server and should match the SSL certificate that it is using.
 
@@ -1748,18 +1748,18 @@ The 'CAS Server URL' configuration should point to the hostname of the CAS serve
 The 'CAS Server URL' configuration should point to the hostname of the CAS server and should match the SSL certificate that it is using.
 
 ===== Additional Configuration
-Information on each of the CAS-specific bundles that come with DDF, as well as their configurations, can be found on the Security CAS application page.
+Information on each of the CAS-specific bundles that come with {branding}, as well as their configurations, can be found on the Security CAS application page.
 
 ==== Example Workflow
-The following is a sample workflow hat shows how CAS integrates within the DDF WSS Implementation.
+The following is a sample workflow hat shows how CAS integrates within the {branding} WSS Implementation.
 
-. User points browser to DDF Query Page.
+. User points browser to {branding} Query Page.
 . CAS servlet filters are invoked during request. 
 . Assuming a user is not already signed in, the user is redirected to CAS login page.
 .. For X.509 authentication, CAS will try to obtain a certificate from the browser. Most browsers will prompt the user to select a valid certificate to use.
 .. For username/password authentication, CAS will display a login page.
-. After successful sign-in, the user is redirected back to DDF Query page.
-. DDF Query Page obtains the Service Ticket sent from CAS, gets a Proxy Granting Ticket (PGT), and uses that to create a Proxy Ticket for the STS.
+. After successful sign-in, the user is redirected back to {branding} Query page.
+. {branding} Query Page obtains the Service Ticket sent from CAS, gets a Proxy Granting Ticket (PGT), and uses that to create a Proxy Ticket for the STS.
 . The user fills in search phrase and selects *Search*.
 . The Security API uses the incoming CAS proxy ticket to create a RequestSecurityToken call to the STS.
 . The STS validates the proxy ticket to CAS and creates SAML assertion.
@@ -1771,7 +1771,7 @@ From step 10 forward, the message is completely decoupled from CAS and will proc
 === Configuring CAS for LDAP
 
 ==== Install and Configure LDAP
-DDF comes with an embedded LDAP instance that can be used for testing. During internal testing this LDAP was used extensively.
+{branding} comes with an embedded LDAP instance that can be used for testing. During internal testing this LDAP was used extensively.
 
 More information on configuring the LDAP and a list of users and attributes can be found at the Embedded LDAP Configuration page.
 
@@ -2065,13 +2065,13 @@ To verify certificate authentication with the default CAS files you must make su
 For more information on CAS configuration options and what each setting means, refer to their documentation page: https://wiki.jasig.org/display/CASUM/X.509+Certificates.
 
 === Certificate Management 
-DDF uses certificates in two ways:
+{branding} uses certificates in two ways:
 . To transmit and receive encrypted messages.
 . To perform authentication of an incoming user request.
-This page details general management operations of using certificates in DDF. 
+This page details general management operations of using certificates in {branding}. 
 
 ==== Default Certificates
-DDF comes with a default keystore that contains certificates. The keystore is used for different services and the certificate contained within it is aliased to "localhost".
+{branding} comes with a default keystore that contains certificates. The keystore is used for different services and the certificate contained within it is aliased to "localhost".
 [cols="5" options="header"]
 |===
 
@@ -2095,12 +2095,12 @@ File: etc/ws-security/issuer/encryption.properties
 File: etc/ws-security/issuer/signature.properties
 
 File: etc/ddf.platform.config.cfg
-|Used to secure (SSL) all of the endpoints for DDF, to perform outgoing SSL requests, sign STS SAML assertions. This also includes the admin console and any other web service that is hosted by DDF.
+|Used to secure (SSL) all of the endpoints for {branding}, to perform outgoing SSL requests, sign STS SAML assertions. This also includes the admin console and any other web service that is hosted by {branding}.
 
 |===
 
 ==== File Management
-File management includes creating and configuring the files that contain the certificates. In DDF, these files are generally Java Keystores (jks) and Certificate Revocation Lists (crl). This includes commands and tools that can be used to perform these operations.
+File management includes creating and configuring the files that contain the certificates. In {branding}, these files are generally Java Keystores (jks) and Certificate Revocation Lists (crl). This includes commands and tools that can be used to perform these operations.
 
 The following tools are used:
 
@@ -2189,7 +2189,7 @@ $> openssl ca -gencrl -out crl-tokenissuer-revoked.pem
 `$> openssl crl -inform PEM -text -noout -in crl-tokenissuer-revoked.pem`
 
 ==== Configuration Management
-Configuration management includes configuring DDF to use existing certificates and defining configuration options for the system. This includes configuration certificate revocation and keystores.
+Configuration management includes configuring {branding} to use existing certificates and defining configuration options for the system. This includes configuration certificate revocation and keystores.
 
 ===== Certificate Revocation Configuration
 
@@ -2281,10 +2281,10 @@ Caused by: java.security.cert.CertPathValidatorException: Certificate has been r
 
 === Encryption Service
 
-The encryption service and encryption command, which are based on Jasypt (http://www.jasypt.org/), provide an easy way for developers to add encryption capabilities to DDF.
+The encryption service and encryption command, which are based on Jasypt (http://www.jasypt.org/), provide an easy way for developers to add encryption capabilities to {branding}.
 
 ==== Encryption Command
-An encrypt security command is provided with DDF that allows plain text to be encrypted. This is useful when displaying password fields in a GUI.
+An encrypt security command is provided with {branding} that allows plain text to be encrypted. This is useful when displaying password fields in a GUI.
 
 Below is an example of the security:encrypt command used to encrypt the plain text "myPasswordToEncrypt". The output, `bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=`, is the encrypted value.
 
@@ -2366,7 +2366,7 @@ With the security-pdp-java feature configured in this way, the above Metacard wo
 The XACML PDP is explained in more detail in the XACML Policy Decision Point (PDP) section of this documentation. It the administrator's responsibility to write a XACML policy capable of returning the correct response message. The Java-based PDP should perform adequately in most situations. It is possible to install the security-pdp-java and security-pdp-xacml features at the same time. The system could be configured in this way in order to allow the Java PDP to handle most cases and only have XACML policies to handle more complex situations than what the Java PDP is designed for. Keep in mind that this would be a very complex configuration with both PDPs installed, and this should only be performed if you understand the complex details.
 
 ==== Redact a New Type of Metacard
-To enable redaction/filtering on a new type of record, implement a PostQueryPlugin that is able to read the string metadata contained within the metacard record. The plugin must set the security attribute to a map of list of values extracted from the metacard. Note that in DDF, there is no default plugin that populates the security attribute on the metacard. A plugin must be created to populate these fields in order for redaction/filtering to work correctly.
+To enable redaction/filtering on a new type of record, implement a PostQueryPlugin that is able to read the string metadata contained within the metacard record. The plugin must set the security attribute to a map of list of values extracted from the metacard. Note that in {branding}, there is no default plugin that populates the security attribute on the metacard. A plugin must be created to populate these fields in order for redaction/filtering to work correctly.
 
 Example redacted record:
 [source,xml,linenums]
@@ -2407,15 +2407,15 @@ Example redacted record:
 ----
 
 === Security Token Service
-The Security Token Service (STS) is a service running in DDF that allows clients to request SAML v2.0 assertions.  These assertions are then used to authenticate a client allowing them to issue other requests, such as ingests or queries to DDF services.  
+The Security Token Service (STS) is a service running in {branding} that allows clients to request SAML v2.0 assertions.  These assertions are then used to authenticate a client allowing them to issue other requests, such as ingests or queries to {branding} services.  
 
-The STS is an extension of Apache CXF-STS.  It is a SOAP web service that utilizes WS-Security policies. The generated SAML assertions contain attributes about a user and is used by the Policy Enforcement Point (PEP) in the secure endpoints. Specific configuration details on the bundles that come with DDF can be found on the Security STS application page. This page details all of the STS components that come out of the box with DDF, along with configuration options, installation help, and which services they import and export.
+The STS is an extension of Apache CXF-STS.  It is a SOAP web service that utilizes WS-Security policies. The generated SAML assertions contain attributes about a user and is used by the Policy Enforcement Point (PEP) in the secure endpoints. Specific configuration details on the bundles that come with {branding} can be found on the Security STS application page. This page details all of the STS components that come out of the box with {branding}, along with configuration options, installation help, and which services they import and export.
 
 ==== Using the Security Token Service (STS)
 Once installed, the STS can be used to request SAML v2.0 assertions via a SOAP web service request. Out of the box, the STS supports authentication from existing SAML tokens, CAS proxy tickets, username/password, and x509 certificates. It also supports retrieving claims using LDAP.
 
 ===== Standalone Installation
-The STS cannot currently be installed on a kernel distribution of DDF. To run a STS-only DDF installation, uninstall the catalog components that are not being used. The following list displays the features that can be uninstalled to minimize the runtime size of DDF in an STS-only mode. This list is not a comprehensive list of every feature that can be uninstalled; it is a list of the larger components that can be uninstalled without impacting the STS functionality.  
+The STS cannot currently be installed on a kernel distribution of {branding}. To run a STS-only {branding} installation, uninstall the catalog components that are not being used. The following list displays the features that can be uninstalled to minimize the runtime size of {branding} in an STS-only mode. This list is not a comprehensive list of every feature that can be uninstalled; it is a list of the larger components that can be uninstalled without impacting the STS functionality.  
 
 .Unnecessary Features
 * catalog-core-standardframework
@@ -2492,7 +2492,7 @@ public interface ClaimsHandler {
 ----
 . Deploy the bundle.
 
-If the new claims handler is hitting an external service that is secured with SSL, a developer may have to add the root CA of the external site to the DDF trustStore and add a valid certificate into the DDF keyStore. Doing so will allow the SSL to encrypt messages that will be accepted by the external service. For more information on certificates, refer to the Configuring a Java Keystore for Secure Communications page.
+If the new claims handler is hitting an external service that is secured with SSL, a developer may have to add the root CA of the external site to the {branding} trustStore and add a valid certificate into the {branding} keyStore. Doing so will allow the SSL to encrypt messages that will be accepted by the external service. For more information on certificates, refer to the Configuring a Java Keystore for Secure Communications page.
 
 ==== STS WS-Trust WSDL Document
 
@@ -2737,9 +2737,9 @@ This XML file is found inside of the STS bundle and is named ws-trust-1.4-servic
 ----
 
 ==== Example Request and Responses for a SAML Assertion
-A client performs a RequestSecurityToken operation against the STS to receive a SAML assertion. The DDF STS offers several different ways to request a SAML assertion. For help in understanding the various request and response formats, samples have been provided. The samples are divided out into different request token types.
+A client performs a RequestSecurityToken operation against the STS to receive a SAML assertion. The {branding} STS offers several different ways to request a SAML assertion. For help in understanding the various request and response formats, samples have been provided. The samples are divided out into different request token types.
 
-Most endpoints that have been used in DDF require the X.509 PublicKey SAML assertion.
+Most endpoints that have been used in {branding} require the X.509 PublicKey SAML assertion.
 
 ==== BinarySecurityToken (CAS) SAML Security Token Request/Response
 
@@ -2960,7 +2960,7 @@ L6tQ</ds:X509Certificate>
 
 ===== UsernameToken Bearer SAML Security Token Request/Response
 
-To obtain a SAML assertion to use in secure communication to DDF, a RequestSecurityToken (RST) request has to be made to the STS.  
+To obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS.  
 
 A Bearer SAML assertion is automatically trusted by the endpoint. The client doesn't have to prove it can own that SAML assertion. It is the simplest way to request a SAML assertion, but many endpoints won't accept a KeyType of Bearer. 
 
@@ -3155,13 +3155,13 @@ HM0dPfiQLQ99ElWkv/0=</ds:X509Certificate>
 
 ===== X.509 PublicKey SAML Security Token Request/Response
 
-In order to obtain a SAML assertion to use in secure communication to DDF, a RequestSecurityToken (RST) request has to be made to the STS. 
+In order to obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS. 
 
-An endpoint's policy will specify the type of security token needed.  Most of the endpoints that have been used with DDF require a SAML v2.0 assertion with a required KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey.  This means that the SAML assertion provided by the client to a DDF endpoint must contain a SubjectConfirmation block with a type of "holder-of-key" containing the client's public key.  This is used to prove that the client can possess the SAML assertion returned by the STS. 
+An endpoint's policy will specify the type of security token needed.  Most of the endpoints that have been used with {branding} require a SAML v2.0 assertion with a required KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey.  This means that the SAML assertion provided by the client to a {branding} endpoint must contain a SubjectConfirmation block with a type of "holder-of-key" containing the client's public key.  This is used to prove that the client can possess the SAML assertion returned by the STS. 
 
 ====== Request
 *Explanation*
-The STS that comes with DDF requires the following to be in the RequestSecurityToken request in order to issue a valid SAML assertion.  See the request block below for an example of how these components should be populated.
+The STS that comes with {branding} requires the following to be in the RequestSecurityToken request in order to issue a valid SAML assertion.  See the request block below for an example of how these components should be populated.
 * WS-Addressing header containing Action, To, and MessageID blocks
 * Valid, non-expired timestamp
 * Issued over HTTPS
@@ -3419,13 +3419,13 @@ hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
 
 === XACML Policy Decision Point (PDP)
 
-After unzipping the DDF distribution, place the desired XACML policy in the <distribution root>/etc/pdp/policies directory.  This is the directory in which the PDP will look for XACML policies every 60 seconds. A sample XACML policy is located at the end of this page. Information on specific bundle configurations and names can be found on the Security PDP application page.
+After unzipping the {branding} distribution, place the desired XACML policy in the <distribution root>/etc/pdp/policies directory.  This is the directory in which the PDP will look for XACML policies every 60 seconds. A sample XACML policy is located at the end of this page. Information on specific bundle configurations and names can be found on the Security PDP application page.
 
 ==== Creating a Policy
-This document assumes familiarity with the XACML schema and does not go into detail on the XACML language. There are some DDF-specific items that need to be considered when creating a policy, so it is compatible with the XACMLRealm. When creating a policy, a target is used to indicate that a certain action should be run only for one type of request. Targets can be used on both the main policy element and any individual rules. Generally targets are geared toward the actions that are set in the request.
+This document assumes familiarity with the XACML schema and does not go into detail on the XACML language. There are some {branding}-specific items that need to be considered when creating a policy, so it is compatible with the XACMLRealm. When creating a policy, a target is used to indicate that a certain action should be run only for one type of request. Targets can be used on both the main policy element and any individual rules. Generally targets are geared toward the actions that are set in the request.
 
 ===== Actions
-For DDF, these actions are populated by various components in the security API. The actions and their population location are identified in the following table.
+For {branding}, these actions are populated by various components in the security API. The actions and their population location are identified in the following table.
 
 [cols="1,1,1,5"]
 |===
@@ -3449,7 +3449,7 @@ For DDF, these actions are populated by various components in the security API. 
 
 [NOTE]
 ====
-These are only the action-id values that are currently created by the components that come with DDF. Additional components can be created and added to DDF to identify specific action-ids.
+These are only the action-id values that are currently created by the components that come with {branding}. Additional components can be created and added to {branding} to identify specific action-ids.
 ====
 
 In the examples below, the policy has specified targets for the above type of calls. For the Filtering/Redaction code, the target was set for "filter", and the Service validation code targets were geared toward two services: query and LocalSiteName. In a production environment, these actions for service authorization will generally be full URNs that are described within the SOAP WSDL.
@@ -3777,7 +3777,7 @@ The resource had an additional RESOURCE_ACCESS attribute 'C' that the subject di
 ----
 
 === Expansion Service
-The Expansion Service and its corresponding expansion-related commands provide an easy way for developers to add expansion capabilities to DDF during user attributes and metadata card processing. In addition to these two defined uses of the expansion service, developers are free to utilize the service in their own implementations.
+The Expansion Service and its corresponding expansion-related commands provide an easy way for developers to add expansion capabilities to {branding} during user attributes and metadata card processing. In addition to these two defined uses of the expansion service, developers are free to utilize the service in their own implementations.
 
 Each instance of the expansion service consists of a collection of rule sets. Each rule set consists of a key value and its associated set of rules. Callers of the expansion service provide a key and an original value to be expanded. The expansion service then looks up the set of rules for the specified key. The expansion service then cumulatively applies each of the rules in the set starting with the original value, with the resulting set of values being returned to the caller.
 
@@ -3835,7 +3835,7 @@ The examples below use the following collection of rule sets:
 Note that the rules listed for each key are processed in order, so they may build upon each other, i.e., a new value from the new replacement string may be expanded by a subsequent rule.
 
 ==== Instances and Configuration
-It is expected that multiple instances of the expansion service will be running at the same time. Each instance of the service defines a unique property that is useful for retrieving specific instances of the expansion service. The following table lists the two pre-defined instances used by DDF for expanding user attributes and metacard attributes respectively.
+It is expected that multiple instances of the expansion service will be running at the same time. Each instance of the service defines a unique property that is useful for retrieving specific instances of the expansion service. The following table lists the two pre-defined instances used by {branding} for expanding user attributes and metacard attributes respectively.
 
 [cols="1,3,5" options="header"]
 |===
@@ -3886,7 +3886,7 @@ Title:VP-Engineering:VP-Engineering VP Engineering
 |Namespace
 |Description
 
-|DDF::Security::Expansion::Commands	
+|{branding}::Security::Expansion::Commands	
 |security	
 |The expansion commands provide detailed information about the expansion rules in place and the ability to see the results of expanding specific values against the active rule set.
 
@@ -3955,7 +3955,7 @@ ddf@local>expand Title "VP-Engineering Manager"
 
 === Configure WSS Using Standalone Servers
 
-DDF uses CAS as its single sign-on service. DDF uses LDAP and STS to keep track of users and user attributes. CAS, LDAP, and STS are integral, interconnected components of the DDF security scheme, and all can be installed on a local DDF instance with only a few feature installs (with the exception of the CAS installation, which requires Apache Tomcat to run). Setting up these authentication components to run externally, however, is more nuanced, so this page will provide step-by-step instructions detailing the configuration process.
+{branding} uses CAS as its single sign-on service. {branding} uses LDAP and STS to keep track of users and user attributes. CAS, LDAP, and STS are integral, interconnected components of the {branding} security scheme, and all can be installed on a local {branding} instance with only a few feature installs (with the exception of the CAS installation, which requires Apache Tomcat to run). Setting up these authentication components to run externally, however, is more nuanced, so this page will provide step-by-step instructions detailing the configuration process.
 
 This page assumes that there is a keystore for each of the services/servers. If using different keystore names, substitute the name provided in this document with the desired name for your setup. For this document, the following data is used:
 
@@ -3974,7 +3974,7 @@ This page assumes that there is a keystore for each of the services/servers. If 
 |stsKeystore.jks	
 |Used to sign SAML and as incoming connections.
 
-|DDF	
+|{branding}	
 |serverKeystore.jks +
 clientKeystore.jks
 |Server used for incoming connections. +
@@ -3991,11 +3991,11 @@ image::login_authentication_scheme.jpg[Login Authentication Scheme]
 It is implied that the three authentication components identified below are installed on three separate servers. Therefore, it is important to keep track of the DNS hostnames used on each server for certificate authentication purposes.
 
 ===== LDAP
-LDAP is used to maintain a list of trusted DDF users and the attributes associated with them. It interacts with both CAS and the STS. The former uses LDAP to create session information, and the latter queries LDAP for user attributes and converts them to SAML claims.
+LDAP is used to maintain a list of trusted {branding} users and the attributes associated with them. It interacts with both CAS and the STS. The former uses LDAP to create session information, and the latter queries LDAP for user attributes and converts them to SAML claims.
 
-. Obtain and unzip the DDF kernel (ddf-distribution-kernel-<VERSION>.zip). 
+. Obtain and unzip the {branding} kernel (ddf-distribution-kernel-<VERSION>.zip). 
 . Start the distribution.
-. Deploy the Embedded LDAP application by copying the ldap-embedded-app-<VERSION>.kar into the <DISTRIBUTION_HOME>/deploy directory. Verify that the LDAP server is installed by checking the DDF log or by performing an la command and verifying that the OpenDJ bundle is in the active state. Additionally, it should be responding to LDAP requests on the default ports, which are 1389 and 1636.
+. Deploy the Embedded LDAP application by copying the ldap-embedded-app-<VERSION>.kar into the <DISTRIBUTION_HOME>/deploy directory. Verify that the LDAP server is installed by checking the {branding} log or by performing an la command and verifying that the OpenDJ bundle is in the active state. Additionally, it should be responding to LDAP requests on the default ports, which are 1389 and 1636.
 . Copy the environment's Java keystore file into the ${DISTRIBUTION}/etc/keystores folder, making sure it overwrites the folder's existing serverKeystore.jks file.
 
 [WARNING]
@@ -4004,15 +4004,15 @@ It is very important that the keystore file used in the process is set up to tru
 ====
 
 ===== CAS
-CAS is used for SSO authentication purposes. Unlike LDAP and STS, CAS cannot be run as a DDF bundle. CAS mustt be run through Apache Tomcat.
+CAS is used for SSO authentication purposes. Unlike LDAP and STS, CAS cannot be run as a {branding} bundle. CAS mustt be run through Apache Tomcat.
 
-. Follow the instructions on the CAS installation page to install and configure Tomcat/CAS. For example, with LDAP above, the keystore.jks file that is used must trust the hostnames used by the STS server, LDAP server, and the DDF user connecting to CAS.
+. Follow the instructions on the CAS installation page to install and configure Tomcat/CAS. For example, with LDAP above, the keystore.jks file that is used must trust the hostnames used by the STS server, LDAP server, and the {branding} user connecting to CAS.
 . Open the ${TOMCAT}/webapps/cas/WEB-INF/cas.properties file and modify the cas.ldap.host, cas.ldap.port, cas.ldap.user.dn, and cas.ldap.password fields with your environment's LDAP information.
 
 ===== STS
-The Security Token Service, unlike the LDAP, cannot currently be installed on a kernel distribution of DDF. To run an STS-only DDF installation,  uninstall the catalog components that are not being used. This will increase performance. A list of unneeded components can be found on the STS page.
+The Security Token Service, unlike the LDAP, cannot currently be installed on a kernel distribution of {branding}. To run an STS-only {branding} installation,  uninstall the catalog components that are not being used. This will increase performance. A list of unneeded components can be found on the STS page.
 
-. In the unzipped DDF distribution folder, open /etc/org.ops4j.pax.web.cfg and find the following line:
+. In the unzipped {branding} distribution folder, open /etc/org.ops4j.pax.web.cfg and find the following line:
 +
 `org.ops4j.pax.web.ssl.keystore=etc/keystores/serverKeystore.jks`
 +
@@ -4021,7 +4021,7 @@ and change it to:
 `org.ops4j.pax.web.ssl.keystore=etc/keystores/stsKeystore.jks`
 +
 . Update the password fields to the ones you keystore uses.
-. Verify that the stsKeystores.jks file in `/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, CAS, and any DDF users that make use of this STS server). 
+. Verify that the stsKeystores.jks file in `/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, CAS, and any {branding} users that make use of this STS server). 
 +
 . Start the distribution.
 . Enter the following commands to install the features used by the STS server:
@@ -4031,10 +4031,10 @@ features:install security-sts-server
 features:install security-cas-tokenvalidator
 ----
 +
-. Open the DDF web console as an administrator. The default user is "admin" with a password of "admin" (no quotes).
+. Open the {branding} web console as an administrator. The default user is "admin" with a password of "admin" (no quotes).
 . Navigate to the Configuration tab.
 . Open the Security STS LDAP Login configuration.
-. Verify that the *LDAP URL*, *LDAP Bind User DN*, and *LDAP Bind User Password* fields match your LDAP server's information. The default DDF LDAP username is "cn=user", and the default password is "secret" (no quotes) . In a production environment, the username and password should be changed in the LDAP data file.
+. Verify that the *LDAP URL*, *LDAP Bind User DN*, and *LDAP Bind User Password* fields match your LDAP server's information. The default {branding} LDAP username is "cn=user", and the default password is "secret" (no quotes) . In a production environment, the username and password should be changed in the LDAP data file.
 . Select the *Save* button.
 . Open the *Security STS LDAP and Roles Claims Handler* configuration.
 . Populate the same URL, user, and password fields with your LDAP server information. 
@@ -4048,10 +4048,10 @@ features:install security-cas-tokenvalidator
 .. Update the *Trust Store* and *Key Store* location/password fields with your environment's .jks files. 
 .. Select the Save button.
 
-All of the authentication components should be running and configured at this point. The final step is to configure a DDF instance, so this authentication scheme is used.
+All of the authentication components should be running and configured at this point. The final step is to configure a {branding} instance, so this authentication scheme is used.
 
-==== Configure DDF
-Once everything is configured and running, hooking up an existing DDF instance to the authentication scheme is performed by setting a few configuration properties.
+==== Configure {branding}
+Once everything is configured and running, hooking up an existing {branding} instance to the authentication scheme is performed by setting a few configuration properties.
 
 . Verify that the `${DISTRIBUTION}/etc/keystores` folder is updated with the correct keystores for your operating environment.
 . Start the distribution.
@@ -4067,15 +4067,15 @@ features:install security-cas-cxfservletfilter
 . Open the *Security STS Client* configuration. Verify that the host/port information in the *STS Address* field points to your STS server.
 . Open the *Platform Global Configuration*. 
 .. Change the protocol to https.
-.. Populate the host/port information with the DDF instance's host/port. For DDF, the default port is 8993.
+.. Populate the host/port information with the {branding} instance's host/port. For {branding}, the default port is 8993.
 .. Update the *Trust Store* and *Key Store* location/password fields with your environment's .jks files.
 . Select the *Save* button.
 
-The DDF should now use the CAS/STS/LDAP servers when it attempts to authenticate a user upon an attempted log in.
+The {branding} should now use the CAS/STS/LDAP servers when it attempts to authenticate a user upon an attempted log in.
 
 === Hardening
 
-These instructions demonstrate how to harden a DDF system for a more secure installation.
+These instructions demonstrate how to harden a {branding} system for a more secure installation.
 
 [WARNING]
 ====
@@ -4083,7 +4083,7 @@ The web administration console is not compatible with Internet Explorer 7.
 ====
 
 ==== Disable the Web Console
-To harden DDF for security purposes, disable the Web Console, so users do not have access. All configuration is performed using the DDF command line console and/or .cfg configuration files.
+To harden {branding} for security purposes, disable the Web Console, so users do not have access. All configuration is performed using the {branding} command line console and/or .cfg configuration files.
 
 . Open the Web Console: http://localhost:8181/system/console.
 . Enter the username (default is "admin") and the password (default is "admin").
@@ -4135,31 +4135,31 @@ https.protocols	 TLSv1.1,TLSv1.2	The protocols that are supported when making ou
 
 |===
 
-===== Configure DDF without the Web Administration Console
+===== Configure {branding} without the Web Administration Console
 
 [NOTE]
 ====
-Depending on the environment, it may be easier for integrators and administrators to configure DDF using the Web Console prior to disabling it and switching to SSL. The Web Console can be re-enabled for additional configuration changes.
+Depending on the environment, it may be easier for integrators and administrators to configure {branding} using the Web Console prior to disabling it and switching to SSL. The Web Console can be re-enabled for additional configuration changes.
 ====
-In an environment hardened for security purposes, access to the DDF Web Console is denied. It is necessary to configure DDF (e.g., providers, Schematron rulesets, etc.) using .cfg configuration files or the Karaf command line console. The OSGi container detects the addition, updating, or deletion of `.cfg` files in the `etc/ddf` directory.
-The following sections describe how to configure each DDF item using both of these mechanisms. A template file is provided for each configurable DDF item so that it can be copied/renamed then modified with the appropriate settings.
+In an environment hardened for security purposes, access to the {branding} Web Console is denied. It is necessary to configure {branding} (e.g., providers, Schematron rulesets, etc.) using .cfg configuration files or the Karaf command line console. The OSGi container detects the addition, updating, or deletion of `.cfg` files in the `etc/ddf` directory.
+The following sections describe how to configure each {branding} item using both of these mechanisms. A template file is provided for each configurable {branding} item so that it can be copied/renamed then modified with the appropriate settings.
 
 [WARNING]
 ====
-If at a later time the Web Console is enabled again, all of the configuration done via .cfg files and/or the Karaf command line console are loaded and displayed. However, note that the name of the .cfg file is not used in the admin console. Rather, OSGi assigns a universally unique identifier (UUID) when the DDF item was created and displays this UUID in the console (e.g., OpenSearchSource.112f298e-26a5-4094-befc-79728f216b9b)
+If at a later time the Web Console is enabled again, all of the configuration done via .cfg files and/or the Karaf command line console are loaded and displayed. However, note that the name of the .cfg file is not used in the admin console. Rather, OSGi assigns a universally unique identifier (UUID) when the {branding} item was created and displays this UUID in the console (e.g., OpenSearchSource.112f298e-26a5-4094-befc-79728f216b9b)
 ====
 
-Templates included with DDF:
+Templates included with {branding}:
 
 [cols="1,4,4,1" options="header"]
 |===
 
-|DDF Service
+|{branding} Service
 |Template File Name
 |Factory PID
-|Configurable Properties (from DDF User's Guide)
+|Configurable Properties (from {branding} User's Guide)
 
-|DDF Catalog Framework
+|{branding} Catalog Framework
 |ddf.catalog.impl.service.CatalogFrameworkImpl.cfg
 |ddf.catalog.CatalogFrameworkImpl
 |Standard Catalog Framework
@@ -4206,10 +4206,10 @@ config:update
 
 === Directory Permissions
 
-.DDF_HOME
+.{branding}_HOME
 [NOTE]
 ====
-DDF is installed in the DDF_HOME directory.
+{branding} is installed in the {branding}_HOME directory.
 ====
 
 ==== Directory Permissions on Windows
@@ -4221,9 +4221,9 @@ Restrict access to sensitive files by ensuring that the only users with access p
 . Delete any other groups or users listed with access to `DDF_HOME/etc` and `DDF_HOME/deploy`.
 
 ==== Directory Permissions on *NIX
-Protect the DDF from unauthorized access.
+Protect the {branding} from unauthorized access.
 
-. As root, change the owner and group of critical DDF directories to the NON_ROOT_USER.
+. As root, change the owner and group of critical {branding} directories to the NON_ROOT_USER.
 +
 [WARNING]
 ====
@@ -4238,7 +4238,7 @@ chmod -R og-w $DDF_HOME/etc $DDF_HOME/data
 ----
 +
 . Restrict access to sensitive files by ensuring that the only users with “group” permissions (e.g., ddf-group) have access.
-. Execute the following command on the above files (examples assume DDF_HOME is /opt/ddf):
+. Execute the following command on the above files (examples assume {branding}_HOME is /opt/ddf):
 +
 [source,bash]
 ----
@@ -4260,19 +4260,19 @@ The system administrator must restrict certain directories to ensure that the ap
 
 === Deployment Guidelines
 
-DDF relies on the Directory Permissions of the host platform to protect the integrity of the DDF during operation. System administrators should perform the following steps when deploying bundles added to the DDF.
+{branding} relies on the Directory Permissions of the host platform to protect the integrity of the {branding} during operation. System administrators should perform the following steps when deploying bundles added to the {branding}.
 
 . Prior to allowing a hot deployment, check the available storage space on the system to ensure the deployment will not exceed the available space.
 . Set maximum storage space on the `DDF_HOME/deploy` and `DDF_HOME/system` directories to restrict the amount of space used by deployments.
 . Do not assume the deployment is from a trusted source; verify its origination.
-. Use the source code to verify a deployment is required for DDF to prevent unnecessary/vulnerable deployments.
+. Use the source code to verify a deployment is required for {branding} to prevent unnecessary/vulnerable deployments.
 
 ==== Endpoint Schema Validation
-SOAP Web Services may have WSDL validation enabled. Ensure that the bundle has WSDL schema validation enabled. These instructions assume the implementation made use of the Spring beans model. All DDF endpoint bundles follow this model.
+SOAP Web Services may have WSDL validation enabled. Ensure that the bundle has WSDL schema validation enabled. These instructions assume the implementation made use of the Spring beans model. All {branding} endpoint bundles follow this model.
 
-. Prior to deploying a bundle/feature, verify the schema validation if it is a DDF endpoint.
+. Prior to deploying a bundle/feature, verify the schema validation if it is a {branding} endpoint.
 . Modify the `beans.xml` file
-.. In a terminal window, change directory to the feature directory under the DDF installation directory.
+.. In a terminal window, change directory to the feature directory under the {branding} installation directory.
 +
 [source,bash]
 ----
@@ -4315,12 +4315,12 @@ zip endpoint-bundle.jar *
 ----
 +
 . Re-install the feature.
-.. Open the Web browser and navigate to the DDF Web Console,
+.. Open the Web browser and navigate to the {branding} Web Console,
 .. Select the Install button. Schema validation is now enabled for the endpoint.
 
 === Assuring Authenticity
 
-DDF Artifacts in the JAR file format (such as bundles or DDF applications packaged as KAR files) can be signed and verified using the tools included as part of the Java Runtime Environment.
+{branding} Artifacts in the JAR file format (such as bundles or {branding} applications packaged as KAR files) can be signed and verified using the tools included as part of the Java Runtime Environment.
 
 ==== Prerequisites
 To work with Java signatures, a keystore/truststore is required. For the purposes of this example we'll sign and validate using a self signed certificate which can be generated with the keytool utility. In production a certificate issued from a trusted Certificate Authority should be used.
@@ -4619,7 +4619,7 @@ admin=admin,admin
 ----
 
 ==== Enable Password Encryption
-In the DDF Text Console, enter the following commands:
+In the {branding} Text Console, enter the following commands:
 
 .Enable Password Encryption
 ----
@@ -4629,16 +4629,16 @@ ddf@local> config:update
 ddf@local> dev:restart
 ----
 
-The passwords will then be encrypted in the `users.properties` file once DDF restarts.
+The passwords will then be encrypted in the `users.properties` file once {branding} restarts.
 
 ==== Known Issues
-A system administrator must block visual access to the screen when administering passwords for particular components, such as the OpenSearch source. This is a known issue and will be addressed in a future version of DDF.
+A system administrator must block visual access to the screen when administering passwords for particular components, such as the OpenSearch source. This is a known issue and will be addressed in a future version of {branding}.
 
-== Starting DDF
+== Starting {branding}
 
-Follow the below steps to start and stop DDF.
+Follow the below steps to start and stop {branding}.
 
-=== Start DDF
+=== Start {branding}
 
 ==== *NIX
 
@@ -4656,7 +4656,7 @@ Run the following script from a console window to start the distribution and ope
 DDF_INSTALL/bin/ddf.bat
 ----
 
-=== Stop DDF
+=== Stop {branding}
 There are two options:
 
 * Call shutdown from the console:
@@ -4687,41 +4687,41 @@ DDF_INSTALL/bin/stop.bat
 [IMPORTANT]
 ====
 Do not shut down by closing the window (Windows, Unix) or using the `kill -9 <pid>` command (Unix). This prevents a clean shutdown and can cause significant problems when
-DDF is restarted. Always use the shutdown command or the Ctrl-D shortcut (Windows) from the command line console.
+{branding} is restarted. Always use the shutdown command or the Ctrl-D shortcut (Windows) from the command line console.
 ====
 
 === Automatic Start on System Boot
-Because DDF is built on top of Apache Karaf, DDF can use the Karaf Wrapper to enable automatic startup and shutdown.
+Because {branding} is built on top of Apache Karaf, {branding} can use the Karaf Wrapper to enable automatic startup and shutdown.
 
 . Create the Karaf wrapper.
 +
-.Within the DDF console
+.Within the {branding} console
 ----
 ddf@local> features:install wrapper
 ddf@local> wrapper:install -s AUTO_START -n ddf -d ddf -D "DDF Service"
 ----
 +
-. (Windows users skip to next step) (All *NIX) If DDF was installed to run as a non-root user (recommended,) edit `DDF_INSTALL/bin/ddf-service`.
+. (Windows users skip to next step) (All *NIX) If {branding} was installed to run as a non-root user (recommended,) edit `DDF_INSTALL/bin/ddf-service`.
 +
 Change:
 +
-.DDF_INSTALL/bin/ddf-service
+.{branding}_INSTALL/bin/ddf-service
 ----
 #RUN_AS_USER=
 ----
 +
 to:
 +
-.DDF_INSTALL/bin/ddf-service
+.{branding}_INSTALL/bin/ddf-service
 ----
 RUN_AS_USER=<ddf-user>
 ----
 +
-. Set the memory in the wrapper config to match with DDF default memory setting.
+. Set the memory in the wrapper config to match with {branding} default memory setting.
 .. Add the setting for PermGen space under the JVM Parameters section.
 .. Update heap space to 2048.
 +
-.DDF_INSTALL/etc/ddf-wrapper.conf
+.{branding}_INSTALL/etc/ddf-wrapper.conf
 [source,java,linenums]
 ----
 #Add the following:
@@ -4739,7 +4739,7 @@ wrapper.java.maxmemory=2048
 +
 . Set the `DDF_HOME` property.
 +
-.DDF_INSTALL/etc/ddf-wrapper.conf
+.{branding}_INSTALL/etc/ddf-wrapper.conf
 ----
 set.default.DDF_HOME="%KARAF_HOME%"
 ----
@@ -4791,23 +4791,23 @@ While it is not a necessary step, information on how to convert the System V ini
 Due to a slight difference between the Linux and Solaris implementation of the ps command, the ddf-service script needs to be modified.
 ====
 +
-. Locate the following line in DDF_INSTALL/bin/ddf-service
+. Locate the following line in {branding}_INSTALL/bin/ddf-service
 +
-.Solaris DDF_INSTALL/bin/ddf-service
+.Solaris {branding}_INSTALL/bin/ddf-service
 ----
 pidtest=`$PSEXE -p $pid -o command | grep $WRAPPER_CMD | tail -1`
 ----
 +
 . Change the word command to comm.
 +
-.Solaris DDF_Install/bin/ddf-service
+.Solaris {branding}_Install/bin/ddf-service
 ----
 pidtest=`$PSEXE -p $pid -o comm | grep $WRAPPER_CMD | tail -1`
 ----
 
 ==== Karaf Documentation
 
-Because DDF is built on Apache Karaf, more information on operating DDF can be found in the Karaf documentation at http://karaf.apache.org/index/documentation.html.
+Because {branding} is built on Apache Karaf, more information on operating {branding} can be found in the Karaf documentation at http://karaf.apache.org/index/documentation.html.
 
 == Console Commands
 
@@ -4945,7 +4945,7 @@ The `help` command provides a description of the provided command, along with th
 
 ==== catalog:dump Options
 
-The `catalog:dump` command was extended in DDF version 2.5.0 to provide selective export of metacards based on date ranges.
+The `catalog:dump` command was extended in {branding} version 2.5.0 to provide selective export of metacards based on date ranges.
 The `--created-after` and `--created-before` options allow filtering on the date and time that the metacard was created, while `--modified-after` and `--modified-before` options allow filtering on the date and time that the metacard was last modified (which is the created date if no other modifications were made). These date ranges are exclusive (i.e., if the date and time match exactly, the metacard will not be included). The date filtering options (`--created-after`, `--created-before`, `--modified-after`, and `--modified-before`) can be used in any combination, with the export result including only metacards that match all of the provided conditions.
 
 If no date filtering options are provided, created and modified dates are ignored, so that all metacards match.
@@ -5087,11 +5087,11 @@ In short, administrators can view the status of a run within the log as long as 
 |Namespace
 |Description
 
-|DDF :: Catalog :: Core :: PubSub Commands
+|{branding} :: Catalog :: Core :: PubSub Commands
 |subscriptions
-|The DDF PubSub shell commands provide functions to list the registered subscriptions in
+|The {branding} PubSub shell commands provide functions to list the registered subscriptions in
 
-DDF and to delete subscriptions.
+{branding} and to delete subscriptions.
 
 |===
 
@@ -5311,9 +5311,9 @@ Deleted 2 subscriptions out of 2 subscriptions found.
 |Namespace
 |Description
 
-|DDF Platform Commands
+|{branding} Platform Commands
 |platform
-|The DDF Platform Shell Commands provide generic platform management functions
+|The {branding} Platform Shell Commands provide generic platform management functions
 
 |===
 
@@ -5381,7 +5381,7 @@ The `help` command provides a description of the provided command, along with th
 |Namespace
 |Description
 
-|DDF:: Persistence :: Core :: Commands
+|{branding}:: Persistence :: Core :: Commands
 |store
 |The Persistence Shell Commands are meant to be used with any PersistentStore implementations. They provide the ability to query and delete entries from the persistence store.
 
@@ -5459,17 +5459,17 @@ ddf@local>store:delete --cql "id='fdc150b157754138a997fe7143a98cfa'" --type noti
 
 == Ingesting Data
 
-Ingesting is the process of getting metadata into the Catalog Framework (including via the Content Framework). Ingested files are "transformed" into a neutral format that can be search against as well as migrated to other formats and systems. There are multiple methods available for ingesting files into the DDF.
+Ingesting is the process of getting metadata into the Catalog Framework (including via the Content Framework). Ingested files are "transformed" into a neutral format that can be search against as well as migrated to other formats and systems. There are multiple methods available for ingesting files into the {branding}.
 
 === File types supported
-DDF supports a wide variety of file types and data types for ingest. The DDF's internal Input Transformers extract the necessary data into a generalized format. DDF supports ingest of many datatypes and commonly use file formats, such as Microsoft office products: Word documents, Excel spreadsheets, and PowerPoint presentations as well as .pdf files, GeoJson and others.
+{branding} supports a wide variety of file types and data types for ingest. The {branding}'s internal Input Transformers extract the necessary data into a generalized format. {branding} supports ingest of many datatypes and commonly use file formats, such as Microsoft office products: Word documents, Excel spreadsheets, and PowerPoint presentations as well as .pdf files, GeoJson and others.
 
 === Methods of Ingest
 
 ==== Easy (for fewer records or manual ingesting)
 
 ===== Ingest command (console)
-The DDF console application has a command line option for ingesting files
+The {branding} console application has a command line option for ingesting files
 
 ====== Usage
 The syntax for the ingest command is "ingest" -t <transformer type> <file path relative to the installation path.
@@ -5480,7 +5480,7 @@ ingest -t xml examples/metacards/xml
 ----
 
 ===== Directory Monitor
-The DDF Content application contains a Directory Monitor feature that allows files placed in a single directory to be monitored and ingested automatically. For more information about configuring a directory to be monitored, consult Directory Monitor.
+The {branding} Content application contains a Directory Monitor feature that allows files placed in a single directory to be monitored and ingested automatically. For more information about configuring a directory to be monitored, consult Directory Monitor.
 
 ====== Usage
 Simply place the desired files in the monitored directory and it will be ingested automatically. If, for any reason, the files cannot be ingested, they will be moved to an automatically created sub-folder named `.errors`. Optionally, ingested files can be automatically moved to a sub-folder called `.ingested`.
@@ -5488,24 +5488,24 @@ Simply place the desired files in the monitored directory and it will be ingeste
 ==== Medium
 
 ===== External Methods
-Several third-party tools, such as curl.exe and the Chrome Advanced Rest Client, can be used to send files and other types of data to DDF for ingest.
+Several third-party tools, such as curl.exe and the Chrome Advanced Rest Client, can be used to send files and other types of data to {branding} for ingest.
 
 ==== Advanced (more records, automated ingest)
-The DDF provides endpoints for both REST and SOAP services, allowing integration with other data systems and the ability to further automate ingesting data into the catalog. For further information, see Integrating Endpoints.
+The {branding} provides endpoints for both REST and SOAP services, allowing integration with other data systems and the ability to further automate ingesting data into the catalog. For further information, see Integrating Endpoints.
 	
 == Troubleshooting
 
-=== Exception Starting DDF (Windows)
+=== Exception Starting {branding} (Windows)
 
 ==== Problem:
-An exception is sometimes thrown starting DDF on a Windows machine (x86).
+An exception is sometimes thrown starting {branding} on a Windows machine (x86).
 
 If using an unsupported terminal, java.lang.NoClassDefFoundError: Could not initialize class org.fusesource.jansi.internal.Kernel32 is thrown.
 
 ==== Solution:  
 Install missing Windows libraries.
 
-Some Windows platforms are missing libraries that are required by DDF.  These libraries are provided by the Microsoft Visual C++ 2008 Redistributable Package x64 (http://www.microsoft.com/en-us/download/details.aspx?id=15336).
+Some Windows platforms are missing libraries that are required by {branding}.  These libraries are provided by the Microsoft Visual C++ 2008 Redistributable Package x64 (http://www.microsoft.com/en-us/download/details.aspx?id=15336).
 
 === Blank Web Console
 
@@ -5513,10 +5513,10 @@ Some Windows platforms are missing libraries that are required by DDF.  These li
 http://localhost:8181/system/console opens as a blank page.
 
 ==== Solution:
-Restart DDF.
-. Shut down DDF from the console: +
+Restart {branding}.
+. Shut down {branding} from the console: +
 `ddf@local>shutdown`
-. Start DDF back up:
+. Start {branding} back up:
 `./ddf`
 . Verify that all of the files were copied over correctly during the deploy bundles step.
 
@@ -5527,16 +5527,16 @@ The following exception is thrown:
 `org.apache.cxf.BusException: No conduit initiator`
 
 ==== Solution:
-Restart DDF.
-. Shut down DDF: +
+Restart {branding}.
+. Shut down {branding}: +
 `ddf@local>shutdown`
-. Start up DDF:
+. Start up {branding}:
 `./ddf`
 
 === Distribution Will Not Start
 
 ==== Problem:
-DDF will not start when calling the start script defined during installation.
+{branding} will not start when calling the start script defined during installation.
 
 ==== Solution:
 Complete the following procedure.
@@ -5553,10 +5553,10 @@ Complete the following procedure.
 +
 `/bin/bash`
 
-=== DDF Is Unresponsive to Incoming Requests
+=== {branding} Is Unresponsive to Incoming Requests
 
 ==== Problem:
-DDF is unresponsive to incoming requests.
+{branding} is unresponsive to incoming requests.
 
 An example of the log file when this problem is encountered:
 
@@ -5580,12 +5580,12 @@ INFO: locking
 ----
 
 ==== Symptoms
-Multiple java.exe processes running, indicating more than one DDF instance is running. This can be caused when another DDF is not shut down.
+Multiple java.exe processes running, indicating more than one {branding} instance is running. This can be caused when another {branding} is not shut down.
 
 ==== Solutions:
 Perform one or all of the following recommended solutions, as necessary.
 
-* Wait for proper shutdown of DDF prior to starting a new instance.
-* Verify running java.exe are not DDF (e.g., kill/close if necessary).
-* Utilize automated start/stop scripts to run DDF as a service.
+* Wait for proper shutdown of {branding} prior to starting a new instance.
+* Verify running java.exe are not {branding} (e.g., kill/close if necessary).
+* Utilize automated start/stop scripts to run {branding} as a service.
 
