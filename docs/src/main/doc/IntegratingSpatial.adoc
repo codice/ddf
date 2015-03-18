@@ -1,5 +1,5 @@
 = Integrating {branding} Spatial App
-include::../includes/config.adoc[]
+include::../classes/config.adoc[]
 
 == Overview
 

@@ -1,5 +1,5 @@
 = Managing {branding} Spatial Application
-include::../config.adoc[]
+include::../classes/config.adoc[]
 
 == Overview
 The {branding} Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
@@ -15,6 +15,7 @@ This page describes:
 == Prerequisites
 
 Before the {branding} Spatial Application can be installed:
+
 * the {branding} Kernel must be running
 * the {branding} Platform Application must be installed 
 * the {branding} Catalog Application must be installed
@@ -44,9 +45,9 @@ Otherwise, if the {branding} application is running as part of the {branding} di
 
 .Uninstall {branding} application from {branding} distribution
 ----
-features:removeurl -u <{branding} application's feature repository URL>
+features:removeurl -u <Application's feature repository URL>
 
-Example:   features:removeurl -u mvn:org.codice.{branding}.spatial/spatial-app/2.5.0/xml/features
+Example:   features:removeurl -u mvn:org.codice.ddf.spatial/spatial-app/2.5.0/xml/features
 ----
 
 The uninstall of the application can be verified by the absence of any of the {branding} application's features in the `features:list` command output.
@@ -60,18 +61,19 @@ The repository URLs for installed applications can be obtained by entering:
 == Reverting the Uninstall
 
 If the uninstall of the {branding} application needs to be reverted, this is accomplished by either:
+
 * copying the application's KAR file previously in the `<INSTALL_DIRECTORY>/deploy` directory, OR
 * adding the application's feature repository back into {branding} and installing its main feature, which typically is of the form `<applicationName>-app`, e.g., `catalog-app`.
 
 .Reverting {branding} application's uninstall
 ----
-features:addurl <{branding} application's feature repository URL>
-features:install <{branding} application's main feature>
+features:addurl <Application's feature repository URL>
+features:install <Application's main feature>
 
 Example:
 
-    {branding}@local>features:addurl mvn:{branding}.catalog/catalog-app/2.3.0/xml/features
-    {branding}@local>features:install catalog-app
+    ddf@local>features:addurl mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+    ddf@local>features:install catalog-app
 ----
 
 == Upgrading
