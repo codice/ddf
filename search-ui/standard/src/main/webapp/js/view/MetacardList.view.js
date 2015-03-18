@@ -264,7 +264,10 @@ define([
             },
             getTemplate: function() {
                 if (!_.isUndefined(this.model.get('hits'))) {
-                    if (!this.model.get('results') || properties.resultCount >= this.model.get('hits') || this.model.get('hits') === 0) {
+                    if (!this.model.get('results') ||
+                        this.model.get('results').length === 0 ||
+                        properties.resultCount > this.model.get('results').length ||
+                        properties.resultCount >= this.model.get('hits')) {
                         return 'countLowTemplate';
                     } else {
                         return 'countHighTemplate';
