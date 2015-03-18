@@ -32,6 +32,14 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            opendj-core,
+                            opendj-grizzly,
+                            forgerock-util,
+                            grizzly-framework,
+                            i18n-slf4j,
+                            i18n-core
+                        </Embed-Dependency>
                         <Import-Package>
                             org.osgi.service.blueprint,
                             org.osgi.framework,
@@ -71,6 +79,37 @@
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.forgerock.opendj</groupId>
+            <artifactId>opendj-core</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.forgerock.opendj</groupId>
+            <artifactId>opendj-grizzly</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.forgerock.commons</groupId>
+            <artifactId>forgerock-util</artifactId>
+            <version>1.3.5-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.grizzly</groupId>
+            <artifactId>grizzly-framework</artifactId>
+            <version>2.3.14</version>
+        </dependency>
+        <dependency>
+            <groupId>org.forgerock.commons</groupId>
+            <artifactId>i18n-slf4j</artifactId>
+            <version>1.4.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.forgerock.commons</groupId>
+            <artifactId>i18n-core</artifactId>
+            <version>1.4.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

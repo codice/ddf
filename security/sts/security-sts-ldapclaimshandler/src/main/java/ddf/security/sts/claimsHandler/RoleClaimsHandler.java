@@ -19,14 +19,15 @@ import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.apache.cxf.sts.claims.ClaimsParameters;
 import org.apache.cxf.sts.claims.ProcessedClaim;
 import org.apache.cxf.sts.claims.ProcessedClaimCollection;
-import org.apache.directory.api.ldap.model.cursor.EntryCursor;
-import org.apache.directory.api.ldap.model.entry.Attribute;
-import org.apache.directory.api.ldap.model.entry.Entry;
-import org.apache.directory.api.ldap.model.entry.Value;
-import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.message.SearchScope;
-import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.exception.InvalidConnectionException;
+import org.forgerock.opendj.ldap.Attribute;
+import org.forgerock.opendj.ldap.ByteString;
+import org.forgerock.opendj.ldap.Connection;
+import org.forgerock.opendj.ldap.LDAPConnectionFactory;
+import org.forgerock.opendj.ldap.LdapException;
+import org.forgerock.opendj.ldap.SearchResultReferenceIOException;
+import org.forgerock.opendj.ldap.SearchScope;
+import org.forgerock.opendj.ldap.responses.SearchResultEntry;
+import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ldap.filter.AndFilter;
@@ -36,7 +37,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +46,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
     private Map<String, String> claimsLdapAttributeMapping;
 
-    private LdapConnection connection;
+    private LDAPConnectionFactory connectionFactory;
 
     private String delimiter = ";";
 
@@ -65,6 +65,10 @@ public class RoleClaimsHandler implements ClaimsHandler {
     private String roleClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
     private String propertyFileLocation;
+
+    private String bindUserCredentials;
+
+    private String bindUserDN;
 
     public URI getRoleURI() {
         URI uri = null;
@@ -121,12 +125,12 @@ public class RoleClaimsHandler implements ClaimsHandler {
         this.groupBaseDn = groupBaseDn;
     }
 
-    public LdapConnection getLdapConnection() {
-        return connection;
+    public LDAPConnectionFactory getLdapConnectionFactory() {
+        return connectionFactory;
     }
 
-    public void setLdapConnection(LdapConnection connection) {
-        this.connection = connection;
+    public void setLdapConnectionFactory(LDAPConnectionFactory connection) {
+        this.connectionFactory = connection;
     }
 
     public String getUserNameAttribute() {
@@ -182,6 +186,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
             ClaimsParameters parameters) {
         String[] attributes = {groupNameAttribute, memberNameAttribute};
         ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
+        Connection connection = null;
         try {
             Principal principal = parameters.getPrincipal();
 
@@ -199,49 +204,52 @@ public class RoleClaimsHandler implements ClaimsHandler {
             String filterString = filter.toString();
             logger.trace("Executing ldap search with base dn of {} and filter of {}", this.groupBaseDn, filterString);
 
-            connection.bind();
-            EntryCursor entryCursor = connection.search(groupBaseDn, filterString,
-                    SearchScope.SUBTREE, attributes);
+            connection = connectionFactory.getConnection();
+            if (connection != null) {
+                connection.bind(bindUserDN, bindUserCredentials.toCharArray());
+                ConnectionEntryReader entryReader = connection.search(groupBaseDn, SearchScope.WHOLE_SUBTREE, filter.toString(), attributes);
 
-            Entry entry;
-            while(entryCursor.next()) {
-                entry = entryCursor.get();
+                SearchResultEntry entry;
+                while (entryReader.hasNext()) {
+                    entry = entryReader.readEntry();
 
-                Attribute attr = entry.get(groupNameAttribute);
-                if (attr == null) {
-                    logger.trace("Claim '{}' is null", roleClaimType);
-                } else {
-                    ProcessedClaim c = new ProcessedClaim();
-                    c.setClaimType(getRoleURI());
-                    c.setPrincipal(principal);
+                    Attribute attr = entry.getAttribute(groupNameAttribute);
+                    if (attr == null) {
+                        logger.trace("Claim '{}' is null", roleClaimType);
+                    } else {
+                        ProcessedClaim c = new ProcessedClaim();
+                        c.setClaimType(getRoleURI());
+                        c.setPrincipal(principal);
 
-                    Iterator<Value<?>> valueIterator = attr.iterator();
-                    while(valueIterator.hasNext()) {
-                        Value<?> value = valueIterator.next();
-
-                        Object objValue = value.getValue();
-                        if (!(objValue instanceof String)) {
-                            logger.warn("LDAP attribute '{}' has got an unsupported value type",
-                                    groupNameAttribute);
-                            break;
+                        for (ByteString value : attr) {
+                            String itemValue = value.toString();
+                            c.addValue(itemValue);
                         }
-                        String itemValue = (String) objValue;
-                        c.addValue(itemValue);
+                        claimsColl.add(c);
                     }
-                    claimsColl.add(c);
                 }
             }
-        } catch (InvalidConnectionException e) {
-            logger.warn("Cannot connect to server, therefore unable to set role claims.");
-        } catch (Exception e) {
+        } catch (LdapException e) {
+            logger.warn("Cannot connect to server, therefore unable to set role claims.", e);
+        } catch (SearchResultReferenceIOException e) {
             logger.error("Unable to set role claims.", e);
         } finally {
-            try {
-                connection.unBind();
-            } catch (LdapException ignore) {
+            if (connection != null) {
+                connection.close();
             }
         }
         return claimsColl;
     }
 
+    public void disconnect() {
+        connectionFactory.close();
+    }
+
+    public void setBindUserDN(String bindUserDN) {
+        this.bindUserDN = bindUserDN;
+    }
+
+    public void setBindUserCredentials(String bindUserCredentials) {
+        this.bindUserCredentials = bindUserCredentials;
+    }
 }

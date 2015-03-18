@@ -22,6 +22,11 @@
 	      default="ldaps://localhost:1636"
 	      description="LDAP or LDAPS server and port">
 	    </AD>
+
+        <AD name="StartTLS:" id="startTls" required="true" type="Boolean"
+            default="false"
+            description="Determines whether or not to use StartTLS when connecting via the ldap protocol. This setting is ignored if the URL uses ldaps.">
+        </AD>
 	    
 	    <AD name="LDAP Bind User DN:" id="ldapBindUserDn" required="true" type="String"
 	      default="cn=admin"

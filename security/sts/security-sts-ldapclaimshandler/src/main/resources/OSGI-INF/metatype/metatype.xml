@@ -1,4 +1,3 @@
-
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -24,7 +23,12 @@
 	      description="LDAP or LDAPS server and port">
 	    </AD>
 
-	    <AD name="LDAP Bind User DN:" id="userDn" required="true" type="String"
+        <AD name="StartTLS:" id="startTls" required="true" type="Boolean"
+            default="false"
+            description="Determines whether or not to use StartTLS when connecting via the ldap protocol. This setting is ignored if the URL uses ldaps.">
+        </AD>
+
+	    <AD name="LDAP Bind User DN:" id="ldapBindUserDn" required="true" type="String"
 	      default="cn=admin"
 	      description="DN of the user to bind with LDAP. This user should have the ability to verify passwords and read attributes for any user.">
 	    </AD>

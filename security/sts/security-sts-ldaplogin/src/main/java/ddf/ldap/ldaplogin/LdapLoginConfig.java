@@ -40,10 +40,9 @@ public class LdapLoginConfig {
     public static final String USER_BASE_DN = "userBaseDn";
     public static final String GROUP_BASE_DN = "groupBaseDn";
     public static final String KEY_ALIAS = "keyAlias";
+    public static final String START_TLS = "startTls";
 
     private static String LDAP_MODULE = ddf.ldap.ldaplogin.SslLdapLoginModule.class.getName();
-
-    private static String PROPS_MODULE = org.apache.karaf.jaas.modules.properties.PropertiesLoginModule.class.getName();
 
     private static final String CONFIG_NAME = "ldap";
 
@@ -100,8 +99,7 @@ public class LdapLoginConfig {
         LOGGER.debug("Received an updated set of configurations for the LDAP Login Config.");
         // create modules from the newly updated config
         Module ldapModule = createLdapModule(props);
-        Module propsModule = createPropertiesModule();
-        registerConfig(new Module[] {propsModule, ldapModule});
+        registerConfig(new Module[] {ldapModule});
     }
 
     /**
@@ -117,7 +115,6 @@ public class LdapLoginConfig {
         ldapModule.setFlags(SUFFICIENT_FLAG);
         ldapModule.setName("ldapModule");
         Properties props = new Properties();
-        props.put("initial.context.factory", "com.sun.jndi.ldap.LdapCtxFactory");
         props.put("connection.username", properties.get(LDAP_BIND_USER_DN));
         props.put("connection.password", properties.get(LDAP_BIND_USER_PASS));
         props.put("connection.url", properties.get(LDAP_URL));
@@ -129,25 +126,15 @@ public class LdapLoginConfig {
         props.put("role.name.attribute", "cn");
         props.put("role.search.subtree", "true");
         props.put("authentication", "simple");
-        props.put("ssl.protocol", "SSL");
+        props.put("ssl.protocol", "TLS");
         props.put("ssl.truststore", "ts");
         props.put("ssl.keystore", "ks");
         props.put("ssl.keyalias", properties.get(KEY_ALIAS));
         props.put("ssl.algorithm", "SunX509");
+        props.put("ssl.starttls", properties.get(START_TLS));
         ldapModule.setOptions(props);
 
         return ldapModule;
-    }
-
-    private Module createPropertiesModule() {
-        Module propsModule = new Module();
-        propsModule.setClassName(PROPS_MODULE);
-        propsModule.setFlags(SUFFICIENT_FLAG);
-        propsModule.setName("propsModule");
-        Properties props = new Properties();
-        props.put("users", System.getProperty("ddf.home") + "/etc/users.properties");
-        propsModule.setOptions(props);
-        return propsModule;
     }
 
     public void setLdapBindUserDn(String ldapBindUserDn) {
@@ -178,6 +165,16 @@ public class LdapLoginConfig {
     public void setKeyAlias(String keyAlias) {
         LOGGER.trace("setKeyAlias called: {}", keyAlias);
         ldapProperties.put(KEY_ALIAS, keyAlias);
+    }
+
+    public void setStartTls(boolean startTls) {
+        LOGGER.trace("Setting startTls: {}", startTls);
+        ldapProperties.put(START_TLS, String.valueOf(startTls));
+    }
+
+    public void setStartTls(String startTls) {
+        LOGGER.trace("Setting startTls: {}", startTls);
+        ldapProperties.put(START_TLS, startTls);
     }
 
     public void configure() {

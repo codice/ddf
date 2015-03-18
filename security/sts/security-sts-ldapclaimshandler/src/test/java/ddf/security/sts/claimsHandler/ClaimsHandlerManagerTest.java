@@ -16,10 +16,6 @@ package ddf.security.sts.claimsHandler;
 
 import ddf.security.encryption.EncryptionService;
 import org.apache.cxf.sts.claims.ClaimsHandler;
-import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.LdapConnectionConfig;
-import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -67,12 +63,9 @@ public class ClaimsHandlerManagerTest {
      */
     @Test
     public void registerHandlers() {
+
         ClaimsHandlerManager manager = new ClaimsHandlerManager(encryptService) {
-            protected LdapConnection createLdapConnection(String url, String userDn, String password)
-                    throws LdapException {
-                LdapConnectionConfig config = new LdapConnectionConfig();
-                return new LdapNetworkConnection(config);
-            }
+            @Override
             protected BundleContext getContext() {
                 return context;
             }
@@ -83,7 +76,8 @@ public class ClaimsHandlerManagerTest {
         manager.setGroupBaseDn("ou=groups,dc=example,dc=com");
         manager.setUserNameAttribute("uid");
         manager.setUrl("ldap://ldap:1389");
-        manager.setUserDn("cn=admin");
+        manager.setStartTls(false);
+        manager.setLdapBindUserDn("cn=admin");
         manager.setObjectClass("ou=users,dc=example,dc=com");
         manager.setMemberNameAttribute("member");
         manager.setPassword("ENC(c+GitDfYAMTDRESXSDDsMw==)");

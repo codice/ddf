@@ -74,6 +74,7 @@ public class LdapLoginConfigTest {
         ldapConfig.setUserBaseDn("ou=users,dc=example,dc=com");
         ldapConfig.setGroupBaseDn("ou=groups,dc=example,dc=com");
         ldapConfig.setKeyAlias("server");
+        ldapConfig.setStartTls(false);
         ldapConfig.configure();
 
         verify(context).registerService(eq(JaasRealm.class), any(JaasRealm.class),
@@ -85,6 +86,7 @@ public class LdapLoginConfigTest {
         ldapProps.put(LdapLoginConfig.GROUP_BASE_DN, "ou=groups,dc=example,dc=com");
         ldapProps.put(LdapLoginConfig.KEY_ALIAS, "server");
         ldapProps.put(LdapLoginConfig.LDAP_URL, "ldaps://test-ldap:1636");
+        ldapProps.put(LdapLoginConfig.START_TLS, "false");
         ldapConfig.update(ldapProps);
         // verify previous service was unregistered
         verify(jaasRealm).unregister();

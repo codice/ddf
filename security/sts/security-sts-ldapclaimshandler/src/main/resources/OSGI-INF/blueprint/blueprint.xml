@@ -47,6 +47,7 @@
         <argument ref="encryptionService" />
         <!-- Default properties -->
         <property name="url" value="ldaps://localhost:1636" />
+        <property name="startTls" value="false" />
         <property name="ldapBindUserDn" value="cn=admin" />
         <property name="password" value="ENC(c+GitDfYAMTDRESXSDDsMw==)" />
         <property name="userNameAttribute" value="uid" />
@@ -54,7 +55,6 @@
         <property name="objectClass" value="groupOfNames" />
         <property name="memberNameAttribute" value="member" />
         <property name="groupBaseDn" value="ou=groups,dc=example,dc=com" />
-        <property name="userDn" value="cn=admin" />
         <property name="propertyFileLocation" value="etc/ws-security/attributeMap.properties" />
     </bean>
 

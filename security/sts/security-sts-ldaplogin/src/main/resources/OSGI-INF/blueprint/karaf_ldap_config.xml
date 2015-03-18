@@ -32,6 +32,7 @@
         <property name="userBaseDn" value="ou=users,dc=example,dc=com" />
         <property name="groupBaseDn" value="ou=groups,dc=example,dc=com" />
         <property name="keyAlias" value="localhost" />
+        <property name="startTls" value="false" />
     </bean>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />

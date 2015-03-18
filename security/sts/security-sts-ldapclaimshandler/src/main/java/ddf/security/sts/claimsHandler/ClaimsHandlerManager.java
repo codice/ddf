@@ -18,12 +18,11 @@ import ddf.security.common.util.CommonSSLFactory;
 import ddf.security.encryption.EncryptionService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.sts.claims.ClaimsHandler;
-import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.LdapConnectionConfig;
-import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.forgerock.opendj.ldap.LDAPConnectionFactory;
+import org.forgerock.opendj.ldap.LDAPOptions;
+import org.forgerock.opendj.ldap.LdapException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -31,8 +30,12 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +46,7 @@ import java.util.Map;
 public class ClaimsHandlerManager implements ConfigurationWatcher {
 
     public static final String URL = "url";
+    public static final String START_TLS = "startTls";
     public static final String LDAP_BIND_USER_DN = "ldapBindUserDn";
     public static final String PASSWORD = "password";
     public static final String USER_NAME_ATTRIBUTE = "userNameAttribute";
@@ -59,17 +63,15 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
 
     private ServiceRegistration<ClaimsHandler> ldapHandlerRegistration = null;
 
-    private String keystoreLoc, keystorePass;
+    protected String keystoreLoc, keystorePass;
 
-    private String truststoreLoc, truststorePass;
-
-    private LdapConnection connection;
+    protected String truststoreLoc, truststorePass;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClaimsHandlerManager.class);
 
-    private Map<String, String> ldapProperties = new HashMap<String, String>();
+    private Map<String, Object> ldapProperties = new HashMap<>();
 
-    private Map<String, String> props;
+    private Map<String, Object> props;
 
     /**
      * Creates a new instance of the ClaimsHandlerManager.
@@ -86,33 +88,38 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
      *
      * @param props Map of properties.
      */
-    public void update(Map<String, String> props) {
+    public void update(Map<String, Object> props) {
         LOGGER.debug("Received an updated set of configurations for the LDAP/Role Claims Handlers.");
-        String url = props.get(ClaimsHandlerManager.URL);
-        String userDn = props.get(ClaimsHandlerManager.USER_DN);
-        String password = props.get(ClaimsHandlerManager.PASSWORD);
-        String userBaseDn = props.get(ClaimsHandlerManager.USER_BASE_DN);
-        String objectClass = props.get(ClaimsHandlerManager.OBJECT_CLASS);
-        String memberNameAttribute = props.get(ClaimsHandlerManager.MEMBER_NAME_ATTRIBUTE);
-        String groupBaseDn = props.get(ClaimsHandlerManager.GROUP_BASE_DN);
-        String userNameAttribute = props.get(ClaimsHandlerManager.USER_NAME_ATTRIBUTE);
-        String propertyFileLocation = props.get(ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
-        if((keystoreLoc != null && truststoreLoc != null) || !url.startsWith("ldaps")) {
-            try {
-                if (encryptService != null) {
-                    password = encryptService.decryptValue(password);
-                }
-                connection = createLdapConnection(url, userDn, password);
-                registerRoleClaimsHandler(connection, propertyFileLocation, userBaseDn,
-                        userNameAttribute, objectClass, memberNameAttribute, groupBaseDn);
-                registerLdapClaimsHandler(connection, propertyFileLocation, userBaseDn,
-                        userNameAttribute);
-
-            } catch (Exception e) {
-                LOGGER.warn(
-                        "Experienced error while configuring claims handlers. Handlers are NOT configured and claim retrieval will not work.",
-                        e);
+        String url = (String) props.get(ClaimsHandlerManager.URL);
+        Boolean startTls;
+        if (props.get(ClaimsHandlerManager.START_TLS) instanceof String) {
+            startTls = Boolean.valueOf((String) props.get(ClaimsHandlerManager.START_TLS));
+        } else {
+            startTls = (Boolean) props.get(ClaimsHandlerManager.START_TLS);
+        }
+        String userDn = (String) props.get(ClaimsHandlerManager.LDAP_BIND_USER_DN);
+        String password = (String) props.get(ClaimsHandlerManager.PASSWORD);
+        String userBaseDn = (String) props.get(ClaimsHandlerManager.USER_BASE_DN);
+        String objectClass = (String) props.get(ClaimsHandlerManager.OBJECT_CLASS);
+        String memberNameAttribute = (String) props.get(ClaimsHandlerManager.MEMBER_NAME_ATTRIBUTE);
+        String groupBaseDn = (String) props.get(ClaimsHandlerManager.GROUP_BASE_DN);
+        String userNameAttribute = (String) props.get(ClaimsHandlerManager.USER_NAME_ATTRIBUTE);
+        String propertyFileLocation = (String) props.get(ClaimsHandlerManager.PROPERTY_FILE_LOCATION);
+        try {
+            if (encryptService != null) {
+                password = encryptService.decryptValue(password);
             }
+            LDAPConnectionFactory connection1 = createLdapConnectionFactory(url, startTls);
+            LDAPConnectionFactory connection2 = createLdapConnectionFactory(url, startTls);
+            registerRoleClaimsHandler(connection1, propertyFileLocation, userBaseDn, userNameAttribute, objectClass, memberNameAttribute,
+                    groupBaseDn, userDn, password);
+            registerLdapClaimsHandler(connection2, propertyFileLocation, userBaseDn,
+                    userNameAttribute, userDn, password);
+
+        } catch (Exception e) {
+            LOGGER.warn(
+                    "Experienced error while configuring claims handlers. Handlers are NOT configured and claim retrieval will not work.",
+                    e);
         }
         this.props = props;
     }
@@ -121,30 +128,36 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
 
     }
 
-    protected LdapConnection createLdapConnection(String url, String userDn, String password)
+    protected LDAPConnectionFactory createLdapConnectionFactory(String url, Boolean startTls)
             throws LdapException {
-        LdapConnectionConfig config = new LdapConnectionConfig();
-        config.setUseSsl(url.startsWith("ldaps"));
-        config.setLdapHost(url.substring(url.indexOf("://")+3, url.lastIndexOf(":")));
-        config.setName(userDn);
-        config.setCredentials(password);
-        try {
-            config.setLdapPort(Integer.valueOf(url.substring(url.lastIndexOf(":") + 1)));
-        } catch (NumberFormatException e) {
-            LOGGER.warn("No lDAP port specified, default port will be used.", e);
-        }
-        if(config.isUseSsl()) {
-            config.setSslProtocol(CommonSSLFactory.PROTOCOL);
-            try {
-                config.setKeyManagers(CommonSSLFactory.createKeyManagerFactory(keystoreLoc, keystorePass).getKeyManagers());
-                config.setTrustManagers(CommonSSLFactory.createTrustManagerFactory(truststoreLoc, truststorePass).getTrustManagers());
-            } catch (IOException e) {
-                LOGGER.error("Error encountered while configuring SSL. Secure connection will fail.", e);
-            }
-        }
-        LdapConnection connection = new LdapNetworkConnection(config);
+        boolean useSsl = url.startsWith("ldaps");
+        boolean useTls = !url.startsWith("ldaps") && startTls;
 
-        return connection;
+        LDAPOptions lo = new LDAPOptions();
+
+        try {
+            if (useSsl || useTls) {
+                SSLContext sslContext = SSLContext.getInstance(CommonSSLFactory.PROTOCOL);
+                if(keystoreLoc != null && truststoreLoc != null) {
+                    sslContext.init(CommonSSLFactory.createKeyManagerFactory(keystoreLoc, keystorePass).getKeyManagers(),
+                            CommonSSLFactory.createTrustManagerFactory(truststoreLoc, truststorePass).getTrustManagers(), new SecureRandom());
+                }
+
+                lo.setSSLContext(sslContext);
+            }
+        } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
+            LOGGER.error("Error encountered while configuring SSL. Secure connection will fail.", e);
+        }
+
+        lo.setUseStartTLS(useTls);
+        lo.addEnabledCipherSuite("TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA");
+        lo.addEnabledProtocol("TLSv1.1", "TLSv1.2");
+        lo.setProviderClassLoader(ClaimsHandlerManager.class.getClassLoader());
+
+        String host = url.substring(url.indexOf("://") + 3, url.lastIndexOf(":"));
+        Integer port = Integer.valueOf(url.substring(url.lastIndexOf(":") + 1));
+
+        return new LDAPConnectionFactory(host, port, lo);
     }
 
     /**
@@ -161,16 +174,18 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
      * @param groupBaseDn
      *            Base DN of the group.
      */
-    private void registerRoleClaimsHandler(LdapConnection connection, String propertyFileLoc,
-            String userBaseDn, String userNameAttr, String objectClass, String memberNameAttribute, String groupBaseDn) {
+    private void registerRoleClaimsHandler(LDAPConnectionFactory connection, String propertyFileLoc,
+            String userBaseDn, String userNameAttr, String objectClass, String memberNameAttribute, String groupBaseDn, String userDn, String password) {
         RoleClaimsHandler roleHandler = new RoleClaimsHandler();
-        roleHandler.setLdapConnection(connection);
+        roleHandler.setLdapConnectionFactory(connection);
         roleHandler.setPropertyFileLocation(propertyFileLoc);
         roleHandler.setUserBaseDn(userBaseDn);
         roleHandler.setUserNameAttribute(userNameAttr);
         roleHandler.setObjectClass(objectClass);
         roleHandler.setMemberNameAttribute(memberNameAttribute);
         roleHandler.setGroupBaseDn(groupBaseDn);
+        roleHandler.setBindUserDN(userDn);
+        roleHandler.setBindUserCredentials(password);
         LOGGER.debug("Registering new role claims handler.");
         roleHandlerRegistration = registerClaimsHandler(roleHandler, roleHandlerRegistration);
     }
@@ -187,13 +202,15 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
      * @param userNameAttr
      *            Identifier that defines the user.
      */
-    private void registerLdapClaimsHandler(LdapConnection connection, String propertyFileLoc,
-            String userBaseDn, String userNameAttr) {
+    private void registerLdapClaimsHandler(LDAPConnectionFactory connection, String propertyFileLoc,
+            String userBaseDn, String userNameAttr, String userDn, String password) {
         LdapClaimsHandler ldapHandler = new LdapClaimsHandler();
-        ldapHandler.setLdapConnection(connection);
+        ldapHandler.setLdapConnectionFactory(connection);
         ldapHandler.setPropertyFileLocation(propertyFileLoc);
         ldapHandler.setUserBaseDN(userBaseDn);
         ldapHandler.setUserNameAttribute(userNameAttr);
+        ldapHandler.setBindUserDN(userDn);
+        ldapHandler.setBindUserCredentials(password);
         LOGGER.debug("Registering new ldap claims handler.");
         ldapHandlerRegistration = registerClaimsHandler(ldapHandler, ldapHandlerRegistration);
     }
@@ -210,10 +227,17 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
      */
     private ServiceRegistration<ClaimsHandler> registerClaimsHandler(ClaimsHandler handler,
             ServiceRegistration<ClaimsHandler> registration) {
+        BundleContext context = getContext();
         if (registration != null) {
+            ClaimsHandler oldClaimsHandler = context.getService(registration.getReference());
+            if (oldClaimsHandler instanceof RoleClaimsHandler) {
+                ((RoleClaimsHandler) oldClaimsHandler).disconnect();
+            } else if (oldClaimsHandler instanceof LdapClaimsHandler) {
+                ((LdapClaimsHandler) oldClaimsHandler).disconnect();
+            }
             registration.unregister();
         }
-        BundleContext context = getContext();
+
         if (context != null) {
             return context.registerService(ClaimsHandler.class, handler, null);
         }
@@ -231,6 +255,16 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
     public void setUrl(String url) {
         LOGGER.trace("Setting url: {}", url);
         ldapProperties.put(URL, url);
+    }
+
+    public void setStartTls(boolean startTls) {
+        LOGGER.trace("Setting startTls: {}", startTls);
+        ldapProperties.put(START_TLS, startTls);
+    }
+
+    public void setStartTls(String startTls) {
+        LOGGER.trace("Setting startTls: {}", startTls);
+        ldapProperties.put(START_TLS, startTls);
     }
 
     public void setLdapBindUserDn(String bindUserDn) {
@@ -266,11 +300,6 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
     public void setGroupBaseDn(String groupBaseDn) {
         LOGGER.trace("Setting groupBaseDn: {}", groupBaseDn);
         ldapProperties.put(GROUP_BASE_DN, groupBaseDn);
-    }
-
-    public void setUserDn(String userDn) {
-        LOGGER.trace("Setting userDn: {}", userDn);
-        ldapProperties.put(USER_DN, userDn);
     }
 
     public void setPropertyFileLocation(String propertyFileLocation) {

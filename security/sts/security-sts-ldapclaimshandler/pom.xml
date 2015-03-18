@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.springframework.ldap</groupId>
             <artifactId>spring-ldap-core</artifactId>
-            <version>1.3.1.RELEASE</version>
+            <version>1.3.2.RELEASE</version>
             <scope>compile</scope>
         </dependency>
 
@@ -66,33 +66,36 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.directory.api</groupId>
-            <artifactId>api-all</artifactId>
-            <version>1.0.0-M24</version>
+            <groupId>org.forgerock.opendj</groupId>
+            <artifactId>opendj-core</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.forgerock.opendj</groupId>
+            <artifactId>opendj-grizzly</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.forgerock.commons</groupId>
+            <artifactId>forgerock-util</artifactId>
+            <version>1.3.5-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.grizzly</groupId>
+            <artifactId>grizzly-framework</artifactId>
+            <version>2.3.14</version>
+        </dependency>
+        <dependency>
+            <groupId>org.forgerock.commons</groupId>
+            <artifactId>i18n-slf4j</artifactId>
+            <version>1.4.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.forgerock.commons</groupId>
+            <artifactId>i18n-core</artifactId>
+            <version>1.4.2-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>antlr</groupId>
-            <artifactId>antlr</artifactId>
-            <version>2.7.7</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-pool</groupId>
-            <artifactId>commons-pool</artifactId>
-            <version>1.6</version>
-        </dependency>
-
-        <dependency>
-            <groupId>xmlpull</groupId>
-            <artifactId>xmlpull</artifactId>
-            <version>1.1.3.1</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -102,8 +105,19 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Embed-Dependency>api-all,antlr,commons-io,commons-pool,xmlpull</Embed-Dependency>
+                        <Embed-Dependency>
+                            opendj-core,
+                            opendj-grizzly,
+                            forgerock-util,
+                            grizzly-framework,
+                            i18n-slf4j,
+                            i18n-core
+                        </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Import-Package>
+                            javax.net.ssl,
+                            *
+                        </Import-Package>
                         <Export-Package />
                     </instructions>
                 </configuration>

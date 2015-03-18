@@ -15,6 +15,7 @@
 package ddf.security.sts.claimsHandler;
 
 import ddf.security.PropertiesLoader;
+import org.apache.wss4j.common.principal.WSUsernameTokenPrincipalImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +88,18 @@ public class AttributeMapLoader {
         }
 
         return user;
+    }
+
+    public static String getCredentials(Principal principal) {
+        String credential = null;
+        if (principal instanceof X500Principal) {
+            X500Principal x500p = (X500Principal) principal;
+            credential = new String(x500p.getEncoded());
+        } else if (principal instanceof WSUsernameTokenPrincipalImpl) {
+            credential = ((WSUsernameTokenPrincipalImpl) principal).getPassword();
+        }
+
+        return credential;
     }
 
     private static String logLdapClaimsMap(Map<String, String> map) {

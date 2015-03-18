@@ -257,7 +257,7 @@ public class UPBSTValidator implements TokenValidator {
                 secToken = tokenParameters.getTokenStore().getToken(Integer.toString(hash));
                 if (secToken != null && secToken.getTokenHash() != hash) {
                     secToken = null;
-                } else {
+                } else if (secToken != null) {
                     validateTarget.setState(STATE.VALID);
                 }
             }
