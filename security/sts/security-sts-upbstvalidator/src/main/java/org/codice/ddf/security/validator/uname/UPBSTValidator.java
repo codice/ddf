@@ -91,7 +91,7 @@ public class UPBSTValidator implements TokenValidator {
 
     private UsernameTokenRealmCodec usernameTokenRealmCodec;
 
-    private Map<String, Validator> validators = new ConcurrentHashMap<>();
+    protected Map<String, Validator> validators = new ConcurrentHashMap<>();
 
     public void addRealm(ServiceReference<JaasRealm> serviceReference) {
         JaasRealm realm = FrameworkUtil.getBundle(UPBSTValidator.class).getBundleContext()
