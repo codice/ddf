@@ -143,9 +143,10 @@ public class HttpProxyServiceImpl implements HttpProxyService {
             @Override
             public void configure() throws Exception {
                 from("servlet:///" + endpointName)
-                        .to(targetUri
-                                + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout="
-                                + timeout + "&httpClient.connectionManagerTimeout=" + timeout)
+                        .removeHeader("Authorization")
+                        .removeHeader("Cookie")
+                        .to(targetUri + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout=" + timeout
+                                + "&httpClient.connectionManagerTimeout=" + timeout)
                         .routeId(endpointName);
             }
         };
