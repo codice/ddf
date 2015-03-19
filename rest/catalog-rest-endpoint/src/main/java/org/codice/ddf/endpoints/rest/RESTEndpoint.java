@@ -46,7 +46,6 @@ import ddf.mime.MimeTypeToTransformerMapper;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
@@ -261,20 +260,20 @@ public class RESTEndpoint implements RESTService {
                 response = responseBuilder.build();
 
             } catch (FederationException e) {
-                String exceptionMessage = "READ failed due to unexpected exception: "
-                        + e.getMessage();
+                String exceptionMessage = "READ failed due to unexpected exception: ";
+                LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (CatalogTransformerException e) {
-                String exceptionMessage = "Unable to transform Metacard.  Try different transformer: "
-                        + e.getMessage();
+                String exceptionMessage = "Unable to transform Metacard.  Try different transformer: ";
+                LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (SourceUnavailableException e) {
-                String exceptionMessage = "Cannot obtain query results because source is unavailable: "
-                        + e.getMessage();
+                String exceptionMessage = "Cannot obtain query results because source is unavailable: ";
+                LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (UnsupportedQueryException e) {
-                String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: "
-                        + e.getMessage();
+                String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: ";
+                LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
             }
             // The catalog framework will throw this if any of the transformers blow up. We need to
@@ -482,20 +481,20 @@ public class RESTEndpoint implements RESTService {
 
                 response = responseBuilder.build();
             } catch (FederationException e) {
-                String exceptionMessage = "READ failed due to unexpected exception: "
-                        + e.getMessage();
+                String exceptionMessage = "READ failed due to unexpected exception: ";
+                LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (CatalogTransformerException e) {
-                String exceptionMessage = "Unable to transform Metacard.  Try different transformer: "
-                        + e.getMessage();
+                String exceptionMessage = "Unable to transform Metacard.  Try different transformer: ";
+                LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (SourceUnavailableException e) {
-                String exceptionMessage = "Cannot obtain query results because source is unavailable: "
-                        + e.getMessage();
+                String exceptionMessage = "Cannot obtain query results because source is unavailable: ";
+                LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
             } catch (UnsupportedQueryException e) {
-                String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: "
-                        + e.getMessage();
+                String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: ";
+                LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
             }
 
@@ -616,18 +615,16 @@ public class RESTEndpoint implements RESTService {
                 throw new ServerErrorException(errorResponseString, Status.BAD_REQUEST);
             }
         } catch (SourceUnavailableException e) {
-            String exceptionMessage = "Cannot updated catalog entry because source is unavailable: "
-                    + e.getMessage();
-            LOGGER.warn(exceptionMessage, e.getCause());
+            String exceptionMessage = "Cannot update catalog entry: Source is unavailable: ";
+            LOGGER.warn(exceptionMessage, e);
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
         } catch (MetacardCreationException e) {
-            String exceptionMessage = "Unable to update Metacard with provided metadata: "
-                    + e.getMessage();
-            LOGGER.warn(exceptionMessage, e.getCause());
+            String exceptionMessage = "Unable to update Metacard with provided metadata: ";
+            LOGGER.warn(exceptionMessage, e);
             throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
         } catch (IngestException e) {
-            String exceptionMessage = "Error cataloging updated metadata: " + e.getMessage();
-            LOGGER.warn(exceptionMessage, e.getCause());
+            String exceptionMessage = "Error cataloging updated metadata: ";
+            LOGGER.warn(exceptionMessage, e);
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
         }
         return response;
@@ -677,18 +674,16 @@ public class RESTEndpoint implements RESTService {
                 throw new ServerErrorException(errorMessage, Status.BAD_REQUEST);
             }
         } catch (SourceUnavailableException e) {
-            String exceptionMessage = "Cannot create catalog entry because source is unavailable: "
-                    + e.getMessage();
-            LOGGER.warn(exceptionMessage, e.getCause());
+            String exceptionMessage = "Cannot create catalog entry because source is unavailable: ";
+            LOGGER.warn(exceptionMessage, e);
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
         } catch (IngestException e) {
-            String exceptionMessage = "Error while storing entry in catalog: " + e.getMessage();
-            LOGGER.warn(exceptionMessage, e.getCause());
+            String exceptionMessage = "Error while storing entry in catalog: ";
+            LOGGER.warn(exceptionMessage, e);
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
         } catch (MetacardCreationException e) {
-            String exceptionMessage = "Unable to create Metacard from provided metadata: "
-                    + e.getMessage();
-            LOGGER.warn(exceptionMessage, e.getCause());
+            String exceptionMessage = "Unable to create Metacard from provided metadata: ";
+            LOGGER.warn(exceptionMessage, e);
             throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
         }
 
@@ -718,13 +713,12 @@ public class RESTEndpoint implements RESTService {
                 throw new ServerErrorException(errorMessage, Status.BAD_REQUEST);
             }
         } catch (SourceUnavailableException ce) {
-            String exceptionMessage = "Could not delete entry from catalog since the source is unavailable: "
-                    + ce.getMessage();
-            LOGGER.warn(exceptionMessage, ce.getCause());
+            String exceptionMessage = "Could not delete entry from catalog since the source is unavailable: ";
+            LOGGER.warn(exceptionMessage, ce);
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
         } catch (IngestException e) {
-            String exceptionMessage = "Error deleting entry from catalog: " + e.getMessage();
-            LOGGER.warn(exceptionMessage, e.getCause());
+            String exceptionMessage = "Error deleting entry from catalog: ";
+            LOGGER.warn(exceptionMessage, e);
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
         }
         return response;
