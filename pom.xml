@@ -12,14 +12,15 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
 
     <groupId>ddf.content</groupId>
@@ -63,8 +64,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-
     <modules>
         <module>endpoint</module>
         <module>core</module>
@@ -72,12 +71,4 @@
         <module>docs</module>
     </modules>
 
-
-    <repositories>
-        <repository>
-            <id>codice</id>
-            <name>Codice Repository</name>
-            <url>http://artifacts.codice.org/content/groups/public/</url>
-        </repository>
-    </repositories>
 </project>
