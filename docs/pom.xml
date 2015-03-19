@@ -22,172 +22,20 @@
 
     <artifactId>docs</artifactId>
     <name>DDF :: solr :: DOCS</name>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <asciidoctor.maven.plugin.version>1.5.2</asciidoctor.maven.plugin.version>
-        <jruby.version>1.7.17</jruby.version>
-        <packaging>pom</packaging>
-    </properties>
-    <repositories>
-        <repository>
-            <id>rubygems-proxy-releases</id>
-            <name>RubyGems.org Proxy (Releases)</name>
-            <url>http://rubygems-proxy.torquebox.org/releases</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    <dependencies>
-        <dependency>
-            <groupId>rubygems</groupId>
-            <artifactId>asciidoctor-diagram</artifactId>
-            <version>1.2.1</version>
-            <type>gem</type>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>rubygems</groupId>
-                    <artifactId>asciidoctor</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.asciidoctor</groupId>
-            <artifactId>asciidoctorj</artifactId>
-            <version>1.5.2</version>
-        </dependency>
-    </dependencies>
     <build>
-        <defaultGoal>process-resources</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>de.saumya.mojo</groupId>
                 <artifactId>gem-maven-plugin</artifactId>
-                <version>1.0.5</version>
-                <configuration>
-                    <!-- align JRuby version with AsciidoctorJ to avoid redundant downloading -->
-                    <jrubyVersion>1.7.9</jrubyVersion>
-                    <gemHome>${project.build.directory}/gems</gemHome>
-                    <gemPath>${project.build.directory}/gems</gemPath>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>initialize</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-                        <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                       <phase>generate-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <mkdir dir="target/adoc" />
-                                <mkdir dir="target/includes" />
-                                <copy todir="target/adoc">
-                                    <fileset dir="src/main/doc" />
-                                </copy>
-                                <copy todir="target/includes">
-                                    <fileset dir="src/main/includes" />
-                                </copy>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.2</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.asciidoctor</groupId>
-                        <artifactId>asciidoctor-maven-plugin</artifactId>
-                        <version>1.5.2</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.asciidoctor</groupId>
-                        <artifactId>asciidoctorj</artifactId>
-                        <version>1.5.2</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.asciidoctor</groupId>
-                        <artifactId>asciidoctorj-pdf</artifactId>
-                        <version>1.5.0-alpha.6</version>
-                    </dependency>
-                </dependencies>
+                <artifactId>maven-antrun-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
-                <version>1.5.2</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.asciidoctor</groupId>
-                        <artifactId>asciidoctorj-pdf</artifactId>
-                        <version>1.5.0-alpha.6</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <sourceDirectory>target/adoc</sourceDirectory>
-                    <headerFooter>true</headerFooter>
-                    <imagesDir>./images</imagesDir>
-                    <gemPath>${project.build.directory}/gems-provided</gemPath>
-                    <requires>
-                        <require>asciidoctor-diagram</require>
-                    </requires>
-                    <!-- Attributes common to all output formats -->
-                    <attributes>
-                        <sourcedir>${project.build.sourceDirectory}</sourcedir>
-                    </attributes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>output-html</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>process-asciidoc</goal>
-                        </goals>
-                        <configuration>
-                            <backend>html</backend>
-                            <doctype>book</doctype>
-                            <sourceHighlighter>coderay</sourceHighlighter>
-                            <outputDirectory>target/docs/html</outputDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>generate-pdf-doc</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>process-asciidoc</goal>
-                        </goals>
-                        <configuration>
-                            <backend>pdf</backend>
-                            <sourceDirectory>target/adoc</sourceDirectory>
-                            <outputDirectory>target/docs/pdf</outputDirectory>
-                            <!-- WARNING callout bullets don't yet work with CodeRay -->
-                            <sourceHighlighter>coderay</sourceHighlighter>
-                            <attributes>
-                                <pagenums/>
-                                <toc/>
-                                <idprefix/>
-                                <idseparator>-</idseparator>
-                            </attributes>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
-         </plugins>
+        </plugins>
     </build>
 </project>
