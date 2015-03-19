@@ -70,6 +70,29 @@
         <defaultGoal>process-resources</defaultGoal>
         <plugins>
             <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.7</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/includes</directory>
+                                    <include>config.adoc</include>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>de.saumya.mojo</groupId>
                 <artifactId>gem-maven-plugin</artifactId>
                 <version>1.0.5</version>
@@ -99,12 +122,8 @@
                         <configuration>
                             <tasks>
                                 <mkdir dir="target/adoc" />
-                                <mkdir dir="target/includes" />
                                 <copy todir="target/adoc">
                                     <fileset dir="src/main/doc" />
-                                </copy>
-                                <copy todir="target/includes">
-                                    <fileset dir="src/main/includes" />
                                 </copy>
                             </tasks>
                         </configuration>
@@ -144,19 +163,6 @@
                         <version>1.5.0-alpha.6</version>
                     </dependency>
                 </dependencies>
-                <configuration>
-                    <sourceDirectory>target/adoc</sourceDirectory>
-                    <headerFooter>true</headerFooter>
-                    <imagesDir>./images</imagesDir>
-                    <gemPath>${project.build.directory}/gems-provided</gemPath>
-                    <requires>
-                        <require>asciidoctor-diagram</require>
-                    </requires>
-                    <!-- Attributes common to all output formats -->
-                    <attributes>
-                        <sourcedir>${project.build.sourceDirectory}</sourcedir>
-                    </attributes>
-                </configuration>
                 <executions>
                     <execution>
                         <id>output-html</id>
@@ -167,7 +173,6 @@
                         <configuration>
                             <backend>html</backend>
                             <doctype>book</doctype>
-                            <sourceHighlighter>coderay</sourceHighlighter>
                             <outputDirectory>target/docs/html</outputDirectory>
                         </configuration>
                     </execution>
@@ -179,10 +184,8 @@
                         </goals>
                         <configuration>
                             <backend>pdf</backend>
-                            <sourceDirectory>target/adoc</sourceDirectory>
                             <outputDirectory>target/docs/pdf</outputDirectory>
                             <!-- WARNING callout bullets don't yet work with CodeRay -->
-                            <sourceHighlighter>coderay</sourceHighlighter>
                             <attributes>
                                 <pagenums/>
                                 <toc/>
@@ -192,6 +195,16 @@
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <sourceDirectory>target/adoc</sourceDirectory>
+                    <sourceHighlighter>coderay</sourceHighlighter>
+                    <gemPath>${project.build.directory}/gems-provided</gemPath>
+                    <headerFooter>true</headerFooter>
+                    <imagesDir>./images</imagesDir>
+                    <requires>
+                        <require>asciidoctor-diagram</require>
+                    </requires>
+                </configuration>
             </plugin>
         </plugins>
     </build>
