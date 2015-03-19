@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.1-SNAPSHOT</version>
     </parent>
     <groupId>ddf.catalog</groupId>
     <artifactId>catalog</artifactId>
@@ -299,7 +299,6 @@
         <module>security</module>
         <module>admin</module>
         <module>catalog-app</module>
-        <module>docs</module>
     </modules>
 
     <repositories>
