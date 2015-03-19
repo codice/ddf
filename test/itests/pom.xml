@@ -29,7 +29,7 @@
 	</modules>
     
     <properties>
-        <pax.exam.version>4.2.0</pax.exam.version>
+        <pax.exam.version>4.4.0</pax.exam.version>
     </properties>
 
     <dependencies>
