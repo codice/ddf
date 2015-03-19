@@ -1,8 +1,7 @@
-Copyright (c) Codice Foundation
+Version ${version}. Copyright (c) Codice Foundation
 :imagesdir: ../search-ui/standard/target/webapp/images
 :toc: right
 :branding: DDF
-:audience: Developer
 :icons: font
 :example-caption!:
 :source-highlighter: coderay

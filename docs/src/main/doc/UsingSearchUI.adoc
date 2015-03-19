@@ -1,6 +1,5 @@
 = Using {branding} Standard Search UI
-include::../includes/config.adoc[]
-// :imagesdir: ./search-ui/standard/target/webapp/images
+include::../classes/config.adoc[]
 
 == Overview
 
