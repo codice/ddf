@@ -1,0 +1,7 @@
+= Extending {branding} Spatial App
+include::config.adoc[]
+
+== Overview
+The {branding} Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
+
+This page supports developers creating extensions of the existing framework.
