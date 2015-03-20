@@ -32,6 +32,7 @@
         <org.codice.ddf.activities.version>0.3.0</org.codice.ddf.activities.version>
         <abdera.version>1.1.3</abdera.version>
         <jts.version>1.12</jts.version>
+        <jts.bundle.version>1.12_1</jts.bundle.version>
         <org.geotools.version>8.4</org.geotools.version>
         <org.geotools.bundle.version>${org.geotools.version}_1</org.geotools.bundle.version>
         <opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>
@@ -42,6 +43,10 @@
         <karaf.version>2.3.8</karaf.version>
         <camel.version>2.14.2</camel.version>
         <cxf.version>3.0.4</cxf.version>
+        <!-- Solr version properies -->
+        <solr.version>4.7.2</solr.version>
+        <lux.version>1.0.1</lux.version>
+        <solr.saxon.version>9.5.1-5</solr.saxon.version>
     </properties>
 
     <dependencyManagement>
@@ -284,6 +289,73 @@
                 <artifactId>guava</artifactId>
                 <version>17.0</version>
             </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.7</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-solrj</artifactId>
+                <version>${solr.version}</version>
+                <exclusions>
+                    <!-- exclusion for LuxDB -->
+                    <exclusion>
+                        <artifactId>wstx-asl</artifactId>
+                        <groupId>org.codehaus.woodstox</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-core</artifactId>
+                <version>${solr.version}</version>
+                <!-- exclusions from LuxDB -->
+                <exclusions>
+                    <exclusion>
+                        <artifactId>wstx-asl</artifactId>
+                        <groupId>org.codehaus.woodstox</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>slf4j-jdk14</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>velocity-tools</artifactId>
+                        <groupId>org.apache.velocity</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>hadoop-annotations</artifactId>
+                        <groupId>org.apache.hadoop</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>ddf.platform.solr</groupId>
+                <artifactId>solr-factory</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.platform.solr</groupId>
+                <artifactId>solr-xpath</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.luxdb</groupId>
+                <artifactId>lux</artifactId>
+                <version>${lux.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.solr</groupId>
+                        <artifactId>solr-core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -299,6 +371,7 @@
         <module>security</module>
         <module>admin</module>
         <module>catalog-app</module>
+        <module>solr</module>
     </modules>
 
     <repositories>

@@ -25,17 +25,6 @@
     <name>DDF :: Catalog :: Core :: Standard Framework</name>
     <packaging>bundle</packaging>
 
-    <properties>
-        <joda-time.version>1.6.2</joda-time.version>
-        <jts.version>1.12</jts.version>
-        <solr.version>4.7.2</solr.version>
-        <lux.version>1.0.1</lux.version>
-        <saxon.version>9.5.1-5</saxon.version>
-        <!-- Woodstox version from LuxDB -->
-        <woodstox.version>4.1.1</woodstox.version>
-        <xerces.version>2.9.1</xerces.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -91,7 +80,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>16.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
@@ -102,38 +90,21 @@
         <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-factory</artifactId>
-            <version>${ddf.platform.app.version}</version>
         </dependency>
 
         <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-xpath</artifactId>
-            <version>${ddf.platform.app.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>${solr.version}</version>
-            <exclusions>
-                <!-- exclusion for LuxDB -->
-                <exclusion>
-                    <artifactId>wstx-asl</artifactId>
-                    <groupId>org.codehaus.woodstox</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>org.luxdb</groupId>
             <artifactId>lux</artifactId>
-            <version>${lux.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.solr</groupId>
-                    <artifactId>solr-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -145,7 +116,6 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>
-            <version>${solr.version}</version>
             <!-- exclusions from LuxDB -->
             <exclusions>
                 <exclusion>
@@ -170,7 +140,6 @@
         <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
-            <version>${jts.version}</version>
         </dependency>
 
         <dependency>
@@ -195,19 +164,16 @@
         <dependency>
             <groupId>ddf.measure</groupId>
             <artifactId>measure-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>${joda-time.version}</version>
         </dependency>
 
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>${xerces.version}</version>
         </dependency>
 
         <dependency>
@@ -246,7 +212,7 @@
         <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>Saxon-HE</artifactId>
-            <version>${saxon.version}</version>
+            <version>${solr.saxon.version}</version>
         </dependency>
 
         <!-- End of Solr cache dependencies -->
