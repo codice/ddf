@@ -1,0 +1,131 @@
+
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>ddf</groupId>
+        <artifactId>ddf-parent</artifactId>
+        <version>3.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>solr</artifactId>
+	<groupId>ddf.catalog.solr</groupId>
+	<version>2.4.5-SNAPSHOT</version>
+	<name>DDF Catalog Solr</name>
+	<packaging>pom</packaging>
+
+	<properties>
+	    <commons-io.version>2.1</commons-io.version>
+	    <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
+	    <ddf.catalog.app.version>2.6.1</ddf.catalog.app.version>
+	    <joda-time.version>1.6.2</joda-time.version>
+	    <jts.version>1.12</jts.version>
+		<solr.version>4.7.2</solr.version>
+        <lux.version>1.0.1</lux.version>
+        <saxon.version>9.5.1-5</saxon.version>
+        <!-- Woodstox version from LuxDB -->
+        <woodstox.version>4.1.1</woodstox.version>
+        <xerces.version>2.9.1</xerces.version>  
+	</properties>
+
+    <dependencyManagement>
+        <dependencies>
+             <dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons-io.version}</version>
+			 </dependency>
+			 <dependency>
+               <groupId>commons-lang</groupId>
+               <artifactId>commons-lang</artifactId>
+               <version>2.6</version>
+           </dependency>
+            <dependency>
+                <groupId>ddf.platform.solr</groupId>
+                <artifactId>solr-factory</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.platform.solr</groupId>
+                <artifactId>solr-xpath</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.core</groupId>
+                <artifactId>catalog-core-api</artifactId>
+                <version>${ddf.catalog.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.core</groupId>
+                <artifactId>catalog-core-api-impl</artifactId>
+                <version>${ddf.catalog.app.version}</version>
+            </dependency>            
+            <dependency>
+                <groupId>ddf.measure</groupId>
+                <artifactId>measure-api</artifactId>
+                <version>${ddf.catalog.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.core</groupId>
+                <artifactId>catalog-core-commons</artifactId>
+                <version>${ddf.catalog.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ddf.catalog.core</groupId>
+                <artifactId>filter-proxy</artifactId>
+                <version>${ddf.catalog.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.luxdb</groupId>
+                <artifactId>lux</artifactId>
+                <version>${lux.version}</version>
+            </dependency>
+            <!-- Version for Solr -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>4.3.1</version>
+            </dependency>
+            <!-- Version for Spatial4j -->
+            <dependency>
+                <groupId>com.vividsolutions</groupId>
+                <artifactId>jts</artifactId>
+                <version>1.13</version>
+            </dependency>
+            <dependency>
+              <groupId>org.slf4j</groupId>
+              <artifactId>slf4j-api</artifactId>
+              <version>1.7.1</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+	
+	<modules>
+		<module>catalog-solr-embedded-provider</module>
+		<module>catalog-solr-external-provider</module>
+		<module>solr-app</module>
+        <module>docs</module>
+    </modules>
+	
+		
+	<repositories>		
+		<repository>
+			<id>codice</id>
+			<name>Codice Repository</name>
+			<url>http://artifacts.codice.org/content/groups/public/</url>
+		</repository>
+	</repositories>
+</project>

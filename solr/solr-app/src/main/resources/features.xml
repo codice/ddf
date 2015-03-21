@@ -1,0 +1,52 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+ 
+<!--
+     NOTE: This features XML file uses the Karaf "install" attribute to specify whether a feature
+     is automatically installed when an app's KAR file is hot deployed.
+     
+     Description of the install attribute from the Karaf features XSD:
+     
+     "Installation mode. Can be either manual or auto. Specifies whether the feature should be 
+     automatically installed when dropped inside the deploy folder. Note: This attribute doesn't 
+     affect feature descriptors that are installed from the command line or as part of the 
+     org.apache.karaf.features.cfg." 
+--> 
+<features name="${project.artifactId}-${project.version}">
+
+    <feature name="catalog-solr-embedded-provider" install="manual" version="${project.version}" description="Catalog Provider with locally Embedded Solr Server, implemented using Solr ${solr.version}.">
+        <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
+        <bundle>mvn:ddf.catalog.solr.embedded/catalog-solr-embedded-provider/${project.version}</bundle>
+    </feature>
+    
+    <feature name="catalog-solr-external-provider" install="manual" version="${project.version}" description="Catalog Provider to interface with an external Solr ${solr.version} Server">
+        <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
+        <bundle>mvn:ddf.catalog.solr.external/catalog-solr-external-provider/${project.version}</bundle>
+
+        <configfile finalname="/data/solr/catalog/conf/solrcatalogconfig.xml">mvn:ddf.catalog.solr.external/catalog-solr-external-provider/${project.version}/xml/solrcatalogconfig</configfile>
+        <configfile finalname="/data/solr/catalog/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.platform.app.version}/xml/schema</configfile>
+        <configfile finalname="/data/solr/catalog/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.platform.app.version}/txt/protwords</configfile>
+        <configfile finalname="/data/solr/catalog/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.platform.app.version}/txt/stopwords_en</configfile>
+        <configfile finalname="/data/solr/catalog/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.platform.app.version}/txt/stopwords</configfile>
+        <configfile finalname="/data/solr/catalog/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.platform.app.version}/txt/synonyms</configfile>
+    </feature>
+	
+	<feature name="solr-app" install="auto" version="${project.version}" description="The Solr Catalog Provider (SCP) is an implementation of the CatalogProvider interface using Apache Solr ${solr.version} as a data store.\nThe SCP supports extensible metacards, fast/simple contextual searching, indexes xml attributes/CDATA sections/XML text elements, contains full XPath support, works with an embedded local Solr Server, and also works with a standalone Solr Server.::DDF Solr Catalog">
+		<feature>platform-app</feature>
+		<feature>catalog-app</feature>
+		<feature>catalog-solr-external-provider</feature>
+	</feature>
+    
+</features>
+    

@@ -1,0 +1,8 @@
+= Extending {branding} Solr Catalog Application
+include::../classes/config.adoc[]
+                     
+== Overview
+
+The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using Apache Solr (http://lucene.apache.org/solr/) as a data store.
+
+This page supports developers creating extensions of the existing framework.

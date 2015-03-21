@@ -1,0 +1,597 @@
+= Integrating {branding} Solr Catalog Application
+include::../classes/config.adoc[]
+                     
+== Overview
+
+The Solr Catalog Provider (SCP) is an implementation of the CatalogProvider interface using Apache Solr (http://lucene.apache.org/solr/) as a data store.
+
+This guide supports integration of this application with external frameworks.
+
+== DDF Catalog Solr Embedded Provider
+
+=== Using
+
+The Solr Catalog Embedded Provider is an embedded, local Solr Server instance used in conjunction with an Apache Solr Server data store. It is a local instance that is a lightweight solution that works out of the box without any configuration. However, it does not provide a Solr Admin GUI (http://wiki.apache.org/solr/SolrAdminGUI) or a "REST-like HTTP/XML and JSON API." If that is necessary, see Standalone Solr Server.
+
+==== Embedded Solr Catalog Provider Pros and Cons
+
+[cols="1,4a,2a" options="header"]
+|===
+
+|Feature
+|Pro
+|Con
+
+|Scalability
+|
+|* Does not scale. Only runs one single server instance.
+* Does not allow the middle tier to be scaled.
+
+|Flexibility
+|* Can be embedded in Java easily.
+* Requires no HTTP connection.
+* Uses the same interface as the Standalone Solr Server uses under the covers.
+* Allows for full control over the Solr Server. No synchronous issues on startup; i.e., the Solr Server will synchronously start up with the Solr Catalog Provider
+* Runs within the same JVM
+* Setup and Installation is simple: unzip and run.
+|Can only be interfaced using Java
+
+|(Administrative)Tools
+|* External open source tools like Luke will work to allow admins to check index contents
+* JMX metrics reporting is enabled
+
+|* No Web Console. 
+* No easy way to natively access (out of the box) what is in the index files or health of server at the data store level.
+
+|Security
+|* Does not open any ports which means no ports have to be secured.
+|
+ 
+|Performance
+|* Requires no HTTP or network overhead
+* Near real-time indexing
+* Can understand complex queries
+|
+
+|Backup/Recovery
+|* Can manually or through custom scripts back up the indexes
+|* Must copy files when server is shutdown
+
+|===
+
+===== When to Use
+
+Use the local, embedded Solr Catalog Provider when only one DDF instance is necessary and scalability is not an issue. The local, embedded Solr Catalog Provider requires no installation and little to no configuration since it is ready out of the box. It is great for demonstrations, training exercises, or for sparse querying and ingesting.
+
+==== Installing and Uninstalling
+
+===== Prerequisites
+
+Before the DDF Solr Catalog Application can be installed:
+
+* the DDF Kernel must be running,
+* the DDF Platform Application must be installed, and
+* the DDF Catalog Application must be installed
+
+===== Install
+
+By default, the correct features should be installed for the Embedded Solr Server configuration.
+. Before installing a DDF application, verify that its prerequisites have been met. 
+. Copy the DDF application's KAR file to the `<INSTALL_DIRECTORY>/deploy` directory.
+
+[TIP]
+====
+These Installation steps are the same whether DDF was installed from a distribution zip or a custom installation using the DDF Kernel zip.
+====
+
+===== Verify
+
+. Verify the appropriate features for the DDF application have been installed using the `features:list` command to view the KAR file's features.
+. Verify that the bundles within the installed features are in an active state.
+
+===== Uninstall
+[WARNING]
+====
+It is very important to save the KAR file or the feature repository URL for the application prior to an uninstall so that the uninstall can be reverted if necessary.
+====
+
+If the DDF application is deployed on the DDF Kernel in a custom installation (or the application has been upgraded previously); i.e., its KAR file is in the `<INSTALL_DIRECTORY>/deploy` directory, uninstall it by deleting this KAR file.
+
+
+Otherwise, if the DDF application is running as part of the DDF distribution zip, it is uninstalled *the first time and only the first time* using the `features:removeurl` command: 
+
+.Uninstall DDF application from DDF distribution
+[source,http]
+----
+features:removeurl -u <DDF application's feature repository URL>
+
+Example:   features:removeurl -u mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+----
+
+The uninstall of the application can be verified by the absence of any of the DDF application's features in the `features:list` command output.
+
+====== Revert the Uninstall
+
+If the uninstall of the DDF application needs to be reverted, this is accomplished by either:
+
+* copying the application's KAR file previously in the `<INSTALL_DIRECTORY>/deploy` directory, OR 
+* adding the application's feature repository back into DDF and installing its main feature, which typically is of the form `<applicationName>-app`, e.g., `catalog-app`.
+
+.Reverting DDF application's uninstall
+----
+features:addurl <DDF application's feature repository URL>
+features:install <DDF application's main feature>
+
+Example:
+
+    ddf@local>features:addurl mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+    ddf@local>features:install catalog-app
+----
+
+==== Upgrade
+
+To upgrade an application, complete the following procedure.
+
+. Uninstall the application by following the Uninstall Applications instructions above.
+. Install the new application KAR file by copying the admin-app-X.Y.kar file to the 
+`<INSTALL_DIRECTORY>/deploy` directory.
+. Start the application. +
+`features:install admin-app`
+. Complete the steps in the Verify section above to determine if the upgrade was successful.
+
+==== Configuration
+
+===== Embedded Solr Server and Solr Catalog Provider
+
+No configuration is necessary for the embedded Solr Server and the Solr Catalog Provider to work out of the box. The standard installation described above is sufficient. When the catalog-solr-embedded-provider feature is installed, it stores the Solr index files to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr` by default. A user does not have to specify any parameters. In addition, the `catalog-solr-embedded-provider` feature contains all files necessary for Solr to start the server. 
+
+However, this component can be configured to specify the directory to use for data storage using the normal processes described in the Configuring DDF section. 
+
+The configurable properties for the SCP are accessed from the *Catalog Embedded Solr Catalog Provider* configurations in the Web Console.
+
+[TIP]
+====
+*Handy Tip* +
+The Embedded (Local) Solr Catalog Provider works on startup without any configuration because a local embedded Solr Server is automatically started and pre-configured.
+====
+
+===== Configurable Properties
+
+[cols="1,1,1,4a,1,1" options="header"]
+|===
+
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Data Directory File Path
+|dataDirectoryPath
+|String
+|Specifies the directory to use for data storage. The server must be shutdown for this property to take effect. If a filepath is provided with directories that don't exist, SCP will attempt to create those directories. Out of the box (without configuration), the SCP writes to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr`.
+
+If dataDirectoryPath is left blank (empty string), it will default to `<DISTRIBUTION_INSTALLATION_DIRECTORY>/data/solr`.
+
+If data directory file path is a relative string, the SCP will write the data files starting at the installation directory. For instance, if the string `scp/solr_data` is provided, the data directory will be at `<DISTRIBUTION_INSTALLATION_DIRECTORY>/scp/solr_data`.
+
+
+If data directory file path is `/solr_data` in Windows, the Solr Catalog Providerwill write the data files starting at the beginning of the drive, e.g., `C:/solr_data`.
+
+It is recommended that an absolute filepath be used to minimize confusion, e.g., `/opt/solr_data` in Linux or `C:/solr_data` in Windows. Permissions are necessary to write to the directory.
+|
+|No
+
+|Force Auto Commit
+|forceAutoCommit
+|Boolean / Checkbox
+|[IMPORTANT]
+====
+*Performance Impact* +
+Only in special cases should auto-commit be forced. Forcing auto-commit makes the search results visible immediately.
+====
+|
+|No
+
+|===
+
+==== Solr Configuration Files
+
+The Apache Solr product has Configuration files to customize behavior for the Solr Server. These files can be found at `<DISTRIBUTION_INSTALLATION_DIRECTORY>/etc/solr`. Care must be taken in editing these files because they will directly affect functionality and performance of the Solr Catalog Provider. A restart of the distribution is necessary for changes to take effect. 
+ 
+[WARNING]
+====
+*Solr Configuration File Changes* +
+Solr Configuration files should not be changed in most cases. Changes to the schema.xml will most likely need code changes within the Solr Catalog Provider.
+====
+
+==== Move Solr Data to a New Location
+
+If SCP has been installed for the first time, changing the Data Directory File Path property and restarting the distribution is all that is necessary because no data had been written into Solr previously. Nonetheless, if a user needs to change the location after the user has already ingested data in a previous location, complete the following procedure:
+
+. Change the data directory file path property within the *Catalog Embedded Solr Catalog Provider* configuration in the Web Console to the desired future location of the Solr data files.
+. Shut down the distribution.
+. Find the future location on the drive. If the current location does not exist, create the directories.
+. Find the location of where the current Solr data files exist and copy all the directories in that location to the future the location. For instance, if the previous Solr data files existed at C:/solr_data and it is necessary to move it to C:/solr_data_new, copy all directories within `C:/solr_data` into `C:/solr_data_new`. Usually this consists of copying the index and tlog directories into the new data directory.
+. Start the distribution. SCP should recognize the index files and be able to query them again.
+
+[WARNING]
+====
+*Changes Require a Distribution Restart* +
+If the Data Directory File Path property is changed, no changes will occur to the SCP until the distribution has been restarted.
+====
+
+[NOTE]
+====
+If data directory file path property is changed to a new directory, and the previous data is not moved into that directory, no data will exist in Solr. Instead, Solr will create an empty index. Therefore, it is possible to have multiple places where Solr files are stored, and a user can toggle between those locations for different sets of data.
+====
+
+== DDF Catalog Solr External Provider
+
+=== Using
+The Solr Catalog Provider is used in conjunction with an Apache Solr Server data store and acts as the client for an external Solr Server. It is meant to be used only with the Standalone Solr Server (`catalog-solr-server`).
+
+==== Solr Catalog External Provider Pros and Cons
+[cols="1,3a,3a" options="header"]
+|===
+
+|Feature
+|Pro
+|Con
+
+|Scalability
+|* Allows the middle-tier to be scaled by pointing
+* various middle-tier instances to one server facade.
+* Possible data tier scalability with 
+Solr Cloud. Solr Cloud allows for "high scale, fault tolerant, distributed indexing and search capabilities."
+|* Solr Cloud Catalog Provider not implemented yet.
+
+|Flexibility
+|* REST-like HTTP/XML and JSON APIs that make it easy to use from virtually any programming language.
+* Ability to run in separate or same JVM of middle tier.
+|
+ 
+|(Administrative) Tools
+|* Contains Solr Admin GUI, which allows admins to query, check health, see metrics, see configuration files and preferences, etc. 
+* External open source tools like Luke will work to allow admins to check index contents.
+* JMX metrics reporting is enabled.
+|
+
+|Security
+|* Inherits app server security.
+|* Web Console must be secured and is openly accessible.
+* REST-like HTTP/XML and JSON APIs must be secured.
+* Current Catalog Provider implementation requires sending unsecured messages to Solr. Without a coded solution, requires network or firewall restrictions in order to secure.
+
+|Performance
+|* If scaled, high performance.
+* Near real-time indexing.
+|* Possible network latency impact
+* Extra overhead when sent over HTTP. Extra parsing for XML, JSON, or other interface formats. 
+* Possible limitations upon requests and queries dependent on HTTP server settings.
+
+|Backup/Recovery
+
+|* Built-in recovery tools that allow in-place backups (does not require server shutdown).
+* Backup of Solr indexes can be scripted.
+|* Recovery is performed as an HTTP request.
+
+|===
+
+===== When to Use
+
+Use the Solr External Provider when the Standalone Solr Server is being used on a separate machine. Refer to the Standalone Solr Server recommended configuration.
+
+==== Installing and Uninstalling
+
+===== Prerequisites
+
+Before the DDF Solr Catalog Application can be installed,
+
+* the DDF Kernel must be running, 
+* the DDF Platform Application must be installed, and
+* the DDF Catalog Application must be installed.
+
+===== Install
+
+By default, the DDF Solr Catalog application installs the Embedded Solr Provider.
+
+Uninstall the Solr Catalog Embedded Provider by uninstalling the feature `catalog-solr-embedded-provider`then installing the feature `catalog-solr-external-provider` `*install*` . This will not install any Solr Servers. Installing this feature will provide a user an "unconfigured" Solr Catalog Provider. See the Configuration section for how to configure this external Solr Catalog Provider to connect to an external Solr Server.
+
+. Before installing a DDF application, verify that its prerequisites have been met. 
+. Copy the DDF application's KAR file to the `<INSTALL_DIRECTORY>/deploy` directory.
+
+[NOTE]
+====
+These Installation steps are the same whether DDF was installed from a distribution zip or a custom installation using the DDF Kernel zip.
+====
+
+===== Verify
+
+To verify if the DDF Solr Catalog Application was successfully installed for the External Solr Catalog Provider configuration, verify the appropriate features have been successfully installed. The features `catalog-solr-embedded-provider` and `catalog-solr-server` should be uninstalled.
+
+.DDF Solr Catalog Application features for External Solr Catalog Provider configuration
+----
+ddf@local>features:list | grep catalog-solr-app
+[uninstalled] [2.3.0] catalog-solr-embedded-provider       catalog-solr-app-2.3.0   Catalog Provider with locally Embedded Solr Server, implemented using Solr 4.1.0.
+[installed  ] [2.3.0] catalog-solr-external-provider       catalog-solr-app-2.3.0   Catalog Provider to interface with an external Solr 4.1.0 Server
+[uninstalled] [2.3.0] catalog-solr-server                  catalog-solr-app-2.3.0   Deploys and starts a preconfigured Solr War into this container
+----
+
+Verify the DDF Solr Catalog Application bundles are Active for the External Solr Catalog Provider configuration.
+
+.DDF Solr Catalog Application active bundles for External Solr Catalog Provider configuration
+----
+ddf@local>list | grep -i solr
+[ 271] [Active     ] [            ] [       ] [   80] Apache ServiceMix :: Bundles :: SolrJ (0.3.0.2)
+[ 273] [Active     ] [Created     ] [       ] [   80] DDF :: Catalog :: Solr :: External :: Provider (2.3.0)
+----
+
+===== Uninstall
+
+[WARNING]
+====
+It is very important to save the KAR file or the feature repository URL for the application prior to an uninstall so that the uninstall can be reverted if necessary.
+====
+
+If the DDF application is deployed on the DDF Kernel in a custom installation (or the application has been upgraded previously), i.e., its KAR file is in the  `<INSTALL_DIRECTORY>/deploy` directory, uninstall it by deleting this KAR file.
+
+Otherwise, if the DDF application is running as part of the DDF distribution zip, it is uninstalled *the first time and only the first time* using the `features:removeurl` command:
+
+----
+features:removeurl -u <DDF application's feature repository URL>
+ 
+Example:   features:removeurl -u mvn:ddf.catalog/catalog-solr-app/2.3.0/xml/features
+----
+
+The uninstall of the application can be verified by the absence of any of the DDF application's features in the `features:list` command output.
+
+====== Revert the Uninstall
+
+If the uninstall of the DDF application needs to be reverted, this is accomplished by either:
+
+* copying the application's KAR file previously in the <INSTALL_DIRECTORY>/deploy directory, OR 
+* adding the application's feature repository back into DDF and installing its main feature, which typically is of the form <applicationName>-app, e.g., `catalog-app`.
+
+.Uninstall DDF application from DDF distribution
+----
+features:addurl <DDF application's feature repository URL>  
+features:install <DDF application's main feature> 
+
+Example: ddf@local>features:addurl
+mvn:ddf.catalog.solr/catalog-solr-app/2.3.0/xml/features ddf@local>features:install catalog-solr-external-provider
+---- 
+
+===== Upgrade
+
+To upgrade an application, complete the following procedure.
+
+Uninstall the application by following the Uninstall Applications instructions above.
+
+. Install the new application KAR file by copying the admin-app-X.Y.Z.kar file to the `<INSTALL_DIRECTORY>/deploy` directory.
+. Start the application. +
+`features:install catalog-solr-external-provider`
+. Complete the steps in the Verify section above to determine if the upgrade was successful.
+
+===== Configuration
+
+In order for the external Solr Catalog Provider to work, it must be pointed at the external Solr Server. When the `catalog-solr-external-provider` feature is installed, it is in an unconfigured state until the user provides an HTTP URL to the external Solr Server. The configurable properties for this SCP are accessed from the Catalog External Solr Catalog Provider configurations in the Web Console.
+
+====== Configurable Properties
+[cols="1,1,1,3a,2,1" options="header"]
+|===
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|HTTP URL
+|url
+|String
+|HTTP URL of the standalone, preconfigured Solr 4.x Server.
+|http://localhost:8181/solr
+|Yes
+
+|Force AutoCommit
+|forceAutoCommit
+|Boolean / Checkbox
+|
+[IMPORTANT]
+====
+*Performance Impact* +
+Only in special cases should auto-commit be forced. Forcing auto-commit makes the search results visible immediately
+====
+|Unchecked/False
+|No
+
+|===
+
+==== Implementation Details
+
+===== Indexing Text
+
+When storing fields, the Solr Catalog Provider will analyze and tokenize the text values of STRING_TYPE and XML_TYPE AttributeTypes. These types of fields are indexed in at least three ways: in raw form, analyzed with case sensitivity, and analyzed without concern to case sensitivity. Concerning XML, the Solr Catalog Provider will analyze and tokenize XML CDATA sections, XML element text values, and XML attribute values. 
+
+== Standalone Solr Server
+
+The Standalone Solr Server gives the user an ability to run an Apache Solr instance as a Catalog data store within the distribution. The Standalone Solr Server contains a Solr Web Application Bundle and pre-configured Solr configuration files. A Solr Web Application Bundle is essentially the Apache Solr war repackaged as a bundle and configured for use within this distribution. 
+
+=== Using
+
+Users can use this feature to create a data store. Users would use this style of deployment over an embedded Java Solr Server when the user wants to install a Solr Server on a separate, dedicated machine for the purpose of isolated data storage or ease of maintenance. The Standalone Solr Server can now run in its own JVM (separate from endpoints and other frameworks) and accept calls with its "REST-like HTTP/XML and JSON API." 
+
+This Standalone Solr Server is meant to be used in conjunction with the Solr Catalog Provider for External Solr. The Solr Catalog Provider acts as a client to the Solr Server.
+
+=== Installing and Uninstalling
+
+==== Prerequisites
+
+Before the DDF Solr Catalog Application can be installed for configuration as the Standalone Solr Server, the DDF Kernel must be running.
+In production environments, it is recommended that Standalone Solr Server be run in isolation on a separate machine in order to maximize the Solr Server performance and use of resources such as RAM and CPU cores. The Standalone Solr Server, as its name suggests, does not require or depend on other apps, such as the Catalog API, nor does it require their dependencies, such as Camel, CXF, etc. Therefore, it is recommended to have the Solr Server app run on a lightweight DDF distribution, such as the DDF Distribution Kernel. If clustering is necessary, the Solr Server application can run alongside the Platform application for clustering support.
+
+==== Installing
+
+By default, the features for the Embedded Solr Server configuration are installed, so the `catalog-solr-embedded-provider` feature must be uninstalled and the `catalog-solr-server` feature installed at `http://localhost:8181/solr` using the normal processes described in the Configuring DDF section of the User's Guide. This feature is included out of the box in the current distribution. Installing the feature will copy the Solr configuration files in the distribution home directory then deploy the configured Solr war. Verification that the server started correctly can be performed by visiting the Solr Admin interface.
+
+* Before installing a DDF application, verify that its prerequisites have been met. 
+* Copy the DDF application's KAR file to the `<INSTALL_DIRECTORY>/deploy` directory.
+
+[NOTE]
+====
+These Installation steps are the same whether DDF was installed from a distribution zip or a custom installation using the DDF Kernel zip.
+====
+
+==== Verifying
+
+To verify if the DDF Solr Catalog application was successfully installed for the Standalone Solr Server configuration, verify the appropriate features have been successfully installed. The features `catalog-solr-external-provider` and `catalog-solr-embedded-provider` should be uninstalled.
+
+.DDF Solr Catalog Application installed features for Standalone Solr configuration
+----
+ddf@local>features:list | grep catalog-solr-app
+[uninstalled] [2.3.0] catalog-solr-embedded-provider catalog-solr-app-2.3.0    Catalog Provider with locally Embedded Solr Server, implemented using Solr 4.1.0.
+[uninstalled] [2.3.0] catalog-solr-external-provider catalog-solr-app-2.3.0    Catalog Provider to interface with an external Solr 4.1.0 Server
+[installed  ] [2.3.0] catalog-solr-server            catalog-solr-app-2.3.0    Deploys and starts a preconfigured Solr War into this container
+----
+
+Verify the DDF Solr Catalog Application bundles are Active for the Standalone Solr Server:
+
+.DDF Solr Catalog Application's active bundles for Standalone Solr Server configuration
+----
+ddf@local>list | grep -i solr
+[ 115] [Active     ] [            ] [       ] [   80] Apache ServiceMix :: Bundles :: SolrJ (0.3.0.2)
+[ 117] [Installed  ] [            ] [       ] [   80] DDF :: Catalog :: Solr :: Embedded :: Provider (2.3.0)
+[ 118] [Active     ] [            ] [       ] [   80] DDF :: Catalog :: Solr :: Server :: Standalone War (2.3.0)
+----
+
+==== Uninstall
+
+[WARNING]
+====
+It is very important to save the KAR file or the feature repository URL for the application prior to an uninstall so that the uninstall can be reverted if necessary.
+====
+
+If the DDF application is deployed on the DDF Kernel in a custom installation (or the application has been upgraded previously), i.e., its KAR file is in
+the 
+`<INSTALL_DIRECTORY>/deploy`
+ directory, uninstall it by deleting this KAR file.
+
+Otherwise, if the DDF application is running as part of the DDF distribution zip, it is uninstalled *the first time and only the first time* using the `features:removeurl` command:
+
+.Uninstall DDF application from DDF distribution
+----
+features:removeurl -u <DDF application's feature repository URL>
+
+Example:   features:removeurl -u mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+----
+
+The uninstall of the application can be verified by the absence of any of the DDF application's features in the `features:list` command output.
+
+===== Revert the Uninstall
+
+If the uninstall of the DDF application needs to be reverted, this is accomplished by either:
+
+* copying the application's KAR file previously in the `<INSTALL_DIRECTORY>/deploy` directory, OR 
+* adding the application's feature repository back into DDF and installing its main feature, which typically is of the form `<applicationName>-app`, e.g., `catalog-app`.
+
+.Reverting DDF application's uninstall
+----
+features:addurl <DDF application's feature repository URL>
+features:install <DDF application's main feature>
+ 
+Example:
+ 
+    ddf@local>features:addurl mvn:ddf.catalog/catalog-app/2.3.0/xml/features
+    ddf@local>features:install catalog-app
+----
+
+===== Remove Data from Solr Core
+It is possible to remove data in the Solr index of a Solr core.  Replace <CORE_NAME> in the following command with a valid Solr core to delete all data in that Solr core:
+
+.How to delete Solr Core data with curl
+----
+curl 'http://localhost:8181/solr/<CORE_NAME>/update?commit=true' -H 'Content-type: text/xml' -d '<delete><query>*:*</query></delete>'
+----
+
+Use the core selector in the Solr administration page to get a list of available Solr cores.
+
+
+.Solr administration page
+----
+http://localhost:8181/solr
+----
+
+==== Upgrading
+
+To upgrade an application, complete the following procedure.
+
+. Uninstall the application by following the Uninstall Applications instructions above.
+. Install the new application KAR file by copying the admin-app-X.Y.kar file to the `<INSTALL_DIRECTORY>/deploy` directory.
+. Start the application. +
+`features:install admin-app`
+. Complete the steps in the Verify section above to determine if the upgrade was successful.
+
+==== Configuring
+
+The Standalone Solr Server comes pre-configured to work with Solr Catalog External Provider implementations. For most use cases, no other configuration to the Solr Server is necessary with the standard distribution.
+
+==== Known Issues
+
+The standalone Solr Server fails to install if it has been previously uninstalled prior to the distribution being restarted.
+
+==== Solr Standalone Server Meta Catalog Backup
+
+Prior to setting up backup for the Solr Metadata catalog, it is important to plan how backup and recovery will be executed. The amount and velocity of data entering the catalog differ depending on the use of the system. As such, there will be varying plans depending on the need. It is important to get a sense of how often the data changes in the catalog in order to determine how often the data should be backed up. When something goes wrong with the system and data is corrupted, how much time is there to recover? A plan must be put in place to remove corrupted data from the catalog and replace it with backed up data in a time span that fits deadlines. Equipment must also be purchased to maintain backups, and this equipment may be co-located with local production systems or remotely located at a different site. A backup schedule will also have to be determined so that it does not affect end users interacting with the production system.
+
+===== Back Up Data from the Solr Server Standalone Metadata Catalog
+
+The Solr server contains a built-in backup system capable of saving full snapshot backups of the catalog data upon request. Backups are created by using a web based service. Through making a web based service call utilizing the web browser, a time-stamped backup can be generated and saved to a local drive, or location where the backup device has been mounted. 
+
+The URL for the web call contains three parameters that allow for the customization of the backup:
+
+* command: allows for the command 'backup' to backup the catalog.
+* location: allows for a file system location to place the backup to be specified.
+* numberToKeep: allows the user to specify how many backups should be maintained. If the number of backups exceed the "numberToKeep" value, the system will replace the oldest backup with the newest one.
+
+An example URL would look like `"http://127.0.0.1:8181/solr/replication?command=backup&location=d:/solr_data&numberToKeep=5"`.
+
+The IP address and port in the URL should be replaced with the IP address and port of the Solr Server. The above URL would run a backup, save the backup file in `D:/solr_data`, and it would keep up to five backup files at any time. To execute this backup, first ensure that the Solr server is running. Once the server is running, create the URL and copy it into a web browser window. Once the URL is executed, the following information is returned to the browser: 
+
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+ <lst name="responseHeader">
+  <int name="status">0</int>
+  <int name="QTime">15</int>
+ </lst>
+ <str name="status">OK</str>
+</response>
+----
+
+If the status equals 0, there was success. Qtime shows the time it took to execute the backup (in milliseconds). Backup files are saved in directories which are given the name `snapshot` along with a timestamp. Within the directory are all of the files that contain the data from the catalog.
+
+===== Restore Data to the Solr Server Standalone Metadata Catalog
+
+Under certain circumstances, such as when data has been corrupted, information has accidentally been deleted, or a system upgrade is occurring, the catalog must be restored. The backup files acquired from the previous section will be used to restore data into the catalog.
+
+. The first step in the process is to choose which data backup will be used for restoring the catalog. A most recent backup maybe the correct choice, or the last stable backup may be a better option.
+. At this point, one more backup may be executed to save the corrupted data just in case it needs to be revisited.
+. Shut down the Solr server. The catalog cannot be restored while the server is running.
+. Locate the index that contains all of the Solr data. This index is found at 
+`$DDF_INSTALL/solr/collection1/data/index`
+. All files within the index directory should be deleted.
+. Copy the files from the chosen backup directory into the index directory.
+. Restart the Solr server. The data should now be restored.
+
+===== Suggestions for Managing Backup and Recovery
+
+Here are some helpful suggestions for setting up data backups and recoveries:
+
+* Acquire a backup drive that is separate from the media that runs the server. Mount this drive as a directory and save backups to that location.
+* Ensure that the backup media has enough space to support the number of backups that need to be saved.
+* Run a scheduler program that calls the backup URL on a timed basis.
+* Put indicators in place that can detect when data corruption may have occurred.
+* Testing a backup before recovery is possible. A replicated "staging" Solr server instance can be stood up, and the backup can be copied to that system for testing before moving it to the "production" system.
