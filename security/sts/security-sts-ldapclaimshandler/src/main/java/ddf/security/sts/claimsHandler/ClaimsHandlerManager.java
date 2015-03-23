@@ -150,12 +150,15 @@ public class ClaimsHandlerManager implements ConfigurationWatcher {
         }
 
         lo.setUseStartTLS(useTls);
-        lo.addEnabledCipherSuite("TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA");
-        lo.addEnabledProtocol("TLSv1.1", "TLSv1.2");
+        lo.addEnabledCipherSuite(System.getProperty("https.cipherSuites").split(","));
+        lo.addEnabledProtocol(System.getProperty("https.protocols").split(","));
         lo.setProviderClassLoader(ClaimsHandlerManager.class.getClassLoader());
 
         String host = url.substring(url.indexOf("://") + 3, url.lastIndexOf(":"));
-        Integer port = Integer.valueOf(url.substring(url.lastIndexOf(":") + 1));
+        Integer port = useSsl ? 636 : 389;
+        try {
+            port = Integer.valueOf(url.substring(url.lastIndexOf(":") + 1));
+        } catch (NumberFormatException ignore) {}
 
         return new LDAPConnectionFactory(host, port, lo);
     }

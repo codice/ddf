@@ -62,6 +62,9 @@ public class LdapLoginConfigTest {
     public void testRegisterLdapModule() {
         Map<String, String> ldapProps = new HashMap<String, String>();
 
+        System.setProperty("https.cipherSuites", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA");
+        System.setProperty("https.protocols", "TLSv1.1,TLSv1.2");
+
         LdapLoginConfig ldapConfig = new LdapLoginConfig() {
             @Override
             protected BundleContext getContext() {
