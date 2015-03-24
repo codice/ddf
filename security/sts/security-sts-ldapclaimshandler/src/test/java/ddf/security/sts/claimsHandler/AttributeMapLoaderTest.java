@@ -14,21 +14,20 @@
  **/
 package ddf.security.sts.claimsHandler;
 
+import org.junit.Test;
+
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
+import java.io.FileNotFoundException;
+import java.security.Principal;
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.io.FileNotFoundException;
-import java.security.Principal;
-import java.util.Map;
-
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.x500.X500Principal;
-
-import org.junit.Test;
 
 public class AttributeMapLoaderTest {
 
@@ -40,7 +39,7 @@ public class AttributeMapLoaderTest {
 
     private static final String TEST_USER = "testuser";
 
-    private static final String KERBEROS_USER = "test/ddf.org";
+    private static final String KERBEROS_USER = TEST_USER + "/ddf.org";
 
     private static final String KERBEROS_PRINCIPAL = KERBEROS_USER + "@REALM";
 
@@ -85,7 +84,7 @@ public class AttributeMapLoaderTest {
     public void testKerberosGetUser() {
         Principal principal = new KerberosPrincipal(KERBEROS_PRINCIPAL);
 
-        assertEquals(KERBEROS_USER, AttributeMapLoader.getUser(principal));
+        assertEquals(TEST_USER, AttributeMapLoader.getUser(principal));
     }
 
     @Test
