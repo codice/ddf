@@ -187,7 +187,7 @@ public class StsIssueTest {
         writer.writeStartElement(IC, CLAIM_TYPE, IDENTITY_URI);
         // writer.writeAttribute("Uri",
         // "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
-        writer.writeAttribute(URI, SecurityAttributesClaimsHandler.DEFAULT_SECURITY_CLAIM_TYPE);
+        writer.writeAttribute(URI, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uid");
         writer.writeEndElement();
 
         Element claims = writer.getDocument().getDocumentElement();
@@ -240,7 +240,7 @@ public class StsIssueTest {
         writer.writeStartElement(IC, CLAIM_TYPE, IDENTITY_URI);
         // writer.writeAttribute("Uri",
         // "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
-        writer.writeAttribute(URI, SecurityAttributesClaimsHandler.DEFAULT_SECURITY_CLAIM_TYPE);
+        writer.writeAttribute(URI, "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uid");
         writer.writeEndElement();
 
         Element claims = writer.getDocument().getDocumentElement();

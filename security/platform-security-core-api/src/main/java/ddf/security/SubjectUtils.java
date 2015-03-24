@@ -20,6 +20,11 @@ import org.slf4j.LoggerFactory;
 
 import ddf.security.assertion.SecurityAssertion;
 
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
+import java.security.Principal;
+import java.util.StringTokenizer;
+
 /**
  * Utility class used to perform operations on Subjects.
  * 
@@ -62,7 +67,31 @@ public final class SubjectUtils {
             if (principals != null) {
                 SecurityAssertion assertion = principals.oneByType(SecurityAssertion.class);
                 if (assertion != null) {
-                    name = assertion.getPrincipal().getName();
+                    Principal principal = assertion.getPrincipal();
+                    if (principal instanceof X500Principal) {
+                        StringTokenizer st = new StringTokenizer(principal.getName(), ",");
+                        while (st.hasMoreElements()) {
+                            // token is in the format:
+                            // syntaxAndUniqueId
+                            // cn
+                            // ou
+                            // o
+                            // loc
+                            // state
+                            // country
+                            String[] strArr = st.nextToken().split("=");
+                            if (strArr.length > 1 && strArr[0].equalsIgnoreCase("cn")) {
+                                name = strArr[1];
+                                break;
+                            }
+                        }
+                    } else if (principal instanceof KerberosPrincipal) {
+                        StringTokenizer st = new StringTokenizer(principal.getName(), "@");
+                        st = new StringTokenizer(st.nextToken(), "/");
+                        name = st.nextToken();
+                    } else {
+                        name = assertion.getPrincipal().getName();
+                    }
                 } else {
                     // send back the primary principal as a string
                     name = principals.getPrimaryPrincipal().toString();

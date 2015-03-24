@@ -18,11 +18,19 @@ import ddf.security.SecurityConstants;
 import ddf.security.assertion.SecurityAssertion;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.wss4j.common.saml.builder.SAML2Constants;
+import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml2.core.AuthenticatingAuthority;
+import org.opensaml.saml2.core.AuthnContext;
+import org.opensaml.saml2.core.AuthnContextClassRef;
+import org.opensaml.saml2.core.AuthnContextDecl;
+import org.opensaml.saml2.core.AuthnContextDeclRef;
 import org.opensaml.saml2.core.AuthnStatement;
 import org.opensaml.saml2.core.AuthzDecisionStatement;
 import org.opensaml.saml2.core.EncryptedAttribute;
+import org.opensaml.saml2.core.SubjectLocality;
 import org.opensaml.xml.Namespace;
 import org.opensaml.xml.NamespaceManager;
 import org.opensaml.xml.XMLObject;
@@ -36,6 +44,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -60,6 +70,10 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     private static final String SUBJECT_TAG = "NameID";
 
     private static final String ATTR_STMT_TAG = "AttributeStatement";
+
+    private static final String AUTHN_STMT_TAG = "AuthnStatement";
+
+    private static final String AUTHCTX_REF_TAG = "AuthnContextClassRef";
 
     private static final String ATTR_TAG = "Attribute";
 
@@ -96,6 +110,8 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
     private transient List<AttributeStatement> attributeStatements;
 
+    private transient List<AuthnStatement> authenticationStatements;
+
     /**
      * Uninitialized Constructor
      */
@@ -121,6 +137,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
     private void init() {
         attributeStatements = new ArrayList<>();
+        authenticationStatements = new ArrayList<>();
     }
 
     /**
@@ -133,7 +150,9 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
         try {
             AttrStatement attributeStatement = null;
+            AuthenticationStatement authenticationStatement = null;
             Attr attribute = null;
+            int attrs = 0;
             while (xmlStreamReader.hasNext()) {
                 int event = xmlStreamReader.next();
                 switch (event) {
@@ -147,12 +166,34 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                         attributeStatement = new AttrStatement();
                         attributeStatements.add(attributeStatement);
                         break;
+                    case AUTHN_STMT_TAG:
+                        authenticationStatement = new AuthenticationStatement();
+                        authenticationStatements.add(authenticationStatement);
+                        attrs = xmlStreamReader.getAttributeCount();
+                        for (int i = 0; i < attrs; i++) {
+                            String name = xmlStreamReader.getAttributeLocalName(i);
+                            String value = xmlStreamReader.getAttributeValue(i);
+                            if (name.equals("AuthnInstant")) {
+                                authenticationStatement.setAuthnInstant(DateTime.parse(value));
+                            }
+                        }
+                        break;
+                    case AUTHCTX_REF_TAG:
+                        if (authenticationStatement != null) {
+                            String classValue = xmlStreamReader.getText();
+                            classValue = classValue.trim();
+                            AuthenticationContextClassRef authenticationContextClassRef = new AuthenticationContextClassRef();
+                            authenticationContextClassRef.setAuthnContextClassRef(classValue);
+                            AuthenticationContext authenticationContext = new AuthenticationContext();
+                            authenticationContext.setAuthnContextClassRef(authenticationContextClassRef);
+                            authenticationStatement.setAuthnContext(authenticationContext);
+                        }
                     case ATTR_TAG:
                         attribute = new Attr();
                         if (attributeStatement != null) {
                             attributeStatement.addAttribute(attribute);
                         }
-                        int attrs = xmlStreamReader.getAttributeCount();
+                        attrs = xmlStreamReader.getAttributeCount();
                         for (int i = 0; i < attrs; i++) {
                             String name = xmlStreamReader.getAttributeLocalName(i);
                             String value = xmlStreamReader.getAttributeValue(i);
@@ -210,7 +251,29 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     public Principal getPrincipal() {
         if (securityToken != null) {
             if (principal == null) {
-                principal = new AssertionPrincipal(name);
+                String authMethod = null;
+                if (authenticationStatements != null) {
+                    for (AuthnStatement authnStatement : authenticationStatements) {
+                        AuthnContext authnContext = authnStatement.getAuthnContext();
+                        if (authnContext != null) {
+                            AuthnContextClassRef authnContextClassRef = authnContext.getAuthnContextClassRef();
+                            if (authnContextClassRef != null) {
+                                authMethod = authnContextClassRef.getAuthnContextClassRef();
+                            }
+                        }
+                    }
+                }
+                if (SAML2Constants.AUTH_CONTEXT_CLASS_REF_X509.equals(authMethod) ||
+                        SAML2Constants.AUTH_CONTEXT_CLASS_REF_SMARTCARD_PKI.equals(authMethod) ||
+                        SAML2Constants.AUTH_CONTEXT_CLASS_REF_SOFTWARE_PKI.equals(authMethod) ||
+                        SAML2Constants.AUTH_CONTEXT_CLASS_REF_SPKI.equals(authMethod) ||
+                        SAML2Constants.AUTH_CONTEXT_CLASS_REF_TLS_CLIENT.equals(authMethod)) {
+                    principal = new X500Principal(name);
+                } else if (SAML2Constants.AUTH_CONTEXT_CLASS_REF_KERBEROS.equals(authMethod)) {
+                    principal = new KerberosPrincipal(name);
+                } else {
+                    principal = new AssertionPrincipal(name);
+                }
             }
             return principal;
         }
@@ -239,7 +302,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
     @Override
     public List<AuthnStatement> getAuthnStatements() {
-        return new ArrayList<>();
+        return Collections.unmodifiableList(authenticationStatements);
     }
 
     @Override
@@ -278,14 +341,13 @@ public class SecurityAssertionImpl implements SecurityAssertion {
             }
         }
         // add this back in when we support parsing this information
-        //        result.append(", AuthnStatements: ");
-        //        for (AuthnStatement authStatement : getAuthnStatements()) {
-        //            result.append("[ ");
-        //            result.append(authStatement.getAuthnContext() + " : ");
-        //            result.append(authStatement.getAuthnInstant() + " : ");
-        //            result.append(authStatement.getDOM().getTextContent());
-        //            result.append("] ");
-        //        }
+        result.append(", AuthnStatements: ");
+        for (AuthnStatement authStatement : getAuthnStatements()) {
+            result.append("[ ");
+            result.append(authStatement.getAuthnInstant() + " : ");
+            result.append(authStatement.getAuthnContext().getAuthnContextClassRef().getAuthnContextClassRef());
+            result.append("] ");
+        }
         //        result.append(", AuthzDecisionStatements: ");
         //        for (AuthzDecisionStatement authDecision : getAuthzDecisionStatements()) {
         //            result.append("[ ");
@@ -883,6 +945,600 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
         @Override
         public void validate(boolean validateDescendants) throws ValidationException {
+
+        }
+    }
+
+    private static class AuthenticationContextClassRef implements AuthnContextClassRef {
+
+        String authnContextClassRef;
+
+        @Override
+        public String getAuthnContextClassRef() {
+            return authnContextClassRef;
+        }
+
+        @Override
+        public void setAuthnContextClassRef(String authnContextClassRef) {
+            this.authnContextClassRef = authnContextClassRef;
+        }
+
+        @Override
+        public List<Validator> getValidators() {
+            return null;
+        }
+
+        @Override
+        public void registerValidator(Validator validator) {
+
+        }
+
+        @Override
+        public void deregisterValidator(Validator validator) {
+
+        }
+
+        @Override
+        public void validate(boolean validateDescendants) throws ValidationException {
+
+        }
+
+        @Override
+        public void addNamespace(Namespace namespace) {
+
+        }
+
+        @Override
+        public void detach() {
+
+        }
+
+        @Override
+        public Element getDOM() {
+            return null;
+        }
+
+        @Override
+        public QName getElementQName() {
+            return null;
+        }
+
+        @Override
+        public IDIndex getIDIndex() {
+            return null;
+        }
+
+        @Override
+        public NamespaceManager getNamespaceManager() {
+            return null;
+        }
+
+        @Override
+        public Set<Namespace> getNamespaces() {
+            return null;
+        }
+
+        @Override
+        public String getNoNamespaceSchemaLocation() {
+            return null;
+        }
+
+        @Override
+        public List<XMLObject> getOrderedChildren() {
+            return null;
+        }
+
+        @Override
+        public XMLObject getParent() {
+            return null;
+        }
+
+        @Override
+        public String getSchemaLocation() {
+            return null;
+        }
+
+        @Override
+        public QName getSchemaType() {
+            return null;
+        }
+
+        @Override
+        public boolean hasChildren() {
+            return false;
+        }
+
+        @Override
+        public boolean hasParent() {
+            return false;
+        }
+
+        @Override
+        public void releaseChildrenDOM(boolean propagateRelease) {
+
+        }
+
+        @Override
+        public void releaseDOM() {
+
+        }
+
+        @Override
+        public void releaseParentDOM(boolean propagateRelease) {
+
+        }
+
+        @Override
+        public void removeNamespace(Namespace namespace) {
+
+        }
+
+        @Override
+        public XMLObject resolveID(String id) {
+            return null;
+        }
+
+        @Override
+        public XMLObject resolveIDFromRoot(String id) {
+            return null;
+        }
+
+        @Override
+        public void setDOM(Element dom) {
+
+        }
+
+        @Override
+        public void setNoNamespaceSchemaLocation(String location) {
+
+        }
+
+        @Override
+        public void setParent(XMLObject parent) {
+
+        }
+
+        @Override
+        public void setSchemaLocation(String location) {
+
+        }
+
+        @Override
+        public Boolean isNil() {
+            return null;
+        }
+
+        @Override
+        public XSBooleanValue isNilXSBoolean() {
+            return null;
+        }
+
+        @Override
+        public void setNil(Boolean newNil) {
+
+        }
+
+        @Override
+        public void setNil(XSBooleanValue newNil) {
+
+        }
+    }
+
+    private static class AuthenticationContext implements AuthnContext {
+
+        AuthnContextClassRef authnContextClassRef;
+
+        @Override
+        public AuthnContextClassRef getAuthnContextClassRef() {
+            return authnContextClassRef;
+        }
+
+        @Override
+        public void setAuthnContextClassRef(AuthnContextClassRef authnContextClassRef) {
+            this.authnContextClassRef = authnContextClassRef;
+        }
+
+        @Override
+        public AuthnContextDecl getAuthContextDecl() {
+            return null;
+        }
+
+        @Override
+        public void setAuthnContextDecl(AuthnContextDecl authnContextDecl) {
+
+        }
+
+        @Override
+        public AuthnContextDeclRef getAuthnContextDeclRef() {
+            return null;
+        }
+
+        @Override
+        public void setAuthnContextDeclRef(AuthnContextDeclRef authnContextDeclRef) {
+
+        }
+
+        @Override
+        public List<AuthenticatingAuthority> getAuthenticatingAuthorities() {
+            return null;
+        }
+
+        @Override
+        public List<Validator> getValidators() {
+            return null;
+        }
+
+        @Override
+        public void registerValidator(Validator validator) {
+
+        }
+
+        @Override
+        public void deregisterValidator(Validator validator) {
+
+        }
+
+        @Override
+        public void validate(boolean validateDescendants) throws ValidationException {
+
+        }
+
+        @Override
+        public void addNamespace(Namespace namespace) {
+
+        }
+
+        @Override
+        public void detach() {
+
+        }
+
+        @Override
+        public Element getDOM() {
+            return null;
+        }
+
+        @Override
+        public QName getElementQName() {
+            return null;
+        }
+
+        @Override
+        public IDIndex getIDIndex() {
+            return null;
+        }
+
+        @Override
+        public NamespaceManager getNamespaceManager() {
+            return null;
+        }
+
+        @Override
+        public Set<Namespace> getNamespaces() {
+            return null;
+        }
+
+        @Override
+        public String getNoNamespaceSchemaLocation() {
+            return null;
+        }
+
+        @Override
+        public List<XMLObject> getOrderedChildren() {
+            return null;
+        }
+
+        @Override
+        public XMLObject getParent() {
+            return null;
+        }
+
+        @Override
+        public String getSchemaLocation() {
+            return null;
+        }
+
+        @Override
+        public QName getSchemaType() {
+            return null;
+        }
+
+        @Override
+        public boolean hasChildren() {
+            return false;
+        }
+
+        @Override
+        public boolean hasParent() {
+            return false;
+        }
+
+        @Override
+        public void releaseChildrenDOM(boolean propagateRelease) {
+
+        }
+
+        @Override
+        public void releaseDOM() {
+
+        }
+
+        @Override
+        public void releaseParentDOM(boolean propagateRelease) {
+
+        }
+
+        @Override
+        public void removeNamespace(Namespace namespace) {
+
+        }
+
+        @Override
+        public XMLObject resolveID(String id) {
+            return null;
+        }
+
+        @Override
+        public XMLObject resolveIDFromRoot(String id) {
+            return null;
+        }
+
+        @Override
+        public void setDOM(Element dom) {
+
+        }
+
+        @Override
+        public void setNoNamespaceSchemaLocation(String location) {
+
+        }
+
+        @Override
+        public void setParent(XMLObject parent) {
+
+        }
+
+        @Override
+        public void setSchemaLocation(String location) {
+
+        }
+
+        @Override
+        public Boolean isNil() {
+            return null;
+        }
+
+        @Override
+        public XSBooleanValue isNilXSBoolean() {
+            return null;
+        }
+
+        @Override
+        public void setNil(Boolean newNil) {
+
+        }
+
+        @Override
+        public void setNil(XSBooleanValue newNil) {
+
+        }
+    }
+
+    private static class AuthenticationStatement implements AuthnStatement {
+
+        DateTime authnInstant;
+
+        DateTime sessionNotOnOrAfter;
+
+        AuthnContext authnContext;
+
+        @Override
+        public DateTime getAuthnInstant() {
+            return authnInstant;
+        }
+
+        @Override
+        public void setAuthnInstant(DateTime authnInstant) {
+            this.authnInstant = authnInstant;
+        }
+
+        @Override
+        public String getSessionIndex() {
+            return null;
+        }
+
+        @Override
+        public void setSessionIndex(String s) {
+
+        }
+
+        @Override
+        public DateTime getSessionNotOnOrAfter() {
+            return sessionNotOnOrAfter;
+        }
+
+        @Override
+        public void setSessionNotOnOrAfter(DateTime sessionNotOnOrAfter) {
+            this.sessionNotOnOrAfter = sessionNotOnOrAfter;
+        }
+
+        @Override
+        public SubjectLocality getSubjectLocality() {
+            return null;
+        }
+
+        @Override
+        public void setSubjectLocality(SubjectLocality subjectLocality) {
+
+        }
+
+        @Override
+        public AuthnContext getAuthnContext() {
+            return authnContext;
+        }
+
+        @Override
+        public void setAuthnContext(AuthnContext authnContext) {
+            this.authnContext = authnContext;
+        }
+
+        @Override
+        public List<Validator> getValidators() {
+            return null;
+        }
+
+        @Override
+        public void registerValidator(Validator validator) {
+
+        }
+
+        @Override
+        public void deregisterValidator(Validator validator) {
+
+        }
+
+        @Override
+        public void validate(boolean validateDescendants) throws ValidationException {
+
+        }
+
+        @Override
+        public void addNamespace(Namespace namespace) {
+
+        }
+
+        @Override
+        public void detach() {
+
+        }
+
+        @Override
+        public Element getDOM() {
+            return null;
+        }
+
+        @Override
+        public QName getElementQName() {
+            return null;
+        }
+
+        @Override
+        public IDIndex getIDIndex() {
+            return null;
+        }
+
+        @Override
+        public NamespaceManager getNamespaceManager() {
+            return null;
+        }
+
+        @Override
+        public Set<Namespace> getNamespaces() {
+            return null;
+        }
+
+        @Override
+        public String getNoNamespaceSchemaLocation() {
+            return null;
+        }
+
+        @Override
+        public List<XMLObject> getOrderedChildren() {
+            return null;
+        }
+
+        @Override
+        public XMLObject getParent() {
+            return null;
+        }
+
+        @Override
+        public String getSchemaLocation() {
+            return null;
+        }
+
+        @Override
+        public QName getSchemaType() {
+            return null;
+        }
+
+        @Override
+        public boolean hasChildren() {
+            return false;
+        }
+
+        @Override
+        public boolean hasParent() {
+            return false;
+        }
+
+        @Override
+        public void releaseChildrenDOM(boolean propagateRelease) {
+
+        }
+
+        @Override
+        public void releaseDOM() {
+
+        }
+
+        @Override
+        public void releaseParentDOM(boolean propagateRelease) {
+
+        }
+
+        @Override
+        public void removeNamespace(Namespace namespace) {
+
+        }
+
+        @Override
+        public XMLObject resolveID(String id) {
+            return null;
+        }
+
+        @Override
+        public XMLObject resolveIDFromRoot(String id) {
+            return null;
+        }
+
+        @Override
+        public void setDOM(Element dom) {
+
+        }
+
+        @Override
+        public void setNoNamespaceSchemaLocation(String location) {
+
+        }
+
+        @Override
+        public void setParent(XMLObject parent) {
+
+        }
+
+        @Override
+        public void setSchemaLocation(String location) {
+
+        }
+
+        @Override
+        public Boolean isNil() {
+            return null;
+        }
+
+        @Override
+        public XSBooleanValue isNilXSBoolean() {
+            return null;
+        }
+
+        @Override
+        public void setNil(Boolean newNil) {
+
+        }
+
+        @Override
+        public void setNil(XSBooleanValue newNil) {
 
         }
     }

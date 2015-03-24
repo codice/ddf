@@ -74,7 +74,7 @@
         <property name="renewOperation" ref="renewDelegate"/>
     </bean>
 
-    <bean id="authnStatementProvider" class="ddf.security.sts.UnspecifiedAuthNStatementProvider"/>
+    <bean id="authnStatementProvider" class="ddf.security.sts.AuthNStatementProvider"/>
 
     <bean id="samlTokenProvider"
           class="org.apache.cxf.sts.token.provider.SAMLTokenProvider">

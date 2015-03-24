@@ -64,6 +64,7 @@ public class AttributeMapLoader {
         if (principal instanceof KerberosPrincipal) {
             KerberosPrincipal kp = (KerberosPrincipal) principal;
             StringTokenizer st = new StringTokenizer(kp.getName(), "@");
+            st = new StringTokenizer(st.nextToken(), "/");
             user = st.nextToken();
         } else if (principal instanceof X500Principal) {
             X500Principal x500p = (X500Principal) principal;
