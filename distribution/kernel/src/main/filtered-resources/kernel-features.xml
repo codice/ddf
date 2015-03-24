@@ -14,32 +14,51 @@
 <features name="${project.artifactId}-${project.version}">
 
     <repository>mvn:org.apache.karaf.assemblies.features/standard/${karaf.version}/xml/features</repository>
-    <repository>mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/features</repository>
+    <repository>mvn:org.apache.karaf.assemblies.features/spring/${karaf.version}/xml/features</repository>
+    <repository>mvn:org.apache.karaf.assemblies.features/enterprise/${karaf.version}/xml/features</repository>
 
-    <feature name="kernel-webconsolebranding" version="${project.version}" description="DDF Web Admin Console branding">
-        <feature>kernel-webconsole</feature>
+    <feature name="kernel-webconsole" description="DDF Kernel-customized karaf webconsole" version="${project.version}">
+        <feature>http</feature>
+        <feature>aries-blueprint</feature>
+        <feature>jaas</feature>
+        <bundle start-level="30">
+            mvn:org.apache.felix/org.apache.felix.metatype/1.0.10
+        </bundle>
+        <bundle start-level="30">
+            mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.branding/2.4.1
+        </bundle>
+        <bundle start-level="30">
+            mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.console/2.4.1
+        </bundle>
+        <conditional>
+            <condition>features</condition>
+            <bundle start-level="30">
+                mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.features/2.4.1
+            </bundle>
+        </conditional>
+        <conditional>
+            <condition>shell</condition>
+            <bundle start-level="30">
+                mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.gogo/2.4.1
+            </bundle>
+        </conditional>
+        <conditional>
+            <condition>eventadmin</condition>
+            <bundle start-level="30">
+                mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.1.0
+            </bundle>
+        </conditional>
+        <conditional>
+            <condition>scr</condition>
+            <bundle start-level="30">
+                mvn:org.apache.felix/org.apache.felix.webconsole.plugins.ds/1.0.0
+            </bundle>
+        </conditional>
+
+        <!-- Branding -->
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>
-    </feature>
-  
-    <!-- Added custom webconsole features by removing calls to http and whiteboard. This allows us to use newer pax web impl -->
-    <feature name="kernel-webconsole-base" install="manual" description="Base support of the Karaf WebConsole" version="${karaf.version}">
-        <config name="org.apache.karaf.webconsole">
-            realm=karaf
-            role=${karaf.admin.role}
-        </config>
-        <bundle start-level="30">mvn:org.apache.felix/org.apache.felix.metatype/1.0.6</bundle>
-        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.branding/${karaf.version}</bundle>
-        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.console/${karaf.version}</bundle>
-    </feature>
-
-    <feature name="kernel-webconsole" install="manual" description="Karaf WebConsole for administration and monitoring" version="${karaf.version}">
-        <feature version="${karaf.version}">kernel-webconsole-base</feature>
-        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.admin/${karaf.version}</bundle>
-        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.features/${karaf.version}</bundle>
-        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.gogo/${karaf.version}</bundle>
-        <bundle start-level="30">mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2</bundle>
     </feature>
 
 </features>

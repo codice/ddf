@@ -25,10 +25,7 @@
  *      the plugin in the renderContent (or service) method
  *
  * See also http://felix.apache.org/site/branding-the-web-console.html
- *
- * DDF
- */
-  
+ */ 
 #main {
 	width: 90% !important;
 	margin-left: 5%;
@@ -37,32 +34,22 @@
 
 
 /* LOGO & BRANDING */
-
 #lead {
 	padding-top: 10px;
 	margin: 0;
-	height: 75px; /* must be the same as logo (#lead p) height */
-}
-#lead h1:first-line {
-	font-size: 18px;	
+	height: 73px; /* must be the same as logo (#lead p) height */
 }
 #lead h1 { /* This contains the page title */
-	font-size: 30px;
+	font-size: 26px;
 	font-weight: bold;
 	float: left;
-	color: #242259;
-	position: static;
-	width: 600px;
-	height: 75px;
 }
 #lead p { /* This contains the logo */
 	float: right;
-	height: 75px; /* must be the same as #lead height */
-	/*position: absolute;*/
-	top: 10px;
+	height: 73px; /* must be the same as #lead height */
 }
 #lead p img { /* This is the logo */
-	height: 75px; /* must be #lead.height - #lead.padding-top */
+	height: 63px; /* must be #lead.height - #lead.padding-top */
 }
 
 
@@ -77,6 +64,24 @@
 	display: inline;
 	padding: .2em 1em;
 	white-space: nowrap;
+}
+
+/* New Category Based Navigation Tree (FELIX-3769) */
+#navmenu {
+     width: auto;
+}
+
+#navmenu li.ui-menu-item {
+     width: auto;
+}
+
+#navmenu li.navMenuItem-0 {
+    display: inline-block;
+}
+
+/* Don't display caret on top-level menu (FELIX-3841) */
+#navmenu li.navMenuItem-0 > a > span {
+    display: none;
 }
 
 /* CENTRAL CONTENT AREA STYLING */
@@ -184,5 +189,12 @@ ul.icons li {
 	list-style: none
 }
 /* language selection element */
-#langSelect { position: absolute;	top: 5px; right: 5px }
+#langSelect { position: absolute; top: 5px; right: 5px }
 #langSelect img   { display: block; padding: 2px 0 }
+/* logout element */
+.logoutButton { float: right; text-decoration: none }
+
+
+.filterBox      { float: left; margin-left: 1em }
+.servicesFilter { width: 400px; }
+.servicesFilterApply { width: 85px; }

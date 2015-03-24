@@ -27,8 +27,9 @@
   
   <properties>
     <commons-io.version>2.1</commons-io.version>
-    <karaf.version>2.3.8</karaf.version>
-    <pax.web.version>3.0.4</pax.web.version>
+    <karaf.version>2.4.1</karaf.version>
+    <pax.web.version>3.1.2</pax.web.version>
+    <pax.cdi.version>0.8.0</pax.cdi.version>
   </properties> 
   
   <modules>
@@ -40,7 +41,7 @@
     <module>install-profiles</module>
     <module>ddf</module>
   </modules>
-    
+
     <repositories>      
         <repository>
             <id>codice</id>
