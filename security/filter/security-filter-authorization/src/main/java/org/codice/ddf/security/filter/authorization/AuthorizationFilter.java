@@ -16,6 +16,7 @@ package org.codice.ddf.security.filter.authorization;
 
 import ddf.security.permission.ActionPermission;
 import ddf.security.permission.CollectionPermission;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
@@ -81,7 +82,13 @@ public class AuthorizationFilter implements Filter {
                 ActionPermission actionPermission = new ActionPermission(httpRequest.getRequestURI());
                 permitted = (subject != null) && subject.isPermitted(actionPermission);
             } else {
-                ContextPolicy policy = contextPolicyManager.getContextPolicy(httpRequest.getContextPath());
+                String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ? httpRequest
+                        .getContextPath() : httpRequest.getServletPath()
+                        + StringUtils.defaultString(httpRequest.getPathInfo());
+                if (StringUtils.isEmpty(path)) {
+                    path = httpRequest.getRequestURI();
+                }
+                ContextPolicy policy = contextPolicyManager.getContextPolicy(path);
 
                 if (policy != null) {
                     Collection<CollectionPermission> permissions = policy.getAllowedAttributePermissions();
@@ -92,6 +99,9 @@ public class AuthorizationFilter implements Filter {
                             permitted = false;
                         }
                     }
+                } else {
+                    LOGGER.warn("Unable to determine policy for path {}. User is not permitted to continue. Check policy configuration!", path);
+                    permitted = false;
                 }
             }
 

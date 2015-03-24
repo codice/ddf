@@ -97,6 +97,9 @@ public class WebSSOFilter implements Filter {
         String path = StringUtils.isNotBlank(httpRequest.getContextPath()) ? httpRequest
                 .getContextPath() : httpRequest.getServletPath()
                 + StringUtils.defaultString(httpRequest.getPathInfo());
+        if (StringUtils.isEmpty(path)) {
+            path = httpRequest.getRequestURI();
+        }
         LOGGER.debug("Handling request for path {}", path);
 
         String realm = BaseAuthenticationToken.DEFAULT_REALM;
