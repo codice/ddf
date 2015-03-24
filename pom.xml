@@ -531,6 +531,7 @@
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
                 <asciidoctor.maven.plugin.version>1.5.2</asciidoctor.maven.plugin.version>
                 <packaging>pom</packaging>
+                <module>docs</module>
             </properties>
             <repositories>
                 <repository>
@@ -579,10 +580,10 @@
                                         <goal>copy-resources</goal>
                                     </goals>
                                     <configuration>
-                                        <outputDirectory>target/classes</outputDirectory>
+                                        <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                                         <resources>
                                             <resource>
-                                                <directory>src/main/includes</directory>
+                                                <directory>${basedir}/src/main/resources</directory>
                                                 <include>config.adoc</include>
                                                 <filtering>true</filtering>
                                             </resource>
@@ -631,11 +632,11 @@
                                             <taskdef
                                                     resource="net/sf/antcontrib/antcontrib.properties"/>
                                             <if>
-                                                <available file="src/main/doc" type="dir"/>
+                                                <available file="${project.basedir}/src/main/doc" type="dir"/>
                                                 <then>
-                                                    <mkdir dir="target/adoc"/>
-                                                    <copy todir="target/adoc">
-                                                        <fileset dir="src/main/doc"/>
+                                                    <mkdir dir="${project.build.directory}/adoc"/>
+                                                    <copy todir="${project.build.directory}/adoc">
+                                                        <fileset dir="${project.basedir}/src/main/doc"/>
                                                     </copy>
                                                 </then>
                                             </if>
@@ -658,14 +659,14 @@
                             <executions>
                                 <execution>
                                     <id>output-html</id>
-                                    <phase>generate-resources</phase>
+                                    <phase>process-resources</phase>
                                     <goals>
                                         <goal>process-asciidoc</goal>
                                     </goals>
                                     <configuration>
                                         <backend>html</backend>
                                         <doctype>book</doctype>
-                                        <outputDirectory>target/docs/html</outputDirectory>
+                                        <outputDirectory>${project.build.directory}/docs/html</outputDirectory>
                                     </configuration>
                                 </execution>
                                 <execution>
@@ -676,7 +677,7 @@
                                     </goals>
                                     <configuration>
                                         <backend>pdf</backend>
-                                        <outputDirectory>target/docs/pdf</outputDirectory>
+                                        <outputDirectory>${project.build.directory}/docs/pdf</outputDirectory>
                                         <requires>
                                             <require>asciidoctor-diagram</require>
                                         </requires>
@@ -686,13 +687,12 @@
                                             <toc/>
                                             <idprefix/>
                                             <idseparator>-</idseparator>
-                                            <sourcedir>${project.build.sourceDirectory}</sourcedir>
                                         </attributes>
                                     </configuration>
                                 </execution>
                             </executions>
                             <configuration>
-                                <sourceDirectory>target/adoc</sourceDirectory>
+                                <sourceDirectory>${project.build.directory}/adoc</sourceDirectory>
                                 <gemPath>${project.build.directory}/gems-provided</gemPath>
                                 <headerFooter>true</headerFooter>
                                 <imagesDir>./images</imagesDir>
