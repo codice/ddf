@@ -39,7 +39,7 @@
         <org.codice.ddf.activities.version>0.3.0</org.codice.ddf.activities.version>
         <ddf.catalog.app.version>2.7.0-SNAPSHOT</ddf.catalog.app.version>
         <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
-        <karaf.version>2.3.8</karaf.version>
+        <karaf.version>2.4.1</karaf.version>
     	<javax.inject.version>1</javax.inject.version>
     	
     	<!--  Third-party bundle versions. These should only be used in the features.xml file.

@@ -19,14 +19,6 @@
     <bean id="comet" class="org.cometd.server.CometdServlet">
     </bean>
 
-    <service ref="comet" id="defaultCometdServlet" interface="javax.servlet.Servlet">
-        <service-properties>
-            <entry key="alias" value="/cometd"/>
-            <entry key="org.eclipse.jetty.servlet.SessionIdPathParameterName" value="none"/>
-            <entry key="org.eclipse.jetty.servlet.SessionPath" value="/"/>
-        </service-properties>
-    </service>
-
     <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin" />
     <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore" />
     <reference id="catalog" interface="ddf.catalog.CatalogFramework"/>
@@ -41,8 +33,7 @@
         <argument ref="actionProviders"/>
     </bean>
 
-    <bean class="org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint"
-          depends-on="defaultCometdServlet" init-method="init" destroy-method="destroy">
+    <bean class="org.codice.ddf.ui.searchui.query.endpoint.CometdEndpoint" init-method="init" destroy-method="destroy">
         <cm:managed-properties persistent-id="org.codice.ddf.ui.search.standard.endpoint"
                                update-strategy="container-managed" />
         <argument ref="comet"/>

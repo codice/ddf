@@ -36,7 +36,10 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.Servlet;
 import javax.servlet.ServletException;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 /**
  * The CometdEndpoint binds the SearchService and the CometdServlet together. 
@@ -53,6 +56,8 @@ public class CometdEndpoint {
     private SearchController searchController;
     
     private ServerAnnotationProcessor cometdAnnotationProcessor;
+
+    private BundleContext bundleContext;
 
     BayeuxServer bayeuxServer;
     NotificationController notificationController;
@@ -77,6 +82,7 @@ public class CometdEndpoint {
     public CometdEndpoint(CometdServlet cometdServlet, CatalogFramework framework, 
             FilterBuilder filterBuilder, PersistentStore persistentStore,
             BundleContext bundleContext, EventAdmin eventAdmin, ActionRegistry actionRegistry) {
+        this.bundleContext = bundleContext;
         this.cometdServlet = cometdServlet;
         this.filterBuilder = filterBuilder;
         this.searchController = new SearchController(framework, actionRegistry);
@@ -85,7 +91,12 @@ public class CometdEndpoint {
         this.activityController = new ActivityController(persistentStore, bundleContext, eventAdmin);
     }
 
-    public void init() throws ServletException {        
+    public void init() throws ServletException {
+        Dictionary<String, String> properties = new Hashtable<>();
+        properties.put("alias", "/cometd");
+        properties.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none");
+        properties.put("org.eclipse.jetty.servlet.SessionPath", "/");
+        bundleContext.registerService(Servlet.class, cometdServlet, properties);
         bayeuxServer = (BayeuxServer) cometdServlet.getServletContext().getAttribute(
                 BayeuxServer.ATTRIBUTE);
         
