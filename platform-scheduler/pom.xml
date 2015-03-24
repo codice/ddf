@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.gogo.command</artifactId>
-			<version>0.10.0</version>
+			<version>0.12.0</version>
 		</dependency>
 
 		<dependency>
@@ -64,6 +64,10 @@
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Embed-Dependency>quartz,c3p0</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
+                        <Private-Package>
+                            ddf.platform.scheduler,
+                            org.apache.felix.gogo.runtime
+                        </Private-Package>
 						<Export-Package />
 						<Import-Package>javax.ejb;resolution:=optional,*</Import-Package>
 					</instructions>

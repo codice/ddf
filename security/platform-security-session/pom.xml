@@ -41,8 +41,6 @@
                     <instructions>
                         <Fragment-Host>org.ops4j.pax.web.pax-web-jetty;bundle-version="[2,4)"</Fragment-Host>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <DynamicImport-Package>*</DynamicImport-Package>
-                        <Import-Package />
                         <Export-Package />
                     </instructions>
                 </configuration>
