@@ -1,5 +1,5 @@
 = Managing {branding} Security Application
-include::../includes/config.adoc[]
+include::../classes/config.adoc[]
 
 == Overview
 
