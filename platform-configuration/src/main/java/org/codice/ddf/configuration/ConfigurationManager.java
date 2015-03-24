@@ -151,6 +151,11 @@ public class ConfigurationManager {
     protected Map<String, String> configuration;
 
     /**
+     * The initial configuration values from blueprint.
+     */
+    protected Map<String, String> configurationProperties = new HashMap<>();
+
+    /**
      * The map of DDF system settings that are read-only, i.e., they are set in
      * OSGi system bundles, not displayed in Admin Console's DDF System Settings
      * configuration, but are pushed out in the configuration settings to
@@ -159,6 +164,41 @@ public class ConfigurationManager {
     protected Map<String, String> readOnlySettings;
 
     protected ConfigurationAdmin configurationAdmin;
+
+    public void setProtocol(String protocol) {
+        configurationProperties.put(PROTOCOL, protocol);
+        logger.debug("protocol set to {}", protocol);
+    }
+
+    public void setHost(String host) {
+        configurationProperties.put(HOST, host);
+        logger.debug("host set to {}", host);
+    }
+
+    public void setPort(String port) {
+        configurationProperties.put(PORT, port);
+        logger.debug("port set to {}", port);
+    }
+
+    public void setId(String id) {
+        configurationProperties.put(SITE_NAME, id);
+        logger.debug("site name set to {}", id);
+    }
+
+    public void setVersion(String version) {
+        configurationProperties.put(VERSION, version);
+        logger.debug("version set to {}", version);
+    }
+
+    public void setOrganization(String organization) {
+        configurationProperties.put(ORGANIZATION, organization);
+        logger.debug("organization set to {}", organization);
+    }
+
+    public void setContact(String contact) {
+        configurationProperties.put(CONTACT, contact);
+        logger.debug("contact set to {}", contact);
+    }
 
     /**
      * Constructs the list of DDF system Settings (read-only and configurable
@@ -201,6 +241,13 @@ public class ConfigurationManager {
         configuration.putAll(readOnlySettings);
         
         logger.debug("EXITING: ctor");
+    }
+
+    /**
+     * Called once after all managed property setters have been called.
+     */
+    public void init(){
+        updated(Collections.unmodifiableMap(configurationProperties));
     }
 
     /**
