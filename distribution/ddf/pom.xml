@@ -40,7 +40,6 @@
         <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
         <ddf.content.app.version>2.5.0-SNAPSHOT</ddf.content.app.version>
         <ddf.catalog.app.version>2.7.0-SNAPSHOT</ddf.catalog.app.version>
-        <ddf.solr.catalog.app.version>2.4.5-SNAPSHOT</ddf.solr.catalog.app.version>
         <ddf.searchui.app.version>2.7.0-SNAPSHOT</ddf.searchui.app.version>
         <ddf.spatial.app.version>2.7.0-SNAPSHOT</ddf.spatial.app.version>
         <ddf.admin.app.version>1.2.0-SNAPSHOT</ddf.admin.app.version>
@@ -98,7 +97,7 @@
                                     mvn:ddf.content/content-app/${ddf.content.app.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:ddf.catalog.solr/solr-app/${ddf.solr.catalog.app.version}/xml/features
+                                    mvn:ddf.catalog.solr/solr-app/${ddf.catalog.app.version}/xml/features
                                 </descriptor>
                                 <descriptor>
                                     mvn:org.codice.opendj.embedded/opendj-embedded-app/${opendj-embedded.app.version}/xml/features
