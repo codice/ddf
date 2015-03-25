@@ -61,8 +61,9 @@
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>net.minidev</groupId>
@@ -112,7 +113,7 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-cql</artifactId>
-            <version>8.4</version>
+            <version>13.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
