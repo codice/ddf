@@ -78,7 +78,7 @@ require.config({
         cesium: 'lib/cesiumjs/Build/Cesium/Cesium',
         drawHelper: 'lib/cesium-drawhelper/DrawHelper',
         openlayers: 'lib/openlayers3/build/ol',
-        usngs: 'lib/usng/usng'
+        usngs: 'lib/usng.js/usng'
     },
 
     shim: {

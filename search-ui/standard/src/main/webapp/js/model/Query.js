@@ -96,11 +96,17 @@ define([
             },
 
             setBboxLatLon: function () {
-                var usngsStr = converter.LLBboxtoUSNG(this.get('north'), this.get('south'), this.get('east'),this.get('west'));
+                var north = this.get('north'),
+                    south = this.get('south'),
+                    west = this.get('west'),
+                    east = this.get('east');
+                if (north && south && east && west) {
+                    var usngsStr = converter.LLBboxtoUSNG(north, south, east, west);
 
-                this.set('usngbb', usngsStr, {silent:this.get('locationType') !== 'usng'});
-                if (this.get('locationType') === 'usng' && this.drawing) {
-                    this.repositionLatLon(true);
+                    this.set('usngbb', usngsStr, {silent: this.get('locationType') !== 'usng'});
+                    if (this.get('locationType') === 'usng' && this.drawing) {
+                        this.repositionLatLon(true);
+                    }
                 }
             },
 
