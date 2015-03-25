@@ -21,6 +21,12 @@
     </parent>
     <artifactId>spatial-wfs-v2_0_0-common</artifactId>
     <name>DDF :: Spatial :: WFS :: 2.0.0 :: Common</name>
+
+    <properties>
+        <!-- Define the version that we want to use here, so
+             we have a single line to change when upgrating. -->
+        <geotk.version>3.20-geoapi-3.0</geotk.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -38,5 +44,17 @@
         	<groupId>org.codice.ddf.spatial</groupId>
         	<artifactId>spatial-wfs-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jvnet.ogc</groupId>
+            <artifactId>gml-v_3_2_1</artifactId>
+            <version>1.1.0</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.ogc</groupId>
+            <artifactId>ogc-tools-gml32-jts</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 </project>
