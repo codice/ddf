@@ -28,7 +28,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>8.1.9.v20130131</version>
+            <version>8.1.15.v20140411</version>
         </dependency>
     </dependencies>
 
@@ -41,6 +41,11 @@
                     <instructions>
                         <Fragment-Host>org.ops4j.pax.web.pax-web-jetty;bundle-version="[2,4)"</Fragment-Host>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <DynamicImport-Package>
+                            org.eclipse.jetty.server.session,
+                            javax.servlet.http
+                        </DynamicImport-Package>
+                        <Import-Package />
                         <Export-Package />
                     </instructions>
                 </configuration>
