@@ -14,19 +14,17 @@
  **/
 package ddf.catalog.source.solr;
 
-import java.util.Date;
-
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
-
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 
-import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import java.util.Date;
 
 public class TestSolrFilterBuilder extends GeotoolsFilterBuilder {
 

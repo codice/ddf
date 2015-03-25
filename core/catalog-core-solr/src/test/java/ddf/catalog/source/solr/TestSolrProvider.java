@@ -14,67 +14,6 @@
  **/
 package ddf.catalog.source.solr;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.collection.IsCollectionContaining.hasItem;
-import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
-import static org.hamcrest.number.OrderingComparisons.lessThanOrEqualTo;
-import static org.hamcrest.text.StringContains.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.beans.XMLEncoder;
-import java.io.BufferedOutputStream;
-import java.io.Serializable;
-import java.net.URI;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.TreeSet;
-import java.util.UUID;
-
-import javax.swing.border.BevelBorder;
-
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.codice.solr.factory.ConfigurationStore;
-import org.geotools.filter.FilterFactoryImpl;
-import org.geotools.filter.SortByImpl;
-import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
-import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.styling.UomOgcMapping;
-import org.geotools.temporal.object.DefaultPeriodDuration;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -100,9 +39,68 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.codice.solr.factory.ConfigurationStore;
+import org.geotools.filter.FilterFactoryImpl;
+import org.geotools.filter.SortByImpl;
+import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
+import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.styling.UomOgcMapping;
+import org.geotools.temporal.object.DefaultPeriodDuration;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.border.BevelBorder;
+import java.beans.XMLEncoder;
+import java.io.BufferedOutputStream;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeSet;
+import java.util.UUID;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.collection.IsCollectionContaining.hasItem;
+import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparisons.lessThanOrEqualTo;
+import static org.hamcrest.text.StringContains.containsString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
- * Tests the {@link SolrCatalogProvider}.
+ * Tests the {@link ddf.catalog.source.solr.SolrCatalogProvider}.
  * <p>
  * Uses the {@link RandomBlockJUnit4ClassRunner} to run the methods randomly so that the order does
  * not matter when testing.

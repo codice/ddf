@@ -132,7 +132,7 @@ public class ReuterSolrImport implements Runnable {
             // int from = i * count;
             // int to = from + count;
             // File[] threadFiles = Arrays.copyOfRange(allFiles, from, to);
-            // threads[i] = new Thread(new ReuterSolrImport(threadFiles));
+            // threads[i] = new Thread(new ddf.catalog.source.solr.ReuterSolrImport(threadFiles));
             // threads[i].start();
             // }
             //
@@ -141,7 +141,7 @@ public class ReuterSolrImport implements Runnable {
             // int from = allFiles.length - remainder;
             // int to = allFiles.length;
             // File[] threadFiles = Arrays.copyOfRange(allFiles, from, to);
-            // threads[threads.length - 1] = new Thread(new ReuterSolrImport(threadFiles));
+            // threads[threads.length - 1] = new Thread(new ddf.catalog.source.solr.ReuterSolrImport(threadFiles));
             // threads[threads.length - 1].start();
             // }
             //

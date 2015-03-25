@@ -14,21 +14,22 @@
  **/
 package ddf.catalog.source.solr;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.stub;
+import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.source.solr.DynamicSchemaResolver;
+import ddf.catalog.source.solr.SolrFilterDelegate;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.solr.client.solrj.SolrQuery;
-import org.junit.Test;
-
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.data.Metacard;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.stub;
 
 public class TestSolrFilterDelegate {
 
@@ -147,7 +148,7 @@ public class TestSolrFilterDelegate {
         String searchPhrase = "mySearchPhrase";
         boolean isCaseSensitive = true;
         when(mockResolver.getCaseSensitiveField("any_text")).thenReturn(
-                "any_text" + SchemaFields.HAS_CASE);
+                "any_text" + ddf.catalog.source.solr.SchemaFields.HAS_CASE);
         SolrQuery isLikeQuery = toTest.propertyIsLike(Metacard.ANY_TEXT, searchPhrase,
                 isCaseSensitive);
         assertThat(isLikeQuery.getQuery(), is(expectedQuery));

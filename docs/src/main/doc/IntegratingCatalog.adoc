@@ -850,7 +850,7 @@ The diagram below illustrates how these Schematron components interact:
 
 ===== Installing and Uninstalling
 
-The Schematron Validation Library can be installed and uninstalled using the normal processes described in the 
+The Schematron Validation ddf.catalog.source.solr.Library can be installed and uninstalled using the normal processes described in the
 Configuring DDF
  section.
 

@@ -14,27 +14,15 @@
  **/
 package ddf.catalog.source.solr;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
+import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardCreationException;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -50,16 +38,25 @@ import org.codice.solr.factory.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.data.AttributeType;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardCreationException;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.MetacardTypeImpl;
-import ddf.catalog.source.IngestException;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * This class tries to resolve all user given field names to their corresponding dynamic Solr index
@@ -87,15 +84,15 @@ public class DynamicSchemaResolver {
 
     public static final String LUX_XML_FIELD_NAME = "lux_xml";
 
-    protected Set<String> fieldsCache = new HashSet<String>();
+    protected Set<String> fieldsCache = new HashSet<>();
 
     protected SchemaFields schemaFields;
 
-    protected Map<String, MetacardType> metacardTypesCache = new HashMap<String, MetacardType>();
+    protected Map<String, MetacardType> metacardTypesCache = new HashMap<>();
 
-    protected Map<String, byte[]> metacardTypeNameToSerialCache = new HashMap<String, byte[]>();
+    protected Map<String, byte[]> metacardTypeNameToSerialCache = new HashMap<>();
 
-    protected static XMLInputFactory xmlInputFactory = null;
+    protected static final XMLInputFactory xmlInputFactory;
 
     static {
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
@@ -149,27 +146,19 @@ public class DynamicSchemaResolver {
          */
         query.setRequestHandler("/admin/luke");
 
-        QueryResponse response = null;
-
         try {
-            response = server.query(query);
+            QueryResponse response = server.query(query);
             for (Entry<String, ?> e : ((SimpleOrderedMap<?>) (response.getResponse()
                     .get(FIELDS_KEY)))) {
                 fieldsCache.add(e.getKey());
             }
-        } catch (SolrServerException e) {
-            LOGGER.warn("Could not update cache for field names.", e);
-        } catch (SolrException e) {
+        } catch (SolrServerException | SolrException e) {
             LOGGER.warn("Could not update cache for field names.", e);
         }
     }
 
     /**
      * Adds the fields of the Metacard into the {@link SolrInputDocument}
-     * 
-     * @param metacard
-     * @param solrInputDocument
-     * @throws IngestException
      */
     public void addFields(Metacard metacard, SolrInputDocument solrInputDocument)
         throws MetacardCreationException {
@@ -203,10 +192,9 @@ public class DynamicSchemaResolver {
                         solrInputDocument.addField(formatIndexName, attributeValue);
                     } else if (AttributeFormat.OBJECT.equals(format)) {
                         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
-                        ObjectOutputStream out = null;
 
                         try {
-                            out = new ObjectOutputStream(byteArrayOS);
+                            ObjectOutputStream out = new ObjectOutputStream(byteArrayOS);
                             out.writeObject(attributeValue);
                             out.close();
                         } catch (IOException e) {
@@ -237,6 +225,7 @@ public class DynamicSchemaResolver {
         if (metacardTypeBytes == null) {
             MetacardType coreMetacardType = new MetacardTypeImpl(schema.getName(),
                     convertAttributeDescriptors(schema.getAttributeDescriptors()));
+
             metacardTypesCache.put(schema.getName(), coreMetacardType);
 
             metacardTypeBytes = serialize(coreMetacardType);
@@ -308,11 +297,10 @@ public class DynamicSchemaResolver {
      * The convention is that we add a suffix starting with an underscore, so if we find the last
      * underscore, then we can return the original field name.
      * 
-     * @param solrFieldName
+     * @param solrFieldName Solr index field name
      * @return the original field name
      */
     public String resolveFieldName(String solrFieldName) {
-
         int lastIndexOfUndercore = solrFieldName.lastIndexOf(FIRST_CHAR_OF_SUFFIX);
 
         if (lastIndexOfUndercore != -1) {
@@ -334,17 +322,14 @@ public class DynamicSchemaResolver {
      *         then an empty list is returned
      */
     public List<String> getAnonymousField(String field) {
-
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
 
         for (AttributeFormat format : AttributeFormat.values()) {
-
             String fullFieldName = field + schemaFields.getFieldSuffix(format);
 
             if (fieldsCache.contains(fullFieldName)) {
                 list.add(fullFieldName);
             }
-
         }
 
         return list;
@@ -407,7 +392,7 @@ public class DynamicSchemaResolver {
         ObjectInputStream in = null;
         try {
 
-            bais = new ByteArrayInputStream((byte[]) bytes);
+            bais = new ByteArrayInputStream(bytes);
 
             in = new ObjectInputStream(bais);
 
@@ -482,13 +467,10 @@ public class DynamicSchemaResolver {
     }
 
     private byte[] serialize(MetacardType anywhereMType) throws MetacardCreationException {
-
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        ObjectOutputStream out = null;
-
         try {
-            out = new ObjectOutputStream(baos);
+            ObjectOutputStream out = new ObjectOutputStream(baos);
             out.writeObject(anywhereMType);
 
             byte[] bytes = baos.toByteArray();
@@ -538,12 +520,14 @@ public class DynamicSchemaResolver {
 
         StringBuilder builder = new StringBuilder();
 
-        XMLStreamReader xmlStreamReader;
+        XMLStreamReader xmlStreamReader = null;
+        StringReader sr = null;
         long starttime = System.currentTimeMillis();
         try {
             // xml parser does not handle leading whitespace
+            sr = new StringReader(xmlData);
             xmlStreamReader = xmlInputFactory
-                    .createXMLStreamReader(new StringReader(xmlData));
+                    .createXMLStreamReader(sr);
 
             while (xmlStreamReader.hasNext()) {
                 int event = xmlStreamReader.next();
@@ -553,7 +537,7 @@ public class DynamicSchemaResolver {
                     String text = xmlStreamReader.getText();
 
                     if (StringUtils.isNotBlank(text)) {
-                        builder.append(" " + text.trim());
+                        builder.append(" ").append(text.trim());
                     }
 
                 }
@@ -563,7 +547,7 @@ public class DynamicSchemaResolver {
                         String text = xmlStreamReader.getAttributeValue(i);
 
                         if (StringUtils.isNotBlank(text)) {
-                            builder.append(" " + text.trim());
+                            builder.append(" ").append(text.trim());
                         }
                     }
                 }
@@ -572,6 +556,15 @@ public class DynamicSchemaResolver {
             LOGGER.warn(
                     "Failure occurred in parsing the xml data. No data has been stored or indexed.",
                     e1);
+        } finally {
+            IOUtils.closeQuietly(sr);
+            if (xmlStreamReader != null) {
+                try {
+                    xmlStreamReader.close();
+                } catch (XMLStreamException e) {
+                    LOGGER.debug("Exception closing XMLStreamReader", e);
+                }
+            }
         }
         long endTime = System.currentTimeMillis();
 
@@ -581,7 +574,7 @@ public class DynamicSchemaResolver {
     }
     
     private Set<AttributeDescriptor> convertAttributeDescriptors(Set<AttributeDescriptor> attributeDescriptors) {
-        Set<AttributeDescriptor> newAttributeDescriptors = new HashSet<AttributeDescriptor>(attributeDescriptors.size());
+        Set<AttributeDescriptor> newAttributeDescriptors = new HashSet<>(attributeDescriptors.size());
         
         for(AttributeDescriptor attributeDescriptor : attributeDescriptors) {
             String name = attributeDescriptor.getName();

@@ -14,28 +14,6 @@
  **/
 package ddf.catalog.source.solr;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.schema.DateField;
-import org.codice.solr.factory.ConfigurationStore;
-import org.joda.time.DateTime;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.spatial4j.core.distance.DistanceUtils;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -44,13 +22,34 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
-
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.joda.time.DateTime;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeSet;
 
 /**
  * Translates filter-proxy calls into Solr query syntax.
@@ -72,6 +71,9 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     private static final String INTERSECTS_OPERATION = "Intersects";
 
     private static final String SPATIAL_INDEX = "_geo_index";
+
+    private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT = metersToDegrees(new Distance(
+            1000, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER));
 
     // Using quantization of 12 to reduce error below 1%
     private static final int QUADRANT_SEGMENTS = 12;
@@ -100,8 +102,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     public static final String XPATH_FILTER_QUERY_INDEX = XPATH_FILTER_QUERY + "_index";
 
-    private static DateField dateFormatter = new DateField();
-
     private static final String SOLR_WILDCARD_CHAR = "*";
 
     private static final String SOLR_SINGLE_WILDCARD_CHAR = "?";
@@ -124,8 +124,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private static final double DEFAULT_ERROR_IN_DEGREES = metersToDegrees(DEFAULT_ERROR_IN_METERS);
 
+    private static TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
     static {
-        Map<String, String> tempMap = new HashMap<String, String>();
+        Map<String, String> tempMap = new HashMap<>();
         tempMap.put(Metacard.ANY_TEXT, TOKENIZED_METADATA_FIELD);
         tempMap.put(Metacard.ANY_GEO, Metacard.GEOGRAPHY + SPATIAL_INDEX);
         FIELD_MAP = Collections.unmodifiableMap(tempMap);
@@ -137,6 +140,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     public SolrFilterDelegate(DynamicSchemaResolver resolver) {
         this.resolver = resolver;
+        dateFormat.setTimeZone(utcTimeZone);
     }
 
     @Override
@@ -155,10 +159,10 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private void combineXpathFilterQueries(SolrQuery query, List<SolrQuery> subQueries,
             String operator) {
-        List<String> queryParams = new ArrayList<String>();
+        List<String> queryParams = new ArrayList<>();
         // Use Set to remove duplicates now that the namespaces have been stripped out
-        Set<String> xpathFilters = new TreeSet<String>();
-        Set<String> xpathIndexes = new TreeSet<String>();
+        Set<String> xpathFilters = new TreeSet<>();
+        Set<String> xpathIndexes = new TreeSet<>();
 
         for (SolrQuery subQuery : subQueries) {
             String[] params = subQuery.getParams(FILTER_QUERY_PARAM_NAME);
@@ -186,7 +190,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             String filter = XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"("
                     + StringUtils.join(xpathFilters, operator.toLowerCase()) + ")\"";
 
-            List<String> indexes = new ArrayList<String>();
+            List<String> indexes = new ArrayList<>();
             for (String xpath : xpathIndexes) {
                 indexes.add("(" + XPATH_FILTER_QUERY_INDEX + ":\"" + xpath + "\")");
             }
@@ -264,7 +268,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.DATE, true);
 
         SolrQuery query = new SolrQuery();
-        query.setQuery(" " + mappedPropertyName + ":" + QUOTE + dateFormatter.toExternal(exactDate)
+        query.setQuery(" " + mappedPropertyName + ":" + QUOTE + dateFormat.format(exactDate)
                 + QUOTE);
 
         return query;
@@ -470,7 +474,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         return buildDateQuery(propertyName, SOLR_INCLUSIVE_START, formattedStartDate,
                 formattedEndDate, SOLR_INCLUSIVE_END);
     }
-    
+
     private SolrQuery buildDateQuery(String propertyName, String startCondition, String startDate,
             String endDate, String endCondition) {
         SolrQuery query = new SolrQuery();
@@ -480,33 +484,29 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     private String formatDate(Date date) {
-        return dateFormatter.toExternal(date);
+        return dateFormat.format(date);
     }
 
     @Override
     public SolrQuery nearestNeighbor(String propertyName, String wkt) {
-        Double nauticalMiles = ConfigurationStore.getInstance().getNearestNeighborDistanceLimit();
-        if (nauticalMiles == null) {
-            nauticalMiles = Double.valueOf(1000);
-            ConfigurationStore.getInstance().setNearestNeighborDistanceLimit(Double.valueOf(1000));
-        }
-        Double degreeLimitForQuery = metersToDegrees(new Distance(
-                nauticalMiles, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER));
         Geometry geo = getGeometry(wkt);
 
         if (geo != null) {
-            Point pnt = null;
+            Point pnt;
             if (isPoint(geo)) {
                 pnt = (Point) geo;
             } else {
                 pnt = geo.getCentroid();
             }
 
-            String nearestNeighborQuery = geoPointToCircleQuery(propertyName,
-                    degreeLimitForQuery, pnt);
+            SolrQuery query = null;
+            if(null != pnt) {
+                String nearestNeighborQuery = geoPointToCircleQuery(propertyName,
+                        NEAREST_NEIGHBOR_DISTANCE_LIMIT, pnt);
 
-            return getSolrQueryWithSort(nearestNeighborQuery);
-
+                query = getSolrQueryWithSort(nearestNeighborQuery);
+            }
+            return query;
         } else {
             throw new UnsupportedOperationException("Unable to read given WKT: " + wkt);
         }
@@ -515,10 +515,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     private String geoPointToCircleQuery(String propertyName, double distanceInDegrees, Point pnt) {
         String circle = "Circle(" + pnt.getX() + " " + pnt.getY() + " d=" + distanceInDegrees + ")";
         String geoIndexName = getMappedPropertyName(propertyName, AttributeFormat.GEOMETRY, false);
-        String pointRadiusQuery = geoIndexName + ":\""
-                + INTERSECTS_OPERATION + "(" + circle + ")\"";
 
-        return pointRadiusQuery;
+        return geoIndexName + ":\"" + INTERSECTS_OPERATION + "(" + circle + ")\"";
     }
 
     @Override
@@ -671,7 +669,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                 sortOrder = ORDER.desc;
             }
 
-            solrQuery.setSortField("score", sortOrder);
+            solrQuery.addSort("score", sortOrder);
 
             return new SolrQuery(spatialQueryWithDistance);
 
@@ -756,9 +754,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             return specialField;
         }
 
-        String mappedPropertyName = resolver
-                .getField(propertyName, format, isSearchedAsExactString);
-        return mappedPropertyName;
+        return resolver.getField(propertyName, format, isSearchedAsExactString);
     }
 
     /**
@@ -831,8 +827,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             SolrQuery localQuery = operands.get(i);
 
             if (localQuery != null) {
-                String localPhrase = localQuery.getQuery();
-                builder.append(operator + localPhrase);
+                builder.append(operator).append(localQuery.getQuery());
             } else {
                 throw new UnsupportedOperationException(
                         "Query was not interpreted properly. Query should not be null.");
@@ -874,18 +869,11 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     private boolean isPoint(Geometry geo) {
-        if (geo == null) {
-            return false;
-        }
-        return Point.class.getSimpleName().equals(geo.getGeometryType());
+        return geo != null && Point.class.getSimpleName().equals(geo.getGeometryType());
     }
 
     public void setSortPolicy(SortBy sort) {
         this.sortBy = sort;
-    }
-
-    public static SolrFilterDelegate newInstance(DynamicSchemaResolver resolver) {
-        return new SolrFilterDelegate(resolver);
     }
 
 }

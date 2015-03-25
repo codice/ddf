@@ -14,13 +14,13 @@
  **/
 package ddf.catalog.source.solr;
 
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
 
 public class MockMetacard extends MetacardImpl {
 

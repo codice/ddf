@@ -14,11 +14,10 @@
  **/
 package ddf.catalog.source.solr;
 
+import ddf.catalog.data.AttributeType.AttributeFormat;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import ddf.catalog.data.AttributeType;
-import ddf.catalog.data.AttributeType.AttributeFormat;
 
 /**
  * Provides the mappings between {@link AttributeFormat} objects and the correct Solr suffix and
@@ -27,9 +26,9 @@ import ddf.catalog.data.AttributeType.AttributeFormat;
  */
 public class SchemaFields {
 
-    private static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP = new HashMap<String, AttributeFormat>();
+    private static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP = new HashMap<>();
 
-    private static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP = new HashMap<AttributeType.AttributeFormat, String>();
+    private static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP = new HashMap<>();
 
     public static final String OBJECT_SUFFIX = "_obj";
 

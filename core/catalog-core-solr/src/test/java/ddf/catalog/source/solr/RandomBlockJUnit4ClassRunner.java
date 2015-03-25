@@ -14,10 +14,10 @@
  **/
 package ddf.catalog.source.solr;
 
-import java.util.Collections;
-
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
+
+import java.util.Collections;
 
 public class RandomBlockJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 

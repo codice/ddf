@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-
 package ddf.catalog.source.solr;
 
 public class Library {

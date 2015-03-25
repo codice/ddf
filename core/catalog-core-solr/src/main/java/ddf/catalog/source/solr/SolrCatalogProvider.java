@@ -14,53 +14,13 @@
  **/
 package ddf.catalog.source.solr;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.SolrRequest.METHOD;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.request.AbstractUpdateRequest.ACTION;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.PivotField;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.response.SolrPingResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.SolrException;
-import org.apache.solr.common.SolrInputDocument;
-import org.codice.solr.factory.ConfigurationStore;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.spatial4j.core.distance.DistanceUtils;
-
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -73,8 +33,6 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateResponseImpl;
 import ddf.catalog.operation.impl.DeleteResponseImpl;
-import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.operation.impl.UpdateImpl;
 import ddf.catalog.operation.impl.UpdateResponseImpl;
 import ddf.catalog.source.CatalogProvider;
@@ -82,8 +40,35 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.MaskableImpl;
-import ddf.measure.Distance;
-import ddf.measure.Distance.LinearUnit;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest.METHOD;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.PivotField;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.SolrPingResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.SolrException;
+import org.codice.solr.factory.ConfigurationStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * {@link CatalogProvider} implementation using Apache Solr 4+
@@ -91,55 +76,44 @@ import ddf.measure.Distance.LinearUnit;
  */
 public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolrCatalogProvider.class);
+
     private static final String COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE = "Could not complete delete request.";
 
     private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
-
-    private static final String RELEVANCE_SORT_FIELD = "score";
 
     private static final String QUOTE = "\"";
 
     private static final String REQUEST_MUST_NOT_BE_NULL_MESSAGE = "Request must not be null";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SolrCatalogProvider.class);
-
     private static final double HASHMAP_DEFAULT_LOAD_FACTOR = 0.75;
-
-    private static final String ENTERED = "ENTERED: {}";
-
-    private static final String EXITED = "EXITED: {}";
-
-    private FilterAdapter filterAdapter;
 
     private DynamicSchemaResolver resolver;
 
     private SolrServer server;
 
-    private SolrFilterDelegateFactory solrFilterDelegateFactory;
+    private SolrMetacardClient client;
 
     private static Properties describableProperties = new Properties();
 
     static {
         try {
-            describableProperties.load(SolrCatalogProvider.class
+            describableProperties.load(ddf.catalog.source.solr.SolrCatalogProvider.class
                     .getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE));
         } catch (IOException e) {
             LOGGER.info("IO exception loading describable properties", e);
         }
-
     }
 
     /**
      * Constructor that creates a new instance and allows for a custom {@link DynamicSchemaResolver}
      * 
-     * @param server
-     * @param adapter
-     *            injected implementation of FilterAdapter
-     * @param resolver
+     * @param server    Solr server
+     * @param adapter   injected implementation of FilterAdapter
+     * @param resolver  Solr schema resolver
      */
     public SolrCatalogProvider(SolrServer server, FilterAdapter adapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory, DynamicSchemaResolver resolver) {
-
         if (server == null) {
             throw new IllegalArgumentException("SolrServer cannot be null.");
         }
@@ -147,18 +121,17 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         LOGGER.debug("Constructing {} with server [{}]", SolrCatalogProvider.class.getName(), server);
 
         this.server = server;
-        this.filterAdapter = adapter;
-        this.solrFilterDelegateFactory = solrFilterDelegateFactory;
         this.resolver = resolver;
+
         resolver.addFieldsFromServer(server);
+        client = new ProviderSolrMetacardClient(server, adapter, solrFilterDelegateFactory, resolver);
     }
 
     /**
-     * Convenience constructor that creates a new DynamicSchemaResolver
+     * Convenience constructor that creates a new ddf.catalog.source.solr.DynamicSchemaResolver
      * 
-     * @param server
-     * @param adapter
-     *            injected implementation of FilterAdapter
+     * @param server    Solr server
+     * @param adapter   injected implementation of FilterAdapter
      */
     public SolrCatalogProvider(SolrServer server, FilterAdapter adapter,
             SolrFilterDelegateFactory solrFilterDelegateFactory) {
@@ -168,7 +141,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     @Override
     public Set<ContentType> getContentTypes() {
 
-        Set<ContentType> finalSet = new HashSet<ContentType>();
+        Set<ContentType> finalSet = new HashSet<>();
 
         String contentTypeField = resolver.getField(Metacard.CONTENT_TYPE, AttributeFormat.STRING,
                 true);
@@ -249,9 +222,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     @Override
     public boolean isAvailable() {
-
         try {
-
             SolrPingResponse ping = server.ping();
 
             return "OK".equals(ping.getResponse().get("status"));
@@ -268,197 +239,56 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     @Override
     public boolean isAvailable(SourceMonitor callback) {
-
         return isAvailable();
     }
 
     @Override
     public String getDescription() {
-
         return describableProperties.getProperty("description");
     }
 
     @Override
     public String getOrganization() {
-
         return describableProperties.getProperty("organization");
     }
 
     @Override
     public String getTitle() {
-
         return describableProperties.getProperty("name");
     }
 
     @Override
     public String getVersion() {
-
         return describableProperties.getProperty("version");
     }
 
     @Override
     public void maskId(String id) {
-
         LOGGER.info("Sitename changed from [{}] to [{}]", getId(), id);
         super.maskId(id);
     }
 
     @Override
     public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
-
-        LOGGER.debug(ENTERED, "query");
-
-        if (request == null || request.getQuery() == null) {
-            return new QueryResponseImpl(request, new ArrayList<Result>(), true, 0L);
-        }
-
-        long totalHits = 0L;
-
-        List<Result> results = new ArrayList<Result>();
-
-        SolrFilterDelegate solrFilterDelegate = solrFilterDelegateFactory.newInstance(resolver);
-
-        solrFilterDelegate.setSortPolicy(request.getQuery().getSortBy());
-
-        SolrQuery query = filterAdapter.adapt(request.getQuery(), solrFilterDelegate);
-
-        // Solr does not support outside parenthesis in certain queries and throws EOF exception.
-        String queryPhrase = query.getQuery().trim();
-        if (queryPhrase.matches("\\(\\s*\\{!.*\\)")) {
-            query.setQuery(queryPhrase.replaceAll("^\\(\\s*|\\s*\\)$", ""));
-        }
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Prepared Query: {}", query.getQuery());
-            if (query.getFilterQueries() != null && query.getFilterQueries().length > 0) {
-                LOGGER.debug("Filter Queries: {}", Arrays.toString(query.getFilterQueries()));
-            }
-        }
-
-        if (request.getQuery().getPageSize() < 1) {
-            query.setRows(Integer.MAX_VALUE);
-        } else {
-            query.setRows(request.getQuery().getPageSize());
-        }
-
-        /* Sorting */
-        SortBy sortBy = request.getQuery().getSortBy();
-
-        String sortProperty = "";
-
-        if (sortBy != null && sortBy.getPropertyName() != null) {
-
-            sortProperty = sortBy.getPropertyName().getPropertyName();
-
-            ORDER order = ORDER.desc;
-
-            if (sortBy.getSortOrder() == SortOrder.ASCENDING) {
-                order = ORDER.asc;
-            }
-
-            if (Result.RELEVANCE.equals(sortProperty) || Result.DISTANCE.equals(sortProperty)) {
-                query.setFields("*", RELEVANCE_SORT_FIELD);
-                query.setSortField(RELEVANCE_SORT_FIELD, order);
-            } else if (sortProperty.equals(Result.TEMPORAL)) {
-                query.addSortField(
-                        resolver.getField(Metacard.EFFECTIVE, AttributeFormat.DATE, false), order);
-            } else {
-
-                List<String> resolvedProperties = resolver.getAnonymousField(sortProperty);
-
-                if (!resolvedProperties.isEmpty()) {
-                    for (String sortField : resolvedProperties) {
-                        query.addSortField(sortField, order);
-                    }
-
-                    query.add("fl", "*," + RELEVANCE_SORT_FIELD);
-                } else {
-                    LOGGER.info("No schema field was found for sort property [{}]. No sort field was added to the query.", sortProperty);
-                }
-
-            }
-
-        }
-
-        /* Start Index */
-        if (request.getQuery().getStartIndex() < 1) {
-            throw new UnsupportedQueryException("Start index must be greater than 0");
-        }
-
-        // solr is 0-based
-        query.setStart(request.getQuery().getStartIndex() - 1);
-
-        try {
-            QueryResponse solrResponse = server.query(query, METHOD.POST);
-
-            totalHits = solrResponse.getResults().getNumFound();
-
-            SolrDocumentList docs = solrResponse.getResults();
-
-            for (SolrDocument doc : docs) {
-
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("SOLR DOC:{}", doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
-                }
-                ResultImpl tmpResult;
-                try {
-                    tmpResult = createResult(doc, sortProperty);
-                    // TODO: register metacard type???
-                } catch (MetacardCreationException e) {
-                    LOGGER.warn("Metacard creation exception creating result", e);
-                    throw new UnsupportedQueryException("Could not create metacard(s).");
-                }
-
-                results.add(tmpResult);
-            }
-
-        } catch (SolrServerException e) {
-            LOGGER.warn("Failure in Solr server query.", e);
-            throw new UnsupportedQueryException("Could not complete solr query.");
-        } catch (SolrException e) {
-            LOGGER.error("Could not complete solr query.", e);
-            throw new UnsupportedQueryException("Could not complete solr query.");
-        }
-
-        SourceResponseImpl sourceResponseImpl = new SourceResponseImpl(request, results);
-
-        /* Total Count */
-        sourceResponseImpl.setHits(totalHits);
-
-        LOGGER.debug(EXITED, "query");
-        return sourceResponseImpl;
-    }
-
-    private Double degreesToMeters(double distance) {
-        return new Distance(
-                DistanceUtils.degrees2Dist(distance, DistanceUtils.EARTH_MEAN_RADIUS_KM),
-                LinearUnit.KILOMETER).getAs(LinearUnit.METER);
+        return client.query(request);
     }
 
     @Override
     public CreateResponse create(CreateRequest request) throws IngestException {
-
-        LOGGER.debug(ENTERED, "CREATE");
-
         if (request == null) {
             throw new IngestException(REQUEST_MUST_NOT_BE_NULL_MESSAGE);
         }
 
         List<Metacard> metacards = request.getMetacards();
-
-        List<Metacard> output = new ArrayList<Metacard>();
+        List<Metacard> output = new ArrayList<>();
 
         if (metacards == null) {
             return new CreateResponseImpl(request, null, output);
         }
 
-        List<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
-
         for (Metacard metacard : metacards) {
-
             boolean isSourceIdSet = (metacard.getSourceId() != null && !"".equals(metacard
                     .getSourceId()));
-
             /*
              * If an ID is not provided, then one is generated so that documents are unique. Solr
              * will not accept documents unless the id is unique.
@@ -470,49 +300,23 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                 metacard.setAttribute(new AttributeImpl(Metacard.ID, generatePrimaryKey()));
             }
 
-            SolrInputDocument solrInputDocument = new SolrInputDocument();
-
-            // TODO: register metacard type here.
-            try {
-                resolver.addFields(metacard, solrInputDocument);
-            } catch (MetacardCreationException e) {
-                LOGGER.warn("Metacard creation exception adding fields", e);
-                throw new IngestException("MetacardType could not be read.");
-            }
-
-            docs.add(solrInputDocument);
             if (!isSourceIdSet) {
                 metacard.setSourceId(getId());
             }
             output.add(metacard);
-
         }
 
         try {
-            if (!isForcedAutoCommit()) {
-                server.add(docs);
-            } else {
-                softCommit(docs);
-            }
-        } catch (SolrServerException e) {
-            LOGGER.warn("SOLR server exception ingesting metacard(s)", e);
+            client.add(output, isForcedAutoCommit());
+        } catch (SolrServerException | SolrException | IOException | MetacardCreationException e) {
             throw new IngestException("Server could not ingest metacard(s).");
-        } catch (SolrException e) {
-            LOGGER.warn("SOLR exception ingesting metacard(s)", e);
-            throw new IngestException("Server could not ingest metacard(s).");
-        } catch (IOException e) {
-            LOGGER.warn("IO exception ingesting metacard(s)", e);
         }
 
-        CreateResponseImpl createResponseImpl = new CreateResponseImpl(request, null, output);
-
-        return createResponseImpl;
-
+        return new CreateResponseImpl(request, null, output);
     }
 
     @Override
     public UpdateResponse update(UpdateRequest updateRequest) throws IngestException {
-
         if (updateRequest == null) {
             throw new IngestException(REQUEST_MUST_NOT_BE_NULL_MESSAGE);
         }
@@ -523,7 +327,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         List<Entry<Serializable, Metacard>> updates = updateRequest.getUpdates();
 
         // the list of updates, both new and old metacards
-        ArrayList<Update> updateList = new ArrayList<Update>();
+        ArrayList<Update> updateList = new ArrayList<>();
 
         String attributeName = updateRequest.getAttributeName();
 
@@ -533,7 +337,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                     + "Please provide the name of the attribute.");
         }
 
-        List<String> identifiers = new ArrayList<String>();
+        List<String> identifiers = new ArrayList<>();
 
         // if we have nothing to update, send the empty list
         if (updates == null || updates.size() == 0) {
@@ -556,9 +360,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
         /* 1b. Execute Query */
         try {
-
             idResults = server.query(query, METHOD.POST);
-
         } catch (SolrServerException e) {
             LOGGER.warn("SOLR server exception during query", e);
         }
@@ -576,7 +378,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             }
 
         } else {
-
             LOGGER.info("No results found for given attribute values.");
 
             // return an empty list
@@ -597,15 +398,14 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         int initialHashMapCapacity = (int) (idResults.getResults().size() / HASHMAP_DEFAULT_LOAD_FACTOR) + 1;
 
         // map of old metacards to be populated
-        Map<Serializable, Metacard> idToMetacardMap = new HashMap<Serializable, Metacard>(
+        Map<Serializable, Metacard> idToMetacardMap = new HashMap<>(
                 initialHashMapCapacity);
 
         /* 1c. Populate list of old metacards */
-
         for (SolrDocument doc : idResults.getResults()) {
-            Metacard old = null;
+            Metacard old;
             try {
-                old = createMetacard(doc);
+                old = client.createMetacard(doc);
             } catch (MetacardCreationException e) {
                 throw new IngestException("Could not create metacard(s).");
             }
@@ -618,14 +418,11 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                                 + old.getAttribute(attributeName).getValue()
                                 + "] matched multiple records. Attribute values must at most match only one unique Metacard.");
             }
-
         }
 
         /* 2. Update the cards */
-
-        List<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
+        List<Metacard> newMetacards = new ArrayList<>();
         for (Entry<Serializable, Metacard> updateEntry : updates) {
-
             String localKey = updateEntry.getKey().toString();
 
             /* 2a. Prepare new Metacard */
@@ -636,42 +433,20 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             // We need to skip because of partial updates such as one entry
             // matched but another did not
             if (oldMetacard != null) {
-
                 prepareForUpdate(now, oldMetacard.getId(), newMetacard, oldMetacard);
-
-                /* 2b. Build Solr Document */
-                SolrInputDocument solrInputDocument = new SolrInputDocument();
-
-                try {
-                    resolver.addFields(newMetacard, solrInputDocument);
-                } catch (MetacardCreationException e) {
-                    throw new IngestException(e);
-                }
-
-                /* 2c. Add to list of updates */
-                docs.add(solrInputDocument);
 
                 newMetacard.setSourceId(getId());
 
+                newMetacards.add(newMetacard);
                 updateList.add(new UpdateImpl(newMetacard, oldMetacard));
             }
 
         }
 
         try {
-
-            if (!isForcedAutoCommit()) {
-                server.add(docs);
-            } else {
-                softCommit(docs);
-            }
-
-        } catch (SolrServerException e) {
-            LOGGER.warn("SOLR server exception processing request", e);
-            throw new IngestException("Provider is not able to process the request.");
-        } catch (IOException e) {
-            LOGGER.warn("IO exception processing request", e);
-            throw new IngestException("Provider is not able to process the request.");
+            client.add(newMetacards, isForcedAutoCommit());
+        } catch (SolrServerException | SolrException | IOException | MetacardCreationException e) {
+            throw new IngestException("Server could not ingest metacard(s).");
         }
 
         return new UpdateResponseImpl(updateRequest, null, updateList);
@@ -679,49 +454,31 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     @Override
     public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException {
-
-        LOGGER.debug(ENTERED, "DELETE");
-
         if (deleteRequest == null) {
             throw new IngestException(REQUEST_MUST_NOT_BE_NULL_MESSAGE);
         }
 
-        List<Metacard> deletedMetacards = new ArrayList<Metacard>();
+        List<Metacard> deletedMetacards = new ArrayList<>();
 
         String attributeName = deleteRequest.getAttributeName();
-
-        if (attributeName == null) {
+        if (StringUtils.isBlank(attributeName)) {
             throw new IngestException(
-                    "Attribute name cannot be null. Please provide the name of the attribute.");
+                    "Attribute name cannot be empty. Please provide the name of the attribute.");
         }
 
         @SuppressWarnings("unchecked")
         List<? extends Serializable> identifiers = deleteRequest.getAttributeValues();
 
         if (identifiers == null || identifiers.size() == 0) {
-            LOGGER.debug(EXITED, "DELETE");
             return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
         }
 
         /* 1. Query first for the records */
-
-        StringBuilder queryBuilder = new StringBuilder();
-
-        for (int i = 0; i < identifiers.size(); i++) {
-
-            if (i != 0) {
-                queryBuilder.append(" OR ");
-            }
-
-            queryBuilder.append(attributeName + SchemaFields.TEXT_SUFFIX + ":" + QUOTE
-                    + identifiers.get(i) + QUOTE);
-
-        }
-
-        SolrQuery query = new SolrQuery(queryBuilder.toString());
+        String fieldName = attributeName + SchemaFields.TEXT_SUFFIX;
+        SolrQuery query = new SolrQuery(client.getIdentifierQuery(fieldName, identifiers));
         query.setRows(identifiers.size());
 
-        QueryResponse solrResponse = null;
+        QueryResponse solrResponse;
         try {
             solrResponse = server.query(query, METHOD.POST);
         } catch (SolrServerException e) {
@@ -732,68 +489,27 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         SolrDocumentList docs = solrResponse.getResults();
 
         for (SolrDocument doc : docs) {
-
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("SOLR DOC: {}", doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
             }
 
             try {
-                deletedMetacards.add(createMetacard(doc));
+                deletedMetacards.add(client.createMetacard(doc));
             } catch (MetacardCreationException e) {
                 LOGGER.info("Metacard creation exception creating metacards during delete", e);
                 throw new IngestException("Could not create metacard(s).");
             }
 
         }
+
         /* 2. Delete */
-
         try {
-            if (Metacard.ID.equals(attributeName)) {
-                server.deleteById((List<String>) identifiers);
-            } else {
-                // solr deleteByQuery(queryBuilder.toString()) does not work,
-                // SOLR BUG back in 4.0.0
-                // so we have to delete by id
-                List<String> metacardIdentfiers = new ArrayList<String>();
-                for (Metacard deletedMetacard : deletedMetacards) {
-                    metacardIdentfiers.add(deletedMetacard.getId());
-                }
-                server.deleteById(metacardIdentfiers);
-            }
-
-            // the assumption is if something was deleted, it should be gone
-            // right away, such as expired data, etc.
-            // so we commit to ensure that it is gone.
-            server.commit();
-
-        } catch (SolrServerException e) {
-            LOGGER.error("SOLR server exception deleting request message", e);
-            throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
-        } catch (IOException e) {
-            LOGGER.error("IO exception deleting request message", e);
+            client.deleteByIds(fieldName, identifiers, isForcedAutoCommit());
+        } catch (SolrServerException | IOException e) {
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         }
 
-        new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
-
-        LOGGER.debug(EXITED, "DELETE");
         return new DeleteResponseImpl(deleteRequest, null, deletedMetacards);
-    }
-
-    /**
-     * @param docs
-     * @return
-     * @throws SolrServerException
-     * @throws IOException
-     */
-    private org.apache.solr.client.solrj.response.UpdateResponse softCommit(
-            List<SolrInputDocument> docs) throws SolrServerException, IOException {
-        boolean waitForFlush = true;
-        boolean waitToMakeVisible = true;
-        boolean softCommit = true;
-        return new org.apache.solr.client.solrj.request.UpdateRequest().add(docs)
-                .setAction(ACTION.COMMIT, waitForFlush, waitToMakeVisible, softCommit)
-                .process(server);
     }
 
     private void prepareForUpdate(Date now, String keyId, MetacardImpl newMetacard,
@@ -843,61 +559,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         return query;
     }
 
-    private ResultImpl createResult(SolrDocument doc, String sortProperty)
-        throws MetacardCreationException {
-
-        ResultImpl result = new ResultImpl(createMetacard(doc));
-
-        if (doc.get(RELEVANCE_SORT_FIELD) != null) {
-
-            if (Result.RELEVANCE.equals(sortProperty)) {
-
-                result.setRelevanceScore(((Float) (doc.get(RELEVANCE_SORT_FIELD))).doubleValue());
-
-            } else if (Result.DISTANCE.equals(sortProperty)) {
-                Object distance = doc.getFieldValue(RELEVANCE_SORT_FIELD);
-
-                if (distance != null) {
-                    LOGGER.debug("Distance returned from Solr [{}]", distance);
-                    double convertedDistance = degreesToMeters(Double.valueOf(distance.toString()));
-
-                    LOGGER.debug("Converted distance into meters [{}]", convertedDistance);
-                    result.setDistanceInMeters(convertedDistance);
-                }
-            }
-
-        }
-        return result;
-    }
-
-    /**
-     * Given a document from the server, this method creates a {@link Metacard}. It populates the
-     * source id and {@link MetacardType}, as well as all the fields from the {@link SolrDocument}
-     * 
-     * @param doc
-     *            {@link SolrDocument} from the Solr Server
-     * @return a metacard
-     * @throws MetacardCreationException
-     */
-    private MetacardImpl createMetacard(SolrDocument doc) throws MetacardCreationException {
-
-        MetacardType metacardType = resolver.getMetacardType(doc);
-
-        MetacardImpl metacard = new MetacardImpl(metacardType);
-
-        for (String solrFieldName : doc.getFieldNames()) {
-            if (!resolver.isPrivateField(solrFieldName)) {
-                Serializable value = resolver.getDocValue(solrFieldName,
-                        doc.getFieldValue(solrFieldName));
-                metacard.setAttribute(resolver.resolveFieldName(solrFieldName), value);
-            }
-        }
-
-        metacard.setSourceId(getId());
-
-        return metacard;
-    }
-
     private String generatePrimaryKey() {
         return UUID.randomUUID().toString().replaceAll("-", "");
     }
@@ -909,6 +570,27 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     public void shutdown() {
         LOGGER.info("Shutting down solr server.");
         server.shutdown();
+    }
+
+    private class ProviderSolrMetacardClient extends SolrMetacardClient {
+
+        public ProviderSolrMetacardClient(SolrServer solrServer,
+                FilterAdapter catalogFilterAdapter,
+                SolrFilterDelegateFactory solrFilterDelegateFactory,
+                DynamicSchemaResolver dynamicSchemaResolver) {
+            super(solrServer, catalogFilterAdapter, solrFilterDelegateFactory,
+                    dynamicSchemaResolver);
+        }
+
+        @Override
+        public MetacardImpl createMetacard(SolrDocument doc)
+                throws MetacardCreationException {
+            MetacardImpl metacard = super.createMetacard(doc);
+
+            metacard.setSourceId(getId());
+
+            return metacard;
+        }
     }
 
 }

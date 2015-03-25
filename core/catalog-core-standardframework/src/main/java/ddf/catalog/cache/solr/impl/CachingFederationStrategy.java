@@ -342,13 +342,9 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
         logger.debug("Post ingest processing of DeleteResponse.");
 
-        try {
-            logger.debug("Deleting metacard(s) in cache.");
-            cache.delete(input.getRequest());
-            logger.debug("Deletion of metacard(s) in cache complete.");
-        } catch(IngestException e) {
-            throw new PluginExecutionException("Error processing DeleteResponse.", e);
-        }
+        logger.debug("Deleting metacard(s) in cache.");
+        cache.delete(input.getRequest());
+        logger.debug("Deletion of metacard(s) in cache complete.");
 
         return input;
     }

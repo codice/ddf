@@ -14,10 +14,9 @@
  **/
 package ddf.catalog.source.solr;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.operation.impl.QueryImpl;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.SortByImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
@@ -35,9 +34,9 @@ import org.opengis.geometry.Geometry;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.operation.impl.QueryImpl;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 public class CommonQueryBuilder {
 
