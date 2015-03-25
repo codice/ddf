@@ -18,6 +18,9 @@ import javax.xml.namespace.QName;
 
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Constants for WFS services and requests.
  * 
@@ -144,4 +147,19 @@ public class Wfs20Constants extends WfsConstants{
 
     public static final QName POINT = new QName(GML_3_2_NAMESPACE, "Point");
 
+    public static final QName GEOMETRY_COLLECTION = new QName(GML_3_2_NAMESPACE,
+            "GeometryCollection");
+
+    public static final QName MULTI_POINT = new QName(GML_3_2_NAMESPACE, "MultiPoint");
+
+    public static final QName MULTI_LINE_STRING = new QName(GML_3_2_NAMESPACE, "MultiLineString");
+
+    public static final QName MULTI_POLYGON = new QName(GML_3_2_NAMESPACE, "MultiPolygon");
+
+    public static final List<QName> GEOMETRY_QNAMES = Arrays
+            .asList(POINT, ENVELOPE, POLYGON,
+                    LINESTRING,
+                    GEOMETRY_COLLECTION,
+                    MULTI_LINE_STRING, MULTI_POINT,
+                    MULTI_POLYGON);
 }
