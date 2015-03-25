@@ -18,8 +18,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.gml2.GMLWriter;
 import net.opengis.gml.v_3_2_1.AbstractRingPropertyType;
 import net.opengis.gml.v_3_2_1.CoordinatesType;
