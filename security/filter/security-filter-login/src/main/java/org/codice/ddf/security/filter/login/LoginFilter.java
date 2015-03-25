@@ -19,6 +19,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.util.SecurityTokenHolder;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import org.apache.commons.lang.StringUtils;
@@ -218,7 +219,7 @@ public class LoginFilter implements Filter {
                 }
                 SecurityToken savedToken = null;
                 try {
-                    savedToken = (SecurityToken) sessionToken;
+                    savedToken = ((SecurityTokenHolder) sessionToken).getSecurityToken();
                 } catch (ClassCastException e) {
                     httpRequest.getSession(false).invalidate();
                 }
@@ -338,7 +339,7 @@ public class LoginFilter implements Filter {
                                 if (LOGGER.isTraceEnabled()) {
                                     LOGGER.trace("Setting session token - class: {}  classloader: {}", token.getClass().getName(), token.getClass().getClassLoader());
                                 }
-                                session.setAttribute(SecurityConstants.SAML_ASSERTION, token);
+                                ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION)).setSecurityToken(token);
 
                                 SamlAssertionWrapper assertion = new SamlAssertionWrapper(((SecurityToken) savedToken.getCredentials()).getToken());
                                 if (assertion.getSaml2() != null) {
@@ -504,7 +505,7 @@ public class LoginFilter implements Filter {
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("Creating token in session - class: {}  classloader: {}", securityToken.getClass().getName(), securityToken.getClass().getClassLoader());
                 }
-                session.setAttribute(SecurityConstants.SAML_ASSERTION, securityToken);
+                session.setAttribute(SecurityConstants.SAML_ASSERTION, new SecurityTokenHolder(securityToken));
                 SamlAssertionWrapper assertion = null;
                 DateTime after = null;
                 try {
