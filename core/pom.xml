@@ -85,5 +85,6 @@
         <module>catalog-core-sourcemetricsplugin</module>
         <module>catalog-core-resourcesizeplugin</module>
         <module>catalog-core-backupplugin</module>
+        <module>catalog-core-solr</module>
     </modules>
 </project>

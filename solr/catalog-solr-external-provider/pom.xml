@@ -31,19 +31,14 @@
 	</organization>
 	<dependencies>
         <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-factory</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>ddf.catalog.solr.embedded</groupId>
-            <artifactId>catalog-solr-embedded-provider</artifactId>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-solr</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>ddf.catalog.solr.embedded</groupId>
-            <artifactId>catalog-solr-embedded-provider</artifactId>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-solr</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
@@ -76,6 +71,7 @@
                             Saxon-HE,
                             woodstox-core-asl,
                             stax2-api,
+                            catalog-core-solr,
                             commons-cli,
                             commons-fileupload,
                             commons-codec,

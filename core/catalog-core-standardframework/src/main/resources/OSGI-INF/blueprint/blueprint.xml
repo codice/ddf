@@ -140,7 +140,7 @@
           destroy-method="shutdown">
         <argument ref="filterAdapter" />
         <argument>
-            <bean class="ddf.catalog.cache.solr.impl.SolrFilterDelegateFactoryImpl"/>
+            <bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
         </argument>
     </bean>
 
