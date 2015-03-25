@@ -372,6 +372,7 @@
         <module>admin</module>
         <module>catalog-app</module>
         <module>solr</module>
+        <module>docs</module>
     </modules>
 
     <repositories>
