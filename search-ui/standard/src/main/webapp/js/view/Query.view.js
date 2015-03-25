@@ -419,7 +419,13 @@ define([
                 this.$('#offsetTimeUnits').multiselect(singleselectOptions);
 
                 this.$('#scheduleUnits').multiselect(singleselectOptions);
-
+                
+                var popoverOptions = {
+                    trigger: 'hover',
+                    content: 'Search by free text using the grammar of the underlying endpoint/Catalog. For wildcard searches, use % or * after partial keywords.'
+                };
+                this.$el.find('[data-toggle="popover"]').popover(popoverOptions);
+ 
                 this.updateZoomOnResults();
                 this.updateLocationFields();
             },
