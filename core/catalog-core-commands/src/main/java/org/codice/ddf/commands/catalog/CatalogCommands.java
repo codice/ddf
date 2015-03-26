@@ -94,25 +94,6 @@ public class CatalogCommands extends OsgiCommandSupport {
         return getService(FilterBuilder.class);
     }
 
-    protected <T> T getService(Class<T> classObject) throws InterruptedException {
-
-        ServiceTracker st = new ServiceTracker(getBundleContext(), classObject.getName(), null);
-        st.open();
-
-        @SuppressWarnings("unchecked")
-        T service = (T) st.waitForService(ONE_SECOND);
-        try {
-            if (service == null) {
-                throw new InterruptedException("Could not find a service for: "
-                        + classObject.getName());
-            }
-        } finally {
-            st.close();
-        }
-
-        return service;
-    }
-
     protected String dash(int length) {
         StringBuilder sBuilder = new StringBuilder();
 

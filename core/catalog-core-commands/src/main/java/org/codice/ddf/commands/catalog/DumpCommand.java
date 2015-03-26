@@ -349,18 +349,4 @@ public class DumpCommand extends CatalogCommands {
         return metacardTransformerList;
     }
 
-    protected <T> T getService(Class<T> clazz) throws InterruptedException {
-        ServiceTracker st = new ServiceTracker(getBundleContext(), clazz.getName(), null);
-        st.open();
-
-        @SuppressWarnings("unchecked")
-        T service = (T) st.waitForService(ONE_SECOND);
-        if (service == null) {
-            throw new InterruptedException("Could not find a service for: " + clazz.getName());
-        }
-        st.close();
-
-        return service;
-    }
-
 }

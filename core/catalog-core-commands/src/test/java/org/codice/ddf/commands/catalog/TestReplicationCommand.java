@@ -109,7 +109,7 @@ public class TestReplicationCommand {
             }
 
             @Override
-            protected <T> T getService(Class<T> classObject) throws InterruptedException {
+            protected <T> T getService(Class<T> classObject) {
                 T service = null;
                 if (classObject.equals(CatalogFramework.class)) {
                     return (T) catalogFramework;

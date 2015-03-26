@@ -40,7 +40,7 @@
         <xalan.version>2.7.1</xalan.version>
         <xerces.version>2.11.0</xerces.version>
         <saxon.version>9.6.0-4</saxon.version>
-        <karaf.version>2.3.8</karaf.version>
+        <karaf.version>2.4.1</karaf.version>
         <camel.version>2.14.2</camel.version>
         <cxf.version>3.0.4</cxf.version>
         <!-- Solr version properies -->
