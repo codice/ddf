@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+/*global define,Math*/
 
 define([
         'backbone',
@@ -79,9 +79,9 @@ define([
                 });
                 //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
                 if (this.geoController.scene.terrainProvider && !point.altitude) {
-                    var promise = Cesium.sampleTerrain(this.geoController.scene.terrainProvider, 11, [cartographic]);
+                    var promise = Cesium.sampleTerrain(this.geoController.scene.terrainProvider, 5, [cartographic]);
                     Cesium.when(promise, function(updatedCartographic) {
-                        if (updatedCartographic[0].height) {
+                        if (updatedCartographic[0].height && !view.isDestroyed) {
                             view.billboard.position = view.geoController.ellipsoid.cartographicToCartesian(updatedCartographic[0]);
                         }
                     });
@@ -151,6 +151,15 @@ define([
                         color: view.color,
                         scale: pointScale
                     });
+                    //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
+                    if (view.geoController.scene.terrainProvider && !point.height) {
+                        var promise = Cesium.sampleTerrain(view.geoController.scene.terrainProvider, 5, [point]);
+                        Cesium.when(promise, function(updatedCartographic) {
+                            if (updatedCartographic[0].height && !view.isDestroyed) {
+                                billboard.position = view.geoController.ellipsoid.cartographicToCartesian(updatedCartographic[0]);
+                            }
+                        });
+                    }
                     return billboard;
                 });
             },
@@ -204,10 +213,8 @@ define([
             initialize: function (options) {
                 options.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>lineColor'));
                 this.color = options.color;
+                this.lineMap = {};
                 Views.PointView.prototype.initialize.call(this, options);
-
-                this.buildLine();
-
             },
 
             onMapLeftClick: function (event) {
@@ -224,26 +231,50 @@ define([
                 }
             },
 
-            addLine : function(positions) {
-                this.lines.add({
+            removeLine: function(line) {
+                this.lines.remove(line);
+            },
+
+            addLine : function(positions, key) {
+                this.lineMap[key] = this.lines.add({
                     positions: positions,
                     width: 2
                 });
             },
 
-            buildLine: function () {
+            buildBillboard: function () {
+                this.lines = new Cesium.PolylineCollection();
+                var points = this.model.get('geometry').getLineString();
+                var lineObj = this.buildLine(points);
+                this.addLine(lineObj.line, lineObj.key);
+                this.geoController.scene.primitives.add(this.lines);
+                Views.PointView.prototype.buildBillboard.call(this);
+            },
+
+            buildLine: function (points) {
                 var view = this;
-                var points = view.model.get('geometry').getLineString();
+                var key = Math.random() * 16;
+
                 var cartPoints = _.map(points, function (point) {
                     return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
                 });
-                var positions = view.geoController.ellipsoid.cartographicArrayToCartesianArray(cartPoints);
+                //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
+                if (view.geoController.scene.terrainProvider) {
+                    var promise = Cesium.sampleTerrain(this.geoController.scene.terrainProvider, 5, cartPoints);
+                    Cesium.when(promise, function(updatedCartographic) {
+                        var positions = view.geoController.ellipsoid.cartographicArrayToCartesianArray(updatedCartographic);
+                        if (updatedCartographic[0].height && !view.isDestroyed) {
+                            view.removeLine(view.lineMap[key]);
+                            view.addLine(positions, key);
+                        }
+                    });
+                }
+                var cartesian = view.geoController.ellipsoid.cartographicArrayToCartesianArray(cartPoints);
 
-                // Add primitives
-                view.lines = new Cesium.PolylineCollection();
-                view.addLine(positions);
-
-                view.geoController.scene.primitives.add(view.lines);
+                return {
+                    line: cartesian,
+                    key: key
+                };
             },
 
             onDestroy: function () {
@@ -262,25 +293,19 @@ define([
         Views.MultiLineView = Views.LineView.extend({
             initialize: function (options) {
                 options.color = options.color || Cesium.Color.fromCssColorString(Application.UserModel.get('user>preferences>multiLineColor'));
+                this.lineMap = {};
                 Views.PointView.prototype.initialize.call(this, options);
-
-                this.buildLine();
-
             },
-            buildLine: function () {
+            buildBillboard: function () {
                 var view = this;
                 var lineList = view.model.get('geometry').getMultiLineString();
                 view.lines = new Cesium.PolylineCollection();
-                var pointConverter = function (point) {
-                    return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
-                };
                 _.each(lineList, function(points) {
-                    var cartPoints = _.map(points, pointConverter);
-                    var positions = view.geoController.ellipsoid.cartographicArrayToCartesianArray(cartPoints);
-
-                    view.addLine(positions);
+                    var lineObj = view.buildLine(points);
+                    view.addLine(lineObj.line, lineObj.key);
                 });
                 view.geoController.scene.primitives.add(view.lines);
+                Views.PointView.prototype.buildBillboard.call(this);
             }
         });
 
@@ -300,8 +325,9 @@ define([
 
                 this.outlineColor = options.outlineColor || new Cesium.Color(255/255, 255/255, 255/255, 1);
 
+                this.polygonMap = {};
+                this.polygons = [];
                 Views.PointView.prototype.initialize.call(this, options);
-                this.buildPolygon();
             },
 
             toggleSelection : function(){
@@ -382,52 +408,94 @@ define([
                 });
             },
 
-            buildPolygon: function () {
-                var view = this;
-                var points = view.model.get('geometry').getPolygon();
-                var cartPoints = _.map(points, function (point) {
-                    return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
+            removePolygon: function(positions) {
+                var idx = -1;
+                _.each(this.polygons, function(polygon, index) {
+                    if (_.difference(polygon.positions, positions).length === 0) {
+                        idx = index;
+                    }
                 });
-                var positions = view.geoController.ellipsoid.cartographicArrayToCartesianArray(cartPoints);
 
+                if (idx >= 0) {
+                    this.geoController.scene.primitives.remove(this.polygons[idx].outline);
+                    this.geoController.scene.primitives.remove(this.polygons[idx].fill);
+                    this.polygons.splice(idx, 1);
+                }
+            },
+
+            addPolygon: function(positions) {
                 if(! this.validatePolygon(positions)) {
                     return false;
                 }
-
-                // Add primitives
-                view.polygons = [
-                    new Cesium.Primitive({
-                        geometryInstances: [view.getPolygonOutline(positions)],
-                        appearance: view.getOutlineColor()
+                var polygon = {
+                    positions: positions,
+                    outline: new Cesium.Primitive({
+                        geometryInstances: [this.getPolygonOutline(positions)],
+                        appearance: this.getOutlineColor()
                     }),
-                    new Cesium.Primitive({
-                        geometryInstances: [view.getPolygonFill(positions)],
+                    fill: new Cesium.Primitive({
+                        geometryInstances: [this.getPolygonFill(positions)],
                         appearance: new Cesium.PerInstanceColorAppearance({
                             closed: true
                         })
                     })
-                ];
+                };
+                // Add primitives
+                this.polygons.push(polygon);
+                if (!this.isDestroyed) {
+                    this.geoController.scene.primitives.add(polygon.outline);
+                    this.geoController.scene.primitives.add(polygon.fill);
+                }
+            },
 
-                _.each(view.polygons, function (polygonPrimitive) {
-                    view.geoController.scene.primitives.add(polygonPrimitive);
+            buildBillboard: function () {
+                this.lines = new Cesium.PolylineCollection();
+                var points = this.model.get('geometry').getPolygon();
+                var polygon = this.buildPolygon(points);
+                this.addPolygon(polygon);
+                Views.PointView.prototype.buildBillboard.call(this);
+            },
+
+            buildPolygon: function (points) {
+                var view = this;
+                var key = Math.random() * 16;
+                var cartPoints = _.map(points, function (point) {
+                    return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
                 });
+                //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
+                if (view.geoController.scene.terrainProvider) {
+                    var promise = Cesium.sampleTerrain(this.geoController.scene.terrainProvider, 5, cartPoints);
+                    Cesium.when(promise, function(updatedCartographic) {
+                        var positions = view.geoController.ellipsoid.cartographicArrayToCartesianArray(updatedCartographic);
+                        if (updatedCartographic[0].height && !view.isDestroyed) {
+                            view.removePolygon(view.polygonMap[key]);
+                            view.addPolygon(positions);
+                            view.polygonMap[key] = positions;
+                        }
+                    });
+                }
+                var positions = view.geoController.ellipsoid.cartographicArrayToCartesianArray(cartPoints);
+
+                this.polygonMap[key] = positions;
+
+                return positions;
             },
 
             setPolygonSelected : function(){
                 var view = this;
-                var attributes = view.polygons[0].getGeometryInstanceAttributes('outline');
+                var attributes = view.polygons[0].outline.getGeometryInstanceAttributes('outline');
                 attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.BLACK);
 
-                var fillAttributes = view.polygons[1].getGeometryInstanceAttributes('polyfill');
+                var fillAttributes = view.polygons[0].fill.getGeometryInstanceAttributes('polyfill');
                 fillAttributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(true, fillAttributes.show);
             },
 
             setPolygonUnselected : function(){
                 var view = this;
-                var attributes = view.polygons[0].getGeometryInstanceAttributes('outline');
+                var attributes = view.polygons[0].outline.getGeometryInstanceAttributes('outline');
                 attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(view.outlineColor);
 
-                var fillAttributes = view.polygons[1].getGeometryInstanceAttributes('polyfill');
+                var fillAttributes = view.polygons[0].fill.getGeometryInstanceAttributes('polyfill');
                 fillAttributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(false, fillAttributes.show);
             },
 
@@ -440,7 +508,8 @@ define([
                 }
                 if (!_.isUndefined(view.polygons)) {
                     _.each(view.polygons, function (polygonPrimitive) {
-                        view.geoController.scene.primitives.remove(polygonPrimitive);
+                        view.geoController.scene.primitives.remove(polygonPrimitive.outline);
+                        view.geoController.scene.primitives.remove(polygonPrimitive.fill);
                     });
                 }
 
@@ -463,51 +532,31 @@ define([
 
                 this.outlineColor = options.outlineColor || new Cesium.Color(255/255, 255/255, 255/255, 1);
 
+                this.polygonMap = {};
+                this.polygons = [];
                 Views.PointView.prototype.initialize.call(this, options);
-                this.buildPolygon();
             },
-            buildPolygon: function () {
+
+            buildBillboard: function () {
                 var view = this;
-                var polygonList = view.model.get('geometry').getMultiPolygon();
-                view.polygons = [];
-                var pointConverter = function (point) {
-                    return Cesium.Cartographic.fromDegrees(point.longitude, point.latitude, point.altitude);
-                };
-                for(var i = 0; i < polygonList.length; i++) {
-                    var points = polygonList[i];
-                    var cartPoints = _.map(points, pointConverter);
-                    var positions = view.geoController.ellipsoid.cartographicArrayToCartesianArray(cartPoints);
-
-                    if(! this.validatePolygon(positions)) {
-                        return false;
-                    }
-
-                    // Add primitives
-                    view.polygons[2*i] = new Cesium.Primitive({
-                            geometryInstances: [view.getPolygonOutline(positions)],
-                            appearance: view.getOutlineColor()
-                        });
-                    view.polygons[2*i + 1] = new Cesium.Primitive({
-                            geometryInstances: [view.getPolygonFill(positions)],
-                            appearance: new Cesium.PerInstanceColorAppearance({
-                                closed: true
-                            })
-                        });
-                }
-                _.each(view.polygons, function (polygonPrimitive) {
-                    view.geoController.scene.primitives.add(polygonPrimitive);
+                this.lines = new Cesium.PolylineCollection();
+                var polyList = this.model.get('geometry').getMultiPolygon();
+                _.each(polyList, function(points){
+                    var polygon = view.buildPolygon(points);
+                    view.addPolygon(polygon);
                 });
+                Views.PointView.prototype.buildBillboard.call(this);
             },
 
             setPolygonSelected : function(){
                 var view = this;
                 var attributes, fillAttributes;
 
-                for(var i = 0; i < view.polygons.length; i += 2) {
-                    attributes = view.polygons[i].getGeometryInstanceAttributes('outline');
+                for(var i = 0; i < view.polygons.length; i++) {
+                    attributes = view.polygons[i].outline.getGeometryInstanceAttributes('outline');
                     attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(Cesium.Color.BLACK);
 
-                    fillAttributes = view.polygons[i + 1].getGeometryInstanceAttributes('polyfill');
+                    fillAttributes = view.polygons[i].fill.getGeometryInstanceAttributes('polyfill');
                     fillAttributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(true, fillAttributes.show);
                 }
             },
@@ -516,11 +565,11 @@ define([
                 var view = this;
                 var attributes, fillAttributes;
 
-                for(var i = 0; i < view.polygons.length; i += 2) {
-                    attributes = view.polygons[i].getGeometryInstanceAttributes('outline');
+                for(var i = 0; i < view.polygons.length; i++) {
+                    attributes = view.polygons[i].outline.getGeometryInstanceAttributes('outline');
                     attributes.color = Cesium.ColorGeometryInstanceAttribute.toValue(view.outlineColor);
 
-                    fillAttributes = view.polygons[i + 1].getGeometryInstanceAttributes('polyfill');
+                    fillAttributes = view.polygons[i].fill.getGeometryInstanceAttributes('polyfill');
                     fillAttributes.show = Cesium.ShowGeometryInstanceAttribute.toValue(false, fillAttributes.show);
                 }
             }
@@ -606,7 +655,7 @@ define([
                 var view = this;
 
                 _.each(view.geometries, function(geometry) {
-                    geometry.onDestroy();
+                    geometry.destroy();
                 });
 
                 this.stopListening();
