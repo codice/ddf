@@ -289,7 +289,7 @@ define([
                     filters.push(timeType + ' BEFORE ' + this.getValue(new Date(end)));
                 } else if (offset) {
                     filters.push(timeType + ' AFTER ' +
-                        moment().subtract(offset, 'milliseconds').format(properties.CQL_DATE_FORMAT));
+                        moment.utc().subtract(offset, 'milliseconds').format(properties.CQL_DATE_FORMAT));
                 }
 
                 // spatial
@@ -366,7 +366,7 @@ define([
                         return String(value);
                     case 'object':
                         if (_.isDate(value)) {
-                            return moment(value).format(properties.CQL_DATE_FORMAT);
+                            return moment.utc(value).format(properties.CQL_DATE_FORMAT);
                         } else {
                             throw new Error("Can't write object to CQL: " + value);
                         }

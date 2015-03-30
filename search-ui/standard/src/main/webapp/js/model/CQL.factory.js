@@ -58,7 +58,7 @@ define([
 
         getDateValue: function(value) {
             if (_.isDate(value) || moment(value).isValid()) {
-                return moment(value).format(Properties.CQL_DATE_FORMAT);
+                return moment.utc(value).format(Properties.CQL_DATE_FORMAT);
             } else {
                 throw new Error("Can't write date value to CQL: " + value);
             }
