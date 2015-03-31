@@ -85,7 +85,6 @@ public class OpenSearchEndpointTest {
 
         CatalogFramework mockFramework = mock(CatalogFramework.class);
         FilterBuilder mockFilterBuilder = mock(FilterBuilder.class);
-        PreCatalogTransformPlugin mockEndpointMetacardTransformer = mock(PreCatalogTransformPlugin.class);
 
         AttributeBuilder mockAB = mock(AttributeBuilder.class);
         ExpressionBuilder mockEB = mock(ExpressionBuilder.class);
@@ -136,9 +135,6 @@ public class OpenSearchEndpointTest {
         InputStream is = new ByteArrayInputStream("Test String From InputStream".getBytes("UTF-8"));
         when(mockBinaryContent.getInputStream()).thenReturn(is);
         when(mockBinaryContent.getMimeTypeValue()).thenReturn("text/plain");
-
-        mockEndpointMetacardTransformer.transform(any(QueryResponse.class));
-
         when(mockFramework.transform(any(QueryResponse.class), anyString(), anyMap())).thenReturn(
                 mockBinaryContent);
 
