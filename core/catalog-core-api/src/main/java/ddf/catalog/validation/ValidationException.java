@@ -38,13 +38,33 @@ public abstract class ValidationException extends Exception {
 
     /**
      * Constructs a {@code ValidationException} with a specified summary message of the failure.
-     * 
+     *
      * @param summaryMessage
      *            summarizes why the validation operation failed
      */
     public ValidationException(String summaryMessage) {
         super(summaryMessage);
     }
+
+    /**
+     * Constructs a {@code ValidationException} with a cause of the failure.
+     *
+     * @param cause
+     *            the cause of why the validation operation failed
+     */
+    public ValidationException(Throwable cause) { super(cause); }
+
+    /**
+     * Constructs a {@code ValidationException} with a specified summary message and cause
+     * of the failure.
+     *
+     * @param summaryMessage
+     *            summarizes why the validation operation failed
+     * @param cause
+     *            the cause of why the validation operation failed
+     */
+    public ValidationException(String summaryMessage, Throwable cause) { super(summaryMessage, cause); }
+
 
     /**
      * @return a list of all error messages that have caused validation to fail. The error message
@@ -58,4 +78,34 @@ public abstract class ValidationException extends Exception {
      *         plain text.
      */
     public abstract List<String> getWarnings();
+
+    /**
+     * Converts this exception into a String representation.
+     *
+     * @return a human-readable form of this exception
+     */
+    @Override
+    public String toString() {
+        StringBuilder messageBuilder = new StringBuilder(super.toString());
+
+        List<String> errors = getErrors();
+        if (null != errors && errors.size() > 0) {
+            messageBuilder.append(":ERRORS");
+            for (String error : errors) {
+                messageBuilder.append(":");
+                messageBuilder.append(error);
+            }
+        }
+
+        List<String> warnings = getWarnings();
+        if (null != warnings && warnings.size() > 0) {
+            messageBuilder.append(":WARNINGS");
+            for (String warning : warnings) {
+                messageBuilder.append(":");
+                messageBuilder.append(warning);
+            }
+        }
+
+        return messageBuilder.toString();
+    }
 }

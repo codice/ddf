@@ -1572,7 +1572,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
             // source is considered available unless we have checked and seen otherwise
             boolean available = true;
             Source cachedSource = poller.getCachedSource(source);
-            if(cachedSource != null) {
+            if (cachedSource != null) {
                 available = cachedSource.isAvailable();
             }
             

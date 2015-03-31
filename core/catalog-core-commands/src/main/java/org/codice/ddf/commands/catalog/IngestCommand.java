@@ -68,6 +68,8 @@ public class IngestCommand extends CatalogCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestCommand.class);
 
+    private static final Logger INGEST_LOGGER = LoggerFactory.getLogger("ingestLogger");
+
     private static final int DEFAULT_BATCH_SIZE = 1000;
 
     @Argument(name = "File path or Directory path", description = "File path to a record or a directory of files to be ingested. Paths are absolute and must be in quotes."
@@ -192,6 +194,8 @@ public class IngestCommand extends CatalogCommands {
             console.printf(" %d file(s) ingested in %s", ingestCount.get(), elapsedTime);
             LOGGER.info("{} file(s) ingested in {} [{} records/sec]", ingestCount.get(),
                     elapsedTime, calculateRecordsPerSecond(ingestCount.get(), start, end));
+            INGEST_LOGGER.info("{} file(s) ingested in {} [{} records/sec]", ingestCount.get(),
+                    elapsedTime, calculateRecordsPerSecond(ingestCount.get(), start, end));
             console.println();
 
             return null;
@@ -221,6 +225,18 @@ public class IngestCommand extends CatalogCommands {
                 } catch (IngestException e) {
                     createResponse = null;
                     printErrorMessage(inputFile.getAbsolutePath() + " failed ingest.");
+                    if (INGEST_LOGGER.isWarnEnabled()) {
+                        INGEST_LOGGER.warn("{} failed ingest", inputFile.getAbsolutePath(), e);
+                    }
+                    if (failedIngestDirectory != null) {
+                        moveToFailedIngestDirectory(inputFile);
+                    }
+                } catch (SourceUnavailableException e) {
+                    createResponse = null;
+                    printErrorMessage(inputFile.getAbsolutePath() + " failed ingest.");
+                    if (INGEST_LOGGER.isWarnEnabled()) {
+                        INGEST_LOGGER.warn("{} failed ingest", inputFile.getAbsolutePath(), e);
+                    }
                     if (failedIngestDirectory != null) {
                         moveToFailedIngestDirectory(inputFile);
                     }
@@ -232,6 +248,10 @@ public class IngestCommand extends CatalogCommands {
                     for (Metacard record : recordsCreated) {
                         console.println("ID: " + record.getId() + " created.");
                     }
+                    if (INGEST_LOGGER.isDebugEnabled()) {
+                        INGEST_LOGGER.debug("{} file(s) created. {}", metacards.size(),
+                                buildIngestLog(metacards));
+                    }
                 }
             }
             return null;
@@ -240,6 +260,31 @@ public class IngestCommand extends CatalogCommands {
         executorService.shutdown();
         console.println("Could not execute command.");
         return null;
+    }
+
+    /**
+     * Helper method to build ingest log strings
+     */
+    private String buildIngestLog(ArrayList<Metacard> metacards) {
+        StringBuilder strBuilder = new StringBuilder();
+
+        final String newLine = System.getProperty("line.separator");
+
+        for (int i = 0; i < metacards.size(); i++) {
+            Metacard card = metacards.get(i);
+            strBuilder.append(newLine).append("Batch #: ").append(i + 1).append(" | ");
+            if (card != null) {
+                if (card.getTitle() != null) {
+                    strBuilder.append("Metacard Title: ").append(card.getTitle()).append(" | ");
+                }
+                if (card.getId() != null) {
+                    strBuilder.append("Metacard ID: ").append(card.getId()).append(" | ");
+                }
+            } else {
+                strBuilder.append("Null Metacard");
+            }
+        }
+        return strBuilder.toString();
     }
 
     private int getFileCount(File dir) {
@@ -262,6 +307,9 @@ public class IngestCommand extends CatalogCommands {
     private void logIngestException(IngestException exception, File inputFile) {
         printErrorMessage("Failed to ingest file [" + inputFile.getAbsolutePath() + "].");
         printErrorMessage(exception.getMessage());
+        if (INGEST_LOGGER.isWarnEnabled()) {
+            INGEST_LOGGER.warn("Failed to ingest file [{}].", inputFile.getAbsolutePath(), exception);
+        }
     }
 
     private CreateResponse createMetacards(CatalogFacade catalog, List<Metacard> listOfMetaCards)
@@ -380,6 +428,17 @@ public class IngestCommand extends CatalogCommands {
             createResponse = null;
             success = false;
             printErrorMessage("Error executing command: " + e.getMessage());
+            if (INGEST_LOGGER.isWarnEnabled()) {
+                INGEST_LOGGER.warn("Error ingesting metacard batch {}",
+                        buildIngestLog(metacards), e);
+            }
+        } catch (SourceUnavailableException e) {
+            if (INGEST_LOGGER.isWarnEnabled()) {
+                INGEST_LOGGER.warn("Error on process batch, local provider not available. {}"
+                                + " metacards failed to ingest. {}",
+                        metacards.size(),
+                        buildIngestLog(metacards), e);
+            }
         }
 
         if (success) {
@@ -397,6 +456,9 @@ public class IngestCommand extends CatalogCommands {
         if (!processBatch(catalog, metacards)) {
             if (failedIngestDirectory != null) {
                 printErrorMessage("Failed to ingest file [" + inputFile.getAbsolutePath() + "].");
+                if (INGEST_LOGGER.isWarnEnabled()) {
+                    INGEST_LOGGER.warn("Failed to ingest file [{}].", inputFile.getAbsolutePath());
+                }
                 moveToFailedIngestDirectory(inputFile);
             }
             success = false;
@@ -471,6 +533,7 @@ public class IngestCommand extends CatalogCommands {
                                     moveToFailedIngestDirectory(file);
                                 }
                             } catch (SourceUnavailableException e) {
+                                // Catalog framework logs these exceptions to the ingest logger so we don't have to.
                                 executorService.shutdownNow();
                             }
                         }
@@ -513,6 +576,7 @@ public class IngestCommand extends CatalogCommands {
                         }
                     }
                 } catch (SourceUnavailableException e) {
+                    // Catalog framework logs these exceptions to the ingest logger so we don't have to.
                     return FileVisitResult.TERMINATE;
                 }
 
