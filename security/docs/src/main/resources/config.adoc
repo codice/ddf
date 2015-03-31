@@ -1,5 +1,5 @@
 Version ${project.version}. Copyright (c) Codice Foundation
-:imagesdir: target/docs/images
+:imagesdir: ${project.build.directory}/docs/images
 :toc: right
 :branding: DDF
 :icons: font
