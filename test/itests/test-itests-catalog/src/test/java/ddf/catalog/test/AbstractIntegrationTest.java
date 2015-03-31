@@ -222,9 +222,9 @@ public abstract class AbstractIntegrationTest {
         return options(
                 editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
                         "org.ops4j.pax.url.mvn.repositories",
-                        "https://repo1.maven.org/maven2@id=central,"
-                                + "https://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
-                                + "https://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
+                        "http://repo1.maven.org/maven2@id=central,"
+                                + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
+                                + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
                                 + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
                                 + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
                                 + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
