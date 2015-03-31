@@ -14,6 +14,32 @@
  **/
 package org.codice.ddf.endpoints;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.ConfigurationManager;
+import org.codice.ddf.configuration.ConfigurationWatcher;
+import org.codice.ddf.opensearch.query.OpenSearchQuery;
+import org.parboiled.errors.ParsingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
@@ -27,30 +53,6 @@ import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.codice.ddf.configuration.ConfigurationWatcher;
-import org.codice.ddf.opensearch.query.OpenSearchQuery;
-import org.parboiled.errors.ParsingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Path("/")
 public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
@@ -146,29 +148,18 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
      * @return
      */
     @GET
-    public Response processQuery(@QueryParam(PHRASE)
-    String searchTerms, @QueryParam(MAX_RESULTS)
-    String maxResults, @QueryParam(SOURCES)
-    String sources, @QueryParam(MAX_TIMEOUT)
-    String maxTimeout, @QueryParam(START_INDEX)
-    String startIndex, @QueryParam(COUNT)
-    String count, @QueryParam(GEOMETRY)
-    String geometry, @QueryParam(BBOX)
-    String bbox, @QueryParam(POLYGON)
-    String polygon, @QueryParam(LAT)
-    String lat, @QueryParam(LON)
-    String lon, @QueryParam(RADIUS)
-    String radius, @QueryParam(DATE_START)
-    String dateStart, @QueryParam(DATE_END)
-    String dateEnd, @QueryParam(DATE_OFFSET)
-    String dateOffset, @QueryParam(SORT)
-    String sort, @QueryParam(FORMAT)
-    String format, @QueryParam(SELECTOR)
-    String selector, @Context
-    UriInfo ui, @QueryParam(TYPE)
-    String type, @QueryParam(VERSION)
-    String versions, @Context
-    HttpServletRequest request) {
+    public Response processQuery(@QueryParam(PHRASE) String searchTerms,
+            @QueryParam(MAX_RESULTS) String maxResults, @QueryParam(SOURCES) String sources,
+            @QueryParam(MAX_TIMEOUT) String maxTimeout, @QueryParam(START_INDEX) String startIndex,
+            @QueryParam(COUNT) String count, @QueryParam(GEOMETRY) String geometry,
+            @QueryParam(BBOX) String bbox, @QueryParam(POLYGON) String polygon,
+            @QueryParam(LAT) String lat, @QueryParam(LON) String lon,
+            @QueryParam(RADIUS) String radius, @QueryParam(DATE_START) String dateStart,
+            @QueryParam(DATE_END) String dateEnd, @QueryParam(DATE_OFFSET) String dateOffset,
+            @QueryParam(SORT) String sort, @QueryParam(FORMAT) String format,
+            @QueryParam(SELECTOR) String selector, @Context UriInfo ui,
+            @QueryParam(TYPE) String type, @QueryParam(VERSION) String versions,
+            @Context HttpServletRequest request) {
         final String methodName = "processQuery";
         LOGGER.trace("ENTERING: " + methodName);
         Response response;
@@ -190,10 +181,8 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
                 Set<String> siteSet = new HashSet<String>(Arrays.asList(StringUtils
                         .stripAll(sources.split(","))));
 
-                // This code block is for backward compatibility to support
-                // src=local.
-                // Since local is a magic work, not in any specification, we
-                // need to
+                // This code block is for backward compatibility to support src=local.
+                // Since local is a magic work, not in any specification, weneed to
                 // eventually remove support for it.
                 if (siteSet.remove(LOCAL)) {
                     LOGGER.debug("Found 'local' alias, replacing with " + localSiteName + ".");
@@ -483,5 +472,4 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
     private String wrapStringInPreformattedTags(String stringToWrap) {
         return "<pre>" + stringToWrap + "</pre>";
     }
-
 }
