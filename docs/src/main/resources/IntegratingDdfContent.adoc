@@ -1,5 +1,5 @@
 = Integrating DDF Content Application
-include::../classes/config.adoc[]
+include::config.adoc[]
 
 == Overview
 
