@@ -99,8 +99,21 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.abdera</groupId>
-            <artifactId>abdera-extensions-opensearch</artifactId>
+            <groupId>com.rometools</groupId>
+            <artifactId>rome</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rometools</groupId>
+            <artifactId>rome-utils</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>2.0.2</version>
         </dependency>
 
         <dependency>
@@ -108,6 +121,12 @@
             <artifactId>commons-lang</artifactId>
         </dependency>
         <!-- TEST DEPENDENCIES -->
+
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -170,6 +189,11 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            rome,
+                            rome-utils,
+                            jdom
+                        </Embed-Dependency>
                         <Import-Package>
                             <!-- To avoid ClassNotFoundException for FOMFactory -->
                             org.apache.axiom.om,

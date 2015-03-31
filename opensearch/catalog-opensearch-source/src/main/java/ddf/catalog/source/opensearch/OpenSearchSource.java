@@ -14,6 +14,12 @@
  **/
 package ddf.catalog.source.opensearch;
 
+import com.rometools.rome.feed.synd.SyndCategory;
+import com.rometools.rome.feed.synd.SyndContent;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.SyndFeedInput;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -41,38 +47,26 @@ import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.settings.SecuritySettingsService;
-import org.apache.abdera.Abdera;
-import org.apache.abdera.ext.opensearch.OpenSearchConstants;
-import org.apache.abdera.model.Category;
-import org.apache.abdera.model.Element;
-import org.apache.abdera.model.Entry;
-import org.apache.abdera.model.Feed;
-import org.apache.abdera.parser.Parser;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.geotools.filter.FilterTransformer;
+import org.jdom2.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import javax.xml.namespace.QName;
 import javax.xml.transform.TransformerException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -142,9 +136,6 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
 
     private FilterAdapter filterAdapter;
-
-    // expensive creation, meant to be done once
-    private static final Abdera ABDERA = new Abdera();
 
     private String configurationPid;
 
@@ -408,41 +399,34 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
      * @throws ddf.catalog.source.UnsupportedQueryException
      */
     private SourceResponseImpl processResponse(InputStream is, QueryRequest queryRequest) throws UnsupportedQueryException {
-        List<Result> resultQueue = new ArrayList<Result>();
+        List<Result> resultQueue = new ArrayList<>();
 
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-        Parser parser = null;
-        org.apache.abdera.model.Document<Feed> atomDoc;
+        SyndFeedInput syndFeedInput = new SyndFeedInput();
+        SyndFeed syndFeed = null;
         try {
-
-            Thread.currentThread().setContextClassLoader(OpenSearchSource.class.getClassLoader());
-            parser = ABDERA.getParser();
-            atomDoc = parser.parse(new InputStreamReader(is), StandardCharsets.UTF_8.name());
-
-        } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
+            syndFeed = syndFeedInput.build(new InputStreamReader(is));
+        } catch (FeedException e) {
+            LOGGER.error("Unable to read RSS/Atom feed.", e);
         }
 
-        Feed feed = atomDoc.getRoot();
-
-        List<Entry> entries = feed.getEntries();
-        for (Entry entry : entries) {
-            resultQueue.add(createResponseFromEntry(entry));
-        }
-
-        long totalResults = entries.size();
-
-        // OSGi has some weird issues with Abdera's XPath, so just traverse down the element tree
-        Element totalResultsElement = atomDoc.getRoot().getExtension(
-                OpenSearchConstants.TOTAL_RESULTS);
-
-        if (totalResultsElement != null) {
-            try {
-                totalResults = Long.parseLong(totalResultsElement.getText());
-            } catch (NumberFormatException e) {
-                // totalResults is already initialized to the correct value, so don't change it
-                // here.
-                LOGGER.debug("Received invalid number of results.", e);
+        List<SyndEntry> entries = null;
+        long totalResults = 0;
+        if (syndFeed != null) {
+            entries = syndFeed.getEntries();
+            for (SyndEntry entry : entries) {
+                resultQueue.addAll(createResponseFromEntry(entry));
+            }
+            totalResults = entries.size();
+            List<Element> foreignMarkup = syndFeed.getForeignMarkup();
+            for (Element element : foreignMarkup) {
+                if (element.getName().equals("totalResults")) {
+                    try {
+                        totalResults = Long.parseLong(element.getContent(0).getValue());
+                    } catch (NumberFormatException e) {
+                        // totalResults is already initialized to the correct value, so don't change it here.
+                        LOGGER.debug("Received invalid number of results.", e);
+                    }
+                }
             }
         }
 
@@ -461,104 +445,56 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
      * @return single response
      * @throws ddf.catalog.source.UnsupportedQueryException
      */
-    private Result createResponseFromEntry(Entry entry) throws UnsupportedQueryException {
-        // id
-        String id = entry.getId().getPath();
-        // getPath() returns catalog:id:<id>, so we parse out the <id>
+    private List<Result> createResponseFromEntry(SyndEntry entry) throws UnsupportedQueryException {
+        String id = entry.getUri();
         if (id != null && !id.isEmpty()) {
             id = id.substring(id.lastIndexOf(':') + 1);
         }
 
-        // content
-        String content = null;
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-        try {
-
-            Thread.currentThread().setContextClassLoader(OpenSearchSource.class.getClassLoader());
-            content = entry.getContent();
-
-        } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
-        }
-
-        final MetacardImpl metacard = getMetacardImpl(parseContent(content, id));
-
-        metacard.setSourceId(this.shortname);
-
-        // TODO resultSource. should we store this data?
-        // QName resultSourceElementQName = new
-        // QName("http://a9.com/-/opensearch/extensions/federation/1.0/", "resultSource", "fs");
-        // QName sourceIdAttributeQName = new
-        // QName("http://a9.com/-/opensearch/extensions/federation/1.0/", "sourceId", "fs");
-        // String originSourceId =
-        // entry.getExtension(resultSourceElementQName).getAttributeValue(sourceIdAttributeQName)
-
-        // relevance
-        QName relevanceElementQName = new QName(
-                "http://a9.com/-/opensearch/extensions/relevance/1.0/", "score", "relevance");
-        String relevance = entry.getSimpleExtension(relevanceElementQName);
-
-        // title
-        // only set this if it's unset
-        String title = metacard.getTitle();
-        if (title != null && !title.isEmpty()) {
-            metacard.setTitle(entry.getTitle());
-        }
-
-        // updated
-        // only set this if it's unset
-        if (metacard.getModifiedDate() != null) {
-            metacard.setModifiedDate(entry.getUpdated());
-        }
-
-        // published
-        // only set this if it's unset
-        if (metacard.getCreatedDate() != null) {
-            metacard.setCreatedDate(entry.getPublished());
-        }
-
-        // category. maps to metadata-content-type
-
-        String contentType = metacard.getContentTypeName();
-        if (StringUtils.isEmpty(contentType)) {
-            ClassLoader tccl2 = Thread.currentThread().getContextClassLoader();
-            try {
-
-                Thread.currentThread().setContextClassLoader(
-                        OpenSearchSource.class.getClassLoader());
-                List<Category> categories = entry.getCategories();
-                if (!categories.isEmpty() && categories.get(0) != null) {
-                    String term = categories.get(0).toString();
-                    // Parse content type value from the <category> element's term attribute
-                    // <category> element is of the format:
-                    //     <category xmlns="http://www.w3.org/2005/Atom" term="collectorPosition" />
-                    XPath xpath = XPathFactory.newInstance().newXPath();
-                    InputSource inputSource = new InputSource(new StringReader(term));
-                    try {
-                        contentType = xpath.evaluate("//*[local-name()='category']/@term", inputSource);
-                        metacard.setContentTypeName(contentType);
-                    } catch (XPathExpressionException e) {
-                        LOGGER.info("Unable to parse categories for contentType");
-                    }
-
-                }
-
-            } finally {
-                Thread.currentThread().setContextClassLoader(tccl2);
+        List<SyndContent> contents = entry.getContents();
+        List<SyndCategory> categories = entry.getCategories();
+        List<Metacard> metacards = new ArrayList<>();
+        List<Element> foreignMarkup = entry.getForeignMarkup();
+        String relevance = "";
+        String source = "";
+        for (Element element : foreignMarkup) {
+            if (element.getName().equals("score")) {
+                relevance = element.getContent(0).getValue();
             }
-
+        }
+        for (SyndContent content : contents) {
+            MetacardImpl metacard = getMetacardImpl(parseContent(content.getValue(), id));
+            metacard.setSourceId(this.shortname);
+            String title = metacard.getTitle();
+            if (StringUtils.isEmpty(title)) {
+                metacard.setTitle(entry.getTitle());
+            }
+            if (!source.isEmpty()) {
+                metacard.setSourceId(source);
+            }
+            metacards.add(metacard);
+        }
+        for (int i = 0; i < categories.size() && i < metacards.size(); i++) {
+            SyndCategory category = categories.get(i);
+            Metacard metacard = metacards.get(i);
+            if (StringUtils.isBlank(metacard.getContentTypeName())) {
+                ((MetacardImpl) metacard).setContentTypeName(category.getName());
+            }
         }
 
-        // TODO geos. potentially parse and use this if geos is missing from content
-
-        ResultImpl result = new ResultImpl(metacard);
-        if (relevance == null || relevance.isEmpty()) {
-            LOGGER.debug("couldn't find valid relevance. Setting relevance to 0");
-            relevance = "0";
+        List<Result> results = new ArrayList<>();
+        for (Metacard metacard : metacards) {
+            ResultImpl result = new ResultImpl(metacard);
+            if (relevance == null || relevance.isEmpty()) {
+                LOGGER.debug("couldn't find valid relevance. Setting relevance to 0");
+                relevance = "0";
+            }
+            result.setRelevanceScore(new Double(relevance));
+            results.add(result);
         }
-        result.setRelevanceScore(new Double(relevance));
 
-        return result;
+
+        return results;
     }
 
     private MetacardImpl getMetacardImpl(Metacard oldMetacard) {
