@@ -1513,24 +1513,25 @@ a.pause:hover, a.pause:focus {
 .modal-iframe-content {
     height: 500px;
 }
-.keyword-heading-with-help-tip {
+.heading-with-help-tip i {
     display: inline-block;
 }
-.keyword-heading-with-help-tip i {
+.heading-with-help-tip h6 {
     display: inline-block;
 }
-.keyword-heading-with-help-tip h6 {
-    display: inline-block;
+.heading-with-help-tip .popover {
+    background-color: #555555;
+    border: 1px solid #555555;
+}
+.heading-with-help-tip .popover.right > .arrow {
+    border-right-color: #555555;
+}
+.heading-with-help-tip .popover.right > .arrow:after {
+    border-right-color: #555555;
 }
 .keyword-heading-with-help-tip .popover {
-    background-color: #555555;
     margin-top: 30px;
-    border: 1px solid #555555;
 }
 .keyword-heading-with-help-tip .popover.right > .arrow {
     top: 15% !important;
-    border-right-color: #555555;
-}
-.keyword-heading-with-help-tip .popover.right > .arrow:after {
-    border-right-color: #555555;
 }

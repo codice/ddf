@@ -420,11 +420,41 @@ define([
 
                 this.$('#scheduleUnits').multiselect(singleselectOptions);
                 
-                var popoverOptions = {
+                var keywordPopoverOptions = {
                     trigger: 'hover',
-                    content: 'Search by free text using the grammar of the underlying endpoint/Catalog. For wildcard searches, use % or * after partial keywords.'
+                    content: 'Search by free text using the grammar of the underlying source. For wildcard searches, use % or * after partial keywords (e.g. earth%).'
                 };
-                this.$el.find('[data-toggle="popover"]').popover(popoverOptions);
+                this.$el.find('[data-toggle="keyword-popover"]').popover(keywordPopoverOptions);
+                
+                var timePopoverOptions = {
+                    trigger: 'hover',
+                    content: 'Search based on relative or absolute time of the created, modified, or effective date.'
+                };
+                this.$el.find('[data-toggle="time-popover"]').popover(timePopoverOptions);
+                
+                var locationPopoverOptions = {
+                    trigger: 'hover',
+                    content: 'Search by latitude/longitude or the USNG using a polygon, point-radius, or bounding box.'
+                };
+                this.$el.find('[data-toggle="location-popover"]').popover(locationPopoverOptions);
+                
+                var typePopoverOptions = {
+                    trigger: 'hover',
+                    content: 'Search for specific Metacard.CONTENT_TYPE values.'
+                };
+                this.$el.find('[data-toggle="type-popover"]').popover(typePopoverOptions);
+                
+                var sortingPopoverOptions = {
+                    trigger: 'hover',
+                    content: 'Sort results by relevance, distance, created time, modified time or effective time.'
+                };
+                this.$el.find('[data-toggle="sorting-popover"]').popover(sortingPopoverOptions);
+                
+                var additionalSourcesPopoverOptions = {
+                    trigger: 'hover',
+                    content: 'Perform an enterprise search (all federations are queried) or search specific sources.'
+                };
+                this.$el.find('[data-toggle="additional-sources-popover"]').popover(additionalSourcesPopoverOptions);
  
                 this.updateZoomOnResults();
                 this.updateLocationFields();
