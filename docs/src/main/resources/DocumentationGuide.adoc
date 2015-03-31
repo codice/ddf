@@ -1,5 +1,5 @@
 = Documentation Guide
-include::../classes/config.adoc[]
+include::config.adoc[]
  
 == Introduction
 === Overview
