@@ -584,7 +584,7 @@
                                         <resources>
                                             <resource>
                                                 <directory>${basedir}/src/main/resources</directory>
-                                                <include>config.adoc</include>
+                                                <!--<include>config.adoc</include>-->
                                                 <filtering>true</filtering>
                                             </resource>
                                         </resources>
@@ -607,41 +607,6 @@
                                     <goals>
                                         <goal>initialize</goal>
                                     </goals>
-                                </execution>
-                            </executions>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-antrun-plugin</artifactId>
-                            <version>1.7</version>
-                            <dependencies>
-                                <dependency>
-                                    <groupId>ant-contrib</groupId>
-                                    <artifactId>ant-contrib</artifactId>
-                                    <version>20020829</version>
-                                </dependency>
-                            </dependencies>
-                            <executions>
-                                <execution>
-                                    <phase>generate-resources</phase>
-                                    <goals>
-                                        <goal>run</goal>
-                                    </goals>
-                                    <configuration>
-                                        <tasks>
-                                            <taskdef
-                                                    resource="net/sf/antcontrib/antcontrib.properties"/>
-                                            <if>
-                                                <available file="${project.basedir}/src/main/doc" type="dir"/>
-                                                <then>
-                                                    <mkdir dir="${project.build.directory}/adoc"/>
-                                                    <copy todir="${project.build.directory}/adoc">
-                                                        <fileset dir="${project.basedir}/src/main/doc"/>
-                                                    </copy>
-                                                </then>
-                                            </if>
-                                        </tasks>
-                                    </configuration>
                                 </execution>
                             </executions>
                         </plugin>
@@ -692,7 +657,7 @@
                                 </execution>
                             </executions>
                             <configuration>
-                                <sourceDirectory>${project.build.directory}/adoc</sourceDirectory>
+                                <sourceDirectory>${project.build.directory}/classes</sourceDirectory>
                                 <gemPath>${project.build.directory}/gems-provided</gemPath>
                                 <headerFooter>true</headerFooter>
                                 <imagesDir>./images</imagesDir>
@@ -701,6 +666,24 @@
                                     <require>asciidoctor-diagram</require>
                                 </requires>
                             </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-assembly-plugin</artifactId>
+                            <version>2.5.3</version>
+                            <configuration>
+                                <descriptor>${project.basedir}/src/assembly/bin.xml</descriptor>
+                                <finalName>${project.build.finalName}-documentation</finalName>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>include-docs</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>single</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
                         </plugin>
                     </plugins>
                 </pluginManagement>
