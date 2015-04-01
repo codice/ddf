@@ -26,8 +26,6 @@
        	http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
-    <osgi:reference id="xmlInputTransformer" interface="ddf.catalog.transform.InputTransformer"
-                    filter="(&amp;(mime-type=text/xml)(id=xml))"/>
 
     <osgi:reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
@@ -53,7 +51,6 @@
             <beans:property name="endpointUrl" value="http://localhost:8181/services/catalog/query"/>
             <beans:property name="localQueryOnly" value="false"/>
             <beans:property name="shouldConvertToBBox" value="true"/>
-            <beans:property name="inputTransformer" ref="xmlInputTransformer"/>
             <beans:property name="securitySettings" ref="securitySettings"/>
             <beans:property name="parameters" value="q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort" />
             <beans:constructor-arg ref="filterAdapter"/>
