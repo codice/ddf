@@ -16,7 +16,6 @@ package ddf.catalog.source.opensearch;
 
 import com.rometools.rome.feed.synd.SyndCategory;
 import com.rometools.rome.feed.synd.SyndContent;
-import com.rometools.rome.feed.synd.SyndEnclosure;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
@@ -453,7 +452,6 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
         }
 
         List<SyndContent> contents = entry.getContents();
-        List<SyndEnclosure> enclosures = entry.getEnclosures();
         List<SyndCategory> categories = entry.getCategories();
         List<Metacard> metacards = new ArrayList<>();
         List<Element> foreignMarkup = entry.getForeignMarkup();
@@ -464,32 +462,18 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                 relevance = element.getContent(0).getValue();
             }
         }
-        if (contents != null && !contents.isEmpty()) {
-            for (SyndContent content : contents) {
-                MetacardImpl metacard = getMetacardImpl(parseContent(content.getValue(), id));
-                metacard.setSourceId(this.shortname);
-                String title = metacard.getTitle();
-                if (StringUtils.isEmpty(title)) {
-                    metacard.setTitle(entry.getTitle());
-                }
-                if (!source.isEmpty()) {
-                    metacard.setSourceId(source);
-                }
-                metacards.add(metacard);
+        //we currently do not support downloading content via an RSS enclosure, this support can be added at a later date if we decide to include it
+        for (SyndContent content : contents) {
+            MetacardImpl metacard = getMetacardImpl(parseContent(content.getValue(), id));
+            metacard.setSourceId(this.shortname);
+            String title = metacard.getTitle();
+            if (StringUtils.isEmpty(title)) {
+                metacard.setTitle(entry.getTitle());
             }
-        } else if (enclosures != null && !enclosures.isEmpty()) {
-            for (SyndEnclosure enclosure : enclosures) {
-                MetacardImpl metacard = getMetacardImpl(parseContent(enclosure.toString(), id));
-                metacard.setSourceId(this.shortname);
-                String title = metacard.getTitle();
-                if (StringUtils.isEmpty(title)) {
-                    metacard.setTitle(entry.getTitle());
-                }
-                if (!source.isEmpty()) {
-                    metacard.setSourceId(source);
-                }
-                metacards.add(metacard);
+            if (!source.isEmpty()) {
+                metacard.setSourceId(source);
             }
+            metacards.add(metacard);
         }
         for (int i = 0; i < categories.size() && i < metacards.size(); i++) {
             SyndCategory category = categories.get(i);

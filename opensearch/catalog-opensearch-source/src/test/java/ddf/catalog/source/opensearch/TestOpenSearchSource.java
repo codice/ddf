@@ -879,7 +879,7 @@ public class TestOpenSearchSource {
     }
 
     private static InputStream getSampleRssStream() {
-        String response = "<rss version=\"2.0\" xmlns:os=\"http://a9.com/-/spec/opensearch/1.1/\"><channel>\r\n"
+        String response = "<rss version=\"2.0\" xmlns:os=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\"><channel>\r\n"
                 + "    <title type=\"text\">Query Response</title>\r\n"
                 + "    <lastBuildDate>2013-01-31T23:22:37.298Z</lastBuildDate>\r\n"
                 + "    <guid>urn:uuid:a27352c9-f935-45f0-9b8c-5803095164bb</guid>\r\n"
@@ -905,8 +905,8 @@ public class TestOpenSearchSource {
                 + "                <gml:pos>32.8751900768792 13.1874561309814</gml:pos>\r\n"
                 + "            </gml:Point>\r\n"
                 + "        </georss:where>\r\n"
-                + "        <enclosure type=\"application/xml\">\r\n"
-                + "            <ns3:metacard xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns1=\"http://www.opengis.net/gml\"\r\n"
+                + "        <content:encoded>\r\n"
+                + "            <![CDATA[<ns3:metacard xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns1=\"http://www.opengis.net/gml\"\r\n"
                 + "                xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" ns1:id=\"4535c53fc8bc4404a1d32a5ce7a29585\">\r\n"
                 + "                <ns3:type>ddf.metacard</ns3:type>\r\n"
                 + "                <ns3:source>ddf.distribution</ns3:source>\r\n"
@@ -937,8 +937,8 @@ public class TestOpenSearchSource {
                 + "                <ns3:string name=\"title\">\r\n"
                 + "                    <ns3:value>Example title</ns3:value>\r\n"
                 + "                </ns3:string>\r\n"
-                + "            </ns3:metacard>\r\n"
-                + "        </enclosure>\r\n" + "    </item>\r\n" + "</channel></rss>";
+                + "            </ns3:metacard>]]>\r\n"
+                + "        </content:encoded>\r\n" + "    </item>\r\n" + "</channel></rss>";
         return new ByteArrayInputStream(response.getBytes());
 
     }
