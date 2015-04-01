@@ -422,7 +422,7 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
                 if (element.getName().equals("totalResults")) {
                     try {
                         totalResults = Long.parseLong(element.getContent(0).getValue());
-                    } catch (NumberFormatException e) {
+                    } catch (NumberFormatException | IndexOutOfBoundsException e) {
                         // totalResults is already initialized to the correct value, so don't change it here.
                         LOGGER.debug("Received invalid number of results.", e);
                     }
