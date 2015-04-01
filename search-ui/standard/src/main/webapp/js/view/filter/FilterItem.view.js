@@ -18,7 +18,8 @@ define([
     'properties',
     'wreqr',
     'js/model/Filter',
-    'text!templates/filter/filter.item.handlebars'
+    'text!templates/filter/filter.item.handlebars',
+    'bootstrapselect'
 ],
     function ($,_, Marionette, Backbone, ich, Properties, wreqr, Filter, filterItemTemplate) {
         "use strict";
@@ -67,6 +68,8 @@ define([
                 var view = this;
 
                 view.modelbinder.bind(view.model, view.$el);
+
+                view.$('.query-dropdown').selectpicker();
 
                 view.$('.date-field').datetimepicker({
                     dateFormat: $.datepicker.ATOM,
