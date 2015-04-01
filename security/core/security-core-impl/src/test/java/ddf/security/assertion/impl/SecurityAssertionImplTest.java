@@ -64,8 +64,8 @@ public class SecurityAssertionImplTest {
         assertEquals(PRINCIPAL, assertion.getPrincipal().getName());
         assertEquals(PRINCIPAL, assertion.getPrincipal().toString());
         assertEquals(NUM_ATTRIBUTES, assertion.getAttibuteStatements().size());
+        assertEquals(NUM_NAUTH, assertion.getAuthnStatements().size());
         //we don't currently parse these
-//        assertEquals(NUM_NAUTH, assertion.getAuthnStatements().size());
 //        assertEquals(NUM_AUTHZ, assertion.getAuthzDecisionStatements().size());
         assertNotNull(assertion.toString());
 
