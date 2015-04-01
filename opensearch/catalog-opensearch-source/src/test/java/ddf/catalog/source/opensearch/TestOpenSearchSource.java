@@ -14,48 +14,6 @@
  **/
 package ddf.catalog.source.opensearch;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-
-import junit.framework.Assert;
-
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.util.ParameterParser;
-import org.apache.cxf.jaxrs.client.Client;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.opengis.filter.Filter;
-
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -74,6 +32,45 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import junit.framework.Assert;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.util.ParameterParser;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.opengis.filter.Filter;
+
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests parts of the {@link OpenSearchSource}
@@ -207,6 +204,47 @@ public class TestOpenSearchSource {
     }
 
     @Test
+    public void testQuery_BySearchPhraseRss() throws UnsupportedQueryException, URISyntaxException,
+            IOException {
+        WebClient client = mock(WebClient.class);
+
+        Response clientResponse = mock(Response.class);
+
+        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
+
+        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
+
+        when(client.get()).thenReturn(clientResponse);
+
+        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+
+        when(clientResponse.getEntity()).thenReturn(
+                new BinaryContentImpl(getSampleRssStream()).getInputStream());
+
+        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        source.setInputTransformer(getMockInputTransformer());
+        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
+        source.init();
+        source.setParameters("q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+
+        source.openSearchConnection = openSearchConnection;
+
+        Filter filter = filterBuilder.attribute(Metacard.METADATA).like()
+                .text(SAMPLE_SEARCH_PHRASE);
+
+        // when
+        SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+
+        Assert.assertEquals(1, response.getHits());
+        List<Result> results = response.getResults();
+        Assert.assertTrue(results.size() == 1);
+        Result result = results.get(0);
+        Metacard metacard = result.getMetacard();
+        Assert.assertNotNull(metacard);
+        Assert.assertEquals("Resource", metacard.getContentTypeName());
+    }
+
+    @Test
     public void testQuery_BySearchPhrase_ContentTypeSet() throws UnsupportedQueryException, URISyntaxException,
         IOException {
         WebClient client = mock(WebClient.class);
@@ -252,6 +290,61 @@ public class TestOpenSearchSource {
                 .text(SAMPLE_SEARCH_PHRASE);
         SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
         
+        Assert.assertEquals(1, response.getHits());
+        List<Result> results = response.getResults();
+        Assert.assertTrue(results.size() == 1);
+        Result result = results.get(0);
+        Metacard metacard = result.getMetacard();
+        Assert.assertNotNull(metacard);
+        Assert.assertEquals("myType", metacard.getContentTypeName());
+    }
+
+    @Test
+    public void testQuery_BySearchPhrase_ContentTypeSetRss() throws UnsupportedQueryException, URISyntaxException,
+            IOException {
+        WebClient client = mock(WebClient.class);
+
+        Response clientResponse = mock(Response.class);
+
+        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
+
+        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
+
+        when(client.get()).thenReturn(clientResponse);
+
+        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+
+        when(clientResponse.getEntity()).thenReturn(
+                new BinaryContentImpl(getSampleRssStream()).getInputStream());
+
+        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        InputTransformer inputTransformer = mock(InputTransformer.class);
+
+        MetacardImpl generatedMetacard = new MetacardImpl();
+        generatedMetacard.setMetadata(getSample());
+        generatedMetacard.setId(SAMPLE_ID);
+        generatedMetacard.setContentTypeName("myType");
+
+        try {
+            when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
+            when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
+                    generatedMetacard);
+        } catch (IOException e) {
+            fail();
+        } catch (CatalogTransformerException e) {
+            fail();
+        }
+        source.setInputTransformer(inputTransformer);
+        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
+        source.init();
+        source.setParameters("q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+
+        source.openSearchConnection = openSearchConnection;
+
+        Filter filter = filterBuilder.attribute(Metacard.METADATA).like()
+                .text(SAMPLE_SEARCH_PHRASE);
+        SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+
         Assert.assertEquals(1, response.getHits());
         List<Result> results = response.getResults();
         Assert.assertTrue(results.size() == 1);
@@ -543,6 +636,60 @@ public class TestOpenSearchSource {
         assertThat(response2.getResults().size(), is(1));
     }
 
+    // DDF-161
+    @Test
+    public void testQuery_QueryByMetacardIdFollowedByAnyTextQueryRss() throws Exception {
+
+        WebClient client = mock(WebClient.class);
+
+        Response clientResponse = mock(Response.class);
+
+        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+
+        OpenSearchConnection openSearchConnection = mock(OpenSearchConnection.class);
+
+        when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
+
+        when(client.get()).thenReturn(clientResponse);
+
+        Client proxy = mock(Client.class);
+
+        when(openSearchConnection.newRestClient(any(String.class), any(Query.class), any(String.class), any(Boolean.class))).thenReturn(proxy);
+
+        when(openSearchConnection.getWebClientFromClient(proxy)).thenReturn(client);
+
+        when(clientResponse.getEntity()).thenReturn(
+                new BinaryContentImpl(getSampleXmlStream()).getInputStream()).thenReturn(
+                new BinaryContentImpl(getSampleRssStream()).getInputStream());
+        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        source.setLocalQueryOnly(true);
+        source.setInputTransformer(getMockInputTransformer());
+        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
+        source.init();
+        source.setParameters("q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+
+        source.openSearchConnection = openSearchConnection;
+
+        // Metacard ID filter
+        Filter idFilter = filterBuilder.attribute(Metacard.ID).equalTo().text(SAMPLE_ID);
+
+        // Any text filter
+        Filter anyTextFilter = filterBuilder.attribute(Metacard.ANY_TEXT).like()
+                .text(SAMPLE_SEARCH_PHRASE);
+
+        // Perform Test (Query by ID followed by Any Text Query)
+        SourceResponse response1 = source.query(new QueryRequestImpl(new QueryImpl(idFilter)));
+        SourceResponse response2 = source.query(new QueryRequestImpl(new QueryImpl(anyTextFilter)));
+
+        // Verification - Verify that we don't see any exceptions when
+        // processing the input stream from the endpoint.
+        // Verify 1 metacard is in the results
+        assertThat(response1.getResults().size(), is(1));
+
+        // Verify that the atom feed is converted into 1 metacard result
+        assertThat(response2.getResults().size(), is(1));
+    }
+
     private NameValuePair pair(String name, String value) {
         return new NameValuePair(name, value);
     }
@@ -727,6 +874,71 @@ public class TestOpenSearchSource {
                 + "                </ns3:string>\r\n"
                 + "            </ns3:metacard>\r\n"
                 + "        </content>\r\n" + "    </entry>\r\n" + "</feed>";
+        return new ByteArrayInputStream(response.getBytes());
+
+    }
+
+    private static InputStream getSampleRssStream() {
+        String response = "<rss version=\"2.0\" xmlns:os=\"http://a9.com/-/spec/opensearch/1.1/\"><channel>\r\n"
+                + "    <title type=\"text\">Query Response</title>\r\n"
+                + "    <lastBuildDate>2013-01-31T23:22:37.298Z</lastBuildDate>\r\n"
+                + "    <guid>urn:uuid:a27352c9-f935-45f0-9b8c-5803095164bb</guid>\r\n"
+                + "    <link href=\"#\" rel=\"self\" />\r\n"
+                + "    <managingEditor>\r\n"
+                + "        Codice\r\n"
+                + "    </managingEditor>\r\n"
+                + "    <generator>ddf123</generator>\r\n"
+                + "    <os:totalResults>1</os:totalResults>\r\n"
+                + "    <os:itemsPerPage>10</os:itemsPerPage>\r\n"
+                + "    <os:startIndex>1</os:startIndex>\r\n"
+                + "    <item xmlns:relevance=\"http://a9.com/-/opensearch/extensions/relevance/1.0/\" xmlns:fs=\"http://a9.com/-/opensearch/extensions/federation/1.0/\"\r\n"
+                + "        xmlns:georss=\"http://www.georss.org/georss\">\r\n"
+                + "        <fs:resultSource fs:sourceId=\"ddf123\" />\r\n"
+                + "        <relevance:score>0.19</relevance:score>\r\n"
+                + "        <guid>urn:catalog:id:ee7a161e01754b9db1872bfe39d1ea09</guid>\r\n"
+                + "        <title type=\"text\">F-15 lands in Libya; Crew Picked Up</title>\r\n"
+                + "        <pubDate>2013-01-31T23:22:31.648Z</pubDate>\r\n"
+                + "        <link href=\"http://123.45.67.123:8181/services/catalog/ddf123/ee7a161e01754b9db1872bfe39d1ea09\" rel=\"alternate\" title=\"View Complete Metacard\" />\r\n"
+                + "        <category>Resource</category>\r\n"
+                + "        <georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
+                + "            <gml:Point>\r\n"
+                + "                <gml:pos>32.8751900768792 13.1874561309814</gml:pos>\r\n"
+                + "            </gml:Point>\r\n"
+                + "        </georss:where>\r\n"
+                + "        <enclosure type=\"application/xml\">\r\n"
+                + "            <ns3:metacard xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns1=\"http://www.opengis.net/gml\"\r\n"
+                + "                xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" ns1:id=\"4535c53fc8bc4404a1d32a5ce7a29585\">\r\n"
+                + "                <ns3:type>ddf.metacard</ns3:type>\r\n"
+                + "                <ns3:source>ddf.distribution</ns3:source>\r\n"
+                + "                <ns3:geometry name=\"location\">\r\n"
+                + "                    <ns3:value>\r\n"
+                + "                        <ns1:Point>\r\n"
+                + "                            <ns1:pos>32.8751900768792 13.1874561309814</ns1:pos>\r\n"
+                + "                        </ns1:Point>\r\n"
+                + "                    </ns3:value>\r\n"
+                + "                </ns3:geometry>\r\n"
+                + "                <ns3:dateTime name=\"created\">\r\n"
+                + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
+                + "                </ns3:dateTime>\r\n"
+                + "                <ns3:dateTime name=\"modified\">\r\n"
+                + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
+                + "                </ns3:dateTime>\r\n"
+                + "                <ns3:stringxml name=\"metadata\">\r\n"
+                + "                    <ns3:value>\r\n"
+                + "                        <ns6:xml xmlns:ns6=\"urn:sample:namespace\" xmlns=\"urn:sample:namespace\">Example description.</ns6:xml>\r\n"
+                + "                    </ns3:value>\r\n"
+                + "                </ns3:stringxml>\r\n"
+                + "                <ns3:string name=\"metadata-content-type-version\">\r\n"
+                + "                    <ns3:value>myVersion</ns3:value>\r\n"
+                + "                </ns3:string>\r\n"
+                + "                <ns3:string name=\"metadata-content-type\">\r\n"
+                + "                    <ns3:value>myType</ns3:value>\r\n"
+                + "                </ns3:string>\r\n"
+                + "                <ns3:string name=\"title\">\r\n"
+                + "                    <ns3:value>Example title</ns3:value>\r\n"
+                + "                </ns3:string>\r\n"
+                + "            </ns3:metacard>\r\n"
+                + "        </enclosure>\r\n" + "    </item>\r\n" + "</channel></rss>";
         return new ByteArrayInputStream(response.getBytes());
 
     }
