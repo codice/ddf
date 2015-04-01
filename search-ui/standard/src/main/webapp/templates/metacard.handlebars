@@ -46,21 +46,15 @@
 
                     <div class="col-sm-5">
                         <ul class="list-group">
-                            <li class="attribute" title="Source">
-                                <span class="attribute-label muted"><i class="fa fa-sitemap fa-2x"></i> </span>
-                                <span class="attribute-value">{{properties.source-id}}</span>
+                            <li class="attribute">
+                                <div class="attribute-label">Source</div>
+                                <div class="attribute-value">{{properties.source-id}}</div>
                             </li>
 
-
-                            <li class="attribute" title="Created Date">
+                            <li class="attribute">
                             {{#isNotBlank properties.created}}
-                                <span class="attribute-label muted">
-                                    <span class="fa-stack">
-                                      <i class="fa fa-file-o fa-stack-2x"></i>
-                                      <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
-                                    </span>
-                                </span>
-                                <span class="attribute-value">{{momentHelp properties.created fromNow=function}}</span>
+                                <div class="attribute-label">Created</div>
+                                <div class="attribute-value">{{momentHelp properties.created fromNow=function}}</div>
                             {{/isNotBlank}}
                             </li>
 
@@ -69,31 +63,26 @@
                     <div class="col-sm-5 pull-right">
                         <ul class="list-group">
 
-                            <li class="attribute" title="Modified Date">
+                            <li class="attribute">
                                 {{#isNotBlank properties.modified}}
-                                <span class="attribute-label muted">
-                                    <span class="fa-stack">
-                                      <i class="fa fa-file-o fa-stack-2x"></i>
-                                      <i class="fa fa-asterisk fa-stack-1x fa-inverse"></i>
-                                    </span>
-                                </span>
-                                <span class="attribute-value">{{momentHelp properties.modified fromNow=function}}</span>
+                                    <div class="attribute-label">Modified</div>
+                                    <div class="attribute-value">{{momentHelp properties.modified fromNow=function}}</div>
                                 {{/isNotBlank}}
                             </li>
 
 
-                            <li class="attribute" title="Location">
-                            <span class="attribute-label muted"><i class='fa fa-compass fa-2x'></i></span>
+                            <li class="attribute">
+                                <div class="attribute-label">Location</div>
                             {{#isNotBlank geometry}}
-                                <span class="attribute-value">
+                                <div class="attribute-value">
                                     {{#if mapAvailable}}
-                                        <a href="#" class="location-link">Locate</a>
+                                        <a href="#" class="location-link">Zoom and center</a>
                                     {{else}}
                                         <a href="/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=kml" target="_blank">KML</a>
                                     {{/if}}
-                                </span>
+                                </div>
                             {{else}}
-                                <span class="attribute-value">Unknown</span>
+                                <div class="attribute-value">None</div>
                             {{/isNotBlank}}
                             </li>
 
