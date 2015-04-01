@@ -440,7 +440,7 @@ define([
                 
                 var typePopoverOptions = {
                     trigger: 'hover',
-                    content: 'Search for specific Metacard.CONTENT_TYPE values.'
+                    content: 'Search for specific content types.'
                 };
                 this.$el.find('[data-toggle="type-popover"]').popover(typePopoverOptions);
                 

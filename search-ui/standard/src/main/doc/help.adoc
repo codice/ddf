@@ -58,7 +58,7 @@ The Search UI queries a Catalog using the following criteria.
 |Search by latitude/longitude or the USNG using a point-radius or bounding box.
 
 |Type	
-|Search for specific Metacard.CONTENT_TYPE values.
+|Search for specific content types.
 
 |Sorting	
 |Sort results by relevance, distance, created time, modified time or effective time.
