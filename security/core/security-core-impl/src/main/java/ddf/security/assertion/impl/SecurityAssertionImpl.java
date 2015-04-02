@@ -22,6 +22,7 @@ import org.apache.wss4j.common.saml.builder.SAML2Constants;
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml2.core.AttributeValue;
 import org.opensaml.saml2.core.AuthenticatingAuthority;
 import org.opensaml.saml2.core.AuthnContext;
 import org.opensaml.saml2.core.AuthnContextClassRef;
@@ -30,6 +31,8 @@ import org.opensaml.saml2.core.AuthnContextDeclRef;
 import org.opensaml.saml2.core.AuthnStatement;
 import org.opensaml.saml2.core.AuthzDecisionStatement;
 import org.opensaml.saml2.core.EncryptedAttribute;
+import org.opensaml.saml2.core.Issuer;
+import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.SubjectLocality;
 import org.opensaml.xml.Namespace;
 import org.opensaml.xml.NamespaceManager;
@@ -65,19 +68,6 @@ import java.util.Set;
  * @author tustisos
  */
 public class SecurityAssertionImpl implements SecurityAssertion {
-    private static final String ISSUER_TAG = "Issuer";
-
-    private static final String SUBJECT_TAG = "NameID";
-
-    private static final String ATTR_STMT_TAG = "AttributeStatement";
-
-    private static final String AUTHN_STMT_TAG = "AuthnStatement";
-
-    private static final String AUTHCTX_REF_TAG = "AuthnContextClassRef";
-
-    private static final String ATTR_TAG = "Attribute";
-
-    private static final String ATTR_VAL_TAG = "AttributeValue";
 
     /**
      * Log4j Logger
@@ -159,26 +149,26 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                 case XMLStreamConstants.START_ELEMENT: {
                     String localName = xmlStreamReader.getLocalName();
                     switch (localName) {
-                    case SUBJECT_TAG:
+                    case NameID.DEFAULT_ELEMENT_LOCAL_NAME:
                         name = xmlStreamReader.getElementText();
                         break;
-                    case ATTR_STMT_TAG:
+                    case AttributeStatement.DEFAULT_ELEMENT_LOCAL_NAME:
                         attributeStatement = new AttrStatement();
                         attributeStatements.add(attributeStatement);
                         break;
-                    case AUTHN_STMT_TAG:
+                    case AuthnStatement.DEFAULT_ELEMENT_LOCAL_NAME:
                         authenticationStatement = new AuthenticationStatement();
                         authenticationStatements.add(authenticationStatement);
                         attrs = xmlStreamReader.getAttributeCount();
                         for (int i = 0; i < attrs; i++) {
                             String name = xmlStreamReader.getAttributeLocalName(i);
                             String value = xmlStreamReader.getAttributeValue(i);
-                            if (name.equals("AuthnInstant")) {
+                            if (AuthnStatement.AUTHN_INSTANT_ATTRIB_NAME.equals(name)) {
                                 authenticationStatement.setAuthnInstant(DateTime.parse(value));
                             }
                         }
                         break;
-                    case AUTHCTX_REF_TAG:
+                    case AuthnContextClassRef.DEFAULT_ELEMENT_LOCAL_NAME:
                         if (authenticationStatement != null) {
                             String classValue = xmlStreamReader.getText();
                             classValue = classValue.trim();
@@ -188,7 +178,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                             authenticationContext.setAuthnContextClassRef(authenticationContextClassRef);
                             authenticationStatement.setAuthnContext(authenticationContext);
                         }
-                    case ATTR_TAG:
+                    case Attribute.DEFAULT_ELEMENT_LOCAL_NAME:
                         attribute = new Attr();
                         if (attributeStatement != null) {
                             attributeStatement.addAttribute(attribute);
@@ -197,21 +187,21 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                         for (int i = 0; i < attrs; i++) {
                             String name = xmlStreamReader.getAttributeLocalName(i);
                             String value = xmlStreamReader.getAttributeValue(i);
-                            if (name.equals("Name")) {
+                            if (Attribute.NAME_ATTTRIB_NAME.equals(name)) {
                                 attribute.setName(value);
-                            } else if (name.equals("NameFormat")) {
+                            } else if (Attribute.NAME_FORMAT_ATTRIB_NAME.equals(name)) {
                                 attribute.setNameFormat(value);
                             }
                         }
                         break;
-                    case ATTR_VAL_TAG:
+                    case AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME:
                         XSString xsString = new XMLString();
                         xsString.setValue(xmlStreamReader.getElementText());
                         if (attribute != null) {
                             attribute.addAttributeValue(xsString);
                         }
                         break;
-                    case ISSUER_TAG:
+                    case Issuer.DEFAULT_ELEMENT_LOCAL_NAME:
                         issuer = xmlStreamReader.getElementText();
                         break;
                     }
@@ -220,10 +210,10 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                 case XMLStreamConstants.END_ELEMENT: {
                     String localName = xmlStreamReader.getLocalName();
                     switch (localName) {
-                    case ATTR_STMT_TAG:
+                    case AttributeStatement.DEFAULT_ELEMENT_LOCAL_NAME:
                         attributeStatement = null;
                         break;
-                    case ATTR_TAG:
+                    case Attribute.DEFAULT_ELEMENT_LOCAL_NAME:
                         attribute = null;
                         break;
                     }
