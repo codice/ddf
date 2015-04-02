@@ -34,7 +34,7 @@
 
         <div class="tab-content">
             <div class="tab-pane  {{#if hash}} {{#is hash "#summary"}} active {{/is}} {{else}} active {{/if}}" id="summary">
-                <div title="Thumbnail">
+                <div>
                     <h4 class="title" title="Title">
                         {{#if properties.title}}
                             {{properties.title}}
@@ -44,7 +44,7 @@
                     </h4>
                     <hr/>
 
-                    <div class="col-sm-5">
+                    <div class="col-sm-6">
                         <ul class="list-group">
                             <li class="attribute">
                                 <div class="attribute-label">Source</div>
@@ -58,10 +58,34 @@
                             {{/isNotBlank}}
                             </li>
 
+                            <li class="attribute">
+                                <div class="attribute-label">Location</div>
+                                {{#isNotBlank geometry}}
+                                    <div class="attribute-value">
+                                        {{#if mapAvailable}}
+                                            <a href="#" class="location-link">Zoom and center</a>
+                                        {{else}}
+                                            <a href="/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=kml" target="_blank">KML</a>
+                                        {{/if}}
+                                    </div>
+                                {{else}}
+                                    <div class="attribute-value">None</div>
+                                {{/isNotBlank}}
+                            </li>
+
                         </ul>
                     </div>
-                    <div class="col-sm-5 pull-right">
+                    <div class="col-sm-6 pull-right">
                         <ul class="list-group">
+
+                            <li class="attribute">
+                                <div class="attribute-label">Current as of</div>
+                                {{#isNotBlank cached}}
+                                    <div class="attribute-value">{{momentHelp cached fromNow=function}}</div>
+                                {{else}}
+                                    <div class="attribute-value">Unknown</div>
+                                {{/isNotBlank}}
+                            </li>
 
                             <li class="attribute">
                                 {{#isNotBlank properties.modified}}
@@ -70,33 +94,17 @@
                                 {{/isNotBlank}}
                             </li>
 
-
-                            <li class="attribute">
-                                <div class="attribute-label">Location</div>
-                            {{#isNotBlank geometry}}
-                                <div class="attribute-value">
-                                    {{#if mapAvailable}}
-                                        <a href="#" class="location-link">Zoom and center</a>
-                                    {{else}}
-                                        <a href="/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=kml" target="_blank">KML</a>
-                                    {{/if}}
-                                </div>
-                            {{else}}
-                                <div class="attribute-value">None</div>
-                            {{/isNotBlank}}
-                            </li>
-
                         </ul>
                     </div>
 
                     {{#if properties.thumbnail}}
-                        <div class="holder-row">
+                        <div class="col-sm-12 holder-row">
                             <a href="/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=thumbnail" target="_blank"><img class='thumbnail' alt='{{properties.title}}' src='data:image/jpeg;charset=utf-8;base64, {{properties.thumbnail}}' /> </a>
                         </div>
                     {{/if}}
 
                     {{#if properties.resource-uri}}
-                    <div class="holder-row text-center">
+                    <div class="col-sm-12 holder-row text-center">
                         <a target='blank' title="Download Product"
                            href='/services/catalog/sources/{{encodeString properties.source-id}}/{{encodeString properties.id}}?transform=resource&session={{clientId}}'>
                             <i class='fa fa-download fa-2x metacard-action'></i>

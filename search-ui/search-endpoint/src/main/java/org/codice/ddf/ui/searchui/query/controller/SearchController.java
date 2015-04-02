@@ -20,6 +20,7 @@ import com.google.common.collect.Ordering;
 import ddf.action.Action;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -53,6 +54,9 @@ import org.cometd.bayeux.server.ConfigurableServerChannel;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.cometd.server.ServerMessageImpl;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -60,16 +64,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
@@ -81,6 +88,9 @@ import java.util.concurrent.Executors;
 public class SearchController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchController.class);
+
+    private static final DateTimeFormatter ISO_8601_DATE_FORMAT = DateTimeFormat
+            .forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").withZoneUTC();
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -442,6 +452,14 @@ public class SearchController {
         org.json.simple.JSONObject metacardJson =
                 GeoJsonMetacardTransformer.convertToJSON(result.getMetacard());
         metacardJson.put(Search.ACTIONS, getActions(result.getMetacard()));
+
+        Attribute cachedDate = result.getMetacard().getAttribute(Search.CACHED);
+        if (cachedDate != null && cachedDate.getValue() != null) {
+            metacardJson.put(Search.CACHED, ISO_8601_DATE_FORMAT.print(new DateTime(cachedDate.getValue())));
+        } else {
+            metacardJson.put(Search.CACHED, ISO_8601_DATE_FORMAT.print(new DateTime()));
+        }
+
         addObject(rootObject, Search.METACARD, metacardJson);
 
 

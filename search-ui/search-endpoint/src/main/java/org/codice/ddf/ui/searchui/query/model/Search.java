@@ -69,6 +69,8 @@ public class Search {
 
     public static final String ELAPSED = "elapsed";
 
+    public static final String CACHED = "cached";
+
     private SearchRequest searchRequest;
 
     private QueryResponse compositeQueryResponse;
