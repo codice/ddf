@@ -118,7 +118,7 @@ public class ConfigurationManager {
      */
     public static final String CONTACT = "contact";
 
-    private static final Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationManager.class);
 
     // Constants for the read-only DDF system settings
     private static final String DDF_HOME_ENVIRONMENT_VARIABLE = "DDF_HOME";
@@ -152,7 +152,7 @@ public class ConfigurationManager {
     /**
      * The initial configuration values from blueprint.
      */
-    protected Map<String, String> configurationProperties = new HashMap<>();
+    private Map<String, String> configurationProperties = new HashMap<>();
 
     /**
      * The map of DDF system settings that are read-only, i.e., they are set in
@@ -173,7 +173,7 @@ public class ConfigurationManager {
      */
     public ConfigurationManager(List<ConfigurationWatcher> services,
             ConfigurationAdmin configurationAdmin) {
-        logger.debug("ENTERING: ctor");
+        LOGGER.debug("ENTERING: ctor");
         this.services = services;
         this.configurationAdmin = configurationAdmin;
 
@@ -201,42 +201,42 @@ public class ConfigurationManager {
         // settings are pushed to registered listeners
         configuration.putAll(readOnlySettings);
 
-        logger.debug("EXITING: ctor");
+        LOGGER.debug("EXITING: ctor");
     }
 
     public void setProtocol(String protocol) {
         configurationProperties.put(PROTOCOL, protocol);
-        logger.debug("protocol set to {}", protocol);
+        LOGGER.debug("protocol set to {}", protocol);
     }
 
     public void setHost(String host) {
         configurationProperties.put(HOST, host);
-        logger.debug("host set to {}", host);
+        LOGGER.debug("host set to {}", host);
     }
 
     public void setPort(String port) {
         configurationProperties.put(PORT, port);
-        logger.debug("port set to {}", port);
+        LOGGER.debug("port set to {}", port);
     }
 
     public void setId(String id) {
         configurationProperties.put(SITE_NAME, id);
-        logger.debug("site name set to {}", id);
+        LOGGER.debug("site name set to {}", id);
     }
 
     public void setVersion(String version) {
         configurationProperties.put(VERSION, version);
-        logger.debug("version set to {}", version);
+        LOGGER.debug("version set to {}", version);
     }
 
     public void setOrganization(String organization) {
         configurationProperties.put(ORGANIZATION, organization);
-        logger.debug("organization set to {}", organization);
+        LOGGER.debug("organization set to {}", organization);
     }
 
     public void setContact(String contact) {
         configurationProperties.put(CONTACT, contact);
-        logger.debug("contact set to {}", contact);
+        LOGGER.debug("contact set to {}", contact);
     }
 
     /**
@@ -251,12 +251,12 @@ public class ConfigurationManager {
      * this method then pushes those DDF system settings to each of the
      * registered ConfigurationWatchers.
      *
-     * @param updatedConfig list of DDF system settings, not including the read-only
-     *                      settings
+     * @param updatedConfig map of DDF system settings, not including the read-only
+     *                      settings. Can be null.
      */
     public void updated(Map<String, ?> updatedConfig) {
         String methodName = "updated";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         if (updatedConfig != null && !updatedConfig.isEmpty()) {
             configuration.clear();
@@ -275,7 +275,7 @@ public class ConfigurationManager {
             service.configurationUpdateCallback(readOnlyConfig);
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
     /**
@@ -288,13 +288,13 @@ public class ConfigurationManager {
      */
     public void bind(ConfigurationWatcher service, @SuppressWarnings("rawtypes") Map properties) {
         String methodName = "bind";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         if (service != null) {
             service.configurationUpdateCallback(Collections.unmodifiableMap(this.configuration));
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
     /**
@@ -320,9 +320,8 @@ public class ConfigurationManager {
      */
     public String getConfigurationValue(String servicePid, String propertyName) {
         String methodName = "getConfigurationValue";
-        logger.debug(
-                "ENTERING: " + methodName + "   servicePid = " + servicePid + ",  propertyName = "
-                        + propertyName);
+        LOGGER.debug("ENTERING: {},   servicePid = {},  propertyName = {}", methodName, servicePid,
+                propertyName);
 
         String value = "";
 
@@ -337,20 +336,20 @@ public class ConfigurationManager {
                     if (properties != null && properties.get(propertyName) != null) {
                         value = (String) properties.get(propertyName);
                     } else {
-                        logger.debug("properties for servicePid = " + servicePid
-                                + " were NULL or empty");
+                        LOGGER.debug("properties for servicePid = {} were NULL or empty",
+                                servicePid);
                     }
                 } else {
-                    logger.debug("configuration for servicePid = " + servicePid + " was NULL");
+                    LOGGER.debug("configuration for servicePid = {} was NULL", servicePid);
                 }
             } else {
-                logger.debug("configurationAdmin is NULL");
+                LOGGER.debug("configurationAdmin is NULL");
             }
         } catch (IOException e) {
-            logger.warn("Exception while getting configuration value.", e);
+            LOGGER.warn("Exception while getting configuration value.", e);
         }
 
-        logger.debug("EXITING: " + methodName + "    value = [" + value + "]");
+        LOGGER.debug("EXITING: {}    value = [{}]", methodName, value);
 
         return value;
     }
