@@ -37,13 +37,13 @@
                                update-strategy="component-managed" update-method="updated"/>
         <argument ref="initialManagedServiceList"/>
         <argument ref="configurationAdmin"/>
-        <property name="protocol" value="" />
-        <property name="host" value="" />
-        <property name="port" value="" />
-        <property name="id" value="" />
-        <property name="version" value="" />
-        <property name="organization" value="" />
-        <property name="contact" value="" />
+        <property name="protocol" />
+        <property name="host" />
+        <property name="port" />
+        <property name="id" />
+        <property name="version" />
+        <property name="organization" />
+        <property name="contact" />
     </bean>
 
     <bean id="PlatformUiConfiguration" class="org.codice.ddf.configuration.PlatformUiConfiguration">

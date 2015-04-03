@@ -284,7 +284,7 @@ public class ConfigurationManager {
      * settings to the newly registered (bound) ConfigurationWatcher.
      *
      * @param service
-     * @param properties
+     * @param properties does nothing
      */
     public void bind(ConfigurationWatcher service, @SuppressWarnings("rawtypes") Map properties) {
         String methodName = "bind";
