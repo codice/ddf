@@ -133,6 +133,12 @@
 	<bean id="pool" class="java.util.concurrent.Executors"
 		factory-method="newCachedThreadPool" />
 
+    <reference id="resourceActionProvider" interface="ddf.action.ActionProvider" filter="id=catalog.data.metacard.resource" availability="optional"/>
+
+    <bean id="queryResponsePostProcessor" class="ddf.catalog.impl.QueryResponsePostProcessorImpl">
+        <argument ref="resourceActionProvider" />
+    </bean>
+
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter" />
 
     <!-- Create the SolrCache -->
@@ -164,7 +170,8 @@
 	</service>
     <service ref="sorted" interface="ddf.catalog.plugin.PostIngestPlugin" />
 
-    <reference-list id="resourceActionProviderList" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.resource)" availability="optional"/>
+    <reference-list id="resourceActionProviderList" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.resource)"
+        availability="optional"/>
 
     <bean id="retrieveStatusEventPublisher" class="ddf.catalog.event.retrievestatus.DownloadsStatusEventPublisher">
         <argument ref="eventAdmin" />
@@ -221,6 +228,7 @@
 		<argument ref="resourceReaderSortedList" />
 		<argument ref="sorted" />
 		<argument ref="pool" />
+        <argument ref="queryResponsePostProcessor" />
 		<argument ref="sourcePoller" />
 		<argument ref="productCache" />
 		<argument ref="retrieveStatusEventPublisher" />

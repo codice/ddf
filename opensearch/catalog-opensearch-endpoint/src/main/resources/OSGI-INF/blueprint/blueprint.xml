@@ -18,7 +18,6 @@
 
     <reference id="ddf" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
-    <reference id="resourceActionProvider" interface="ddf.action.ActionProvider" filter="id=catalog.data.metacard.resource"/>
 
     <jaxrs:server id="OsService" address="/catalog/query">
         <jaxrs:serviceBeans>
@@ -38,13 +37,8 @@
 
     <service id="OsOsgiSvc" ref="OsSvc" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
-    <bean id="resourceUriTransformerCatalogProxy" class="org.codice.ddf.endpoints.ResourceUriTransformerCatalogFrameworkProxy">
-        <argument ref="ddf"/>
-        <argument ref="resourceActionProvider"/>
-    </bean>
-
     <bean id="OsSvc" class="org.codice.ddf.endpoints.OpenSearchEndpoint">
-        <argument ref="resourceUriTransformerCatalogProxy"/>
+        <argument ref="ddf"/>
         <argument ref="filterBuilder"/>
     </bean>
 

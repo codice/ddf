@@ -89,8 +89,9 @@ public class CatalogFrameworkQueryTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), new MockFederationStrategy(), null, mockPoller,
-                null, null, null);
+                new ArrayList<ResourceReader>(), new MockFederationStrategy(),
+                mock(QueryResponsePostProcessor.class), null,
+                mockPoller, null, null, null);
         framework.bind(provider);
     }
 

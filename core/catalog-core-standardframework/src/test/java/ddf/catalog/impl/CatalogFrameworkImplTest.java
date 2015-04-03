@@ -158,7 +158,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), null, null, mockPoller, null, null, null);
+                new ArrayList<ResourceReader>(), null, null, null, mockPoller, null, null, null);
         framework.bind(provider);
 
         List<Metacard> metacards = new ArrayList<Metacard>();
@@ -204,7 +204,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), null, null, mockPoller, null, null, null);
+                new ArrayList<ResourceReader>(), null, null, null, mockPoller, null, null, null);
         framework.bind(provider);
 
         List<Metacard> metacards = new ArrayList<Metacard>();
@@ -255,7 +255,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), null, null, mockPoller, null, null, null);
+                new ArrayList<ResourceReader>(), null, null, null, mockPoller, null, null, null);
         framework.bind(provider);
 
         List<Metacard> metacards = new ArrayList<Metacard>();
@@ -305,7 +305,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), null, null, mockPoller, null, null, null);
+                new ArrayList<ResourceReader>(), null, null, null, mockPoller, null, null, null);
         framework.bind(provider);
 
         List<Metacard> metacards = new ArrayList<Metacard>();
@@ -412,7 +412,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PostQueryPlugin>(), new ArrayList<PreResourcePlugin>(),
                 mockPostResourcePlugins, new ArrayList<ConnectedSource>(),
                 new ArrayList<FederatedSource>(), new ArrayList<ResourceReader>(), null, null,
-                null, null, null, null) {
+                null, null, null, null, null) {
             @Override
             protected URI getResourceURI(ResourceRequest resourceRequest, String site,
                     boolean isEnterprise, StringBuilder federatedSite,
@@ -524,7 +524,7 @@ public class CatalogFrameworkImplTest {
                 Arrays.asList(stopQueryPlugin), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), federationStrategy, null, poller, null, null, null);
+                new ArrayList<ResourceReader>(), federationStrategy, null, null, poller, null, null, null);
 
         framework.bind(provider);
         framework.query(request);
@@ -576,7 +576,8 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreQueryPlugin>(), Arrays.asList(stopQueryPlugin),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), federationStrategy, null, poller, null, null, null);
+                new ArrayList<ResourceReader>(), federationStrategy,
+                mock(QueryResponsePostProcessor.class), null, poller, null, null, null);
 
         framework.bind(provider);
         framework.query(request);
@@ -626,7 +627,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), federatedSources,
-                new ArrayList<ResourceReader>(), null, null, mockPoller, null, null, null);
+                new ArrayList<ResourceReader>(), null, null, null, mockPoller, null, null, null);
         framework.bind(provider);
         framework.setId("ddf");
 
@@ -677,7 +678,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), federatedSources,
-                new ArrayList<ResourceReader>(), null, null, mockPoller, null, null, null);
+                new ArrayList<ResourceReader>(), null, null, null, mockPoller, null, null, null);
 
         SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
         SourceInfoResponse response = null;
@@ -713,7 +714,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), federatedSources,
-                new ArrayList<ResourceReader>(), null, null, poller, null, null, null);
+                new ArrayList<ResourceReader>(), null, null, null, poller, null, null, null);
 
         SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
         SourceInfoResponse response = null;
@@ -761,7 +762,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), expectedSources, new ArrayList<ResourceReader>(),
-                null, null, mockPoller, null, null, null);
+                null, null, null, mockPoller, null, null, null);
 
         // Returned Sites
         SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
@@ -805,8 +806,8 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PostIngestPlugin>(), new ArrayList<PreQueryPlugin>(),
                 new ArrayList<PostQueryPlugin>(), new ArrayList<PreResourcePlugin>(),
                 new ArrayList<PostResourcePlugin>(), new ArrayList<ConnectedSource>(),
-                federatedSources, new ArrayList<ResourceReader>(), null, null, mockPoller, null,
-                null, null);
+                federatedSources, new ArrayList<ResourceReader>(), null, null, null, mockPoller,
+                null, null, null);
         framework.bind(provider);
         framework.setId(frameworkName);
 
@@ -1349,7 +1350,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), federatedSources, resourceReaders, strategy,
-                null, mockPoller, null, null, null);
+                mock(QueryResponsePostProcessor.class), null, mockPoller, null, null, null);
         framework.bind(provider);
         framework.setId("ddf");
 
@@ -1450,7 +1451,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), federatedSources, resourceReaders, strategy,
-                null, mockPoller, resourceCache, null, null);
+                mock(QueryResponsePostProcessor.class), null, mockPoller, resourceCache, null, null);
         framework.bind(provider);
         framework.setId("ddf");
 
@@ -1556,7 +1557,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), null, resourceReaders, strategy, null,
-                mockPoller, null, null, null);
+                null, mockPoller, null, null, null);
         framework.bind(provider);
         framework.setId(DDF);
 
@@ -1604,7 +1605,7 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PostQueryPlugin>(), new ArrayList<PreResourcePlugin>(),
                 new ArrayList<PostResourcePlugin>(), new ArrayList<ConnectedSource>(),
                 new ArrayList<FederatedSource>(), new ArrayList<ResourceReader>(), null, null,
-                mockPoller, null, null, null);
+                null, mockPoller, null, null, null);
         framework.bind(provider);
 
         return framework;

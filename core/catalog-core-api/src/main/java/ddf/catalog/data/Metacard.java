@@ -14,12 +14,12 @@
  **/
 package ddf.catalog.data;
 
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.source.Source;
-
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Date;
+
+import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.source.Source;
 
 /**
  * A {@link Metacard} is a container for Metadata.
@@ -139,6 +139,12 @@ public interface Metacard extends Serializable {
      * {@link Metacard} represents. <br/>
      */
     public static final String RESOURCE_URI = "resource-uri";
+
+    /**
+     * {@link Attribute} name for accessing the resource download URL for the product this
+     * {@link Metacard} represents. <br/>
+     */
+    public static final String RESOURCE_DOWNLOAD_URL = "resource-download-url";
 
     /**
      * {@link Attribute} name for accessing the size (in bytes) of the product this {@link Metacard}
