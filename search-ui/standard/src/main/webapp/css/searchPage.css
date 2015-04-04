@@ -44,7 +44,7 @@ table a:not(.btn), .table a:not(.btn),
     background-color: rgba(100,100,100,0.1);
 }
 
-.dropdown-menu {
+.menu-items .dropdown-menu {
     background-color: #363636;
     height: auto;
     max-height: 600px;
@@ -55,16 +55,16 @@ table a:not(.btn), .table a:not(.btn),
     left: auto !important;
 }
 
-.navbar .nav>li>.dropdown-menu:after {
+.menu-items .navbar .nav>li>.dropdown-menu:after {
     border-bottom: 6px solid #363636 !important;
 }
 
-.nav-tabs > li > a {
+.menu-items .nav-tabs > li > a {
     padding-top: 4px;
     padding-bottom: 4px;
 }
 
-.navbar .nav > li > .dropdown-menu:after {
+.menu-items .navbar .nav > li > .dropdown-menu:after {
     border-bottom: 6px solid #242424;
 }
 
@@ -1539,3 +1539,57 @@ a.pause:hover, a.pause:focus {
 .keyword-heading-with-help-tip .popover.right > .arrow {
     top: 20% !important;
 }
+
+.bootstrap-select > .btn {
+  padding-right: 20px;
+  height: 28px;
+  padding-left: 5px;
+}
+
+.bootstrap-select.btn-group .dropdown-menu.inner {
+  background-color: #555;
+}
+
+.bootstrap-select.btn-group .dropdown-menu li a span.text {
+  color: white;
+  font-size: 12px;
+}
+
+.bootstrap-select:not([class*="col-"]):not([class*="form-control"]):not(.input-group-btn) {
+  width: 80px;
+
+}
+
+::-webkit-scrollbar-thumb {
+    border:none;
+}
+
+.bootstrap-select.btn-group .btn .caret {
+    right: 8px;
+}
+
+.bootstrap-select.btn-group .btn .filter-option {
+    font-size: 12px;
+}
+
+#typeTab .bootstrap-select > .btn {
+    width: 220px;
+}
+
+#sources .bootstrap-select > .btn {
+    width: 220px;
+}
+
+.bootstrap-select.btn-group .no-results {
+  background: rgb(85,85,85);
+  margin: none;
+}
+
+.btn-default:hover, .open>.dropdown-toggle.btn-default {
+    background-color: #777;
+}
+
+.bootstrap-select .dropdown-menu {
+  background: rgb(85,85,85);
+}
+

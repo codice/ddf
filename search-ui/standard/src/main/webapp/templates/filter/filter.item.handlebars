@@ -15,7 +15,7 @@
     <div class="clear-both">
         <div class="pull-left">
             <div class="metadata-field-group">
-                <select class="ddf form-control" name="fieldName">
+                <select class="query-dropdown" name="fieldName" data-size="10" data-container="body">
                     {{#each fields}}
                         {{#if displayName}}
                             <option value="{{name}}">{{displayName}}</option>
@@ -26,7 +26,7 @@
                 </select>
             </div>
             <div class="operator-group">
-                <select class="ddf form-control" name="fieldOperator">
+                <select class="query-dropdown" name="fieldOperator">
                     {{#is fieldType "string"}}
                         {{#each operations.string}}
                             <option value="{{.}}">{{.}}</option>
@@ -68,7 +68,7 @@
                     <input class="number-field form-control" type="text" placeholder="Enter a number" name="numberValue1"/>
                 {{/is}}
                 {{#is fieldType "anyGeo"}}
-                    <select class="ddf form-control" name="geoType">
+                    <select class="query-dropdown" name="geoType">
                         <option value="circle">Circle</option>
                         <option value="bbox">Bounding Box</option>
                         <option value="polygon">Polygon</option>

@@ -257,7 +257,8 @@
             <div class="tab-content form-group">
                 <div id="noTypeTab" class="tab-pane {{#ifNotOr type}}active{{/ifNotOr}}"></div>
                 <div id="typeTab" class="tab-pane col-lg-10 {{#if type}}active{{/if}}">
-                    <select id="typeList" name="type" multiple="multiple">
+                    <select class="select-types" id="typeList" name="type" multiple title="Select Types" data-size="10" data-container="body" data-width="auto"
+                                    multiple data-selected-text-format="count" data-live-search="true">
                     </select>
                 </div>
             </div>
@@ -327,7 +328,8 @@
                 <div id="nofed" class="tab-pane {{#is federation 'enterprise'}}active{{/is}}"></div>
                 <div id="sources" class="tab-pane col-lg-10 {{#is federation 'selected'}}active{{/is}}">
                     <div id="scrollableSources" class="scrollable">
-                        <select id="federationSources" multiple="multiple">
+                        <select class="select-sources" id="federationSources" multiple title="Select Sources" data-size="10" data-container="body" data-width="auto"
+                            multiple data-selected-text-format="count" data-live-search="true">
                         </select>
                     </div>
                 </div>
