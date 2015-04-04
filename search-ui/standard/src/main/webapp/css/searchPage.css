@@ -1579,6 +1579,19 @@ a.pause:hover, a.pause:focus {
     font-size: 12px;
 }
 
+#typeTab .bootstrap-select > .btn {
+    width: 220px;
+}
+
+#sources .bootstrap-select > .btn {
+    width: 220px;
+}
+
+.bootstrap-select.btn-group .no-results {
+  background: rgb(85,85,85);
+  margin: none;
+}
+
 .btn-default:hover, .open>.dropdown-toggle.btn-default {
     background-color: #777;
 }
@@ -1586,3 +1599,4 @@ a.pause:hover, a.pause:focus {
 .bootstrap-select .dropdown-menu {
   background: rgb(85,85,85);
 }
+

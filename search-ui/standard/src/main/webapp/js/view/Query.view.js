@@ -23,7 +23,8 @@ define([
         'wreqr',
         'text!templates/search/searchForm.handlebars',
         'direction',
-        'maptype'
+        'maptype',
+        'bootstrapselect'
     ],
     function ($, Backbone, Marionette, _, ich, properties, MetaCard, Progress, wreqr, searchFormTemplate, dir, maptype) {
         "use strict";
@@ -366,11 +367,11 @@ define([
                 // changes when sources are added/removed or
                 // modified (e.g., become available/unavailable)
                 this.sources.bind('add change remove', function() {
-                    $('#federationSources').multiselect("refresh");
+                    $('.select-sources').selectpicker('refresh');
                 });
 
                 this.types.bind('add change remove', function() {
-                    $('#typeList').multiselect("refresh");
+                    $('.select-types').selectpicker('refresh');
                 });
 
                 this.initDateTimePicker('#absoluteStartTime');
@@ -410,9 +411,9 @@ define([
                 var federationSourcesSelectOptions = _.clone(multiselectOptions);
                 federationSourcesSelectOptions.noneSelectedText = 'Select Sources';
 
-                this.$('#typeList').multiselect(typeSelectOptions).multiselectfilter();
+                this.$('.select-types').selectpicker();
 
-                this.$('#federationSources').multiselect(federationSourcesSelectOptions).multiselectfilter();
+                this.$('.select-sources').selectpicker();
 
                 this.$('#radiusUnits').multiselect(singleselectOptions);
 
@@ -593,8 +594,8 @@ define([
                 this.model.setDefaults();
                 // Refresh the multiselect lists to reflect the changes
                 // to the model
-                $('#typeList').multiselect("refresh");
-                $('#federationSources').multiselect("refresh");
+                $('.select-types').selectpicker('refresh');
+                $('.select-sources').selectpicker('refresh');
                 $('#radiusUnits').multiselect("refresh");
 
                 wreqr.vent.trigger('search:clear');
