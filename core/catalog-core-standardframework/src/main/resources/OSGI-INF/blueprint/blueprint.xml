@@ -133,7 +133,8 @@
 	<bean id="pool" class="java.util.concurrent.Executors"
 		factory-method="newCachedThreadPool" />
 
-    <reference id="resourceActionProvider" interface="ddf.action.ActionProvider" filter="id=catalog.data.metacard.resource" availability="optional"/>
+    <reference id="resourceActionProvider" interface="ddf.action.ActionProvider" filter="id=catalog.data.metacard.resource"
+        availability="optional"/>
 
     <bean id="queryResponsePostProcessor" class="ddf.catalog.impl.QueryResponsePostProcessorImpl">
         <argument ref="resourceActionProvider" />

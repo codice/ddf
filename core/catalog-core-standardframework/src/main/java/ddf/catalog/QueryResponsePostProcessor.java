@@ -12,18 +12,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  * 
  **/
-package ddf.catalog.impl;
+package ddf.catalog;
 
 import ddf.catalog.operation.QueryResponse;
 
 /**
- * Interface implemented by classes that can be used to perform post-
- * 
- * @author elessard
- *
+ * Interface implemented by classes that perform post-processing on {@link QueryResponse}. Instances
+ * of this interface will be called by the catalog framework after all the results have been
+ * received from the different federated sources, before any of the post-query plug-ins are called.
  */
 public interface QueryResponsePostProcessor {
 
-    void processResponse(QueryResponse response);
-
+    /**
+     * Performs any required post-processing on the {@link QueryResponse} object provided.
+     * 
+     * @param response
+     *            {@link QueryResponse} to process. Cannot be <code>null</code>.
+     */
+    public void processResponse(QueryResponse response);
 }

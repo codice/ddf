@@ -62,6 +62,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.QueryResponsePostProcessor;
 import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;

@@ -49,6 +49,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.QueryResponsePostProcessor;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -57,7 +58,6 @@ import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.base.AbstractFederationStrategy;
 import ddf.catalog.impl.CatalogFrameworkImpl;
 import ddf.catalog.impl.MockDelayProvider;
-import ddf.catalog.impl.QueryResponsePostProcessor;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
