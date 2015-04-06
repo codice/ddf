@@ -17,7 +17,6 @@ package org.codice.ddf.spatial.ogc.csw.catalog.source.reader;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.transform.InputTransformer;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
@@ -67,7 +66,8 @@ public class TestGetRecordsMessageBodyReader {
     @Test
     public void testConfigurationArguments() throws Exception {
         when(mockInputManager.getTransformerBySchema(anyString()))
-                .thenReturn(new CswRecordConverter(null));
+.thenReturn(
+                new CswRecordConverter());
 
         CswSourceConfiguration config = new CswSourceConfiguration();
         config.setMetacardCswMappings(
@@ -115,8 +115,8 @@ public class TestGetRecordsMessageBodyReader {
     public void testFullThread() throws Exception {
         CswTransformProvider provider = new CswTransformProvider(null, mockInputManager);
 
-        when(mockInputManager.getTransformerBySchema(anyString()))
-                .thenReturn(new CswRecordConverter(null));
+        when(mockInputManager.getTransformerBySchema(anyString())).thenReturn(
+                new CswRecordConverter());
 
         CswSourceConfiguration config = new CswSourceConfiguration();
         Map<String, String> mappings = new HashMap<>();

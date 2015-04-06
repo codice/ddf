@@ -26,8 +26,6 @@ import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 import com.thoughtworks.xstream.io.xml.XppReader;
-import ddf.action.Action;
-import ddf.action.ActionProvider;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -50,11 +48,9 @@ import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -67,7 +63,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -86,13 +81,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyByte;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class TestCswRecordConverter {
 
@@ -101,11 +91,7 @@ public class TestCswRecordConverter {
 
     private static DateTimeFormatter dateFormatter;
 
-    private static final String SOURCE = "CSW_SOURCE";
-
     private static final String THUMBNAIL_URL = "THUMBNAIL_URL";
-
-    private static final String TEST_URI = "http://host:port/my/product.pdf";
 
     private static final DatatypeFactory XSD_FACTORY;
 
@@ -122,10 +108,6 @@ public class TestCswRecordConverter {
     private static String CREATED;
 
     private static CswRecordConverter converter;
-
-    private static ActionProvider mockActionProvider;
-
-    private static Action mockAction;
 
     private static final String ACTION_URL = "http://example.com/source/id?transform=resource";
 
@@ -146,12 +128,7 @@ public class TestCswRecordConverter {
         EFFECTIVE = XSD_FACTORY.newXMLGregorianCalendar(EFFECTIVE_DATE).toXMLFormat();
         CREATED = XSD_FACTORY.newXMLGregorianCalendar(CREATED_DATE).toXMLFormat();
 
-        mockActionProvider = mock(ActionProvider.class);
-        mockAction = mock(Action.class);
-        when(mockActionProvider.getAction(any(Metacard.class))).thenReturn(mockAction);
-        when(mockAction.getUrl()).thenReturn(new URL(ACTION_URL));
-
-        converter = new CswRecordConverter(mockActionProvider);
+        converter = new CswRecordConverter();
     }
 
     @Test
@@ -561,7 +538,7 @@ public class TestCswRecordConverter {
     @Test
     public void testConvertISODateMetacardAttribute() {
         String dateStr = "2013-05-03T17:25:04Z";
-        Serializable ser = converter.convertStringValueToMetacardValue(
+        Serializable ser = CswRecordConverter.convertStringValueToMetacardValue(
                 AttributeFormat.DATE, dateStr);
         assertThat(ser, not(nullValue()));
         assertThat(Date.class.isAssignableFrom(ser.getClass()), is(true));
@@ -580,7 +557,7 @@ public class TestCswRecordConverter {
     @Test
     public void testConvertInvalidTimeZoneInDateMetacardAttribute() {
         String dateStr = "2013-05-13T10:56:39EDT";
-        Serializable ser = converter.convertStringValueToMetacardValue(
+        Serializable ser = CswRecordConverter.convertStringValueToMetacardValue(
                 AttributeFormat.DATE, dateStr);
 
         assertDateConversion(ser, Calendar.getInstance());
@@ -592,7 +569,7 @@ public class TestCswRecordConverter {
     @Test
     public void testConvertInvalidDateMetacardAttribute() {
         String dateStr = "26021000ZFEB11";
-        Serializable ser = converter.convertStringValueToMetacardValue(
+        Serializable ser = CswRecordConverter.convertStringValueToMetacardValue(
                 AttributeFormat.DATE, dateStr);
 
         assertDateConversion(ser, Calendar.getInstance());
@@ -672,44 +649,6 @@ public class TestCswRecordConverter {
         String xml = stringWriter.toString();
         assertThat(xml, containsString(CswConstants.CSW_SUMMARY_RECORD));
         assertRecordXml(xml, metacard, SUMMARY);
-    }
-
-    @Test
-    public void testMarshalRecordWithActionProvider()
-            throws IOException, JAXBException, SAXException, XpathException, URISyntaxException {
-        MetacardImpl metacard = getTestMetacard();
-        metacard.setResourceURI(new URI(TEST_URI));
-
-        StringWriter stringWriter = new StringWriter();
-        PrettyPrintWriter writer = new PrettyPrintWriter(stringWriter);
-        MarshallingContext context = new TreeMarshaller(writer, null, null);
-        context.put(CswConstants.ELEMENT_NAMES, Arrays.asList(new QName("source")));
-        context.put(CswConstants.WRITE_NAMESPACES, true);
-
-        CswRecordConverter testConverter = new CswRecordConverter(null);
-        testConverter.marshal(metacard, writer, context);
-
-        String xml = "<?xml version='1.0' encoding='UTF-8'?>" + stringWriter.toString();
-
-        XMLUnit.setIgnoreWhitespace(true);
-
-        final String test1 =
-                "<?xml version='1.0' encoding='UTF-8'?><csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"><source>"
-                        + TEST_URI + "</source></csw:Record>";
-
-        assertXMLEqual(test1, xml);
-
-        stringWriter.getBuffer().setLength(0);
-        converter.marshal(metacard, writer, context);
-
-        String xml2 = "<?xml version='1.0' encoding='UTF-8'?>" + stringWriter.toString();
-
-        final String test2 =
-                "<?xml version='1.0' encoding='UTF-8'?><csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\"><source>"
-                        + ACTION_URL
-                        + "</source></csw:Record>";
-
-        assertXMLEqual(test2, xml2);
     }
 
     @Test
@@ -848,39 +787,6 @@ public class TestCswRecordConverter {
         String expectedDateStr = (String) mc.getAttribute(cswAttribute).getValue();
         Date expectedDate = dateFormatter.parseDateTime(expectedDateStr).toDate();
         assertThat(date.getTime(), equalTo(expectedDate.getTime()));
-    }
-
-    private void assertDefaultDateMappings(Map<String, String> dateMappings) {
-        assertThat(dateMappings.containsKey(CswRecordMetacardType.CSW_TITLE), is(true));
-        assertThat(dateMappings.get(CswRecordMetacardType.CSW_TITLE), equalTo(Metacard.TITLE));
-
-        assertThat(dateMappings.containsKey(CswRecordMetacardType.CSW_CREATED), is(true));
-        assertThat(dateMappings.get(CswRecordMetacardType.CSW_CREATED), equalTo(Metacard.CREATED));
-
-        assertThat(dateMappings.containsKey(CswRecordMetacardType.CSW_DATE_SUBMITTED), is(true));
-        assertThat(dateMappings.get(CswRecordMetacardType.CSW_DATE_SUBMITTED),
-                equalTo(Metacard.MODIFIED));
-
-        assertThat(dateMappings.containsKey(CswRecordMetacardType.CSW_MODIFIED), is(true));
-        assertThat(dateMappings.get(CswRecordMetacardType.CSW_MODIFIED),
-                equalTo(Metacard.MODIFIED));
-    }
-
-    private void assertDateMappings(Map<String, String> dateMappings) {
-        assertThat(dateMappings.containsKey(CswRecordMetacardType.CSW_TITLE), is(true));
-        assertThat(dateMappings.get(CswRecordMetacardType.CSW_TITLE), equalTo(Metacard.TITLE));
-
-        assertThat(dateMappings.containsKey(CswRecordMetacardType.CSW_CREATED), is(true));
-        assertThat(dateMappings.get(CswRecordMetacardType.CSW_CREATED),
-                equalTo(Metacard.EFFECTIVE));
-
-        assertThat(dateMappings.containsKey(CswRecordMetacardType.CSW_DATE_SUBMITTED), is(true));
-        assertThat(dateMappings.get(CswRecordMetacardType.CSW_DATE_SUBMITTED),
-                equalTo(Metacard.CREATED));
-
-        assertThat(dateMappings.containsKey(CswRecordMetacardType.CSW_MODIFIED), is(true));
-        assertThat(dateMappings.get(CswRecordMetacardType.CSW_MODIFIED),
-                equalTo(Metacard.MODIFIED));
     }
 
     private void assertDateConversion(Serializable ser, Calendar expectedDate) {
