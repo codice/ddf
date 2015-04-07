@@ -1,5 +1,5 @@
 = Using {branding} Standard Search UI
-include::../classes/config.adoc[]
+include::config.adoc[]
 
 == Overview
 
