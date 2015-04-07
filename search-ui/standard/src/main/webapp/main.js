@@ -15,6 +15,8 @@ require.config({
     paths: {
 
         bootstrap: 'lib/components-bootstrap/js/bootstrap.min',
+        bootstrapselect: 'lib/bootstrap-select/dist/js/bootstrap-select.min',
+
         cometd: 'lib/cometd/org/cometd',
         jquerycometd: 'lib/cometd/jquery/jquery.cometd',
         moment: 'lib/moment/min/moment.min',
@@ -149,7 +151,9 @@ require.config({
         },
         openlayers: {
             exports: 'ol'
-        }
+        },
+
+        bootstrapselect: ['bootstrap']
     },
 
     waitSeconds: 0
