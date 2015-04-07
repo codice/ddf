@@ -54,8 +54,9 @@
                 mvn:org.apache.felix/org.apache.felix.webconsole.plugins.ds/1.0.0
             </bundle>
         </conditional>
+    </feature>
 
-        <!-- Branding -->
+    <feature name="kernel-webconsolebranding" description="" version="${project.version}" >
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding/${project.version}</bundle>
         <bundle>mvn:ddf.distribution/webconsole-branding-plugin/${project.version}</bundle>
