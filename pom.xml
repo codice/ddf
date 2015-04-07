@@ -531,6 +531,7 @@
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
                 <asciidoctor.maven.plugin.version>1.5.2</asciidoctor.maven.plugin.version>
                 <packaging>pom</packaging>
+                <module>docs</module>
             </properties>
             <repositories>
                 <repository>
@@ -579,11 +580,11 @@
                                         <goal>copy-resources</goal>
                                     </goals>
                                     <configuration>
-                                        <outputDirectory>target/classes</outputDirectory>
+                                        <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                                         <resources>
                                             <resource>
-                                                <directory>src/main/includes</directory>
-                                                <include>config.adoc</include>
+                                                <directory>${basedir}/src/main/resources</directory>
+                                                <!--<include>config.adoc</include>-->
                                                 <filtering>true</filtering>
                                             </resource>
                                         </resources>
@@ -610,41 +611,6 @@
                             </executions>
                         </plugin>
                         <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-antrun-plugin</artifactId>
-                            <version>1.7</version>
-                            <dependencies>
-                                <dependency>
-                                    <groupId>ant-contrib</groupId>
-                                    <artifactId>ant-contrib</artifactId>
-                                    <version>20020829</version>
-                                </dependency>
-                            </dependencies>
-                            <executions>
-                                <execution>
-                                    <phase>generate-resources</phase>
-                                    <goals>
-                                        <goal>run</goal>
-                                    </goals>
-                                    <configuration>
-                                        <tasks>
-                                            <taskdef
-                                                    resource="net/sf/antcontrib/antcontrib.properties"/>
-                                            <if>
-                                                <available file="src/main/doc" type="dir"/>
-                                                <then>
-                                                    <mkdir dir="target/adoc"/>
-                                                    <copy todir="target/adoc">
-                                                        <fileset dir="src/main/doc"/>
-                                                    </copy>
-                                                </then>
-                                            </if>
-                                        </tasks>
-                                    </configuration>
-                                </execution>
-                            </executions>
-                        </plugin>
-                        <plugin>
                             <groupId>org.asciidoctor</groupId>
                             <artifactId>asciidoctor-maven-plugin</artifactId>
                             <version>${asciidoctor.maven.plugin.version}</version>
@@ -658,14 +624,14 @@
                             <executions>
                                 <execution>
                                     <id>output-html</id>
-                                    <phase>generate-resources</phase>
+                                    <phase>process-resources</phase>
                                     <goals>
                                         <goal>process-asciidoc</goal>
                                     </goals>
                                     <configuration>
                                         <backend>html</backend>
                                         <doctype>book</doctype>
-                                        <outputDirectory>target/docs/html</outputDirectory>
+                                        <outputDirectory>${project.build.directory}/docs/html</outputDirectory>
                                     </configuration>
                                 </execution>
                                 <execution>
@@ -676,7 +642,7 @@
                                     </goals>
                                     <configuration>
                                         <backend>pdf</backend>
-                                        <outputDirectory>target/docs/pdf</outputDirectory>
+                                        <outputDirectory>${project.build.directory}/docs/pdf</outputDirectory>
                                         <requires>
                                             <require>asciidoctor-diagram</require>
                                         </requires>
@@ -686,13 +652,12 @@
                                             <toc/>
                                             <idprefix/>
                                             <idseparator>-</idseparator>
-                                            <sourcedir>${project.build.sourceDirectory}</sourcedir>
                                         </attributes>
                                     </configuration>
                                 </execution>
                             </executions>
                             <configuration>
-                                <sourceDirectory>target/adoc</sourceDirectory>
+                                <sourceDirectory>${project.build.directory}/classes</sourceDirectory>
                                 <gemPath>${project.build.directory}/gems-provided</gemPath>
                                 <headerFooter>true</headerFooter>
                                 <imagesDir>./images</imagesDir>
@@ -701,6 +666,24 @@
                                     <require>asciidoctor-diagram</require>
                                 </requires>
                             </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-assembly-plugin</artifactId>
+                            <version>2.5.3</version>
+                            <configuration>
+                                <descriptor>${project.basedir}/src/assembly/bin.xml</descriptor>
+                                <finalName>${project.build.finalName}-documentation</finalName>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>include-docs</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>single</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
                         </plugin>
                     </plugins>
                 </pluginManagement>
