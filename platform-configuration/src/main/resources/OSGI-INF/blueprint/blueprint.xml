@@ -32,11 +32,18 @@
 
     <reference-list id="initialManagedServiceList" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
-    <bean id="ConfigurationManager" class="org.codice.ddf.configuration.ConfigurationManager">
+    <bean id="ConfigurationManager" class="org.codice.ddf.configuration.ConfigurationManager" init-method="init">
         <cm:managed-properties persistent-id="ddf.platform.config"
                                update-strategy="component-managed" update-method="updated"/>
         <argument ref="initialManagedServiceList"/>
         <argument ref="configurationAdmin"/>
+        <property name="protocol" />
+        <property name="host" />
+        <property name="port" />
+        <property name="id" />
+        <property name="version" />
+        <property name="organization" />
+        <property name="contact" />
     </bean>
 
     <bean id="PlatformUiConfiguration" class="org.codice.ddf.configuration.PlatformUiConfiguration">

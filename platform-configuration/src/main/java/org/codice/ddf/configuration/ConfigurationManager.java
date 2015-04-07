@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.configuration;
 
@@ -33,21 +33,18 @@ import java.util.Map;
  * displayed in the DDF System Settings configuration (but appear in other OSGi
  * bundle configurations such as CXF). These read-only settings are included in
  * the list of configuration settings pushed to registered listeners.
- * 
+ * <p/>
  * Registered listeners implement the ConfigurationWatcher interface and have
  * these DDF configuration settings pushed to them when they come online (aka
  * bind) and when one or more of the settings are changed in the Admin Console.
- * 
  */
 public class ConfigurationManager {
-    private static final Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
-
-    // Constants for the DDF system settings appearing in the Admin Console
-
     /**
      * Service PID to use to look up System Settings Configuration.
      */
     public static final String PID = "ddf.platform.config";
+
+    // Constants for the DDF system settings appearing in the Admin Console
 
     /**
      * The directory where DDF is installed
@@ -115,11 +112,13 @@ public class ConfigurationManager {
      * The organization that this instance of DDF is running for
      */
     public static final String ORGANIZATION = "organization";
-    
+
     /**
      * Site (email) contact
      */
     public static final String CONTACT = "contact";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationManager.class);
 
     // Constants for the read-only DDF system settings
     private static final String DDF_HOME_ENVIRONMENT_VARIABLE = "DDF_HOME";
@@ -131,13 +130,13 @@ public class ConfigurationManager {
     private static final String PAX_WEB_SERVICE_PID = "org.ops4j.pax.web";
 
     private static final String JETTY_HTTP_PORT = "org.osgi.service.http.port";
-    
+
     private static final String SSL_KEYSTORE_JAVA_PROPERTY = "javax.net.ssl.keyStore";
-    
+
     private static final String SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.keyStorePassword";
-    
+
     private static final String SSL_TRUSTSTORE_JAVA_PROPERTY = "javax.net.ssl.trustStore";
-    
+
     private static final String SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY = "javax.net.ssl.trustStorePassword";
 
     /**
@@ -149,6 +148,11 @@ public class ConfigurationManager {
      * The map of DDF system settings, including the read-only settings.
      */
     protected Map<String, String> configuration;
+
+    /**
+     * The initial configuration values from blueprint.
+     */
+    private Map<String, String> configurationProperties = new HashMap<>();
 
     /**
      * The map of DDF system settings that are read-only, i.e., they are set in
@@ -163,15 +167,13 @@ public class ConfigurationManager {
     /**
      * Constructs the list of DDF system Settings (read-only and configurable
      * settings) to be pushed to registered ConfigurationWatchers.
-     * 
-     * @param services
-     *            the list of watchers of changes to the DDF System Settings
-     * @param configurationAdmin
-     *            the OSGi Configuration Admin service handle
+     *
+     * @param services           the list of watchers of changes to the DDF System Settings
+     * @param configurationAdmin the OSGi Configuration Admin service handle
      */
     public ConfigurationManager(List<ConfigurationWatcher> services,
             ConfigurationAdmin configurationAdmin) {
-        logger.debug("ENTERING: ctor");
+        LOGGER.debug("ENTERING: ctor");
         this.services = services;
         this.configurationAdmin = configurationAdmin;
 
@@ -185,40 +187,80 @@ public class ConfigurationManager {
                 .put(HTTP_PORT, getConfigurationValue(PAX_WEB_SERVICE_PID, JETTY_HTTP_PORT));
         readOnlySettings.put(SERVICES_CONTEXT_ROOT,
                 getConfigurationValue(CXF_SERVICE_PID, CXF_SERVLET_CONTEXT));
-        
+
         readOnlySettings.put(KEY_STORE, System.getProperty(SSL_KEYSTORE_JAVA_PROPERTY));
-        readOnlySettings.put(KEY_STORE_PASSWORD,
-                System.getProperty(SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY));
+        readOnlySettings
+                .put(KEY_STORE_PASSWORD, System.getProperty(SSL_KEYSTORE_PASSWORD_JAVA_PROPERTY));
         readOnlySettings.put(TRUST_STORE, System.getProperty(SSL_TRUSTSTORE_JAVA_PROPERTY));
         readOnlySettings.put(TRUST_STORE_PASSWORD,
                 System.getProperty(SSL_TRUSTSTORE_PASSWORD_JAVA_PROPERTY));
-        
 
         this.configuration = new HashMap<String, String>();
 
         // Append the read-only settings to the DDF System Settings so that all
         // settings are pushed to registered listeners
         configuration.putAll(readOnlySettings);
-        
-        logger.debug("EXITING: ctor");
+
+        LOGGER.debug("EXITING: ctor");
+    }
+
+    public void setProtocol(String protocol) {
+        configurationProperties.put(PROTOCOL, protocol);
+        LOGGER.debug("protocol set to {}", protocol);
+    }
+
+    public void setHost(String host) {
+        configurationProperties.put(HOST, host);
+        LOGGER.debug("host set to {}", host);
+    }
+
+    public void setPort(String port) {
+        configurationProperties.put(PORT, port);
+        LOGGER.debug("port set to {}", port);
+    }
+
+    public void setId(String id) {
+        configurationProperties.put(SITE_NAME, id);
+        LOGGER.debug("site name set to {}", id);
+    }
+
+    public void setVersion(String version) {
+        configurationProperties.put(VERSION, version);
+        LOGGER.debug("version set to {}", version);
+    }
+
+    public void setOrganization(String organization) {
+        configurationProperties.put(ORGANIZATION, organization);
+        LOGGER.debug("organization set to {}", organization);
+    }
+
+    public void setContact(String contact) {
+        configurationProperties.put(CONTACT, contact);
+        LOGGER.debug("contact set to {}", contact);
+    }
+
+    /**
+     * Called once after all managed property setters have been called.
+     */
+    public void init() {
+        updated(Collections.unmodifiableMap(configurationProperties));
     }
 
     /**
      * Invoked when the DDF system settings are changed in the Admin Console,
      * this method then pushes those DDF system settings to each of the
      * registered ConfigurationWatchers.
-     * 
-     * @param updatedConfig
-     *            list of DDF system settings, not including the read-only
-     *            settings
+     *
+     * @param updatedConfig map of DDF system settings, not including the read-only
+     *                      settings. Can be null.
      */
     public void updated(Map<String, ?> updatedConfig) {
         String methodName = "updated";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         if (updatedConfig != null && !updatedConfig.isEmpty()) {
             configuration.clear();
-            
+
             for (Map.Entry<String, ?> entry : updatedConfig.entrySet()) {
                 if (entry.getValue() != null) {
                     configuration.put(entry.getKey(), entry.getValue().toString());
@@ -233,26 +275,26 @@ public class ConfigurationManager {
             service.configurationUpdateCallback(readOnlyConfig);
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
     /**
      * Invoked when a ConfigurationWatcher first comes online, e.g., when a
      * federated source is configured, this method pushes the DDF system
      * settings to the newly registered (bound) ConfigurationWatcher.
-     * 
+     *
      * @param service
-     * @param properties
+     * @param properties does nothing
      */
     public void bind(ConfigurationWatcher service, @SuppressWarnings("rawtypes") Map properties) {
         String methodName = "bind";
-        logger.debug("ENTERING: " + methodName);
+        LOGGER.debug("ENTERING: {}", methodName);
 
         if (service != null) {
             service.configurationUpdateCallback(Collections.unmodifiableMap(this.configuration));
         }
 
-        logger.debug("EXITING: " + methodName);
+        LOGGER.debug("EXITING: {}", methodName);
     }
 
     /**
@@ -271,18 +313,15 @@ public class ConfigurationManager {
 
     /**
      * Retrieves the value of an OSGi bundle's configuration property
-     * 
-     * @param servicePid
-     *            PID for an OSGi bundle
-     * @param propertyName
-     *            name of the bundle's configuration property to get a value for
-     * 
+     *
+     * @param servicePid   PID for an OSGi bundle
+     * @param propertyName name of the bundle's configuration property to get a value for
      * @return the value of the specified bundle's configuration property
      */
     public String getConfigurationValue(String servicePid, String propertyName) {
         String methodName = "getConfigurationValue";
-        logger.debug("ENTERING: " + methodName + "   servicePid = " + servicePid
-                + ",  propertyName = " + propertyName);
+        LOGGER.debug("ENTERING: {},   servicePid = {},  propertyName = {}", methodName, servicePid,
+                propertyName);
 
         String value = "";
 
@@ -297,20 +336,20 @@ public class ConfigurationManager {
                     if (properties != null && properties.get(propertyName) != null) {
                         value = (String) properties.get(propertyName);
                     } else {
-                        logger.debug("properties for servicePid = " + servicePid
-                                + " were NULL or empty");
+                        LOGGER.debug("properties for servicePid = {} were NULL or empty",
+                                servicePid);
                     }
                 } else {
-                    logger.debug("configuration for servicePid = " + servicePid + " was NULL");
+                    LOGGER.debug("configuration for servicePid = {} was NULL", servicePid);
                 }
             } else {
-                logger.debug("configurationAdmin is NULL");
+                LOGGER.debug("configurationAdmin is NULL");
             }
         } catch (IOException e) {
-            logger.warn("Exception while getting configuration value.", e);
+            LOGGER.warn("Exception while getting configuration value.", e);
         }
 
-        logger.debug("EXITING: " + methodName + "    value = [" + value + "]");
+        LOGGER.debug("EXITING: {}    value = [{}]", methodName, value);
 
         return value;
     }
