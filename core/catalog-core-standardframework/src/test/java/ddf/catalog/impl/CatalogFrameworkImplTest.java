@@ -62,7 +62,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.QueryResponsePostProcessor;
 import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -1452,7 +1451,8 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), federatedSources, resourceReaders, strategy,
-                mock(QueryResponsePostProcessor.class), null, mockPoller, resourceCache, null, null);
+                mock(QueryResponsePostProcessor.class), null, mockPoller, resourceCache, null,
+                null);
         framework.bind(provider);
         framework.setId("ddf");
 

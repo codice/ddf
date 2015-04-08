@@ -21,35 +21,37 @@ import org.slf4j.LoggerFactory;
 
 import ddf.action.Action;
 import ddf.action.ActionProvider;
-import ddf.catalog.QueryResponsePostProcessor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.operation.QueryResponse;
 
 /**
- * Implementation of the {@link QueryResponsePostProcessor} interface that adds the
- * {@link Metacard#RESOURCE_DOWNLOAD_URL} attribute to all the {@link Metacard} objects contained in
- * the {@link QueryResponse}. The download URL is generated using the {@link ActionProvider} whose
- * ID is "catalog.data.metacard.resource".
+ * Class called by the catalog framework after all the results have been received from the different
+ * federated sources, before any of the post-query plug-ins are called. The current implementation
+ * adds the {@link Metacard#RESOURCE_DOWNLOAD_URL} attribute to all the {@link Metacard} objects
+ * contained in the {@link QueryResponse}. The download URL is generated using the
+ * {@link ActionProvider} whose ID is "catalog.data.metacard.resource".
  */
-public class QueryResponsePostProcessorImpl implements QueryResponsePostProcessor {
+public class QueryResponsePostProcessor {
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(QueryResponsePostProcessorImpl.class);
+            .getLogger(QueryResponsePostProcessor.class);
 
     private ActionProvider resourceActionProvider;
 
-    public QueryResponsePostProcessorImpl(ActionProvider resourceActionProvider) {
+    public QueryResponsePostProcessor(ActionProvider resourceActionProvider) {
         this.resourceActionProvider = resourceActionProvider;
     }
 
     /**
-     * {@inheritDoc}
+     * Performs any required post-processing on the {@link QueryResponse} object provided.
      * <p>
      * This implementation converts the resource URIs found in the {@link QueryResponse}
      * {@link Metacard}s using the {@link ActionProvider} injected in the constructor.
+     * 
+     * @param response
+     *            {@link QueryResponse} to process. Cannot be <code>null</code>.
      */
-    @Override
     public void processResponse(QueryResponse queryResponse) {
 
         if (resourceActionProvider == null) {

@@ -82,7 +82,7 @@ public class QueryResponsePostProcessorImplTest {
 
     @Test
     public void testProcessRequest() {
-        QueryResponsePostProcessorImpl queryResponsePostProcessor = new QueryResponsePostProcessorImpl(
+        QueryResponsePostProcessor queryResponsePostProcessor = new QueryResponsePostProcessor(
                 resourceActionProvider);
 
         when(queryResponse.getResults()).thenReturn(results);
@@ -98,7 +98,7 @@ public class QueryResponsePostProcessorImplTest {
 
     @Test
     public void testProcessRequestWhenResourceActionProviderIsNull() {
-        QueryResponsePostProcessorImpl queryResponsePostProcessor = new QueryResponsePostProcessorImpl(
+        QueryResponsePostProcessor queryResponsePostProcessor = new QueryResponsePostProcessor(
                 null);
         queryResponsePostProcessor.processResponse(queryResponse);
 
@@ -107,7 +107,7 @@ public class QueryResponsePostProcessorImplTest {
 
     @Test
     public void testProcessRequestWithEmptyResult() {
-        QueryResponsePostProcessorImpl queryResponsePostProcessor = new QueryResponsePostProcessorImpl(
+        QueryResponsePostProcessor queryResponsePostProcessor = new QueryResponsePostProcessor(
                 resourceActionProvider);
         List<Result> emptyResult = new ArrayList<Result>();
 
@@ -120,7 +120,7 @@ public class QueryResponsePostProcessorImplTest {
 
     @Test
     public void testProcessRequestWhenResourceUriIsNull() {
-        QueryResponsePostProcessorImpl queryResponsePostProcessor = new QueryResponsePostProcessorImpl(
+        QueryResponsePostProcessor queryResponsePostProcessor = new QueryResponsePostProcessor(
                 resourceActionProvider);
 
         when(queryResponse.getResults()).thenReturn(results);
@@ -138,7 +138,7 @@ public class QueryResponsePostProcessorImplTest {
 
     @Test
     public void testProcessRequestWhenActionNotFoundForMetacard() {
-        QueryResponsePostProcessorImpl queryResponsePostProcessor = new QueryResponsePostProcessorImpl(
+        QueryResponsePostProcessor queryResponsePostProcessor = new QueryResponsePostProcessor(
                 resourceActionProvider);
 
         when(queryResponse.getResults()).thenReturn(results);
@@ -157,7 +157,7 @@ public class QueryResponsePostProcessorImplTest {
 
     @Test
     public void testProcessRequestWhenActionReturnsNullUrl() {
-        QueryResponsePostProcessorImpl queryResponsePostProcessor = new QueryResponsePostProcessorImpl(
+        QueryResponsePostProcessor queryResponsePostProcessor = new QueryResponsePostProcessor(
                 resourceActionProvider);
 
         when(queryResponse.getResults()).thenReturn(results);

@@ -45,7 +45,6 @@ import org.slf4j.ext.XLogger;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.FanoutCatalogFramework;
-import ddf.catalog.QueryResponsePostProcessor;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.BinaryContent;

@@ -136,7 +136,7 @@
     <reference id="resourceActionProvider" interface="ddf.action.ActionProvider" filter="id=catalog.data.metacard.resource"
         availability="optional"/>
 
-    <bean id="queryResponsePostProcessor" class="ddf.catalog.impl.QueryResponsePostProcessorImpl">
+    <bean id="queryResponsePostProcessor" class="ddf.catalog.impl.QueryResponsePostProcessor">
         <argument ref="resourceActionProvider" />
     </bean>
 
