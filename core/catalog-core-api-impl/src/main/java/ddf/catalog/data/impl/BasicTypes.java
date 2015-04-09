@@ -306,9 +306,6 @@ public class BasicTypes {
                 true /* stored */, false /* tokenized */, false /* multivalued */, XML_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_URI, true /* indexed */,
                 true /* stored */, false /* tokenized */, false /* multivalued */, STRING_TYPE));
-        descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_DOWNLOAD_URL,
-                true /* indexed */, true /* stored */, false /* tokenized */,
-                false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_SIZE, false /* indexed */,
                 true /* stored */, false /* tokenized */, false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.THUMBNAIL, false /* indexed */,
