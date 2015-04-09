@@ -31,6 +31,10 @@
 				<groupId>ddf.catalog.core</groupId>
 				<artifactId>catalog-core-api</artifactId>
 			</dependency>
+		    <dependency>
+			    <groupId>ddf.catalog.core</groupId>
+			    <artifactId>catalog-core-api-impl</artifactId>
+		    </dependency>
 			<dependency>
 				<groupId>org.osgi</groupId>
 				<artifactId>org.osgi.core</artifactId>
@@ -69,6 +73,9 @@
 							<Export-Package>
 							ddf.services.schematron;version=${project.version}
 							</Export-Package>
+							<Embed-Dependency>
+								catalog-core-api-impl
+							</Embed-Dependency>
 						</instructions>
 					</configuration>
 				</plugin>

@@ -93,6 +93,8 @@ public class RESTEndpoint implements RESTService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RESTEndpoint.class);
 
+    private static final Logger INGEST_LOGGER = LoggerFactory.getLogger("ingestLogger");
+
     private static String JSON_MIME_TYPE_STRING = "application/json";
 
     private static final String HEADER_RANGE = "Range";
@@ -667,23 +669,32 @@ public class RESTEndpoint implements RESTService {
                 response = responseBuilder.build();
 
                 LOGGER.debug("Entry successfully saved, id: {}", id);
-
+                if (INGEST_LOGGER.isInfoEnabled()) {
+                    INGEST_LOGGER.info("Entry successfully saved, id: {}", id);
+                }
             } else {
                 String errorMessage = "No content found, cannot do CREATE.";
                 LOGGER.warn(errorMessage);
                 throw new ServerErrorException(errorMessage, Status.BAD_REQUEST);
             }
         } catch (SourceUnavailableException e) {
-            String exceptionMessage = "Cannot create catalog entry because source is unavailable: ";
-            LOGGER.warn(exceptionMessage, e);
+            String exceptionMessage = "Cannot create catalog entry because source is unavailable: "
+                    + e.getMessage();
+            LOGGER.warn(exceptionMessage, e.getCause());
+            // Catalog framework logs these exceptions to the ingest logger so we don't have to.
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
         } catch (IngestException e) {
-            String exceptionMessage = "Error while storing entry in catalog: ";
-            LOGGER.warn(exceptionMessage, e);
+            String exceptionMessage = "Error while storing entry in catalog: " + e.getMessage();
+            LOGGER.warn(exceptionMessage, e.getCause());
+            // Catalog framework logs these exceptions to the ingest logger so we don't have to.
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
         } catch (MetacardCreationException e) {
-            String exceptionMessage = "Unable to create Metacard from provided metadata: ";
-            LOGGER.warn(exceptionMessage, e);
+            String exceptionMessage = "Unable to create Metacard from provided metadata: "
+                    + e.getMessage();
+            LOGGER.warn(exceptionMessage, e.getCause());
+            if (INGEST_LOGGER.isWarnEnabled()) {
+                INGEST_LOGGER.warn("Unable to create Metacard from provided metadata.", e);
+            }
             throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
         }
 
@@ -766,12 +777,27 @@ public class RESTEndpoint implements RESTService {
 
             Iterator<InputTransformer> it = listOfCandidates.iterator();
 
+            StringBuilder causeMessage = new StringBuilder("Could not create metacard with mimeType ");
+            causeMessage.append(mimeType);
+            causeMessage.append(". Reason: ");
             while (it.hasNext()) {
                 InputTransformer transformer = it.next();
 
                 try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
                     generatedMetacard = transformer.transform(inputStreamMessageCopy);
                 } catch (CatalogTransformerException | IOException e) {
+                    causeMessage.append(System.lineSeparator());
+                    causeMessage.append(e.getMessage());
+                    // The caught exception more than likely does not have the root cause message
+                    // that is needed to inform the caller as to why things have failed.  Therefore
+                    // we need to iterate through the chain of cause exceptions and gather up
+                    // all of their message details.
+                    Throwable cause = e.getCause();
+                    while (null != cause && cause != cause.getCause()) {
+                        causeMessage.append(System.lineSeparator());
+                        causeMessage.append(cause.getMessage());
+                        cause = cause.getCause();
+                    }
                     LOGGER.debug("Transformer [{}] could not create metacard.", transformer, e);
                 }
                 if (generatedMetacard != null) {
@@ -780,7 +806,7 @@ public class RESTEndpoint implements RESTService {
             }
 
             if (generatedMetacard == null) {
-                throw new MetacardCreationException("Could not create metacard with mimeType " + mimeType + ". No valid transformers found.");
+                throw new MetacardCreationException(causeMessage.toString());
             }
 
             if (id != null) {

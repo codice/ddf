@@ -94,6 +94,7 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
                 try {
                     synchronized (factory) {
                         builder = factory.newDocumentBuilder();
+                        builder.setErrorHandler(null);
                     }
                     anyElement = builder.parse(new ByteArrayInputStream(xmlString.getBytes(
                             StandardCharsets.UTF_8))).getDocumentElement();
