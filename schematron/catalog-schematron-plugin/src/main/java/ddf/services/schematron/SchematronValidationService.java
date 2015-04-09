@@ -615,14 +615,17 @@ public class SchematronValidationService implements MetacardValidator {
                             "Schematron validation failed.\n\n");
                     List<String> errors = this.report.getErrors();
 
+                    List<String> trimmedErrors = new ArrayList<>();
                     LOGGER.debug("errors.size() = {}", errors.size());
                     for (String error : errors) {
                         errorMessage.append(error);
                         errorMessage.append("\n");
+                        trimmedErrors.add(error.trim());
                     }
                     // If warnings are to be included from the Schematron report
                     // as part of the errors
                     // message
+                    List<String> trimmedWarnings = new ArrayList<>();
                     if (!this.suppressWarnings) {
                         warnings = this.report.getWarnings();
                         LOGGER.debug("warnings.size() = {}", warnings.size());
@@ -630,11 +633,12 @@ public class SchematronValidationService implements MetacardValidator {
                             LOGGER.debug("warning = {}", warning);
                             errorMessage.append(warning);
                             errorMessage.append("\n");
+                            trimmedWarnings.add(warning.trim());
                         }
                     }
                     LOGGER.debug(errorMessage.toString());
-                    throw new SchematronValidationException(errorMessage.toString(), errors,
-                            warnings);
+                    throw new SchematronValidationException("Schematron validation failed.",
+                            trimmedErrors, trimmedWarnings);
                 }
 
             } catch (TransformerException te) {

@@ -121,6 +121,7 @@ public class XPathHelper {
 
             try {
                 builder = dbf.newDocumentBuilder();
+                builder.setErrorHandler(null);
                 doc = builder.parse(is);
                 doc.getDocumentElement().normalize();
                 this.document = doc;

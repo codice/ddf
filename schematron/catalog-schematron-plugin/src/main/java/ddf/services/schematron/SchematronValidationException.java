@@ -14,67 +14,41 @@
  **/
 package ddf.services.schematron;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import ddf.catalog.validation.ValidationException;
+import ddf.catalog.validation.impl.ValidationExceptionImpl;
 
 /**
  * @author Shaun Morris, Lockheed Martin
  * @author ddf.isgs@lmco.com
  */
-public class SchematronValidationException extends ValidationException {
+public class SchematronValidationException extends ValidationExceptionImpl {
 
-    /**
-	 * 
-	 */
     private static final long serialVersionUID = 1L;
 
-    private List<String> errors;
-
-    private List<String> warnings;
+    public SchematronValidationException() { super(); }
 
     public SchematronValidationException(String message, List<String> errors, List<String> warnings) {
-        super(message);
-        if (errors != null) {
-            this.errors = new ArrayList<String>(errors);
-        } else {
-            this.errors = new ArrayList<String>();
-        }
-
-        if (warnings != null) {
-            this.warnings = new ArrayList<String>(warnings);
-        } else {
-            this.warnings = new ArrayList<String>();
-        }
+        super(message, errors, warnings);
     }
 
     public SchematronValidationException(String message) {
         super(message);
-        errors = new ArrayList<String>();
-        warnings = new ArrayList<String>();
     }
 
-    @Override
-    public List<String> getErrors() {
-        return errors;
+    public SchematronValidationException(Throwable cause, List<String> errors, List<String> warnings) {
+        super(cause, errors, warnings);
     }
 
-    @Override
-    public List<String> getWarnings() {
-        return warnings;
+    public SchematronValidationException(Throwable cause) {
+        super(cause);
     }
 
-    public void setErrors(List<String> errors) {
-        if (errors != null && !errors.isEmpty()) {
-            this.errors.addAll(errors);
-        }
+    public SchematronValidationException(String message, Throwable cause, List<String> errors, List<String> warnings) {
+        super(message, cause, errors, warnings);
     }
 
-    public void setWarnings(List<String> warnings) {
-        if (warnings != null && !warnings.isEmpty()) {
-            this.warnings.addAll(warnings);
-        }
+    public SchematronValidationException(String message, Throwable cause) {
+        super(message, cause);
     }
-
 }
