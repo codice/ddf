@@ -14,6 +14,7 @@
  **/
 package ddf.catalog.source.opensearch;
 
+import com.google.common.io.FileBackedOutputStream;
 import com.rometools.rome.feed.synd.SyndCategory;
 import com.rometools.rome.feed.synd.SyndContent;
 import com.rometools.rome.feed.synd.SyndEntry;
@@ -94,7 +95,7 @@ import java.util.Set;
  * via https which requires a keystore and trust store to be provided.
  *
  */
-public final class OpenSearchSource implements FederatedSource, ConfiguredService {
+public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     static final String BAD_URL_MESSAGE = "Bad url given for remote source";
 
@@ -290,12 +291,23 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
 
                 Metacard metacard = null;
                 List<Result> resultQueue = new ArrayList<Result>();
-                try {
-                    final byte[] bytes = IOUtils.toByteArray(responseStream);
-                    InputTransformer inputTransformer = getInputTransformer(
-                            new ByteArrayInputStream(bytes));
+                try (FileBackedOutputStream fileBackedOutputStream = new FileBackedOutputStream(
+                        1000000)) {
+                    IOUtils.copyLarge(responseStream, fileBackedOutputStream);
+                    InputTransformer inputTransformer = null;
+                    try (InputStream inputStream = fileBackedOutputStream.asByteSource()
+                            .openStream()) {
+                        inputTransformer = getInputTransformer(inputStream);
+                    } catch (IOException e) {
+                        LOGGER.debug("Problem with transformation.", e);
+                    }
                     if (inputTransformer != null) {
-                        metacard = inputTransformer.transform(new ByteArrayInputStream(bytes));
+                        try (InputStream inputStream = fileBackedOutputStream.asByteSource()
+                                .openStream()) {
+                            metacard = inputTransformer.transform(inputStream);
+                        } catch (IOException e) {
+                            LOGGER.debug("Problem with transformation.", e);
+                        }
                     }
                 } catch (IOException | CatalogTransformerException e) {
                     LOGGER.debug("Problem with transformation.", e);
@@ -626,24 +638,14 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
         XMLStreamReader xmlStreamReader = null;
         try {
             xmlStreamReader = xmlInputFactory.createXMLStreamReader(inputStream);
-            Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-            if (bundle == null) {
-                // only happens during unit tests
-                return defaultInputTransformer;
-            }
-            BundleContext bundleContext = bundle.getBundleContext();
-            Collection<ServiceReference<InputTransformer>> serviceReferences = bundleContext
-                    .getServiceReferences(InputTransformer.class, null);
             while (xmlStreamReader.hasNext()) {
                 int next = xmlStreamReader.next();
                 if (next == XMLStreamConstants.START_ELEMENT) {
                     String namespaceUri = xmlStreamReader.getNamespaceURI();
-                    for (ServiceReference<InputTransformer> serviceReference : serviceReferences) {
-                        if (StringUtils.equals(namespaceUri,
-                                (String) serviceReference.getProperty("schema"))) {
-                            return bundleContext.getService(serviceReference);
-                        }
-                    }
+                    InputTransformer transformerReference = lookupTransformerReference(
+                            namespaceUri);
+                    if (transformerReference != null)
+                        return transformerReference;
                 }
             }
         } catch (XMLStreamException | InvalidSyntaxException e) {
@@ -660,11 +662,20 @@ public final class OpenSearchSource implements FederatedSource, ConfiguredServic
         return null;
     }
 
-    // only here for unit tests
-    protected InputTransformer defaultInputTransformer;
-
-    protected void setInputTransformer(InputTransformer transformer) {
-        defaultInputTransformer = transformer;
+    protected InputTransformer lookupTransformerReference(String namespaceUri)
+            throws InvalidSyntaxException {
+        Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+        if (bundle != null) {
+            BundleContext bundleContext = bundle.getBundleContext();
+            Collection<ServiceReference<InputTransformer>> transformerReference = bundleContext
+                    .getServiceReferences(InputTransformer.class, "(schema=" + namespaceUri + ")");
+            if (transformerReference.size() == 1) {
+                return bundleContext.getService(transformerReference.iterator().next());
+            } else if (transformerReference.size() > 1) {
+                LOGGER.error("ambiguous transformer schema " + namespaceUri);
+            }
+        }
+        return null;
     }
 
     /**

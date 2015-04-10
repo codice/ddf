@@ -31,7 +31,6 @@
 
     <osgi:reference id="securitySettings" interface="ddf.security.settings.SecuritySettingsService"/>
 
-
     <osgix:managed-service-factory id="DDFfederationPrototypeServiceFactory"
                                    factory-pid="OpenSearchSource"
                                    update-strategy="container-managed">

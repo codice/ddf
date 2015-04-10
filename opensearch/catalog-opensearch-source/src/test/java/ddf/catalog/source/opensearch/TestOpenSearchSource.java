@@ -19,6 +19,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -42,6 +43,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -115,14 +117,15 @@ public class TestOpenSearchSource {
 
         Client proxy = mock(Client.class);
 
-        when(openSearchConnection.newRestClient(any(String.class), any(Query.class), any(String.class), any(Boolean.class))).thenReturn(proxy);
+        when(openSearchConnection.newRestClient(any(String.class), any(Query.class),
+                any(String.class), any(Boolean.class))).thenReturn(proxy);
 
         when(openSearchConnection.getWebClientFromClient(proxy)).thenReturn(client);
 
         when(clientResponse.getEntity()).thenReturn(
                 new BinaryContentImpl(getSampleXmlStream()).getInputStream());
 
-        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
@@ -180,7 +183,7 @@ public class TestOpenSearchSource {
         when(clientResponse.getEntity()).thenReturn(
                 new BinaryContentImpl(getSampleAtomStream()).getInputStream());
 
-        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
@@ -221,7 +224,7 @@ public class TestOpenSearchSource {
         when(clientResponse.getEntity()).thenReturn(
                 new BinaryContentImpl(getSampleRssStream()).getInputStream());
 
-        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
@@ -262,7 +265,7 @@ public class TestOpenSearchSource {
         when(clientResponse.getEntity()).thenReturn(
                 new BinaryContentImpl(getSampleAtomStream()).getInputStream());
 
-        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         InputTransformer inputTransformer = mock(InputTransformer.class);
 
         MetacardImpl generatedMetacard = new MetacardImpl();
@@ -317,7 +320,7 @@ public class TestOpenSearchSource {
         when(clientResponse.getEntity()).thenReturn(
                 new BinaryContentImpl(getSampleRssStream()).getInputStream());
 
-        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         InputTransformer inputTransformer = mock(InputTransformer.class);
 
         MetacardImpl generatedMetacard = new MetacardImpl();
@@ -369,7 +372,7 @@ public class TestOpenSearchSource {
 
         when(client.get()).thenReturn(clientResponse);
 
-        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
@@ -403,7 +406,7 @@ public class TestOpenSearchSource {
 
         when(client.get()).thenReturn(clientResponse);
 
-        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
@@ -484,7 +487,7 @@ public class TestOpenSearchSource {
 
         when(client.get()).thenReturn(clientResponse);
 
-        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
 
         source.openSearchConnection = openSearchConnection;
 
@@ -518,7 +521,7 @@ public class TestOpenSearchSource {
 
         when(client.get()).thenReturn(clientResponse);
 
-        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
 
         source.openSearchConnection = openSearchConnection;
 
@@ -556,7 +559,7 @@ public class TestOpenSearchSource {
 
         when(client.get()).thenReturn(clientResponse);
 
-        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
 
         source.openSearchConnection = openSearchConnection;
 
@@ -600,14 +603,16 @@ public class TestOpenSearchSource {
 
         Client proxy = mock(Client.class);
 
-        when(openSearchConnection.newRestClient(any(String.class), any(Query.class), any(String.class), any(Boolean.class))).thenReturn(proxy);
+        when(openSearchConnection
+                .newRestClient(any(String.class), any(Query.class), any(String.class),
+                        any(Boolean.class))).thenReturn(proxy);
 
         when(openSearchConnection.getWebClientFromClient(proxy)).thenReturn(client);
 
         when(clientResponse.getEntity()).thenReturn(
                 new BinaryContentImpl(getSampleXmlStream()).getInputStream()).thenReturn(
                 new BinaryContentImpl(getSampleAtomStream()).getInputStream());
-        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setLocalQueryOnly(true);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
@@ -654,14 +659,16 @@ public class TestOpenSearchSource {
 
         Client proxy = mock(Client.class);
 
-        when(openSearchConnection.newRestClient(any(String.class), any(Query.class), any(String.class), any(Boolean.class))).thenReturn(proxy);
+        when(openSearchConnection
+                .newRestClient(any(String.class), any(Query.class), any(String.class),
+                        any(Boolean.class))).thenReturn(proxy);
 
         when(openSearchConnection.getWebClientFromClient(proxy)).thenReturn(client);
 
         when(clientResponse.getEntity()).thenReturn(
                 new BinaryContentImpl(getSampleXmlStream()).getInputStream()).thenReturn(
                 new BinaryContentImpl(getSampleRssStream()).getInputStream());
-        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setLocalQueryOnly(true);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
@@ -754,7 +761,8 @@ public class TestOpenSearchSource {
 
         Client proxy = mock(Client.class);
 
-        when(openSearchConnection.newRestClient(any(String.class), any(Query.class), any(String.class), any(Boolean.class))).thenReturn(proxy);
+        when(openSearchConnection.newRestClient(any(String.class), any(Query.class),
+                any(String.class), any(Boolean.class))).thenReturn(proxy);
 
         when(openSearchConnection.getWebClientFromClient(proxy)).thenReturn(client);
 
@@ -764,7 +772,8 @@ public class TestOpenSearchSource {
 
         when(clientResponse.getEntity()).thenReturn(getBinaryData());
         
-        when(clientResponse.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES))).thenReturn(OpenSearchSource.BYTES);
+        when(clientResponse.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES))).thenReturn(
+                OpenSearchSource.BYTES);
 
         when(openSearchConnection.getOpenSearchWebClient()).thenReturn(client);
 
@@ -773,9 +782,10 @@ public class TestOpenSearchSource {
 
         when(clientResponse.getHeaders()).thenReturn(headers);
 
-        OpenSearchSource source = new OpenSearchSource(FILTER_ADAPTER);
+        OverridenOpenSearchSource source = new OverridenOpenSearchSource(FILTER_ADAPTER);
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
-        source.setParameters("q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
+        source.setParameters(
+                "q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort");
         source.init();
         source.setLocalQueryOnly(true);
         source.setInputTransformer(getMockInputTransformer());
@@ -1015,6 +1025,32 @@ public class TestOpenSearchSource {
 
         }
 
+    }
+
+    private class OverridenOpenSearchSource extends OpenSearchSource{
+
+        /**
+         * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
+         * overwritten using the setter methods.
+         *
+         * @throws UnsupportedQueryException
+         * @param filterAdapter
+         */
+        public OverridenOpenSearchSource(FilterAdapter filterAdapter) {
+            super(filterAdapter);
+        }
+
+        private InputTransformer transformer;
+
+        protected void setInputTransformer(InputTransformer inputTransformer) {
+            transformer = inputTransformer;
+        }
+
+        @Override
+        protected InputTransformer lookupTransformerReference(String namespaceUri)
+                throws InvalidSyntaxException {
+            return transformer;
+        }
     }
 
 }

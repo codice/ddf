@@ -178,6 +178,11 @@
             <version>${ddf.security.app.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -192,6 +197,7 @@
                         <Embed-Dependency>
                             rome,
                             rome-utils,
+                            guava,
                             jdom
                         </Embed-Dependency>
                         <Import-Package>
