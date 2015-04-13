@@ -47,8 +47,6 @@ ddf-catalog (https://github.com/codice/ddf-catalog.git) +
 ddf-content (https://github.com/codice/ddf-content.git) +
 ddf-parent (https://github.com/codice/ddf-parent.git) +
 ddf-platform (https://github.com/codice/ddf-platform.git) +
-ddf-security (https://github.com/codice/ddf-security.git) +
-ddf-solr (https://github.com/codice/ddf-solr.git) +
 ddf-spatial (https://github.com/codice/ddf-spatial.git) +
 ddf-support  (https://github.com/codice/ddf-support.git) +
 ddf-ui (https://github.com/codice/ddf-ui.git)
@@ -78,10 +76,7 @@ mvn clean install
  
 cd ../ddf-admin
 mvn clean install
- 
-cd ../ddf-security
-mvn clean install
- 
+
 cd ../ddf-catalog
 mvn clean install
  
@@ -90,9 +85,6 @@ mvn clean install
  
 cd ../ddf-spatial
 MVN_HOME clean install
- 
-cd ../ddf-solr
-mvn clean install
  
 cd ../ddf-ui
 mvn clean install
@@ -243,7 +235,7 @@ The DDF source code is not tied to any particular IDE. However, if a developer i
 Additional documentation on developing with the core technologies used by DDF can be found on their respective websites.
 
 Notably:
-* Karaf (http://karaf.apache.org/manual/latest-2.2.x/developers-guide/index.html)
+* Karaf (http://karaf.apache.org/)
 * CXF (http://cxf.apache.org/docs/overview.html)
 * Geotools (http://docs.geotools.org/latest/developer/)
 
@@ -826,35 +818,6 @@ It is recommended that:
 
 === Installing a KAR File
 When the user downloads an application by clicking on the *Installation* link, the application's KAR file is downloaded. This KAR file should be placed in the `<DDF_INSTALL_DIR>/deploy` directory of the running DDF instance. DDF then detects that a file with a .kar file extension has been placed in this monitored directory, unzips the KAR file into the `<DDF_INSTALL_DIR>/system` directory, and installs the bundle(s) listed in the KAR file's feature descriptor file. The user can then go to the Web Console's Features tab and verify the new feature(s) is installed.
-
-==== Installing a KAR File for DDF 2.0.0 Release
-DDF 2.0.0 is based on Karaf v2.2.2, which has a bug in the KAR deployer. Therefore, a more manual approach to install a KAR file is required rather than simply dropping the KAR file in the <DDF_INSTALL_DIR>/deploy directory.
-
-[NOTE]
-====
-DDF 2.2.0+ should have this issue resolved by upgrading Karaf to v2.3.x+. Refer to com.atlassian.confluence.macro.MacroExecutionException: The JIRA server returned a trusted apps error: APP_UNKNOWN;	Unknown Application: {0};	["confluence:10311375"] (DDF-46)and KARAF-771 (https://issues.apache.org/jira/browse/KARAF-771) for more details.
-====
-
-After downloading the application's KAR file:
-
-. Copy the KAR file to a temp directory.
-. Unjar the KAR file in this temp directory.
-. Edit the `etc/org.ops4j.pax.url.mvn.cfg` configuration file. 
-. Uncomment the `org.ops4j.pax.url.mvn.repositories` property if it is commented out. 
-. Append the `org.ops4j.pax.url.mvn.repositories` property with file:`<temp_dir>/<kar_root_dir>/repository`.
-. Restart DDF.
-. Add the KAR's feature repository URL using either the command line console or the Features tab in the Web Console.
-
-Example:
-Assume the application's KAR file is named `new-app-1.2.3.kar`
-
-. Copy `new-app-1.2.3.kar` to `/my_kars temp` directory.
-. `unjar xvf /my_kars/new-app-1.2.3.kar`
-. Edit the `<DDF_INSTALL_DIR>/etc/org.ops4j.pax.url.mvn.cfg` configuration file.
-. Append `file:/my_kars/new-app-1.2.3/repository` to the `org.ops4j.pax.url.mvn.repositories` property.
-. Restart DDF.
-. At the `ddf@local>` prompt enter `features:addurl file:/my_kars/new-app-1.2.3/repository/new-app/1.2.3/new-app-1.2.3-features.xml`
-. At the `ddf@local>` prompt enter `features:list`. The new feature(s) loaded by the KAR file should be displayed and active.
 
 == OGC Filter
 
