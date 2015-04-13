@@ -6,3 +6,649 @@ include::config.adoc[]
 The DDF Standard Search UI application allows a user to search for records in the local Catalog (provider) and federated sources. Results of the search are returned in HTML format and are displayed on a globe, providing a visual representation of where the records were found.
 
 This page supports integration of this application with external frameworks.
+
+== Using the CometD Endpoint for Asynchronous Communication
+
+=== CometD Basics
+{branding} uses the CometD framework (http://cometd.org/) to perform asynchronous operations on the catalog. This is most apparent in the UI application, which is able to perform multiple queries and display them asynchronously as the results are returned. CometD has a comprehensive manual (http://docs.cometd.org/2/reference/) that details how to interact with and best use the framework with a variety of clients (e.g., javascript, java, perl, and python). This page is used to help developers understand how the UI application uses CometD, so the developer can build off of this same interface with their own implementations.
+
+==== General Operations
+
+===== Initialization
+CometD offers both Dojo and jQuery bindings that allow CometD to be easily used with those frameworks. For more information on the individual bindings, refer to the JavaScript Library (http://docs.cometd.org/2/reference/javascript.html) page in the CometD reference manual. The UI application uses the jQuery library.
+To initialize the CometD connection, an instance of CometD must be created and configured to point to the server and call the handshake, which creates the network connection.
+
+[WARNING]
+====
+The {branding} CometD endpoint is exposed at /cometd, and it is recommended to not use websockets when connecting.
+====
+
+.Example Initialization with JQuery
+[source,javascript,linenums]
+----
+// create a reference to the standard cometd object
+Cometd.Comet = $.cometd;
+// disable websocket protocol
+Cometd.Comet.websocketEnabled = false;
+// configure the location of the cometd endpoint on the server
+Cometd.Comet.configure({
+    url: 'http://server:8181/cometd'
+});
+// create network connection to server
+Cometd.Comet.handshake({});
+----
+
+===== Subscribe
+A client can asynchronously receive information from the server using subscriptions. Once the client subscribes to a particular topic, it is sent information when the server sends a response on that topic. Subscriptions are performed in the UI to retrieve information for notifications, tasks, and query results.
+
+.Example Subscription
+[source,javascript,linenums]
+----
+// subscribe to a topic, calling the function whenever a new message comes in
+var subscription = Cometd.Comet.subscribe("/ddf/notifications/**", function(resp) { ... } );
+
+// unsubscribe from a topic
+Cometd.Comet.unsubscribe(subscription);
+----
+
+[NOTE]
+====
+Further documentation is available at http://docs.cometd.org/2/reference/javascript_subscribe.html.
+====
+
+===== Publish
+Publishing allows clients to send information to the server. This allows the UI to perform queries on the server and perform operations on tasks, such as canceling a download.
+
+.Example Publish
+[source,javascript,linenums]
+----
+// perform a query on the server where data contains the search criteria
+Cometd.Comet.publish('/service/query', { data: { ... } });
+----
+
+[NOTE]
+====
+Futher documentation is available at http://docs.cometd.org/2/reference/javascript_publish.html.
+====
+
+=== {branding} Specifics
+
+[IMPORTANT]
+====
+The CometD endpoint is still undergoing changes, and the following pages describing the interfaces may change during development. Although breakage changes are not anticipated, it is recommended to watch these pages when developing components that use the CometD endpoint, so any changes made will be immediately known.
+====
+
+=== Asynchronous Notifications and Activities
+
+==== Notification Events
+
+===== Channel
+To receive all notifications, subscribe to `/ddf/notifications/**`
+
+===== Notification Format
+Notifications follow a specific format when they are published to the notifications channel.
+This message contains a data map that encapsulates the notification information.
+
+.Data Map
+[cols="1,4,1,2,3" options="header"]
+|===
+
+|Map Key
+|Description
+|Value Type
+|Possible Values
+|Example Values
+
+|application
+|Name of the application that caused the notification to be sent
+|String
+|Any
+|"Downloads"
+
+|id
+|ID of the notification "thread" – Notifications about the same event should use the same id to allow clients to filter out notifications that may be outdated.
+|String
+|Any
+|"27ec3222af1144ff827a351b1962a236"
+
+|message
+|User-readable message that explains the notification
+|String
+|Any
+|"The requested product was retrieved successfully and is available for download. "
+
+|timestamp
+|Time that the notification was sent
+|String
+|Positive long value (seconds since unix epoch)
+|"1403734355420"
+
+|title
+|User-readable title for the notification
+|String
+|Any String
+|"Product retrieval successful"
+
+|user
+|User who the notification relates to
+|String
+|Any String
+|"admin"
+
+|===
+
+.Example: Notification Message
+[source,javascript,linenums]
+----
+"data": {
+    "application": "Downloads",
+    "title": "Product retrieval successful",
+    "message": "The requested product was retrieved successfully and is available for download.",
+    "id": "27ec3222af1144ff827a351b1962a236",
+    "timestamp": "1403734355420",
+    "user": "admin"
+}
+----
+
+==== Notification Operations
+
+===== Channel
+
+A notification operation is performed by publishing a list of commands to the CometD endpoint at `/notification/action`
+
+===== Operation Format
+
+[cols="1,3,1,1,3,2" options="header"]
+|===
+
+|Map Key
+|Description
+|Value Type
+|Possible Values
+|Example Values
+|Comments
+
+|action
+|Type of action to request
+|String
+|Any
+|"remove"
+|
+
+|id
+|ID of the notification to which the action relates
+|String
+|Any
+|"27ec3222af1144ff827a351b1962a236"	This is the id of the notification, nothing else
+
+.Example: Notification Operation Request
+[source,javascript,linenums]
+----
+"data": [ {
+    "action": "remove",
+    "id": "27ec3222af1144ff827a351b1962a236"
+} ]
+----
+
+==== Activity Events
+
+===== Channel
+To receive all activity updates, subscribe to `/ddf/activities/**`
+
+===== Activity Format
+Activity update messages follow a specific format when they are published to the activities channel.
+These messages contain a data map that encapsulates the activity information.
+
+.Data Map
+[cols="1,2,1,3,4" options="header"]
+|===
+
+|Map Key
+|Description
+|Value Type
+|Possible Values
+|Example Values
+
+|category
+|Category of the activity
+|String
+|Any String
+|"Product Retrieval"
+
+|event.topics
+|
+|String
+|
+|
+
+|id
+|ID that uniquely identifies the activity that sent out the update. Not required to be unique per update.
+|String
+|Any String
+|"b72ccdf6-8ca7-4f53-a0f6-b0ad264393b0"
+
+|message
+|User-readable message that explains the the current activity status
+|String
+|Any String
+|"Resource retrieval downloading."
+
+|operations
+|Map of operations that can be performed on this activity
+|JSON Map
+|A map of keys with populated values (that evaluate to 'true' rather than 'null' 'undefined' or 'false')
+
+These operations and their values can be used by clients to communicate back to the server by sending a message back on the same channel.
+
+If the value is a URL, the client should invoke the URL as a result of the user invoking the activity operation.
+
+If the value is not a URL, the client should send a message back to the server on the same topic with the operation name.
+
+Note: the DDF UI will interpret several values with special icons:
+. "download"
+. "retry"
+. "cancel"
+. "pause"
+. "remove"
+. "resume"
+
+|----
+"operations" : {
+  "download" : "http://example.com/product"
+  }
+----
+
+|progress
+|Percentage value of activity completion
+|String
+|Integer between 0 - 100 followed by a %
+|"45%"
+
+|status
+|Enumerated value that displays the current state of the activity
+|String
+|"STARTED", "RUNNING", "FINISHED", "STOPPED", "PAUSED", or "FAILED"
+|"RUNNING"
+
+|timestamp
+|Time that the activity update was sent
+|String
+|Positive long value (seconds since unix epoch)
+|1403801920875
+
+|title
+|User-readable title for the activity update
+|String
+|Any String
+|"Download Complete"
+
+|user
+|User who started the activity
+|String
+|Any String
+|"admin"
+
+|Custom Value
+|Additional keys can be inserted by the component sending the activity notification
+|Any JSON Type
+|
+|
+
+|===
+
+.Example: Activity update with custom 'bytes' field
+[source,javascript,linenums]
+----
+data: {
+    "category": "Product Retrieval",
+    "event.topics": "ddf/activities/broadcast",
+    "id": "a62f6666-fc41-4a19-91f1-485e73a564b5",
+    "message": "The requested product is being retrieved.  Standby.",
+    "operations": {
+        "cancel" : true
+    },
+    "progress": "",
+    "status": "RUNNING",
+    "timestamp": "1403801920875",
+    "title": "Product downloading",
+    "user": "admin",
+
+    "bytes": 635084800
+}
+----
+
+==== Activity Operations
+
+===== Channel
+
+An activity operation is published to the channel /service/action
+
+.Activity Format
+[cols="1,2,1,4,2,3" options="header"]
+|===
+
+|Map Key
+|Description
+|Value Type
+|Possible Values
+|Example Value
+|Comments
+
+|action
+|Requested action
+|String
+|Any String. Common values are "download", "retry", "cancel", "pause", "remove", "resume"
+|"cancel"
+|Based on the operations map that comes in from a activity event.
+
+|id
+|ID of the activity
+|String
+|Any String
+|"a62f6666-fc41-4a19-91f1-485e73a564b5"
+|The Activity ID to which the requested operation relates
+
+|===
+
+.Example: Activity Operation Request Message
+[source,javascript,linenums]
+----
+"data": [ {
+    "action":"cancel",
+    "id":"a62f6666-fc41-4a19-91f1-485e73a564b5"
+} ]
+----
+
+==== Retrieving Persisted Notifications and Activities
+
+To retrieve persisted notifications or activities, publish an empty message on the corresponding base channel. This will trigger a response to an awaiting Cometd subscription.
+
+.Example: Persistence Retrieval
+----
+Cometd.Comet.publish("/ddf/notifications", {});
+Cometd.Comet.publish("/ddf/activities", {});
+----
+
+=== Asynchronous Queries
+
+.Asynchronous query
+[NOTE]
+====
+An asynchronous query is performed using the CometD Endpoint, which is currently packaged with the DDF UI application.
+====
+
+==== Query Request
+
+===== Channel
+All query requests should be published to the `/service/query` channel.
+
+===== Request Format
+When performing a CometD publish command, the data being published must be valid json with 'data' being the key to a map that contains the following values:
+
+[cols="1,3,1,1,2,3" options="header"]
+|===
+
+|Map Key
+|Description
+|Value Type
+|Possible Values
+|Example Search UI Value
+|Comments
+
+|count
+|Number of entries to return in the response
+|Number
+|Positive integer
+|250
+|
+
+|format
+|Format that the results should be displayed in
+|String
+|"geojson"
+|"geojson"
+|"geojson" is the recommended format to use
+
+|id
+|
+|String
+|
+|"4303ba5d-21af-4878-9a4c-808e80052e6c"
+|
+
+|src
+|Comma-delimited list of federated sites to search over
+|String
+|Any list of site names.
+|"DDF-OS,ddf.distribution"
+|
+
+|start
+|Specifies the number of the first result that should be returned
+|Number
+|Positive integer
+|1
+|10 would mean the 10th result from the query would be returned as the first one in the response.
+
+|cql
+|Search Filter
+|String
+|OGC CQL formatted string
+|"anyText LIKE '*'"
+|See http://www.opengeospatial.org/standards/cat[OpenGIS® Catalogue Services Specification] for more details
+
+|===
+
+===== Examples
+
+.Enterprise Contextual
+[source,javascript,linenums]
+----
+"data": {
+    "count": 250,
+    "format": "geojson",
+    "id": "4303ba5d-21af-4878-9a4c-808e80052e6c",
+    "cql": "anyText LIKE '*'",
+    "src": "DDF-OS,ddf.distribution",
+    "start": 1
+}
+----
+
+.Multiple Site Temporal Absolute
+[source,javascript,linenums]
+----
+"data": {
+    "count": 250,
+    "format": "geojson",
+    "id": "4303ba5d-21af-4878-9a4c-808e80052e6c",
+    "cql": "modified DURING 2014-09-01T00:00:00Z/2014-09-30T00:00:00Z",
+    "src": "DDF-OS,ddf.distribution",
+    "start": 1,
+}
+----
+
+.Enterprise Spatial Bounding Box
+[source,javascript,linenums]
+----
+"data": {
+    "count": 250,
+    "format": "geojson",
+    "id": "4303ba5d-21af-4878-9a4c-808e80052e6c",
+    "cql": "INTERSECTS(anyGeo, POLYGON ((-112.7786 32.2159, -112.7786 45.6441, -83.7297 45.6441, -83.7297 32.2159, -112.7786 32.2159)))",
+    "start": 1
+}
+----
+
+==== Query Response
+
+===== Channel
+The query responses are returned on the /<id> channel, which should be subscribed to in order to retrieve the results.
+Replace <id> with the id that was used in the request.
+
+===== Response Format
+
+The response is returned as a data map that contains an internal map with the following keys:
+
+[cols="2,4,1,1,3" options="header"]
+|===
+
+|Map Key
+|Description
+|Value
+|Type
+|Possible Values
+|Comments
+
+|id
+|ID that corresponds to the request
+|String
+|ID value
+|
+
+|hits
+|Total number of query hits that were found by the server
+|Number	Integer
+|>= 0
+|This contains the total amount of items that were found by the query.
+Depending on the 'count' in the request, not all of the results may be returned.
+
+|results
+|Array of metacard results
+|Array of Maps
+|GeoJson formatted value
+|This format is defined by the GeoJSON Metacard Transformer.
+
+|results/metacard/actions
+|An array of actions that applies to each metacard, injected into each metacard
+|Array of Maps
+|Array of objects, possibly empty if no actions are available
+|Each Action will contain an id, title, description, and url
+
+|status
+|Array of status for each source queried
+|Array
+|
+|
+
+|status/state
+|Specifies the state of the query
+|String
+|SUCCEEDED, FAILED, ACTIVE
+|
+
+|status/elapsed
+|Time in milliseconds that it took for the source to complete the request
+|Number
+|Integer >= 0
+|
+
+|status/hits
+|Number of records that were found on the source that matched the query
+|Number
+|Integer >= 0
+|
+
+|status/id
+|ID of the federated source
+|String
+|Any string value
+|
+
+|status/results
+|Number of results that were returned in this response from the source
+|Number
+|Integer >= 0
+|
+
+|types
+|A Map mapping a metacard-type's name to a map about that metacard-type.
+|Only metacard-types represented by the metacards returned in the query are represented.
+|Map of Maps
+|The Map defining a particular metacard-type maps the fields supported by that metacard-type to the datatype for that particular field.
+
+|===
+
+===== Examples
+
+.Example Query Response
+[source,javascript,linenums]
+----
+"data": {
+            "id": "4303ba5d-21af-4878-9a4c-808e80052e6c",
+            "hits": 20,
+            "results": [
+                {
+                    "metacard": {
+                        "geometry": {
+                            "coordinates": [
+                                174.77557,
+                                -41.28664
+                            ],
+                            "type": "Point"
+                        },
+                        "properties": {
+                            "created": "2014-07-02T18:53:59.496+0000",
+                            "id": "126e16d340dd47b7ad823b70662ed8ca",
+                            "metacard-type": "ddf.metacard",
+                            "metadata": "...xml...",
+                            "modified": "2014-07-02T18:53:59.496+0000",
+                            "source-id": "ddf.distribution",
+                            "title": "NORMAL WORK RESUMES AT NEW ZEALAND PORTS"
+                        },
+                        "type": "Feature",
+                        "actions": [
+                            {
+                                "id": "catalog.data.metacard.resource",
+                                "title": "Get resource",
+                                "description": "Gets the Metacard resource",
+                                "url": "http://ddf.codice.org:8181/services/catalog/sources/ddf.distribution/85227c45d9c34fe1ad3e725a72d6b44a?transform=resource"
+                            },
+                            {
+                                "id": "catalog.data.metacard.html",
+                                "title": "Get html",
+                                "description": "Gets the Metacard html",
+                                "url": "http://ddf.codice.org:8181/services/catalog/sources/ddf.distribution/85227c45d9c34fe1ad3e725a72d6b44a?transform=html"
+                            }
+                        ]
+                    }
+                },
+                ...other metacards...
+            ],
+            "status": [
+                {
+                    "elapsed": 539,
+                    "hits": 10,
+                    "id": "DDF-OS",
+                    "results": 10,
+                    "state": "SUCCEEDED"
+                },
+                {
+                    "elapsed": 11,
+                    "hits": 10,
+                    "id": "ddf.distribution",
+                    "results": 10,
+                    "state": "SUCCEEDED"
+                }
+            ],
+            "types": {
+                "ddf.metacard" : {
+                    "resource-uri" : "STRING",
+                    "location" : "GEOMETRY",
+                    "expiration" : "DATE",
+                    "metadata-target-namespace" : "STRING",
+                    "metadata-content-type" : "STRING",
+                    "effective" : "DATE",
+                    "modified" : "DATE",
+                    "id" : "STRING",
+                    "title" : "STRING",
+                    "thumbnail" : "BINARY",
+                    "created" : "DATE",
+                    "metadata-content-type-version" : "STRING",
+                    "resource-size" : "STRING",
+                    "metadata" : "XML"
+                },
+                ...other metacard types...
+            }
+        }
+    }
+----
