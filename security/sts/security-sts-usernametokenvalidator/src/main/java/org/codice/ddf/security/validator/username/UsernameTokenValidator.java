@@ -87,7 +87,7 @@ public class UsernameTokenValidator implements TokenValidator {
 
     private List<JaasRealm> realms;
 
-    private Map<String, Validator> validators = new HashMap<>();
+    protected Map<String, Validator> validators = new HashMap<>();
 
     public void init() {
         if (realms != null) {
@@ -224,6 +224,9 @@ public class UsernameTokenValidator implements TokenValidator {
                     } catch (WSSecurityException ex) {
                         LOGGER.debug("Unable to validate user against {}" + entry.getKey(), ex);
                     }
+                }
+                if (ReceivedToken.STATE.INVALID.equals(validateTarget.getState())) {
+                    return response;
                 }
                 //end new section
             }

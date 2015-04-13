@@ -47,7 +47,6 @@ import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.codice.ddf.configuration.ConfigurationManager;
 import org.codice.ddf.configuration.ConfigurationWatcher;
-import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -184,8 +183,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
      */
     @Override
     public boolean supports(AuthenticationToken token) {
-        boolean supported = token instanceof SAMLAuthenticationToken ||
-                token instanceof BSTAuthenticationToken;
+        boolean supported = token != null && token.getCredentials() != null;
 
         if (supported) {
             LOGGER.debug("Token {} is supported by {}.", token.getClass(),
@@ -259,7 +257,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
      * @param authToken The subject the security token is being request for.
      * @return security token (SAML assertion)
      */
-    private SecurityToken requestSecurityToken(Object authToken) {
+    protected SecurityToken requestSecurityToken(Object authToken) {
         SecurityToken token = null;
         String stsAddress = stsClientConfig.getAddress();
 
@@ -301,7 +299,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
      * @param securityToken The token being renewed.
      * @return security token (SAML assertion)
      */
-    private SecurityToken renewSecurityToken(SecurityToken securityToken) {
+    protected SecurityToken renewSecurityToken(SecurityToken securityToken) {
         SecurityToken token = null;
         String stsAddress = stsClientConfig.getAddress();
 
@@ -642,7 +640,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
     /**
      * Helper method to setup STS Client.
      */
-    private void configureStsClient() {
+    protected void configureStsClient() {
         LOGGER.debug("Configuring the STS client.");
 
         try {
@@ -713,7 +711,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
      * Create the claims element with the claims provided in the STS client configuration in the
      * admin console.
      */
-    private Element createClaimsElement() {
+    protected Element createClaimsElement() {
         Element claimsElement = null;
         List<String> claims = new ArrayList<String>();
         claims.addAll(stsClientConfig.getClaims());

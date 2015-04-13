@@ -75,7 +75,7 @@ public class X509PathTokenValidator implements TokenValidator {
 
     private Validator validator = new SignatureTrustValidator();
 
-    private Merlin merlin;
+    protected Merlin merlin;
 
     private String signaturePropertiesPath;
 

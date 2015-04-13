@@ -17,6 +17,7 @@ package org.codice.ddf.security.handler.api;
 import ddf.security.PropertiesLoader;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.xml.security.Init;
 import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,7 @@ public class PKIAuthenticationTokenFactory {
         } catch (WSSecurityException | IOException e) {
             LOGGER.error("Unable to read merlin properties file.", e);
         }
+        Init.init();
     }
 
     public PKIAuthenticationToken getTokenFromString(String certString, boolean isEncoded, String realm) {
