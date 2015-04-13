@@ -24,4 +24,9 @@ public class AnonymousPrincipal implements Principal {
     public String getName() {
         return "Anonymous";
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
