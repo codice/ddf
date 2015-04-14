@@ -667,24 +667,6 @@
                                 </requires>
                             </configuration>
                         </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-assembly-plugin</artifactId>
-                            <version>2.5.3</version>
-                            <configuration>
-                                <descriptor>${project.basedir}/src/assembly/bin.xml</descriptor>
-                                <finalName>${project.build.finalName}-documentation</finalName>
-                            </configuration>
-                            <executions>
-                                <execution>
-                                    <id>include-docs</id>
-                                    <phase>package</phase>
-                                    <goals>
-                                        <goal>single</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                        </plugin>
                     </plugins>
                 </pluginManagement>
             </build>
