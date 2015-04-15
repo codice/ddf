@@ -1,5 +1,5 @@
 = Integrating {branding}
-include::../classes/config.adoc[]
+include::config.adoc[]
 
 == Overview
 Distributed Data Framework ({branding}) is an agile and modular integration framework.  It is primarily focused on data integration, enabling clients to insert, query and transform information from disparate data sources via the {branding} Catalog. A Catalog API allows integrators to insert new capabilities at various stages throughout each operation.  {branding} is designed with the following architectural qualities to benefit integrators.
