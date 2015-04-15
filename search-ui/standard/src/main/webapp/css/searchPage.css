@@ -1521,6 +1521,9 @@ a.pause:hover, a.pause:focus {
 .heading-with-help-tip i {
     display: inline-block;
 }
+.heading-with-help-tip h6 {
+    display: inline-block;
+}
 .keyword-heading-with-help-tip i {
     display: inline-block;
 }
