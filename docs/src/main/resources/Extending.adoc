@@ -1,0 +1,1134 @@
+= Extending {branding}
+include::config.adoc[]
+
+== Overview
+
+This guide discusses the several extension points and components permitted by the Distributed Data Framework (DDF) Catalog API. Using code examples, diagrams, and references to specific instances of the Catalog API, this guide provides details on how to develop and integrate various DDF components.
+
+== Building DDF 
+
+=== Prerequisites
+
+* Install J2SE 7 SDK (http://www.oracle.com/technetwork/java/javase/downloads/index.html).
+* Verify that the JAVA_HOME environment variable is set to the newly installed JDK location, and that the PATH includes `%JAVA_HOME%\bin` (for Windows) or `$JAVA_HOME$/bin` (*nix).
+Install Maven 3.0.4 or later (http://maven.apache.org/download.cgi). Verify that the PATH includes the `MVN_HOME/bin` directory.
+In addition, access to a Maven repository with the latest project artifacts and dependencies is necessary in order for a successful build. The following sample settings.xml (the default settings file) can be used to access the public repositories with the required artifacts. For more help on how to use the settings.xml file, refer to the Maven settings reference page (http://maven.apache.org/settings.html).
+
+.Sample settings.xml file
+[source,xml,linenums]
+----
+<settings>
+	<!-- If proxy is needed
+	<proxies>
+		<proxy>
+		</proxy>
+	</proxies>
+	-->
+</settings>
+----
+
+.Handy Tip on Encrypting Passwords
+[TIP]
+====
+See this link:http://maven.apache.org/guides/mini/guide-encryption.html[Maven guide] on how to encrypt the passwords in your settings.xml.
+====
+
+=== Procedures
+
+==== Run the Build
+
+[NOTE]
+====
+In order to run through a full build, be sure to have a clone for all repositories in the same folder:
+
+ddf (https://github.com/codice/ddf.git) +
+ddf-admin (https://github.com/codice/ddf-admin.git) +
+ddf-catalog (https://github.com/codice/ddf-catalog.git) +
+ddf-content (https://github.com/codice/ddf-content.git) +
+ddf-parent (https://github.com/codice/ddf-parent.git) +
+ddf-platform (https://github.com/codice/ddf-platform.git) +
+ddf-spatial (https://github.com/codice/ddf-spatial.git) +
+ddf-support  (https://github.com/codice/ddf-support.git) +
+ddf-ui (https://github.com/codice/ddf-ui.git)
+====
+
+* Build command example for one individual repository.
+----
+# Build is run from the top level of the specified repository in a command line prompt or terminal.
+cd ddf-support
+mvn clean install
+ 
+# At the end of the build, a BUILD SUCCESS will be displayed.
+----
+* Build command example to build all repositories. This must be performed at the top level folder that contains all the repositories. A command list would look like this:
+
+----
+# Build is run from the top level folder that contains all the repositories in a command line prompt or terminal.
+ 
+cd ddf-support
+mvn clean install
+ 
+cd ../ddf-parent
+mvn clean install
+ 
+cd ../ddf-platform	
+mvn clean install
+ 
+cd ../ddf-admin
+mvn clean install
+
+cd ../ddf-catalog
+mvn clean install
+ 
+cd ../ddf-content
+mvn clean install
+ 
+cd ../ddf-spatial
+MVN_HOME clean install
+ 
+cd ../ddf-ui
+mvn clean install
+ 
+cd ../ddf
+mvn clean install
+
+# This will fully compile each individual app. From here you may hot deploy the necessary apps on top of the DDF Kernel.  
+----
+
+[WARNING]
+====
+To use the updated apps in a DDF distribution, update the versions referenced in the "ddf" repository.
+====
+
+[NOTE]
+====
+[The zip distribution of DDF is contained in the DDF app in the distribution/ddf/target directory after the DDF app is built.
+====
+* Optionally, create a reactor pom that will allow you to perform the entire build process by calling a build on one pom rather than all of them.  This pom must reside in the top-level folder that holds all the repositories.  An example of the file would be:
+
+[source,xml, linenums]
+----
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+ 
+     <groupId>org.codice.ddf</groupId>
+     <artifactId>reactor</artifactId>
+     <version>1.0.0-SNAPSHOT</version>
+     <packaging>pom</packaging>
+     <name>DDF Reactor</name>
+     <description>Distributed Data Framework (DDF) is an open source, modular integration framework</description>
+ 
+     <modules>
+         <module>ddf-support</module>
+         <module>ddf-parent</module>
+         <module>ddf-platform</module>
+         <module>ddf-admin</module>
+         <module>ddf-security</module>
+         <module>ddf-catalog</module>
+         <module>ddf-content</module>
+         <module>ddf-spatial</module>
+         <module>ddf-solr</module>
+         <module>ddf-ui</module>
+         <module>ddf</module>
+     </modules>
+ 
+    <build>
+         <plugins>
+             <plugin>
+                 <groupId>org.apache.maven.plugins</groupId>
+                 <artifactId>maven-deploy-plugin</artifactId>
+                 <version>2.4</version>
+                 <configuration>
+                     <!-- Do not deploy the reactor pom -->
+                     <skip>true</skip>
+                 </configuration>
+             </plugin>
+         </plugins>
+     </build>
+  
+</project>
+----
+
+[NOTE]
+====
+It may take several moments for Maven to download the required dependencies in the first build. Build times may vary based on network speed and machine specifications. 
+====
+
+[WARNING]
+====
+In certain circumstances, the build may fail due to a 'java.lang.OutOfMemory: Java heap space' error. This error is due to the large number of sub-modules in the DDF build, which causes the heap space to run out in the main Maven JVM. To fix this issue, set the system variable `MAVEN_OPTS` with the value `-Xmx512m` `-XX:MaxPermSize=256m` before running the build.
+Example on Linux system with the bash shell: `export MAVEN_OPTS='-Xmx512m -XX:MaxPermSize=256m'`
+====
+
+=== Troubleshoot Build Errors on ddf-admin and ddf-ui on a Windows Platform
+Currently, the developers are using the following tools:
+
+[cols="2" options="header"]
+|===
+
+|Name
+|Version
+
+|bower	
+|1.3.2
+
+|node.js	
+|v0.10.26
+
+|npm	
+|1.4.3
+
+|===
+
+[NOTE]
+====
+There have been intermittent build issues during the bower install.  The error code that shows is an EPERM related to either 'renaming' files or 'unlinking' files.  This issue has been tracked multiple times on the bower github page.  The following link contains the most recent issue that was tracked:
+https://github.com/bower/bower/issues/991
+ 
+This issue will be closely monitored for a full resolution. Until a proper solution is found, there are some options that may solve the issue.
+. Re-run the build. Occasionally, the issue occurs on first run and will resolve itself on the next.
+. Clean out the cache. There may be a memory issue, and a cache clean may help solve the issue.
++
+----
+bower cache clean
+npm cache clean
+----
++
+.Reinstall bower.  An occasional reinstall may solve the issue.
++
+----
+npm uninstall -g bower && npm install -g bower
+----
++
+. Download and use Cygwin to perform the build. This may allow a user to simulate a run on a *nix system, which may not experience these issues.
+
+These options are taken from suggestions provided on github issue tickets. There have been several tickets created and closed, and several workarounds have been suggested. However, it appears that the issue still exists. Once more information develops on the resolution of this issue, this page will be updated.
+====
+
+== DDF Development Prerequisites
+
+[NOTE]
+====
+Development requires full knowledge of the DDF Catalog.
+====
+
+DDF is written in Java and requires a moderate amount of experience with the Java programming language, along with Java terminology, such as packages, methods, classes, and interfaces.
+DDF uses a small OSGi runtime to deploy components and applications. Before developing for DDF, it is necessary that developers have general knowledge on OSGi and the concepts used within. This includes, but is not limited to, Catalog Commands and the following topics:
+
+* The Service Registry
+** How services are registered
+** How to retrieve service references
+* Bundles
+** Their role in OSGi
+** How they are developed
+
+Documentation on OSGi can be viewed at the OSGi Alliance website (http://www.osgi.org). Helpful literature for beginners includes OSGi and Apache Felix 3.0 Beginner's Guide by Walid Joseph Gédéon and OSGi in Action: Creating Modular Applications in Java by Richard Hall, Karl Pauls, Stuart McCulloch, and David Savage. For specific code examples from DDF, source code can be seen in the OSGi Services section.
+
+=== Getting Set Up
+To develop on DDF, access to the source code via Github is required. 
+
+=== Integrated Development Environments (IDE)
+The DDF source code is not tied to any particular IDE. However, if a developer is interested in setting up the Eclipse IDE, they can view the Sonatype guide (http://books.sonatype.com/m2eclipse-book/reference/) on developing with Eclipse.
+ 
+=== Additional Documentation
+Additional documentation on developing with the core technologies used by DDF can be found on their respective websites.
+
+Notably:
+* Karaf (http://karaf.apache.org/)
+* CXF (http://cxf.apache.org/docs/overview.html)
+* Geotools (http://docs.geotools.org/latest/developer/)
+
+=== Major Directories
+During DDF installation, the major directories shown in the table below are created, modified, or replaced in the destination directory.
+
+[cols="1,9" options="header"]
+|===
+
+|Directory Name
+|Description
+
+|bin
+|Scripts to start and stop DDF
+
+|data	
+|The working directory of the system – installed bundles and their data
+
+|data/log/ddf.log
+|Log file for DDF, logging all errors, warnings, and (optionally) debug statements. This log rolls up to 10 times, frequency based on a configurable setting (default=1 MB)
+
+|deploy
+|Hot-deploy directory – KARs and bundles added to this directory will be hot-deployed (Empty upon DDF installation)
+
+|docs	
+|The DDF Catalog API Javadoc
+
+|etc
+|Directory monitored for addition/modification/deletion of third party .cfg configuration files
+
+|etc/ddf
+|Directory monitored for addition/modification/deletion of DDF-related .cfg configuration files (e.g., Schematron configuration file)
+
+|etc/templates
+|Template .cfg files for use in configuring DDF sources, settings, etc., by copying to the etc/ddf directory.
+
+|lib
+|The system's bootstrap libraries. Includes the ddf-branding.jar file which is used to brand the system console with the DDF logo.
+|licenses	
+|Licensing information related to the system
+
+|system
+|Local bundle repository. Contains all of the JARs required by DDF, including third-party JARs.
+
+|===
+
+== Formatting Source Code
+A code formatter for the Eclipse IDE that can be used across all DDF projects will allow developers to format code similarly and minimize merge issues in the future.
+
+DDF uses an updated version of the Apache ServiceMix Code Formatter (http://servicemix.apache.org/developers/building.html) for code formatting. 
+
+DOWNLOAD THIS FILE: link:ddf-eclipse-code-formatter.xml 
+
+. Follow the link. 
+. Right-click on *Raw*.
+. Select *Save As*.
+
+image::EclipseFormatterWindow.png[Eclipse Code Formatter Window]
+
+=== Load the Code Formatter Into the Eclipse IDE
+
+. In Eclipse, select *Window → Preferences*. The Preferences window opens.
+. Select *Java → Code Style → Formatter*.
+. Select the *Edit...* button and load the attached ddf-eclipse-code-formatter.xml file.
+. Select the *OK* button.
+
+=== Load the Code Formatter Into IntelliJ IDEA
+IntelliJ IDEA 13 is capable of importing Eclipse's Code Formatter directly from within IntelliJ without the use of any plugins.
+
+. Open *IntelliJ* IDEA.
+. Select *File → Settings → Code Style → Java*.
+. Select *Manage*. 
+. Select the *Import* button to Import ddf-eclipse-code-formatter.xml file.
+
+=== Format Your Source Code Using Eclipse 
+A developer may write code and format it before saving.
+
+. Before the file is saved, highlight all of the source code in the IDE editor window.
+. Right-click on the highlighted code.
+. Select *Source → Format*. The code formatter is applied to the source code and the file can be saved. 
+
+=== Set Up Save Actions in Eclipse
+A developer can also set up Save Actions to format the source code automatically.
+
+. Open Eclipse.
+. Select *Window → Preferences* (*Eclipse → Preferences* on Mac). The Preferences window opens.
+. Select *Java → Editor → Save Actions*.
+. Select *Perform the selected actions on save*.
+. Select *Format source code*.
+. Select *Format all lines* or *Format edited lines*, as necessary. 
+. Optionally, select *Organize imports* (recommended).
+. Select the *Apply* button.
+. Select the *OK* button.
+
+image::save_actions.png[Save Actions]
+
+=== Format Source Code Using IntelliJ
+In the toolbar, select *Code → Reformat Code* or use the keyboard shortcut `Ctrl-Alt-L`.
+
+== Ensuring Compatibility
+
+=== Compatibility Goals
+The DDF framework, like all software, will mature over time. Changes will be made to improve efficiency, add features, and fix bugs. To ensure that components built for DDF and its sub-frameworks are compatible, developers must use caution when establishing dependencies from developed components.
+
+=== Guidelines for Maintaining Compatibility
+
+==== DDF Framework
+For components written at the DDF Framework level (see Developing at the Framework Level), adhere to the following specifications: 
+
+[cols="2,1,5" options="header"]
+|===
+
+|Standard/Specification
+|Version
+|Current Implementation (subject to change)
+
+|OSGi Framework	
+|4.2	
+|Apache Karaf 2.x +
+Eclipse Equinox 
+
+|OSGi Enterprise Specification	
+|4.2	
+|Apache Aries (Blueprint) +
+Apache Felix FileInstall and ConfigurationAdmin and Web Console (for Metatype support)
+|===
+
+[IMPORTANT]
+====
+Avoid developing dependencies on the implementations directly, as compatibility in future releases is not guaranteed.
+====
+
+=== DDF Catalog API
+For components written for the DDF Catalog (see Developing Catalog Components), only dependencies on the current major version of the Catalog API should be used. Detailed documentation of the Catalog API can be found in the Catalog API Javadocs.
+
+[cols="1,1,5"]
+|===
+
+|Dependency
+|Version Interval
+|Notes
+
+|DDF Catalog API	
+|[2.0, 3.0)	
+|Major version will be incremented (to 3.0) if/when compatibility is broken with the 2.x API.
+
+|===
+
+=== DDF Software Versioning
+
+DDF follows the Semantic Versioning White Paper for bundle versioning (see Software Versioning).  
+
+=== Third Party and Utility Bundles
+It is recommended to avoid building directly on included third party and utility bundles. These components do provide utility (e.g., JScience) and reuse potential; however, they may be upgraded or even replaced at anytime as bug fixes and new capabilities dictate. For example, Web services may be built using CXF. However, the distributions frequently upgrade CXF between releases to take advantage of new features. If building on these components, be aware of the version upgrades with each distribution release.
+
+Instead, component developers should package and deliver their own dependencies to ensure future compatibility.  For example, if re-using a bundle like `commons-geospatial`, the specific bundle version that you are depending on should be included in your packaged release, and the proper versions should be referenced in your bundle(s).
+
+=== Best Practices
+* Always use a version number when exporting a package. In the following example, the `${project.artifactId}` represents the project and artifactId of the package being exported. The `${project.version}` represents the version of the project.
+
+.Export Example
+[source,xml,linenums]
+----
+<Export-Package>
+  ${project.artifactId}*;version=${project.version}
+</Export-Package>
+----
+
+* Try to avoid deploying multiple versions of a bundle. Although OSGi is designed to support multiple versions, other developers may not include the versions of the packages that are being imported. If the bundle is versioned and designed appropriately, typically, having multiple versions of the bundle will not be an issue. However, if each bundle is competing for a specific resource, race conditions may occur.  Third party and utility bundles (often denoted by commons in the bundle name) are the general exception to this rule, as these bundles will likely function as expected with multiple versions deployed.
+
+== Development Recommendations
+
+=== Javascript
+Avoid using *console.log*
+
+=== Package Names
+Use singular package names.
+
+=== Author Tags
+Author tags are discouraged from being placed in the source code, as they can be a barrier to collaboration and have potential legal ramifications.
+
+=== Unit Testing
+All code should contain unit tests that are able to test out any localized functionality within that class. When working with OSGi, code may have references to various services and other areas that are not available at compile-time. One way to work around the issue of these external dependencies is to use a mocking framework.
+
+.Recommended Framework
+[NOTE]
+====
+The recommended framework to use with DDF is Mockito: https://github.com/mockito/mockito. This test-level dependency is managed by the ddf-parent pom and is used to standardize the version being used across DDF.
+====
+
+=== Logging
+There are many logging frameworks available for Java.
+
+.Recommended Framework
+[NOTE]
+====
+To maintain the best compatibility, the recommended logging framework is Simple Logging Facade for Java (SLF4J) (http://www.slf4j.org/), specifically the slf4j-api. SLF4J allows a very robust logging API while letting the backend implementation be switched out seamlessly. Additionally, it is compatible with pax logging and natively implemented by logback.
+====
+
+DDF code uses the first five SLF4J log levels:
+
+. trace (the least serious)
+. debug
+. info
+. warn
+. error (the most serious)
+
+Examples:
+[source,java,linenums]
+----
+//Check if trace is enabled before executing expense XML processing
+if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("XML returned: {}", XMLUtils.toString(xml));
+}
+//It is not necessary to wrap with LOGGER.isTraceEnabled() since slf4j will not construct the String unless
+//trace level is enabled
+LOGGER.trace("Executing search: {}", search);
+----
+ 
+=== Dependency Injection Frameworks
+It is highly recommended to use a dependency injection framework, such as Blueprint, Spring-DM, or iPojo for non-advanced OSGi tasks. Dependency injection frameworks allow for more modularity in code, keep the code's business logic clean of OSGi implementation details, and take the complexity out of the dynamic nature of OSGi. In OSGi, services can be added and removed at any time, and dependency injection frameworks are better suited to handle these types of situations. Allowing the code to be clean of OSGi packages also makes code easier to reuse outside of OSGi. These frameworks provide code conveniences of service registration, service tracking, configuration property management, and other OSGi core principles. 
+
+=== Basic Security 
+(Provided by Pierre Parrend (http://www.slideshare.net/kaihackbarth/security-in-osgi-applications-robust-osgi-platforms-secure-bundles))
+
+* Bundles should
+** Never use synchronized statements that rely on third party code. Keep multi-threaded code in mind when using synchronized statements in general, as they can lead to performance issues.
+** Only have dependencies on bundles that are trusted.
+* Shared Code
+** Provide only final static non-mutable fields.
+** Set security manager calls during creation in all required places at the beginning of methods.
+*** All Constructors
+*** clone() method if a class implements Cloneable
+*** readObject(ObjectInputStream) if the class implements Serializable
+** Have security check in final methods only.
+* Shared Objects (OSGi services)
+** Only have basic types and serializable final types as parameters.
+** Perform copy and validation (e.g., null checks) of parameters prior to using them.
+** Do not use Exception objects that carry any configuration information.
+
+=== OSGi Services
+
+DDF uses resource injection to retrieve and register services to the OSGi registry. There are many resource injection frameworks that are used to complete these operations. Blueprint and Spring DM are both used by DDF. There are many tutorials and guides available on the Internet for both of these frameworks. Refer to the Additional Resources section for details not covered in this guide. Links to some of these guides are given in the External Links section of this page.
+
+==== Spring DM - Retrieving a Service Instance
+
+.Spring DM example of retrieving and injecting services
+[source,xml,linenums]
+----
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:osgi="http://www.springframework.org/schema/osgi">
+ 
+  <osgi:reference id="ddfCatalogFramework" interface="ddf.catalog.CatalogFramework" />
+ 
+  <bean class="my.sample.NiftyEndpoint">
+     <constructor-arg ref="ddfCatalogFramework" />
+  </bean>
+</beans>
+----
+
+[cols="1,7" options="header"]
+|===
+
+|Line #
+|Action
+
+|5	
+|Retrieves a Service from the Registry
+
+|8	
+|Instantiates a new object, injecting the retrieved Service as a constructor argument
+
+|===
+
+==== Blueprint - Retrieving a Service Instance
+
+.Blueprint example of retrieving and injecting services
+[source,xml,linenums]
+----
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+ 
+ <reference id="ddfCatalogFramework" interface="ddf.catalog.CatalogFramework" />
+ 
+ <bean class="my.sample.NiftyEndpoint" >
+    <argument ref="ddfCatalogFramework" />
+ </bean>
+ 
+</blueprint>
+----
+
+[cols="1,9" options="header"]
+|===
+
+|Line #
+|Action
+
+|3	
+|Retrieves a Service from the Registry
+
+|6	
+|Instantiates a new object, injecting the retrieved Service as a constructor argument
+
+|===
+
+==== Blueprint - Registering a Service into the Registry
+
+.Creating a bean and registering it into the Service Registry
+[source,xml,linenums]
+----
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+ 
+  <bean id="transformer" class="my.sample.NiftyTransformer"/>
+ 
+  <service ref="transformer" interface="ddf.catalog.transform.QueryResponseTransformer" />
+ 
+</blueprint>
+----
+
+[cols="1,9" options="header"]
+|===
+
+|Line #
+|Action
+
+|3	
+|Instantiates a new object
+
+|5	
+|Registers the object instance created in Line 3 as a service that implements the `ddf.catalog.transform.QueryResponseTransformer` interface
+
+|===
+
+==== Packaging Capabilities as Bundles
+Services and code are physically deployed to DDF using bundles. The bundles within DDF are created using the maven bundle plug-in. Bundles are Java JAR files that have additional metadata in the MANIFEST.MF that is relevant to an OSGi container.
+Alternative Bundle Creation Methods
+
+[TIP]
+====
+Using Maven is not necessary to create bundles. Alternative tools exist, and OSGi manifest files can also be created by hand, although hand editing should be avoided by most developers.
+====
+
+See external links (below) for resources that give in-depth guides on creating bundles.
+
+===== Creating a Bundle
+
+====== Bundle Development Recommendations
+
+* Avoid creating bundles by hand or editing a manifest file. Many tools exist for creating bundles, notably the Maven Bundle plugin, which handle the details of OSGi configuration and automate the bundling process including generation of the manifest file. 
+
+* Always make a distinction on which imported packages are optional or required. Requiring every package when not necessary can cause an unnecessary dependency ripple effect among bundles.
+
+====== Maven Bundle Plugin
+Below is a code snippet from a Maven pom.xml for creating an OSGi Bundle using the Maven Bundle plugin. 
+
+.Maven pom.xml
+
+[source,xml,linenums]
+----
+...
+<packaging>bundle</packaging>
+...
+<build>
+...
+  <plugin>
+    <groupId>org.apache.felix</groupId>
+    <artifactId>maven-bundle-plugin</artifactId>
+    <configuration>
+      <instructions>
+        <Bundle-Name>${project.name}</Bundle-Name>
+        <Export-Package />
+        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+        <Import-Package>
+          ddf.catalog,
+          ddf.catalog.*
+        </Import-Package>
+      </instructions>
+    </configuration>
+  </plugin>
+...
+</build>
+...
+----
+
+===== Deploying a Bundle
+A bundle is typically installed in two ways:
+
+. As a feature
+. Hot deployed in the /deploy directory
+
+The fastest way to deploy a created bundle during development is to copy it to the /deploy directory of a running DDF. This directory checks for new bundles and deploys them immediately. According to Karaf documentation, "Karaf supports hot deployment of OSGi bundles by monitoring JAR files inside the `[home]/deploy` directory. Each time a JAR is copied in this folder, it will be installed inside the runtime. It can be updated or deleted and changes will be handled automatically. In addition, Karaf also supports exploded bundles and custom deployers (Blueprint and Spring DM are included by default)." Once deployed, the bundle should come up in the Active state if all of the dependencies were properly met. When this occurs, the service is available to be used.
+
+===== Verifying Bundle State
+To verify if a bundle is deployed and running, go to the running command console and view the status.
+
+* Execute the list command.
+* If the name of the bundle is known, the `list` command can be piped to the `grep` command to quickly find the bundle.
+
+The example below shows how to verify if the CAB Client is deployed and running.
+
+.Verifying with grep
+----
+ddf@local>list | grep -i cab
+[ 162] [Active    ] [       ] [  ] [ 80] DDF :: Registry :: CAB Client (2.0.0)
+----
+The state is `Active`, indicating that the bundle is ready for program execution.
+
+==== Additional Resources
+* Blueprint
+** http://aries.apache.org/modules/blueprint.html
+** http://www.ibm.com/developerworks/opensource/library/os-osgiblueprint/
+** http://static.springsource.org/osgi/docs/2.0.0.M1/reference/html/blueprint.html
+* Spring DM
+** http://www.springsource.org/osgi
+** Lessons Learned from it-agile (PDF)
+** http://www.martinlippert.org/events/OOP2010-OSGiLessonsLearned.pdf
+* Creating Bundles
+** http://blog.springsource.com/2008/02/18/creating-osgi-bundles/
+* Bundle States
+** http://static.springsource.org/osgi/docs/1.2.1/reference/html/bnd-app-ctx.html
+
+== UI Development Recommendations
+
+Recommendations for developing UI components.
+
+== "White Box" DDF Architecture
+
+=== Architecture Diagram
+
+[ditaa,architecture_diagram_white_box,png]
+----
++-----------------------------------------------------------------------------------------------------------------------+
+|                        /----------------------\  /-------------------\ /----------------------\  /-------------------\|
+|      Components        |         New          |  |    New Security   | |         New          |  |       New         ||
+|                        |   Catalog Components |  |     Components    | |   Content Components |  |  App Components   ||
+|                        \----------------------/  \-------------------/ \----------------------/  \-------------------/|
+|                      /-=------------------------------------------------------------------------\                     |
+|                      | /----------------------\  /-------------------\ /----------------------\ |/-------------------\|
+|   DDF Applications   | |cDEF  DDF Catalog     |  |cDEFDDF Security   | |cDEF  DDF Content     | ||  New Application  ||
+|                      | |                      |  |                   | |                      | |\-------------------/|
+|                      | \----------------------/  \-------------------/ \----------------------/ \-------------------\ |
+| /--------------------/ /------------------------------------------------------------------------------------------\ | |
+| |       DDF            |cDEF                              DDF Framework                                           | | |
+| \--------------------\ |                                                                                          | | |
+|                      | |                        includes Apache Karaf, Apache CXF,                                | | |
+|                      | |                           Eclipse Equinox OSGi Container                                 | | |
+|                      | \------------------------------------------------------------------------------------------/ | |
+|                      \----------------------------------------------------------------------------------------------/ |
+|                      /----------------------------------------------------------------------------------------------\ |
+|         JVM          |cEEE                                Sun Java JDK                                              | |
+|                      \----------------------------------------------------------------------------------------------/ |
+|                      /---------------------\/---------------------\/------------------\/----------------------------\ |
+|   Operating System   |cEEE     Windows     ||cEEE     Linux       ||cEEEMac OS X      ||cEEE       Solaris          | |
+|                      \---------------------/\---------------------/\------------------/\----------------------------/ |
+|                      /------------------------------------------------------------------------------\/--------------\ |
+|       Hardware       |cEEE                       x86                                                ||cEEE SPARC    | |
+|                      \------------------------------------------------------------------------------/\--------------/ |
++-----------------------------------------------------------------------------------------------------------------------|
+----
+
+As depicted in the architectural diagram above, DDF runs on top of an OSGi framework, a Java virtual machine (JVM), several choices of operating systems, and the physical hardware infrastructure. The items within the dotted line represent the DDF out-of-the-box.
+
+DDF is a customized and branded distribution of Apache Karaf.  DDF could also be considered to be a more lightweight OSGi distribution, as compared to Apache ServiceMix, FUSE ESB, or Talend ESB, all of which are also built upon Apache Karaf.  Similar to its peers, DDF incorporates additional upstream dependencies (https://tools.codice.org/#DDFArchitecture-AdditionalUpstreamDependencies).
+
+DDF as a framework hosts DDF applications, which are extensible by adding components via OSGi. The best example of this is the DDF Catalog (API), which offers extensibility via several types of Catalog Components. The DDF Catalog API serves as the foundation for several applications and resides in the applications tier.
+
+The Catalog Components consist of Endpoints, Plugins, Catalog Frameworks, Sources, and Catalog Providers. Customized components can be added to DDF.
+
+=== Nomenclature
+
+Capability:: A general term used to refer to an ability of the system
+Application:: One or more features that together form a cohesive collection of capabilities
+Component:: Represents a portion of an Application that can be extended
+Bundle:: Java Archives (JARs) with special OSGi manifest entries. 
+Feature:: One or more bundles that form an installable unit;  Defined by Apache Karaf but portable to other OSGi containers.
+
+=== OSGi Core
+DDF makes use of OSGi v4.2 to provide several capabilities:
+
+* Has a Microkernel-based foundation, which is lightweight due to its origin in embedded systems.
+* Enables integrators to easily customize components to run on their system.
+* Software applications are deployed as OSGi components, or bundles. Bundles are modules that can be deployed into the OSGi container (Eclipse Equinox OSGi Framework by default).
+* Bundles provide flexibility allowing integrators to choose the bundles that meet their mission needs.
+* Bundles provide reusable modules that can be dropped in any container.
+* Provides modularity, module-based security, and low-level services, such as  Hypertext Transfer Protocol (HTTP), logging, events (basic publish/subscribe), and dependency injection.
+* Implements a dynamic component model that allows application updates without downtime. Components can be added or updated in a running system.
+* Standardized Application Configuration (ConfigurationAdmin and MetaType)
+
+OSGi is not an acronym, but if more context is desired the name Open Specifications Group Initiative has been suggested.
+
+More information on OSGi is available at http://www.osgi.org/.
+
+=== Built on Apache Karaf 
+Apache Karaf is a FOSS product that includes an OSGi framework and adds extra functionality, including:
+
+Web Administration Console:: Useful for configuring bundles, installing/uninstalling features, and viewing services.
+System Console:: Provides command line administration of the OSGi container. All functionality in the Web Administration Console can also be performed via this command line console.
+Logging:: Provides centralized logging to a single log file (data/logs/ddf.log) utilizing log4j.
+Provisioning:: Of libraries or applications.
+Security:: Provides a security framework based on Java Authentication and Authorization Service (JAAS).
+Deployer:: Provides hot deployment of new bundles by dropping them into the <INSTALL_DIR>/deploy directory.
+Blueprint:: Provides an implementation of the OSGi Blueprint Container specification that defines a dependency injection framework for dealing with dynamic configuration of OSGi services.
+** DDF uses the Apache Aries implementation of Blueprint.  More information can be found at http://aries.apache.org/modules/blueprint.htm.
+Spring DM:: An alternative dependency injection framework. DDF is not dependent on specific dependency injection framework. Blueprint is recommended.
+
+=== Additional Upstream Dependencies
+DDF is a customized distribution of Apache Karaf, and therefore includes all the capabilities of Apache Karaf.  DDF also includes additional FOSS components to provide a richer set of capabilities.
+Integrated components include their own dependencies, but at the platform level, DDF includes the following upstream dependencies:
+
+Apache CXF:: Apache CXF is an open source services framework. CXF helps build and develop services using front end programming APIs, such as JAX-WS and JAX-RS. More information can be found at http://cxf.apache.org.
+Apache Commons:: Provides a set of reusable Java components that extends functionality beyond that provided by the standard JDK  (More info available at http://commons.apache.org)
+OSGeo GeoTools:: Provides spatial object model and fundamental geometric functions, which are used by DDF spatial criteria searches. More information can be found at http://geotools.org/.
+Joda Time:: Provides an enhanced, easier to use version of Java date and time classes. More information can be found at http://joda-time.sourceforge.net.
+
+For a full list of dependencies, refer to the Software Version Description Document (SVDD).
+
+=== Recommended Hardware
+Because of its modular nature, DDF may require a few or many system resources, depending on which bundles and features are deployed. In general, DDF will take advantage of available memory and processors.  A 64-bit JVM is required, and a typical installation is performed on a single machine with 16GB of memory and eight processor cores.
+
+== Developing DDF Applications
+The DDF applications are comprised of components, packaged as Karaf features, which are collections of OSGi bundles. These features can be installed/uninstalled using the Web Console or command line console. DDF applications also consist of one or more OSGi bundles and, possibly, supplemental external files. These applications are packaged as Karaf KAR files for easy download and installation. These applications can be stored on a file system or a Maven repository.
+
+A KAR file is a Karaf-specific archive format (Karaf ARchive). It is a jar file that contains a feature descriptor file and one or more OSGi bundle jar files. The feature descriptor file identifies the application's name, the set of bundles that need to be installed, and any dependencies on other features that may need to be installed.
+
+=== Creating a KAR File
+The recommended method for creating a KAR file is to use the `features-maven-plugin`, which has a `create-kar` goal (available as of Karaf v2.2.5, which DDF 2.X is based upon). This goal reads all of the features specified in the features descriptor file. For each feature in this file, it resolves the bundles defined in the feature. All bundles are then packaged into the KAR archive.
+An example of using the create-kar goal is shown below:
+
+.create-kar goal
+[source,xml,linenums]
+----
+<plugin>
+<groupId>org.apache.karaf.tooling</groupId>
+<artifactId>features-maven-plugin</artifactId>
+<version>2.2.5</version>
+	<executions>
+	    <execution>
+	        <id>create-kar</id>
+	        <goals>
+	            <goal>create-kar</goal>
+	        </goals>
+	        <configuration>
+	            <descriptors>
+	                <!-- Add any other <descriptor> that the features file may reference here -->
+	            </descriptors>
+	            <!--
+	            Workaround to prevent the target/classes/features.xml file from being included in the
+	            kar file since features.xml already included in kar's repository directory tree.
+	            Otherwise, features.xml would appear twice in the kar file, hence installing the
+	            same feature twice.
+	            Refer to Karaf forum posting at http://karaf.922171.n3.nabble.com/Duplicate-feature-repository-entry-using-archive-kar-to-build-deployable-applications-td3650850.html
+	            -->                           
+	            <resourcesDir>${project.build.directory}/doesNotExist</resourcesDir>
+
+	            <!--
+	            Location of the features.xml file. If it references properties that need to be filtered, e.g., ${project.version}, it will need to be
+	            filtered by the maven-resources-plugin.
+	            -->
+	            <featuresFile>${basedir}/target/classes/features.xml</featuresFile>
+
+	            <!-- Name of the kar file (.kar extension added by default). If not specified, defaults to ${project.build.finalName} -->
+	            <finalName>ddf-ifis-${project.version}</finalName>
+	        </configuration>
+	    </execution>
+    </executions>
+</plugin>
+----
+
+Examples of how KAR files are created for DDF components can be found in the DDF source code under the ddf/distribution/ddf-kars directory.
+
+The .kar file generated should be deployed to the application author's maven repository. The URL to the application's KAR file in this Maven repository should be the installation URL that is used.
+
+=== Including Data Files in a KAR File
+The developer may need to include data or configuration file(s) in a KAR file. An example of this is a properties file for the JDBC connection properties of a catalog provider.
+
+It is recommended that:
+* Any data/configuration files be placed under the src/main/resources directory of the maven project. Sub-directories under src/main/resources can be used, e.g., etc/security.
+* The Maven project's pom file should be updated to attach each data/configuration file as an artifact (using the build-helper-maven-plugin).
+* Add each data/configuration file to the KAR file using the <configfile> tag in the KAR's features.xml file.
+
+=== Installing a KAR File
+When the user downloads an application by clicking on the *Installation* link, the application's KAR file is downloaded. This KAR file should be placed in the `<DDF_INSTALL_DIR>/deploy` directory of the running DDF instance. DDF then detects that a file with a .kar file extension has been placed in this monitored directory, unzips the KAR file into the `<DDF_INSTALL_DIR>/system` directory, and installs the bundle(s) listed in the KAR file's feature descriptor file. The user can then go to the Web Console's Features tab and verify the new feature(s) is installed.
+
+== OGC Filter
+
+=== OGC Filter
+An OGC Filter is a Open Geospatial Consortium (OGC) standard that describes a query expression in terms of XML and Key-Value Pairs (KVP).
+
+DDF originally had a custom query representation that some found difficult to understand and implement. In switching to a well-known standard like the OGC Filter, developers benefit from various third party products and third party documentation, as well as any previous experience with the standard. The OGC Filter is used to represent a query to be sent to sources and the Catalog Provider, as well as to represent a Subscription. The OGC Filter provides support for expression processing, such as adding or dividing expressions in a query, but that is not the intended use for DDF.
+
+=== OGC filter in the DDF Catalog
+The DDF Catalog Framework uses the implementation provided by Geotools, which provides a Java representation of the standard.
+
+Geotools originally provided standard Java classes for the OGC Filter Encoding 1.0, under the package name `org.opengis.filter`, which is where `org.opengis.filter.Filter` is located. Java developers should use the Java objects exclusively to complete query tasks, rather than parsing or viewing the XML representation.				
+
+== Utilities
+
+Each DDF Application is located in its own code repository. In addition to the applications, there are other utilities that are available in other code repositories on Github. These utilities are deployed into Nexus for easier accessibility.
+
+=== DDF-libs
+DDF-libs is a repository for library modules in DDF. Typically the modules in this repository are re-usable across different components of DDF.
+
+=== DDF Load Balancer
+Provides utility that allows incoming traffic to be distributed over multiple instances of DDF, via HTTP or HTTPS
+
+Contained within DDF is a Load Balancer utility that allows incoming traffic to be distributed over multiple instances of DDF. The DDF Load Balancer supports two protocols: HTTP and HTTPS. The Load Balancer can be configured to run one protocol or both at the same time. The DDF Load Balancer has been configured to utilize a "Round Robin" algorithm to distribute transactions. The load balancer is also equipped with a failover mechanism. When the load balancer attempts to access a server that is non-functional, it will receive an exception and move on to the next server on the list to complete the transaction. The action will try to be replayed on every server once before failing back to the client.
+
+==== Set up the DDF Load Balancer
+The main method for installing the DDF Load Balancer is to install the application (.kar) file into the hot deploy folder of a full DDF distribution. 
+
+==== Prerequisites
+Before the DDF Load Balancer can be installed:
+
+* the DDF Kernel must be running
+* the DDF Platform Application must be installed
+
+==== Install
+Complete the following procedure to install the DDF Load Balancer.
+
+. Download the application (.kar) file from the artifacts repo (http://artifacts.codice.org/).
+. Copy the KAR file into the <INSTALL_DIRECTORY>/deploy folder of a currently running DDF distribution.
+. Uninstall the included jetty feature. *Note: This is due to a bug in the current version of jetty being delivered with DDF, this step will be removed once that version is updated*.
+
+----
+features:uninstall jetty
+----
+
+==== Verify
+
+. Verify all of the Load Balancer's appropriate features have been successfully installed.
++
+.DDF Load Balancer installed features
+----
+ddf@local>features:list | grep -i loadbalancer-app
+[installed  ] [1.0.0                ] codice-load-balancer      loadbalancer-app-1.0.0                    Load Balancer
+[installed  ] [7.6.12.v20130726     ] loadbalancer-jetty        loadbalancer-app-1.0.0                    Provide Jetty engine support
+----
++
+. Verify the DDF Load Balancer bundles are Active.
++
+.DDF Load Balancer active bundles
+----
+[ 223] [Active     ] [            ] [       ] [   50] camel-http (2.12.1)
+[ 224] [Active     ] [            ] [       ] [   50] camel-jetty (2.12.1)
+[ 258] [Active     ] [            ] [       ] [   80] Jetty :: Utilities (7.6.12.v20130726)
+[ 259] [Active     ] [            ] [       ] [   80] Jetty :: IO Utility (7.6.12.v20130726)
+[ 260] [Active     ] [            ] [       ] [   80] Jetty :: Http Utility (7.6.12.v20130726)
+[ 261] [Active     ] [            ] [       ] [   80] Jetty :: Asynchronous HTTP Client (7.6.12.v20130726)
+[ 262] [Active     ] [            ] [       ] [   80] Jetty :: Continuation (7.6.12.v20130726)
+[ 263] [Active     ] [            ] [       ] [   80] Jetty :: JMX Management (7.6.12.v20130726)
+[ 264] [Active     ] [            ] [       ] [   80] Jetty :: Server Core (7.6.12.v20130726)
+[ 265] [Active     ] [            ] [       ] [   80] Jetty :: Security (7.6.12.v20130726)
+[ 266] [Active     ] [            ] [       ] [   80] Jetty :: Servlet Handling (7.6.12.v20130726)
+[ 267] [Active     ] [            ] [       ] [   80] Jetty :: Utility Servlets and Filters (7.6.12.v20130726)
+[ 268] [Active     ] [            ] [       ] [   80] Jetty :: XML utilities (7.6.12.v20130726)
+[ 269] [Active     ] [            ] [       ] [   80] Jetty :: Webapp Application Support (7.6.12.v20130726)
+[ 270] [Active     ] [            ] [       ] [   80] Jetty :: JNDI Naming (7.6.12.v20130726)
+[ 271] [Active     ] [            ] [       ] [   80] Jetty :: Plus (7.6.12.v20130726)
+[ 272] [Active     ] [            ] [       ] [   80] Jetty :: Websocket (7.6.12.v20130726)
+[ 273] [Active     ] [Created     ] [       ] [   80] Codice :: Loadbalancer :: Camel (1.0.0)
+----
+
+==== Uninstall
+
+[WARNING]
+====
+It is very important to save the KAR file for the application prior to an uninstall so that the uninstall can be reverted if necessary.
+====
+
+Complete the following procedure to uninstall the DDF Load Balancer.
+
+. Delete the KAR file (loadbalancer-app-X.Y.kar) from the <INSTALL_DIRECTORY>/deploy directory.
+. Re-install the jetty feature.
++
+----
+features:install jetty
+----
++
+. Restart DDF to ensure that all of the Jetty bundles are refreshed properly.
+
+==== Configure the DDF Load Balancer
+The DDF Load Balancer can be configured to allow multiple DDF nodes to be balanced. It can also be configured with a port on which to accept connections. Configurations differ slightly between the HTTP- and HTTPS-based load balancers. All configurations are dynamic in that configuration settings are immediately applied, and it is not necessary to restart DDF. 
+
+===== Configure the HTTP Load Balancer
+Complete the following procedure to access the load balancer configuration.
+
+. Click the Configuration tab in the DDF management console. 
+. Scroll down to the configuration entry that is labeled Platform *HTTP Load Balancer*. The configuration for the load balancer contains two fields: *Load Balancer Port* and *IP Address and Port*.
+. In the *Load Balancer Port* field, enter the port number to be accessed when reaching other systems.
+. In the IP Address and Port field, enter a comma-delimited list of IP addresses and ports for each DDF node to be balanced. The format for IP address and port is <IP_ADDRESS>:<PORT> (e.g., 192.168.1.123:8181,192.168.1.22:8181).
+. Select the *Save* button when all configuration have been added.
+
+At this point, the load balancer is reset and ready to accept requests. These configurations can be updated at any time without starting the host DDF instance.
+
+===== Configure the HTTPS Load Balancer
+It is possible to run the HTTPS load balancer by itself or run it in parallel with the HTTP load balancer. The HTTPS load balancer utilizes the centralized SSL configurations within DDF, along with the load balancer configurations. Complete the following procedure to configure the HTTPS load balancer.
+
+. Find the SSL configurations and verify that the values are correct.
+. Click the Configuration tab in the DDF management console.
+. Scroll down to the configuration entry that is labeled *Pax Web Runtime*. 
+. Select *Pax Web Runtime*. 
+. Ensure that the displayed settings match what is configured in the DDF nodes to be balanced. 
+. Save the updated settings or close the window, as applicable.
+. In the configuration table, scroll down to the configuration entry labeled *Platform HTTPS Load Balancer*. 
+. The configuration for the load balancer contains three fields: *Load Balancer Host*, *Load Balancer Port*, and *IP Address and Port*.
+. In the *Load Balancer Host* field, enter the host name or IP address to be used for the host load balancer machine.
+. In the *Load Balancer Port* field, enter the port number to be accessed on the load balancer to reach the other systems.
+. In the *IP Address and Port* field, enter a comma delimited list of IP address and port for each DDF node that will be balanced. The format for IP address and port is <IP_ADDRESS>:<PORT> (e.g. 192.168.1.123:8993,192.168.1.22:8993)
+. Select the *Save* button when all configuration have been added.
+
+Since SSL requests will be coming from a client into the load balancer, it is essential that the nodes being balanced have the same security policy and settings. The client has no idea which DDF server it will be connecting with behind the load balancer. The client is responsible for connecting securely with the load balancer, and the load balancer is responsible for connecting securely and consistently with all DDF nodes.
+
+[WARNING]
+====
+The DDF Load Balancer cannot run on the same port as the DDF Web Console or other web services. If you would like the load balancer to run on this port, change the web console port to a different port number. This configuration parameter can be found in the *Pax Web Runtime configuration*.
+====
+
+=== DDF STOMP
+
+The DDF STOMP application allows query subscription messages to be sent to the DDF server via STOMP protocol.
+
+Subscription query messages are defined in JSON format following a defined schema. These messages allow for the management of subscriptions using create, time to live (TTL), update, and delete functions. Catalog queries  within the message are defined in CQL format. Results are sent to a STOMP-based topic, which can be subscribed to via a STOMP-based client. Content results will be delivered over time as the subscription query matches incoming data published to the DDF catalog.
+
+==== STOMP
+STOMP is a streaming text-based messaging protocol that supports the delivery of messages as well as publish and subscribe. STOMP mimics HTTP and can utilize TCP-IP, thus making it compatible with many different programming languages. STOMP is very simple to implement and can easily be tested. For more information, refer to http://stomp.github.io/.
+
+===== Common Query Language (CQL)
+Common Query Language or CQL is a query language the the OGC has chosen for expressing data filtering. The power of CQL is its strong integration into GeoTools, which helps to represent complex queries as text strings. For more information, refer to http://docs.geotools.org/latest/userguide/library/cql/index.html
+
+==== Publish and Subscribe Query Subscription Message
+Subscriptions are stateful and will survive when the server is restarted. Subscription messages are specified in a JSON format. The schema section specifies the values that construct this message, along with the defaults. The sections below describe the meaning of the message values.
+
+===== Subscription Identifier (`subscriptionId`)
+The subscription identifier is a unique string that is provided by the query subscription requester. The preferred value should be a generated UUID.
+Example: “`subscriptionId” : "faf4e8493h389fh4398f3h0040`"
+
+===== Action (`action`)
+
+The action value tells the system what action should take place. The following actions are available:
+`CREATE:` Creates a new subscription
+`UPDATE:` Updates an existing subscription (requires subscriptionId)
+`DELETE:` Deletes an existing subscription (requires subscritionId)
+Example: `"action" : "CREATE"`
+
+===== Subscription Time to Live (`subscriptionTtlType` and `subscriptionTtl`)
+
+A time to live value can be set on a subscription by providing values for the TTL type and TTL. The subscriptionTtlType value describes the type of TTL that will be used. The following values are available for `subscriptionTtlType`:
+
+* `MILLISECONDS`
+* `SECONDS`
+* `MINUTES`
+* `HOURS`
+* `MONTHS`
+* `YEARS`
+
+The subscriptionTtl value is an integer value that specifies the quantity of the subscriptionTtlType.  For example, a value of 60 for subscriptionTtl along with a value of 'HOURS' for subscriptionTtlType tells the system that the subscription should last for 60 hours. If a value of 0, -9, or no value is set for subscriptionTtl, the time to live will be infinite.
+Example:   "`subscriptionTtlType`" : "`HOURS`", "`subscriptionTtl`" : 90
+
+===== Query String (`queryString`)
+The query string allows the user to specify a query that can filter targeted results. Query string values are specified in CQL format. See the CQL section for more information on using this format.
+Example: "`queryString`" : "`anyText LIKE 'Red Truck'`"
+
+===== Sources (sources)
+Source targets can be specified in the message. Sources will be passed on to all queries to retrieve the correct results from all of the correct sources. The sources value is an array.
+Example: `"sources" : [ "source1", "source2", "source3" ]`
+
+===== Creation Date and Last Modified Date (`creationDate` and `lastModifiedDate`)
+The creation date and last modified date are values that are written into the subscription by the system. The creation date specifies the date and time that the subscription was created in the system. The last modified date specifies the date and time of the last change to the subscription. The user can specify these values in the subscription message, but it will be ignored.
+
+==== DDF STOMP Setup
+DDF STOMP can be found at https://github.com/codice/ddf-stomp. When building DDF STOMP a KAR application file is provided. This file can be added to the DDF server by placing the file in the deploy folder. Once the application has been deployed it is best to restart DDF.
+
+===== Configuration
+DDF STOMP has a default configuration that it utilizes. By default, the STOMP server within DDF STOMP runs on port 61613. To change this port number, modifications must be made to activemq.xml and the DDF configuration. The activemq.xml file can be found in the etc/ directory of DDF. Open the file and navigate to the bottom of the page. An entry for transportConnector reads stomp://0.0.0.0:61613. The port number at the end can be changed to the desired choice. Once chosen, save the file and exit.
+The second half of configuring the port number and other options can be found in the DDF configuration web console. Upon selecting the Configurations tab, look for the configuration named Publish Subscribe Subscription Query Service. This configuration has the following options:
+
+Destination Topic Name:: The topic destination where query subscription messages are sent.
+Subscription Topic Name:: The prefix of the topic where subscription results are sent.
+STOMP Host:: The host name of the STOMP server.
+STOMP Port:: The port number of the STOMP server.
+Default Max Results:: The maximum number of results to return from a given query.
+Default Request Timeout:: The maximum time to wait before a request is timed out.
+Transformer ID:: ID that specifies the format in which results are produced (default: geojson). See Extending Catalog Transformers for more information.
+Once these configurations have been made, it is best to restart the DDF server.
+
+===== Send a Subscription Message
+Subscription messages can be sent to the system using a STOMP-based client. STOMP is a standardized publish subscribe messaging protocol that utilizes the HTTP protocol for sending data. Connections to the system are asynchronous. For more information, refer to the section on STOMP. To connect the STOMP client to the system, the following information is typically required: STOMP server host, STOMP port, user name, password, and topic name. The username, password, port, and topic name can be found in the publish subscribe query subscriptions configuration. Refer to the Configuration section for more information.
+
+The Gozirra STOMP client (http://www.germane-software.com/software/Java/Gozirra/) and the Fuse Source STOMP client (https://github.com/fusesource/stompjms) have both been used successfully to test functionality.
+
+===== Subscribe or Results
+
+A STOMP-based client can be used to retrieve results from a query subscription. STOMP is a standardized publish subscribe messaging protocol that utilizes the HTTP protocol for receiving data. Connections to the system are asynchronous. For more information, refer to the section on STOMP. To connect the STOMP client to the system, the following information is typically required: STOMP server host, STOMP port, user name, password, and topic name. The username, password, port, and topic name can be found in the publish subscribe query subscriptions configuration. Refer to the Configuration section for more information. The topic name for subscription results, which is found in the configuration, is a partial name. The end of the topic name will include the subscription id. For example, if the partial topic name was “/topic/result/”, and the subscription ID for the subscription was “faf4e8493h389fh4398f3h0040”, the actual topic name that would be subscribed to is: “/topic/result/faf4e8493h389fh4398f3h0040”. This is the full topic name that would be used with your STOMP client to retrieve results.
+
+The Gozirra STOMP client (http://www.germane-software.com/software/Java/Gozirra/) and the Fuse Source STOMP client (https://github.com/fusesource/stompjms) have both been used sucessfully to test functionality.
+
+===== Returned Messages
+Return messages will be delivered back to a subscribing STOMP client. All delivered messages are returned in GeoJSON format. When a subscription is first submitted, an initial query is executed on existing data in the catalog. All results based on this query are immediately returned to the subscribing STOMP client via the defined topic. As content is added to the catalog (when these items match the query in the subscription), the content items are immediately returned to the subscribing STOMP client via the defined topic.
+Examples
+Create a new subscription that will last for 90 hours and searches for any text that is matching red car:
+
+[source,javascript,linenums]
+----
+{
+  "subscriptionId" : "faf4e8493h389fh4398f3h0060",
+  "action" : "CREATE",
+  "subscriptionTtlType" : "HOURS",
+  "subscriptionTtl" : 90,
+  "queryString" : "anyText LIKE 'red car'"
+}
+----
+
+Update a previous subscription to last for three months instead of 90 hours:
+[source,javascript,linenums]
+----
+{
+  "subscriptionId" : "faf4e8493h389fh4398f3h0060",
+  "action" : "UPDATE",
+  "subscriptionTtlType" : "MONTHS",
+  "subscriptionTtl" : 3,
+  "queryString" : "anyText LIKE 'red car'"
+}
+----
+ 
+Delete the previous subscription:
+[source,javascript,linenums]
+----
+{
+  "subscriptionId" : "faf4e8493h389fh4398f3h0060",
+  "action" : "DELETE"
+}
+----
+
+==== Architecture
+The API is set up to utilize STOMP as the protocol for receiving subscription management messages. External third party applications will utilize STOMP to send commands for subscription management and delivery.
+
+===== Subscription Message Schema
+The messages sent over STOMP will be in JSON format. The messages used for subscription management utilize the following schema:
+[source,javascript,linenums]
+----
+{
+"type":"object",
+"$schema": "http://json-schema.org/draft-03/schema",
+"id": "http://jsonschema.net",
+"required":false,
+"properties":{
+"queryString": {
+"type":"string",
+"id": "http://jsonschema.net/searchPhrase",
+"required":true
+},
+"sources": {
+"type":"array",
+"id": "http://jsonschema.net/sources",
+"required":false,
+"items":
+{
+"type":"string",
+"id": "http://jsonschema.net/sources/0",
+"required":false
+}
+},
+ 
+"subscriptionId": {
+"type":"string",
+"id": "http://jsonschema.net/subscriptionId",
+"required":true
+},
+"action": {
+"type":"string",
+"id": "http://jsonschema.net/subscriptionId",
+"required":true
+},
+"subscriptionTtl": {
+"type":"number",
+"id": "http://jsonschema.net/subscriptionId",
+"required":false
+},
+"subscriptionTtlType": {
+"type":"number",
+"id": "http://jsonschema.net/subscriptionId",
+"required":false
+},
+"creationDate": {
+"type":"number",
+"id": "http://jsonschema.net/subscriptionId",
+"required":false
+},
+"lastModifiedDate": {
+"type":"number",
+"id": "http://jsonschema.net/subscriptionId",
+"required":false
+},
+ }
+}
+----
