@@ -75,10 +75,14 @@ public final class SecurityAssertionStore {
                 }
             }
             if (tokenStore != null && principal != null && principal instanceof SAMLTokenPrincipal) {
-                SecurityToken token = tokenStore.getToken(((SAMLTokenPrincipal) principal).getId());
-                if (token != null) {
-                    return new SecurityAssertionImpl(token);
+                String id = ((SAMLTokenPrincipal) principal).getId();
+                SecurityToken token = tokenStore.getToken(id);
+                if (token == null) {
+                    token = new SecurityToken(id);
+                    token.setToken(((SAMLTokenPrincipal) principal).getToken().getElement());
                 }
+
+                return new SecurityAssertionImpl(token);
             }
         }
         return new SecurityAssertionImpl();

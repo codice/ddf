@@ -21,7 +21,9 @@ import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
+import org.apache.cxf.binding.soap.SoapBindingConstants;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
@@ -44,6 +46,7 @@ import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.wss4j.AbstractWSS4JInterceptor;
+import org.apache.cxf.ws.security.wss4j.PolicyBasedWSS4JInInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.neethi.Policy;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -123,6 +126,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
         //make sure this interceptor runs before the WSS4J one in the same Phase, otherwise it won't work
         Set<String> before = getBefore();
         before.add(WSS4JInInterceptor.class.getName());
+        before.add(PolicyBasedWSS4JInInterceptor.class.getName());
     }
 
     @Override
@@ -234,7 +238,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                 QName supportingTokenAssertion = null;
                 boolean policyRequirementsSupported = false;
 
-                // if there is a plicy, try to follow it as closely as possible
+                // if there is a policy, try to follow it as closely as possible
                 if (effectivePolicy != null) {
                     Policy policy = effectivePolicy.getPolicy();
                     if (policy != null) {
@@ -293,8 +297,21 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                                     requireClientCert = evaluateExpression(xml, xpath);
 
                                 } else if (qName.equals(SP12Constants.SIGNED_SUPPORTING_TOKENS)) {
-                                    String xpath = "/SignedSupportingTokens/Policy/IssuedToken/RequestSecurityTokenTemplate/TokenType";
+                                    String xpath = "/SignedSupportingTokens/Policy/ExactlyOne/All/IssuedToken/RequestSecurityTokenTemplate/TokenType";
                                     tokenType = retrieveXmlValue(xml, xpath);
+                                    if (StringUtils.isEmpty(tokenType)) {
+                                        xpath = "/SignedSupportingTokens/Policy/IssuedToken/RequestSecurityTokenTemplate/TokenType";
+                                        tokenType = retrieveXmlValue(xml, xpath);
+                                    }
+                                    supportingTokenAssertion = qName;
+
+                                } else if (qName.equals(SP12Constants.SUPPORTING_TOKENS)) {
+                                    String xpath = "/SupportingTokens/Policy/ExactlyOne/All//IssuedToken/RequestSecurityTokenTemplate/TokenType";
+                                    tokenType = retrieveXmlValue(xml, xpath);
+                                    if (StringUtils.isEmpty(tokenType)) {
+                                        xpath = "/SupportingTokens/Policy/IssuedToken/RequestSecurityTokenTemplate/TokenType";
+                                        tokenType = retrieveXmlValue(xml, xpath);
+                                    }
                                     supportingTokenAssertion = qName;
 
                                 } else if (qName.equals(org.apache.cxf.ws.addressing.policy.MetadataConstants.ADDRESSING_ASSERTION_QNAME)) {
@@ -339,7 +356,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
 
                 if (policyRequirementsSupported || overrideEndpointPolicies) {
                     LOGGER.debug("Creating anonymous security token.");
-                    if (soapFactory != null && securityHeader != null) {
+                    if (soapFactory != null) {
                         createSecurityToken(version, soapFactory, securityHeader);
                         try {
                             // Add security header to SOAP message
@@ -439,7 +456,7 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                             org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
             action.addTextNode((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
             AttributedURIType attributedString = new AttributedURIType();
-            attributedString.setValue((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
+            attributedString.setValue((String) message.get(SoapBindingConstants.SOAP_ACTION));
             addressingProperties.setAction(attributedString);
         } catch (SOAPException e) {
             LOGGER.error("Unable to add addressing action.", e);
