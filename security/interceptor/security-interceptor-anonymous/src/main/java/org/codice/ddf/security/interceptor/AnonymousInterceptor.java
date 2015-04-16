@@ -21,7 +21,6 @@ import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapBindingConstants;
 import org.apache.cxf.binding.soap.SoapFault;
@@ -297,21 +296,13 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                                     requireClientCert = evaluateExpression(xml, xpath);
 
                                 } else if (qName.equals(SP12Constants.SIGNED_SUPPORTING_TOKENS)) {
-                                    String xpath = "/SignedSupportingTokens/Policy/ExactlyOne/All/IssuedToken/RequestSecurityTokenTemplate/TokenType";
+                                    String xpath = "/SignedSupportingTokens/Policy//IssuedToken/RequestSecurityTokenTemplate/TokenType";
                                     tokenType = retrieveXmlValue(xml, xpath);
-                                    if (StringUtils.isEmpty(tokenType)) {
-                                        xpath = "/SignedSupportingTokens/Policy/IssuedToken/RequestSecurityTokenTemplate/TokenType";
-                                        tokenType = retrieveXmlValue(xml, xpath);
-                                    }
                                     supportingTokenAssertion = qName;
 
                                 } else if (qName.equals(SP12Constants.SUPPORTING_TOKENS)) {
-                                    String xpath = "/SupportingTokens/Policy/ExactlyOne/All//IssuedToken/RequestSecurityTokenTemplate/TokenType";
+                                    String xpath = "/SupportingTokens/Policy//IssuedToken/RequestSecurityTokenTemplate/TokenType";
                                     tokenType = retrieveXmlValue(xml, xpath);
-                                    if (StringUtils.isEmpty(tokenType)) {
-                                        xpath = "/SupportingTokens/Policy/IssuedToken/RequestSecurityTokenTemplate/TokenType";
-                                        tokenType = retrieveXmlValue(xml, xpath);
-                                    }
                                     supportingTokenAssertion = qName;
 
                                 } else if (qName.equals(org.apache.cxf.ws.addressing.policy.MetadataConstants.ADDRESSING_ASSERTION_QNAME)) {

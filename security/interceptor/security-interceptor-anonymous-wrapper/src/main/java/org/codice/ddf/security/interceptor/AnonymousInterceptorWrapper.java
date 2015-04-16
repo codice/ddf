@@ -25,10 +25,13 @@ import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Set;
 
 public class AnonymousInterceptorWrapper extends AbstractWSS4JInterceptor {
@@ -57,15 +60,25 @@ public class AnonymousInterceptorWrapper extends AbstractWSS4JInterceptor {
 	public void handleMessage(SoapMessage msg) throws Fault {
         BundleContext context = getContext();
         PhaseInterceptor anonIntercep = null;
-        ServiceReference anonIntercepRef = context.getServiceReference(PhaseInterceptor.class.getName());
+        Collection<ServiceReference<PhaseInterceptor>> anonIntercepRefs = null;
+        if (context != null) {
+            try {
+                anonIntercepRefs = context.getServiceReferences(PhaseInterceptor.class, "(interceptor=anonymous)");
+            } catch (InvalidSyntaxException e) {
+                //ignore, it isn't invalid
+            }
 
-        if (anonIntercepRef != null) {
-            anonIntercep = (PhaseInterceptor) context.getService(anonIntercepRef);
-        }
-        if (anonIntercep != null) {
-            anonIntercep.handleMessage(msg);
+            if (anonIntercepRefs != null && anonIntercepRefs.size() > 0) {
+                Iterator<ServiceReference<PhaseInterceptor>> iterator = anonIntercepRefs.iterator();
+                anonIntercep = context.getService(iterator.next());
+            }
+            if (anonIntercep != null) {
+                anonIntercep.handleMessage(msg);
+            } else {
+                LOGGER.debug("Anonymous Interceptor is not installed, ignoring");
+            }
         } else {
-            LOGGER.debug("Anonymous Interceptor is not installed, ignoring");
+            LOGGER.debug("Unable to acquire bundle context for anonymous interceptor");
         }
 	}
 
