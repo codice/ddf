@@ -34,8 +34,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import ddf.action.Action;
-import ddf.action.ActionProvider;
+
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
@@ -115,8 +114,6 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     protected NoNameCoder noNameCoder = new NoNameCoder();
 
-    private ActionProvider resourceActionProvider;
-
     /**
      * The map of metacard attributes that both the basic DDF MetacardTypeImpl and the CSW
      * MetacardType define as attributes. This is used to detect these element tags when
@@ -138,9 +135,7 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
 
     private XStream xstream;
 
-    public CswRecordConverter(ActionProvider actionProvider) {
-        this.resourceActionProvider = actionProvider;
-
+    public CswRecordConverter() {
         xstream = new XStream(new Xpp3Driver());
         xstream.setClassLoader(this.getClass().getClassLoader());
         xstream.registerConverter(this);
@@ -177,22 +172,6 @@ public class CswRecordConverter implements Converter, MetacardTransformer, Input
         }
 
         MetacardImpl metacard = new MetacardImpl((Metacard) source);
-
-        if (metacard.getResourceURI() != null && resourceActionProvider != null) {
-            Action action = resourceActionProvider.getAction(metacard);
-            if (action != null) {
-                URL resourceUrl = action.getUrl();
-                if (resourceUrl != null) {
-                    try {
-                        metacard.setResourceURI(resourceUrl.toURI());
-                    } catch (URISyntaxException e) {
-                        LOGGER.warn("Unable to retrieve '{}' from '{}' for metacard ID [{}]",
-                                Metacard.RESOURCE_URI, resourceActionProvider.getClass().getName(),
-                                metacard.getId());
-                    }
-                }
-            }
-        }
 
         List<QName> fieldsToWrite = (List<QName>) arguments.get(CswConstants.ELEMENT_NAMES);
 
