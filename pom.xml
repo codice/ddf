@@ -667,6 +667,72 @@
                                 </requires>
                             </configuration>
                         </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-assembly-plugin</artifactId>
+                            <version>2.5.3</version>
+                            <configuration>
+                                <descriptor>${project.basedir}/src/assembly/bin.xml</descriptor>
+                                <finalName>${project.build.finalName}-documentation</finalName>
+                            </configuration>
+                            <executions>
+                                <execution>
+                                    <id>include-docs</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>single</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>build-helper-maven-plugin</artifactId>
+                            <version>1.5</version>
+                            <executions>
+                                <execution>
+                                    <id>attach-artifacts</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>attach-artifact</goal>
+                                    </goals>
+                                    <configuration>
+                                        <artifacts>
+                                            <artifact>
+                                                <file>${project.build.directory}/docs/html/Extending.html</file>
+                                                <type>html</type>
+                                                <classifier>Extending</classifier>
+                                            </artifact>
+                                            <artifact>
+                                                <file>${project.build.directory}/docs/html/Integrating.html</file>
+                                                <type>html</type>
+                                                <classifier>Integrating</classifier>
+                                            </artifact>
+                                            <artifact>
+                                                <file>${project.build.directory}/docs/html/Managing.html</file>
+                                                <type>html</type>
+                                                <classifier>Managing</classifier>
+                                            </artifact>
+                                            <artifact>
+                                                <file>${project.build.directory}/docs/pdf/Extending.pdf</file>
+                                                <type>pdf</type>
+                                                <classifier>Extending</classifier>
+                                            </artifact>
+                                            <artifact>
+                                                <file>${project.build.directory}/docs/pdf/Integrating.pdf</file>
+                                                <type>pdf</type>
+                                                <classifier>Integrating</classifier>
+                                            </artifact>
+                                            <artifact>
+                                                <file>${project.build.directory}/docs/pdf/Managing.pdf</file>
+                                                <type>pdf</type>
+                                                <classifier>Managing</classifier>
+                                            </artifact>
+                                        </artifacts>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
                     </plugins>
                 </pluginManagement>
             </build>
@@ -674,8 +740,8 @@
     </profiles>
 
     <!--
-      Dependencies listed here will always be used in all su b poms.
-      You should not redeclare them in the sub pom's dependencies section.
+      Dependencies listed here will always be used in all sub poms.
+      You should not redeclare them in the sub poms dependencies section.
       -->
     <dependencies>
         <dependency>
