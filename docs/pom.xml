@@ -36,63 +36,10 @@
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>1.5</version>
-                        <executions>
-                            <execution>
-                                <id>attach-artifacts</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>attach-artifact</goal>
-                                </goals>
-                                <configuration>
-                                    <artifacts>
-                                        <artifact>
-                                            <file>${project.build.directory}/docs/html/Extending.html</file>
-                                            <type>html</type>
-                                            <classifier>Extending</classifier>
-                                        </artifact>
-                                        <artifact>
-                                            <file>${project.build.directory}/docs/html/Integrating.html</file>
-                                            <type>html</type>
-                                            <classifier>Integrating</classifier>
-                                        </artifact>
-                                        <artifact>
-                                            <file>${project.build.directory}/docs/html/Managing.html</file>
-                                            <type>html</type>
-                                            <classifier>Managing</classifier>
-                                        </artifact>
-                                        <artifact>
-                                            <file>${project.build.directory}/docs/pdf/Extending.pdf</file>
-                                            <type>pdf</type>
-                                            <classifier>Extending</classifier>
-                                        </artifact>
-                                        <artifact>
-                                            <file>${project.build.directory}/docs/pdf/Integrating.pdf</file>
-                                            <type>pdf</type>
-                                            <classifier>Integrating</classifier>
-                                        </artifact>
-                                        <artifact>
-                                            <file>${project.build.directory}/docs/pdf/Managing.pdf</file>
-                                            <type>pdf</type>
-                                            <classifier>Managing</classifier>
-                                        </artifact>
-                                    </artifacts>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
