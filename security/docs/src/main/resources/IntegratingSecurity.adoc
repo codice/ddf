@@ -1,5 +1,5 @@
 = Integrating {branding} Security Application
-include::../includes/config.adoc[]
+include::config.adoc[]
 
 == Overview
 
