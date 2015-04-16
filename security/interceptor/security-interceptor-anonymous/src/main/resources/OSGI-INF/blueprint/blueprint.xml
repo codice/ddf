@@ -30,6 +30,10 @@
         <property name="overrideEndpointPolicies" value="false" />
     </bean>
 
-    <service ref="anonymousInterceptor" interface="org.apache.cxf.phase.PhaseInterceptor" />
+    <service ref="anonymousInterceptor" interface="org.apache.cxf.phase.PhaseInterceptor">
+        <service-properties>
+            <entry key="interceptor" value="anonymous" />
+        </service-properties>
+    </service>
 
 </blueprint>
