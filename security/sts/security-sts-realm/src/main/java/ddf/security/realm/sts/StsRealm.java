@@ -80,6 +80,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -718,7 +719,7 @@ public class StsRealm extends AuthenticatingRealm implements ConfigurationWatche
 
         if(contextPolicyManager != null) {
             Collection<ContextPolicy> contextPolicies = contextPolicyManager.getAllContextPolicies();
-            Set<String> attributes = new HashSet<String>();
+            Set<String> attributes = new LinkedHashSet<String>();
             if(contextPolicies != null && contextPolicies.size() > 0) {
                 for(ContextPolicy contextPolicy : contextPolicies) {
                     attributes.addAll(contextPolicy.getAllowedAttributeNames());
