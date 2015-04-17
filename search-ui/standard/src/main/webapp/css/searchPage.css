@@ -44,7 +44,7 @@ table a:not(.btn), .table a:not(.btn),
     background-color: rgba(100,100,100,0.1);
 }
 
-.menu-items .dropdown-menu {
+.dropdown-menu {
     background-color: #363636;
     height: auto;
     max-height: 600px;
@@ -55,16 +55,16 @@ table a:not(.btn), .table a:not(.btn),
     left: auto !important;
 }
 
-.menu-items .navbar .nav>li>.dropdown-menu:after {
+.navbar .nav>li>.dropdown-menu:after {
     border-bottom: 6px solid #363636 !important;
 }
 
-.menu-items .nav-tabs > li > a {
+.nav-tabs > li > a {
     padding-top: 4px;
     padding-bottom: 4px;
 }
 
-.menu-items .navbar .nav > li > .dropdown-menu:after {
+.navbar .nav > li > .dropdown-menu:after {
     border-bottom: 6px solid #242424;
 }
 

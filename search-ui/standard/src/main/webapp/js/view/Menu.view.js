@@ -284,7 +284,7 @@ define([
         tagName: 'li',
         template: 'menubarItemTemplate',
         regions: {
-            children: 'ul.menu-items'
+            children: 'ul.dropdown-menu'
         },
         modelEvents: {
             'change': 'render'
@@ -396,7 +396,7 @@ define([
             var menuBarView = this;
             if(this.model.get('showWelcome')) {
                 var Welcome = Menu.Item.extend({
-                    className: 'menu-items',
+                    className: 'dropdown',
                     initialize: function() {
                         if(this.isNotGuestUser()){
                             this.model.set({name: Application.UserModel.get('user').get('username')});
@@ -431,7 +431,7 @@ define([
 
             if(this.model.get('showTask')) {
                 var Tasks = Menu.Item.extend({
-                    className: 'menu-items',
+                    className: 'dropdown',
                     initialize: function () {
                         if (wreqr.reqres.hasHandler('tasks')) {
                             this.collection = wreqr.reqres.request('tasks');
@@ -490,7 +490,7 @@ define([
             }
 
             var Notification = Menu.Item.extend({
-                className: 'menu-items',
+                className: 'dropdown',
                 initialize: function() {
                     this.listenTo(wreqr.vent, 'notification:delete', this.deleteNotification);
                     this.listenTo(wreqr.vent, 'notification:new', this.addNotification);
@@ -565,7 +565,7 @@ define([
             })}));
 
             var Help = Menu.Item.extend({
-                className: 'menu-items',
+                className: 'dropdown',
                 onRender: function() {
                     var HelpView = Marionette.ItemView.extend({
                         template: 'helpTemplate',
