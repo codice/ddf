@@ -134,7 +134,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements Configurati
     private static final XLogger logger = new XLogger(
             LoggerFactory.getLogger(CatalogFrameworkImpl.class));
 
-    static final Logger INGEST_LOGGER = LoggerFactory.getLogger("ingestLogger");
+    static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
     protected static final String FAILED_BY_GET_RESOURCE_PLUGIN = "Error during Pre/PostResourcePlugin.";
 

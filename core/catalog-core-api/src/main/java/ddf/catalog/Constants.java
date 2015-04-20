@@ -137,4 +137,6 @@ public final class Constants {
 
     public static final String OAUTH_RESOURCE_OWNER_USERNAME = "resource.owner.username";
 
+    public static final String INGEST_LOGGER_NAME = "ingestLogger";
+
 }

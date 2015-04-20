@@ -68,7 +68,7 @@ public class IngestCommand extends CatalogCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestCommand.class);
 
-    private static final Logger INGEST_LOGGER = LoggerFactory.getLogger("ingestLogger");
+    private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
     private static final int DEFAULT_BATCH_SIZE = 1000;
 
