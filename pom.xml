@@ -33,6 +33,13 @@
         <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
     </properties>
 
+    <distributionManagement>
+        <site>
+            <id>ddf-site</id>
+            <url>${ddf.site.repo}/ddf-content/${project.version}</url>
+        </site>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
