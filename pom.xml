@@ -44,6 +44,13 @@
         <tika.version>1.7</tika.version>
     </properties>
 
+    <distributionManagement>
+        <site>
+            <id>ddf-site</id>
+            <url>${ddf.site.repo}/ddf-spatial/${project.version}</url>
+        </site>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
