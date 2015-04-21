@@ -168,7 +168,7 @@ public class ConfigurationAdminExt {
                 }
 
                 Configuration[]  configs = configurationAdmin.listConfigurations("(" + ConfigurationAdmin.SERVICE_FACTORYPID
-                        + "=" + service.get(MAP_ENTRY_ID) + "*)");
+                        + "=" + service.get(MAP_ENTRY_ID) + ")");
                 if (configs != null) {
                     addConfigurationData(service, configs);
                 }
@@ -186,7 +186,7 @@ public class ConfigurationAdminExt {
                 }
 
                 Configuration[]  configs = configurationAdmin.listConfigurations("(" + Constants.SERVICE_PID
-                        + "=" + service.get(MAP_ENTRY_ID) + "*)");
+                        + "=" + service.get(MAP_ENTRY_ID) + ")");
                 if (configs != null) {
                     addConfigurationData(service, configs);
                 }
