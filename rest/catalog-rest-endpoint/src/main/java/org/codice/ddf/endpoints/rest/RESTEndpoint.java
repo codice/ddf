@@ -16,6 +16,7 @@ package org.codice.ddf.endpoints.rest;
 
 import com.google.common.io.FileBackedOutputStream;
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -93,7 +94,7 @@ public class RESTEndpoint implements RESTService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RESTEndpoint.class);
 
-    private static final Logger INGEST_LOGGER = LoggerFactory.getLogger("ingestLogger");
+    private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
     private static String JSON_MIME_TYPE_STRING = "application/json";
 
