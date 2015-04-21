@@ -31,8 +31,9 @@
 		<module>sample-transformers</module>
 		<module>ddf-sso-query-widget</module>
 		<module>sample-metrics</module>
+        <module>sample-soap-endpoint</module>
 		<module>sdk-app</module>
-	</modules>
+    </modules>
 
 	<repositories>
 		<repository>

@@ -13,9 +13,22 @@
  -->
 <features name="${project.artifactId}-${project.version}">
 
-    <feature name="sdk-metrics" version="${project.version}"
+    <feature name="sdk-metrics" version="${project.version}" install="manual"
         description="SDK sample metrics.">
         <bundle>mvn:ddf.sdk/sample-metrics/${project.version}</bundle>
+    </feature>
+
+    <feature name="sdk-soap" version="${project.version}" install="manual"
+             description="SDK sample soap endpoint.">
+        <bundle>mvn:ddf.sdk/sample-soap-endpoint/${project.version}</bundle>
+    </feature>
+
+    <feature name="sdk-app" version="${project.version}" description="SDK app.">
+        <feature>security-expansion</feature>
+        <feature>security-pep-serviceauthz</feature>
+        <feature>security-pep-user-attributes</feature>
+        <feature>security-pep-metacard-attributes</feature>
+        <feature>sdk-soap</feature>
     </feature>
 	
 </features>
