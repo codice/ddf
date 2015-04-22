@@ -1,5 +1,5 @@
 = Integrating with the {branding} Admin Application Service
-include::../classes/config.adoc[]
+include::config.adoc[]
 
 == Overview
 
