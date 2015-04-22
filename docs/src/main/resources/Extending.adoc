@@ -1,5 +1,5 @@
 = Extending {branding} Platform Application
-include::../includes/config.adoc[]
+include::config.adoc[]
 
 == Overview
 
