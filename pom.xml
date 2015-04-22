@@ -31,6 +31,10 @@
     </modules>
 
     <distributionManagement>
+        <site>
+            <id>ddf-site</id>
+            <url>${ddf.site.repo}/ddf-libs/${project.version}</url>
+        </site>
         <snapshotRepository>
             <id>snapshots</id>
             <url>${snapshots.repository.url}</url>
