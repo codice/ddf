@@ -49,6 +49,13 @@
         <solr.saxon.version>9.5.1-5</solr.saxon.version>
     </properties>
 
+    <distributionManagement>
+        <site>
+            <id>ddf-site</id>
+            <url>${ddf.site.repo}/ddf-catalog/${project.version}</url>
+        </site>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
