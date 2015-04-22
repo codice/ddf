@@ -256,7 +256,10 @@ public abstract class AbstractIntegrationTest {
     protected Option[] configureStartScript() {
         return options(
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg", "featuresBoot",
-                        "security-services-app,catalog-app,solr-app,spatial-app"));
+                        "security-services-app,catalog-app,solr-app,spatial-app,sdk-app"),
+                editConfigurationFileExtend("etc/org.apache.karaf.features.cfg", "featuresRepositories",
+                        "mvn:ddf.sdk/sdk-app/2.3.0.ALPHA1-SNAPSHOT/xml/features"));
+
     }
 
     /**
