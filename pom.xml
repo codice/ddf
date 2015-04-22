@@ -47,6 +47,13 @@
     	      not on the bundlized version. -->
     	<javax.inject.bundle.version>${javax.inject.version}_2</javax.inject.bundle.version>
     </properties>
+
+    <distributionManagement>
+        <site>
+            <id>ddf-site</id>
+            <url>${ddf.site.repo>/ddf-ui/${project.version}</url>
+        </site>
+    </distributionManagement>
     
     <dependencyManagement>
     	<dependencies>
