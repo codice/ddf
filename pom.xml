@@ -181,6 +181,13 @@
     </distributionManagement>
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-webdav-jackrabbit</artifactId>
+                <version>2.7</version>
+            </extension>
+        </extensions>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -387,8 +394,6 @@
                             -collapsible
                             -collpackages java.util.*
                             -postfixpackage
-                            -nodfonts
-                            nodefontpackagesize 7
                         </additionalparam>
                     </configuration>
                 </plugin>
@@ -736,6 +741,56 @@
                     </plugins>
                 </pluginManagement>
             </build>
+        </profile>
+        
+        <!--
+          This profile contains settings for producing javadocs for site deployment. Site deployment can be overridden
+          by specifying <ddf.site.repo> within .m2/settings.xml
+        -->
+        <profile>
+            <id>javadoc-site</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-javadocs</id>
+                                <goals>
+                                    <goal>aggregate</goal>
+                                </goals>
+                                <phase>pre-site</phase>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/docs/</outputDirectory>
+                                    <reportOutputDirectory>${project.reporting.outputDirectory}/docs/</reportOutputDirectory>
+                                    <destDir>api</destDir>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-project-info-reports-plugin</artifactId>
+                        <version>2.7</version>
+                        <reportSets>
+                            <reportSet>
+                                <reports>
+                                </reports>
+                            </reportSet>
+                        </reportSets>
+                    </plugin>
+                </plugins>
+            </reporting>
+            <properties>
+                <ddf.site.repo>http://artifacts.codice.org/content/sites/ddf-site/</ddf.site.repo>
+            </properties>
         </profile>
     </profiles>
 
