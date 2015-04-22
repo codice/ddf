@@ -43,6 +43,13 @@
         <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
     </properties>
 
+    <distributionManagement>
+        <site>
+                <id>ddf-site</id>
+                <url>${ddf.site.repo}/ddf-platform/${project.version}</url>
+        </site>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
 		    <dependency>
@@ -52,7 +59,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-			
+
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
