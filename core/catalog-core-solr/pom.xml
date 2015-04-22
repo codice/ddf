@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -181,7 +181,8 @@
                                     <type>txt</type>
                                     <classifier>protwords</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>protwords.txt</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -191,7 +192,8 @@
                                     <type>xml</type>
                                     <classifier>schema</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>schema.xml</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -201,7 +203,8 @@
                                     <type>xml</type>
                                     <classifier>solrconfig</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>solrconfig.xml</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -211,7 +214,8 @@
                                     <type>txt</type>
                                     <classifier>stopwords_en</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>stopwords_en.txt</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -221,7 +225,8 @@
                                     <type>txt</type>
                                     <classifier>stopwords</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>stopwords.txt</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -231,7 +236,8 @@
                                     <type>txt</type>
                                     <classifier>synonyms</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>synonyms.txt</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -241,7 +247,8 @@
                                     <type>xml</type>
                                     <classifier>solr</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>solr.xml</destFileName>
                                 </artifactItem>
                             </artifactItems>
@@ -258,6 +265,48 @@
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,71 +12,115 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <artifactId>core</artifactId>
-    <groupId>ddf.catalog.core</groupId>
-    <version>2.7.0-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <artifactId>core</artifactId>
+        <groupId>ddf.catalog.core</groupId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>catalog-core-eventcommands</artifactId>
-  <name>DDF :: Catalog :: Core :: Event Commands</name>
-  <packaging>bundle</packaging>
+    <artifactId>catalog-core-eventcommands</artifactId>
+    <name>DDF :: Catalog :: Core :: Event Commands</name>
+    <packaging>bundle</packaging>
 
-	<dependencies>
-	    <dependency>
-			<groupId>org.apache.karaf.shell</groupId>
-			<artifactId>org.apache.karaf.shell.console</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
-		</dependency>
-		
-		<dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
 
-		<!-- There is a conflict between geotools (specifically gt-xsd-filter) 
-			and jscience. Since commons-json does not directly depend on jscience, rahter 
-			it calls methods in commons-ddf that use jscience, we can add an exclusion 
-			stanza here to omit the transitive jscience dependency from the commons-ddf 
-			dependency and resolve its conflict with geotools. -->
-			<exclusions>
-				<exclusion>
-					<groupId>org.jscience</groupId>
-					<artifactId>jscience</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+            <!-- There is a conflict between geotools (specifically gt-xsd-filter)
+                and jscience. Since commons-json does not directly depend on jscience, rahter
+                it calls methods in commons-ddf that use jscience, we can add an exclusion
+                stanza here to omit the transitive jscience dependency from the commons-ddf
+                dependency and resolve its conflict with geotools. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jscience</groupId>
+                    <artifactId>jscience</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-	</dependencies>
-	
-	<build>
-		<plugins>
-		    <plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Export-Package />
-						<Import-Package>
-						    ddf.catalog.event,
-							org.apache.felix.service.command,
-							org.apache.felix.gogo.commands,
-							org.apache.karaf.shell.console,
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package/>
+                        <Import-Package>
+                            ddf.catalog.event,
+                            org.apache.felix.service.command,
+                            org.apache.felix.gogo.commands,
+                            org.apache.karaf.shell.console,
                             org.joda.time;version="[1.6.0,3.0.0)",
-							*
-						</Import-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-	
+                            *
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

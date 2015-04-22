@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,8 +12,10 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>ddf.catalog.core</groupId>
@@ -21,133 +23,175 @@
         <version>2.7.0-SNAPSHOT</version>
     </parent>
 
-	<artifactId>ddf-pubsub</artifactId>
-	<name>DDF :: Catalog :: Core :: Impl :: PubSub</name>
-	<packaging>bundle</packaging>
+    <artifactId>ddf-pubsub</artifactId>
+    <name>DDF :: Catalog :: Core :: Impl :: PubSub</name>
+    <packaging>bundle</packaging>
 
-	<dependencies>
+    <dependencies>
 
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api-impl</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>ddf.measure</groupId>
-			<artifactId>measure-api</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>ddf.measure</groupId>
+            <artifactId>measure-api</artifactId>
+        </dependency>
 
-		<dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
 
-		<!-- There is a conflict between geotools (specifically gt-xsd-filter) 
-			and jscience. Since commons-json does not directly depend on jscience, rather 
-			it calls methods in commons-ddf that use jscience, we can add an exclusion 
-			stanza here to omit the transitive jscience dependency from the commons-ddf 
-			dependency and resolve its conflict with geotools. -->
-			<exclusions>
-				<exclusion>
-					<groupId>org.jscience</groupId>
-					<artifactId>jscience</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+            <!-- There is a conflict between geotools (specifically gt-xsd-filter)
+                and jscience. Since commons-json does not directly depend on jscience, rather
+                it calls methods in commons-ddf that use jscience, we can add an exclusion
+                stanza here to omit the transitive jscience dependency from the commons-ddf
+                dependency and resolve its conflict with geotools. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jscience</groupId>
+                    <artifactId>jscience</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>0.9.24</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>0.9.24</version>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
-			<type>jar</type>
-			<scope>provided</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.core</artifactId>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.springframework.osgi</groupId>
-			<artifactId>spring-osgi-mock</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.springframework.osgi</groupId>
+            <artifactId>spring-osgi-mock</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-core</artifactId>
-			<version>3.0.2</version>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>3.0.2</version>
+        </dependency>
 
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>xerces</groupId>
-			<artifactId>xercesImpl</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.geotools.xsd</groupId>
-			<artifactId>gt-xsd-gml3</artifactId>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.geotools.xsd</groupId>
+            <artifactId>gt-xsd-gml3</artifactId>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<plugins>
-    
-      <!-- Export mock objects in test JAR for use by other projects -->
-      <!-- 
-	  <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-jar-plugin</artifactId>
-		<executions>
-			<execution>
-				<goals>
-					<goal>test-jar</goal>
-				</goals>
-			</execution>
-		</executions>
-	  </plugin>
-	  -->
+    <build>
+        <plugins>
 
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Export-Package>
-							ddf.catalog.pubsub;version="${project.version}"
-						</Export-Package>
-						<Private-Package>
-							ddf.catalog.pubsub.internal.*,
-							ddf.catalog.pubsub.criteria.*,
-							ddf.catalog.pubsub.predicate,
-							ddf.catalog.operation.impl,
-							ddf.catalog.data.impl,
-							ddf.catalog.util.impl
-						</Private-Package>
-						<Import-Package>
-							com.vividsolutions.jts.operation.distance;version="1.1.0",
-							com.vividsolutions.jts.geom;version="1.1.0",
+            <!-- Export mock objects in test JAR for use by other projects -->
+            <!--
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-jar-plugin</artifactId>
+              <executions>
+                  <execution>
+                      <goals>
+                          <goal>test-jar</goal>
+                      </goals>
+                  </execution>
+              </executions>
+            </plugin>
+            -->
+
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>
+                            ddf.catalog.pubsub;version="${project.version}"
+                        </Export-Package>
+                        <Private-Package>
+                            ddf.catalog.pubsub.internal.*,
+                            ddf.catalog.pubsub.criteria.*,
+                            ddf.catalog.pubsub.predicate,
+                            ddf.catalog.operation.impl,
+                            ddf.catalog.data.impl,
+                            ddf.catalog.util.impl
+                        </Private-Package>
+                        <Import-Package>
+                            com.vividsolutions.jts.operation.distance;version="1.1.0",
+                            com.vividsolutions.jts.geom;version="1.1.0",
                             org.joda.time;version="[1.6.0,3.0.0)",
-							*
-						</Import-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+                            *
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.49</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.4</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.35</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.46</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -1,4 +1,4 @@
-
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -25,7 +27,9 @@
     <artifactId>catalog-solr-embedded-provider</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: Catalog :: Solr :: Embedded :: Provider</name>
-    <description>A Catalog Provider library for an Apache Solr Server and for using an embedded Solr Server</description>
+    <description>A Catalog Provider library for an Apache Solr Server and for using an embedded Solr
+        Server
+    </description>
 
     <dependencies>
         <dependency>
@@ -43,12 +47,12 @@
             </resource>
         </resources>
         <plugins>
-           <!--  
-           Used to copy solr/conf files from maven repo to target/classes/solr/conf directory for use by unit tests. These
-           solr/conf files are now owned by the platform-solr-server-standalone bundle. They are placed in target/classes
-           directory so that they appear on the classpath and can be read as a resource.
-           -->
-           <plugin>
+            <!--
+            Used to copy solr/conf files from maven repo to target/classes/solr/conf directory for use by unit tests. These
+            solr/conf files are now owned by the platform-solr-server-standalone bundle. They are placed in target/classes
+            directory so that they appear on the classpath and can be read as a resource.
+            -->
+            <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>2.8</version>
                 <executions>
@@ -67,7 +71,8 @@
                                     <type>txt</type>
                                     <classifier>protwords</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>protwords.txt</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -77,7 +82,8 @@
                                     <type>xml</type>
                                     <classifier>schema</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>schema.xml</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -87,7 +93,8 @@
                                     <type>xml</type>
                                     <classifier>solrconfig</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>solrconfig.xml</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -97,7 +104,8 @@
                                     <type>txt</type>
                                     <classifier>stopwords_en</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>stopwords_en.txt</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -107,7 +115,8 @@
                                     <type>txt</type>
                                     <classifier>stopwords</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>stopwords.txt</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -117,7 +126,8 @@
                                     <type>txt</type>
                                     <classifier>synonyms</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>synonyms.txt</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -127,7 +137,8 @@
                                     <type>xml</type>
                                     <classifier>solr</classifier>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes/solr/conf</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/classes/solr/conf
+                                    </outputDirectory>
                                     <destFileName>solr.xml</destFileName>
                                 </artifactItem>
                             </artifactItems>
@@ -193,7 +204,9 @@
                         <Embed-Transitive>true</Embed-Transitive>
                         <!-- We want the maven-populated describable.properties, so we overwrite 
                             the src/main/resources one with the one in target -->
-                        <Include-Resource>src/main/resources/,target/classes/describable.properties</Include-Resource>
+                        <Include-Resource>
+                            src/main/resources/,target/classes/describable.properties
+                        </Include-Resource>
                         <!-- Package uses conflict if we do not embed this -->
                         <Private-Package>
                             ddf.catalog.source.solr;version="${project.version}",
@@ -201,7 +214,7 @@
                             ddf.catalog.operation.impl,
                             ddf.catalog.util.impl
                         </Private-Package>
-                        <Export-Package />
+                        <Export-Package/>
                         <Import-Package>
                             com.vividsolutions.jts.algorithm,
                             com.vividsolutions.jts.geom,
@@ -259,6 +272,48 @@
                         </Import-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
