@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,7 +12,9 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>search-ui</artifactId>
         <groupId>ddf.ui.search</groupId>
@@ -30,26 +32,26 @@
             <groupId>org.cometd.java</groupId>
             <artifactId>bayeux-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.cometd.java</groupId>
             <artifactId>cometd-java-common</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.cometd.java</groupId>
             <artifactId>cometd-java-server</artifactId>
         </dependency>
-        
+
         <dependency>
-        	<groupId>org.cometd.java</groupId>
-        	<artifactId>cometd-java-annotations</artifactId>
+            <groupId>org.cometd.java</groupId>
+            <artifactId>cometd-java-annotations</artifactId>
         </dependency>
 
         <dependency>
-        	<groupId>ddf.catalog.core</groupId>
-        	<artifactId>catalog-core-api-impl</artifactId>
-        	<version>${ddf.catalog.app.version}</version>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+            <version>${ddf.catalog.app.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
@@ -80,12 +82,12 @@
             <version>${ddf.catalog.app.version}</version>
         </dependency>
         <dependency>
-        	<groupId>org.codice.ddf</groupId>
-        	<artifactId>notifications</artifactId>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>notifications</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.codice.ddf</groupId>
-          <artifactId>activities</artifactId>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>activities</artifactId>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
@@ -162,14 +164,15 @@
                             guava
                         </Embed-Dependency>
                         <Web-ContextPath>/search/cometd</Web-ContextPath>
-                        <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
+                        <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800
+                        </Spring-Context>
                         <!-- Package uses conflict if we do not embed this -->
                         <Private-Package>
                             org.codice.ddf.ui.searchui.query.*,
                             ddf.catalog.operation.impl,
                             ddf.catalog.util.impl
                         </Private-Package>
-                        <Export-Package />
+                        <Export-Package/>
                         <Import-Package>
                             org.joda.convert;resolution:=optional,
                             org.eclipse.jetty.*; version="[7.6.0,9.0.0)",

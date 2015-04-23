@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,7 +12,9 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.ui.search</groupId>
@@ -72,34 +74,34 @@
             <artifactId>httpcore</artifactId>
             <version>4.3.2</version>
         </dependency>
-       	<dependency>
-        	<groupId>org.codice.httpproxy</groupId>
-        	<artifactId>proxy-camel-route</artifactId>
-        	<version>${ddf.httpproxy.version}</version>
+        <dependency>
+            <groupId>org.codice.httpproxy</groupId>
+            <artifactId>proxy-camel-route</artifactId>
+            <version>${ddf.httpproxy.version}</version>
         </dependency>
         <dependency>
-        	<groupId>ddf.ui.search</groupId>
-        	<artifactId>search-proxy</artifactId>
-        	<version>${project.version}</version>
+            <groupId>ddf.ui.search</groupId>
+            <artifactId>search-proxy</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-		</dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
         </dependency>
-		<dependency>
-      		<groupId>org.apache.camel</groupId>
-      		<artifactId>camel-http</artifactId>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-http</artifactId>
             <version>2.14.2</version>
-  		</dependency>
-  		<dependency>
-      		<groupId>org.apache.camel</groupId>
-      		<artifactId>camel-core-osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-core-osgi</artifactId>
             <version>2.14.2</version>
-    	</dependency>
+        </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
@@ -159,7 +161,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                       	<Embed-Dependency>
+                        <Embed-Dependency>
                             boon,
                             camel-http,
                             camel-core-osgi,
@@ -180,7 +182,7 @@
                             !com.sun.management,
                             *
                         </Import-Package>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>

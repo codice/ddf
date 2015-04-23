@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,27 +12,29 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>ddf.ui.search</groupId>
-		<artifactId>search-ui</artifactId>
-		<version>2.7.0-SNAPSHOT</version>
-	</parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ddf.ui.search</groupId>
+        <artifactId>search-ui</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>simple</artifactId>
-	<name>DDF :: UI :: Search UI :: Simple Search</name>
-	<packaging>bundle</packaging>
+    <artifactId>simple</artifactId>
+    <name>DDF :: UI :: Search UI :: Simple Search</name>
+    <packaging>bundle</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.karaf.webconsole</groupId>
             <artifactId>org.apache.karaf.webconsole.console</artifactId>
@@ -50,93 +52,102 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
         </dependency>
-	</dependencies>
-	
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>net.alchim31.maven</groupId>
-				<artifactId>yuicompressor-maven-plugin</artifactId>
-				<version>1.3.0</version>
-				<executions>
-					<execution>
-						<id>compress</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>compress</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<linebreakpos>-1</linebreakpos>
-					<encoding>UTF-8</encoding>
-					<force>true</force>
-					<jswarn>false</jswarn>
-					<excludes>
-						<exclude>lib/</exclude>
-						<exclude>properties/</exclude>
-					</excludes>
-					<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
-					<aggregations>
-						<aggregation>
-							<insertNewLine>false</insertNewLine>
-							<output>${project.build.directory}/${project.build.finalName}/js/Search-min.js</output>
-							<inputDir>${project.build.directory}/${project.build.finalName}/js</inputDir>
-							<includes>
-								<include>**/*-min.js</include>
-							</includes>
-						</aggregation>
-						<aggregation>
-							<insertNewLine>false</insertNewLine>
-							<output>${project.build.directory}/${project.build.finalName}/css/Search-min.css</output>
-							<inputDir>${project.build.directory}/${project.build.finalName}/css</inputDir>
-							<includes>
-								<include>**/*.css</include>
-							</includes>
-						</aggregation>
-					</aggregations>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>jslint-maven-plugin</artifactId>
-				<version>1.0.1</version>
-				<configuration>
-					<sourceJsFolder>${basedir}/src/main/webapp/js</sourceJsFolder>
-					<disallowUndefinedVariables>false</disallowUndefinedVariables>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>jslint</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Web-ContextPath>/search/simple</Web-ContextPath>
-						<_wab>src/main/webapp,${project.build.directory}/${project.build.finalName}</_wab>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>yuicompressor-maven-plugin</artifactId>
+                <version>1.3.0</version>
+                <executions>
+                    <execution>
+                        <id>compress</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>compress</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <linebreakpos>-1</linebreakpos>
+                    <encoding>UTF-8</encoding>
+                    <force>true</force>
+                    <jswarn>false</jswarn>
+                    <excludes>
+                        <exclude>lib/</exclude>
+                        <exclude>properties/</exclude>
+                    </excludes>
+                    <webappDirectory>${project.build.directory}/${project.build.finalName}
+                    </webappDirectory>
+                    <aggregations>
+                        <aggregation>
+                            <insertNewLine>false</insertNewLine>
+                            <output>
+                                ${project.build.directory}/${project.build.finalName}/js/Search-min.js
+                            </output>
+                            <inputDir>${project.build.directory}/${project.build.finalName}/js
+                            </inputDir>
+                            <includes>
+                                <include>**/*-min.js</include>
+                            </includes>
+                        </aggregation>
+                        <aggregation>
+                            <insertNewLine>false</insertNewLine>
+                            <output>
+                                ${project.build.directory}/${project.build.finalName}/css/Search-min.css
+                            </output>
+                            <inputDir>${project.build.directory}/${project.build.finalName}/css
+                            </inputDir>
+                            <includes>
+                                <include>**/*.css</include>
+                            </includes>
+                        </aggregation>
+                    </aggregations>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jslint-maven-plugin</artifactId>
+                <version>1.0.1</version>
+                <configuration>
+                    <sourceJsFolder>${basedir}/src/main/webapp/js</sourceJsFolder>
+                    <disallowUndefinedVariables>false</disallowUndefinedVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jslint</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Web-ContextPath>/search/simple</Web-ContextPath>
+                        <_wab>
+                            src/main/webapp,${project.build.directory}/${project.build.finalName}
+                        </_wab>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             commons-lang
                         </Embed-Dependency>
-						<Import-Package>
+                        <Import-Package>
                             org.apache.felix.webconsole,
-	                    	org.osgi.service.blueprint,
-	                    	javax.servlet,
-	                    	org.osgi.framework,
-	                    	org.slf4j,
+                            org.osgi.service.blueprint,
+                            javax.servlet,
+                            org.osgi.framework,
+                            org.slf4j,
                             javax.servlet.http
-						</Import-Package>
-						<Export-Package />
-					</instructions>
-				</configuration>
-			</plugin>
-			
-		</plugins>
-	</build>
+                        </Import-Package>
+                        <Export-Package/>
+                    </instructions>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
 </project>
