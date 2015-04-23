@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,142 +12,144 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.codice.ddf.spatial</groupId>
-		<artifactId>csw</artifactId>
-		<version>2.7.0-SNAPSHOT</version>
-	</parent>
-	<artifactId>spatial-csw-schema-bindings</artifactId>
-	<!--<version>1.1.0_1</version>-->
-	<name>DDF :: Spatial :: CSW :: Schema Bindings</name>
-	<description>Provides JAXB 2.x bindings for OGC CSW Schema (Version 2.0.2).</description>
-	<dependencies>
-		<dependency>
-			<groupId>org.jvnet.jaxb2_commons</groupId>
-			<artifactId>jaxb2-basics-runtime</artifactId>
-			<version>0.6.0</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.xml.bind</groupId>
-			<artifactId>jaxb-impl</artifactId>
-			<version>2.1.13</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.jvnet.ogc</groupId>
-			<artifactId>gml-v_3_1_1-schema</artifactId>
-			<version>1.1.0</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.jvnet.ogc</groupId>
-			<artifactId>ows-v_1_0_0-schema</artifactId>
-			<version>1.1.0</version>
-			<scope>compile</scope>
-		</dependency>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.codice.ddf.spatial</groupId>
+        <artifactId>csw</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>spatial-csw-schema-bindings</artifactId>
+    <!--<version>1.1.0_1</version>-->
+    <name>DDF :: Spatial :: CSW :: Schema Bindings</name>
+    <description>Provides JAXB 2.x bindings for OGC CSW Schema (Version 2.0.2).</description>
+    <dependencies>
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+            <version>0.6.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.1.13</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.ogc</groupId>
+            <artifactId>gml-v_3_1_1-schema</artifactId>
+            <version>1.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.ogc</groupId>
+            <artifactId>ows-v_1_0_0-schema</artifactId>
+            <version>1.1.0</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
-			<scope>compile</scope>
+            <scope>compile</scope>
         </dependency>
-	</dependencies>
-	<build>
-		<defaultGoal>install</defaultGoal>
-		<plugins>
-			<plugin>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.1.2</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>package</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-				<inherited>true</inherited>
-			</plugin>
-			<plugin>
-				<groupId>org.jvnet.jaxb2.maven2</groupId>
-				<artifactId>maven-jaxb2-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<schemaIncludes>
-								<value>csw/*/CSW-publication.xsd</value>
-								<value>gml/*/base/gml.xsd</value>
-							</schemaIncludes>
-							<episodes>
-								<episode>
-									<groupId>org.jvnet.ogc</groupId>
-									<artifactId>gml-v_3_1_1-schema</artifactId>
-								</episode>
-								<episode>
-									<groupId>org.codice.thirdparty</groupId>
-									<artifactId>ogc-filter-v_1_1_0-schema</artifactId>
-								</episode>
-								<episode>
-									<groupId>org.jvnet.ogc</groupId>
-									<artifactId>ows-v_1_0_0-schema</artifactId>
-								</episode>
-							</episodes>
-							<strict>false</strict>
-							<extension>true</extension>
-							<args>
-								<arg>-XtoString</arg>
-								<arg>-Xequals</arg>
-								<arg>-XhashCode</arg>
-								<arg>-Xcopyable</arg>
-								<arg>-Xmergeable</arg>
-								<arg>-Xsetters</arg>
-								<arg>-Xwildcard</arg>
-								<arg>-Xinject-code</arg>
-								<arg>-Xinheritance</arg>
-								<!--<arg>-Xvisitor</arg>
+    </dependencies>
+    <build>
+        <defaultGoal>install</defaultGoal>
+        <plugins>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <inherited>true</inherited>
+            </plugin>
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaIncludes>
+                                <value>csw/*/CSW-publication.xsd</value>
+                                <value>gml/*/base/gml.xsd</value>
+                            </schemaIncludes>
+                            <episodes>
+                                <episode>
+                                    <groupId>org.jvnet.ogc</groupId>
+                                    <artifactId>gml-v_3_1_1-schema</artifactId>
+                                </episode>
+                                <episode>
+                                    <groupId>org.codice.thirdparty</groupId>
+                                    <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
+                                </episode>
+                                <episode>
+                                    <groupId>org.jvnet.ogc</groupId>
+                                    <artifactId>ows-v_1_0_0-schema</artifactId>
+                                </episode>
+                            </episodes>
+                            <strict>false</strict>
+                            <extension>true</extension>
+                            <args>
+                                <arg>-XtoString</arg>
+                                <arg>-Xequals</arg>
+                                <arg>-XhashCode</arg>
+                                <arg>-Xcopyable</arg>
+                                <arg>-Xmergeable</arg>
+                                <arg>-Xsetters</arg>
+                                <arg>-Xwildcard</arg>
+                                <arg>-Xinject-code</arg>
+                                <arg>-Xinheritance</arg>
+                                <!--<arg>-Xvisitor</arg>
                                 <arg>-Xvisitor-package:net.opengis.filter.v_1_1_0</arg>-->
-							</args>
-							<plugins>
-								<plugin>
-									<groupId>org.jvnet.jaxb2_commons</groupId>
-									<artifactId>jaxb2-basics</artifactId>
-									<version>0.6.0</version>
-								</plugin>
-								<!--<plugin>
+                            </args>
+                            <plugins>
+                                <plugin>
+                                    <groupId>org.jvnet.jaxb2_commons</groupId>
+                                    <artifactId>jaxb2-basics</artifactId>
+                                    <version>0.6.0</version>
+                                </plugin>
+                                <!--<plugin>
                                     <groupId>com.massfords</groupId>
                                     <artifactId>jaxb-visitor</artifactId>
                                     <version>${jaxb.visitor.plugin.version}</version>
                                 </plugin>-->
-							</plugins>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.3</version>
-				<executions>
-					<execution>
-						<phase>process-sources</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<tasks>
-								<delete dir="./target/generated-sources/xjc/net/opengis/ogc" />
-								<delete dir="./target/generated-sources/xjc/net/opengis/filter" />
-								<delete dir="./target/generated-sources/xjc/net/opengis/ows" />
-							</tasks>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+                            </plugins>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.3</version>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <delete dir="./target/generated-sources/xjc/net/opengis/ogc"/>
+                                <delete dir="./target/generated-sources/xjc/net/opengis/filter"/>
+                                <delete dir="./target/generated-sources/xjc/net/opengis/ows"/>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
@@ -22,7 +24,7 @@
     <artifactId>spatial-csw-source</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: Spatial :: CSW :: Source</name>
-    
+
     <dependencies>
 
         <dependency>
@@ -39,38 +41,38 @@
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
             <artifactId>gml-v_3_1_1-schema</artifactId>
             <version>1.1.0</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
             <artifactId>ows-v_1_0_0-schema</artifactId>
             <version>1.1.0</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
             <version>0.6.0</version>
         </dependency>
-    
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-    
+
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
-        
+
         <dependency>
-        	<groupId>ddf.catalog.core</groupId>
-        	<artifactId>catalog-core-urlresourcereader</artifactId>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-urlresourcereader</artifactId>
         </dependency>
 
         <dependency>
@@ -87,7 +89,7 @@
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-ogc-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-ogc-common</artifactId>
@@ -97,7 +99,7 @@
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-csw-common</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts</artifactId>
@@ -114,11 +116,11 @@
             <artifactId>filter-proxy</artifactId>
             <scope>test</scope>
         </dependency>
-        
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-collections4</artifactId>
-		</dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
@@ -133,10 +135,10 @@
             <artifactId>gt-xml</artifactId>
         </dependency>
         <dependency>
-			<groupId>org.jvnet.ogc</groupId>
-			<artifactId>ogc-tools-gml-jts</artifactId>
-			<version>1.0.3</version>
-		</dependency>
+            <groupId>org.jvnet.ogc</groupId>
+            <artifactId>ogc-tools-gml-jts</artifactId>
+            <version>1.0.3</version>
+        </dependency>
         <dependency>
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
@@ -162,12 +164,12 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
-                           !org.jvnet.staxex,
-                           org.codice.ddf.spatial.ogc.catalog,
-                           *
+                            !org.jvnet.staxex,
+                            org.codice.ddf.spatial.ogc.catalog,
+                            *
                         </Import-Package>
                         <!-- Don't Export Anything -->
-                        <Export-Package />
+                        <Export-Package/>
                         <Embed-Dependency>
                             spatial-csw-common,
                             spatial-ogc-common,
