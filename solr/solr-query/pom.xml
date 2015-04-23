@@ -11,26 +11,75 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-    <groupId>ddf.solr</groupId>
-    <artifactId>solr</artifactId>
-    <version>2.7.0-SNAPSHOT</version>
-  </parent>
-  
-  <groupId>ddf.platform.solr</groupId>
-  <artifactId>solr-query</artifactId>
-  <name>DDF :: Platform :: Solr :: Query</name>
-  <packaging>jar</packaging>
-  
-  <properties>
-      <xerces.version>2.9.1</xerces.version>
-  </properties>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <dependencies>
-      <dependency>
+    <parent>
+        <groupId>ddf.solr</groupId>
+        <artifactId>solr</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>ddf.platform.solr</groupId>
+    <artifactId>solr-query</artifactId>
+    <name>DDF :: Platform :: Solr :: Query</name>
+    <packaging>jar</packaging>
+
+    <properties>
+        <xerces.version>2.9.1</xerces.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.0</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.0</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.0</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.0</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>
             <!-- exclusions from LuxDB -->
@@ -93,6 +142,6 @@
             <artifactId>xercesImpl</artifactId>
             <version>${xerces.version}</version>
         </dependency>
-  </dependencies>
+    </dependencies>
 
 </project>

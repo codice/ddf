@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -13,40 +13,42 @@
  **/
 
  -->
- <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>platform</artifactId>
-		<groupId>ddf.platform</groupId>
-		<version>2.7.0-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <artifactId>platform</artifactId>
+        <groupId>ddf.platform</groupId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>platform-app</artifactId>
-	<name>DDF :: Platform :: App</name>
-	<packaging>pom</packaging>
+    <artifactId>platform-app</artifactId>
+    <name>DDF :: Platform :: App</name>
+    <packaging>pom</packaging>
 
     <dependencies>
-      <dependency>
-        <groupId>ddf.security.core</groupId>
-        <artifactId>security-core-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>ddf.security.encryption</groupId>
-        <artifactId>security-encryption-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>ddf.security.encryption</groupId>
-        <artifactId>security-encryption-impl</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>ddf.security.encryption</groupId>
-        <artifactId>security-encryption-commands</artifactId>
-        <version>${project.version}</version>
-      </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-commands</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -72,7 +74,8 @@
         <cxf.fastinfoset.bundle.version>1.2.13_1</cxf.fastinfoset.bundle.version>
         <cxf.hazelcast.version>1.9.4</cxf.hazelcast.version>
         <cxf.httpcomponents.asyncclient.version>4.0.2</cxf.httpcomponents.asyncclient.version>
-        <cxf.httpcomponents.asyncclient.version.range>[4.0,4.1)</cxf.httpcomponents.asyncclient.version.range>
+        <cxf.httpcomponents.asyncclient.version.range>[4.0,4.1)
+        </cxf.httpcomponents.asyncclient.version.range>
         <cxf.httpcomponents.client.version>4.3.5</cxf.httpcomponents.client.version>
         <cxf.httpcomponents.core.version>4.3.3</cxf.httpcomponents.core.version>
         <cxf.httpcomponents.core.version.range>[4.3,4.4.0)</cxf.httpcomponents.core.version.range>
@@ -155,8 +158,8 @@
         <cxf.hibernate.validator.version>5.0.2.Final</cxf.hibernate.validator.version>
         <cxf.glassfish.json.version>1.0.4</cxf.glassfish.json.version>
         <cxf.javax.el.version>3.0.0</cxf.javax.el.version>
-        <cxf.hibernate-validator.bundle.version>5.0.2.Final_1</cxf.hibernate-validator.bundle.version>
-
+        <cxf.hibernate-validator.bundle.version>5.0.2.Final_1
+        </cxf.hibernate-validator.bundle.version>
 
 
         <!-- various OSGi related versions -->
@@ -197,7 +200,8 @@
         <!-- End apache-cxf-3.0.4-src/pom.xml -->
 
         <!-- END CXF properties -->
-        <org.apache.servicemix.bundles.jaxen.version>1.1.6_1</org.apache.servicemix.bundles.jaxen.version>
+        <org.apache.servicemix.bundles.jaxen.version>1.1.6_1
+        </org.apache.servicemix.bundles.jaxen.version>
         <org.ops4j-base-lang>1.5.0</org.ops4j-base-lang>
         <org.ops4j.pax.swissbox.version>1.8.0</org.ops4j.pax.swissbox.version>
         <saxon.version>9.6.0-4</saxon.version>
@@ -208,54 +212,54 @@
         <opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>
     </properties>
 
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-resources</id>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${basedir}/target/classes</outputDirectory>
-							<resources>
-								<resource>
-									<directory>src/main/resources</directory>
-									<filtering>true</filtering>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
-			<!-- Puts the features XML file for this app into the maven repo. -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-artifacts</id>
-						<phase>package</phase>
-						<inherited>false</inherited>
-						<goals>
-							<goal>attach-artifact</goal>
-						</goals>
-						<configuration>
-							<artifacts>
-								<artifact>
-									<file>target/classes/features.xml</file>
-									<type>xml</type>
-									<classifier>features</classifier>
-								</artifact>
-							</artifacts>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+            <!-- Puts the features XML file for this app into the maven repo. -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <inherited>false</inherited>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>target/classes/features.xml</file>
+                                    <type>xml</type>
+                                    <classifier>features</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
@@ -275,7 +279,7 @@
                     </execution>
                 </executions>
             </plugin>
-		</plugins>
-	</build>
+        </plugins>
+    </build>
 
 </project>
