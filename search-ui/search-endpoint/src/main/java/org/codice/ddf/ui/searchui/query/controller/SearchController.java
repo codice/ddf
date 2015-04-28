@@ -85,6 +85,22 @@ public class SearchController {
 
     private static final DateTimeFormatter ISO_8601_DATE_FORMAT = DateTimeFormat
             .forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").withZoneUTC();
+    
+    @SuppressWarnings("serial")
+    private static final Map<String, Serializable> INDEX_PROPERTIES = Collections
+            .unmodifiableMap(new HashMap<String, Serializable>() {
+                {
+                    put("mode", "index");
+                }
+            });
+
+    @SuppressWarnings("serial")
+    private static final Map<String, Serializable> CACHE_PROPERTIES = Collections
+            .unmodifiableMap(new HashMap<String, Serializable>() {
+                {
+                    put("mode", "cache");
+                }
+            });
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -167,12 +183,10 @@ public class SearchController {
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    Map<String, Serializable> properties = new HashMap<String, Serializable>();
                     // check if there are any currently cached results
-                    properties.put("mode", "cache");
                     // search cache for all sources
                     QueryResponse response = executeQuery(null, request,
-                            subject, properties);
+                            subject, CACHE_PROPERTIES);
 
                     try {
                         Search search = addQueryResponseToSearch(request, response);
@@ -192,17 +206,13 @@ public class SearchController {
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
-                        Map<String, Serializable> properties = new HashMap<String, Serializable>();
                         // update index from federated sources
-                        properties.put("mode", "index");
                         QueryResponse indexResponse = executeQuery(sourceId, request,
-                                subject, properties);
+                                subject, INDEX_PROPERTIES);
 
                         // query updated cache
-                        Map<String, Serializable> props = new HashMap<String, Serializable>();
-                        props.put("mode", "cache");
                         QueryResponse cachedResponse = executeQuery(null, request,
-                                subject, props);
+                                subject, CACHE_PROPERTIES);
 
                         try {
                             Search search = addQueryResponseToSearch(request, cachedResponse);
