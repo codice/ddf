@@ -122,7 +122,7 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>0.0.22</version>
+                <version>0.0.23</version>
                 <executions>
                     <execution>
                         <id>install node and npm</id>
@@ -224,7 +224,7 @@
                     <plugin>
                         <groupId>com.github.eirslett</groupId>
                         <artifactId>frontend-maven-plugin</artifactId>
-                        <version>0.0.16</version>
+                        <version>0.0.23</version>
                         <executions>
                             <execution>
                                 <id>grunt build</id>
