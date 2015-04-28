@@ -32,8 +32,7 @@ require.config({
         backbonecometd: 'lib/backbone-cometd/backbone.cometd.extension',
         backboneundo: 'lib/Backbone.Undo.js/Backbone.Undo',
         poller: 'lib/backbone-poller/backbone.poller',
-        underscore: 'lib/lodash/dist/lodash.underscore.min',
-        lodash: 'lib/lodash/dist/lodash.min',
+        underscore: 'lib/lodash/lodash.min',
         marionette: 'lib/marionette/lib/backbone.marionette.min',
         // TODO test combining
         modelbinder: 'lib/backbone.modelbinder/Backbone.ModelBinder.min',
@@ -165,7 +164,8 @@ require.onError = function (err) {
     }
 };
 
-require(['jquery',
+require(['underscore',
+        'jquery',
         'backbone',
         'marionette',
         'application',
@@ -173,8 +173,16 @@ require(['jquery',
         'properties',
         'js/HandlebarsHelpers',
         'js/ApplicationHelpers'],
-    function ($, Backbone, Marionette, app, ich, properties) {
+    function (_, $, Backbone, Marionette, app, ich, properties) {
         'use strict';
+
+        // Make lodash compatible with Backbone
+        var lodash = _.noConflict();
+        _.mixin({
+            'debounce': _.debounce || lodash.debounce,
+            'defer': _.defer || lodash.defer,
+            'pluck': _.pluck || lodash.pluck
+        });
 
         var document = window.document;
 
