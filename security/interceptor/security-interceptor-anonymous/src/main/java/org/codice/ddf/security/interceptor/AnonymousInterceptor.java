@@ -21,6 +21,7 @@ import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapBindingConstants;
 import org.apache.cxf.binding.soap.SoapFault;
@@ -447,7 +448,8 @@ public class AnonymousInterceptor extends AbstractWSS4JInterceptor {
                             org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
             action.addTextNode((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
             AttributedURIType attributedString = new AttributedURIType();
-            attributedString.setValue((String) message.get(SoapBindingConstants.SOAP_ACTION));
+            String actionValue = StringUtils.defaultIfEmpty((String) message.get(SoapBindingConstants.SOAP_ACTION), "");
+            attributedString.setValue(actionValue);
             addressingProperties.setAction(attributedString);
         } catch (SOAPException e) {
             LOGGER.error("Unable to add addressing action.", e);
