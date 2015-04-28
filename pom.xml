@@ -56,7 +56,7 @@
             <url>${ddf.site.repo>/ddf-ui/${project.version}</url>
         </site>
     </distributionManagement>
-    
+
     <dependencyManagement>
         <dependencies>
             <dependency>
