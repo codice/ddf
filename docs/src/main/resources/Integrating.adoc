@@ -84,7 +84,7 @@ The RESTful CRUD Endpoint has no configurable properties. It can only be install
 
 The RESTful CRUD Endpoint provides the capability to query, create, update, and delete metacards in the catalog provider as follows:
 
-[cols="4*", options="header"]
+[cols="2,1,3,4", options="header"]
 |===
 
 |Operation
@@ -99,18 +99,15 @@ The RESTful CRUD Endpoint provides the capability to query, create, update, and 
 
 |update
 |HTTP PUT
-|The ID of the Metacard to be updated is appended to the end of the URL.
-
+|The ID of the Metacard to be updated is appended to the end of the URL. +
 The updated metadata is contained in the HTTP body.
 
-|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>`
-
+|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>`+
 where `<metacardId>` is the Metacard.ID of the metacard to be updated
 
 |delete
 |HTTP DELETE
 |The ID of the Metacard to be deleted is appended to the end of the URL.
-
 |`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>`
 
 where `<metacardId>` is the Metacard.ID of the metacard to be deleted
@@ -118,20 +115,17 @@ where `<metacardId>` is the Metacard.ID of the metacard to be deleted
 
 |read
 |HTTP GET
-|The ID of the Metacard to be retrieved is appended to the end of the URL.
-
+|The ID of the Metacard to be retrieved is appended to the end of the URL. +
 By default, the response body will include the XML representation of the Metacard.
 
-|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>`
-
+|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/<metacardId>`+
 where <metacardId> is the Metacard.ID of the metacard to be retrieved
 
 |federated read
 |HTTP GET
 |The SOURCE ID of a federated source is appended in the URL before the ID of the Metacard to be retrieved is appended to the end.
 
-|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/sources/<sourceId>/<metacardId>`
-
+|`http://<DISTRIBUTION_HOST>:<DISTRIBUTION_PORT>/services/catalog/sources/<sourceId>/<metacardId>` +
 where <sourceid> is the FEDERATED SOURCE ID and <metacardId> is the Metacard.ID of the Metacard to be retrieved
 
 |sources
