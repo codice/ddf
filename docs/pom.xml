@@ -24,11 +24,6 @@
     <artifactId>docs</artifactId>
     <name>DDF DOCS</name>
 
-    <properties>
-        <!-- Needed to prevent problem with surefire when jacoco plug-in is not configured -->
-        <argLine></argLine>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
