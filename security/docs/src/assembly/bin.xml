@@ -35,5 +35,4 @@
             </excludes>
         </fileSet>
     </fileSets>
-    <!-- use this section if you want to package dependencies -->
 </assembly>
