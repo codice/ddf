@@ -59,19 +59,15 @@ describe('Contextual', function () {
                 .waitForElementByCssSelector('a.metacard-link').click()
                 .waitForElementByClassName('metacard-details', asserters.nonEmptyText)
                 .elementByCssSelector('#summary .pull-right .attribute-value', asserters.textInclude('Unknown'), shared.timeout)
-                .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('record-summary-uncached.png'));
+                .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('record-summary.png'));
         });
 
         it("should be able to display cached metacard summary", function () {
             return this.browser
-                .elementById('nextRecord').click()
-                .waitForElementByClassName('metacard-details', asserters.isDestroyed)
-                .waitForElementByClassName('metacard-details', asserters.nonEmptyText)
-                .elementByCssSelector('#summary .pull-right .attribute-value', asserters.textInclude('ago'), shared.timeout)
-                .takeScreenshot().saveScreenshot(shared.getPathForScreenshot('record-summary-cached.png'))
-                .elementById('prevRecord').click()
-                .waitForElementByClassName('metacard-details', asserters.isDestroyed)
-                .waitForElementByClassName('metacard-details', asserters.nonEmptyText);
+                .waitForElementById('nextRecord', asserters.isDisplayed, shared.timeout).click()
+                .waitForConditionInBrowser('document.querySelector("#summary .pull-right .attribute-value").innerText.indexOf("ago") >= 0', shared.timeout)
+                .waitForElementById('prevRecord', asserters.isDisplayed, shared.timeout).click()
+                .waitForConditionInBrowser('document.querySelector("#summary .pull-right .attribute-value").innerText.indexOf("Unknown") >= 0', shared.timeout);
         });
 
         it("should be able to display metacard details", function () {
