@@ -74,8 +74,8 @@ public class FanoutCatalogFrameworkTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), new MockFederationStrategy(), null, poller,
-                null, null, null);
+                new ArrayList<ResourceReader>(), new MockFederationStrategy(), null, null,
+                poller, null, null, null);
         framework.setId(NEW_SOURCE_ID);
         framework.setFanoutEnabled(true);
     }
@@ -229,7 +229,7 @@ public class FanoutCatalogFrameworkTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), fedSources, new ArrayList<ResourceReader>(),
-                new MockFederationStrategy(), null, poller, null, null, null);
+                new MockFederationStrategy(), null, null, poller, null, null, null);
         framework.setId(NEW_SOURCE_ID);
         framework.setFanoutEnabled(true);
 

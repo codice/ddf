@@ -14,6 +14,41 @@
  **/
 package ddf.catalog.federation.impl;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.geotools.filter.FilterFactoryImpl;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.opengis.filter.FilterFactory;
+import org.opengis.filter.sort.SortOrder;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -22,6 +57,7 @@ import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.base.AbstractFederationStrategy;
 import ddf.catalog.impl.CatalogFrameworkImpl;
 import ddf.catalog.impl.MockDelayProvider;
+import ddf.catalog.impl.QueryResponsePostProcessor;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -49,40 +85,6 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.SourcePoller;
 import ddf.catalog.util.impl.SourcePollerRunner;
-import org.geotools.filter.FilterFactoryImpl;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.sort.SortOrder;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(AbstractFederationStrategy.class)
@@ -124,7 +126,8 @@ public class FederationStrategyTest {
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), fedStrategy, null, poller, null, null, null);
+                new ArrayList<ResourceReader>(), fedStrategy,
+                mock(QueryResponsePostProcessor.class), null, poller, null, null, null);
         framework.bind(provider);
 
         List<Metacard> metacards = new ArrayList<Metacard>();

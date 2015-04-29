@@ -15,6 +15,30 @@
 
 package org.codice.ddf.endpoints;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriInfo;
+
+import org.codice.ddf.opensearch.query.OpenSearchQuery;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.opengis.filter.Filter;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.federation.FederationException;
@@ -28,28 +52,6 @@ import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
-import org.codice.ddf.opensearch.query.OpenSearchQuery;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.opengis.filter.Filter;
-
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMap;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class OpenSearchEndpointTest {
 
@@ -133,7 +135,6 @@ public class OpenSearchEndpointTest {
         InputStream is = new ByteArrayInputStream("Test String From InputStream".getBytes("UTF-8"));
         when(mockBinaryContent.getInputStream()).thenReturn(is);
         when(mockBinaryContent.getMimeTypeValue()).thenReturn("text/plain");
-
         when(mockFramework.transform(any(QueryResponse.class), anyString(), anyMap())).thenReturn(
                 mockBinaryContent);
 
@@ -152,5 +153,4 @@ public class OpenSearchEndpointTest {
                         null, null);
 
     }
-
 }

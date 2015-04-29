@@ -14,15 +14,15 @@
  **/
 package ddf.catalog.data.impl;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashSet;
+
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-
-import java.io.Serializable;
-import java.util.Date;
-import java.util.HashSet;
 
 /**
  * Constants for basic types, both {@link MetacardType} and {@link AttributeType}
@@ -306,6 +306,9 @@ public class BasicTypes {
                 true /* stored */, false /* tokenized */, false /* multivalued */, XML_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_URI, true /* indexed */,
                 true /* stored */, false /* tokenized */, false /* multivalued */, STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_DOWNLOAD_URL,
+                false /* indexed */, false /* stored */, false /* tokenized */,
+                false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.RESOURCE_SIZE, false /* indexed */,
                 true /* stored */, false /* tokenized */, false /* multivalued */, STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(Metacard.THUMBNAIL, false /* indexed */,

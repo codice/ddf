@@ -69,6 +69,11 @@
     </dependency>
 
     <dependency>
+      <groupId>ddf.action.core</groupId>
+      <artifactId>action-core-api</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
     </dependency>
@@ -131,7 +136,7 @@
             <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800</Spring-Context>
             <Import-Package>
               META-INF.cxf,
-                org.joda.time;version="[1.6.0,3.0.0)",
+              org.joda.time;version="[1.6.0,3.0.0)",
               *
             </Import-Package>
             <!-- Package uses conflict if we do not embed this -->
@@ -142,6 +147,8 @@
               org.objectweb.asm.tree,
               org.objectweb.asm.tree.analysis,
               org.objectweb.asm.util,
+              ddf.catalog.impl,
+              ddf.catalog.data.impl,
               ddf.catalog.operation.impl,
               ddf.catalog.util.impl
             </Private-Package>
