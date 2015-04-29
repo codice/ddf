@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,49 +12,51 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>ddf.security.cas</groupId>
-    <artifactId>security-cas-pom</artifactId>
-    <version>2.7.0-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>ddf.security.cas</groupId>
+        <artifactId>security-cas-pom</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>security-cas-impl</artifactId>
-  <name>DDF :: Security :: CAS :: Implementation</name>
-  <packaging>bundle</packaging>
+    <artifactId>security-cas-impl</artifactId>
+    <name>DDF :: Security :: CAS :: Implementation</name>
+    <packaging>bundle</packaging>
 
-  <dependencies>
-    <dependency>
-      <groupId>ddf.security.core</groupId>
-      <artifactId>security-core-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ddf.security.sts</groupId>
-      <artifactId>security-sts-clientconfig</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jasig.cas</groupId>
-      <artifactId>cas-client-core</artifactId>
-    </dependency>
-  </dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.sts</groupId>
+            <artifactId>security-sts-clientconfig</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jasig.cas</groupId>
+            <artifactId>cas-client-core</artifactId>
+        </dependency>
+    </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Export-Package>
-              ddf.security.service.impl.cas;version=${project.version}
-            </Export-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>
+                            ddf.security.service.impl.cas;version=${project.version}
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

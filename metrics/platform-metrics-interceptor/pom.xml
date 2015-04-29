@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,81 +12,127 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-    <artifactId>metrics</artifactId>
-    <groupId>ddf.metrics</groupId>
-    <version>2.7.0-SNAPSHOT</version>
-  </parent>
-  
-  <groupId>ddf.metrics.interceptor</groupId>
-  <artifactId>metrics-interceptor</artifactId>
-  <name>DDF :: Metrics :: Interceptor</name>
-  <packaging>bundle</packaging>
-  
-  <dependencies>
-  	
-	<dependency>
-		<groupId>javax.ws.rs</groupId>
-		<artifactId>javax.ws.rs-api</artifactId>
-	</dependency>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-      <dependency>
-          <groupId>org.apache.cxf</groupId>
-          <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-      </dependency>
+    <parent>
+        <artifactId>metrics</artifactId>
+        <groupId>ddf.metrics</groupId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
 
-	<dependency>
-		<groupId>com.codahale.metrics</groupId>
-		<artifactId>metrics-core</artifactId>
-		<version>3.0.1</version>
-	</dependency>
-    
-    <dependency>
-	    <groupId>ddf.metrics.collector</groupId>
-		<artifactId>metrics-collector</artifactId>
-		<version>${project.version}</version>
-	</dependency>
-		
-    <dependency>
-		<groupId>org.rrd4j</groupId>
-		<artifactId>rrd4j</artifactId>
-		<version>2.0.7</version>
-	</dependency>
-       
-  </dependencies>
-  
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Embed-Dependency>
-			   metrics-core,
-			   metrics-collector,
-			   rrd4j;scope=compile|runtime;artifactId=!slf4j-api</Embed-Dependency> 
-			<Embed-Transitive>true</Embed-Transitive>
+    <groupId>ddf.metrics.interceptor</groupId>
+    <artifactId>metrics-interceptor</artifactId>
+    <name>DDF :: Metrics :: Interceptor</name>
+    <packaging>bundle</packaging>
 
-			<Import-Package>
-				<!-- START: imports specific for embedding rrd4j -->
-				!com.mongodb, 
-				!com.sleepycat.je, 
-				sun.misc;resolution:=optional,
-				sun.nio.ch;resolution:=optional,
-				com.sun.image.codec.jpeg;resolution:=optional,
-				<!-- END: imports specific for embedding rrd4j -->
-				*
-            </Import-Package>
-            <Export-Package>ddf.metrics.interceptor;version=${project.version}</Export-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-  
+    <dependencies>
+
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.codahale.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ddf.metrics.collector</groupId>
+            <artifactId>metrics-collector</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.rrd4j</groupId>
+            <artifactId>rrd4j</artifactId>
+            <version>2.0.7</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            metrics-core,
+                            metrics-collector,
+                            rrd4j;scope=compile|runtime;artifactId=!slf4j-api
+                        </Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
+
+                        <Import-Package>
+                            <!-- START: imports specific for embedding rrd4j -->
+                            !com.mongodb,
+                            !com.sleepycat.je,
+                            sun.misc;resolution:=optional,
+                            sun.nio.ch;resolution:=optional,
+                            com.sun.image.codec.jpeg;resolution:=optional,
+                            <!-- END: imports specific for embedding rrd4j -->
+                            *
+                        </Import-Package>
+                        <Export-Package>ddf.metrics.interceptor;version=${project.version}
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.66</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.75</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
