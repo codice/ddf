@@ -13,7 +13,9 @@
  **/
 
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -32,7 +34,7 @@
         <ddf.catalog.app.version>2.7.0-SNAPSHOT</ddf.catalog.app.version>
         <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
         <ddf.security.app.version>2.7.0-SNAPSHOT</ddf.security.app.version>
-        <org.geotools.version>8.4</org.geotools.version>     
+        <org.geotools.version>8.4</org.geotools.version>
         <handlebars.version>2.0.0</handlebars.version>
         <antlr.version>4.3</antlr.version>
         <jaxb.annotate.plugin.version>0.6.0</jaxb.annotate.plugin.version>
@@ -40,7 +42,7 @@
         <xpp3.bundle.version>1.1.4c_5</xpp3.bundle.version>
         <xmlpull.bundle.version>1.1.3.1_2</xmlpull.bundle.version>
         <xstream.bundle.version>1.4.3_1</xstream.bundle.version>
-		<camel.version>2.14.2</camel.version>
+        <camel.version>2.14.2</camel.version>
         <tika.version>1.7</tika.version>
     </properties>
 
@@ -105,31 +107,31 @@
                 <artifactId>catalog-core-commons</artifactId>
                 <version>${ddf.catalog.app.version}</version>
             </dependency>
-			<dependency>
-				<groupId>ddf.security.core</groupId>
-				<artifactId>security-core-api</artifactId>
-				<version>${ddf.platform.app.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.camel</groupId>
-				<artifactId>camel-context</artifactId>
-				<version>${camel.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.camel</groupId>
-				<artifactId>camel-saxon</artifactId>
-				<version>${camel.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.vividsolutions</groupId>
-				<artifactId>jts</artifactId>
-				<version>1.12</version>
-			</dependency>
-			<dependency>
-				<groupId>com.thoughtworks.xstream</groupId>
-				<artifactId>xstream</artifactId>
-				<version>1.4.4</version>
-			</dependency>
+            <dependency>
+                <groupId>ddf.security.core</groupId>
+                <artifactId>security-core-api</artifactId>
+                <version>${ddf.platform.app.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-context</artifactId>
+                <version>${camel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-saxon</artifactId>
+                <version>${camel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.vividsolutions</groupId>
+                <artifactId>jts</artifactId>
+                <version>1.12</version>
+            </dependency>
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
+                <version>1.4.4</version>
+            </dependency>
             <dependency>
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars</artifactId>
@@ -149,7 +151,7 @@
                 <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-wfs-v2_0_0-schema-bindings</artifactId>
                 <version>${project.version}</version>
-                </dependency>
+            </dependency>
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-wfs-api</artifactId>
@@ -277,14 +279,14 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.tika</groupId>
-               <artifactId>tika-bundle</artifactId>
-               <version>${tika.version}</version>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-bundle</artifactId>
+                <version>${tika.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.tika</groupId>
-               <artifactId>tika-core</artifactId>
-               <version>${tika.version}</version>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-core</artifactId>
+                <version>${tika.version}</version>
             </dependency>
             <dependency>
                 <groupId>xml-apis</groupId>
@@ -299,7 +301,7 @@
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
             <scope>test</scope>
-			<version>1.4</version>
+            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -308,43 +310,21 @@
         </dependency>
     </dependencies>
 
-    <!-- XXX - Testing out codecov.io - if this works this should be moved to ddf-parent -->
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.8.1</version>
+                <configuration>
+                    <argLine>${argLine} -Djava.awt.headless=true</argLine>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.2.201409121644</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
-
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.8.1</version>
-                    <configuration>
-                        <!-- -XX:-UseSplitVerifier is needed to make tests using powermock compile under java 7 -->
-                        <argLine>-Djava.awt.headless=true -XX:-UseSplitVerifier ${argLine}</argLine>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
     </build>
     <modules>
         <module>kml</module>
