@@ -417,7 +417,7 @@ ddf.catalog.operation.QueryImpl query = new QueryImpl( filter );
 
 Filters used in DDF can always be represented in a tree diagram.
 
-[ditaa,tree1, png]
+[ditaa,tree1, png,600]
 ....
 +--------------------\
 |cEEE /-------\      |
@@ -1095,7 +1095,7 @@ properties updates.
 
 The Catalog Framework calls Catalog Plugins to process requests and responses as they enter and leave the Framework. 
 
-[ditaa, catalog_architecture_plugins, png]
+[ditaa, catalog_architecture_plugins, png,width=500]
 ....
 +------------------------------------------------------------+
 |                /-------------------\                       |
@@ -1114,7 +1114,7 @@ The Catalog Framework calls Catalog Plugins to process requests and responses a
 |                |cDEF               |                       |
 |                | Catalog Provider  |                       |
 |                \-------------------/                       |
-+------------------------------------------------------------
++------------------------------------------------------------+
 ....
 
 === Existing Plugins
@@ -1122,7 +1122,7 @@ The Catalog Framework calls Catalog Plugins to process requests and responses a
 ==== Pre-Ingest Plugin
 
 .Ingest Plugin Flow
-[ditaa,ingest-plugin-flow,png]
+[ditaa,ingest-plugin-flow,png, width=500]
 ....
 /------\
 |Client|
@@ -1670,7 +1670,7 @@ Each of these operations follow a request/response paradigm. The request is the 
 
 All of the request and response objects are extensible in that they can contain additional key/value properties on each request/response. This allows additional capability to be added without changing the Catalog API, helping to maintain backwards compatibility. Refer to the Developer's Guide for details about using this extensibility.
 
-[ditaa, catalog_architecture_operations, png]
+[ditaa, catalog_architecture_operations, png, width=500]
 ....
 +------------------------------------------------------------+
 |                /-------------------\                       |
@@ -1689,13 +1689,13 @@ All of the request and response objects are extensible in that they can contain 
 |                |cDEF               |                       |
 |                | Catalog Provider  |                       |
 |                \-------------------/                       |
-+------------------------------------------------------------
++------------------------------------------------------------+
 ....
 == Extending Data and Metadata Basics
 
 The catalog stores and translates Metadata which can be transformed into many data formats, shared, and queried. The primary form of this metadata is the metacard. A `Metacard` is a container for metadata. `CatalogProviders` accept `Metacards` as input for ingest, and `Sources` search for metadata and return matching `Results` that include `Metacards`.
 
-[ditaa, catalog_architecture_data, png]
+[ditaa, catalog_architecture_data, png, width=500]
 ....
 +------------------------------------------------------------+
 |                /-------------------\                       |
@@ -1714,7 +1714,7 @@ The catalog stores and translates Metadata which can be transformed into many da
 |                |cDEF               |                       |
 |                | Catalog Provider  |                       |
 |                \-------------------/                       |
-+------------------------------------------------------------
++------------------------------------------------------------+
 ....
 
 === Metacard
@@ -2024,7 +2024,7 @@ Endpoints send Catalog requests to the Catalog Framework. The Catalog Framewor
 
 The Catalog Framework functions as the routing mechanisms between all catalog components.  It decouples clients from service implementations and provides integration points for Catalog Plugins and convenience methods for Endpoint developers.
 
-[ditaa, catalog_architecture_operations, png]
+[ditaa, catalog_architecture_framework, png, width=500]
 ....
 +------------------------------------------------------------+
 |                /-------------------\                       |
@@ -2043,7 +2043,7 @@ The Catalog Framework functions as the routing mechanisms between all catalog 
 |                |cDEF               |                       |
 |                | Catalog Provider  |                       |
 |                \-------------------/                       |
-+------------------------------------------------------------
++------------------------------------------------------------+
 ....
 === Included Catalog Frameworks
 
@@ -2277,7 +2277,7 @@ The Fanout Catalog Framework (`fanout-catalogframework` bundle) provides an imp
 The Fanout Catalog Framework provides the capability to configure DDF to be a fanout proxy to other federated sources within the enterprise. The Fanout Catalog Framework has no catalog provider configured for it, so it does not allow catalog modifications to take place. Therefore, create, update, and delete operations are not supported.
 
 .Catalog Fanout Framework
-[ditaa,query-flow,png]
+[ditaa,query-flow,png, width=500]
 ....
            /------\
            |Client|
@@ -2724,7 +2724,7 @@ DDF includes custom commands for working with the Catalog, as described in the�
 == Extending Sources
 Catalog sources are used to connect Catalog components to data sources, local and remote. Sources act as proxies to the actual external data sources, e.g., a RDBMS database or a NoSQL database.
 
-[ditaa, sources_architecture, png]
+[ditaa, sources_architecture, png, width=500]
 ....
 +----------------------------------------------------------------------------------------------+
 |                /-------------------\                                               +-=------+|
@@ -2741,7 +2741,7 @@ Catalog sources are used to connect Catalog components to data sources, local an
 ||   Plugins     |                   |cDEF           Resources                  |              |
 |\---------------+-------------------+------------------------------------------/              |
 |                |c369               |                                                         |
-|                | Catalog Provider  |                                                         |
+|                | Catalog Provider  |              cFFF                                       |
 |                \-------------------/                                                         |
 |                          |                                                                   |
 |                          v                                                                   |
@@ -2749,7 +2749,7 @@ Catalog sources are used to connect Catalog components to data sources, local an
 |                  |               |                                                           |
 |                  |{s}Data Store  |                                                           |
 |                  +---------------+                                                           |
-+----------------------------------------------------------------------------------------------
++----------------------------------------------------------------------------------------------+
 ....
 === Existing Source Types
 
@@ -2776,7 +2776,7 @@ Remote sources currently extend the ResourceReader interface. However, a RemoteS
 A connected source is a remote source that is included in all local and federated queries but remains hidden from external clients. A connected source's identifier is removed in all query results by replacing it with DDF's source identifier. The Catalog Framework does not reveal a connected source as a separate source when returning source information responses.
 
 .Connected Sources
-image::query-flow.png[]
+image::query-flow.png, width=500[]
 
 ==== Federated Source
 A federated source is a remote source that can be included in federated queries by request or as part of an enterprise query. Federated sources support query and site information operations only. Catalog modification operations, such as create, update, and delete, are not allowed. Federated sources also expose an event service, which allows the Catalog Framework to subscribe to even notifications when metacards are created, updated, and deleted.
@@ -3190,7 +3190,7 @@ Not all OGC Filters are exposed at this time.  If demand for further OGC Filter 
 Transformers transform data to and from various formats. Transformers can be categorized on the basis of when they are invoked and used. The existing types are Input transformers, Metacard transformers, and Query Response transformers. Additionally, XSLT transformers are provided to aid in developing custom, lightweight Metacard and Query Response transformers.
 Transformers are utility objects used to transform a set of standard DDF components into a desired format, such as into PDF, GeoJSON, XML, or any other format. For instance, a transformer can be used to convert a set of query results into an easy-to-read GeoJSON format (GeoJSON Transformer) or convert a set of results into a RSS feed that can be easily published to a URL for RSS feed subscription. A major benefit of transformers is that they can be registered in the OSGi Service Registry so that any other developer can access them based on their standard interface and self-assigned identifier, referred to as its "shortname." Transformers are often used by endpoints for data conversion in a system standard way. Multiple endpoints can use the same transformer, a different transformer, or their own published transformer. 
 
-[ditaa, catalog_architecture_plugins, png]
+[ditaa, catalog_architecture_transformers, png, width=500]
 ....
 +------------------------------------------------------------+
 |                /-------------------\                       |
@@ -3209,7 +3209,7 @@ Transformers are utility objects used to transform a set of standard DDF compone
 |                |cDEF               |                       |
 |                | Catalog Provider  |                       |
 |                \-------------------/                       |
-+------------------------------------------------------------
++------------------------------------------------------------+
 ....
 [WARNING]
 ====
@@ -3217,7 +3217,7 @@ The current transformers do not support Non-Western Characters (e.g., Hebrew). I
 ====
 
 .Communication Diagram
-[ditaa, transformer_communication_diagram, png]
+[ditaa, transformer_communication_diagram, png, width=500]
 ....
 /------\
 |Client|
@@ -4707,7 +4707,7 @@ entire enterprise (which includes all local and Remote Sources). If the query i
 
 The Catalog normalizes the incoming query into an OGC Filter format. When the query is disseminated by the Catalog Framework to the sources, each source is responsible for denormalizing the OGC Filter formatted query into the format understood by the external store that the source is acting as a proxy. This normalization/denormalization is what allows any endpoint to interface with any type of source. For example, a query received by the OpenSearch Endpoint can be executed against an OpenSearch Source.
 
-[ditaa, catalog_architecture_plugins, png]
+[ditaa, catalog_architecture_federation, png, width=500]
 ....
 +------------------------------------------------------------+
 |                /-------------------\                       |
@@ -4726,10 +4726,10 @@ The Catalog normalizes the incoming query into an OGC Filter format. When the qu
 |                |cDEF               |                       |
 |                | Catalog Provider  |                       |
 |                \-------------------/                       |
-+------------------------------------------------------------
++------------------------------------------------------------+
 ....
 
-[ditaa, federation, png]
+[ditaa, federation, png, width=500]
 ....
            /------\
            |Client|
@@ -4871,7 +4871,7 @@ After reading this section, you will be able to:
 * Perform operations on event notification
 * Remove a subscription
 
-[ditaa, catalog_architecture_eventing, png]
+[ditaa, catalog_architecture_eventing, png, width=500]
 ....
 +------------------------------------------------------------+
 |                /-------------------\                       |
@@ -4890,7 +4890,7 @@ After reading this section, you will be able to:
 |                |cDEF               |                       |
 |                | Catalog Provider  |                       |
 |                \-------------------/                       |
-+------------------------------------------------------------
++------------------------------------------------------------+
 ....
 
 === Subscription
@@ -5166,7 +5166,7 @@ Examples of resources include:
 
 A resource object in DDF contains an `InputStream` with the binary data of the resource.  It describes that resource with a name, which could be a file name, URI, or another identifier.  It also contains a mime type or content type that a client can use to interpret the binary data.  
 
-[ditaa, catalog_architecture_plugins, png]
+[ditaa, catalog_architecture_resources, png, width=500]
 ....
 +------------------------------------------------------------+
 |                /-------------------\                       |
@@ -5185,7 +5185,7 @@ A resource object in DDF contains an `InputStream` with the binary data of t
 |                |cDEF               |                       |
 |                | Catalog Provider  |                       |
 |                \-------------------/                       |
-+------------------------------------------------------------
++------------------------------------------------------------+
 ....
 
 === Resource Readers
