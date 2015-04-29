@@ -739,7 +739,7 @@
                             <version>2.5.3</version>
                             <configuration>
                                 <descriptor>${project.basedir}/src/assembly/bin.xml</descriptor>
-                                <finalName>${project.build.finalName}-documentation</finalName>
+                                <outputDirectory>${project.build.directory}/documentation</outputDirectory>
                             </configuration>
                             <executions>
                                 <execution>
@@ -764,6 +764,7 @@
                                     </goals>
                                     <configuration>
                                         <artifacts>
+
                                             <artifact>
                                                 <file>${project.build.directory}/docs/html/Extending.html</file>
                                                 <type>html</type>
@@ -799,6 +800,7 @@
                                 </execution>
                             </executions>
                         </plugin>
+                        
                     </plugins>
                 </pluginManagement>
             </build>
