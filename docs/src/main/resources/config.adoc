@@ -4,6 +4,7 @@ Version ${version}. Copyright (c) Codice Foundation
 :branding: DDF
 :icons: font
 :data-uri:
+:title-logo: logo_ddf.png
 :example-caption!:
 :source-highlighter: coderay
 :last-update-label: Copyright (c) Codice Foundation. +
