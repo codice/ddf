@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,107 +12,108 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
         <groupId>ddf.content</groupId>
         <artifactId>content</artifactId>
         <version>2.5.0-SNAPSHOT</version>
-  </parent>
-  
-  <groupId>ddf.content.core</groupId>
-  <artifactId>content-core-pom</artifactId>
-  <packaging>pom</packaging>
-  <name>DDF :: Content :: Core</name>
-  
-  <modules> 
-    <module>content-core-api</module>
-    <module>content-core-impl</module>
-    <module>content-core-standardframework</module>
-    <module>content-core-camelcomponent</module>
-    <module>content-core-camelcontext</module>
-    <module>content-core-directorymonitor</module>
-    <module>content-core-filestorageprovider</module>
-    <module>content-core-catalogerplugin</module>
-  </modules>
-  
-  <build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>javadoc</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<aggregate>true</aggregate>
-					<show>protected</show>
-					<doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
-					<docletArtifact>
-						<groupId>org.umlgraph</groupId>
-						<artifactId>doclet</artifactId>
-						<version>5.1</version>
-					</docletArtifact>
-					<additionalparam>
-						-inferrel -attributes -types -visibility -inferdep
-						-operations -enumconstants
-						-quiet -hide java.*
-						-collapsible
-						-collpackages java.util.*
-						-postfixpackage
-						-nodefontsize 9
-						-nodefontpackagesize 7 
-				</additionalparam>
-				</configuration>
-				<inherited>true</inherited>
-			</plugin>
-		</plugins>
-	</build>
-	
-	
-	<profiles>
-		<profile>
-			<id>ddf-perform-release</id>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>attach-javadocs</id>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<aggregate>true</aggregate>
-							<show>protected</show>
-							<doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
-							<docletArtifact>
-								<groupId>org.umlgraph</groupId>
-								<artifactId>doclet</artifactId>
-								<version>5.1</version>
-							</docletArtifact>
-							<additionalparam>
-								-inferrel -attributes -types -visibility -inferdep
-								-operations -enumconstants
-								-quiet -hide java.*
-								-collapsible
-								-collpackages java.util.*
-								-postfixpackage
-								-nodefontsize 9
-								-nodefontpackagesize 7
-							</additionalparam>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+    </parent>
+
+    <groupId>ddf.content.core</groupId>
+    <artifactId>content-core-pom</artifactId>
+    <packaging>pom</packaging>
+    <name>DDF :: Content :: Core</name>
+
+    <modules>
+        <module>content-core-api</module>
+        <module>content-core-impl</module>
+        <module>content-core-standardframework</module>
+        <module>content-core-camelcomponent</module>
+        <module>content-core-camelcontext</module>
+        <module>content-core-directorymonitor</module>
+        <module>content-core-filestorageprovider</module>
+        <module>content-core-catalogerplugin</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <aggregate>true</aggregate>
+                    <show>protected</show>
+                    <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+                    <docletArtifact>
+                        <groupId>org.umlgraph</groupId>
+                        <artifactId>doclet</artifactId>
+                        <version>5.1</version>
+                    </docletArtifact>
+                    <additionalparam>
+                        -inferrel -attributes -types -visibility -inferdep
+                        -operations -enumconstants
+                        -quiet -hide java.*
+                        -collapsible
+                        -collpackages java.util.*
+                        -postfixpackage
+                        -nodefontsize 9
+                        -nodefontpackagesize 7
+                    </additionalparam>
+                </configuration>
+                <inherited>true</inherited>
+            </plugin>
+        </plugins>
+    </build>
+
+
+    <profiles>
+        <profile>
+            <id>ddf-perform-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <aggregate>true</aggregate>
+                            <show>protected</show>
+                            <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+                            <docletArtifact>
+                                <groupId>org.umlgraph</groupId>
+                                <artifactId>doclet</artifactId>
+                                <version>5.1</version>
+                            </docletArtifact>
+                            <additionalparam>
+                                -inferrel -attributes -types -visibility -inferdep
+                                -operations -enumconstants
+                                -quiet -hide java.*
+                                -collapsible
+                                -collpackages java.util.*
+                                -postfixpackage
+                                -nodefontsize 9
+                                -nodefontpackagesize 7
+                            </additionalparam>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
