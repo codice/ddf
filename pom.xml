@@ -852,7 +852,7 @@
                 </plugins>
             </reporting>
             <properties>
-                <ddf.site.repo>http://artifacts.codice.org/content/sites/ddf-site/</ddf.site.repo>
+                <ddf.site.repo>dav:http://artifacts.codice.org/content/sites/ddf-site/</ddf.site.repo>
             </properties>
         </profile>
 
