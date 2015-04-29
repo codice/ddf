@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -136,15 +138,15 @@
         </dependency>
     </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Embed-Dependency>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
                             <!-- Start of Solr cache dependencies -->
                             lux,
                             solr-xpath,
@@ -187,26 +189,26 @@
                             hazelcast;scope=runtime|compile
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-						<Private-Package>
-						    ddf.catalog.cache.impl,
+                        <Private-Package>
+                            ddf.catalog.cache.impl,
                             ddf.catalog.cache.solr.impl,
                             ddf.catalog.event.retrievestatus,
                             ddf.catalog.impl,
-							ddf.catalog.data.impl,
-							ddf.catalog.operation.impl,
-							ddf.catalog.util.impl,
+                            ddf.catalog.data.impl,
+                            ddf.catalog.operation.impl,
+                            ddf.catalog.util.impl,
                             ddf.catalog.federation.base,
-							ddf.catalog.filter.impl,
-							ddf.catalog.source.impl,
-							ddf.catalog.resource.download,
-							ddf.catalog.resource.impl,
-							ddf.catalog.resourceretriever
-						</Private-Package>
-						<Export-Package>
+                            ddf.catalog.filter.impl,
+                            ddf.catalog.source.impl,
+                            ddf.catalog.resource.download,
+                            ddf.catalog.resource.impl,
+                            ddf.catalog.resourceretriever
+                        </Private-Package>
+                        <Export-Package>
                             ddf.catalog.cache,
                             ddf.catalog.resourceretriever,
-						    ddf.catalog.resource.data
-						</Export-Package>
+                            ddf.catalog.resource.data
+                        </Export-Package>
                         <Import-Package>
                             <!-- Start of Solr imports -->
                             com.vividsolutions.jts.algorithm,
@@ -265,26 +267,68 @@
                             *;resolution:=optional
                             <!-- End of Solr imports -->
                         </Import-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-			
-			<plugin>
-	            <groupId>org.apache.maven.plugins</groupId>
-	            <artifactId>maven-surefire-plugin</artifactId>
-	            <configuration>
-	                <includes>
-	                    <include>**/*Test.java</include>
-	                </includes>
-	                <excludes>
-	                    <exclude>**/*IntegrationTest.java</exclude>
-	                </excludes>
-	            </configuration>
-	        </plugin>
-		</plugins>
-	</build>
-	
-	<profiles>
+                    </instructions>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/*IntegrationTest.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.42</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.34</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.3</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.44</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
         <profile>
             <id>integration-tests</id>
             <build>

@@ -1,4 +1,4 @@
-
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,56 +12,59 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	
-	<parent>
-		<artifactId>core</artifactId>
-		<groupId>ddf.catalog.core</groupId>
-		<version>2.7.0-SNAPSHOT</version>
-	</parent>
-	
-	<artifactId>catalog-core-metacardgroomerplugin</artifactId>
-	<name>DDF :: Catalog :: Core :: Metacard Groomer Plugin</name>
-	<packaging>bundle</packaging>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<dependencies>
+    <parent>
+        <artifactId>core</artifactId>
+        <groupId>ddf.catalog.core</groupId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
 
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api-impl</artifactId>
-		</dependency>
+    <artifactId>catalog-core-metacardgroomerplugin</artifactId>
+    <name>DDF :: Catalog :: Core :: Metacard Groomer Plugin</name>
+    <packaging>bundle</packaging>
 
-		<dependency>
+    <dependencies>
+
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-commons</artifactId>
-		</dependency>
+        </dependency>
 
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Private-Package>ddf.catalog.plugin.groomer.metacard,ddf.catalog.data.impl</Private-Package>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Export-Package />
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Private-Package>ddf.catalog.plugin.groomer.metacard,ddf.catalog.data.impl
+                        </Private-Package>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package/>
                         <Import-Package>
                             *,
                             org.joda.time;version="[1.6.0,3.0.0)"
                         </Import-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

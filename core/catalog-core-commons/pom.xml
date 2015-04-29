@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- 
 /**
  * Copyright (c) Codice Foundation
@@ -12,132 +12,176 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-	<artifactId>core</artifactId>
-    <groupId>ddf.catalog.core</groupId>
-    <version>2.7.0-SNAPSHOT</version>
-  </parent>
-    
-  <artifactId>catalog-core-commons</artifactId>
-  <packaging>bundle</packaging>
-  <name>DDF :: Catalog :: Core :: Commons</name>
-  
-  <dependencies>
-    <dependency>
-      <groupId>ddf.catalog.core</groupId>
-      <artifactId>catalog-core-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-ext</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.compendium</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>xalan</groupId>
-      <artifactId>xalan</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>xalan</groupId>
-      <artifactId>serializer</artifactId>
-    </dependency>
+    <parent>
+        <artifactId>core</artifactId>
+        <groupId>ddf.catalog.core</groupId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
 
-    <!-- for SpatialFilter's PrimitiveFactoryImpl class -->
-    <dependency>
-	    <groupId>org.geotools</groupId>
-	    <artifactId>gt-jts-wrapper</artifactId>
-    </dependency>
-  </dependencies>
+    <artifactId>catalog-core-commons</artifactId>
+    <packaging>bundle</packaging>
+    <name>DDF :: Catalog :: Core :: Commons</name>
 
-  <build>
-    <plugins>
-<!--     
-      <plugin>
-        <groupId>org.jvnet.jaxb2.maven2</groupId>
-        <artifactId>maven-jaxb2-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>serializer</artifactId>
+        </dependency>
 
-          <schemaDirectory>src/main/schema</schemaDirectory>
-          <schemaIncludes>
-            <include>**/*.xsd</include>
-          </schemaIncludes>
-        </configuration>
-      </plugin>
--->      
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-	        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Export-Package>
-           	  ddf.catalog.plugin.groomer;version=${project.version},
-              ddf.catalog.impl.filter;version=${project.version},
-              ddf.catalog.filter.delegate;version=${project.version},
-              ddf.common;version=${project.version},
-              ddf.util;version=${project.version}
-			</Export-Package>
-              <Import-Package>
-                  *,
-                  org.joda.time;version="[1.6.0,3.0.0)",
-                  org.joda.time.format;version="[1.6.0,3.0.0)"
-              </Import-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-            
-	  <!-- Export mock objects in test JAR for use by other projects -->
-	  <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-jar-plugin</artifactId>
-		<executions>
-			<execution>
-				<goals>
-					<goal>test-jar</goal>
-				</goals>
-				<configuration>
-                  <includes>
-                    <include>**/MockNamespaceResolver*</include>
-                  </includes>
+        <!-- for SpatialFilter's PrimitiveFactoryImpl class -->
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-jts-wrapper</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+                  <plugin>
+                    <groupId>org.jvnet.jaxb2.maven2</groupId>
+                    <artifactId>maven-jaxb2-plugin</artifactId>
+                    <executions>
+                      <execution>
+                        <goals>
+                          <goal>generate</goal>
+                        </goals>
+                      </execution>
+                    </executions>
+                    <configuration>
+
+                      <schemaDirectory>src/main/schema</schemaDirectory>
+                      <schemaIncludes>
+                        <include>**/*.xsd</include>
+                      </schemaIncludes>
+                    </configuration>
+                  </plugin>
+            -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>
+                            ddf.catalog.plugin.groomer;version=${project.version},
+                            ddf.catalog.impl.filter;version=${project.version},
+                            ddf.catalog.filter.delegate;version=${project.version},
+                            ddf.common;version=${project.version},
+                            ddf.util;version=${project.version}
+                        </Export-Package>
+                        <Import-Package>
+                            *,
+                            org.joda.time;version="[1.6.0,3.0.0)",
+                            org.joda.time.format;version="[1.6.0,3.0.0)"
+                        </Import-Package>
+                    </instructions>
                 </configuration>
-			</execution>
-		</executions>
-	  </plugin>
-			
-    </plugins>
-  </build>
+            </plugin>
+
+            <!-- Export mock objects in test JAR for use by other projects -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/MockNamespaceResolver*</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <haltOnFailure>true</haltOnFailure>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.13</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.12</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.09</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.22</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
