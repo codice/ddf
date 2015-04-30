@@ -294,15 +294,15 @@ define([
                 }
             },
             propertyTitle: function (str) {
-                if(str && typeof str === "string") {
-                    return str.split("-").join(" ").replace(/\w\S*/g, function (word) {
-                        return word.charAt(0).toUpperCase() + word.substr(1);
-                    });
+                if (_.isString(str)) {
+                    return _.chain(str).words().map(function(word) {
+                        return _.capitalize(word);
+                    }).join(' ');
                 }
                 return str;
             },
             safeString: function (str) {
-                if(str && typeof str === "string") {
+                if (_.isString(str)) {
                     return new Handlebars.SafeString(str);
                 }
                 return str;
@@ -311,7 +311,7 @@ define([
                 return str.split('-').join(' ');
             },
             encodeString: function (str) {
-                if(str && typeof str === "string") {
+                if (_.isString(str)) {
                     return encodeURIComponent(str);
                 }
                 return str;
