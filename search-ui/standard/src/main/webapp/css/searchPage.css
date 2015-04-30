@@ -51,8 +51,11 @@ table a:not(.btn), .table a:not(.btn),
     overflow: hidden;
     z-index: 10000;
     padding: 0;
+}
+
+.dropdown-menu.opens-left {
+    left: auto;
     right: 0;
-    left: auto !important;
 }
 
 .navbar .nav>li>.dropdown-menu:after {
