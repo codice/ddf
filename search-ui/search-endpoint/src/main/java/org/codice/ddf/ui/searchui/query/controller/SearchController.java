@@ -505,7 +505,10 @@ public class SearchController {
         JSONObject fields = new JSONObject();
 
         for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {
-            fields.put(descriptor.getName(), descriptor.getType().getAttributeFormat().toString());
+            if (descriptor.isIndexed()) {
+                fields.put(descriptor.getName(),
+                        descriptor.getType().getAttributeFormat().toString());
+            }
         }
         return fields;
     }
