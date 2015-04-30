@@ -11,85 +11,85 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <artifactId>sdk</artifactId>
+    <groupId>ddf.sdk</groupId>
+    <version>2.3.0.ALPHA1-SNAPSHOT</version>
+  </parent>
+  
+  <artifactId>sample-metrics</artifactId>
+  <name>DDF :: SDK :: Metrics :: SampleMetrics</name>
+  <packaging>bundle</packaging>
+  
+  
+  <dependencies>
 
-    <parent>
-        <artifactId>sdk</artifactId>
-        <groupId>ddf.sdk</groupId>
-        <version>2.7.0-SNAPSHOT</version>
-    </parent>
-
-    <artifactId>sample-metrics</artifactId>
-    <name>DDF :: SDK :: Metrics :: SampleMetrics</name>
-    <packaging>bundle</packaging>
-
-
-    <dependencies>
-
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-api</artifactId>
-            <version>${ddf.catalog.app.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>filter-proxy</artifactId>
-            <version>${ddf.catalog.app.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.codahale.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ddf.metrics.collector</groupId>
-            <artifactId>metrics-collector</artifactId>
-            <version>${ddf.platform.app.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.rrd4j</groupId>
-            <artifactId>rrd4j</artifactId>
-            <version>2.0.7</version>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <!-- The maven-bundle-plugin is required for this artifact to be an OSGi bundle. -->
-            <!-- Add in additional imports that this bundle requires using a comma-separated list. -->
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            metrics-core,
-                            metrics-collector,
-                            rrd4j;scope=compile|runtime;artifactId=!slf4j-api
-                        </Embed-Dependency>
-                        <Embed-Transitive>true</Embed-Transitive>
-                        <Import-Package>
-                            <!-- START: imports specific for embedding rrd4j -->
-                            !com.mongodb,
-                            !com.sleepycat.je,
-                            sun.misc;resolution:=optional,
-                            sun.nio.ch;resolution:=optional,
-                            com.sun.image.codec.jpeg;resolution:=optional,
-                            <!-- END: imports specific for embedding rrd4j -->
-                            *
-                        </Import-Package>
-                        <Export-Package/>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
+    <dependency>
+		<groupId>ddf.catalog.core</groupId>
+		<artifactId>catalog-core-api</artifactId>
+		<version>${ddf.catalog.app.version}</version>	
+	</dependency>
+	
+	<dependency>
+		<groupId>ddf.catalog.core</groupId>
+		<artifactId>filter-proxy</artifactId>
+		<version>${ddf.catalog.app.version}</version>	
+	</dependency>
+	
+	<dependency>
+		<groupId>com.codahale.metrics</groupId>
+		<artifactId>metrics-core</artifactId>
+		<version>3.0.1</version>
+	</dependency>
+	
+    <dependency>
+	    <groupId>ddf.metrics.collector</groupId>
+		<artifactId>metrics-collector</artifactId>
+		<version>${ddf.platform.app.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.rrd4j</groupId>
+		<artifactId>rrd4j</artifactId>
+		<version>2.0.7</version>
+	</dependency>
+  </dependencies>
+  
+  
+  <build>
+    
+	<plugins>
+		<!-- The maven-bundle-plugin is required for this artifact to be an OSGi bundle. -->
+		<!-- Add in additional imports that this bundle requires using a comma-separated list. -->
+		<plugin>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>maven-bundle-plugin</artifactId>
+			<configuration>
+				<instructions>
+					<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+					<Embed-Dependency>
+						    metrics-core,
+						    metrics-collector,
+						    rrd4j;scope=compile|runtime;artifactId=!slf4j-api
+						</Embed-Dependency> 
+						<Embed-Transitive>true</Embed-Transitive>
+						<Import-Package>
+						    <!-- START: imports specific for embedding rrd4j -->
+							!com.mongodb, 
+							!com.sleepycat.je, 
+							sun.misc;resolution:=optional,
+							sun.nio.ch;resolution:=optional,
+							com.sun.image.codec.jpeg;resolution:=optional,
+							<!-- END: imports specific for embedding rrd4j -->
+							*
+			            </Import-Package>
+                    <Export-Package />					
+				</instructions>
+			</configuration>
+		</plugin>
+	</plugins>
+  </build>
+  
 </project>
