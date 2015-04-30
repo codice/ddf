@@ -12,59 +12,53 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <parent>
-    <groupId>ddf</groupId>
-    <artifactId>ddf-parent</artifactId>
-    <version>3.0.0</version>
-  </parent>
-  
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>distribution</artifactId>
-  <version>2.7.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>DDF Distribution</name>
-  
-  <properties>
-    <commons-io.version>2.1</commons-io.version>
-    <karaf.version>2.4.1</karaf.version>
-    <pax.web.version>3.1.2</pax.web.version>
-    <pax.cdi.version>0.8.0</pax.cdi.version>
-  </properties> 
-  
-  <modules>
-    <module>console-branding</module>
-    <module>webconsole-branding</module>
-    <module>webconsole-branding-plugin</module>
-    <module>ddf-common</module>
-    <module>kernel</module>
-    <module>install-profiles</module>
-    <module>ddf</module>
-  </modules>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-    <repositories>      
-        <repository>
-            <id>codice</id>
-            <name>Codice Repository</name>
-            <url>http://artifacts.codice.org/content/groups/public/</url>
-        </repository>
-    </repositories>
-  
-  <profiles>
-    <profile>
-      <id>ddf-release</id>
-      <activation>
-        <property>
-          <name>ddf-release</name>
-        </property>
-      </activation>
-      
-      <modules>
-        <module>ddf-distro-src</module>
-        <module>ddf-distro-repo</module>
-      </modules>
-  
-    </profile>
-  </profiles>
-  
+    <parent>
+        <groupId>org.codice.ddf</groupId>
+        <artifactId>ddf</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>distribution</artifactId>
+    <packaging>pom</packaging>
+    <name>DDF Distribution</name>
+
+    <properties>
+        <commons-io.version>2.1</commons-io.version>
+        <karaf.version>2.4.1</karaf.version>
+        <pax.web.version>3.1.2</pax.web.version>
+        <pax.cdi.version>0.8.0</pax.cdi.version>
+    </properties>
+
+    <modules>
+        <module>console-branding</module>
+        <module>webconsole-branding</module>
+        <module>webconsole-branding-plugin</module>
+        <module>ddf-common</module>
+        <module>kernel</module>
+        <module>install-profiles</module>
+        <module>ddf</module>
+        <module>test</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>ddf-release</id>
+            <activation>
+                <property>
+                    <name>ddf-release</name>
+                </property>
+            </activation>
+
+            <modules>
+                <module>ddf-distro-src</module>
+                <module>ddf-distro-repo</module>
+            </modules>
+
+        </profile>
+    </profiles>
+
 </project>

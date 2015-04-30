@@ -11,130 +11,133 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>ddf.sdk</groupId>
-    <artifactId>sdk</artifactId>
-    <version>2.3.0.ALPHA1-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>ddf.sdk</groupId>
+        <artifactId>sdk</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
 
-  <groupId>org.codice.ddf.ui</groupId>
-  <artifactId>ddf-sso-query-widget</artifactId>
-  <name>DDF :: SDK :: UI :: SSO Query Widget</name>
-  <description>DDF SSO Query Widget</description>
-  <packaging>war</packaging>
+    <groupId>org.codice.ddf.ui</groupId>
+    <artifactId>ddf-sso-query-widget</artifactId>
+    <name>DDF :: SDK :: UI :: SSO Query Widget</name>
+    <description>DDF SSO Query Widget</description>
+    <packaging>war</packaging>
 
-  <properties>
-    <web.contextPath>ddf</web.contextPath>
-  </properties>
+    <properties>
+        <web.contextPath>ddf</web.contextPath>
+    </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
-    </dependency>
-    <dependency>
-      <groupId>ddf.catalog.core</groupId>
-      <artifactId>catalog-core-api</artifactId>
-      <version>${ddf.catalog.app.version}</version>    
-    </dependency>
-    <dependency>
-      <groupId>org.jasig.cas</groupId>
-      <artifactId>cas-client-core</artifactId>
-      <version>3.1.10</version>
-    </dependency>
-    <dependency>
-      <groupId>ddf.security.core</groupId>
-      <artifactId>security-core-api</artifactId>
-      <version>${ddf.platform.app.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ddf.security.core</groupId>
-      <artifactId>security-core-impl</artifactId>
-      <version>${ddf.security.app.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ddf.security.cas</groupId>
-      <artifactId>security-cas-impl</artifactId>
-      <version>${ddf.security.app.version}</version>     
-    </dependency>
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-ws-security</artifactId>
-      <version>${cxf.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.cxf.services.sts</groupId>
-      <artifactId>cxf-services-sts-core</artifactId>
-      <version>${cxf.version}</version>
-    </dependency>
-  </dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+            <version>${ddf.catalog.app.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jasig.cas</groupId>
+            <artifactId>cas-client-core</artifactId>
+            <version>3.1.10</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+            <version>${ddf.platform.app.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
+            <version>${ddf.security.app.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.cas</groupId>
+            <artifactId>security-cas-impl</artifactId>
+            <version>${ddf.security.app.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-ws-security</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf.services.sts</groupId>
+            <artifactId>cxf-services-sts-core</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+    </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>bundle-manifest</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>manifest</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <instructions>
-            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <Bundle-Version>${project.version}</Bundle-Version>
-            <Export-Package>
-              ddf.sso.widget;version=${project.version}
-            </Export-Package>
-            <Import-Package>
-              javax.servlet;version="[2.5,3)",
-              javax.servlet.http;version="[2.5,3)",
-              *
-            </Import-Package>
-            <Bundle-ClassPath>.,WEB-INF/classes</Bundle-ClassPath>
-            <Web-ContextPath>${web.contextPath}</Web-ContextPath>
-            <Webapp-Context>${web.contextPath}</Webapp-Context>
-          </instructions>
-          <supportedProjectTypes>
-            <supportedProjectType>jar</supportedProjectType>
-            <supportedProjectType>bundle</supportedProjectType>
-            <supportedProjectType>war</supportedProjectType>
-          </supportedProjectTypes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>2.2</version>
-        <configuration>
-          <failOnMissingWebXml>false</failOnMissingWebXml>
-					<!-- Including web.xml in WEB-INF causes Karaf to throw the exception: 
-						java.lang.IllegalStateException: Http context already used. Context params 
-						can be set only before first usage -->
-					<!-- <webXml>src\main\resources\WEB-INF\web.xml</webXml> -->
-          <packagingExcludes>WEB-INF/lib/,WEB-INF/classes/META-INF/,WEB-INF/classes/OSGI-INF/,WEB-INF/classes/WEB-INF/</packagingExcludes>
-          <webResources>
-            <resource>
-							<!-- this is relative to the pom.xml directory -->
-              <directory>src/main/resources</directory>
-              <includes>
-                <include>OSGI-INF/blueprint/*.xml</include>
-              </includes>
-            </resource>
-          </webResources>
-          <archive>
-            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <Export-Package>
+                            ddf.sso.widget;version=${project.version}
+                        </Export-Package>
+                        <Import-Package>
+                            javax.servlet;version="[2.5,3)",
+                            javax.servlet.http;version="[2.5,3)",
+                            *
+                        </Import-Package>
+                        <Bundle-ClassPath>.,WEB-INF/classes</Bundle-ClassPath>
+                        <Web-ContextPath>${web.contextPath}</Web-ContextPath>
+                        <Webapp-Context>${web.contextPath}</Webapp-Context>
+                    </instructions>
+                    <supportedProjectTypes>
+                        <supportedProjectType>jar</supportedProjectType>
+                        <supportedProjectType>bundle</supportedProjectType>
+                        <supportedProjectType>war</supportedProjectType>
+                    </supportedProjectTypes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <!-- Including web.xml in WEB-INF causes Karaf to throw the exception:
+                        java.lang.IllegalStateException: Http context already used. Context params
+                        can be set only before first usage -->
+                    <!-- <webXml>src\main\resources\WEB-INF\web.xml</webXml> -->
+                    <packagingExcludes>
+                        WEB-INF/lib/,WEB-INF/classes/META-INF/,WEB-INF/classes/OSGI-INF/,WEB-INF/classes/WEB-INF/
+                    </packagingExcludes>
+                    <webResources>
+                        <resource>
+                            <!-- this is relative to the pom.xml directory -->
+                            <directory>src/main/resources</directory>
+                            <includes>
+                                <include>OSGI-INF/blueprint/*.xml</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                    <archive>
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

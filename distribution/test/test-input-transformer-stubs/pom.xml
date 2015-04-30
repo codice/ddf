@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -17,36 +16,35 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.codice.ddf</groupId>
-        <artifactId>ddf</artifactId>
+        <artifactId>test</artifactId>
+        <groupId>ddf.test</groupId>
         <version>2.7.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>docs</artifactId>
-    <name>DDF DOCS</name>
+    <artifactId>test-input-transformer-stubs</artifactId>
+    <name>DDF :: Test :: Input Transformer Stubs</name>
+    <packaging>bundle</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>de.saumya.mojo</groupId>
-                <artifactId>gem-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.asciidoctor</groupId>
-                <artifactId>asciidoctor-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package/>
+                    </instructions>
+                </configuration>
             </plugin>
         </plugins>
     </build>
+
 </project>
