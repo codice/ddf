@@ -37,18 +37,21 @@
                 <artifactId>asciidoctor-maven-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>codice</id>
-            <name>Codice Repository</name>
-            <url>http://artifacts.codice.org/content/groups/public/</url>
-        </repository>
-    </repositories>
-    
+<repositories>      
+    <repository>        
+        <id>codice</id>     
+        <name>Codice Repository</name>      
+        <url>http://artifacts.codice.org/content/groups/public/</url>       
+    </repository>       
+</repositories>
 </project>
