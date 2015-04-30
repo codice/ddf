@@ -126,7 +126,7 @@ Do NOT deselect/uninstall the Platform App or the Admin App. Doing so will disab
 
 * When an application is unselected, dependent applications will automatically be unselected.
 
-image::application_details.png[Application Details,1000]
+image::application_details.png[Application Details,500]
 
 * If apps are preselected when the Select applications to install page is reached, they will be uninstalled if unselected.
 
@@ -146,19 +146,19 @@ The following are examples of what the Installation Steps/Pages look like:
 
 Welcome Page
 
-image::welcome_page.png[Welcome Page,1000]
+image::welcome_page.png[Welcome Page,500]
 
 General Configuration Page
 
-image::general_configuration.png[General Configuration,1000]
+image::general_configuration.png[General Configuration,500]
 
 Installation Profile Page
 
-image::installation_profile.png[Installation Profile,1000]
+image::installation_profile.png[Installation Profile,500]
 
 Select Applications Page
 
-image::select_applications.png[Select Applications,1000]
+image::select_applications.png[Select Applications,500]
 
 [WARNING]
 ====
@@ -168,7 +168,7 @@ Platform App, Admin App, and Security Services App CANNOT be selected or unselec
 
 Final Page
 
-image::final_page.png[Final Page,1000]
+image::final_page.png[Final Page,500]
 
 ==== Configuration Module
 The configuration module allows administrators to change bundle and service configurations.
