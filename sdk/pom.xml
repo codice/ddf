@@ -12,40 +12,34 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<parent>
-		<groupId>ddf</groupId>
-        <artifactId>ddf-parent</artifactId>
-        <version>3.0.0</version>
-     </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.codice.ddf</groupId>
+        <artifactId>ddf</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
 
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>ddf.sdk</groupId>
-	<artifactId>sdk</artifactId>
-        <version>2.3.0.ALPHA1-SNAPSHOT</version>
-        <packaging>pom</packaging>
-	<name>DDF SDK</name>
-	<modules>
-		<module>sample-plugins</module>
-		<module>sample-transformers</module>
-		<module>ddf-sso-query-widget</module>
-		<module>sample-metrics</module>
+    <groupId>ddf.sdk</groupId>
+    <artifactId>sdk</artifactId>
+    <packaging>pom</packaging>
+    <name>DDF SDK</name>
+
+    <modules>
+        <module>sample-plugins</module>
+        <module>sample-transformers</module>
+        <module>ddf-sso-query-widget</module>
+        <module>sample-metrics</module>
         <module>sample-soap-endpoint</module>
-		<module>sdk-app</module>
+        <module>sdk-app</module>
     </modules>
 
-	<repositories>
-		<repository>
-			<id>codice</id>
-			<name>Codice Repository</name>
-			<url>http://artifacts.codice.org/content/groups/public/</url>
-		</repository>
-	</repositories>
-	<properties>
-		<cxf.version>3.0.4</cxf.version>
-	    <ddf.catalog.app.version>2.7.0-SNAPSHOT</ddf.catalog.app.version>
-	    <ddf.security.app.version>2.7.0-SNAPSHOT</ddf.security.app.version>
-	    <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
-	</properties>
+    <properties>
+        <cxf.version>3.0.4</cxf.version>
+        <ddf.catalog.app.version>2.7.0-SNAPSHOT</ddf.catalog.app.version>
+        <ddf.security.app.version>2.7.0-SNAPSHOT</ddf.security.app.version>
+        <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
+    </properties>
 </project>

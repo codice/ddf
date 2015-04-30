@@ -13,127 +13,127 @@
  **/
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-	<artifactId>sdk</artifactId>
-	<groupId>ddf.sdk</groupId>
-	<version>2.3.0.ALPHA1-SNAPSHOT</version>
-  </parent>
-  
-  <artifactId>sample-plugins</artifactId>
-  <name>DDF :: SDK :: Plugin :: SamplePlugins</name>
-  <packaging>bundle</packaging>
-  
-  
-  <dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-    <dependency>
-		<groupId>ddf.catalog.core</groupId>
-		<artifactId>catalog-core-api</artifactId>
-                <version>${ddf.catalog.app.version}</version>
-	</dependency>
-	
-	<dependency>
-		<groupId>ddf.catalog.core</groupId>
-		<artifactId>filter-proxy</artifactId>
-                <version>${ddf.catalog.app.version}</version>
-	</dependency>
+    <parent>
+        <artifactId>sdk</artifactId>
+        <groupId>ddf.sdk</groupId>
+        <version>2.7.0-SNAPSHOT</version>
+    </parent>
 
-  </dependencies>
-  
-  
-  <build>
-    
-	<plugins>
-		<!-- The maven-bundle-plugin is required for this artifact to be an OSGi bundle. -->
-		<!-- Add in additional imports that this bundle requires using a comma-separated list. -->
-		<plugin>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>maven-bundle-plugin</artifactId>
-			<configuration>
-				<instructions>
-					<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>					
-					<Import-Package>  
-						ddf.catalog,
-						ddf.catalog.data, 
-						ddf.catalog.event, 
-						ddf.catalog.filter, 
-						ddf.catalog.filter.delegate, 
-						ddf.catalog.source,
-						ddf.catalog.operation,
-					    ddf.catalog.plugin,
-					    ddf.catalog.validation,
-                        org.opengis.filter,
-                        org.opengis.filter.sort,				
-						org.osgi.service.blueprint,
-						javax.security.auth,
-						org.slf4j
-					</Import-Package>
-				</instructions>
-			</configuration>
-		</plugin>
-	  
-	  <!--
-	  Run filtering on the features.xml file (to substitute values for the
-	  project.version references) and then copy features.xml file to the
-	  target/classes directory. 
-	  --> 
-	  <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-resources</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${basedir}/target/classes</outputDirectory>
-              <resources>          
-                <resource>
-                  <directory>src/main/resources</directory>
-                  <filtering>true</filtering>
-                  <includes>
-			          <include>features.xml</include>
-			      </includes>
-                </resource>
-              </resources>              
-            </configuration>            
-          </execution>
-        </executions>
-      </plugin>
-             
-      <!--
-      Puts the features XML file for this SDK sample-plugins distribution 
-      into the maven repo, assigning it a repo URL of
-          mvn:ddf.sdk/sample-plugins/${project.version}/xml/features 
-      -->
-      <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <executions>
-              <execution>
-                  <id>attach-artifacts</id>
-                  <phase>package</phase>
-                  <inherited>false</inherited>
-                  <goals>
-                      <goal>attach-artifact</goal>
-                  </goals>
-                  <configuration>
-                      <artifacts>
-                          <artifact>
-                              <file>target/classes/features.xml</file>
-                              <type>xml</type>
-                              <classifier>features</classifier>
-                          </artifact>
-                      </artifacts>
-                  </configuration>
-              </execution>
-          </executions>
-      </plugin>
-	</plugins>
-  </build>
-	
+    <artifactId>sample-plugins</artifactId>
+    <name>DDF :: SDK :: Plugin :: SamplePlugins</name>
+    <packaging>bundle</packaging>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+            <version>${ddf.catalog.app.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>filter-proxy</artifactId>
+            <version>${ddf.catalog.app.version}</version>
+        </dependency>
+
+    </dependencies>
+
+
+    <build>
+
+        <plugins>
+            <!-- The maven-bundle-plugin is required for this artifact to be an OSGi bundle. -->
+            <!-- Add in additional imports that this bundle requires using a comma-separated list. -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Import-Package>
+                            ddf.catalog,
+                            ddf.catalog.data,
+                            ddf.catalog.event,
+                            ddf.catalog.filter,
+                            ddf.catalog.filter.delegate,
+                            ddf.catalog.source,
+                            ddf.catalog.operation,
+                            ddf.catalog.plugin,
+                            ddf.catalog.validation,
+                            org.opengis.filter,
+                            org.opengis.filter.sort,
+                            org.osgi.service.blueprint,
+                            javax.security.auth,
+                            org.slf4j
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+
+            <!--
+            Run filtering on the features.xml file (to substitute values for the
+            project.version references) and then copy features.xml file to the
+            target/classes directory.
+            -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>features.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+            Puts the features XML file for this SDK sample-plugins distribution
+            into the maven repo, assigning it a repo URL of
+                mvn:ddf.sdk/sample-plugins/${project.version}/xml/features
+            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <inherited>false</inherited>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>target/classes/features.xml</file>
+                                    <type>xml</type>
+                                    <classifier>features</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
