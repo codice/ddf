@@ -156,9 +156,6 @@
 
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- Needed to prevent problem with surefire when jacoco plug-in is not configured -->
-        <argLine></argLine>
     </properties>
 
     <!--
