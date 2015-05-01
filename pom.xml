@@ -647,8 +647,10 @@
                                         <resources>
                                             <resource>
                                                 <directory>${basedir}/src/main/resources</directory>
-                                                <!--<include>config.adoc</include>-->
                                                 <filtering>true</filtering>
+                                                <includes>
+                                                    <include>**/*.adoc</include>
+                                                </includes>
                                             </resource>
                                         </resources>
                                     </configuration>
