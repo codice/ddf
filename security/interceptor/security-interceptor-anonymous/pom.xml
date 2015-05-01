@@ -60,10 +60,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-ws-security</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-api</artifactId>
             <version>${project.version}</version>
@@ -82,9 +78,6 @@
                             *,
                             org.joda.time;version="[1.6.0,3.0.0)"
                         </Import-Package>
-                        <Export-Package>
-                            org.codice.ddf.security.interceptor;version=${project.version}
-                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

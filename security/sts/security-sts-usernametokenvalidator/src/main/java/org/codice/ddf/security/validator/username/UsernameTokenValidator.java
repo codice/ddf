@@ -58,6 +58,8 @@ import org.apache.wss4j.dom.message.token.UsernameToken;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.JAASUsernameTokenValidator;
 import org.apache.wss4j.dom.validate.Validator;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -69,12 +71,11 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.security.Principal;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class validates a wsse UsernameToken.
@@ -85,24 +86,22 @@ public class UsernameTokenValidator implements TokenValidator {
 
     private UsernameTokenRealmCodec usernameTokenRealmCodec;
 
-    private List<JaasRealm> realms;
+    protected Map<String, Validator> validators = new ConcurrentHashMap<>();
 
-    protected Map<String, Validator> validators = new HashMap<>();
-
-    public void init() {
-        if (realms != null) {
-            validators.clear();
-            for (JaasRealm realm : realms) {
-                JAASUsernameTokenValidator validator = new JAASUsernameTokenValidator();
-                validator.setContextName(realm.getName());
-                validators.put(realm.getName(), validator);
-            }
-        }
+    public void addRealm(ServiceReference<JaasRealm> serviceReference) {
+        JaasRealm realm = FrameworkUtil.getBundle(UsernameTokenValidator.class).getBundleContext()
+                .getService(serviceReference);
+        LOGGER.trace("Adding validator for JaasRealm {}", realm.getName());
+        JAASUsernameTokenValidator validator = new JAASUsernameTokenValidator();
+        validator.setContextName(realm.getName());
+        validators.put(realm.getName(), validator);
     }
 
-    public void setJaasRealmList(List<JaasRealm> realms) {
-        this.realms = realms;
-        init();
+    public void removeRealm(ServiceReference<JaasRealm> serviceReference) {
+        JaasRealm realm = FrameworkUtil.getBundle(UsernameTokenValidator.class).getBundleContext()
+                .getService(serviceReference);
+        LOGGER.trace("Removing validator for JaasRealm {}", realm.getName());
+        validators.remove(realm.getName());
     }
 
     /**

@@ -26,16 +26,15 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.JAASUsernameTokenValidator;
+import org.junit.Before;
 import org.junit.Test;
+import org.osgi.framework.ServiceReference;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -47,14 +46,27 @@ import static org.mockito.Mockito.when;
 
 public class TestUsernameTokenValidator {
 
+    final JAASUsernameTokenValidator niceValidator = mock(JAASUsernameTokenValidator.class);
+    final JAASUsernameTokenValidator meanValidator = new JAASUsernameTokenValidator();
+
+    @Before
+    public void setup() {
+        try {
+            Credential credential = mock(Credential.class);
+            when(niceValidator.validate(any(Credential.class), any(RequestData.class))).thenReturn(credential);
+        } catch (WSSecurityException ignore) {
+            //do nothing
+        }
+    }
+
     @Test
     public void testValidateBadToken() {
-        UsernameTokenValidator usernameTokenValidator = new UsernameTokenValidator();
-        List<JaasRealm> jaasRealms = new ArrayList<>();
-        JaasRealm jaasRealm = mock(JaasRealm.class);
-        when(jaasRealm.getName()).thenReturn("myrealm");
-        jaasRealms.add(jaasRealm);
-        usernameTokenValidator.setJaasRealmList(jaasRealms);
+        UsernameTokenValidator usernameTokenValidator = new UsernameTokenValidator() {
+            public void addRealm(ServiceReference<JaasRealm> serviceReference) {
+                validators.put("myrealm", meanValidator);
+            }
+        };
+        usernameTokenValidator.addRealm(null);
 
         TokenValidatorParameters tokenValidatorParameters = mock(TokenValidatorParameters.class);
         STSPropertiesMBean stsPropertiesMBean = mock(STSPropertiesMBean.class);
@@ -100,21 +112,12 @@ public class TestUsernameTokenValidator {
 
     @Test
     public void testValidateGoodToken() {
-        UsernameTokenValidator usernameTokenValidator = new UsernameTokenValidator();
-        List<JaasRealm> jaasRealms = new ArrayList<>();
-        JaasRealm jaasRealm = mock(JaasRealm.class);
-        when(jaasRealm.getName()).thenReturn("myrealm");
-        jaasRealms.add(jaasRealm);
-        usernameTokenValidator.setJaasRealmList(jaasRealms);
-        usernameTokenValidator.validators = new HashMap<>();
-        JAASUsernameTokenValidator myvalidator = mock(JAASUsernameTokenValidator.class);
-        try {
-            Credential credential = mock(Credential.class);
-            when(myvalidator.validate(any(Credential.class), any(RequestData.class))).thenReturn(credential);
-        } catch (WSSecurityException ignore) {
-            //do nothing
-        }
-        usernameTokenValidator.validators.put("myrealm", myvalidator);
+        UsernameTokenValidator usernameTokenValidator = new UsernameTokenValidator() {
+            public void addRealm(ServiceReference<JaasRealm> serviceReference) {
+                validators.put("myrealm", niceValidator);
+            }
+        };
+        usernameTokenValidator.addRealm(null);
 
         TokenValidatorParameters tokenValidatorParameters = mock(TokenValidatorParameters.class);
         STSPropertiesMBean stsPropertiesMBean = mock(STSPropertiesMBean.class);
