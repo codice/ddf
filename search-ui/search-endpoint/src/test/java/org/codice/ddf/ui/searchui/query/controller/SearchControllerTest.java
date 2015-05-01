@@ -35,6 +35,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNull;
 import static org.hamcrest.core.IsNull.nullValue;
 import org.junit.Before;
 import org.junit.Test;
@@ -131,7 +132,9 @@ public class SearchControllerTest {
         assertThat(typeInfo.get("metadata-content-type-version"), is("STRING"));
         assertThat(typeInfo.get("metadata-target-namespace"), is("STRING"));
         assertThat(typeInfo.get("resource-uri"), is("STRING"));
-        assertThat(typeInfo.get("resource-size"), is("STRING"));
+
+        // since resource-size is not indexed, it should be filtered out
+        assertNull(typeInfo.get("resource-size"));
         assertThat(typeInfo.get("metadata"), is("XML"));
         assertThat(typeInfo.get("location"), is("GEOMETRY"));
 
