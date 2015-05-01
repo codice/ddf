@@ -156,9 +156,6 @@
 
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- Needed to prevent problem with surefire when jacoco plug-in is not configured -->
-        <argLine></argLine>
     </properties>
 
     <!--
@@ -650,8 +647,10 @@
                                         <resources>
                                             <resource>
                                                 <directory>${basedir}/src/main/resources</directory>
-                                                <!--<include>config.adoc</include>-->
                                                 <filtering>true</filtering>
+                                                <includes>
+                                                    <include>**/*.adoc</include>
+                                                </includes>
                                             </resource>
                                         </resources>
                                     </configuration>
