@@ -554,7 +554,7 @@ unzip ddf-kernel-X.Y.zip
 .Additional Configuration Step
 ----
 # Jetty Configuration
-org.ops4j.pax.web.config.file=${karaf.home}/etc/jetty.xml
+org.ops4j.pax.web.config.file={karaf.home}/etc/jetty.xml
 ----
 
 * Run the {branding} kernel using the appropriate script.
@@ -734,8 +734,6 @@ image::setup_types.png[Setup Types]
 
 The final step of initial configuration is a display of all applications installed and their current status. This tree structure demonstrates how several applications depend on other applications.
 
-image::select_applications_to_setup.png[Select Applications]
-
 [WARNING]
 ====
 Platform App, Admin App, and Security Services App CANNOT be selected or unselected as it is installed by default and can cause errors if removed.
@@ -769,7 +767,7 @@ image::details_tab.png[Details Tab]
 ===== Features
 The features tab breaks down the individual features of the application that can be installed or uninstalled as configurable features.
 
-image::features_tab.png[Features Tab]
+image::features_tab.png[Features Tab,]
 
 ==== Managing Applications
 The Manage button enables activation/deactivation and adding/removing applications. 
@@ -2092,13 +2090,13 @@ From step 10 forward, the message is completely decoupled from CAS and will proc
 More information on configuring the LDAP and a list of users and attributes can be found at the Embedded LDAP Configuration page.
 
 ==== Add cas-server-support-ldap-3.3.1_1.jar to CAS
-Copy `thirdparty/cas-server-support-ldap-3.3.1/target/cas-server-support-x509-3.3.1_1.jar` to `${ozone-widget-framework}/apache-tomecat-${version}/webapps/cas/WEB-INF/lib/cas-server-support-ldap-3.3.1_1.jar`.
+Copy `thirdparty/cas-server-support-ldap-3.3.1/target/cas-server-support-x509-3.3.1_1.jar` to `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/lib/cas-server-support-ldap-3.3.1_1.jar`.
 
 ==== Add spring-ldap-1.2.1_1.jar to CAS
-Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `${ozone-widget-framework}/apache-tomecat-${version}/webapps/cas/WEB-INF/lib/spring-ldap-1.2.1_1.jar`.
+Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/lib/spring-ldap-1.2.1_1.jar`.
 
 ==== Modify developerConfigContext.xml
-. In `${ozone-widget-framework}/apache-tomecat-${version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the `FastBindLdapAuthenticationHandler` bean definition to the `<list>` in the property stanza with name `authenticationHandlers` of the bean stanza with id `authenticationManager`:
+. In `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the `FastBindLdapAuthenticationHandler` bean definition to the `<list>` in the property stanza with name `authenticationHandlers` of the bean stanza with id `authenticationManager`:
 +
 .deployerConfigContext.xml
 [source,xml,linenums]
@@ -2121,8 +2119,8 @@ Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `${ozone-w
 </bean>
 ----
 +
-. In `${ozone-widget-framework}/apache-tomecat-${version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, remove the bean stanza with class `ozone3.cas.adaptors.UserPropertiesFileAuthenticationHandler` from the `<list>` of the property stanza with name `authenticationHandlers`.
-. In `${ozone-widget-framework}/apache-tomecat-${version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the contextSource bean stanza to the beans stanza:
+. In `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, remove the bean stanza with class `ozone3.cas.adaptors.UserPropertiesFileAuthenticationHandler` from the `<list>` of the property stanza with name `authenticationHandlers`.
+. In `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the contextSource bean stanza to the beans stanza:
 +
 .deployerConfigContext.xml
 [source,xml,linenums]
@@ -2143,7 +2141,7 @@ Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `${ozone-w
 Ozone is also set up to work in LDAP. This section is a reference when Ozone is being used in conjunction with CAS. The following settings were used for internal testing and should only be used as a reference.
 
 . Modify OWFsecurityContext.xml
-.. In ${ozone-widget-framework}/apache-tomecat-${version}/lib/OWFsecurityContext.xml, change the sec:x509 stanza to the following:
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/OWFsecurityContext.xml, change the sec:x509 stanza to the following:
 +
 .OWFsecurityContext.xml
 [source]
@@ -2151,7 +2149,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 <sec:x509 subject-principal-regex="CN=(.*?)," user-service-ref="ldapUserService" />
 ----
 +
-.. In ${ozone-widget-framework}/apache-tomecat-${version}/lib/OWFsecurityContext.xml, remove the following import:
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/OWFsecurityContext.xml, remove the following import:
 +
 .OWFsecurityContext.xml
 [source]
@@ -2159,7 +2157,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 <import resource="ozone-security-beans/UserServiceBeans.xml" />
 ----
 +
-.. In `${ozone-widget-framework}/apache-tomecat-${version}/lib/OWFsecurityContext.xml`, add the following import:
+.. In `{ozone-widget-framework}/apache-tomecat-{version}/lib/OWFsecurityContext.xml`, add the following import:
 +
 .OWFsecurityContext.xml
 [source]
@@ -2168,7 +2166,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 ----
 +
 . Modify LdapBeans.xml
-.. In ${ozone-widget-framework}/apache-tomecat-${version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `contextSource` to the following:
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `contextSource` to the following:
 +
 .LdapBeans.xml
 [source,xml,linenums]
@@ -2179,7 +2177,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 </bean>
 ----
 +
-.. In ${ozone-widget-framework}/apache-tomecat-${version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `authoritiesPopulator` to the following:
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `authoritiesPopulator` to the following:
 +
 .LdapBeans.xml
 [source,xml,linenums]
@@ -2191,7 +2189,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 </bean>
 ----
 +
-.. In ${ozone-widget-framework}/apache-tomecat-${version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `ldapUserSearch` to the following:
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `ldapUserSearch` to the following:
 +
 .LdapBeans.xml
 [source,xml,linenums]
@@ -2204,7 +2202,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
     <constructor-arg ref="contextSource" />
 </bean>
 ----
-.. In ${ozone-widget-framework}/apache-tomecat-${version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `userDetailsMapper` to the following:
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `userDetailsMapper` to the following:
 +
 .LdapBeans.xml
 [source,xml,linenums]
@@ -2219,7 +2217,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 ----
 +
 . Modify OWFCASBeans.xml
-.. In ${ozone-widget-framework}/apache-tomecat-${version}/lib/ozone-security-beans/OWFCasBeans.xml, change the bean stanza with id `casAuthenticationProvider` to the following:
+.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/OWFCasBeans.xml, change the bean stanza with id `casAuthenticationProvider` to the following:
 +
 .OWFCasBeans.xml
 [source,xml,linenums]
@@ -2237,11 +2235,11 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 The follow settings were tested with CAS version 3.3.1. If any issues occur while configuring for newer versions, check the External Links section at the bottom of this page for the CAS documentation, which explains setting up certification authentication.
 
 ==== Add the cas-server-support-x509-3.3.1.jar to CAS
-Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.3.1.jar` to `apache-tomecat-${version}/webapps/cas/WEB-INF/lib/cas-server-support-x509-3.3.1.jar`.
+Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.3.1.jar` to `apache-tomecat-{version}/webapps/cas/WEB-INF/lib/cas-server-support-x509-3.3.1.jar`.
 
 ==== Configure Web Flow
 
-. In apache-tomcat-${version}/webapps/cas/WEB-INF/login-workflow.xml, make the following modifications:
+. In apache-tomcat-{version}/webapps/cas/WEB-INF/login-workflow.xml, make the following modifications:
 .. Remove the XML comments around the action-state stanza with id `startAuthenticate`.
 +
 .startAuthenticate
@@ -2260,7 +2258,7 @@ Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.
 [source,xml,linenums]
 ----
 <decision-state id="renewRequestCheck">
-  <if test="${externalContext.requestParameterMap['renew'] != '' &amp;&amp; externalContext.requestParameterMap['renew'] != null}" then="startAuthenticate" else="generateServiceTicket" />
+  <if test="{externalContext.requestParameterMap['renew'] != '' &amp;&amp; externalContext.requestParameterMap['renew'] != null}" then="startAuthenticate" else="generateServiceTicket" />
 </decision-state>
 ----
 +
@@ -2270,11 +2268,11 @@ Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.
 [source,xml,linenums]
 ----
 <decision-state id="gatewayRequestCheck">
-  <if test="${externalContext.requestParameterMap['gateway'] != '' &amp;&amp; externalContext.requestParameterMap['gateway'] != null &amp;&amp; flowScope.service != null}" then="redirect" else="startAuthenticate" />
+  <if test="{externalContext.requestParameterMap['gateway'] != '' &amp;&amp; externalContext.requestParameterMap['gateway'] != null &amp;&amp; flowScope.service != null}" then="redirect" else="startAuthenticate" />
 </decision-state>
 ----
 +
-. In `apache-tomcat-${version}/webapps/cas/WEB-INF/cas-servlet.xml` make the following modifications:
+. In `apache-tomcat-{version}/webapps/cas/WEB-INF/cas-servlet.xml` make the following modifications:
 .. Define the x509Check bean.
 +
 .x509Check
@@ -2289,7 +2287,7 @@ Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.
 ----
 
 ==== Configure the Authentication Handler
-In `apache-tomcat-${version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
+In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
 
 . In the *`list`* stanza of the property stanza with name `authenticationHandlers` of the bean stanza with id `authenticationManager`, add the `X509CredentialAuthenticationHander` bean definition.
 +
@@ -2321,7 +2319,7 @@ In `apache-tomcat-${version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, mak
 ----
 
 ==== Configure the Credentials to the Principal Resolver
-In `apache-tomcat-${version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
+In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
 
 . In the list stanza of the property stanza with name `credentialsToPrincipalResolver` of the bean stanza with id `AuthenticationManager`, add the `X509CertificateCredentialsToIdentifierPrincipalResolver` bean definition.  The pattern in the value attribute on the property stanza can be modified to suit your needs.  The following is a simple example that uses the first CN field in the DN as the Principal. 
 +
@@ -2372,9 +2370,9 @@ Different resolvers should be used depending on the use-case for the server. Whe
 ==== Default Certificates
 To verify certificate authentication with the default CAS files you must make sure that the included testUser and testAdmin certificates are installed into your web browser. This has only been tested to work with Firefox. These certificates were provided in the Ozone Widget Framework and can be used in development environments.
 
-* The sample certificate for testUser1 is ${ozone-widget-framework}/apache-tomcat-${version}/certs/testUser1.p12
+* The sample certificate for testUser1 is {ozone-widget-framework}/apache-tomcat-{version}/certs/testUser1.p12
 ** password: password
-* The sample certificate for testAdmin1 is ${ozone-widget-framework}/apache-tomcat-${version}/certs/testAdmin1.p12
+* The sample certificate for testAdmin1 is {ozone-widget-framework}/apache-tomcat-{version}/certs/testAdmin1.p12
 ** password: password
 
 ==== External Links
@@ -4303,7 +4301,7 @@ link:Distributed WSS.pptx[Distributed WSS]
 .Login Authentication Scheme
 image::login_authentication_scheme.jpg[Login Authentication Scheme]
 
-==== ç
+==== Authentication Components
 It is implied that the three authentication components identified below are installed on three separate servers. Therefore, it is important to keep track of the DNS hostnames used on each server for certificate authentication purposes.
 
 ===== LDAP
@@ -4312,7 +4310,7 @@ LDAP is used to maintain a list of trusted {branding} users and the attributes a
 . Obtain and unzip the {branding} kernel (ddf-distribution-kernel-<VERSION>.zip). 
 . Start the distribution.
 . Deploy the Embedded LDAP application by copying the ldap-embedded-app-<VERSION>.kar into the <DISTRIBUTION_HOME>/deploy directory. Verify that the LDAP server is installed by checking the {branding} log or by performing an la command and verifying that the OpenDJ bundle is in the active state. Additionally, it should be responding to LDAP requests on the default ports, which are 1389 and 1636.
-. Copy the environment's Java keystore file into the ${DISTRIBUTION}/etc/keystores folder, making sure it overwrites the folder's existing serverKeystore.jks file.
+. Copy the environment's Java keystore file into the {DISTRIBUTION}/etc/keystores folder, making sure it overwrites the folder's existing serverKeystore.jks file.
 
 [WARNING]
 ====
@@ -4323,7 +4321,7 @@ It is very important that the keystore file used in the process is set up to tru
 CAS is used for SSO authentication purposes. Unlike LDAP and STS, CAS cannot be run as a {branding} bundle. CAS mustt be run through Apache Tomcat.
 
 . Follow the instructions on the CAS installation page to install and configure Tomcat/CAS. For example, with LDAP above, the keystore.jks file that is used must trust the hostnames used by the STS server, LDAP server, and the {branding} user connecting to CAS.
-. Open the ${TOMCAT}/webapps/cas/WEB-INF/cas.properties file and modify the cas.ldap.host, cas.ldap.port, cas.ldap.user.dn, and cas.ldap.password fields with your environment's LDAP information.
+. Open the {TOMCAT}/webapps/cas/WEB-INF/cas.properties file and modify the cas.ldap.host, cas.ldap.port, cas.ldap.user.dn, and cas.ldap.password fields with your environment's LDAP information.
 
 ===== STS
 The Security Token Service, unlike the LDAP, cannot currently be installed on a kernel distribution of {branding}. To run an STS-only {branding} installation,  uninstall the catalog components that are not being used. This will increase performance. A list of unneeded components can be found on the STS page.
@@ -4369,7 +4367,7 @@ All of the authentication components should be running and configured at this po
 ==== Configure {branding}
 Once everything is configured and running, hooking up an existing {branding} instance to the authentication scheme is performed by setting a few configuration properties.
 
-. Verify that the `${DISTRIBUTION}/etc/keystores` folder is updated with the correct keystores for your operating environment.
+. Verify that the `{DISTRIBUTION}/etc/keystores` folder is updated with the correct keystores for your operating environment.
 . Start the distribution.
 . Enter the following commands to install the CAS features:+
 +
