@@ -47,6 +47,10 @@
             <artifactId>org.apache.karaf.jaas.config</artifactId>
             <version>${karaf.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
