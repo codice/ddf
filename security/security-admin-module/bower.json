@@ -1,0 +1,31 @@
+{
+  "name": "security-admin-module",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "backbone-associations": "v0.6.2",
+    "backbone.modelbinder": "v1.0.5",
+    "Backbone.Undo.js": "osartun/Backbone.Undo.js#cb50f8da0968b699b8507bcd3b9254c7a3e2c2b5",
+    "bootswatch": "v3.2.0",
+    "components-backbone": "1.1.0",
+    "components-bootstrap": "3.2.0",
+    "components-font-awesome": "4.1.0",
+    "icanhandlebarz": "atomicobject/ICanHandlebarz.js#f6ac1d1f8e1d796045563f1483eca6c4911ed7d1",
+    "handlebars": "v1.2.1",
+    "html5shiv": "3.7.2",
+    "jquery": "components/jquery#1.11.0",
+    "lodash": "2.4.1",
+    "marionette": "2.4.1",
+    "perfect-scrollbar": "0.5.7",
+    "requirejs": "2.1.14",
+    "require-css": "0.1.5",
+    "requirejs-plugins": "v1.0.2",
+    "lato": "v0.2.1",
+    "bootstrap-select": "v1.6.4",
+    "iframe-resizer": "2.6.2"
+  },
+  "resolutions": {
+    "jquery": "~1.11.0",
+    "underscore": "~1.8.2"
+  }
+}
