@@ -161,7 +161,14 @@ define([
                 return array.map(function( item ) {
                     return options.fn( item );
                 }).join( sep );
-            }
+            },
+            notEmpty: function (value, options) {
+                if (_.size(value) > 0) {
+                  return options.fn(this);
+                } else {
+                  return options.inverse(this);
+                }
+              }
         };
 
 // Export helpers
