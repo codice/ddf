@@ -1,29 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.catalog.federation.impl;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -37,15 +26,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.geotools.filter.FilterFactoryImpl;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortOrder;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,9 +75,23 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.SourcePoller;
 import ddf.catalog.util.impl.SourcePollerRunner;
 
-@RunWith(PowerMockRunner.class)
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @PrepareForTest(AbstractFederationStrategy.class)
 public class FederationStrategyTest {
+
+    @Rule
+    public PowerMockRule rule = new PowerMockRule();
+
     private static final long SHORT_TIMEOUT = 25;
 
     private static final long LONG_TIMEOUT = 100;
@@ -97,8 +100,8 @@ public class FederationStrategyTest {
 
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FederationStrategyTest.class
-            .getName());
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(FederationStrategyTest.class.getName());
 
     /**
      * Tests that the framework properly times out using the default federation strategy.
@@ -118,7 +121,8 @@ public class FederationStrategyTest {
 
         // Must have more than one thread or sleeps will block the monitor
         SortedFederationStrategy fedStrategy = new SortedFederationStrategy(EXECUTOR,
-                new ArrayList<PreFederatedQueryPlugin>(), new ArrayList<PostFederatedQueryPlugin>());
+                new ArrayList<PreFederatedQueryPlugin>(),
+                new ArrayList<PostFederatedQueryPlugin>());
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
                 Collections.singletonList((CatalogProvider) provider), null,
@@ -191,13 +195,15 @@ public class FederationStrategyTest {
         sources.add(mockProvider);
 
         SortedFederationStrategy sortedStrategy = new SortedFederationStrategy(EXECUTOR,
-                new ArrayList<PreFederatedQueryPlugin>(), new ArrayList<PostFederatedQueryPlugin>());
+                new ArrayList<PreFederatedQueryPlugin>(),
+                new ArrayList<PostFederatedQueryPlugin>());
 
         QueryResponse fedResponse = sortedStrategy.federate(sources, fedQueryRequest);
         assertEquals(1, fedResponse.getResults().size());
 
         FifoFederationStrategy fifoStrategy = new FifoFederationStrategy(EXECUTOR,
-                new ArrayList<PreFederatedQueryPlugin>(), new ArrayList<PostFederatedQueryPlugin>());
+                new ArrayList<PreFederatedQueryPlugin>(),
+                new ArrayList<PostFederatedQueryPlugin>());
         fedResponse = fifoStrategy.federate(sources, fedQueryRequest);
         assertEquals(1, fedResponse.getResults().size());
     }
@@ -206,9 +212,9 @@ public class FederationStrategyTest {
      * Verify that a modified version of the query passed into {@link
      * ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)} is
      * used by the sources.
-     * 
+     *
      * Special results handling done by OffsetResultsHandler.
-     * 
+     *
      */
     @Test
     public void testFederateTwoSourcesOffsetTwoPageSizeThree() throws Exception {
@@ -229,7 +235,7 @@ public class FederationStrategyTest {
          * When using a modified query to query the sources, the desired offset and page size are
          * NOT used. So, the results returned by each source start at index 1 and end at (offset +
          * pageSize - 1).
-         * 
+         *
          * Number of results returned by each source = offset + pageSize - 1 4 = 2 + 3 - 1
          */
         Result mockSource1Result1 = mock(Result.class);
@@ -238,8 +244,9 @@ public class FederationStrategyTest {
         Result mockSource1Result4 = mock(Result.class);
 
         SourceResponse mockSource1Response = mock(SourceResponse.class);
-        List<Result> mockSource1Results = Arrays.asList(mockSource1Result1, mockSource1Result2,
-                mockSource1Result3, mockSource1Result4);
+        List<Result> mockSource1Results = Arrays
+                .asList(mockSource1Result1, mockSource1Result2, mockSource1Result3,
+                        mockSource1Result4);
         when(mockSource1Response.getResults()).thenReturn(mockSource1Results);
 
         Source mockSource1 = mock(Source.class);
@@ -250,7 +257,7 @@ public class FederationStrategyTest {
          * When using a modified query to query the sources, the desired offset and page size are
          * NOT used. So, the results returned by each source start at index 1 and end at (offset +
          * pageSize - 1).
-         * 
+         *
          * Number of results returned by each source = offset + pageSize - 1 4 = 2 + 3 - 1
          */
         Result mockSource2Result1 = mock(Result.class);
@@ -259,8 +266,9 @@ public class FederationStrategyTest {
         Result mockSource2Result4 = mock(Result.class);
 
         SourceResponse mockSource2Response = mock(SourceResponse.class);
-        List<Result> mockSource2Results = Arrays.asList(mockSource2Result1, mockSource2Result2,
-                mockSource2Result3, mockSource2Result4);
+        List<Result> mockSource2Results = Arrays
+                .asList(mockSource2Result1, mockSource2Result2, mockSource2Result3,
+                        mockSource2Result4);
         when(mockSource2Response.getResults()).thenReturn(mockSource2Results);
 
         Source mockSource2 = mock(Source.class);
@@ -281,26 +289,28 @@ public class FederationStrategyTest {
         Result mockSortedResult7 = mock(Result.class);
         Result mockSortedResult8 = mock(Result.class);
 
-        List<Result> mockSortedResults = Arrays.asList(mockSortedResult1, mockSortedResult2,
-                mockSortedResult3, mockSortedResult4, mockSortedResult5, mockSortedResult6,
-                mockSortedResult7, mockSortedResult8);
+        List<Result> mockSortedResults = Arrays
+                .asList(mockSortedResult1, mockSortedResult2, mockSortedResult3, mockSortedResult4,
+                        mockSortedResult5, mockSortedResult6, mockSortedResult7, mockSortedResult8);
 
         QueryResponseImpl mockOriginalResults = Mockito.mock(QueryResponseImpl.class);
         // Return true for the number of mockSortedResults
-        Mockito.when(mockOriginalResults.hasMoreResults()).thenReturn(true, true, true, true, true,
-                true, true, true, false);
+        Mockito.when(mockOriginalResults.hasMoreResults())
+                .thenReturn(true, true, true, true, true, true, true, true, false);
         Mockito.when(mockOriginalResults.getResults()).thenReturn(mockSortedResults);
         // Returns the sorted results from both sources (4 + 4 = 8)
-        Mockito.when(mockOriginalResults.take()).thenReturn(mockSortedResult1, mockSortedResult2,
-                mockSortedResult3, mockSortedResult4, mockSortedResult5, mockSortedResult6,
-                mockSortedResult7, mockSortedResult8);
+        Mockito.when(mockOriginalResults.take())
+                .thenReturn(mockSortedResult1, mockSortedResult2, mockSortedResult3,
+                        mockSortedResult4, mockSortedResult5, mockSortedResult6, mockSortedResult7,
+                        mockSortedResult8);
         QueryResponseImpl offsetResultQueue = new QueryResponseImpl(queryRequest, null);
         PowerMockito.whenNew(QueryResponseImpl.class)
                 .withArguments(queryRequest, (Map<String, Serializable>) null)
                 .thenReturn(mockOriginalResults, offsetResultQueue);
 
         SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR,
-                new ArrayList<PreFederatedQueryPlugin>(), new ArrayList<PostFederatedQueryPlugin>());
+                new ArrayList<PreFederatedQueryPlugin>(),
+                new ArrayList<PostFederatedQueryPlugin>());
 
         // Run Test
         QueryResponse federatedResponse = strategy.federate(sources, queryRequest);
@@ -325,7 +335,7 @@ public class FederationStrategyTest {
          * Verify three results (page size) are returned. The sorted results returned by the sources
          * do NOT have the offset and page size taken into account, so the offset and page size are
          * applied to the sorted results in the OffsetResultHandler.
-         * 
+         *
          * Offset of 2 (start at result 2) and page size of 3 (end at result 4).
          */
         LOGGER.debug("mockSortedResult1: " + mockSortedResult1);
@@ -347,7 +357,7 @@ public class FederationStrategyTest {
      * Verify that the original query passed into {@link
      * ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)} is
      * used by the source.
-     * 
+     *
      * No special results handling done by OffsetResultsHandler.
      */
     @Test
@@ -385,7 +395,8 @@ public class FederationStrategyTest {
         sources.add(mockSource1);
 
         SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR,
-                new ArrayList<PreFederatedQueryPlugin>(), new ArrayList<PostFederatedQueryPlugin>());
+                new ArrayList<PreFederatedQueryPlugin>(),
+                new ArrayList<PostFederatedQueryPlugin>());
 
         // Run Test
         QueryResponse federatedResponse = strategy.federate(sources, queryRequest);
@@ -415,7 +426,7 @@ public class FederationStrategyTest {
      * Verify that the original query passed into {@link
      * ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)} is
      * used by the sources.
-     * 
+     *
      * No special results handling done by OffsetResultsHandler.
      */
     @Test
@@ -446,8 +457,9 @@ public class FederationStrategyTest {
         Mockito.when(mockSource1Result4.getRelevanceScore()).thenReturn(0.1);
 
         SourceResponse mockSource1Response = mock(SourceResponse.class);
-        List<Result> mockSource1Results = Arrays.asList(mockSource1Result1, mockSource1Result2,
-                mockSource1Result3, mockSource1Result4);
+        List<Result> mockSource1Results = Arrays
+                .asList(mockSource1Result1, mockSource1Result2, mockSource1Result3,
+                        mockSource1Result4);
         when(mockSource1Response.getResults()).thenReturn(mockSource1Results);
 
         Source mockSource1 = mock(Source.class);
@@ -464,8 +476,9 @@ public class FederationStrategyTest {
         Mockito.when(mockSource2Result4.getRelevanceScore()).thenReturn(0.2);
 
         SourceResponse mockSource2Response = mock(SourceResponse.class);
-        List<Result> mockSource2Results = Arrays.asList(mockSource2Result1, mockSource2Result2,
-                mockSource2Result3, mockSource2Result4);
+        List<Result> mockSource2Results = Arrays
+                .asList(mockSource2Result1, mockSource2Result2, mockSource2Result3,
+                        mockSource2Result4);
         when(mockSource2Response.getResults()).thenReturn(mockSource2Results);
 
         Source mockSource2 = mock(Source.class);
@@ -478,7 +491,8 @@ public class FederationStrategyTest {
         sources.add(mockSource2);
 
         SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR,
-                new ArrayList<PreFederatedQueryPlugin>(), new ArrayList<PostFederatedQueryPlugin>());
+                new ArrayList<PreFederatedQueryPlugin>(),
+                new ArrayList<PostFederatedQueryPlugin>());
 
         // Run Test
         QueryResponse federatedResponse = strategy.federate(sources, queryRequest);
@@ -531,7 +545,7 @@ public class FederationStrategyTest {
      * Verify that the original query passed into {@link
      * ddf.catalog.federation.AbstractFederationStrategy#federate(List<Source>, QueryRequest)} is
      * used by the source.
-     * 
+     *
      * No special results handling done by OffsetResultsHandler.
      */
     @Test
@@ -568,7 +582,8 @@ public class FederationStrategyTest {
         sources.add(mockSource1);
 
         SortedFederationStrategy strategy = new SortedFederationStrategy(EXECUTOR,
-                new ArrayList<PreFederatedQueryPlugin>(), new ArrayList<PostFederatedQueryPlugin>());
+                new ArrayList<PreFederatedQueryPlugin>(),
+                new ArrayList<PostFederatedQueryPlugin>());
 
         // Run Test
         QueryResponse federatedResponse = strategy.federate(sources, queryRequest);
