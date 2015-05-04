@@ -153,9 +153,14 @@
 
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.checkstyle.version>2.3.1-SNAPSHOT</ddf.support.checkstyle.version>
+        <ddf.support.version>2.3.1-SNAPSHOT</ddf.support.version>
 
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Properties for the frontend-maven-plugin -->
+        <node.version>v0.10.30</node.version>
+        <npm.version>1.4.12</npm.version>
     </properties>
 
     <!--
@@ -495,6 +500,17 @@
                 <configuration>
                     <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
                     <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <effort>Max</effort>
+                    <threshold>Low</threshold>
+                    <xmlOutput>true</xmlOutput>
+                    <xmlOutputDirectory>${project.build.directory}/findbugs</xmlOutputDirectory>
                 </configuration>
             </plugin>
         </plugins>
@@ -854,6 +870,65 @@
             <properties>
                 <ddf.site.repo>dav:http://artifacts.codice.org/content/sites/ddf-site/</ddf.site.repo>
             </properties>
+        </profile>
+
+        <profile>
+            <id>findbugs</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>env</name>
+                    <value>ci</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-findbugs</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>ddf.support</groupId>
+                                            <artifactId>support-findbugs</artifactId>
+                                            <version>${ddf.support.version}</version>
+                                            <type>jar</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.build.directory}/target/classes/</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <excludes>META-INF</excludes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <configuration>
+                            <excludeFilterFile>${project.build.directory}/target/classes/findbugs-exclude.xml</excludeFilterFile>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>generate-findbugs</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>findbugs</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <profile>
