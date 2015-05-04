@@ -37,7 +37,7 @@ The endpoint may transform a client request into a compatible Catalog format an
 
 Endpoints are meant to be the only client-accessible components in the Catalog.
 
-[ditaa, endpoint_architecture, png, width=500]
+[ditaa, endpoint_architecture, png, ${image-width}]
 ....
 +------------------------------------------------------------+
 |                /-=-----------------\                       |
@@ -658,7 +658,7 @@ Metadata can be converted from one data format to another format.  Only the dat
 
 == Integrating Catalog Framework
 
-[ditaa, catalog_framework_architecture, png, width=500]
+[ditaa, catalog_framework_architecture, png, ${image-width}]
 ....
 +------------------------------------------------------------+
 |                /-------------------\                       |
@@ -786,7 +786,7 @@ The Schematron ruleset bundle consists of three required items:
 * An OSGi metatype XML file that specifies the configurable options for the Schematron Validation Service (namely the suppress warnings option)
 
 The diagram below illustrates how these Schematron components interact:
-[ditaa, schematron_diagram,png,width=500]
+[ditaa, schematron_diagram,png,${image-width}]
 ....
 | Schematron Validation Service OSGi Bundle
                                           |
