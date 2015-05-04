@@ -14,32 +14,13 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
-import org.codice.ddf.ui.searchui.query.actions.ActionRegistryImpl;
-import org.codice.ddf.ui.searchui.query.model.Search;
-import org.codice.ddf.ui.searchui.query.model.SearchRequest;
-import org.cometd.bayeux.server.BayeuxServer;
-import org.cometd.bayeux.server.ServerChannel;
-import org.cometd.bayeux.server.ServerMessage;
-import org.cometd.bayeux.server.ServerSession;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.IsNull.nullValue;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -96,6 +77,8 @@ import ddf.catalog.source.UnsupportedQueryException;
  */
 public class SearchControllerTest {
     private SearchController searchController;
+    
+    private CatalogFramework framework;
 
     // NOTE: The ServerSession ID == The ClientSession ID
     private static final String MOCK_SESSION_ID = "1234-5678-9012-3456";
@@ -108,8 +91,15 @@ public class SearchControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        searchController = new SearchController(createFramework(), new ActionRegistryImpl(
-                Collections.<ActionProvider> emptyList()));
+        framework = createFramework();
+        
+        searchController = new SearchController(framework, new ActionRegistryImpl(
+                Collections.<ActionProvider> emptyList())) {
+            @Override
+            ExecutorService getExecutorService() {
+                return new SequentialExectorService();
+            }
+        };
 
         mockServerSession = mock(ServerSession.class);
 
@@ -132,7 +122,6 @@ public class SearchControllerTest {
 
         SearchRequest request = new SearchRequest(srcIds, mock(Query.class), ID);
 
-        searchController.setExecutorService(new SequentialExectorService());
         searchController.setBayeuxServer(bayeuxServer);
         // Disable Cache
         searchController.setCacheDisabled(true);
@@ -160,7 +149,6 @@ public class SearchControllerTest {
 
         SearchRequest request = new SearchRequest(srcIds, mock(Query.class), ID);
 
-        searchController.setExecutorService(new SequentialExectorService());
         searchController.setBayeuxServer(bayeuxServer);
         // Disable Cache
         searchController.setCacheDisabled(false);
@@ -182,20 +170,15 @@ public class SearchControllerTest {
         final String ID = "id";
         Set<String> srcIds = new HashSet<>(1);
         srcIds.add(ID);
-        CatalogFramework framework = createFramework();
         SearchRequest request = new SearchRequest(srcIds, mock(Query.class), ID);
         BayeuxServer bayeuxServer = mock(BayeuxServer.class);
         ServerChannel channel = mock(ServerChannel.class);
         when(bayeuxServer.getChannel(any(String.class))).thenReturn(channel);
         ArgumentCaptor<QueryRequest> queryRequestCaptor = ArgumentCaptor
                 .forClass(QueryRequest.class);
-        
-        SearchController searchController = new SearchController(framework, new ActionRegistryImpl(
-                Collections.<ActionProvider> emptyList()));
         // Disable Cache
         searchController.setCacheDisabled(false);
         searchController.setBayeuxServer(bayeuxServer);
-        searchController.setExecutorService(new SequentialExectorService());
 
         // Perform Test
         searchController.executeQuery(request, mockServerSession, null);
@@ -224,19 +207,14 @@ public class SearchControllerTest {
         final String ID = "id";
         Set<String> srcIds = new HashSet<>(1);
         srcIds.add(ID);
-        CatalogFramework framework = createFramework();
         SearchRequest request = new SearchRequest(srcIds, mock(Query.class), ID);
         BayeuxServer bayeuxServer = mock(BayeuxServer.class);
         ServerChannel channel = mock(ServerChannel.class);
         when(bayeuxServer.getChannel(any(String.class))).thenReturn(channel);
         ArgumentCaptor<QueryRequest> queryRequestCaptor = ArgumentCaptor.forClass(QueryRequest.class);
-        
-        SearchController searchController = new SearchController(framework, new ActionRegistryImpl(
-                Collections.<ActionProvider> emptyList()));
         // Enable Cache
         searchController.setCacheDisabled(true);
         searchController.setBayeuxServer(bayeuxServer);
-        searchController.setExecutorService(new SequentialExectorService());
 
         // Perform Test
         searchController.executeQuery(request, mockServerSession, null);
@@ -252,12 +230,14 @@ public class SearchControllerTest {
             assertThat(reply.get(Search.METACARD_TYPES), is(not(nullValue())));
             assertThat(reply.get(Search.METACARD_TYPES), instanceOf(Map.class));
 
-            Map<String, Object> types = (Map) reply.get(Search.METACARD_TYPES);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> types = (Map<String, Object>) reply.get(Search.METACARD_TYPES);
 
             assertThat(types.get("ddf.metacard"), is(not(nullValue())));
             assertThat(types.get("ddf.metacard"), instanceOf(Map.class));
 
-            Map<String, String> typeInfo = (Map) types.get("ddf.metacard");
+            @SuppressWarnings("unchecked")
+            Map<String, String> typeInfo = (Map<String, String>) types.get("ddf.metacard");
 
             assertThat(typeInfo.get("effective"), is("DATE"));
             assertThat(typeInfo.get("modified"), is("DATE"));
@@ -269,7 +249,8 @@ public class SearchControllerTest {
             assertThat(typeInfo.get("metadata-content-type-version"), is("STRING"));
             assertThat(typeInfo.get("metadata-target-namespace"), is("STRING"));
             assertThat(typeInfo.get("resource-uri"), is("STRING"));
-            assertThat(typeInfo.get("resource-size"), is("STRING"));
+            // since resource-size is not indexed, it should be filtered out
+            assertNull(typeInfo.get("resource-size"));
             assertThat(typeInfo.get("metadata"), is("XML"));
             assertThat(typeInfo.get("location"), is("GEOMETRY"));
         }

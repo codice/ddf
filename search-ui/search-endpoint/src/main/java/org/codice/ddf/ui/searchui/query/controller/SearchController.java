@@ -102,7 +102,7 @@ public class SearchController {
                 }
             });
 
-    private ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ExecutorService executorService = getExecutorService();
 
     private Boolean cacheDisabled = false;
 
@@ -552,8 +552,8 @@ public class SearchController {
         this.cacheDisabled = cacheDisabled;
     }
     
-    // Used only for unit testing
-    void setExecutorService(ExecutorService execService) {
-        executorService = execService;
+    // Override for unit testing
+    ExecutorService getExecutorService() {
+        return Executors.newCachedThreadPool();
     }
 }
