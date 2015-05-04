@@ -14,9 +14,42 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+
+import org.apache.commons.collections.map.LRUMap;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.ui.searchui.query.model.QueryStatus;
+import org.codice.ddf.ui.searchui.query.model.Search;
+import org.codice.ddf.ui.searchui.query.model.SearchRequest;
+import org.cometd.bayeux.server.BayeuxServer;
+import org.cometd.bayeux.server.ConfigurableServerChannel;
+import org.cometd.bayeux.server.ServerMessage;
+import org.cometd.bayeux.server.ServerSession;
+import org.cometd.server.ServerMessageImpl;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Ordering;
+
 import ddf.action.Action;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
@@ -42,45 +75,6 @@ import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.TemporalResultComparator;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import org.apache.commons.collections.map.LRUMap;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.ui.searchui.query.model.QueryStatus;
-import org.codice.ddf.ui.searchui.query.model.Search;
-import org.codice.ddf.ui.searchui.query.model.SearchRequest;
-import org.cometd.bayeux.server.BayeuxServer;
-import org.cometd.bayeux.server.ConfigurableServerChannel;
-import org.cometd.bayeux.server.ServerMessage;
-import org.cometd.bayeux.server.ServerSession;
-import org.cometd.server.ServerMessageImpl;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TimeZone;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * The SearchController class handles all of the query threads for asynchronous queries.
@@ -91,8 +85,24 @@ public class SearchController {
 
     private static final DateTimeFormatter ISO_8601_DATE_FORMAT = DateTimeFormat
             .forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").withZoneUTC();
+    
+    @SuppressWarnings("serial")
+    private static final Map<String, Serializable> INDEX_PROPERTIES = Collections
+            .unmodifiableMap(new HashMap<String, Serializable>() {
+                {
+                    put("mode", "index");
+                }
+            });
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    @SuppressWarnings("serial")
+    private static final Map<String, Serializable> CACHE_PROPERTIES = Collections
+            .unmodifiableMap(new HashMap<String, Serializable>() {
+                {
+                    put("mode", "cache");
+                }
+            });
+
+    private final ExecutorService executorService = getExecutorService();
 
     private Boolean cacheDisabled = false;
 
@@ -173,12 +183,10 @@ public class SearchController {
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    Map<String, Serializable> properties = new HashMap<String, Serializable>();
                     // check if there are any currently cached results
-                    properties.put("mode", "cache");
                     // search cache for all sources
                     QueryResponse response = executeQuery(null, request,
-                            subject, properties);
+                            subject, CACHE_PROPERTIES);
 
                     try {
                         Search search = addQueryResponseToSearch(request, response);
@@ -198,16 +206,13 @@ public class SearchController {
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
-                        Map<String, Serializable> properties = new HashMap<String, Serializable>();
                         // update index from federated sources
-                        properties.put("mode", "index");
                         QueryResponse indexResponse = executeQuery(sourceId, request,
-                                subject, properties);
+                                subject, INDEX_PROPERTIES);
 
                         // query updated cache
-                        properties.put("mode", "cache");
                         QueryResponse cachedResponse = executeQuery(null, request,
-                                subject, properties);
+                                subject, CACHE_PROPERTIES);
 
                         try {
                             Search search = addQueryResponseToSearch(request, cachedResponse);
@@ -545,5 +550,10 @@ public class SearchController {
 
     public void setCacheDisabled(Boolean cacheDisabled) {
         this.cacheDisabled = cacheDisabled;
+    }
+    
+    // Override for unit testing
+    ExecutorService getExecutorService() {
+        return Executors.newCachedThreadPool();
     }
 }
