@@ -223,7 +223,7 @@
                         <dependency>
                             <groupId>ddf</groupId>
                             <artifactId>support-pmd</artifactId>
-                            <version>3.0.1-SNAPSHOT</version>
+                            <version>${project.version} </version>
                         </dependency>
                     </dependencies>
                     <configuration>
