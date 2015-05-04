@@ -18,6 +18,7 @@
         These rules check the security guidelines from Sun, published at
         http://java.sun.com/security/seccodeguide.html#gcg
     </description>
+    <exclude-pattern>.*/target/.*</exclude-pattern>
 
     <rule name="MethodReturnsInternalArray"
           since="2.2"

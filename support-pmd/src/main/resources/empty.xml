@@ -18,6 +18,7 @@
         The Empty Code ruleset contains rules that find empty statements of any kind (empty method,
         empty block statement, empty try or catch block,...).
     </description>
+    <exclude-pattern>.*/target/.*</exclude-pattern>
 
     <rule name="EmptyCatchBlock"
           language="java"
