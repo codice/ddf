@@ -19,6 +19,7 @@
 
     <groupId>ddf</groupId>
     <artifactId>ddf-parent</artifactId>
+    <!-- Must MANUALLY maven pmd plugin's support-pmd dependency version if this changes -->
     <version>3.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DDF Parent</name>
@@ -228,7 +229,8 @@
                         <dependency>
                             <groupId>ddf</groupId>
                             <artifactId>support-pmd</artifactId>
-                            <version>${project.version} </version>
+                            <!-- Must MANUALLY be updated if ddf-parent version changes -->
+                            <version>3.0.1-SNAPSHOT</version>
                         </dependency>
                     </dependencies>
                     <configuration>
