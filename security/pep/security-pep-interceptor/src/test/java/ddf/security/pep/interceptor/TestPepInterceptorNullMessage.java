@@ -14,11 +14,7 @@
  **/
 package ddf.security.pep.interceptor;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import org.apache.cxf.interceptor.security.AccessDeniedException;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
