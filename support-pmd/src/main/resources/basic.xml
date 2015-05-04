@@ -17,6 +17,7 @@
     <description>
         The Basic ruleset contains a collection of good practices which should be followed.
     </description>
+    <exclude-pattern>.*/target/.*</exclude-pattern>
 
     <rule name="JumbledIncrementer"
           language="java"

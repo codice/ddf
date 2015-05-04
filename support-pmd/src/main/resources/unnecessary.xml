@@ -17,6 +17,7 @@
     <description>
         The Unnecessary Ruleset contains a collection of rules for unnecessary code.
     </description>
+    <exclude-pattern>.*/target/.*</exclude-pattern>
 
 
     <rule name="UnnecessaryConversionTemporary"
