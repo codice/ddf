@@ -758,8 +758,14 @@
                                                 <includes>
                                                     <include>**/*.adoc</include>
                                                 </includes>
+                                                <excludes>
+                                                    <exclude>**/*.png</exclude>
+                                                    <exclude>**/*.jpg</exclude>
+                                                </excludes>
+
                                             </resource>
                                         </resources>
+                                        <image-width>500</image-width>
                                     </configuration>
                                 </execution>
                             </executions>
