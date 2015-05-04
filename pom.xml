@@ -19,6 +19,7 @@
 
     <groupId>ddf</groupId>
     <artifactId>ddf-parent</artifactId>
+    <!-- Must MANUALLY maven pmd plugin's support-pmd dependency version if this changes -->
     <version>3.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DDF Parent</name>
@@ -213,6 +214,48 @@
                         <fork>${compiler.fork}</fork>
                         <encoding>${project.build.sourceEncoding}</encoding>
                     </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <version>3.4</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>ddf</groupId>
+                            <artifactId>support-pmd</artifactId>
+                            <!-- Must MANUALLY be updated if ddf-parent version changes -->
+                            <version>3.0.1-SNAPSHOT</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <rulesets>
+                            <ruleset>
+                                basic.xml
+                            </ruleset>
+                            <ruleset>
+                                empty.xml
+                            </ruleset>
+                            <ruleset>
+                                sunsecure.xml
+                            </ruleset>
+                            <ruleset>
+                                unnecessary.xml
+                            </ruleset>
+                        </rulesets>
+                        <failOnViolation>
+                            false
+                        </failOnViolation>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>
+                                    check
+                                </goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
 
                 <plugin>
