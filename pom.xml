@@ -152,7 +152,6 @@
         <snapshots.repository.url/>
 
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
-        <ddf.support.checkstyle.version>2.3.1-SNAPSHOT</ddf.support.checkstyle.version>
         <ddf.support.version>2.3.1-SNAPSHOT</ddf.support.version>
 
         <!-- Do NOT set karaf.data or karaf.base -->
