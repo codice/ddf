@@ -186,7 +186,7 @@ public class SearchController {
                     // check if there are any currently cached results
                     // search cache for all sources
                     QueryResponse response = executeQuery(null, request,
-                            subject, CACHE_PROPERTIES);
+                            subject, new HashMap<>(CACHE_PROPERTIES));
 
                     try {
                         Search search = addQueryResponseToSearch(request, response);
@@ -208,11 +208,11 @@ public class SearchController {
                     public void run() {
                         // update index from federated sources
                         QueryResponse indexResponse = executeQuery(sourceId, request,
-                                subject, INDEX_PROPERTIES);
+                                subject, new HashMap<>(INDEX_PROPERTIES));
 
                         // query updated cache
                         QueryResponse cachedResponse = executeQuery(null, request,
-                                subject, CACHE_PROPERTIES);
+                                subject, new HashMap<>(CACHE_PROPERTIES));
 
                         try {
                             Search search = addQueryResponseToSearch(request, cachedResponse);
