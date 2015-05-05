@@ -867,6 +867,7 @@
                         <version>1.2.9</version>
                         <configuration>
                             <failBuildOnCVSS>8</failBuildOnCVSS>
+                            <format>ALL</format>
                         </configuration>
                         <executions>
                             <execution>
