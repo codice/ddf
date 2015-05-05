@@ -1114,4 +1114,8 @@
             <url>http://artifacts.codice.org/content/groups/public/</url>
         </pluginRepository>
     </pluginRepositories>
+
+    <modules>
+            <module>support-pmd</module>
+    </modules>
 </project>
