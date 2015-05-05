@@ -476,6 +476,10 @@ table.metacard-table {
     cursor: default;
 }
 
+.bootstrap-select.btn-group .dropdown-menu li.disabled a span.text {
+    color: #adafae;
+}
+
 .disabled:hover {
     color: #adafae;
 }
