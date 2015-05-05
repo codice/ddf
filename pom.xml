@@ -19,7 +19,6 @@
 
     <groupId>ddf</groupId>
     <artifactId>ddf-parent</artifactId>
-    <!-- Must MANUALLY maven pmd plugin's support-pmd dependency version if this changes -->
     <version>3.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DDF Parent</name>
@@ -155,6 +154,9 @@
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.version>2.3.1-SNAPSHOT</ddf.support.version>
 
+        <!-- Must MANUALLY update this if the ddf/support-pmd project's version changes -->
+        <ddf.support.pmd.version>3.0.1-SNAPSHOT</ddf.support.pmd.version>
+
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -221,15 +223,13 @@
                 </plugin>
 
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-pmd-plugin</artifactId>
                     <version>3.4</version>
                     <dependencies>
                         <dependency>
                             <groupId>ddf</groupId>
                             <artifactId>support-pmd</artifactId>
-                            <!-- Must MANUALLY be updated if ddf-parent version changes -->
-                            <version>3.0.1-SNAPSHOT</version>
+                            <version>${ddf.support.pmd.version}</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -595,6 +595,19 @@
     </reporting>
 
     <profiles>
+        <profile>
+            <id>pmd</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-pmd-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>bundleSource</id>
             <build>
