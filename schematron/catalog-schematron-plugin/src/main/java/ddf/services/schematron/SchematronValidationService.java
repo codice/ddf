@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 
 package ddf.services.schematron;
 
@@ -34,10 +33,6 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 
-import net.sf.saxon.Configuration;
-import net.sf.saxon.TransformerFactoryImpl;
-import net.sf.saxon.trans.DynamicLoader;
-
 import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -47,6 +42,9 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.ValidationException;
+import net.sf.saxon.Configuration;
+import net.sf.saxon.TransformerFactoryImpl;
+import net.sf.saxon.trans.DynamicLoader;
 
 /**
  * This pre-ingest service provides validation of an ingested XML document against a Schematron
@@ -142,7 +140,7 @@ public class SchematronValidationService implements MetacardValidator {
      * @throws SchematronInitializationException
      */
     public SchematronValidationService(final Bundle bundle, String schematronSchemaFilename)
-        throws SchematronInitializationException {
+            throws SchematronInitializationException {
         this(bundle, schematronSchemaFilename, false);
     }
 
@@ -187,8 +185,9 @@ public class SchematronValidationService implements MetacardValidator {
      *
      * @throws SchematronInitializationException
      */
-    public SchematronValidationService(final Bundle bundle, String schematronSchemaFilename, String bundleBaseDir,
-            boolean suppressWarnings) throws SchematronInitializationException {
+    public SchematronValidationService(final Bundle bundle, String schematronSchemaFilename,
+            String bundleBaseDir, boolean suppressWarnings)
+            throws SchematronInitializationException {
         String methodName = "constructor";
         LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
         LOGGER.debug("schematronSchemaFilename = {}", schematronSchemaFilename);
@@ -203,6 +202,7 @@ public class SchematronValidationService implements MetacardValidator {
 
         LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
     }
+
     /**
      * @param bundle
      *            OSGi bundle containing sch file that will be using this service
@@ -211,15 +211,15 @@ public class SchematronValidationService implements MetacardValidator {
      * @throws SchematronInitializationException
      */
     private void init(final Bundle bundle, String schematronSchemaFilename)
-        throws SchematronInitializationException {
+            throws SchematronInitializationException {
         String methodName = "init";
         LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
 
         // Initialize TransformerFactory if not already done
         if (transformerFactory == null) {
-            transformerFactory = TransformerFactory.newInstance(
-                    net.sf.saxon.TransformerFactoryImpl.class.getName(),
-                    SchematronValidationService.class.getClassLoader());
+            transformerFactory = TransformerFactory
+                    .newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
+                            SchematronValidationService.class.getClassLoader());
         }
 
         // Build the URI resolver to resolve any address for those who call base XSLTs from
@@ -340,8 +340,8 @@ public class SchematronValidationService implements MetacardValidator {
      * @throws ParserConfigurationException
      */
     private DOMResult performStage(final Bundle bundle, Source input, String preprocessorFilename)
-        throws TransformerException, TransformerConfigurationException,
-        ParserConfigurationException, SchematronInitializationException {
+            throws TransformerException, TransformerConfigurationException,
+            ParserConfigurationException, SchematronInitializationException {
         String methodName = "performStage";
         LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
         LOGGER.debug("preprocessorFilename = {}", preprocessorFilename);
@@ -349,10 +349,11 @@ public class SchematronValidationService implements MetacardValidator {
         // Retrieve the preprocessor XSL file
         URL preprocessorUrl = bundle.getResource(preprocessorFilename);
         if (preprocessorUrl == null) {
-            LOGGER.debug("preprocessorUrl is NULL - cannot perform staging of Schematron preprocessor file");
-            throw new SchematronInitializationException("preprocessorUrl is NULL for file "
-                    + preprocessorFilename
-                    + " - cannot perform staging of Schematron preprocessor file");
+            LOGGER.debug(
+                    "preprocessorUrl is NULL - cannot perform staging of Schematron preprocessor file");
+            throw new SchematronInitializationException(
+                    "preprocessorUrl is NULL for file " + preprocessorFilename
+                            + " - cannot perform staging of Schematron preprocessor file");
         } else {
             LOGGER.debug("URL = {}", preprocessorUrl.toString());
         }
@@ -391,7 +392,7 @@ public class SchematronValidationService implements MetacardValidator {
      * @throws StopProcessingException
      */
     public void performSchematronValidation(int catalogEntryNum, Metacard catalogEntry)
-        throws StopProcessingException {
+            throws StopProcessingException {
         String methodName = "performSchematronValidation";
         LOGGER.debug("ENTERING: {}.{}", CLASS_NAME, methodName);
 
@@ -483,7 +484,8 @@ public class SchematronValidationService implements MetacardValidator {
      */
     public void setSuppressWarnings(boolean suppressWarnings) {
         LOGGER.debug("ENTERING: setSuppressWarnings");
-        LOGGER.debug("suppressWarnings = {} (sch filename = {})", suppressWarnings, this.schematronSchemaFilename);
+        LOGGER.debug("suppressWarnings = {} (sch filename = {})", suppressWarnings,
+                this.schematronSchemaFilename);
 
         this.suppressWarnings = suppressWarnings;
 
@@ -516,10 +518,11 @@ public class SchematronValidationService implements MetacardValidator {
         this.priority = priority;
 
         // Bound priority to be between 1 and 100 (inclusive)
-        if (this.priority > 100)
+        if (this.priority > 100) {
             this.priority = 100;
-        else if (this.priority < 1)
+        } else if (this.priority < 1) {
             this.priority = 1;
+        }
 
         LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
     }
@@ -549,19 +552,22 @@ public class SchematronValidationService implements MetacardValidator {
 
         @Override
         public void warning(TransformerException e) throws TransformerException {
-            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(), this.schematronSchemaFilename);
+            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(),
+                    this.schematronSchemaFilename);
             LOGGER.debug("Saxon exception", e);
         }
 
         @Override
         public void error(TransformerException e) throws TransformerException {
-            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(), this.schematronSchemaFilename);
+            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(),
+                    this.schematronSchemaFilename);
             LOGGER.debug("Saxon exception", e);
         }
 
         @Override
         public void fatalError(TransformerException e) throws TransformerException {
-            LOGGER.error("Transformer error: (Schematron file = {}):", this.schematronSchemaFilename, e);
+            LOGGER.error("Transformer error: (Schematron file = {}):",
+                    this.schematronSchemaFilename, e);
         }
     }
 
