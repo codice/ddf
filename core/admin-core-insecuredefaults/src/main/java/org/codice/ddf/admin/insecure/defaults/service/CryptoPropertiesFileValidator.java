@@ -27,20 +27,42 @@ public abstract class CryptoPropertiesFileValidator extends PropertiesFileValida
     private static final Logger LOGGER = LoggerFactory
             .getLogger(CryptoPropertiesFileValidator.class);
 
-    private static final String KEYSTORE_PASSWORD_PROPERTY = "org.apache.ws.security.crypto.merlin.keystore.password";
-
-    private static final String KEYSTORE_ALIAS_PROPERTY = "org.apache.ws.security.crypto.merlin.keystore.alias";
-
     private String defaultPassword;
 
     private String defaultAlias;
+    
+    protected String defaultPrivateKeyPassword;
 
-    public void setDefaultPassword(String passwd) {
-        this.defaultPassword = passwd;
+    static final String KEYSTORE_PASSWORD_PROPERTY = "org.apache.ws.security.crypto.merlin.keystore.password";
+
+    static final String KEYSTORE_ALIAS_PROPERTY = "org.apache.ws.security.crypto.merlin.keystore.alias";
+    
+    static final String PRIVATE_KEY_PASSWORD_PROPERTY = "org.apache.ws.security.crypto.merlin.keystore.private.password";
+
+    static final String DEFAULT_KEYSTORE_PRIVATE_PASSWORD_USED_MSG = "The property [%s] in [%s] is set to the default keystore private password of [%s].";
+
+    static final String DEFAULT_KEYSTORE_ALIAS_USED_MSG = "The property [%s] in [%s] is set to the default keystore alias of [%s].";
+
+    static final String DEFAULT_KEYSTORE_PASSWORD_USED_MSG = "The property [%s] in [%s] is set to the default keystore password of [%s].";
+
+    static final String NO_DEFAULT_PASSWORD_PROVIDED_TO_VALIDATOR_MSG = "Unable to determine if [%s] is using a default keystore password. No default password provided to the validator.";
+
+    static final String COULD_NOT_FIND_PASSWORD_IN_PROPS_FILE_MSG = "Unable to determine if [%s] is using a default keystore password. Could not find password in [%s].";
+
+    static final String COULD_NOT_FIND_ALIAS_IN_PROPS_FILE_MSG = "Unable to determine if [%s] is using a default keystore alias. Could not find keystore alias in [%s]";
+
+    static final String NO_DEFAULT_ALIAS_PROVIDED_TO_VALIDATOR_MSG = "Unable to determine if [%s] is using a default keystore alias. No default keystore alias provided to the validator.";
+
+    public void setDefaultPassword(String password) {
+        this.defaultPassword = password;
     }
 
     public void setDefaultAlias(String alias) {
         this.defaultAlias = alias;
+    }
+    
+    public void setDefaultPrivateKeyPassword(String password) {
+        this.defaultPrivateKeyPassword = password;
     }
 
     public abstract List<Alert> validate();
@@ -49,23 +71,19 @@ public abstract class CryptoPropertiesFileValidator extends PropertiesFileValida
         String password = properties.getProperty(KEYSTORE_PASSWORD_PROPERTY);
 
         if (StringUtils.isBlank(defaultPassword)) {
-            alerts.add(new Alert(
-                    Level.WARN,
-                    "Unable to determine if ["
-                            + path.toString()
-                            + "] is using a default keystore password. No default password provided to the validator."));
+            alerts.add(new Alert(Level.WARN, String.format(
+                    NO_DEFAULT_PASSWORD_PROVIDED_TO_VALIDATOR_MSG, path)));
+
         }
 
         if (StringUtils.isBlank(password)) {
-            alerts.add(new Alert(Level.WARN, "Unable to determine if [" + path.toString()
-                    + "] is using a default password. Could not find password in ["
-                    + path.toString() + "]."));
+            alerts.add(new Alert(Level.WARN, String.format(
+                    COULD_NOT_FIND_PASSWORD_IN_PROPS_FILE_MSG, path.toString(), path)));
         }
 
         if (StringUtils.equals(password, defaultPassword)) {
-            alerts.add(new Alert(Level.WARN, "The property [" + KEYSTORE_PASSWORD_PROPERTY
-                    + "] in [" + path.toString() + "] is set to the default keystore password of ["
-                    + defaultPassword + "]."));
+            alerts.add(new Alert(Level.WARN, String.format(DEFAULT_KEYSTORE_PASSWORD_USED_MSG,
+                    KEYSTORE_PASSWORD_PROPERTY, path, defaultPassword)));
         }
     }
 
@@ -73,23 +91,20 @@ public abstract class CryptoPropertiesFileValidator extends PropertiesFileValida
         String alias = properties.getProperty(KEYSTORE_ALIAS_PROPERTY);
 
         if (StringUtils.isBlank(defaultAlias)) {
-            alerts.add(new Alert(
-                    Level.WARN,
-                    "Unable to determine if ["
-                            + path.toString()
-                            + "] is using a default keystore alias. No default keystore alias provided to the validator."));
+            alerts.add(new Alert(Level.WARN, String.format(
+                    NO_DEFAULT_ALIAS_PROVIDED_TO_VALIDATOR_MSG, path)));
         }
 
         if (StringUtils.isBlank(alias)) {
-            alerts.add(new Alert(Level.WARN, "Unable to determine if [" + path.toString()
-                    + "] is using a default keystore alias. Could not find keystore alias in ["
-                    + path.toString() + "]."));
+            alerts.add(new Alert(Level.WARN, String.format(COULD_NOT_FIND_ALIAS_IN_PROPS_FILE_MSG,
+                    path.toString(), path)));
         }
 
         if (StringUtils.equals(alias, defaultAlias)) {
-            alerts.add(new Alert(Level.WARN, "The property [" + KEYSTORE_ALIAS_PROPERTY + "] in ["
-                    + path.toString() + "] is set to the default keystore alias of ["
-                    + defaultAlias + "]."));
+            alerts.add(new Alert(Level.WARN, String.format(DEFAULT_KEYSTORE_ALIAS_USED_MSG,
+                    KEYSTORE_ALIAS_PROPERTY, path, defaultAlias)));
         }
     }
+    
+    protected abstract void validatePrivateKeyPassword(Properties properties);
 }

@@ -17,6 +17,8 @@ package org.codice.ddf.admin.insecure.defaults.service;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.admin.insecure.defaults.service.Alert.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +33,7 @@ public class EncryptionPropertiesFileValidator extends CryptoPropertiesFileValid
 
         if (properties != null && properties.size() > 0) {
             validateKeystorePassword(properties);
+            validatePrivateKeyPassword(properties);
             validateAlias(properties);
         }
         
@@ -39,5 +42,19 @@ public class EncryptionPropertiesFileValidator extends CryptoPropertiesFileValid
         }
 
         return alerts;
+    }
+    
+    protected void validatePrivateKeyPassword(Properties properties) {
+
+        String privateKeyPassword = properties.getProperty(PRIVATE_KEY_PASSWORD_PROPERTY);
+
+        if (StringUtils.isNotBlank(privateKeyPassword)
+                && StringUtils.isNotBlank(defaultPrivateKeyPassword)
+                && StringUtils.equals(privateKeyPassword, defaultPrivateKeyPassword)) {
+            alerts.add(new Alert(Level.WARN, String.format(
+                    DEFAULT_KEYSTORE_PRIVATE_PASSWORD_USED_MSG, PRIVATE_KEY_PASSWORD_PROPERTY,
+                    path, defaultPrivateKeyPassword)));
+        }
+
     }
 }

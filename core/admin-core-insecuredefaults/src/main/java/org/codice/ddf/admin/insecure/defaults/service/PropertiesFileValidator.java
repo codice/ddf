@@ -33,6 +33,8 @@ public abstract class PropertiesFileValidator implements Validator {
     protected Path path;
 
     protected List<Alert> alerts;
+    
+    protected static final String GENERIC_INSECURE_DEFAULTS_MSG = "Unable to determine if [%s] is using insecure defaults. ";
 
     public PropertiesFileValidator() {
         alerts = new ArrayList<>();
@@ -51,8 +53,7 @@ public abstract class PropertiesFileValidator implements Validator {
         try (FileInputStream fis = new FileInputStream(file)) {
             properties.load(fis);
         } catch (IOException e) {
-            String msg = "Unable to determine if [" + path.toString()
-                    + "] is using insecure defaults. ";
+            String msg = String.format(GENERIC_INSECURE_DEFAULTS_MSG, path.toString());
             LOGGER.warn(msg, e);
             alerts.add(new Alert(Level.WARN, msg + e.getMessage()));
         }

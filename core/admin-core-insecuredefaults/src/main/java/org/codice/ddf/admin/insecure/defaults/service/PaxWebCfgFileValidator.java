@@ -26,7 +26,9 @@ public class PaxWebCfgFileValidator extends PropertiesFileValidator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaxWebCfgFileValidator.class);
 
-    private static final String HTTP_ENABLED_PROPERTY = "org.osgi.service.http.enabled";
+    static final String HTTP_ENABLED_PROPERTY = "org.osgi.service.http.enabled";
+
+    static final String HTTP_ENABLED_MSG = "The property [%s] is set to [true] in file [%s]. This enables HTTP.";
 
     @Override
     public List<Alert> validate() {
@@ -40,7 +42,7 @@ public class PaxWebCfgFileValidator extends PropertiesFileValidator {
         for (Alert alert : alerts) {
             LOGGER.debug("Alert: {}, {}", alert.getLevel(), alert.getMessage());
         }
-        
+
         return alerts;
     }
 
@@ -48,8 +50,8 @@ public class PaxWebCfgFileValidator extends PropertiesFileValidator {
         String enabled = properties.getProperty(HTTP_ENABLED_PROPERTY);
 
         if (StringUtils.equalsIgnoreCase(enabled, "true")) {
-            alerts.add(new Alert(Level.WARN, "Property [" + HTTP_ENABLED_PROPERTY
-                    + "] is set to [true] in file [" + path.toString() + "]. This enables HTTP."));
+            alerts.add(new Alert(Level.WARN, String.format(HTTP_ENABLED_MSG, HTTP_ENABLED_PROPERTY,
+                    path)));
         }
     }
 }

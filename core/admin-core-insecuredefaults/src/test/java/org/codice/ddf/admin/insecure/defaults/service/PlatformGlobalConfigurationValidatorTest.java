@@ -53,8 +53,9 @@ public class PlatformGlobalConfigurationValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getMessage(),
-                is("The [protocol] in Platform Global Configuration is set to [http]."));
+        assertThat(alerts.get(0).getMessage(), is(String.format(
+                PlatformGlobalConfigurationValidator.PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP,
+                PROTOCOL_PROPERTY)));
     }
 
     @Test
@@ -74,5 +75,4 @@ public class PlatformGlobalConfigurationValidatorTest {
         // Verify
         assertThat(alerts.size(), is(0));
     }
-
 }

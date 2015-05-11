@@ -23,10 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UsersPropertiesFileValidator extends PropertiesFileValidator {
-    
+
     private static final Logger LOGGER = LoggerFactory
             .getLogger(UsersPropertiesFileValidator.class);
-    
+
     private String defaultAdminUser;
 
     private String defaultAdminUserPassword;
@@ -35,20 +35,28 @@ public class UsersPropertiesFileValidator extends PropertiesFileValidator {
 
     private String defaultCertificateUserPassword;
 
+    static final String DEFAULT_CERT_USER_USED_MSG = "The default certificate user of [%s] was found in [%s].";
+
+    static final String DEFAULT_CERT_USER_IS_USING_DEFAULT_PASSWORD_MSG = "The default certificate user of [%s] was found in [%s] with default password of [%s].";
+
+    static final String DEFAULT_ADMIN_USER_IS_USING_DEFAULT_PASSWORD_MSG = "The default admin user of [%s] was found in [%s] with default password of [%s].";
+
+    static final String CANNOT_PARSE_PASSWORD_MSG = "Unable to determine if [%s] is using insecure defaults. Cannot parse password from [%s].";
+
     public void setDefaultAdminUser(String user) {
         this.defaultAdminUser = user;
     }
 
-    public void setDefaultAdminUserPassword(String passwd) {
-        this.defaultAdminUserPassword = passwd;
+    public void setDefaultAdminUserPassword(String password) {
+        this.defaultAdminUserPassword = password;
     }
 
     public void setDefaultCertificateUser(String user) {
         this.defaultCertificateUser = user;
     }
 
-    public void setDefaultCertificateUserPassword(String passwd) {
-        this.defaultCertificateUserPassword = passwd;
+    public void setDefaultCertificateUserPassword(String password) {
+        this.defaultCertificateUserPassword = password;
     }
 
     @Override
@@ -60,11 +68,11 @@ public class UsersPropertiesFileValidator extends PropertiesFileValidator {
             validateAdminUser(properties);
             validateCertificateUser(properties);
         }
-        
+
         for (Alert alert : alerts) {
             LOGGER.debug("Alert: {}, {}", alert.getLevel(), alert.getMessage());
         }
-        
+
         return alerts;
     }
 
@@ -72,15 +80,15 @@ public class UsersPropertiesFileValidator extends PropertiesFileValidator {
         String value = properties.getProperty(defaultCertificateUser);
 
         if (value != null) {
-            alerts.add(new Alert(Level.WARN, "The default certificate user of ["
-                    + defaultCertificateUser + "] was found in [" + path.toString() + "]."));
+            alerts.add(new Alert(Level.WARN, String.format(DEFAULT_CERT_USER_USED_MSG,
+                    defaultCertificateUser, path.toString())));
 
             String password = getPassword(value);
-            
+
             if (StringUtils.equals(password, defaultCertificateUserPassword)) {
-                alerts.add(new Alert(Level.WARN, "The default certificate user of ["
-                        + defaultCertificateUser + "] was found in [" + path.toString()
-                        + "] with default password of [" + defaultCertificateUserPassword + "]."));
+                alerts.add(new Alert(Level.WARN, String.format(
+                        DEFAULT_CERT_USER_IS_USING_DEFAULT_PASSWORD_MSG, defaultCertificateUser,
+                        path, defaultCertificateUserPassword)));
             }
         }
     }
@@ -93,13 +101,13 @@ public class UsersPropertiesFileValidator extends PropertiesFileValidator {
             password = getPassword(user);
 
             if (StringUtils.equals(password, defaultAdminUserPassword)) {
-                alerts.add(new Alert(Level.WARN, "The default admin user of [" + defaultAdminUser
-                        + "] was found in [" + path.toString() + "] with default password of ["
-                        + defaultAdminUserPassword + "]."));
+                alerts.add(new Alert(Level.WARN, String.format(
+                        DEFAULT_ADMIN_USER_IS_USING_DEFAULT_PASSWORD_MSG, defaultAdminUser, path,
+                        defaultAdminUserPassword)));
             }
         }
     }
-    
+
     private String getPassword(String value) {
         String[] parts = StringUtils.split(value, ",");
 
@@ -108,8 +116,7 @@ public class UsersPropertiesFileValidator extends PropertiesFileValidator {
         if (parts != null && parts.length >= 1) {
             password = parts[0];
         } else {
-            alerts.add(new Alert(Level.WARN, "Unable to determine if [" + path.toString()
-                    + "] is using insecure defaults. Cannot parse password from [" + value + "]."));
+            alerts.add(new Alert(Level.WARN, String.format(CANNOT_PARSE_PASSWORD_MSG, path, value)));
         }
 
         return password;

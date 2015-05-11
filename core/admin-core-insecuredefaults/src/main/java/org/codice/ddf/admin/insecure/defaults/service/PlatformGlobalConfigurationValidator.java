@@ -41,6 +41,8 @@ public class PlatformGlobalConfigurationValidator implements Validator {
 
     private List<Alert> alerts;
 
+    static final String PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP = "The [%s] in Platform Global Configuration is set to [http].";
+
     public PlatformGlobalConfigurationValidator(ConfigurationAdmin configAdmin) {
         alerts = new ArrayList<>();
         this.configAdmin = configAdmin;
@@ -48,11 +50,11 @@ public class PlatformGlobalConfigurationValidator implements Validator {
 
     public List<Alert> validate() {
         alerts = new ArrayList<>();
-        validateHttpIsDisaabled();
+        validateHttpIsDisabled();
         return alerts;
     }
 
-    private void validateHttpIsDisaabled() {
+    private void validateHttpIsDisabled() {
         try {
             if (configAdmin != null) {
                 Configuration config = configAdmin
@@ -61,8 +63,7 @@ public class PlatformGlobalConfigurationValidator implements Validator {
                 LOGGER.debug("props: {}", properties.toString());
                 String protocol = (String) properties.get(PROTOCOL_PROPERTY);
                 if (StringUtils.equalsIgnoreCase(protocol, HTTP_PROTOCOL)) {
-                    alerts.add(new Alert(Level.WARN,
-                            "The [protocol] in Platform Global Configuration is set to [http]."));
+                    alerts.add(new Alert(Level.WARN, String.format(PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP, PROTOCOL_PROPERTY)));
                 }
             } else {
                 String msg = "Unable to determine if Platform Global Configuration has insecure defaults. Cannot access Configuration Admin.";

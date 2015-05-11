@@ -27,39 +27,31 @@ public class SignaturePropertiesFileValidator extends CryptoPropertiesFileValida
     private static final Logger LOGGER = LoggerFactory
             .getLogger(SignaturePropertiesFileValidator.class);
 
-    private static final String PRIVATE_KEY_PASSWORD_PROPERTY = "org.apache.ws.security.crypto.merlin.keystore.private.password";
-
-    private String defaultPrivateKeyPassword;
-
-    public void setDefaultPrivateKeyPassword(String passwd) {
-        this.defaultPrivateKeyPassword = passwd;
-    }
-
     public List<Alert> validate() {
         resetAlerts();
         Properties properties = readFile();
-        
+
         if (properties != null && properties.size() > 0) {
             validateKeystorePassword(properties);
             validatePrivateKeyPassword(properties);
             validateAlias(properties);
         }
-        
+
         for (Alert alert : alerts) {
             LOGGER.debug("Alert: {}, {}", alert.getLevel(), alert.getMessage());
         }
-        
+
         return alerts;
     }
 
-    private void validatePrivateKeyPassword(Properties properties) {
+    protected void validatePrivateKeyPassword(Properties properties) {
 
         String privateKeyPassword = properties.getProperty(PRIVATE_KEY_PASSWORD_PROPERTY);
 
         if (StringUtils.equals(privateKeyPassword, defaultPrivateKeyPassword)) {
-            alerts.add(new Alert(Level.WARN, "The property [" + PRIVATE_KEY_PASSWORD_PROPERTY
-                    + "] in [" + path.toString() + "] is set to the default keystore private password of ["
-                    + defaultPrivateKeyPassword + "]."));
+            alerts.add(new Alert(Level.WARN, String.format(
+                    DEFAULT_KEYSTORE_PRIVATE_PASSWORD_USED_MSG, PRIVATE_KEY_PASSWORD_PROPERTY,
+                    path, defaultPrivateKeyPassword)));
         }
 
     }

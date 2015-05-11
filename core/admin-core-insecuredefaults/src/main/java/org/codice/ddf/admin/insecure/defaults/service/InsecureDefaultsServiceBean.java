@@ -205,6 +205,7 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         encryptionPropertiesFileValidator.setPath(Paths.get(SERVER_ENCRYPTION_PROPERTIES_FILE));
         encryptionPropertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
         encryptionPropertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
+        encryptionPropertiesFileValidator.setDefaultPrivateKeyPassword(DEFAULT_KEY_PASSWORD);
         validators.add(encryptionPropertiesFileValidator);
     }
 

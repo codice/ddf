@@ -15,12 +15,12 @@
 package org.codice.ddf.admin.insecure.defaults.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -61,16 +61,20 @@ public class KeystoreValidatorTest {
 
     private static final String DEFAULT_KEY_PASSWORD = "changeit";
 
+    private static final String DEFAULT_ALIAS = "localhost";
+
+    private static final String DEFAULT_ROOT_CA = "ddf demo root ca";
+
     @Test
     public void testInvalidPasswordForBlacklistKeystore() throws Exception {
 
         // Setup
         KeystoreValidator keystoreValidator = new KeystoreValidator();
-        keystoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
-                .toURI()));
+        Path blacklistPath = Paths.get(getClass().getResource(BLACK_LIST).toURI());
+        keystoreValidator.setBlacklistKeystorePath(blacklistPath);
         keystoreValidator.setBlacklistKeystorePassword(INVALID_BLACKLIST_PASSWORD);
-        keystoreValidator.setKeystorePath(Paths.get(getClass().getResource(INSECURE_KEYSTORE)
-                .toURI()));
+        Path keystorePath = Paths.get(getClass().getResource(INSECURE_KEYSTORE).toURI());
+        keystoreValidator.setKeystorePath(keystorePath);
         keystoreValidator.setKeystorePassword(INSECURE_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASSWORD);
@@ -79,29 +83,16 @@ public class KeystoreValidatorTest {
         List<Alert> alerts = keystoreValidator.validate();
 
         // Verify
+        List<String> actualAlertMessages = getActualAlertMessages(alerts);
+        String[] expectedAlertMessages = new String[] {
+            String.format(KeystoreValidator.DEFAULT_KEY_PASSWORD_USED_MSG, DEFAULT_ALIAS,
+                    keystorePath, DEFAULT_KEY_PASSWORD),
+            String.format(KeystoreValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG, keystorePath,
+                    DEFAULT_KEYSTORE_PASSWORD),
+            String.format(KeystoreValidator.INVALID_BLACKLIST_KEYSTORE_PASSWORD_MSG, keystorePath,
+                    blacklistPath, "Keystore was tampered with, or password was incorrect")};
         assertThat(alerts.size(), is(3));
-
-        List<String> messages = new ArrayList<>(3);
-        for (Alert alert : alerts) {
-            messages.add(alert.getMessage());
-        }
-        Collections.sort(messages);
-
-        assertThat(messages.get(0), containsString("The key for alias [localhost]"));
-        assertThat(messages.get(0), containsString(INSECURE_KEYSTORE));
-        assertThat(messages.get(0), containsString("default password of [changeit]."));
-        assertThat(messages.get(1), containsString("The keystore password for"));
-        assertThat(messages.get(1), containsString(INSECURE_KEYSTORE));
-        assertThat(messages.get(1), containsString("default password of ["
-                + DEFAULT_KEYSTORE_PASSWORD + "]"));
-        assertThat(messages.get(2), containsString("Unable to determine if keystore"));
-        assertThat(messages.get(2), containsString(INSECURE_KEYSTORE));
-        assertThat(
-                messages.get(2),
-                containsString("contains insecure default certificates. Error retrieving certificates from Blacklist keystore"));
-        assertThat(messages.get(2), containsString(BLACK_LIST));
-        assertThat(messages.get(2),
-                containsString("Keystore was tampered with, or password was incorrect"));
+        assertThat(actualAlertMessages, hasItems(expectedAlertMessages));
     }
 
     @Test
@@ -111,8 +102,8 @@ public class KeystoreValidatorTest {
         KeystoreValidator keystoreValidator = new KeystoreValidator();
         keystoreValidator.setBlacklistKeystorePath(Paths.get(FAKE_BLACK_LIST));
         keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
-        keystoreValidator.setKeystorePath(Paths.get(getClass().getResource(INSECURE_KEYSTORE)
-                .toURI()));
+        Path path = Paths.get(getClass().getResource(INSECURE_KEYSTORE).toURI());
+        keystoreValidator.setKeystorePath(path);
         keystoreValidator.setKeystorePassword(INSECURE_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASSWORD);
@@ -122,25 +113,15 @@ public class KeystoreValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(3));
-
-        List<String> messages = new ArrayList<>(3);
-        for (Alert alert : alerts) {
-            messages.add(alert.getMessage());
-        }
-        Collections.sort(messages);
-
-        assertThat(messages.get(0), containsString("The key for alias [localhost]"));
-        assertThat(messages.get(0), containsString(INSECURE_KEYSTORE));
-        assertThat(messages.get(0), containsString("default password of [changeit]."));
-        assertThat(messages.get(1), containsString("The keystore password for"));
-        assertThat(messages.get(1), containsString(INSECURE_KEYSTORE));
-        assertThat(messages.get(1), containsString("default password of ["
-                + DEFAULT_KEYSTORE_PASSWORD + "]"));
-        assertThat(messages.get(2), containsString("Unable to determine if keystore"));
-        assertThat(messages.get(2), containsString(INSECURE_KEYSTORE));
-        assertThat(messages.get(2),
-                containsString("is using insecure defaults. Cannot read Blacklist keystore"));
-        assertThat(messages.get(2), containsString(FAKE_BLACK_LIST));
+        List<String> actualMessages = getActualAlertMessages(alerts);
+        String[] expectedAlertMessages = new String[] {
+            String.format(KeystoreValidator.DEFAULT_KEY_PASSWORD_USED_MSG, DEFAULT_ALIAS, path,
+                    DEFAULT_KEY_PASSWORD),
+            String.format(KeystoreValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG, path,
+                    DEFAULT_KEYSTORE_PASSWORD),
+            String.format(KeystoreValidator.BLACKLIST_KEYSTORE_DOES_NOT_EXIST_MSG, path,
+                    FAKE_BLACK_LIST, FAKE_BLACK_LIST)};
+        assertThat(actualMessages, hasItems(expectedAlertMessages));
     }
 
     @Test
@@ -161,11 +142,8 @@ public class KeystoreValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getMessage(), containsString("Unable to determine if keystore"));
-        assertThat(alerts.get(0).getMessage(), containsString(FAKE_KEYSTORE));
         assertThat(alerts.get(0).getMessage(),
-                containsString("is using insecure defaults. Cannot read keystore."));
-        assertThat(alerts.get(0).getMessage(), containsString("Cannot read keystore."));
+                is(String.format(KeystoreValidator.KEYSTORE_DOES_NOT_EXIST_MSG, FAKE_KEYSTORE, "")));
     }
 
     @Test
@@ -176,8 +154,8 @@ public class KeystoreValidatorTest {
         keystoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
                 .toURI()));
         keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
-        keystoreValidator.setKeystorePath(Paths.get(getClass().getResource(INSECURE_KEYSTORE)
-                .toURI()));
+        Path path = Paths.get(getClass().getResource(INSECURE_KEYSTORE).toURI());
+        keystoreValidator.setKeystorePath(path);
         keystoreValidator.setKeystorePassword(INVALID_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASSWORD);
@@ -187,11 +165,9 @@ public class KeystoreValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getMessage(), containsString("Unable to determine if keystore"));
-        assertThat(alerts.get(0).getMessage(), containsString(INSECURE_KEYSTORE));
-        assertThat(alerts.get(0).getMessage(), containsString("is using insecure defaults."));
         assertThat(alerts.get(0).getMessage(),
-                containsString("Keystore was tampered with, or password was incorrect."));
+                is(String.format(KeystoreValidator.GENERIC_INSECURE_DEFAULTS_MSG, path)
+                        + "Keystore was tampered with, or password was incorrect."));
     }
 
     @Test
@@ -202,8 +178,8 @@ public class KeystoreValidatorTest {
         keystoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
                 .toURI()));
         keystoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
-        keystoreValidator.setKeystorePath(Paths.get(getClass().getResource(INSECURE_KEYSTORE)
-                .toURI()));
+        Path keystorePath = Paths.get(getClass().getResource(INSECURE_KEYSTORE).toURI());
+        keystoreValidator.setKeystorePath(keystorePath);
         keystoreValidator.setKeystorePassword(INSECURE_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
         keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASSWORD);
@@ -212,34 +188,20 @@ public class KeystoreValidatorTest {
         List<Alert> alerts = keystoreValidator.validate();
 
         // Verify
+        List<String> actualAlertMessages = getActualAlertMessages(alerts);
+        String[] expectedAlertMessages = new String[] {
+            String.format(KeystoreValidator.CERT_CHAIN_CONTAINS_BLACKLISTED_CERT_MSG,
+                    DEFAULT_ALIAS, keystorePath, DEFAULT_ROOT_CA),
+            String.format(KeystoreValidator.CERT_CHAIN_CONTAINS_BLACKLISTED_CERT_MSG,
+                    DEFAULT_ALIAS, keystorePath, DEFAULT_ALIAS),
+            String.format(KeystoreValidator.CERT_IS_BLACKLISTED_MSG, DEFAULT_ROOT_CA, keystorePath,
+                    DEFAULT_ROOT_CA),
+            String.format(KeystoreValidator.DEFAULT_KEY_PASSWORD_USED_MSG, DEFAULT_ALIAS,
+                    keystorePath, DEFAULT_KEY_PASSWORD),
+            String.format(KeystoreValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG, keystorePath,
+                    DEFAULT_KEYSTORE_PASSWORD)};
         assertThat(alerts.size(), is(5));
-
-        List<String> messages = new ArrayList<>(5);
-        for (Alert alert : alerts) {
-            messages.add(alert.getMessage());
-        }
-        Collections.sort(messages);
-
-        assertThat(messages.get(0),
-                containsString("The certificate chain for alias [ddf demo root ca]"));
-        assertThat(messages.get(0), containsString(INSECURE_KEYSTORE));
-        assertThat(messages.get(0),
-                containsString("contains a blacklisted certificate with alias [ddf demo root ca]"));
-        assertThat(messages.get(1), containsString("The certificate chain for alias [localhost]"));
-        assertThat(messages.get(1), containsString(INSECURE_KEYSTORE));
-        assertThat(messages.get(1),
-                containsString("contains a blacklisted certificate with alias [localhost]"));
-        assertThat(messages.get(2), containsString("The certificate for alias [ddf demo root ca]"));
-        assertThat(messages.get(2), containsString(INSECURE_KEYSTORE));
-        assertThat(messages.get(2),
-                containsString("is a blacklisted certificate with alias [ddf demo root ca]"));
-        assertThat(messages.get(3), containsString("The key for alias [localhost]"));
-        assertThat(messages.get(3), containsString(INSECURE_KEYSTORE));
-        assertThat(messages.get(3), containsString("default password of [changeit]"));
-        assertThat(messages.get(4), containsString("The keystore password"));
-        assertThat(messages.get(4), containsString(INSECURE_KEYSTORE));
-        assertThat(messages.get(4), containsString("default password of ["
-                + DEFAULT_KEYSTORE_PASSWORD + "]"));
+        assertThat(actualAlertMessages, hasItems(expectedAlertMessages));
     }
 
     @Test
@@ -250,8 +212,8 @@ public class KeystoreValidatorTest {
         truststoreValidator.setBlacklistKeystorePath(Paths.get(getClass().getResource(BLACK_LIST)
                 .toURI()));
         truststoreValidator.setBlacklistKeystorePassword(DEFAULT_BLACKLIST_PASSWORD);
-        truststoreValidator.setKeystorePath(Paths.get(getClass().getResource(INSECURE_TRUSTSTORE)
-                .toURI()));
+        Path path = Paths.get(getClass().getResource(INSECURE_TRUSTSTORE).toURI());
+        truststoreValidator.setKeystorePath(path);
         truststoreValidator.setKeystorePassword(INSECURE_TRUSTSTORE_PASSWORD);
         truststoreValidator.setDefaultKeystorePassword(DEFAULT_TRUSTSTORE_PASSWORD);
 
@@ -259,23 +221,14 @@ public class KeystoreValidatorTest {
         List<Alert> alerts = truststoreValidator.validate();
 
         // Verify
+        List<String> actualAlertMessages = getActualAlertMessages(alerts);
+        String[] expectedAlertMessages = new String[] {
+            String.format(KeystoreValidator.CERT_IS_BLACKLISTED_MSG, DEFAULT_ROOT_CA, path,
+                    DEFAULT_ROOT_CA),
+            String.format(KeystoreValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG, path,
+                    DEFAULT_KEYSTORE_PASSWORD)};
         assertThat(alerts.size(), is(2));
-
-        List<String> messages = new ArrayList<>(2);
-        for (Alert alert : alerts) {
-            messages.add(alert.getMessage());
-        }
-        Collections.sort(messages);
-
-        assertThat(messages.get(0), containsString("The certificate for alias [ddf demo root ca]"));
-        assertThat(messages.get(0), containsString(INSECURE_TRUSTSTORE));
-        assertThat(messages.get(0),
-                containsString("blacklisted certificate with alias [ddf demo root ca]"));
-        assertThat(messages.get(1), containsString("The keystore password"));
-        assertThat(messages.get(1), containsString(INSECURE_TRUSTSTORE));
-        assertThat(messages.get(1), containsString("default password of ["
-                + DEFAULT_TRUSTSTORE_PASSWORD + "]"));
-
+        assertThat(actualAlertMessages, hasItems(expectedAlertMessages));
     }
 
     @Test
@@ -317,5 +270,13 @@ public class KeystoreValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(0));
+    }
+
+    private List<String> getActualAlertMessages(List<Alert> alerts) {
+        List<String> messages = new ArrayList<>(alerts.size());
+        for (Alert alert : alerts) {
+            messages.add(alert.getMessage());
+        }
+        return messages;
     }
 }

@@ -20,7 +20,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.codice.ddf.admin.insecure.defaults.service.Alert.Level;
@@ -61,17 +60,6 @@ public class InsecureDefaultsServiceBeanTest {
 
             // Verify
             assertThat(alerts.size(), is(2));
-
-            List<String> messages = new ArrayList<>();
-            for (Alert alert : alerts) {
-                messages.add(alert.getMessage());
-            }
-            Collections.sort(messages);
-
-            for (int j = 0; j < alerts.size(); j++) {
-                assertThat(alerts.get(j).getLevel(), is(Level.WARN));
-                assertThat(alerts.get(j).getMessage(), is(BASE_ALERT_TEST_MESSAGE + j));
-            }
         }
     }
 

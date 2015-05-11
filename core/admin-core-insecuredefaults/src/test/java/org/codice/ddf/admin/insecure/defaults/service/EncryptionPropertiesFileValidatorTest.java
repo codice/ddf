@@ -15,35 +15,37 @@
 package org.codice.ddf.admin.insecure.defaults.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
 
 public class EncryptionPropertiesFileValidatorTest {
 
-    private static final String ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULTS = "/encryptionWithDefaults.properties";
+    private static final String ISSUER_ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULTS = "/issuerEncryptionWithDefaults.properties";
 
     private static final String FAKE_ENCRYPTION_PROPERTIES_FILE = "/fakeencryption.properties";
 
-    private static final String ENCRYPTION_PROPERTIES_FILE_WITH_NON_DEFAULTS = "/encryptionNondefaults.properties";
+    private static final String ISSUER_ENCRYPTION_PROPERTIES_FILE_WITH_NON_DEFAULTS = "/issuerEncryptionNondefaults.properties";
 
-    private static final String ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULT_KEYSTORE_ALIAS = "/encryptionDefaultAlias.properties";
+    private static final String ISSUER_ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULT_KEYSTORE_ALIAS = "/issuerEncryptionDefaultAlias.properties";
 
-    private static final String ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULT_KEYSTORE_PASSWORD = "/encryptionDefaultPassword.properties";
-
-    private static final String KEYSTORE_PASSWORD_PROPERTY = "org.apache.ws.security.crypto.merlin.keystore.password";
+    private static final String ISSUER_ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULT_KEYSTORE_PASSWORD = "/issuerEncryptionDefaultPassword.properties";
+    
+    private static final String SERVER_ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULTS = "/serverEncryptionWithDefaults.properties";
+    
+    private static final String SERVER_ENCRYPTION_PROPERTIES_FILE_WITH_NON_DEFAULTS = "/serverEncryptionWithNonDefaults.properties";
 
     private static final String DEFAULT_KEYSTORE_PASSWORD = "changeit";
 
-    private static final String KEYSTORE_ALIAS_PROPERTY = "org.apache.ws.security.crypto.merlin.keystore.alias";
-
     private static final String DEFAULT_KEYSTORE_ALIAS = "localhost";
+    
+    private static final String DEFAULT_KEYSTORE_PRIVATE_PASSWORD = "changeit";
 
     @Test
     public void testEncryptionPropertiesFileDoesNotExist() throws Exception {
@@ -58,18 +60,22 @@ public class EncryptionPropertiesFileValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getMessage(), is("Unable to determine if ["
-                + FAKE_ENCRYPTION_PROPERTIES_FILE + "] is using insecure defaults. "
-                + FAKE_ENCRYPTION_PROPERTIES_FILE + " (No such file or directory)"));
+        assertThat(
+                alerts.get(0).getMessage(),
+                is(String.format(EncryptionPropertiesFileValidator.GENERIC_INSECURE_DEFAULTS_MSG,
+                        FAKE_ENCRYPTION_PROPERTIES_FILE)
+                        + FAKE_ENCRYPTION_PROPERTIES_FILE
+                        + " (No such file or directory)"));
     }
 
     @Test
-    public void testEncryptionPropertiesFileHasDefaultKeystoreAliasAndDefaultKeystorePassword()
+    public void testIssuerEncryptionPropertiesFileHasDefaultKeystoreAliasAndDefaultKeystorePassword()
         throws Exception {
         // Setup
         EncryptionPropertiesFileValidator propertiesFileValidator = new EncryptionPropertiesFileValidator();
-        propertiesFileValidator.setPath(Paths.get(getClass().getResource(
-                ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULTS).toURI()));
+        Path path = Paths.get(getClass().getResource(ISSUER_ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULTS)
+                .toURI());
+        propertiesFileValidator.setPath(path);
         propertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
         propertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
 
@@ -77,34 +83,26 @@ public class EncryptionPropertiesFileValidatorTest {
         List<Alert> alerts = propertiesFileValidator.validate();
 
         // Verify
+        List<String> actualAlertMessages = getActualAlertMessages(alerts);
+        String[] expectedAlertMessages = new String[] {
+            String.format(EncryptionPropertiesFileValidator.DEFAULT_KEYSTORE_ALIAS_USED_MSG,
+                    EncryptionPropertiesFileValidator.KEYSTORE_ALIAS_PROPERTY, path,
+                    DEFAULT_KEYSTORE_ALIAS),
+            String.format(EncryptionPropertiesFileValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG,
+                    EncryptionPropertiesFileValidator.KEYSTORE_PASSWORD_PROPERTY, path,
+                    DEFAULT_KEYSTORE_PASSWORD)};
         assertThat(alerts.size(), is(2));
-
-        List<String> messages = new ArrayList<>(2);
-        for (Alert alert : alerts) {
-            messages.add(alert.getMessage());
-        }
-        Collections.sort(messages);
-
-        assertThat(messages.get(0),
-                containsString("The property [" + KEYSTORE_ALIAS_PROPERTY + "]"));
-        assertThat(messages.get(0), containsString(ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULTS));
-        assertThat(messages.get(0), containsString("is set to the default keystore alias of ["
-                + DEFAULT_KEYSTORE_ALIAS + "]."));
-
-        assertThat(messages.get(1), containsString("The property [" + KEYSTORE_PASSWORD_PROPERTY
-                + "]"));
-        assertThat(messages.get(1), containsString(ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULTS));
-        assertThat(messages.get(1), containsString("is set to the default keystore password of ["
-                + DEFAULT_KEYSTORE_PASSWORD + "]."));
+        assertThat(actualAlertMessages, hasItems(expectedAlertMessages));
     }
 
     @Test
-    public void testEncryptionPropertiesFileHasDefaultKeystoreAliasAndNondefaultKeystorePassword()
+    public void testIssuerEncryptionPropertiesFileHasDefaultKeystoreAliasAndNondefaultKeystorePassword()
         throws Exception {
         // Setup
         EncryptionPropertiesFileValidator propertiesFileValidator = new EncryptionPropertiesFileValidator();
-        propertiesFileValidator.setPath(Paths.get(getClass().getResource(
-                ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULT_KEYSTORE_ALIAS).toURI()));
+        Path path = Paths.get(getClass().getResource(
+                ISSUER_ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULT_KEYSTORE_ALIAS).toURI());
+        propertiesFileValidator.setPath(path);
         propertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
         propertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
 
@@ -113,22 +111,20 @@ public class EncryptionPropertiesFileValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getMessage(), containsString("The property ["
-                + KEYSTORE_ALIAS_PROPERTY + "]"));
-        assertThat(alerts.get(0).getMessage(),
-                containsString(ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULT_KEYSTORE_ALIAS));
-        assertThat(alerts.get(0).getMessage(),
-                containsString("is set to the default keystore alias of [" + DEFAULT_KEYSTORE_ALIAS
-                        + "]."));
+        assertThat(alerts.get(0).getMessage(), is(String.format(
+                EncryptionPropertiesFileValidator.DEFAULT_KEYSTORE_ALIAS_USED_MSG,
+                EncryptionPropertiesFileValidator.KEYSTORE_ALIAS_PROPERTY, path,
+                DEFAULT_KEYSTORE_ALIAS)));
     }
 
     @Test
-    public void testEncryptionPropertiesFileHasDefaultKeystorePasswordAndNondefaultKeystoreAlias()
+    public void testIssuerEncryptionPropertiesFileHasDefaultKeystorePasswordAndNondefaultKeystoreAlias()
         throws Exception {
         // Setup
         EncryptionPropertiesFileValidator propertiesFileValidator = new EncryptionPropertiesFileValidator();
-        propertiesFileValidator.setPath(Paths.get(getClass().getResource(
-                ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULT_KEYSTORE_PASSWORD).toURI()));
+        Path path = Paths.get(getClass().getResource(
+                ISSUER_ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULT_KEYSTORE_PASSWORD).toURI());
+        propertiesFileValidator.setPath(path);
         propertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
         propertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
 
@@ -137,21 +133,18 @@ public class EncryptionPropertiesFileValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getMessage(), containsString("The property ["
-                + KEYSTORE_PASSWORD_PROPERTY + "]"));
-        assertThat(alerts.get(0).getMessage(),
-                containsString(ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULT_KEYSTORE_PASSWORD));
-        assertThat(alerts.get(0).getMessage(),
-                containsString("is set to the default keystore password of ["
-                        + DEFAULT_KEYSTORE_PASSWORD + "]."));
+        assertThat(alerts.get(0).getMessage(), is(String.format(
+                EncryptionPropertiesFileValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG,
+                EncryptionPropertiesFileValidator.KEYSTORE_PASSWORD_PROPERTY, path,
+                DEFAULT_KEYSTORE_PASSWORD)));
     }
 
     @Test
-    public void testEncryptionPropertiesFileHasNondefaults() throws Exception {
+    public void testIssuerEncryptionPropertiesFileHasNondefaults() throws Exception {
         // Setup
         EncryptionPropertiesFileValidator propertiesFileValidator = new EncryptionPropertiesFileValidator();
         propertiesFileValidator.setPath(Paths.get(getClass().getResource(
-                ENCRYPTION_PROPERTIES_FILE_WITH_NON_DEFAULTS).toURI()));
+                ISSUER_ENCRYPTION_PROPERTIES_FILE_WITH_NON_DEFAULTS).toURI()));
         propertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
         propertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
 
@@ -160,5 +153,61 @@ public class EncryptionPropertiesFileValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(0));
+    }
+    
+    @Test
+    public void testServerEncryptionPropertiesFileHasDefaults() throws Exception {
+        // Setup
+        EncryptionPropertiesFileValidator propertiesFileValidator = new EncryptionPropertiesFileValidator();
+        Path path = Paths.get(getClass().getResource(
+                SERVER_ENCRYPTION_PROPERTIES_FILE_WITH_DEFAULTS).toURI());
+        propertiesFileValidator.setPath(path);
+        propertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
+        propertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
+        propertiesFileValidator.setDefaultPrivateKeyPassword(DEFAULT_KEYSTORE_PRIVATE_PASSWORD);
+
+        // Perform Test
+        List<Alert> alerts = propertiesFileValidator.validate();
+
+        // Verify
+        List<String> actualAlertMessages = getActualAlertMessages(alerts);
+        String[] expectedAlertMessages = new String[] {
+            String.format(EncryptionPropertiesFileValidator.DEFAULT_KEYSTORE_ALIAS_USED_MSG,
+                    EncryptionPropertiesFileValidator.KEYSTORE_ALIAS_PROPERTY, path,
+                    DEFAULT_KEYSTORE_ALIAS),
+            String.format(EncryptionPropertiesFileValidator.DEFAULT_KEYSTORE_PASSWORD_USED_MSG,
+                    EncryptionPropertiesFileValidator.KEYSTORE_PASSWORD_PROPERTY, path,
+                    DEFAULT_KEYSTORE_PASSWORD),
+            String.format(
+                    EncryptionPropertiesFileValidator.DEFAULT_KEYSTORE_PRIVATE_PASSWORD_USED_MSG,
+                    EncryptionPropertiesFileValidator.PRIVATE_KEY_PASSWORD_PROPERTY, path,
+                    DEFAULT_KEYSTORE_PRIVATE_PASSWORD)};
+        assertThat(alerts.size(), is(3));
+        assertThat(actualAlertMessages, hasItems(expectedAlertMessages));
+    }
+    
+    @Test
+    public void testServerEncryptionPropertiesFileHasNondefaults() throws Exception {
+        // Setup
+        EncryptionPropertiesFileValidator propertiesFileValidator = new EncryptionPropertiesFileValidator();
+        propertiesFileValidator.setPath(Paths.get(getClass().getResource(
+                SERVER_ENCRYPTION_PROPERTIES_FILE_WITH_NON_DEFAULTS).toURI()));
+        propertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
+        propertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
+        propertiesFileValidator.setDefaultPrivateKeyPassword(DEFAULT_KEYSTORE_PRIVATE_PASSWORD);
+
+        // Perform Test
+        List<Alert> alerts = propertiesFileValidator.validate();
+
+        // Verify
+        assertThat(alerts.size(), is(0));
+    }
+
+    private List<String> getActualAlertMessages(List<Alert> alerts) {
+        List<String> messages = new ArrayList<>(alerts.size());
+        for (Alert alert : alerts) {
+            messages.add(alert.getMessage());
+        }
+        return messages;
     }
 }
