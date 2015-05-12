@@ -23,6 +23,8 @@ The following packages have been exported by the DDF Platform application and ar
 * org.codice.ddf.configuration
 * org.codice.ddf.platform.status
 
+WARNING: The Platform Application includes other third party packages such as Apache CXF and Apache Camel. These are available for use by third party developers but their versions can change at any time with future releases of the Platform Application.
+
 == Developing Action Components (Action Framework)
 
 The Action Framework was designed as a way to limit dependencies between applications (apps) in a system. For instance, a feature in an app, such as a Atom feed generator, might want to include an external link as part of its feed's entries. That feature does not have to be coupled to a REST endpoint to work, nor does it have to depend on a specific implementation to get a link. In reality, the feature does not identify how the link is generated, but it does identify whether link works or does not work when retrievi ng the intended entry's metadata. Instead of creating its own mechanism or adding an unrelated feature, it could use the Action Framework to query out in the OSGi container for any service that can provide a link. This does two things: it allows the feature to be independent of implementations, and it encourages reuse of common services. 
