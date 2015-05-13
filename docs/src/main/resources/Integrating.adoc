@@ -20,7 +20,7 @@ The DDF Content API will evolve with DDF itself, but great care is taken to reta
 
 ==== Architecture
 
-[ditaa, content_framework_architecture, png, width=500]
+[ditaa, content_framework_architecture, png, ${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
@@ -123,7 +123,7 @@ The Content API Reference Implementation consists of the Java classes that imple
 === Content Component Types
 
 ==== Content Data 	Components
-[ditaa, content_data_components, png,width=500]
+[ditaa, content_data_components, png,${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
@@ -168,7 +168,7 @@ Content Item is the domain object, which is populated by the Content Endpoint fr
 
 ==== Content Endpoints
 
-[ditaa, content_endpoints, png,width=500]
+[ditaa, content_endpoints, png,${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
@@ -229,7 +229,7 @@ The following endpoints are provided with the Content Framework out of the box:
 
 ==== Content Framework
 
-[ditaa, content_framework, png,width=500]
+[ditaa, content_framework, png,${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
@@ -276,7 +276,7 @@ The DDF Content comes with the following Content Frameworks out of the box:
 
 ==== Content Operations
 
-[ditaa, content_operations, png,width=500]
+[ditaa, content_operations, png,${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
@@ -321,7 +321,7 @@ Each of these operations follow a request/response paradigm. The request is the 
 All of the request and response objects are extensible in that they can contain additional key/value properties on each request/response. This allows additional capability to be added without changing the Content API, helping to maintain backwards compatibility. Refer to the Developer's Guide for details on using this extensibility.
 
 ==== Content Plugins
-[ditaa, content_plugin, png,width=500]
+[ditaa, content_plugin, png,${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
@@ -367,7 +367,7 @@ Types of Content Plugins available out of the box:
 * Content Cataloger Plugin
 
 ==== Storage Providers
-[ditaa, storage_provider, png,width=500]
+[ditaa, storage_provider, png,${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
