@@ -95,7 +95,7 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>${argLine} -javaagent:${powermock.agent} -Djava.awt.headless=true -XX:-UseSplitVerifier</argLine>
+                    <argLine>${argLine} -javaagent:${powermock.agent} -Djava.awt.headless=true -noverify</argLine>
                 </configuration>
             </plugin>
             <plugin>
