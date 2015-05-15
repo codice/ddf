@@ -28,7 +28,6 @@
             'modelbinder',
             'bootstrap',
             'templateConfig'
-
         ], function ($, Backbone, Marionette, ich, Application, ModuleView, Properties) {
 
             var app = Application.App;
@@ -52,7 +51,41 @@
                     model: Application.AppModel
                 }));
             });
-
+            
+            //setup insecure defaults alerts
+            var AlertsModel = Backbone.Model.extend({
+                url: "/jolokia/exec/org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsServiceBean:service=insecure-defaults-service/validate",
+                parse: function(resp){
+                    return resp.value;
+                }
+            });
+            var alerts = new AlertsModel();
+            
+            var AlertsView = Backbone.Marionette.ItemView.extend({
+                template: 'alertsLayout',
+                tagName: 'table',
+                events: {
+                     'click #details': 'toggleDetailsMsg'
+                },
+                toggleDetailsMsg: function() {
+                    if(!$('#collapseAlerts').hasClass('collapsing')) {
+                        $('#details').text(function(i,v) {
+                            return v === 'Show details' ? 'Hide details' : 'Show details';
+                        });
+                    }
+                }
+            });
+            
+            alerts.fetch({
+                success: function() {
+                    app.addInitializer(function() {
+                        Application.App.alertsRegion.show(new AlertsView({
+                            collection: alerts
+                        }));
+                    });
+                }
+            });
+            
             //setup the footer
             app.addInitializer(function() {
                 if(Properties.ui.footer && Properties.ui.footer !== ''){
