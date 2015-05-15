@@ -67,6 +67,11 @@
         </dependency>
 
         <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
             <scope>test</scope>
