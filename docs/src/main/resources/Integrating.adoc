@@ -20,7 +20,7 @@ The DDF Content API will evolve with DDF itself, but great care is taken to reta
 
 ==== Architecture
 
-[ditaa, content_framework_architecture, png]
+[ditaa, content_framework_architecture, png, ${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
@@ -55,7 +55,7 @@ The DDF Content API will evolve with DDF itself, but great care is taken to reta
 |                   +---------------+                /-=------------------\ |
 |                                                    | External Component | |
 |                                                    \--------------------/ |
-+---------------------------------------------------------------------------
++---------------------------------------------------------------------------+
 ....
 
 ==== Design
@@ -123,7 +123,7 @@ The Content API Reference Implementation consists of the Java classes that imple
 === Content Component Types
 
 ==== Content Data 	Components
-[ditaa, content_data_components, png]
+[ditaa, content_data_components, png,${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
@@ -158,7 +158,7 @@ The Content API Reference Implementation consists of the Java classes that imple
 |                   +---------------+                /-=------------------\ |
 |                                                    | External Component | |
 |                                                    \--------------------/ |
-+---------------------------------------------------------------------------
++---------------------------------------------------------------------------+
 ....
 
 
@@ -168,7 +168,7 @@ Content Item is the domain object, which is populated by the Content Endpoint fr
 
 ==== Content Endpoints
 
-[ditaa, content_endpoints, png]
+[ditaa, content_endpoints, png,${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
@@ -203,7 +203,7 @@ Content Item is the domain object, which is populated by the Content Endpoint fr
 |                   +---------------+                /-=------------------\ |
 |                                                    | External Component | |
 |                                                    \--------------------/ |
-+---------------------------------------------------------------------------
++---------------------------------------------------------------------------+
 ....
 
 Content endpoints act as a proxy between the client and the Content Framework. Endpoints expose the client to the Content Framework.
@@ -229,7 +229,7 @@ The following endpoints are provided with the Content Framework out of the box:
 
 ==== Content Framework
 
-[ditaa, content_framework, png]
+[ditaa, content_framework, png,${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
@@ -264,7 +264,7 @@ The following endpoints are provided with the Content Framework out of the box:
 |                   +---------------+                /-=------------------\ |
 |                                                    | External Component | |
 |                                                    \--------------------/ |
-+---------------------------------------------------------------------------
++---------------------------------------------------------------------------+
 ....
 The Content Framework wires all Content components together via OSGi and the Content API.  It handles all Content operations requested by endpoints, invoking Content Plugins as needed, and for most Operations, sending the request to a Storage Provider for execution.
 
@@ -276,7 +276,7 @@ The DDF Content comes with the following Content Frameworks out of the box:
 
 ==== Content Operations
 
-[ditaa, content_operations, png]
+[ditaa, content_operations, png,${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
@@ -311,7 +311,7 @@ The DDF Content comes with the following Content Frameworks out of the box:
 |                   +---------------+                /-=------------------\ |
 |                                                    | External Component | |
 |                                                    \--------------------/ |
-+---------------------------------------------------------------------------
++---------------------------------------------------------------------------+
 ....
 
 The DDF Content provides the capability to read, create, update, and delete content from the DDF Content Repository.
@@ -321,7 +321,7 @@ Each of these operations follow a request/response paradigm. The request is the 
 All of the request and response objects are extensible in that they can contain additional key/value properties on each request/response. This allows additional capability to be added without changing the Content API, helping to maintain backwards compatibility. Refer to the Developer's Guide for details on using this extensibility.
 
 ==== Content Plugins
-[ditaa, content_plugin, png]
+[ditaa, content_plugin, png,${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
@@ -356,7 +356,7 @@ All of the request and response objects are extensible in that they can contain 
 |                   +---------------+                /-=------------------\ |
 |                                                    | External Component | |
 |                                                    \--------------------/ |
-+---------------------------------------------------------------------------
++---------------------------------------------------------------------------+
 ....
 
 The Content Framework calls Content plugins to process requests after they have been processed by the Storage Provider. If the request does not specify content storage (only processing), the Content Plugins are called immediately by the Content Framework.
@@ -367,7 +367,7 @@ Types of Content Plugins available out of the box:
 * Content Cataloger Plugin
 
 ==== Storage Providers
-[ditaa, storage_provider, png]
+[ditaa, storage_provider, png,${image.width}]
 ....
 +---------------------------------------------------------------------------+             
 |                 /-=-----------------\                                     |
@@ -402,7 +402,7 @@ Types of Content Plugins available out of the box:
 |                   +---------------+                /-=------------------\ |
 |                                                    | External Component | |
 |                                                    \--------------------/ |
-+---------------------------------------------------------------------------
++---------------------------------------------------------------------------+
 ....
 
 Storage providers act as a proxy between the Content Framework and the mechanism storing the content, e.g., file system, relational database. Storage providers expose the storage mechanism to the Content Framework.
