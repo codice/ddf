@@ -255,7 +255,7 @@ public class SchematronValidationService implements MetacardValidator {
 
                         return new StreamSource(resourceAddress);
                     } catch (Exception e) {
-                        LOGGER.error("URIResolver error: {}", e.getMessage());
+                        LOGGER.error("URIResolver error: {}", e.getMessage(), e);
                         return null;
                     }
                 }
@@ -361,8 +361,10 @@ public class SchematronValidationService implements MetacardValidator {
         // Initialize container for warnings we may receive during transformation of input
         warnings = new Vector<String>();
 
-        // Create a transformer for this preprocessor
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        TransformerFactory transformerFactory = TransformerFactory.newInstance(
+                net.sf.saxon.TransformerFactoryImpl.class.getName(),
+                SchematronValidationService.class.getClassLoader());
+
         Transformer transformer = transformerFactory.newTransformer(preprocessorSource);
 
         // Setup an error listener to catch warnings and errors generated during transformation
