@@ -65,7 +65,8 @@ define([
 
     ConfigurationEditView.ConfigurationMultiValueCollection = Marionette.CollectionView.extend({
         itemView: ConfigurationEditView.ConfigurationMultiValuedEntry,
-        tagName: 'table'
+        tagName: 'table',
+        className: 'table'
     });
 
     ConfigurationEditView.ConfigurationMultiValuedItem = Marionette.Layout.extend({
