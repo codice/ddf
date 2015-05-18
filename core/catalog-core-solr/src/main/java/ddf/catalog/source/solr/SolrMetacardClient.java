@@ -29,6 +29,8 @@ import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.measure.Distance;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
@@ -271,14 +273,24 @@ public class SolrMetacardClient {
     }
 
     public void deleteByIds(String fieldName, List<? extends Serializable> identifiers,
-            boolean forceAutoCommit) throws IOException, SolrServerException {
+            boolean forceCommit) throws IOException, SolrServerException {
         if (identifiers == null || identifiers.size() == 0) {
             return;
         }
 
-        server.deleteByQuery(getIdentifierQuery(fieldName, identifiers));
+        if (Metacard.ID.equals(fieldName)) {
+            CollectionUtils.transform(identifiers, new Transformer() {
+                @Override
+                public Object transform(Object o) {
+                    return o.toString();
+                }
+            });
+            server.deleteById((List<String>) identifiers);
+        } else {
+            server.deleteByQuery(getIdentifierQuery(fieldName, identifiers));
+        }
 
-        if (forceAutoCommit) {
+        if (forceCommit) {
             server.commit();
         }
     }

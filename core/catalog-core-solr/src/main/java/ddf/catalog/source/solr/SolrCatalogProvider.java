@@ -504,7 +504,10 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
         /* 2. Delete */
         try {
-            client.deleteByIds(fieldName, identifiers, isForcedAutoCommit());
+            // the assumption is if something was deleted, it should be gone
+            // right away, such as expired data, etc.
+            // so we force the commit
+            client.deleteByIds(fieldName, identifiers, true);
         } catch (SolrServerException | IOException e) {
             throw new IngestException(COULD_NOT_COMPLETE_DELETE_REQUEST_MESSAGE);
         }
