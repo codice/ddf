@@ -37,6 +37,12 @@
             <artifactId>catalog-core-solr</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>${solr.saxon.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -23,7 +23,6 @@
 
 	<!-- Used to tell where to lay down data directory on the disk -->
 	<bean id="configFileProxy" class="org.codice.solr.factory.ConfigurationFileProxy">
-		<argument ref="blueprintBundleContext" />
 		<argument ref="configurationStore" />
 	</bean>
 
