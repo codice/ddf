@@ -105,11 +105,24 @@ public class LoginFilter implements Filter {
 
     private Crypto signatureCrypto;
 
-    private DocumentBuilder docBuilder;
-
     private Validator assertionValidator = new SamlAssertionValidator();
 
     private final Object lock = new Object();
+
+    private static final ThreadLocal<DocumentBuilder> BUILDER =
+            new ThreadLocal<DocumentBuilder>() {
+                @Override
+                protected DocumentBuilder initialValue() {
+                    try {
+                        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                        factory.setNamespaceAware(true);
+                        return factory.newDocumentBuilder();
+                    } catch (ParserConfigurationException ex) {
+                        // This exception should not happen
+                        throw new IllegalArgumentException("Unable to create new DocumentBuilder", ex);
+                    }
+                }
+            };
 
     /**
      * Default expiration value is 31 minutes
@@ -123,14 +136,6 @@ public class LoginFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         LOGGER.debug("Starting LoginFilter.");
-        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-        docBuilderFactory.setNamespaceAware(true);
-        try {
-            docBuilder = docBuilderFactory.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            LOGGER.error("Unable to create doc builder.", e);
-        }
-
     }
 
     /**
@@ -253,11 +258,8 @@ public class LoginFilter implements Filter {
                             createStatus(SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS,
                                     null));
 
-                    if (docBuilder == null) {
-                        throw new SecurityServiceException("Unable to validate SAML assertions.");
-                    }
-
-                    Document doc = docBuilder.newDocument();
+                    BUILDER.get().reset();
+                    Document doc = BUILDER.get().newDocument();
                     Element policyElement = OpenSAMLUtil.toDom(samlResponse, doc);
                     doc.appendChild(policyElement);
 
@@ -552,6 +554,7 @@ public class LoginFilter implements Filter {
     @Override
     public void destroy() {
         LOGGER.info("Destroying log in filter");
+        BUILDER.remove();
     }
 
     public SecurityManager getSecurityManager() {

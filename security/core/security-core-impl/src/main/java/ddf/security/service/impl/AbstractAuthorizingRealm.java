@@ -21,6 +21,7 @@ import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.opensaml.saml2.core.Attribute;
@@ -46,6 +47,10 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
     private static final String SAML_ROLE = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
     private List<Expansion> expansionServiceList;
+
+    public AbstractAuthorizingRealm() {
+        this.setCacheManager(new MemoryConstrainedCacheManager());
+    }
 
     /**
      * Takes the security attributes about the subject of the incoming security token and builds
