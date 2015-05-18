@@ -316,7 +316,7 @@ public class IngestCommand extends CatalogCommands {
     private void logIngestException(IngestException exception, File inputFile) {
         LOGGER.debug("Failed to ingest file [{}].", inputFile.getAbsolutePath(), exception);
         if (INGEST_LOGGER.isWarnEnabled()) {
-            INGEST_LOGGER.warn("\nFailed to ingest file [{}]:  \n" + Exceptions.getFullMessage(exception), inputFile.getAbsolutePath());
+            INGEST_LOGGER.warn("Failed to ingest file [{}]:  \n{}", inputFile.getAbsolutePath(), Exceptions.getFullMessage(exception));
         }
     }
 
