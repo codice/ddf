@@ -702,6 +702,7 @@
                 <asciidoctor.maven.plugin.version>1.5.2</asciidoctor.maven.plugin.version>
                 <packaging>pom</packaging>
                 <module>docs</module>
+                <image-width>500</image-width>
             </properties>
             <repositories>
                 <repository>
@@ -753,19 +754,20 @@
                                         <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                                         <resources>
                                             <resource>
-                                                <directory>${basedir}/src/main/resources</directory>
+                                                <directory>src/main/resources</directory>
                                                 <filtering>true</filtering>
                                                 <includes>
                                                     <include>**/*.adoc</include>
                                                 </includes>
+                                            </resource>
+                                            <resource>
+                                                <directory>src/main/resources</directory>
+                                                <filtering>false</filtering>
                                                 <excludes>
-                                                    <exclude>**/*.png</exclude>
-                                                    <exclude>**/*.jpg</exclude>
+                                                    <exclude>**/*.adoc</exclude>
                                                 </excludes>
-
                                             </resource>
                                         </resources>
-                                        <image-width>500</image-width>
                                     </configuration>
                                 </execution>
                             </executions>
@@ -814,7 +816,7 @@
                                 </execution>
                                 <execution>
                                     <id>generate-pdf-doc</id>
-                                    <phase>generate-resources</phase>
+                                    <phase>process-resources</phase>
                                     <goals>
                                         <goal>process-asciidoc</goal>
                                     </goals>
