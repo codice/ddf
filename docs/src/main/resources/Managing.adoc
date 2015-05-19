@@ -1215,7 +1215,7 @@ $> cd <DDF_HOME>/bin
 $> ./ddf
 ----
 +
-. Go to https://localhost:8993/admin and step through the installer leaving all the defaults.
+. Go to https://localhost:8993/admin and step through the installer setting the hostname to the actual hostname and the port to the desired port.
 . Login to the Felix webconsole (https://localhost:8993/system/console/configMgr) - when prompted using admin/admin as the username/password. +
 +
 [NOTE]
@@ -1366,6 +1366,9 @@ org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.
 ----
 
 ==== Creating New Certificates
+* If you already have a key pair and don't need to create them skip to <<Installing Certificates>>.
+* If you want to create new certificates signed by the Demo CA then skip to <<Create Certs Signed by the Demo CA>>
+
 ===== Create private key and certificate signing request
 
 .Create private key
@@ -1387,11 +1390,13 @@ $> cat <root CA PEM> <intermediate CA 1 PEM> <intermediate CA 2 PEM> > ca-chain.
 $> openssl pkcs12 -export -out ddf.p12 -in ddf.crt -inkey ddf.key -chain -CAfile ca-chain.txt
 ----
 
+==== Installing Certificates
+
 .Create the keystore:
 [source,bash]
 ----
 $> keytool -importkeystore -srckeystore ddf.p12 -destkeystore serverKeystore.jks -srcstoretype pkcs12 -alias 1
-$> keytool -changealias -alias 1 -destalias ddf -keystore serverKeystore.jks
+$> keytool -changealias -alias 1 -destalias <Alias> -keystore serverKeystore.jks
 # import each CA into keystore
 $> keytool -importcert -file <CA PEM> -keystore serverKeystore.jks -alias <CA alias>
 ----
@@ -1400,23 +1405,31 @@ The truststore can be created with only the use of the CA certificates.  Based o
 [source,bash]
 ----
 # import each CA into truststore
-$> keytool -import -trustcacerts -alias <CA alias> -file <CA PEM> -keystore truststore.jks
+$> keytool -import -trustcacerts -alias <CA alias> -file <CA PEM> -keystore serverTruststore.jks
 ----
+
+Copy the serverKeystore.jks and serverTruststor.jks to the <{branding}_HOME>/etc/keystores/ directory.
+
 [NOTE]
 ====
 When federating with other {branding} instances that do not share the same CA, you will need to import the CA certs from the other federated instances and they will need to import yours.
 ====
 
 ==== Create Certs Signed by the Demo CA
-If you do not need a specific CA to sign your certificates and simply want to use the Demo CA that is shipped with {branding}, do the following:
+If you ...
+
+* Didn't create or import new certs as described above and
+* Do not need a specific CA to sign your certificates and
+* Want to use the Demo CA that is shipped with {branding}
+
+Do the following:
 [NOTE]
 ====
 These instructions are only for running on a Linux system. If you are running on a Windows or OSX system, you will need to create your certificates on the Linux system, and then copy them over to your original system. The shell scripts for creating and swapping the certificates only work on Linux systems.
 ====
 
-. Unzip {branding} into the desired location. All relative directory paths are relative to the directory in which {branding} is unzipped. This will be referred to as <{branding}_HOME>.
-. Create new certificates for as many machines/VMs as you wish. These will all be signed by the same certificate of authority.
-+
+Create new certificates for as many machines/VMs as you wish. These will all be signed by the same certificate of authority.
+
 [source,bash]
 ----
 $> cd <DDF_HOME>/etc/certs
