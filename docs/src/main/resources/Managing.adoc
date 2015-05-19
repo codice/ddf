@@ -1168,6 +1168,280 @@ TLS_RSA_WITH_AES_128_CBC_SHA
 
 |===
 
+=== Configuring {branding} with New Certificates
+{branding} ships with default certificates configured to identify the local machine as "localhost." This allows one to unzip {branding} and run immediately in a secure manner. However, in order to access the {branding} instance from another machine over HTTPS (now the default for many services) without receiving warnings or failures, the default certificates need to be replaced with a certificate reflecting the name of the host machine as reachable from other network nodes.
+
+[IMPORTANT]
+====
+It is important when configuring a new certificate that you follow in order the procedure outlined below. Failure to do so could result in locking everyone out of the {branding} instance.
+====
+
+==== Important Terms
+
+[cols="3" options="header"]
+|===
+
+|Term
+|Definition
+|Example
+
+|FQDN	
+|Fully Qualified Domain Name	
+|search.codice.org
+
+|{branding}_HOME	
+|The path to the unzipped {branding} distribution	
+|/opt/ddf/ddf-2.6.0
+
+|Alias	
+|The nickname given to a certificate within a keystore to make it easily identifiable	
+|localhost within the default {branding} serverKeystore.jks
+
+|CN	
+|Common Name - The FQDN of the server as defined within the Certificate.	
+|search.codice.org
+
+|===
+
+==== Changing the URLs
+===== Updates via Web Configuration
+It is best to first change the URLs in {branding} before changing the certs. This allows {branding} to run in it's default state while everything gets updated. Once everything is updated, simply stop {branding}, update the keystores, and start it back up.
+
+. Start DDF 
++
+[source,bash]
+----
+$> cd <DDF_HOME>/bin
+$> ./ddf
+----
++
+. Go to https://localhost:8993/admin and step through the installer leaving all the defaults.
+. Login to the Felix webconsole (https://localhost:8993/system/console/configMgr) - when prompted using admin/admin as the username/password. +
++
+[NOTE]
+====
+There is a known bug in DDF 2.6.0 & DDF 2.6.1 that prevents the Security STS Sever config from displaying correctly in the Admin UI. Please use the Felix Webconsole when updating the urls
+====
++
+. The next few steps will require you to open a configuration and edit the given properties. +
++
+[NOTE]
+====
+Important: When updating the Solr URL's be sure to include "/solr" at the end of the URL.
+====
++
+[cols="3" options="header"]
+|===
+
+|Configuration Name
+|Property Name	
+|New Value
+
+|Catalog Federation Strategy	
+|Solr URL	
+|https://<FQDN>:<PORT>/solr
+
+|Persistent Store	
+|Solr URL	
+|https://<FQDN>:<PORT>/solr
+
+|Platform Global Config
+|Host	
+|<FQDN>
+
+|Catalog External Solr Catalog Provider	
+|HTTP URL	
+|https://<FQDN>:<PORT>/solr
+
+|Security STS Client	
+|STS WSDL Address	
+|https://<FQDN>:<PORT>/services/SecurityTokenService?wsdl
+
+|Security STS Server	
+|Token Issuer	
+|<FQDN> 
+
+|*Security STS Server
+|Signature Username
+|<Alias> *Only change this filed if you change the alias in the keystore
+
+|*Security STS Server
+|Encryption Username
+|<Alias> *Only change this filed if you change the alias in the keystore
+
+|=== 
++
+. Once the URLs have been changed, shut down the system
++
+[source,bash]
+----
+## From the DDF Console
+ddf@local> shutdown -f
+----
+
+===== Update Files in {branding}_HOME
+
+Update the user properties.
+[source,bash]
+----
+$> cd <DDF_HOME>/etc
+$> vi user.properties
+## Edit this line
+localhost=localhost,admin
+## To be:
+<FQDN>=<FQDN>,admin## Save and close the user.properties
+----
+
+[IMPORTANT]
+====
+If you plan on using a keystore alias other than localhost for your new certs or you plan on changing the keystore passwords from there default you will need to update the files below otherwise skip down to <<Creating New Certificates>>
+====
+
+In <{branding}_HOME>/etc/system.properties, modify the keystore and truststore paths and passwords as appropriate.
+
+.system.properties
+[source,bash]
+----
+#START DDF SETTINGS
+# Set the keystore and truststore Java properties
+javax.net.ssl.keyStore=etc/keystores/serverKeystore.jks
+javax.net.ssl.keyStorePassword=<NewPassword>
+javax.net.ssl.trustStore=etc/keystores/serverTruststore.jks
+javax.net.ssl.trustStorePassword=<NewPassword>
+javax.net.ssl.keyStoreType=jks
+----
+
+In <{branding}_HOME>/etc/ws-security/issuer, modify encryption.properties
+
+.encryption.properties
+[source,bash]
+----
+#Property descriptions at http://ws.apache.org/wss4j/config.html
+org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
+org.apache.ws.security.crypto.merlin.keystore.type=jks
+org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
+org.apache.ws.security.crypto.merlin.keystore.alias=<Alias>
+org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
+----
+
+In <{branding}_HOME>/etc/ws-security/issuer, modify signature.properties
+
+.signature.properties
+[source,bash]
+----
+#Property descriptions at http://ws.apache.org/wss4j/config.html
+org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
+org.apache.ws.security.crypto.merlin.keystore.type=jks
+org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
+org.apache.ws.security.crypto.merlin.keystore.private.password=<NewPassword>
+org.apache.ws.security.crypto.merlin.keystore.alias=<Alias>
+org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
+----
+
+In <{branding}_HOME>/etc/ws-security/server, modify encryption.properties
+
+.encryption.properties
+[source,bash]
+----
+#Property descriptions at http://ws.apache.org/wss4j/config.html
+org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
+org.apache.ws.security.crypto.merlin.keystore.type=jks
+org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
+org.apache.ws.security.crypto.merlin.keystore.alias=<Alias>
+org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
+#org.apache.ws.security.crypto.merlin.x509crl.file=etc/certs/demoCA/crl/crl.pem
+----
+
+In <{branding}_HOME>/etc/ws-security/server, modify signature.properties
+
+.signature.properties
+[source,bash]
+----
+#Property descriptions at http://ws.apache.org/wss4j/config.html
+org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
+org.apache.ws.security.crypto.merlin.keystore.type=jks
+org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
+org.apache.ws.security.crypto.merlin.keystore.alias=<Alias>
+org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
+----
+
+==== Creating New Certificates
+===== Create private key and certificate signing request
+
+.Create private key
+[source,bash]
+----
+$> openssl req -newkey rsa:2048 -keyout ddf.key -out ddf.csr
+----
+
+This command will prompt you for information about the certificate. When you are prompted for the "Common Name" or "CN" enter the Fully Qualified Domain Name (FQDN) of the system. An example of a FQDN would be "search.codice.org".
+Using the CSR (ddf.csr in this case), submit a request for a signed certificate from the organization's certificate issuer.  The issuer should respond with a certificate signed by the Certificate Authority (CA), typically in PEM format (base 64-encoded ASCII).  This signed certificate will be referred to as "ddf.crt". If you want to create your own CA and sign your own request see the section on <<Certificate Management>>
+
+===== Creating a new Keystore/Truststore with an existing Certificate and Private Key
+Using the private key, certificate, and CA certificate one can create a new keystore containing the data from the new files.
+
+.For a CA chain, concatenate the CA's together and create the pkcs #12 store:
+[source,bash]
+----
+$> cat <root CA PEM> <intermediate CA 1 PEM> <intermediate CA 2 PEM> > ca-chain.txt
+$> openssl pkcs12 -export -out ddf.p12 -in ddf.crt -inkey ddf.key -chain -CAfile ca-chain.txt
+----
+
+.Create the keystore:
+[source,bash]
+----
+$> keytool -importkeystore -srckeystore ddf.p12 -destkeystore serverKeystore.jks -srcstoretype pkcs12 -alias 1
+$> keytool -changealias -alias 1 -destalias ddf -keystore serverKeystore.jks
+# import each CA into keystore
+$> keytool -importcert -file <CA PEM> -keystore serverKeystore.jks -alias <CA alias>
+----
+
+The truststore can be created with only the use of the CA certificates.  Based on the concept of CA signing, the CA should be the only entry needed in the truststore.
+[source,bash]
+----
+# import each CA into truststore
+$> keytool -import -trustcacerts -alias <CA alias> -file <CA PEM> -keystore truststore.jks
+----
+[NOTE]
+====
+When federating with other {branding} instances that do not share the same CA, you will need to import the CA certs from the other federated instances and they will need to import yours.
+====
+
+==== Create Certs Signed by the Demo CA
+If you do not need a specific CA to sign your certificates and simply want to use the Demo CA that is shipped with {branding}, do the following:
+[NOTE]
+====
+These instructions are only for running on a Linux system. If you are running on a Windows or OSX system, you will need to create your certificates on the Linux system, and then copy them over to your original system. The shell scripts for creating and swapping the certificates only work on Linux systems.
+====
+
+. Unzip {branding} into the desired location. All relative directory paths are relative to the directory in which {branding} is unzipped. This will be referred to as <{branding}_HOME>.
+. Create new certificates for as many machines/VMs as you wish. These will all be signed by the same certificate of authority.
++
+[source,bash]
+----
+$> cd <DDF_HOME>/etc/certs
+## Make the shell scripts executable
+$> chmod a+x *.sh
+## Run the CertNew.sh script to create a new certificate, you will be prompted for the fully-qualified name of the host running the DDF. You can run this as many times as you wish to create as many certificates as you desire. 
+$> ./CertNew.sh
+## The certificate for each host is created in a subdirectory named after the hostname you specified.
+## Run the CertSwap.sh script to replace the existing localhost certificate with those created above
+$> ./CertSwap.sh <systemname>/<systemname>.jks systemname
+## You will be prompted for the keystore password (changeit). It will also ask if you should overwrite the existing alias (yes)
+----
+
+==== You're Done
+Start the DDF instance back up:
+[source,bash]
+----
+$> cd <DDF_HOME>/bin
+$> ./ddf
+----
+
+Now you should be able to hit the web interfaces of the newly-updated {branding} instance at: https://<FQDN>:8993/search
+
+
+
 === Configuring a Java Keystore for Secure Communications
 
 [NOTE]
