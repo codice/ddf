@@ -1,18 +1,25 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.proxy.http;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
@@ -27,18 +34,11 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-
 /**
  * Http Proxy service which creates a Camel based http proxy
- * 
+ *
  * @author ddf
- * 
+ *
  */
 public class HttpProxyServiceImpl implements HttpProxyService {
     BundleContext bundleContext = null;
@@ -83,6 +83,8 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     private static final int DEFAULT_TIMEOUT_MS = 5000;
 
+    private static final String SERVLET = "servlet";
+
     int incrementer = 0;
 
     private String trustStore = null;
@@ -91,8 +93,19 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     private CamelContext camelContext = null;
 
+    private String routeEndpointType = SERVLET;
+
+    public HttpProxyServiceImpl(final BundleContext bundleContext, CamelContext camelContext,
+            String endpointType) throws Exception {
+        this(bundleContext, camelContext);
+        this.routeEndpointType = endpointType;
+        if (!this.routeEndpointType.equals(SERVLET)) {
+            this.camelContext.removeComponent(SERVLET_COMPONENT);
+        }
+    }
+
     public HttpProxyServiceImpl(final BundleContext bundleContext, CamelContext camelContext)
-        throws Exception {
+            throws Exception {
         this.bundleContext = bundleContext;
         this.camelContext = camelContext;
 
@@ -115,7 +128,12 @@ public class HttpProxyServiceImpl implements HttpProxyService {
     }
 
     public String start(final String endpointName, final String targetUri, final Integer timeout)
-        throws Exception {
+            throws Exception {
+        return start(endpointName, targetUri, timeout, false);
+    }
+
+    public String start(final String endpointName, final String targetUri, final Integer timeout,
+            final boolean matchOnPrefix) throws Exception {
 
         // Enable proxy settings for the external target
         enableProxySettings();
@@ -127,9 +145,9 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         Protocol authhttps = null;
         File certStore = new File(trustStore);
         try {
-            authhttps = new Protocol("https", new AuthSSLProtocolSocketFactory(certStore.toURI()
-                    .toURL(), trustStorePassword, certStore.toURI().toURL(), trustStorePassword),
-                    443);
+            authhttps = new Protocol("https",
+                    new AuthSSLProtocolSocketFactory(certStore.toURI().toURL(), trustStorePassword,
+                            certStore.toURI().toURL(), trustStorePassword), 443);
         } catch (MalformedURLException e) {
             LOGGER.error(e.getMessage());
         }
@@ -138,15 +156,18 @@ public class HttpProxyServiceImpl implements HttpProxyService {
             Protocol.registerProtocol("https", authhttps);
         }
 
+        final String matchPrefix = (matchOnPrefix) ? "?matchOnUriPrefix=true" : "";
+
+        final String protocolDelimeter = (routeEndpointType.equals(SERVLET)) ? ":///" : "://";
+
         // Create Camel route
         RouteBuilder routeBuilder = new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("servlet:///" + endpointName)
-                        .removeHeader("Authorization")
-                        .removeHeader("Cookie")
-                        .to(targetUri + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout=" + timeout
-                                + "&httpClient.connectionManagerTimeout=" + timeout)
+                from(routeEndpointType + protocolDelimeter + endpointName + matchPrefix).removeHeader("Authorization")
+                        .removeHeader("Cookie").to(targetUri
+                        + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout="
+                        + timeout + "&httpClient.connectionManagerTimeout=" + timeout)
                         .routeId(endpointName);
             }
         };
@@ -180,12 +201,11 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         sysProxyConfigs.add(HTTPS_PROXY_KEY + HTTP_PROXY_AUTH_DOMAIN_KEY);
         sysProxyConfigs.add(HTTPS_PROXY_KEY + HTTP_PROXY_AUTH_HOST_KEY);
 
-        String prop = null;
-        for (int i = 0; i < sysProxyConfigs.size(); ++i) {
-            prop = System.getProperty(sysProxyConfigs.get(i));
+        for (String sysProxyConfig : sysProxyConfigs) {
+            String prop = System.getProperty(sysProxyConfig);
             if (StringUtils.isNotBlank(prop)) {
-                LOGGER.debug("Property: {} = {}", sysProxyConfigs.get(i), prop);
-                camelContext.getProperties().put(sysProxyConfigs.get(i), prop);
+                LOGGER.debug("Property: {} = {}", sysProxyConfig, prop);
+                camelContext.getProperties().put(sysProxyConfig, prop);
             }
         }
     }
@@ -246,5 +266,4 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         }
         camelContext.removeComponent(SERVLET_COMPONENT);
     }
-
 }
