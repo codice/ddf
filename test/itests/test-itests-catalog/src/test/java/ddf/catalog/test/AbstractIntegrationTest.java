@@ -14,9 +14,41 @@
  **/
 package ddf.catalog.test;
 
-import com.jayway.restassured.response.Response;
-import ddf.catalog.source.CatalogProvider;
-import ddf.catalog.source.FederatedSource;
+import static org.junit.Assert.fail;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
+import static org.ops4j.pax.exam.CoreOptions.vmOption;
+import static org.ops4j.pax.exam.CoreOptions.when;
+import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
+import static com.jayway.restassured.RestAssured.get;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.osgi.BlueprintListener;
@@ -41,39 +73,10 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import com.jayway.restassured.response.Response;
 
-import static com.jayway.restassured.RestAssured.get;
-import static org.junit.Assert.fail;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
-import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
-import static org.ops4j.pax.exam.CoreOptions.vmOption;
-import static org.ops4j.pax.exam.CoreOptions.when;
-import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFileExtend;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.logLevel;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.replaceConfigurationFile;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
+import ddf.catalog.source.CatalogProvider;
+import ddf.catalog.source.FederatedSource;
 
 /**
  * Abstract integration test with helper methods and configuration at the container level.
@@ -106,6 +109,8 @@ public abstract class AbstractIntegrationTest {
     protected static final String RMI_REG_PORT = "1100";
 
     protected static final String SERVICE_ROOT = "https://localhost:" + HTTPS_PORT + "/services";
+
+    protected static final String INSECURE_SERVICE_ROOT = "http://localhost:" + HTTP_PORT + "/services";
 
     protected static final String REST_PATH = SERVICE_ROOT + "/catalog/";
 
@@ -163,12 +168,10 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configureDistribution() {
-        return options(
-                karafDistributionConfiguration(
+        return options(karafDistributionConfiguration(
                         maven().groupId("ddf.distribution").artifactId("ddf").type("zip")
                                 .versionAsInProject().getURL(), "ddf", KARAF_VERSION)
-                        .unpackDirectory(new
-                                File("target/exam")).useDeployFolder(false));
+                        .unpackDirectory(new File("target/exam")).useDeployFolder(false));
 
     }
 
@@ -257,7 +260,8 @@ public abstract class AbstractIntegrationTest {
         return options(
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg", "featuresBoot",
                         "security-services-app,catalog-app,solr-app,spatial-app,sdk-app"),
-                editConfigurationFileExtend("etc/org.apache.karaf.features.cfg", "featuresRepositories",
+                editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
+                        "featuresRepositories",
                         "mvn:ddf.sdk/sdk-app/2.3.0.ALPHA1-SNAPSHOT/xml/features"));
 
     }
@@ -565,6 +569,24 @@ public abstract class AbstractIntegrationTest {
             }
         }
         return null;
+    }
+
+    public void startFeature(String... featureNames) throws Exception {
+        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx
+                .getServiceReference(FeaturesService.class);
+        FeaturesService featuresService = bundleCtx.getService(featuresServiceRef);
+        for (String featureName : featureNames) {
+            featuresService.installFeature(featureName);
+        }
+    }
+
+    public void stopFeature(String... featureNames) throws Exception {
+        ServiceReference<FeaturesService> featuresServiceRef = bundleCtx
+                .getServiceReference(FeaturesService.class);
+        FeaturesService featuresService = bundleCtx.getService(featuresServiceRef);
+        for (String featureName : featureNames) {
+            featuresService.uninstallFeature(featureName);
+        }
     }
 
     private class ServiceConfigurationListener implements ConfigurationListener {
