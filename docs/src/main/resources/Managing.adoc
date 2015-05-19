@@ -6,14 +6,14 @@ Distributed Data Framework ({branding}) is an agile and modular integration fram
 This page provides instructions to install, start, and stop the {branding}.
 
 == Documentation Guide
- 
+
 === Introduction
 
 ==== Overview
 This document serves to guide users, administrators and developers through the {branding}. 
 
 ==== Documentation Updates
-The most current Distributed Data Framework  {branding}) documentation is available at: https://tools.codice.org/wiki/display/{branding}/
+The most current Distributed Data Framework  {branding}) documentation is available at: https://tools.codice.org/wiki/display {branding}/
 
 ==== Conventions
 The following conventions are used within this documentation:
@@ -58,24 +58,80 @@ Questions about {branding} or this documentation should be posted to the {brandi
 {branding} is comprised of several modular applications, to be installed or uninstalled as needed.
 
 {branding} Administrative Application::
-The administrative application enhances administrative capabilities when installing and managing {branding}. It contains various services and interfaces that allow administrators more control over their systems. 
+The administrative application enhances administrative capabilities when installing and managing {branding}. It contains various services and interfaces that allow administrators more control over their systems.
 {branding} Catalog Application::
 The {branding} Catalog provides a framework for storing, searching, processing, and transforming information.
-Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog. 
+Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.
 At the core of the Catalog functionality is the *Catalog Framework*, which routes all requests and responses through the system, invoking additional processing per the system configuration.
 {branding} Content Application::
-The {branding} Content application provides a framework for storing, reading, processing, transforming and cataloging data. 
-{branding} Platform Application:: 
+The {branding} Content application provides a framework for storing, reading, processing, transforming and cataloging data.
+{branding} Platform Application::
 The Platform application is considered to be a core application of the distribution. The Platform application has fundamental building blocks that the distribution needs to run.
 These building blocks include subsets of: Karaf (http://karaf.apache.org/), CXF (http://cxf.apache.org/), Cellar (http://karaf.apache.org/index/subprojects/cellar.html), and Camel (http://camel.apache.org/). 
 +
-Included as part of the Platform application is also a Command Scheduler. The Command Scheduler allows users to schedule Command Line Shell Commands to run at certain specified intervals. 
+Included as part of the Platform application is also a Command Scheduler. The Command Scheduler allows users to schedule Command Line Shell Commands to run at certain specified intervals.
 {branding} Security Application::
-The Security application provides authentication, authorization, and auditing services for the {branding}. They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements. More information about the security framework and how everything works as a single security solution can be found on the Managing Web Service Security page. 
+The Security application provides authentication, authorization, and auditing services for the {branding}. They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements. More information about the security framework and how everything works as a single security solution can be found on the Managing Web Service Security page.
 {branding} Solr Catalog Application::
-The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using Apache Solr (http://lucene.apache.org/solr/) as a data store. 
+The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using Apache Solr (http://lucene.apache.org/solr/) as a data store.
 {branding} Spatial Application::
-The {branding} Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link. 
+The {branding} Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
+{branding} Standard Search UI::
+The {branding} Standard Search UI application allows a user to search for records in the local Catalog (provider) and federated sources. Results of the search are returned in HTML format and are displayed on a globe, providing a visual representation of where the records were found.
+
+=== Choosing a Guide
+The documentation is segmented by user needs, with users categorized as Users, Administrators, Integrators, and Developers. 
+
+Users::
+Users are end users interacting with the applications at the most basic level. 
+
+Administrators::
+Administrators will be installing, maintaining, and supporting existing applications.
+
+Integrators::
+Integrators will use the existing applications to support their external frameworks.
+
+Developers::
+Developers will build or extend the functionality of the applications. 
+
+==== Customizable Values
+
+Many values used in descriptions are customizable and should be changed for specific use cases. These values are denoted by < >, and by [[ ]]when within XML syntax. When using a real value, the placeholder characters should be omitted.
+
+==== Code Values
+
+Java objects, lines of code, or file properties are denoted with the Monospace font style. Example:  {branding}.catalog.CatalogFramework`
+
+==== Hyperlinks
+
+Some hyperlinks (e.g., `/system/console`) within the documentation assume a locally running installation of {branding}.  Simply change the hostname if accessing a remote host.
+
+==== Questions
+Questions about {branding} or this documentation should be posted to the {branding}-users forum (https://groups.google.com/d/forum {branding}-users), {branding}-announcements forum (https://groups.google.com/d/forum {branding}-announcements), or {branding}-developers forum (https://groups.google.com/d/forum {branding}-developers), where they will be responded to quickly by a member of the {branding} team.
+
+=== Applications
+
+{branding} is comprised of several modular applications, to be installed or uninstalled as needed.
+
+{branding} Administrative Application::
+The administrative application enhances administrative capabilities when installing and managing {branding}. It contains various services and interfaces that allow administrators more control over their systems.
+{branding} Catalog Application::
+The {branding} Catalog provides a framework for storing, searching, processing, and transforming information.
+Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.
+At the core of the Catalog functionality is the *Catalog Framework*, which routes all requests and responses through the system, invoking additional processing per the system configuration.
+{branding} Content Application::
+The {branding} Content application provides a framework for storing, reading, processing, transforming and cataloging data.
+{branding} Platform Application::
+The Platform application is considered to be a core application of the distribution. The Platform application has fundamental building blocks that the distribution needs to run.
+These building blocks include subsets of: Karaf (http://karaf.apache.org/), CXF (http://cxf.apache.org/), Cellar (http://karaf.apache.org/index/subprojects/cellar.html), and Camel (http://camel.apache.org/). 
++
+Included as part of the Platform application is also a Command Scheduler. The Command Scheduler allows users to schedule Command Line Shell Commands to run at certain specified intervals.
+{branding} Security Application::
+The Security application provides authentication, authorization, and auditing services for the {branding}. They comprise both a framework that developers and integrators can extend and a reference implementation that meets security requirements. More information about the security framework and how everything works as a single security solution can be found on the Managing Web Service Security page.
+{branding} Solr Catalog Application::
+The Solr Catalog Provider (SCP) is an implementation of the `CatalogProvider` interface using Apache Solr (http://lucene.apache.org/solr/) as a data store.
+{branding} Spatial Application::
+The {branding} Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
 {branding} Standard Search UI::
 The {branding} Standard Search UI application allows a user to search for records in the local Catalog (provider) and federated sources. Results of the search are returned in HTML format and are displayed on a globe, providing a visual representation of where the records were found.
 
@@ -92,11 +148,7 @@ Integrators::
 Integrators will use the existing applications to support their external frameworks.
 
 Developers::
-Developers will build or extend the functionality of the applications. 
-
-== Quick Start
-
-Distributed Data Framework ({branding}) is an agile and modular integration framework.  It is primarily focused on data integration, enabling clients to insert, query and transform information from disparate data sources via the {branding} Catalog. A Catalog API allows integrators to insert new capabilities at various stages throughout each operation.  {branding} is designed with the following architectural qualities to benefit integrators.
+Developers will build or extend the functionality of the applications.
 
 === Quick Start
 This quick tutorial will demonstrate:
@@ -139,7 +191,7 @@ Other applications may be installed at a later time.
 ==== Catalog Capabilities
 
 . Create an entry in the Catalog by ingesting a valid GeoJson file (attached to this page). This ingest can be performed using:
-.. A REST client, such as Google Chrome's Advanced REST Client. OR 
+.. A REST client, such as Google Chrome's Advanced REST Client. OR
 .. Using the following curl command to POST to the Catalog REST CRUD endpoint.
 +
 .Windows Example
@@ -152,7 +204,7 @@ curl.exe -H "Content-type: application/json;id=geojson" -i -X POST -d @"C:\path\
 curl -H "Content-type: application/json;id=geojson" -i -X POST -d @geojson_valid.json http://localhost:8181/services/catalog
 ----
 +
-Where: 
+Where:
 *-H* adds an HTTP header. In this case, Content-type header `application/json;id=geojson` is added to match the data being sent in the request.
 *-i* requests that HTTP headers are displayed in the response.
 *-X* specifies the type of HTTP operation. For this example, it is necessary to POST (ingest) data to the server.
@@ -314,6 +366,7 @@ There are three policies available.
 |===
 
 If no sort policy is defined for a particular search, the temporal policy will automatically be applied.
+
 
 [WARNING]
 ====
@@ -556,7 +609,7 @@ unzip ddf-kernel-X.Y.zip
 .Additional Configuration Step
 ----
 # Jetty Configuration
-org.ops4j.pax.web.config.file={karaf.home}/etc/jetty.xml
+org.ops4j.pax.web.config.file=${karaf.home}/etc/jetty.xml
 ----
 
 * Run the {branding} kernel using the appropriate script.
@@ -736,6 +789,8 @@ image::setup_types.png[Setup Types]
 
 The final step of initial configuration is a display of all applications installed and their current status. This tree structure demonstrates how several applications depend on other applications.
 
+image::select_applications_to_setup.png[Select Applications]
+
 [WARNING]
 ====
 Platform App, Admin App, and Security Services App CANNOT be selected or unselected as it is installed by default and can cause errors if removed.
@@ -769,7 +824,7 @@ image::details_tab.png[Details Tab]
 ===== Features
 The features tab breaks down the individual features of the application that can be installed or uninstalled as configurable features.
 
-image::features_tab.png[Features Tab,]
+image::features_tab.png[Features Tab]
 
 ==== Managing Applications
 The Manage button enables activation/deactivation and adding/removing applications. 
@@ -2676,13 +2731,13 @@ From step 10 forward, the message is completely decoupled from CAS and will proc
 More information on configuring the LDAP and a list of users and attributes can be found at the Embedded LDAP Configuration page.
 
 ==== Add cas-server-support-ldap-3.3.1_1.jar to CAS
-Copy `thirdparty/cas-server-support-ldap-3.3.1/target/cas-server-support-x509-3.3.1_1.jar` to `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/lib/cas-server-support-ldap-3.3.1_1.jar`.
+Copy `thirdparty/cas-server-support-ldap-3.3.1/target/cas-server-support-x509-3.3.1_1.jar` to `${ozone-widget-framework}/apache-tomecat-${version}/webapps/cas/WEB-INF/lib/cas-server-support-ldap-3.3.1_1.jar`.
 
 ==== Add spring-ldap-1.2.1_1.jar to CAS
-Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/lib/spring-ldap-1.2.1_1.jar`.
+Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `${ozone-widget-framework}/apache-tomecat-${version}/webapps/cas/WEB-INF/lib/spring-ldap-1.2.1_1.jar`.
 
 ==== Modify developerConfigContext.xml
-. In `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the `FastBindLdapAuthenticationHandler` bean definition to the `<list>` in the property stanza with name `authenticationHandlers` of the bean stanza with id `authenticationManager`:
+. In `${ozone-widget-framework}/apache-tomecat-${version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the `FastBindLdapAuthenticationHandler` bean definition to the `<list>` in the property stanza with name `authenticationHandlers` of the bean stanza with id `authenticationManager`:
 +
 .deployerConfigContext.xml
 [source,xml,linenums]
@@ -2705,8 +2760,8 @@ Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `{ozone-wi
 </bean>
 ----
 +
-. In `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, remove the bean stanza with class `ozone3.cas.adaptors.UserPropertiesFileAuthenticationHandler` from the `<list>` of the property stanza with name `authenticationHandlers`.
-. In `{ozone-widget-framework}/apache-tomecat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the contextSource bean stanza to the beans stanza:
+. In `${ozone-widget-framework}/apache-tomecat-${version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, remove the bean stanza with class `ozone3.cas.adaptors.UserPropertiesFileAuthenticationHandler` from the `<list>` of the property stanza with name `authenticationHandlers`.
+. In `${ozone-widget-framework}/apache-tomecat-${version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, add the contextSource bean stanza to the beans stanza:
 +
 .deployerConfigContext.xml
 [source,xml,linenums]
@@ -2727,7 +2782,7 @@ Copy `thirdparty/spring-ldap-1.2.1/target/spring-ldap-1.2.1_1.jar` to `{ozone-wi
 Ozone is also set up to work in LDAP. This section is a reference when Ozone is being used in conjunction with CAS. The following settings were used for internal testing and should only be used as a reference.
 
 . Modify OWFsecurityContext.xml
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/OWFsecurityContext.xml, change the sec:x509 stanza to the following:
+.. In ${ozone-widget-framework}/apache-tomecat-${version}/lib/OWFsecurityContext.xml, change the sec:x509 stanza to the following:
 +
 .OWFsecurityContext.xml
 [source]
@@ -2735,7 +2790,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 <sec:x509 subject-principal-regex="CN=(.*?)," user-service-ref="ldapUserService" />
 ----
 +
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/OWFsecurityContext.xml, remove the following import:
+.. In ${ozone-widget-framework}/apache-tomecat-${version}/lib/OWFsecurityContext.xml, remove the following import:
 +
 .OWFsecurityContext.xml
 [source]
@@ -2743,7 +2798,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 <import resource="ozone-security-beans/UserServiceBeans.xml" />
 ----
 +
-.. In `{ozone-widget-framework}/apache-tomecat-{version}/lib/OWFsecurityContext.xml`, add the following import:
+.. In `${ozone-widget-framework}/apache-tomecat-${version}/lib/OWFsecurityContext.xml`, add the following import:
 +
 .OWFsecurityContext.xml
 [source]
@@ -2752,7 +2807,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 ----
 +
 . Modify LdapBeans.xml
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `contextSource` to the following:
+.. In ${ozone-widget-framework}/apache-tomecat-${version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `contextSource` to the following:
 +
 .LdapBeans.xml
 [source,xml,linenums]
@@ -2763,7 +2818,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 </bean>
 ----
 +
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `authoritiesPopulator` to the following:
+.. In `${ozone-widget-framework}/apache-tomecat-${version}/lib/ozone-security-beans/LdapBeans.xml`, change the bean stanza with id `authoritiesPopulator` to the following:
 +
 .LdapBeans.xml
 [source,xml,linenums]
@@ -2775,7 +2830,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 </bean>
 ----
 +
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `ldapUserSearch` to the following:
+.. In `${ozone-widget-framework}/apache-tomecat-${version}/lib/ozone-security-beans/LdapBeans.xml`, change the bean stanza with id `ldapUserSearch` to the following:
 +
 .LdapBeans.xml
 [source,xml,linenums]
@@ -2788,7 +2843,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
     <constructor-arg ref="contextSource" />
 </bean>
 ----
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/LdapBeans.xml, change the bean stanza with id `userDetailsMapper` to the following:
+.. In `${ozone-widget-framework}/apache-tomecat-${version}/lib/ozone-security-beans/LdapBeans.xml`, change the bean stanza with id `userDetailsMapper` to the following:
 +
 .LdapBeans.xml
 [source,xml,linenums]
@@ -2803,7 +2858,7 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 ----
 +
 . Modify OWFCASBeans.xml
-.. In {ozone-widget-framework}/apache-tomecat-{version}/lib/ozone-security-beans/OWFCasBeans.xml, change the bean stanza with id `casAuthenticationProvider` to the following:
+.. In `${ozone-widget-framework}/apache-tomecat-${version}/lib/ozone-security-beans/OWFCasBeans.xml`, change the bean stanza with id `casAuthenticationProvider` to the following:
 +
 .OWFCasBeans.xml
 [source,xml,linenums]
@@ -2821,11 +2876,11 @@ Ozone is also set up to work in LDAP. This section is a reference when Ozone is 
 The follow settings were tested with CAS version 3.3.1. If any issues occur while configuring for newer versions, check the External Links section at the bottom of this page for the CAS documentation, which explains setting up certification authentication.
 
 ==== Add the cas-server-support-x509-3.3.1.jar to CAS
-Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.3.1.jar` to `apache-tomecat-{version}/webapps/cas/WEB-INF/lib/cas-server-support-x509-3.3.1.jar`.
+Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.3.1.jar` to `apache-tomecat-${version}/webapps/cas/WEB-INF/lib/cas-server-support-x509-3.3.1.jar`.
 
 ==== Configure Web Flow
 
-. In apache-tomcat-{version}/webapps/cas/WEB-INF/login-workflow.xml, make the following modifications:
+. In `apache-tomcat-${version}/webapps/cas/WEB-INF/login-workflow.xml`, make the following modifications:
 .. Remove the XML comments around the action-state stanza with id `startAuthenticate`.
 +
 .startAuthenticate
@@ -2844,7 +2899,7 @@ Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.
 [source,xml,linenums]
 ----
 <decision-state id="renewRequestCheck">
-  <if test="{externalContext.requestParameterMap['renew'] != '' &amp;&amp; externalContext.requestParameterMap['renew'] != null}" then="startAuthenticate" else="generateServiceTicket" />
+  <if test="${externalContext.requestParameterMap['renew'] != '' &amp;&amp; externalContext.requestParameterMap['renew'] != null}" then="startAuthenticate" else="generateServiceTicket" />
 </decision-state>
 ----
 +
@@ -2854,11 +2909,11 @@ Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.
 [source,xml,linenums]
 ----
 <decision-state id="gatewayRequestCheck">
-  <if test="{externalContext.requestParameterMap['gateway'] != '' &amp;&amp; externalContext.requestParameterMap['gateway'] != null &amp;&amp; flowScope.service != null}" then="redirect" else="startAuthenticate" />
+  <if test="${externalContext.requestParameterMap['gateway'] != '' &amp;&amp; externalContext.requestParameterMap['gateway'] != null &amp;&amp; flowScope.service != null}" then="redirect" else="startAuthenticate" />
 </decision-state>
 ----
 +
-. In `apache-tomcat-{version}/webapps/cas/WEB-INF/cas-servlet.xml` make the following modifications:
+. In `apache-tomcat-${version}/webapps/cas/WEB-INF/cas-servlet.xml` make the following modifications:
 .. Define the x509Check bean.
 +
 .x509Check
@@ -2873,7 +2928,7 @@ Copy `thirdparty/cas-server-support-x509-3.3.1/target/cas-server-support-x509-3.
 ----
 
 ==== Configure the Authentication Handler
-In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
+In `apache-tomcat-${version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
 
 . In the *`list`* stanza of the property stanza with name `authenticationHandlers` of the bean stanza with id `authenticationManager`, add the `X509CredentialAuthenticationHander` bean definition.
 +
@@ -2905,7 +2960,7 @@ In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make
 ----
 
 ==== Configure the Credentials to the Principal Resolver
-In `apache-tomcat-{version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
+In `apache-tomcat-${version}/webapps/cas/WEB-INF/deployerConfigContext.xml`, make the following modifications:
 
 . In the list stanza of the property stanza with name `credentialsToPrincipalResolver` of the bean stanza with id `AuthenticationManager`, add the `X509CertificateCredentialsToIdentifierPrincipalResolver` bean definition.  The pattern in the value attribute on the property stanza can be modified to suit your needs.  The following is a simple example that uses the first CN field in the DN as the Principal. 
 +
@@ -2956,9 +3011,9 @@ Different resolvers should be used depending on the use-case for the server. Whe
 ==== Default Certificates
 To verify certificate authentication with the default CAS files you must make sure that the included testUser and testAdmin certificates are installed into your web browser. This has only been tested to work with Firefox. These certificates were provided in the Ozone Widget Framework and can be used in development environments.
 
-* The sample certificate for testUser1 is {ozone-widget-framework}/apache-tomcat-{version}/certs/testUser1.p12
+* The sample certificate for testUser1 is `${ozone-widget-framework}/apache-tomcat-${version}/certs/testUser1.p12`
 ** password: password
-* The sample certificate for testAdmin1 is {ozone-widget-framework}/apache-tomcat-{version}/certs/testAdmin1.p12
+* The sample certificate for testAdmin1 is `${ozone-widget-framework}/apache-tomcat-${version}/certs/testAdmin1.p12`
 ** password: password
 
 ==== External Links
@@ -3182,6 +3237,1678 @@ Caused by: java.security.cert.CertPathValidatorException: Certificate has been r
 
 === Configuring WSS Using Standalone Servers
 
+==== Encryption Command
+An encrypt security command is provided with {branding} that allows plain text to be encrypted. This is useful when displaying password fields in a GUI.
+
+Below is an example of the security:encrypt command used to encrypt the plain text "myPasswordToEncrypt". The output, `bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=`, is the encrypted value.
+
+----
+ddf@local>security:encrypt myPasswordToEncrypt
+  
+bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
+----
+
+=== Redaction and Filtering
+
+Redaction and filtering are performed in a Post Query plugin that occurs after a query has been performed. 
+
+==== How Redaction and Filtering Works
+Each metacard result will contain security attributes that are pulled from the metadata record after being processed by a PostQueryPlugin that populates this attribute. The security attribute is a HashMap containing a set of keys that map to lists of values. The metacard is then processed by a filter/redaction plugin that creates a KeyValueCollectionPermission from the metacard's security attribute. This permission is then checked against the user subject to determine if the subject has the correct claims to view that metacard. The decision to filter/redact* the metacard eventually relies on the installed PDP (features:install security-pdp-java OR features:install security-pdp-xacml). The PDP that is being used returns a decision, and the metacard will either be filtered/redacted or allowed to pass through.
+
+[NOTE]
+====
+*The default setting is to redact records*.
+====
+
+The security attributes populated on the metacard are completely dependent on the type of the metacard. Each type of metacard must have its own PostQueryPlugin that reads the metadata being returned and populates the metacard's security attribute. If the subject or resource (metacard) permissions are missing during redaction, that resource is redacted.
+
+Example (represented as simple XML for ease of understanding):
+[source,xml,linenums]
+----
+<metacard>
+    <security>
+        <map>
+            <entry key="entry1" value="A,B" />
+            <entry key="entry2" value="X,Y" />
+            <entry key="entry3" value="USA,GBR" />
+            <entry key="entry4" value="USA,AUS" />
+        </map>
+    </security>
+</metacard>
+----
+
+[source,xml,linenums]
+----
+<user>
+    <claim name="claim1">
+        <value>A</value>
+        <value>B</value>
+    </claim>
+    <claim name="claim2">
+        <value>X</value>
+        <value>Y</value>
+    </claim>
+    <claim name="claim3">
+        <value>USA</value>
+    </claim>
+    <claim name="claim4">
+        <value>USA</value>
+    </claim>
+</user>
+----
+
+In the above example, the user's claims are represented very simply and are similar to how they would actually appear in a SAML 2 assertion. Each of these user (or subject) claims will be converted to a KeyValuePermission object. These permission objects will be implied against the permission object generated from the metacard record. In this particular case, the metacard might be allowed if the policy is configured appropriately because all of the permissions line up correctly.
+
+==== Redaction Policies
+The procedure for setting up a policy differs depending on which PDP implementation installed. The `security-pdp-java` implementation is the simplest PDP to use, so it will be covered here.
+
+. Open the http://localhost:8181/system/console/configuration.*
+. Click on the Authz Security Settings configuration.
+. Add any roles that are allowed to access protected services.
+. Add any SOAP actions that are not to be protected by the PDP.
+. Add any attribute mappings necessary to map between subject claims and metacard values.
+.. For example, the above example would require two Match All mappings of claim1=entry1 and claim2=entry2
+.. Match One mappings would contain claim3=entry3 and claim4=entry4.
+
+[NOTE]
+====
+See the Security PDP AuthZ Realm section of this documentation for a description of the configuration page.
+====
+
+With the security-pdp-java feature configured in this way, the above Metacard would be displayed to the user.
+
+The XACML PDP is explained in more detail in the XACML Policy Decision Point (PDP) section of this documentation. It the administrator's responsibility to write a XACML policy capable of returning the correct response message. The Java-based PDP should perform adequately in most situations. It is possible to install the security-pdp-java and security-pdp-xacml features at the same time. The system could be configured in this way in order to allow the Java PDP to handle most cases and only have XACML policies to handle more complex situations than what the Java PDP is designed for. Keep in mind that this would be a very complex configuration with both PDPs installed, and this should only be performed if you understand the complex details.
+
+==== Redact a New Type of Metacard
+To enable redaction/filtering on a new type of record, implement a PostQueryPlugin that is able to read the string metadata contained within the metacard record. The plugin must set the security attribute to a map of list of values extracted from the metacard. Note that in {branding}, there is no default plugin that populates the security attribute on the metacard. A plugin must be created to populate these fields in order for redaction/filtering to work correctly.
+
+Example redacted record:
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<metacard xmlns="urn:catalog:metacard" xmlns:ns2="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" ns2:id="99f494b22f4341e9a3ba3ef6a5fe8734">
+    <type>ddf.metacard</type>
+    <source>ddf.distribution</source>
+    <stringxml name="metadata">
+        <value>
+            <meta:Resource xmlns:meta="...">
+                <meta:identifier meta:qualifier="http://metadata/noaccess" meta:value="REDACTED"/>
+                <meta:title>REDACTED</meta:title>
+                <meta:creator>
+                    <meta:Organization>
+                        <meta:name>REDACTED</meta:name>
+                    </meta:Organization>
+                </meta:creator>
+                <meta:subjectCoverage>
+                    <meta:Subject>
+                        <meta:category meta:label="REDACTED"/>
+                    </meta:Subject>
+                </meta:subjectCoverage>
+                <meta:security SEC:controls="A B" SEC:group="X" SEC:origin="USA"/>
+            </meta:Resource>
+        </value>
+    </stringxml>
+    <string name="resource-uri">
+        <value>catalog://metadata/noaccess</value>
+    </string>
+    <string name="title">
+        <value>REDACTED</value>
+    </string>
+    <string name="resource-size">
+        <value>REDACTED</value>
+    </string>
+</metacard>
+----
+
+=== Security Token Service
+The Security Token Service (STS) is a service running in {branding} that allows clients to request SAML v2.0 assertions.  These assertions are then used to authenticate a client allowing them to issue other requests, such as ingests or queries to {branding} services.  
+
+The STS is an extension of Apache CXF-STS.  It is a SOAP web service that utilizes WS-Security policies. The generated SAML assertions contain attributes about a user and is used by the Policy Enforcement Point (PEP) in the secure endpoints. Specific configuration details on the bundles that come with {branding} can be found on the Security STS application page. This page details all of the STS components that come out of the box with {branding}, along with configuration options, installation help, and which services they import and export.
+
+==== Using the Security Token Service (STS)
+Once installed, the STS can be used to request SAML v2.0 assertions via a SOAP web service request. Out of the box, the STS supports authentication from existing SAML tokens, CAS proxy tickets, username/password, and x509 certificates. It also supports retrieving claims using LDAP.
+
+===== Standalone Installation
+The STS cannot currently be installed on a kernel distribution of {branding}. To run a STS-only {branding} installation, uninstall the catalog components that are not being used. The following list displays the features that can be uninstalled to minimize the runtime size of {branding} in an STS-only mode. This list is not a comprehensive list of every feature that can be uninstalled; it is a list of the larger components that can be uninstalled without impacting the STS functionality.  
+
+.Unnecessary Features
+* catalog-core-standardframework
+* catalog-solr-embedded-provider
+* catalog-opensearch-endpoint
+* catalog-opensearch-souce
+* catalog-rest-endpoint
+
+==== STS Claims Handlers
+Claims handlers are classes that convert the incoming user credentials into a set of attribute claims that will be populated in the SAML assertion. An example in action would be the LDAPClaimsHandler that takes in the user's credentials and retrieves the user's attributes from a backend LDAP server. These attributes are then mapped and added to the SAML assertion being created. Integrators and developers can add moreclaims handlers that can handle other types of external services that store user attributes.
+
+===== Add a Custom Claims Handler
+
+====== Description
+A claim is an additional piece of data about a principal that can be included in a token along with basic token data. A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
+
+====== Motivation
+A developer may want to add a custom claims handler to retrieve attributes from an external attribute store. 
+====== Steps
+The following steps define the procedure for adding a custom claims handler to the STS.
+
+. The new claims handler must implement the org.apache.cxf.sts.claims.ClaimsHander interface.
++
+[source,java,linenums]
+----
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+ 
+package org.apache.cxf.sts.claims;
+ 
+import java.net.URI;
+import java.util.List;
+ 
+/**
+ * This interface provides a pluggable way to handle Claims.
+ */
+public interface ClaimsHandler {
+ 
+    List<URI> getSupportedClaimTypes();
+ 
+    ClaimCollection retrieveClaimValues(RequestClaimCollection claims, ClaimsParameters parameters);
+ 
+}
+----
++
+.  Expose the new claims handler as an OSGi service under the `org.apache.cxf.sts.claims.ClaimsHandler` interface.
++
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+ 
+    <bean id="CustomClaimsHandler" class="security.sts.claimsHandler.CustomClaimsHandler" />
+     
+    <service ref="customClaimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
+   
+</blueprint>
+----
+. Deploy the bundle.
+
+If the new claims handler is hitting an external service that is secured with SSL, a developer may have to add the root CA of the external site to the {branding} trustStore and add a valid certificate into the {branding} keyStore. Doing so will allow the SSL to encrypt messages that will be accepted by the external service. For more information on certificates, refer to the Configuring a Java Keystore for Secure Communications page.
+
+==== STS WS-Trust WSDL Document
+
+[NOTE]
+====
+This XML file is found inside of the STS bundle and is named ws-trust-1.4-service.wsdl.
+====
+
+[source,xml,linenums]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:tns="http://docs.oasis-open.org/ws-sx/ws-trust/200512/" xmlns:wstrust="http://docs.oasis-open.org/ws-sx/ws-trust/200512/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsap10="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp="http://www.w3.org/ns/ws-policy" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" targetNamespace="http://docs.oasis-open.org/ws-sx/ws-trust/200512/">
+    <wsdl:types>
+        <xs:schema elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+            <xs:element name="RequestSecurityToken" type="wst:AbstractRequestSecurityTokenType"/>
+            <xs:element name="RequestSecurityTokenResponse" type="wst:AbstractRequestSecurityTokenType"/>
+            <xs:complexType name="AbstractRequestSecurityTokenType">
+                <xs:sequence>
+                    <xs:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="Context" type="xs:anyURI" use="optional"/>
+                <xs:anyAttribute namespace="##other" processContents="lax"/>
+            </xs:complexType>
+            <xs:element name="RequestSecurityTokenCollection" type="wst:RequestSecurityTokenCollectionType"/>
+            <xs:complexType name="RequestSecurityTokenCollectionType">
+                <xs:sequence>
+                    <xs:element name="RequestSecurityToken" type="wst:AbstractRequestSecurityTokenType" minOccurs="2" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="RequestSecurityTokenResponseCollection" type="wst:RequestSecurityTokenResponseCollectionType"/>
+            <xs:complexType name="RequestSecurityTokenResponseCollectionType">
+                <xs:sequence>
+                    <xs:element ref="wst:RequestSecurityTokenResponse" minOccurs="1" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:anyAttribute namespace="##other" processContents="lax"/>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+    <!-- WS-Trust defines the following GEDs -->
+    <wsdl:message name="RequestSecurityTokenMsg">
+        <wsdl:part name="request" element="wst:RequestSecurityToken"/>
+    </wsdl:message>
+    <wsdl:message name="RequestSecurityTokenResponseMsg">
+        <wsdl:part name="response" element="wst:RequestSecurityTokenResponse"/>
+    </wsdl:message>
+    <wsdl:message name="RequestSecurityTokenCollectionMsg">
+        <wsdl:part name="requestCollection" element="wst:RequestSecurityTokenCollection"/>
+    </wsdl:message>
+    <wsdl:message name="RequestSecurityTokenResponseCollectionMsg">
+        <wsdl:part name="responseCollection" element="wst:RequestSecurityTokenResponseCollection"/>
+    </wsdl:message>
+    <!-- This portType an example of a Requestor (or other) endpoint that
+         Accepts SOAP-based challenges from a Security Token Service -->
+    <wsdl:portType name="WSSecurityRequestor">
+        <wsdl:operation name="Challenge">
+            <wsdl:input message="tns:RequestSecurityTokenResponseMsg"/>
+            <wsdl:output message="tns:RequestSecurityTokenResponseMsg"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <!-- This portType is an example of an STS supporting full protocol -->
+    <wsdl:portType name="STS">
+        <wsdl:operation name="Cancel">
+            <wsdl:input wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Cancel" message="tns:RequestSecurityTokenMsg"/>
+            <wsdl:output wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/CancelFinal" message="tns:RequestSecurityTokenResponseMsg"/>
+        </wsdl:operation>
+        <wsdl:operation name="Issue">
+            <wsdl:input wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue" message="tns:RequestSecurityTokenMsg"/>
+            <wsdl:output wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTRC/IssueFinal" message="tns:RequestSecurityTokenResponseCollectionMsg"/>
+        </wsdl:operation>
+        <wsdl:operation name="Renew">
+            <wsdl:input wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Renew" message="tns:RequestSecurityTokenMsg"/>
+            <wsdl:output wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/RenewFinal" message="tns:RequestSecurityTokenResponseMsg"/>
+        </wsdl:operation>
+        <wsdl:operation name="Validate">
+            <wsdl:input wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate" message="tns:RequestSecurityTokenMsg"/>
+            <wsdl:output wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/ValidateFinal" message="tns:RequestSecurityTokenResponseMsg"/>
+        </wsdl:operation>
+        <wsdl:operation name="KeyExchangeToken">
+            <wsdl:input wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/KET" message="tns:RequestSecurityTokenMsg"/>
+            <wsdl:output wsam:Action="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/KETFinal" message="tns:RequestSecurityTokenResponseMsg"/>
+        </wsdl:operation>
+        <wsdl:operation name="RequestCollection">
+            <wsdl:input message="tns:RequestSecurityTokenCollectionMsg"/>
+            <wsdl:output message="tns:RequestSecurityTokenResponseCollectionMsg"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <!-- This portType is an example of an endpoint that accepts
+         Unsolicited RequestSecurityTokenResponse messages -->
+    <wsdl:portType name="SecurityTokenResponseService">
+        <wsdl:operation name="RequestSecurityTokenResponse">
+            <wsdl:input message="tns:RequestSecurityTokenResponseMsg"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="STS_Binding" type="wstrust:STS">
+        <wsp:PolicyReference URI="#STS_policy"/>
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="Issue">
+            <soap:operation soapAction="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="Validate">
+            <soap:operation soapAction="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Validate"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="Cancel">
+            <soap:operation soapAction="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Cancel"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="Renew">
+            <soap:operation soapAction="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Renew"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="KeyExchangeToken">
+            <soap:operation soapAction="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/KeyExchangeToken"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="RequestCollection">
+            <soap:operation soapAction="http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/RequestCollection"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsp:Policy wsu:Id="STS_policy">
+        <wsp:ExactlyOne>
+            <wsp:All>
+                <wsap10:UsingAddressing/>
+                <wsp:ExactlyOne>
+                    <sp:TransportBinding xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+                        <wsp:Policy>
+                            <sp:TransportToken>
+                                <wsp:Policy>
+                                    <sp:HttpsToken>
+                                        <wsp:Policy/>
+                                    </sp:HttpsToken>
+                                </wsp:Policy>
+                            </sp:TransportToken>
+                            <sp:AlgorithmSuite>
+                                <wsp:Policy>
+                                    <sp:Basic128/>
+                                </wsp:Policy>
+                            </sp:AlgorithmSuite>
+                            <sp:Layout>
+                                <wsp:Policy>
+                                    <sp:Lax/>
+                                </wsp:Policy>
+                            </sp:Layout>
+                            <sp:IncludeTimestamp/>
+                        </wsp:Policy>
+                    </sp:TransportBinding>
+                </wsp:ExactlyOne>
+                <sp:Wss11 xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+                    <wsp:Policy>
+                        <sp:MustSupportRefKeyIdentifier/>
+                        <sp:MustSupportRefIssuerSerial/>
+                        <sp:MustSupportRefThumbprint/>
+                        <sp:MustSupportRefEncryptedKey/>
+                    </wsp:Policy>
+                </sp:Wss11>
+                <sp:Trust13 xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+                    <wsp:Policy>
+                        <sp:MustSupportIssuedTokens/>
+                        <sp:RequireClientEntropy/>
+                        <sp:RequireServerEntropy/>
+                    </wsp:Policy>
+                </sp:Trust13>
+            </wsp:All>
+        </wsp:ExactlyOne>
+    </wsp:Policy>
+    <wsp:Policy wsu:Id="Input_policy">
+        <wsp:ExactlyOne>
+            <wsp:All>
+                <sp:SignedParts xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+                    <sp:Body/>
+                    <sp:Header Name="To" Namespace="http://www.w3.org/2005/08/addressing"/>
+                    <sp:Header Name="From" Namespace="http://www.w3.org/2005/08/addressing"/>
+                    <sp:Header Name="FaultTo" Namespace="http://www.w3.org/2005/08/addressing"/>
+                    <sp:Header Name="ReplyTo" Namespace="http://www.w3.org/2005/08/addressing"/>
+                    <sp:Header Name="MessageID" Namespace="http://www.w3.org/2005/08/addressing"/>
+                    <sp:Header Name="RelatesTo" Namespace="http://www.w3.org/2005/08/addressing"/>
+                    <sp:Header Name="Action" Namespace="http://www.w3.org/2005/08/addressing"/>
+                </sp:SignedParts>
+                <sp:EncryptedParts xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+                    <sp:Body/>
+                </sp:EncryptedParts>
+            </wsp:All>
+        </wsp:ExactlyOne>
+    </wsp:Policy>
+    <wsp:Policy wsu:Id="Output_policy">
+        <wsp:ExactlyOne>
+            <wsp:All>
+                <sp:SignedParts xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+                    <sp:Body/>
+                    <sp:Header Name="To" Namespace="http://www.w3.org/2005/08/addressing"/>
+                    <sp:Header Name="From" Namespace="http://www.w3.org/2005/08/addressing"/>
+                    <sp:Header Name="FaultTo" Namespace="http://www.w3.org/2005/08/addressing"/>
+                    <sp:Header Name="ReplyTo" Namespace="http://www.w3.org/2005/08/addressing"/>
+                    <sp:Header Name="MessageID" Namespace="http://www.w3.org/2005/08/addressing"/>
+                    <sp:Header Name="RelatesTo" Namespace="http://www.w3.org/2005/08/addressing"/>
+                    <sp:Header Name="Action" Namespace="http://www.w3.org/2005/08/addressing"/>
+                </sp:SignedParts>
+                <sp:EncryptedParts xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702">
+                    <sp:Body/>
+                </sp:EncryptedParts>
+            </wsp:All>
+        </wsp:ExactlyOne>
+    </wsp:Policy>
+    <wsdl:service name="SecurityTokenService">
+        <wsdl:port name="STS_Port" binding="tns:STS_Binding">
+            <soap:address location="http://localhost:8181/services/SecurityTokenService"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
+----
+
+==== Example Request and Responses for a SAML Assertion
+A client performs a RequestSecurityToken operation against the STS to receive a SAML assertion. The {branding} STS offers several different ways to request a SAML assertion. For help in understanding the various request and response formats, samples have been provided. The samples are divided out into different request token types.
+
+Most endpoints that have been used in {branding} require the X.509 PublicKey SAML assertion.
+
+==== BinarySecurityToken (CAS) SAML Security Token Request/Response
+
+===== BinarySecurityToken (CAS) Sample Request/Response
+
+====== Request
+
+.Sample Request
+[source,xml,linenums]
+----
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Header>
+        <Action xmlns="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</Action>
+        <MessageID xmlns="http://www.w3.org/2005/08/addressing">urn:uuid:60652909-faca-4e4a-a4a7-8a5ce243a7cb</MessageID>
+        <To xmlns="http://www.w3.org/2005/08/addressing">https://server:8993/services/SecurityTokenService</To>
+        <ReplyTo xmlns="http://www.w3.org/2005/08/addressing">
+            <Address>http://www.w3.org/2005/08/addressing/anonymous</Address>
+        </ReplyTo>
+        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" soap:mustUnderstand="1">
+            <wsu:Timestamp wsu:Id="TS-1">
+                <wsu:Created>2013-04-29T18:35:10.688Z</wsu:Created>
+                <wsu:Expires>2013-04-29T18:40:10.688Z</wsu:Expires>
+            </wsu:Timestamp>
+        </wsse:Security>
+    </soap:Header>
+    <soap:Body>
+        <wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+            <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</wst:RequestType>
+            <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+                <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
+                    <wsa:Address>https://server:8993/services/SecurityTokenService</wsa:Address>
+                </wsa:EndpointReference>
+            </wsp:AppliesTo>
+            <wst:Claims xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" Dialect="http://schemas.xmlsoap.org/ws/2005/05/identity">
+                <ic:ClaimType xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"/>
+                <ic:ClaimType xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
+                <ic:ClaimType xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"/>
+                <ic:ClaimType xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"/>
+                <ic:ClaimType xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
+            </wst:Claims>
+            <wst:OnBehalfOf>
+                <BinarySecurityToken ValueType="#CAS" EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ns1:Id="CAS" xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:ns1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">U1QtMTQtYUtmcDYxcFRtS0FxZG1pVDMzOWMtY2FzfGh0dHBzOi8vdG9rZW5pc3N1ZXI6ODk5My9zZXJ2aWNlcy9TZWN1cml0eVRva2VuU2VydmljZQ==</BinarySecurityToken>
+            </wst:OnBehalfOf>
+            <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
+            <wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey</wst:KeyType>
+            <wst:UseKey>
+                <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                    <ds:X509Data>
+                        <ds:X509Certificate>
+MIIC5DCCAk2gAwIBAgIJAKj7ROPHjo1yMA0GCSqGSIb3DQEBCwUAMIGKMQswCQYDVQQGEwJVUzEQ
+MA4GA1UECAwHQXJpem9uYTERMA8GA1UEBwwIR29vZHllYXIxGDAWBgNVBAoMD0xvY2toZWVkIE1h
+cnRpbjENMAsGA1UECwwESTRDRTEPMA0GA1UEAwwGY2xpZW50MRwwGgYJKoZIhvcNAQkBFg1pNGNl
+QGxtY28uY29tMB4XDTEyMDYyMDE5NDMwOVoXDTIyMDYxODE5NDMwOVowgYoxCzAJBgNVBAYTAlVT
+MRAwDgYDVQQIDAdBcml6b25hMREwDwYDVQQHDAhHb29keWVhcjEYMBYGA1UECgwPTG9ja2hlZWQg
+TWFydGluMQ0wCwYDVQQLDARJNENFMQ8wDQYDVQQDDAZjbGllbnQxHDAaBgkqhkiG9w0BCQEWDWk0
+Y2VAbG1jby5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAIpHxCBLYE7xfDLcITS9SsPG
+4Q04Z6S32/+TriGsRgpGTj/7GuMG7oJ98m6Ws5cTYl7nyunyHTkZuP7rBzy4esDIHheyx18EgdSJ
+vvACgGVCnEmHndkf9bWUlAOfNaxW+vZwljUkRUVdkhPbPdPwOcMdKg/SsLSNjZfsQIjoWd4rAgMB
+AAGjUDBOMB0GA1UdDgQWBBQx11VLtYXLvFGpFdHnhlNW9+lxBDAfBgNVHSMEGDAWgBQx11VLtYXL
+vFGpFdHnhlNW9+lxBDAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAHYs2OI0K6yVXzyS
+sKcv2fmfw6XCICGTnyA7BOdAjYoqq6wD+33dHJUCFDqye7AWdcivuc7RWJt9jnlfJZKIm2BHcDTR
+Hhk6CvjJ14Gf40WQdeMHoX8U8b0diq7Iy5Ravx+zRg7SdiyJUqFYjRh/O5tywXRT1+freI3bwAN0
+L6tQ
+</ds:X509Certificate>
+                    </ds:X509Data>
+                </ds:KeyInfo>
+            </wst:UseKey>
+            <wst:Renewing/>
+        </wst:RequestSecurityToken>
+    </soap:Body>
+</soap:Envelope>
+----
+
+====== Response
+
+.Sample Response
+[source,xml,linenums]
+----
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Header>
+        <Action xmlns="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTRC/IssueFinal</Action>
+        <MessageID xmlns="http://www.w3.org/2005/08/addressing">urn:uuid:7a6fde04-9013-41ef-b08b-0689ffa9c93e</MessageID>
+        <To xmlns="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/anonymous</To>
+        <RelatesTo xmlns="http://www.w3.org/2005/08/addressing">urn:uuid:60652909-faca-4e4a-a4a7-8a5ce243a7cb</RelatesTo>
+        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" soap:mustUnderstand="1">
+            <wsu:Timestamp wsu:Id="TS-2">
+                <wsu:Created>2013-04-29T18:35:11.459Z</wsu:Created>
+                <wsu:Expires>2013-04-29T18:40:11.459Z</wsu:Expires>
+            </wsu:Timestamp>
+        </wsse:Security>
+    </soap:Header>
+    <soap:Body>
+        <RequestSecurityTokenResponseCollection xmlns="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:ns2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:ns3="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns:ns5="http://docs.oasis-open.org/ws-sx/ws-trust/200802">
+            <RequestSecurityTokenResponse>
+                <TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</TokenType>
+                <RequestedSecurityToken>
+                    <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="_BDC44EB8593F47D1B213672605113671" IssueInstant="2013-04-29T18:35:11.370Z" Version="2.0" xsi:type="saml2:AssertionType">
+                        <saml2:Issuer>tokenissuer</saml2:Issuer>
+                        <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                            <ds:SignedInfo>
+                                <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                                <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+                                <ds:Reference URI="#_BDC44EB8593F47D1B213672605113671">
+                                    <ds:Transforms>
+                                        <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                                        <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+                                            <ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="xs"/>
+                                        </ds:Transform>
+                                    </ds:Transforms>
+                                    <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                                    <ds:DigestValue>6wnWbft6Pz5XOF5Q9AG59gcGwLY=</ds:DigestValue>
+                                </ds:Reference>
+                            </ds:SignedInfo>
+                            <ds:SignatureValue>h+NvkgXGdQtca3/eKebhAKgG38tHp3i2n5uLLy8xXXIg02qyKgEP0FCowp2LiYlsQU9YjKfSwCUbH3WR6jhbAv9zj29CE+ePfEny7MeXvgNl3wId+vcHqti/DGGhhgtO2Mbx/tyX1BhHQUwKRlcHajxHeecwmvV7D85NMdV48tI=</ds:SignatureValue>
+                            <ds:KeyInfo>
+                                <ds:X509Data>
+                                    <ds:X509Certificate>MIIDmjCCAwOgAwIBAgIBBDANBgkqhkiG9w0BAQQFADB1MQswCQYDVQQGEwJVUzEQMA4GA1UECBMH
+QXJpem9uYTERMA8GA1UEBxMIR29vZHllYXIxEDAOBgNVBAoTB0V4YW1wbGUxEDAOBgNVBAoTB0V4
+YW1wbGUxEDAOBgNVBAsTB0V4YW1wbGUxCzAJBgNVBAMTAkNBMB4XDTEzMDQwOTE4MzcxMVoXDTIz
+MDQwNzE4MzcxMVowgaYxCzAJBgNVBAYTAlVTMRAwDgYDVQQIEwdBcml6b25hMREwDwYDVQQHEwhH
+b29keWVhcjEQMA4GA1UEChMHRXhhbXBsZTEQMA4GA1UEChMHRXhhbXBsZTEQMA4GA1UECxMHRXhh
+bXBsZTEUMBIGA1UEAxMLdG9rZW5pc3N1ZXIxJjAkBgkqhkiG9w0BCQEWF3Rva2VuaXNzdWVyQGV4
+YW1wbGUuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDfktpA8Lrp9rTfRibKdgtxtN9
+uB44diiIqq3JOzDGfDhGLu6mjpuHO1hrKItv42hBOhhmH7lS9ipiaQCIpVfgIG63MB7fa5dBrfGF
+G69vFrU1Lfi7IvsVVsNrtAEQljOMmw9sxS3SUsRQX+bD8jq7Uj1hpoF7DdqpV8Kb0COOGwIDAQAB
+o4IBBjCCAQIwCQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0ZWQgQ2Vy
+dGlmaWNhdGUwHQYDVR0OBBYEFD1mHviop2Tc4HaNu8yPXR6GqWP1MIGnBgNVHSMEgZ8wgZyAFBcn
+en6/j05DzaVwORwrteKc7TZOoXmkdzB1MQswCQYDVQQGEwJVUzEQMA4GA1UECBMHQXJpem9uYTER
+MA8GA1UEBxMIR29vZHllYXIxEDAOBgNVBAoTB0V4YW1wbGUxEDAOBgNVBAoTB0V4YW1wbGUxEDAO
+BgNVBAsTB0V4YW1wbGUxCzAJBgNVBAMTAkNBggkAwXk7OcwO7gwwDQYJKoZIhvcNAQEEBQADgYEA
+PiTX5kYXwdhmijutSkrObKpRbQkvkkzcyZlO6VrAxRQ+eFeN6NyuyhgYy5K6l/sIWdaGou5iJOQx
+2pQYWx1v8Klyl0W22IfEAXYv/epiO89hpdACryuDJpioXI/X8TAwvRwLKL21Dk3k2b+eyCgA0O++
+HM0dPfiQLQ99ElWkv/0=</ds:X509Certificate>
+                                </ds:X509Data>
+                            </ds:KeyInfo>
+                        </ds:Signature>
+                        <saml2:Subject>
+                            <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" NameQualifier="http://cxf.apache.org/sts">srogers</saml2:NameID>
+                            <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:holder-of-key">
+                                <saml2:SubjectConfirmationData xsi:type="saml2:KeyInfoConfirmationDataType">
+                                    <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                                        <ds:X509Data>
+                                            <ds:X509Certificate>MIIC5DCCAk2gAwIBAgIJAKj7ROPHjo1yMA0GCSqGSIb3DQEBCwUAMIGKMQswCQYDVQQGEwJVUzEQ
+MA4GA1UECAwHQXJpem9uYTERMA8GA1UEBwwIR29vZHllYXIxGDAWBgNVBAoMD0xvY2toZWVkIE1h
+cnRpbjENMAsGA1UECwwESTRDRTEPMA0GA1UEAwwGY2xpZW50MRwwGgYJKoZIhvcNAQkBFg1pNGNl
+QGxtY28uY29tMB4XDTEyMDYyMDE5NDMwOVoXDTIyMDYxODE5NDMwOVowgYoxCzAJBgNVBAYTAlVT
+MRAwDgYDVQQIDAdBcml6b25hMREwDwYDVQQHDAhHb29keWVhcjEYMBYGA1UECgwPTG9ja2hlZWQg
+TWFydGluMQ0wCwYDVQQLDARJNENFMQ8wDQYDVQQDDAZjbGllbnQxHDAaBgkqhkiG9w0BCQEWDWk0
+Y2VAbG1jby5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAIpHxCBLYE7xfDLcITS9SsPG
+4Q04Z6S32/+TriGsRgpGTj/7GuMG7oJ98m6Ws5cTYl7nyunyHTkZuP7rBzy4esDIHheyx18EgdSJ
+vvACgGVCnEmHndkf9bWUlAOfNaxW+vZwljUkRUVdkhPbPdPwOcMdKg/SsLSNjZfsQIjoWd4rAgMB
+AAGjUDBOMB0GA1UdDgQWBBQx11VLtYXLvFGpFdHnhlNW9+lxBDAfBgNVHSMEGDAWgBQx11VLtYXL
+vFGpFdHnhlNW9+lxBDAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAHYs2OI0K6yVXzyS
+sKcv2fmfw6XCICGTnyA7BOdAjYoqq6wD+33dHJUCFDqye7AWdcivuc7RWJt9jnlfJZKIm2BHcDTR
+Hhk6CvjJ14Gf40WQdeMHoX8U8b0diq7Iy5Ravx+zRg7SdiyJUqFYjRh/O5tywXRT1+freI3bwAN0
+L6tQ</ds:X509Certificate>
+                                        </ds:X509Data>
+                                    </ds:KeyInfo>
+                                </saml2:SubjectConfirmationData>
+                            </saml2:SubjectConfirmation>
+                        </saml2:Subject>
+                        <saml2:Conditions NotBefore="2013-04-29T18:35:11.407Z" NotOnOrAfter="2013-04-29T19:05:11.407Z">
+                            <saml2:AudienceRestriction>
+                                <saml2:Audience>https://server:8993/services/SecurityTokenService</saml2:Audience>
+                            </saml2:AudienceRestriction>
+                        </saml2:Conditions>
+                        <saml2:AuthnStatement AuthnInstant="2013-04-29T18:35:11.392Z">
+                            <saml2:AuthnContext>
+                                <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml2:AuthnContextClassRef>
+                            </saml2:AuthnContext>
+                        </saml2:AuthnStatement>
+                        <saml2:AttributeStatement>
+                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                                <saml2:AttributeValue xsi:type="xs:string">srogers</saml2:AttributeValue>
+                            </saml2:Attribute>
+                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                                <saml2:AttributeValue xsi:type="xs:string">srogers@example.com</saml2:AttributeValue>
+                            </saml2:Attribute>
+                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                                <saml2:AttributeValue xsi:type="xs:string">srogers</saml2:AttributeValue>
+                            </saml2:Attribute>
+                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                                <saml2:AttributeValue xsi:type="xs:string">Steve Rogers</saml2:AttributeValue>
+                            </saml2:Attribute>
+                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                                <saml2:AttributeValue xsi:type="xs:string">avengers</saml2:AttributeValue>
+                            </saml2:Attribute>
+                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                                <saml2:AttributeValue xsi:type="xs:string">admin</saml2:AttributeValue>
+                            </saml2:Attribute>
+                        </saml2:AttributeStatement>
+                    </saml2:Assertion>
+                </RequestedSecurityToken>
+                <RequestedAttachedReference>
+                    <ns3:SecurityTokenReference xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd" wsse11:TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0">
+                        <ns3:KeyIdentifier ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID">_BDC44EB8593F47D1B213672605113671</ns3:KeyIdentifier>
+                    </ns3:SecurityTokenReference>
+                </RequestedAttachedReference>
+                <RequestedUnattachedReference>
+                    <ns3:SecurityTokenReference xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd" wsse11:TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0">
+                        <ns3:KeyIdentifier ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID">_BDC44EB8593F47D1B213672605113671</ns3:KeyIdentifier>
+                    </ns3:SecurityTokenReference>
+                </RequestedUnattachedReference>
+                <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+                    <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
+                        <wsa:Address>https://server:8993/services/SecurityTokenService</wsa:Address>
+                    </wsa:EndpointReference>
+                </wsp:AppliesTo>
+                <Lifetime>
+                    <ns2:Created>2013-04-29T18:35:11.444Z</ns2:Created>
+                    <ns2:Expires>2013-04-29T19:05:11.444Z</ns2:Expires>
+                </Lifetime>
+            </RequestSecurityTokenResponse>
+        </RequestSecurityTokenResponseCollection>
+    </soap:Body>
+</soap:Envelope>
+----
+
+===== UsernameToken Bearer SAML Security Token Request/Response
+
+To obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS.  
+
+A Bearer SAML assertion is automatically trusted by the endpoint. The client doesn't have to prove it can own that SAML assertion. It is the simplest way to request a SAML assertion, but many endpoints won't accept a KeyType of Bearer. 
+
+====== Request
+*Explanation*
+
+* WS-Addressing header with Action, To, and Message ID
+* Valid, non-expired timestamp
+* Username Token containing a username and password that the STS will authenticate
+* Issued over HTTPS
+* KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer
+* Claims (optional): Some endpoints may require that the SAML assertion include attributes of the user, such as an authenticated user's role, name identifier, email address, etc. If the SAML assertion needs those attributes, the RequestSecurityToken must specify which ones to include.
+
+.Sample Request
+[source,xml,linenums]
+----
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
+        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" soap:mustUnderstand="1">
+            <wsu:Timestamp wsu:Id="TS-1">
+                <wsu:Created>2013-04-29T17:47:37.817Z</wsu:Created>
+                <wsu:Expires>2013-04-29T17:57:37.817Z</wsu:Expires>
+            </wsu:Timestamp>
+            <wsse:UsernameToken wsu:Id="UsernameToken-1">
+                <wsse:Username>srogers</wsse:Username>
+                <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">password1</wsse:Password>
+            </wsse:UsernameToken>
+        </wsse:Security>
+        <wsa:Action>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</wsa:Action>
+        <wsa:MessageID>uuid:a1bba87b-0f00-46cc-975f-001391658cbe</wsa:MessageID>
+        <wsa:To>https://server:8993/services/SecurityTokenService</wsa:To>
+    </soap:Header>
+    <soap:Body>
+        <wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+            <wst:SecondaryParameters>
+                <t:TokenType xmlns:t="http://docs.oasis-open.org/ws-sx/ws-trust/200512">http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</t:TokenType>
+                <t:KeyType xmlns:t="http://docs.oasis-open.org/ws-sx/ws-trust/200512">http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer</t:KeyType>
+                <t:Claims xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity" xmlns:t="http://docs.oasis-open.org/ws-sx/ws-trust/200512" Dialect="http://schemas.xmlsoap.org/ws/2005/05/identity">
+                    <!--Add any additional claims you want to grab for the service-->
+                    <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/uid"/>
+                    <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
+                    <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"/>
+                    <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
+                    <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"/>
+                    <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"/>
+                </t:Claims>
+            </wst:SecondaryParameters>
+            <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</wst:RequestType>
+            <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+                <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
+                    <wsa:Address>https://server:8993/services/QueryService</wsa:Address>
+                </wsa:EndpointReference>
+            </wsp:AppliesTo>
+            <wst:Renewing/>
+        </wst:RequestSecurityToken>
+    </soap:Body>
+</soap:Envelope>
+----
+
+====== Response
+This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints:  
+
+The `saml2:Assertion` block contains the entire SAML assertion.  
+
+The `Signature` block contains a signature from the STS's private key.  The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.  
+
+The `AttributeStatement` block contains all the Claims requested. 
+
+The `Lifetime` block indicates the valid time interval in which the SAML assertion can be used.
+
+.Sample Response
+[source,xml,linenums]
+----
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Header>
+        <Action xmlns="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTRC/IssueFinal</Action>
+        <MessageID xmlns="http://www.w3.org/2005/08/addressing">urn:uuid:eee4c6ef-ac10-4cbc-a53c-13d960e3b6e8</MessageID>
+        <To xmlns="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/anonymous</To>
+        <RelatesTo xmlns="http://www.w3.org/2005/08/addressing">uuid:a1bba87b-0f00-46cc-975f-001391658cbe</RelatesTo>
+        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" soap:mustUnderstand="1">
+            <wsu:Timestamp wsu:Id="TS-2">
+                <wsu:Created>2013-04-29T17:49:12.624Z</wsu:Created>
+                <wsu:Expires>2013-04-29T17:54:12.624Z</wsu:Expires>
+            </wsu:Timestamp>
+        </wsse:Security>
+    </soap:Header>
+    <soap:Body>
+        <RequestSecurityTokenResponseCollection xmlns="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:ns2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:ns3="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:ns4="http://www.w3.org/2005/08/addressing" xmlns:ns5="http://docs.oasis-open.org/ws-sx/ws-trust/200802">
+            <RequestSecurityTokenResponse>
+                <TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</TokenType>
+                <RequestedSecurityToken>
+                    <saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="_7437C1A55F19AFF22113672577526132" IssueInstant="2013-04-29T17:49:12.613Z" Version="2.0" xsi:type="saml2:AssertionType">
+                        <saml2:Issuer>tokenissuer</saml2:Issuer>
+                        <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                            <ds:SignedInfo>
+                                <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                                <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+                                <ds:Reference URI="#_7437C1A55F19AFF22113672577526132">
+                                    <ds:Transforms>
+                                        <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                                        <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+                                            <ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="xs"/>
+                                        </ds:Transform>
+                                    </ds:Transforms>
+                                    <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                                    <ds:DigestValue>ReOqEbGZlyplW5kqiynXOjPnVEA=</ds:DigestValue>
+                                </ds:Reference>
+                            </ds:SignedInfo>
+                            <ds:SignatureValue>X5Kzd54PrKIlGVV2XxzCmWFRzHRoybF7hU6zxbEhSLMR0AWS9R7Me3epq91XqeOwvIDDbwmE/oJNC7vI0fIw/rqXkx4aZsY5a5nbAs7f+aXF9TGdk82x2eNhNGYpViq0YZJfsJ5WSyMtG8w5nRekmDMy9oTLsHG+Y/OhJDEwq58=</ds:SignatureValue>
+                            <ds:KeyInfo>
+                                <ds:X509Data>
+                                    <ds:X509Certificate>MIIDmjCCAwOgAwIBAgIBBDANBgkqhkiG9w0BAQQFADB1MQswCQYDVQQGEwJVUzEQMA4GA1UECBMH
+QXJpem9uYTERMA8GA1UEBxMIR29vZHllYXIxEDAOBgNVBAoTB0V4YW1wbGUxEDAOBgNVBAoTB0V4
+YW1wbGUxEDAOBgNVBAsTB0V4YW1wbGUxCzAJBgNVBAMTAkNBMB4XDTEzMDQwOTE4MzcxMVoXDTIz
+MDQwNzE4MzcxMVowgaYxCzAJBgNVBAYTAlVTMRAwDgYDVQQIEwdBcml6b25hMREwDwYDVQQHEwhH
+b29keWVhcjEQMA4GA1UEChMHRXhhbXBsZTEQMA4GA1UEChMHRXhhbXBsZTEQMA4GA1UECxMHRXhh
+bXBsZTEUMBIGA1UEAxMLdG9rZW5pc3N1ZXIxJjAkBgkqhkiG9w0BCQEWF3Rva2VuaXNzdWVyQGV4
+YW1wbGUuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDfktpA8Lrp9rTfRibKdgtxtN9
+uB44diiIqq3JOzDGfDhGLu6mjpuHO1hrKItv42hBOhhmH7lS9ipiaQCIpVfgIG63MB7fa5dBrfGF
+G69vFrU1Lfi7IvsVVsNrtAEQljOMmw9sxS3SUsRQX+bD8jq7Uj1hpoF7DdqpV8Kb0COOGwIDAQAB
+o4IBBjCCAQIwCQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0ZWQgQ2Vy
+dGlmaWNhdGUwHQYDVR0OBBYEFD1mHviop2Tc4HaNu8yPXR6GqWP1MIGnBgNVHSMEgZ8wgZyAFBcn
+en6/j05DzaVwORwrteKc7TZOoXmkdzB1MQswCQYDVQQGEwJVUzEQMA4GA1UECBMHQXJpem9uYTER
+MA8GA1UEBxMIR29vZHllYXIxEDAOBgNVBAoTB0V4YW1wbGUxEDAOBgNVBAoTB0V4YW1wbGUxEDAO
+BgNVBAsTB0V4YW1wbGUxCzAJBgNVBAMTAkNBggkAwXk7OcwO7gwwDQYJKoZIhvcNAQEEBQADgYEA
+PiTX5kYXwdhmijutSkrObKpRbQkvkkzcyZlO6VrAxRQ+eFeN6NyuyhgYy5K6l/sIWdaGou5iJOQx
+2pQYWx1v8Klyl0W22IfEAXYv/epiO89hpdACryuDJpioXI/X8TAwvRwLKL21Dk3k2b+eyCgA0O++
+HM0dPfiQLQ99ElWkv/0=</ds:X509Certificate>
+                                </ds:X509Data>
+                            </ds:KeyInfo>
+                        </ds:Signature>
+                        <saml2:Subject>
+                            <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" NameQualifier="http://cxf.apache.org/sts">srogers</saml2:NameID>
+                            <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/>
+                        </saml2:Subject>
+                        <saml2:Conditions NotBefore="2013-04-29T17:49:12.614Z" NotOnOrAfter="2013-04-29T18:19:12.614Z">
+                            <saml2:AudienceRestriction>
+                                <saml2:Audience>https://server:8993/services/QueryService</saml2:Audience>
+                            </saml2:AudienceRestriction>
+                        </saml2:Conditions>
+                        <saml2:AuthnStatement AuthnInstant="2013-04-29T17:49:12.613Z">
+                            <saml2:AuthnContext>
+                                <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml2:AuthnContextClassRef>
+                            </saml2:AuthnContext>
+                        </saml2:AuthnStatement>
+                        <saml2:AttributeStatement>
+                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                                <saml2:AttributeValue xsi:type="xs:string">srogers</saml2:AttributeValue>
+                            </saml2:Attribute>
+                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                                <saml2:AttributeValue xsi:type="xs:string">srogers@example.com</saml2:AttributeValue>
+                            </saml2:Attribute>
+                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                                <saml2:AttributeValue xsi:type="xs:string">srogers</saml2:AttributeValue>
+                            </saml2:Attribute>
+                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                                <saml2:AttributeValue xsi:type="xs:string">Steve Rogers</saml2:AttributeValue>
+                            </saml2:Attribute>
+                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                                <saml2:AttributeValue xsi:type="xs:string">avengers</saml2:AttributeValue>
+                            </saml2:Attribute>
+                            <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                                <saml2:AttributeValue xsi:type="xs:string">admin</saml2:AttributeValue>
+                            </saml2:Attribute>
+                        </saml2:AttributeStatement>
+                    </saml2:Assertion>
+                </RequestedSecurityToken>
+                <RequestedAttachedReference>
+                    <ns3:SecurityTokenReference xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd" wsse11:TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0">
+                        <ns3:KeyIdentifier ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID">_7437C1A55F19AFF22113672577526132</ns3:KeyIdentifier>
+                    </ns3:SecurityTokenReference>
+                </RequestedAttachedReference>
+                <RequestedUnattachedReference>
+                    <ns3:SecurityTokenReference xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd" wsse11:TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0">
+                        <ns3:KeyIdentifier ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID">_7437C1A55F19AFF22113672577526132</ns3:KeyIdentifier>
+                    </ns3:SecurityTokenReference>
+                </RequestedUnattachedReference>
+                <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+                    <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
+                        <wsa:Address>https://server:8993/services/QueryService</wsa:Address>
+                    </wsa:EndpointReference>
+                </wsp:AppliesTo>
+                <Lifetime>
+                    <ns2:Created>2013-04-29T17:49:12.620Z</ns2:Created>
+                    <ns2:Expires>2013-04-29T18:19:12.620Z</ns2:Expires>
+                </Lifetime>
+            </RequestSecurityTokenResponse>
+        </RequestSecurityTokenResponseCollection>
+    </soap:Body>
+</soap:Envelope>
+----
+
+===== X.509 PublicKey SAML Security Token Request/Response
+
+In order to obtain a SAML assertion to use in secure communication to {branding}, a RequestSecurityToken (RST) request has to be made to the STS. 
+
+An endpoint's policy will specify the type of security token needed.  Most of the endpoints that have been used with {branding} require a SAML v2.0 assertion with a required KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey.  This means that the SAML assertion provided by the client to a {branding} endpoint must contain a SubjectConfirmation block with a type of "holder-of-key" containing the client's public key.  This is used to prove that the client can possess the SAML assertion returned by the STS. 
+
+====== Request
+*Explanation*
+The STS that comes with {branding} requires the following to be in the RequestSecurityToken request in order to issue a valid SAML assertion.  See the request block below for an example of how these components should be populated.
+* WS-Addressing header containing Action, To, and MessageID blocks
+* Valid, non-expired timestamp
+* Issued over HTTPS
+* TokenType of http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
+* KeyType of http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey
+* X509 Certificate as the Proof of Possession or POP.  This needs to be the certificate of the client that will be both requesting the SAML assertion and using the SAML assertion to issue a query
+* Claims (optional): Some endpoints may require that the SAML assertion include attributes of the user, such as an authenticated user's role, name identifier, email address, etc.  If the SAML assertion needs those attributes, the RequestSecurityToken must specify which ones to include.
+** UsernameToken: If Claims are required, the RequestSecurityToken security header must contain a UsernameToken element with a username and password. 
+
+.Sample Request
+[source,xml,linenums]
+----
+<soapenv:Envelope xmlns:ns="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+   <soapenv:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
+      <wsa:Action>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</wsa:Action>
+      <wsa:MessageID>uuid:527243af-94bd-4b5c-a1d8-024fd7e694c5</wsa:MessageID>
+      <wsa:To>https://server:8993/services/SecurityTokenService</wsa:To>
+      <wsse:Security soapenv:mustUnderstand="1" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+         <wsu:Timestamp wsu:Id="TS-17">
+            <wsu:Created>2014-02-19T17:30:40.771Z</wsu:Created>
+            <wsu:Expires>2014-02-19T19:10:40.771Z</wsu:Expires>
+         </wsu:Timestamp>
+         
+         <!-- OPTIONAL: Only required if the endpoint that the SAML assertion will be sent to requires claims. -->
+         <wsse:UsernameToken wsu:Id="UsernameToken-16">
+            <wsse:Username>pparker</wsse:Username>
+            <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">password1</wsse:Password>
+            <wsse:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">LCTD+5Y7hlWIP6SpsEg9XA==</wsse:Nonce>
+            <wsu:Created>2014-02-19T17:30:37.355Z</wsu:Created>
+         </wsse:UsernameToken>
+      </wsse:Security>
+   </soapenv:Header>
+   <soapenv:Body>
+      <wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+         <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
+         <wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey</wst:KeyType>
+ 
+         <!-- OPTIONAL: Only required if the endpoint that the SAML assertion will be sent to requires claims. -->
+         <wst:Claims Dialect="http://schemas.xmlsoap.org/ws/2005/05/identity" xmlns:ic="http://schemas.xmlsoap.org/ws/2005/05/identity">
+            <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
+            <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"/>
+            <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
+            <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"/>
+            <ic:ClaimType Optional="true" Uri="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"/>
+         </wst:Claims>
+         <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</wst:RequestType>
+            <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+            <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>https://server:8993/services/QueryService</wsa:Address>
+            </wsa:EndpointReference>
+         </wsp:AppliesTo>
+         <wst:UseKey>
+            <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+               <ds:X509Data>
+                  <ds:X509Certificate>MIIFGDCCBACgAwIBAgICJe0wDQYJKoZIhvcNAQEFBQAwXDELMAkGA1UEBhMCVVMxGDAWBgNVBAoT
+D1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kxFzAVBgNVBAMTDkRP
+RCBKSVRDIENBLTI3MB4XDTEzMDUwNzAwMjU0OVoXDTE2MDUwNzAwMjU0OVowaTELMAkGA1UEBhMC
+VVMxGDAWBgNVBAoTD1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kx
+EzARBgNVBAsTCkNPTlRSQUNUT1IxDzANBgNVBAMTBmNsaWVudDCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAOq6L1/jjZ5cyhjhHEbOHr5WQpboKACYbrsn8lg85LGNoAfcwImr9KBmOxGb
+ZCxHYIhkW7pJ+kppyH8DDMviIvvdkvrAIU0l8OBRn2wReCBGQ01Imdc3+WzFF2svW75d6wii2ZVd
+eMvUO15p/pAD/sdIfXmAfyu8+tqtiO8KVZGkTnlg3AMzfeSrkci5UHMVWj0qUSuzLk9SAg/9STgb
+Kf2xBpHUYecWFSB+dTpdZN2pC85tj9xIoWGh5dFWG1fPcYRgzGPxsybiGOylbJ7rHDJuL7IIIyx5
+EnkCuxmQwoQ6XQAhiWRGyPlY08w1LZixI2v+Cv/ZjUfIHv49I9P4Mt8CAwEAAaOCAdUwggHRMB8G
+A1UdIwQYMBaAFCMUNCBNXy43NZLBBlnDjDplNZJoMB0GA1UdDgQWBBRPGiX6zZzKTqQSx/tjg6hx
+9opDoTAOBgNVHQ8BAf8EBAMCBaAwgdoGA1UdHwSB0jCBzzA2oDSgMoYwaHR0cDovL2NybC5nZHMu
+bml0LmRpc2EubWlsL2NybC9ET0RKSVRDQ0FfMjcuY3JsMIGUoIGRoIGOhoGLbGRhcDovL2NybC5n
+ZHMubml0LmRpc2EubWlsL2NuJTNkRE9EJTIwSklUQyUyMENBLTI3JTJjb3UlM2RQS0klMmNvdSUz
+ZERvRCUyY28lM2RVLlMuJTIwR292ZXJubWVudCUyY2MlM2RVUz9jZXJ0aWZpY2F0ZXJldm9jYXRp
+b25saXN0O2JpbmFyeTAjBgNVHSAEHDAaMAsGCWCGSAFlAgELBTALBglghkgBZQIBCxIwfQYIKwYB
+BQUHAQEEcTBvMD0GCCsGAQUFBzAChjFodHRwOi8vY3JsLmdkcy5uaXQuZGlzYS5taWwvc2lnbi9E
+T0RKSVRDQ0FfMjcuY2VyMC4GCCsGAQUFBzABhiJodHRwOi8vb2NzcC5uc24wLnJjdnMubml0LmRp
+c2EubWlsMA0GCSqGSIb3DQEBBQUAA4IBAQCGUJPGh4iGCbr2xCMqCq04SFQ+iaLmTIFAxZPFvup1
+4E9Ir6CSDalpF9eBx9fS+Z2xuesKyM/g3YqWU1LtfWGRRIxzEujaC4YpwHuffkx9QqkwSkXXIsim
+EhmzSgzxnT4Q9X8WwalqVYOfNZ6sSLZ8qPPFrLHkkw/zIFRzo62wXLu0tfcpOr+iaJBhyDRinIHr
+hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
+8KASjJBFeHPirMV1oddJ5ydZCQ+Jmnpbwq+XsCxg1LjC4dmbjKVr9s4QK+/JLNjxD8IkJiZE</ds:X509Certificate>
+               </ds:X509Data>
+            </ds:KeyInfo>
+         </wst:UseKey>
+      </wst:RequestSecurityToken>
+   </soapenv:Body>
+</soapenv:Envelope>
+----
+
+====== Response
+*Explanation*
+This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints.  
+
+The `saml2:Assertion` block contains the entire SAML assertion.  
+
+The `Signature` block contains a signature from the STS's private key.  The endpoint receiving the SAML assertion will verify that it trusts the signer and ensure that the message wasn't tampered with.  
+
+The `SubjectConfirmation` block contains the client's public key, so the server can verify that the client has permission to hold this SAML assertion.   
+The `AttributeStatement` block contains all of the claims requested.  
+
+.Sample Response
+[source,xml,linenums]
+----
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+   <soap:Header>
+      <Action xmlns="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTRC/IssueFinal</Action>
+      <MessageID xmlns="http://www.w3.org/2005/08/addressing">urn:uuid:b46c35ad-3120-4233-ae07-b9e10c7911f3</MessageID>
+      <To xmlns="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/anonymous</To>
+      <RelatesTo xmlns="http://www.w3.org/2005/08/addressing">uuid:527243af-94bd-4b5c-a1d8-024fd7e694c5</RelatesTo>
+      <wsse:Security soap:mustUnderstand="1" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+         <wsu:Timestamp wsu:Id="TS-90DBA0754E55B4FE7013928310431357">
+            <wsu:Created>2014-02-19T17:30:43.135Z</wsu:Created>
+            <wsu:Expires>2014-02-19T17:35:43.135Z</wsu:Expires>
+         </wsu:Timestamp>
+      </wsse:Security>
+   </soap:Header>
+   <soap:Body>
+      <ns2:RequestSecurityTokenResponseCollection xmlns="http://docs.oasis-open.org/ws-sx/ws-trust/200802" xmlns:ns2="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:ns3="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:ns4="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:ns5="http://www.w3.org/2005/08/addressing">
+         <ns2:RequestSecurityTokenResponse>
+            <ns2:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</ns2:TokenType>
+            <ns2:RequestedSecurityToken>
+               <saml2:Assertion ID="_90DBA0754E55B4FE7013928310431176" IssueInstant="2014-02-19T17:30:43.117Z" Version="2.0" xsi:type="saml2:AssertionType" xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                  <saml2:Issuer>tokenissuer</saml2:Issuer>
+                  <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                     <ds:SignedInfo>
+                        <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                        <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+                        <ds:Reference URI="#_90DBA0754E55B4FE7013928310431176">
+                           <ds:Transforms>
+                              <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+                                 <ec:InclusiveNamespaces PrefixList="xs" xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                              </ds:Transform>
+                           </ds:Transforms>
+                           <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                           <ds:DigestValue>/bEGqsRGHVJbx298WPmGd8I53zs=</ds:DigestValue>
+                        </ds:Reference>
+                     </ds:SignedInfo>
+                     <ds:SignatureValue>
+mYR7w1/dnuh8Z7t9xjCb4XkYQLshj+UuYlGOuTwDYsUPcS2qI0nAgMD1VsDP7y1fDJxeqsq7HYhFKsnqRfebMM4WLH1D/lJ4rD4UO+i9l3tuiHml7SN24WM1/bOqfDUCoDqmwG8afUJ3r4vmTNPWTfOss8BZ/8ODgZzm08ndlkxDfvcN7OrExbV/3/45JwF/MMPZoqvi2MJGfX56E9fErJNuzezpWnRqPOlWPxyffKMAlVaB9zF6gvVnUqcW2k/Z8X9lN7O5jouBI281ZnIfsIPuBJERFtYNVDHsIXM1pJnrY6FlKIaOsi55LQu3Ruir/n82pU7BT5aWtxwrn7akBg==                    </ds:SignatureValue>
+                     <ds:KeyInfo>
+                        <ds:X509Data>
+                           <ds:X509Certificate>MIIFHTCCBAWgAwIBAgICJe8wDQYJKoZIhvcNAQEFBQAwXDELMAkGA1UEBhMCVVMxGDAWBgNVBAoT
+D1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kxFzAVBgNVBAMTDkRP
+RCBKSVRDIENBLTI3MB4XDTEzMDUwNzAwMjYzN1oXDTE2MDUwNzAwMjYzN1owbjELMAkGA1UEBhMC
+VVMxGDAWBgNVBAoTD1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kx
+EzARBgNVBAsTCkNPTlRSQUNUT1IxFDASBgNVBAMTC3Rva2VuaXNzdWVyMIIBIjANBgkqhkiG9w0B
+AQEFAAOCAQ8AMIIBCgKCAQEAx01/U4M1wG+wL1JxX2RL1glj101FkJXMk3KFt3zD//N8x/Dcwwvs
+ngCQjXrV6YhbB2V7scHwnThPv3RSwYYiO62z+g6ptfBbKGGBLSZOzLe3fyJR4RxblFKsELFgPHfX
+vgUHS/keG5uSRk9S/Okqps/yxKB7+ZlxeFxsIz5QywXvBpMiXtc2zF+M7BsbSIdSx5LcPcDFBwjF
+c66rE3/y/25VMht9EZX1QoKr7f8rWD4xgd5J6DYMFWEcmiCz4BDJH9sfTw+n1P+CYgrhwslWGqxt
+cDME9t6SWR3GLT4Sdtr8ziIM5uUteEhPIV3rVC3/u23JbYEeS8mpnp0bxt5eHQIDAQABo4IB1TCC
+AdEwHwYDVR0jBBgwFoAUIxQ0IE1fLjc1ksEGWcOMOmU1kmgwHQYDVR0OBBYEFGBjdkdey+bMHMhC
+Z7gwiQ/mJf5VMA4GA1UdDwEB/wQEAwIFoDCB2gYDVR0fBIHSMIHPMDagNKAyhjBodHRwOi8vY3Js
+Lmdkcy5uaXQuZGlzYS5taWwvY3JsL0RPREpJVENDQV8yNy5jcmwwgZSggZGggY6GgYtsZGFwOi8v
+Y3JsLmdkcy5uaXQuZGlzYS5taWwvY24lM2RET0QlMjBKSVRDJTIwQ0EtMjclMmNvdSUzZFBLSSUy
+Y291JTNkRG9EJTJjbyUzZFUuUy4lMjBHb3Zlcm5tZW50JTJjYyUzZFVTP2NlcnRpZmljYXRlcmV2
+b2NhdGlvbmxpc3Q7YmluYXJ5MCMGA1UdIAQcMBowCwYJYIZIAWUCAQsFMAsGCWCGSAFlAgELEjB9
+BggrBgEFBQcBAQRxMG8wPQYIKwYBBQUHMAKGMWh0dHA6Ly9jcmwuZ2RzLm5pdC5kaXNhLm1pbC9z
+aWduL0RPREpJVENDQV8yNy5jZXIwLgYIKwYBBQUHMAGGImh0dHA6Ly9vY3NwLm5zbjAucmN2cy5u
+aXQuZGlzYS5taWwwDQYJKoZIhvcNAQEFBQADggEBAIHZQTINU3bMpJ/PkwTYLWPmwCqAYgEUzSYx
+bNcVY5MWD8b4XCdw5nM3GnFlOqr4IrHeyyOzsEbIebTe3bv0l1pHx0Uyj059nAhx/AP8DjVtuRU1
+/Mp4b6uJ/4yaoMjIGceqBzHqhHIJinG0Y2azua7eM9hVbWZsa912ihbiupCq22mYuHFP7NUNzBvV
+j03YUcsy/sES5sRx9Rops/CBN+LUUYOdJOxYWxo8oAbtF8ABE5ATLAwqz4ttsToKPUYh1sxdx5Ef
+APeZ+wYDmMu4OfLckwnCKZgkEtJOxXpdIJHY+VmyZtQSB0LkR5toeH/ANV4259Ia5ZT8h2/vIJBg
+6B4=</ds:X509Certificate>
+                        </ds:X509Data>
+                     </ds:KeyInfo>
+                  </ds:Signature>
+                  <saml2:Subject>
+                     <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" NameQualifier="http://cxf.apache.org/sts">pparker</saml2:NameID>
+                     <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:holder-of-key">
+                        <saml2:SubjectConfirmationData xsi:type="saml2:KeyInfoConfirmationDataType">
+                           <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                              <ds:X509Data>
+                                 <ds:X509Certificate>MIIFGDCCBACgAwIBAgICJe0wDQYJKoZIhvcNAQEFBQAwXDELMAkGA1UEBhMCVVMxGDAWBgNVBAoT
+D1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kxFzAVBgNVBAMTDkRP
+RCBKSVRDIENBLTI3MB4XDTEzMDUwNzAwMjU0OVoXDTE2MDUwNzAwMjU0OVowaTELMAkGA1UEBhMC
+VVMxGDAWBgNVBAoTD1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kx
+EzARBgNVBAsTCkNPTlRSQUNUT1IxDzANBgNVBAMTBmNsaWVudDCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAOq6L1/jjZ5cyhjhHEbOHr5WQpboKACYbrsn8lg85LGNoAfcwImr9KBmOxGb
+ZCxHYIhkW7pJ+kppyH8DDMviIvvdkvrAIU0l8OBRn2wReCBGQ01Imdc3+WzFF2svW75d6wii2ZVd
+eMvUO15p/pAD/sdIfXmAfyu8+tqtiO8KVZGkTnlg3AMzfeSrkci5UHMVWj0qUSuzLk9SAg/9STgb
+Kf2xBpHUYecWFSB+dTpdZN2pC85tj9xIoWGh5dFWG1fPcYRgzGPxsybiGOylbJ7rHDJuL7IIIyx5
+EnkCuxmQwoQ6XQAhiWRGyPlY08w1LZixI2v+Cv/ZjUfIHv49I9P4Mt8CAwEAAaOCAdUwggHRMB8G
+A1UdIwQYMBaAFCMUNCBNXy43NZLBBlnDjDplNZJoMB0GA1UdDgQWBBRPGiX6zZzKTqQSx/tjg6hx
+9opDoTAOBgNVHQ8BAf8EBAMCBaAwgdoGA1UdHwSB0jCBzzA2oDSgMoYwaHR0cDovL2NybC5nZHMu
+bml0LmRpc2EubWlsL2NybC9ET0RKSVRDQ0FfMjcuY3JsMIGUoIGRoIGOhoGLbGRhcDovL2NybC5n
+ZHMubml0LmRpc2EubWlsL2NuJTNkRE9EJTIwSklUQyUyMENBLTI3JTJjb3UlM2RQS0klMmNvdSUz
+ZERvRCUyY28lM2RVLlMuJTIwR292ZXJubWVudCUyY2MlM2RVUz9jZXJ0aWZpY2F0ZXJldm9jYXRp
+b25saXN0O2JpbmFyeTAjBgNVHSAEHDAaMAsGCWCGSAFlAgELBTALBglghkgBZQIBCxIwfQYIKwYB
+BQUHAQEEcTBvMD0GCCsGAQUFBzAChjFodHRwOi8vY3JsLmdkcy5uaXQuZGlzYS5taWwvc2lnbi9E
+T0RKSVRDQ0FfMjcuY2VyMC4GCCsGAQUFBzABhiJodHRwOi8vb2NzcC5uc24wLnJjdnMubml0LmRp
+c2EubWlsMA0GCSqGSIb3DQEBBQUAA4IBAQCGUJPGh4iGCbr2xCMqCq04SFQ+iaLmTIFAxZPFvup1
+4E9Ir6CSDalpF9eBx9fS+Z2xuesKyM/g3YqWU1LtfWGRRIxzEujaC4YpwHuffkx9QqkwSkXXIsim
+EhmzSgzxnT4Q9X8WwalqVYOfNZ6sSLZ8qPPFrLHkkw/zIFRzo62wXLu0tfcpOr+iaJBhyDRinIHr
+hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
+8KASjJBFeHPirMV1oddJ5ydZCQ+Jmnpbwq+XsCxg1LjC4dmbjKVr9s4QK+/JLNjxD8IkJiZE</ds:X509Certificate>
+                              </ds:X509Data>
+                           </ds:KeyInfo>
+                        </saml2:SubjectConfirmationData>
+                     </saml2:SubjectConfirmation>
+                  </saml2:Subject>
+                  <saml2:Conditions NotBefore="2014-02-19T17:30:43.119Z" NotOnOrAfter="2014-02-19T18:00:43.119Z"/>
+                  <saml2:AuthnStatement AuthnInstant="2014-02-19T17:30:43.117Z">
+                     <saml2:AuthnContext>
+                        <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml2:AuthnContextClassRef>
+                     </saml2:AuthnContext>
+                  </saml2:AuthnStatement>
+ 
+                  <!-- This block will only be included if Claims were requested in the RST. -->
+                  <saml2:AttributeStatement>
+                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                        <saml2:AttributeValue xsi:type="xs:string">pparker</saml2:AttributeValue>
+                     </saml2:Attribute>
+                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                        <saml2:AttributeValue xsi:type="xs:string">pparker@example.com</saml2:AttributeValue>
+                     </saml2:Attribute>
+                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                        <saml2:AttributeValue xsi:type="xs:string">pparker</saml2:AttributeValue>
+                     </saml2:Attribute>
+                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                        <saml2:AttributeValue xsi:type="xs:string">Peter Parker</saml2:AttributeValue>
+                     </saml2:Attribute>
+                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                        <saml2:AttributeValue xsi:type="xs:string">dodusers</saml2:AttributeValue>
+                     </saml2:Attribute>
+                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                        <saml2:AttributeValue xsi:type="xs:string">users</saml2:AttributeValue>
+                     </saml2:Attribute>
+                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                        <saml2:AttributeValue xsi:type="xs:string">avengers</saml2:AttributeValue>
+                     </saml2:Attribute>
+                     <saml2:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                        <saml2:AttributeValue xsi:type="xs:string">admin</saml2:AttributeValue>
+                     </saml2:Attribute>
+                  </saml2:AttributeStatement>
+               </saml2:Assertion>
+            </ns2:RequestedSecurityToken>
+            <ns2:RequestedAttachedReference>
+               <ns4:SecurityTokenReference wsse11:TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0" xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd">
+                  <ns4:KeyIdentifier ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID">_90DBA0754E55B4FE7013928310431176</ns4:KeyIdentifier>
+               </ns4:SecurityTokenReference>
+            </ns2:RequestedAttachedReference>
+            <ns2:RequestedUnattachedReference>
+               <ns4:SecurityTokenReference wsse11:TokenType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0" xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd">
+                  <ns4:KeyIdentifier ValueType="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID">_90DBA0754E55B4FE7013928310431176</ns4:KeyIdentifier>
+               </ns4:SecurityTokenReference>
+            </ns2:RequestedUnattachedReference>
+            <ns2:Lifetime>
+               <ns3:Created>2014-02-19T17:30:43.119Z</ns3:Created>
+               <ns3:Expires>2014-02-19T18:00:43.119Z</ns3:Expires>
+            </ns2:Lifetime>
+         </ns2:RequestSecurityTokenResponse>
+      </ns2:RequestSecurityTokenResponseCollection>
+   </soap:Body>
+</soap:Envelope>
+---- 
+
+=== XACML Policy Decision Point (PDP)
+
+After unzipping the {branding} distribution, place the desired XACML policy in the <distribution root>/etc/pdp/policies directory.  This is the directory in which the PDP will look for XACML policies every 60 seconds. A sample XACML policy is located at the end of this page. Information on specific bundle configurations and names can be found on the Security PDP application page.
+
+==== Creating a Policy
+This document assumes familiarity with the XACML schema and does not go into detail on the XACML language. There are some {branding}-specific items that need to be considered when creating a policy, so it is compatible with the XACMLRealm. When creating a policy, a target is used to indicate that a certain action should be run only for one type of request. Targets can be used on both the main policy element and any individual rules. Generally targets are geared toward the actions that are set in the request.
+
+===== Actions
+For {branding}, these actions are populated by various components in the security API. The actions and their population location are identified in the following table.
+
+[cols="1,1,1,5"]
+|===
+
+|Operation
+|Action-id Value
+|Component Setting the action
+|Description
+
+|Filtering / Redaction	
+|filter	
+|security-pdp-xacmlrealm	
+|When performing any redaction or filtering, the XACMLRealm will set the action-id to "filter".
+
+|Service	
+|<SOAPAction>	
+|security-pep-interceptor	
+|If the PEP Interceptor is added to any SOAP-based web services for service authorization, the action-id will be the SOAPAction of the incoming request. This allows the XACML policy to have specific rules for individual services within the system.
+
+|===
+
+[NOTE]
+====
+These are only the action-id values that are currently created by the components that come with {branding}. Additional components can be created and added to {branding} to identify specific action-ids.
+====
+
+In the examples below, the policy has specified targets for the above type of calls. For the Filtering/Redaction code, the target was set for "filter", and the Service validation code targets were geared toward two services: query and LocalSiteName. In a production environment, these actions for service authorization will generally be full URNs that are described within the SOAP WSDL.
+
+===== Attributes
+Attributes for the XACML request are populated with the information in the calling subject and the resource being checked.
+
+====== Subject
+The attributes for the subject are obtained from the SAML claims and populated within the XACMLRealm as individual attributes under the urn:oasis:names:tc:xacml:1.0:subject-category:access-subject category. The name of the claim is used for the *AttributeId* value. Examples of the items being populated are available at the end of this page.  
+
+====== Resource
+The attributes for resources are obtained through the permissions process. When checking permissions, the XACMLRealm retrieves a list of permissions that should be checked against the subject. These permissions are populated outside of the realm and should be populated with the security attributes located in the metacard security property. When the permissions are of a key-value type, the key being used is populated as the AttributeId value under the urn:oasis:names:tc:xacml:3.0:attribute-category:resource category. 
+
+==== Example Requests and Responses
+The following items are a sample request, response, and the corresponding policy. For the XACML PDP, the request is made by the XACML realm (security-pdp-xacmlrealm), passed to the XACML processing engine (security-pdp-xacmlprocessor), which reads the policy and outputs a response.
+
+===== Policy
+This is the sample policy that was used for the following sample request and responses. The policy was made to handle the following actions: filter, query, and LocalSiteName. The filter action is used to compare subject's SUBJECT_ACCESS attributes to metacard's RESOURCE_ACCESS attributes. The query and LocalSiteName actions differ, as they are used to perform service authorization. For a query, the user must be associated with the country code ATA (Antarctica), and a LocalSiteName action can be performed by anyone.
+
+.Policy
+[source,xml,linenums]
+----
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="xpath-target-single-req" RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-overrides" Version="1.0">
+    <PolicyDefaults>
+        <XPathVersion>http://www.w3.org/TR/1999/REC-xpath-19991116</XPathVersion>
+    </PolicyDefaults>
+    <Target>
+        <AnyOf>
+            <AllOf>
+                <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                </Match>
+            </AllOf>
+            <AllOf>
+                <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                </Match>
+            </AllOf>
+            <AllOf>
+                <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">LocalSiteName</AttributeValue>
+                    <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                </Match>
+            </AllOf>
+        </AnyOf>
+    </Target>
+    <Rule Effect="Permit" RuleId="permit-filter">
+        <Target>
+            <AnyOf>
+                <AllOf>
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
+                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                    </Match>
+                </AllOf>
+            </AnyOf>
+        </Target>
+        <Condition>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+                <AttributeDesignator AttributeId="RESOURCE_ACCESS" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+                <AttributeDesignator AttributeId="SUBJECT_ACCESS" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+            </Apply>
+        </Condition>
+    </Rule>
+    <Rule Effect="Permit" RuleId="permit-action">
+        <Target>
+            <AnyOf>
+                <AllOf>
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
+                        <AttributeDesignator AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+                    </Match>
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
+                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+                    </Match>
+                </AllOf>
+                <AllOf>
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">LocalSiteName</AttributeValue>
+                        <AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="false"/>
+                    </Match>
+                </AllOf>
+            </AnyOf>
+        </Target>
+    </Rule>
+    <Rule Effect="Deny" RuleId="deny-read"/>
+</Policy>
+----
+
+===== Service Authorization
+
+====== Allowed Query
+
+.Request
+[source,xml,linenums]
+----
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
+    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
+        </Attribute>
+    </Attributes>
+    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
+        </Attribute>
+    </Attributes>
+</Request>
+----
+
+.Response
+[source,xml,linenums]
+----
+<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
+    <Result>
+        <Decision>Permit</Decision>
+        <Status>
+            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
+        </Status>
+    </Result>
+</Response>
+----
+
+====== Denied Query
+
+.Request
+[source,xml,linenums]
+----
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
+    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">query</AttributeValue>
+        </Attribute>
+    </Attributes>
+    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User USA</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">USA</AttributeValue>
+        </Attribute>
+    </Attributes>
+</Request>
+----
+
+.Response
+[source,xml,linenums]
+----
+<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
+    <Result>
+        <Decision>Deny</Decision>
+        <Status>
+            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
+        </Status>
+    </Result>
+</Response>
+----
+
+===== Metacard Authorization
+
+====== Subject Permitted
+All of the resource's RESOURCE_ACCESS attributes were matched with the Subject's SUBJECT_ACCESS attributes. 
+
+.Request
+[source,xml,linenums]
+----
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
+    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
+        </Attribute>
+    </Attributes>
+    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
+        </Attribute>
+    </Attributes>
+    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource">
+        <Attribute AttributeId="RESOURCE_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
+        </Attribute>
+    </Attributes>
+</Request>
+----
+
+.Response
+[source,xml,linenums]
+----
+<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
+    <Result>
+        <Decision>Deny</Decision>
+        <Status>
+            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
+        </Status>
+    </Result>
+</Response>
+----
+
+====== Subject Denied
+The resource had an additional RESOURCE_ACCESS attribute 'C' that the subject did not have.
+
+.Request
+[source,xml,linenums]
+----
+<Request xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" ReturnPolicyIdList="false" CombinedDecision="false">
+    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">filter</AttributeValue>
+        </Attribute>
+    </Attributes>
+    <Attributes Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject">
+        <Attribute AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">users</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Test User</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">testuser1</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="SUBJECT_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="http://www.opm.gov/feddata/CountryOfCitizenship" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">ATA</AttributeValue>
+        </Attribute>
+    </Attributes>
+    <Attributes Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource">
+        <Attribute AttributeId="RESOURCE_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">A</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="RESOURCE_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">B</AttributeValue>
+        </Attribute>
+        <Attribute AttributeId="RESOURCE_ACCESS" IncludeInResult="false">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">C</AttributeValue>
+        </Attribute>
+    </Attributes>
+</Request>
+----
+
+.Response
+[source,xml,linenums]
+----
+<Response xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17">
+    <Result>
+        <Decision>Deny</Decision>
+        <Status>
+            <StatusCode Value="urn:oasis:names:tc:xacml:1.0:status:ok"/>
+        </Status>
+    </Result>
+</Response>
+----
+
+=== Expansion Service
+The Expansion Service and its corresponding expansion-related commands provide an easy way for developers to add expansion capabilities to {branding} during user attributes and metadata card processing. In addition to these two defined uses of the expansion service, developers are free to utilize the service in their own implementations.
+
+Each instance of the expansion service consists of a collection of rule sets. Each rule set consists of a key value and its associated set of rules. Callers of the expansion service provide a key and an original value to be expanded. The expansion service then looks up the set of rules for the specified key. The expansion service then cumulatively applies each of the rules in the set starting with the original value, with the resulting set of values being returned to the caller.
+
+[cols="3" options="header"]
+|===
+
+|Key (Attribute)	
+2.1+^|Rules (original → new)
+
+1.3+^|key1	
+|value1	
+|replacement1
+
+|value2	
+|replacement2
+
+|value3	
+|replacement3
+
+1.2+^|key2	
+|value1	
+|replacement1
+
+|value2	
+|replacement2
+
+|===
+The examples below use the following collection of rule sets:
+
+[cols="3" options="header"]
+|===
+
+|Key (Attribute)	
+2.1+^|Rules (original → new)
+
+1.3+^|Location	
+|Goodyear	
+|Goodyear AZ
+
+|AZ	
+|AZ USA
+
+|CA	
+|CA USA
+
+1.2+^|Title	
+|VP-Sales	
+|VP-Sales VP Sales
+
+|VP-Engineering	
+|VP-Engineering VP Engineering
+
+|===
+
+Note that the rules listed for each key are processed in order, so they may build upon each other, i.e., a new value from the new replacement string may be expanded by a subsequent rule.
+
+==== Instances and Configuration
+It is expected that multiple instances of the expansion service will be running at the same time. Each instance of the service defines a unique property that is useful for retrieving specific instances of the expansion service. The following table lists the two pre-defined instances used by {branding} for expanding user attributes and metacard attributes respectively.
+
+[cols="1,3,5" options="header"]
+|===
+|Property Name
+|Value
+|Description
+
+|mapping	
+|security.user.attribute.mapping	
+|This instance is configured with rules that expand the user's attribute values for security checking.
+
+|mapping	
+|security.metacard.attribute.mapping	
+|This instance is configured with rules that expand the metacard's security attributes before comparing with the user's attributes.
+
+|===
+Each instance of the expansion service can be configured using a configuration file. The configuration file can have three different types of lines:
+* comments - any line prefixed with the # character is ignored as a comment (for readability, blank lines are also ignored)
+* attribute separator - a line starting with separator= defines the attribute separator string.
+* rule - all other lines are assumed to be rules defined in a string format `<key>:<original value>:<new value>`
+
+The following configuration file defines the rules shown above in the example table (using the space as a separator):
+
+----
+# This defines the separator that will be used when the expansion string contains multiple
+# values - each will be separated by this string. The expanded string will be split at the
+# separator string and each resulting attributed added to the attribute set (duplicates are
+# suppressed). No value indicates the defualt value of ' ' (space).
+separator=
+ 
+# The following rules define the attribute expansion to be performed. The rules are of the
+# form:
+#       <attribute name>:<original value>:<expanded value>
+# The rules are ordered, so replacements from the first rules may be found in the original
+# values of subsequent rules.
+Location:Goodyear:Goodyear AZ
+Location:AZ:AZ USA
+Location:CA:CA USA
+Title:VP-Sales:VP-Sales VP Sales
+Title:VP-Engineering:VP-Engineering VP Engineering
+----
+
+==== Expansion Commands
+[cols="2,1,4" options="header"]
+|===
+
+|Title
+|Namespace
+|Description
+
+|{branding}::Security::Expansion::Commands	
+|security	
+|The expansion commands provide detailed information about the expansion rules in place and the ability to see the results of expanding specific values against the active rule set.
+
+|===
+
+===== Expansion Commands
+[cols="2"]
+|===
+|security:expand        |security:expansions
+|===
+
+===== Command Descriptions
+
+[cols="1,5" options="header"]
+|===
+
+|Command
+|Description
+
+|expand	
+|Runs the expansion service on the provided data returning the expanded value.
+
+|expansions	
+|Dumps the ruleset for each active expansion service.
+
+|===
+
+==== Expansion Command Examples and Explanation
+
+===== `security:expansions`
+The `security:expansions` command dumps the ruleset for each active expansion service. It takes no arguments and displays each rule on a separate line in the form: `<attribute name> : <original string> : <expanded string>`. The following example shows the results of executing the expansions command with no active expansion service.
+
+[source]
+----
+ddf@local>security:expansions
+No expansion services currently available.
+----
+
+After installing the expansions service and configuring it with an appropriate set of rules, the expansions command will provide output similar to the following:
+
+[source]
+----
+ddf@local>security:expansions
+Location : Goodyear : Goodyear AZ
+Location : AZ : AZ USA
+Location : CA : CA USA
+Title : VP-Sales : VP-Sales VP Sales
+Title : VP-Engineering : VP-Engineering VP Engineering
+----
+
+===== `security:expand`
+
+The security:expand command runs the expansion service on the provided data. It takes an attribute and an original value, expands the original value using the current expansion service and rule set and dumps the results. For the rule set shown above, the expand command produces the following results:
+
+[source]
+----
+ddf@local>security:expand Location Goodyear
+[Goodyear, USA, AZ]
+
+ddf@local>security:expand Title VP-Engineering
+[VP-Engineering, Engineering, VP]
+
+ddf@local>expand Title "VP-Engineering Manager"
+[VP-Engineering, Engineering, VP, Manager]
+----
+
+=== Configure WSS Using Standalone Servers
+
 {branding} uses CAS as its single sign-on service. {branding} uses LDAP and STS to keep track of users and user attributes. CAS, LDAP, and STS are integral, interconnected components of the {branding} security scheme, and all can be installed on a local {branding} instance with only a few feature installs (with the exception of the CAS installation, which requires Apache Tomcat to run). Setting up these authentication components to run externally, however, is more nuanced, so this page will provide step-by-step instructions detailing the configuration process.
 
 This page assumes that there is a keystore for each of the services/servers. If using different keystore names, substitute the name provided in this document with the desired name for your setup. For this document, the following data is used:
@@ -3223,7 +4950,7 @@ LDAP is used to maintain a list of trusted {branding} users and the attributes a
 . Obtain and unzip the {branding} kernel (ddf-distribution-kernel-<VERSION>.zip). 
 . Start the distribution.
 . Deploy the Embedded LDAP application by copying the ldap-embedded-app-<VERSION>.kar into the <DISTRIBUTION_HOME>/deploy directory. Verify that the LDAP server is installed by checking the {branding} log or by performing an la command and verifying that the OpenDJ bundle is in the active state. Additionally, it should be responding to LDAP requests on the default ports, which are 1389 and 1636.
-. Copy the environment's Java keystore file into the {DISTRIBUTION}/etc/keystores folder, making sure it overwrites the folder's existing serverKeystore.jks file.
+. Copy the environment's Java keystore file into the` ${DISTRIBUTION}/etc/keystores` folder, making sure it overwrites the folder's existing serverKeystore.jks file.
 
 [WARNING]
 ====
@@ -3234,7 +4961,7 @@ It is very important that the keystore file used in the process is set up to tru
 CAS is used for SSO authentication purposes. Unlike LDAP and STS, CAS cannot be run as a {branding} bundle. CAS must be run through Apache Tomcat.
 
 . Follow the instructions on the CAS installation page to install and configure Tomcat/CAS. For example, with LDAP above, the keystore.jks file that is used must trust the hostnames used by the STS server, LDAP server, and the {branding} user connecting to CAS.
-. Open the {TOMCAT}/webapps/cas/WEB-INF/cas.properties file and modify the cas.ldap.host, cas.ldap.port, cas.ldap.user.dn, and cas.ldap.password fields with your environment's LDAP information.
+. Open the `${TOMCAT}/webapps/cas/WEB-INF/cas.properties` file and modify the `cas.ldap.host`, `cas.ldap.port`, `cas.ldap.user.dn`, and `cas.ldap.password` fields with your environment's LDAP information.
 
 ===== STS
 The Security Token Service, unlike the LDAP, cannot currently be installed on a kernel distribution of {branding}. To run an STS-only {branding} installation,  uninstall the catalog components that are not being used. This will increase performance. A list of unneeded components can be found on the STS page.
@@ -3280,7 +5007,7 @@ All of the authentication components should be running and configured at this po
 ==== Configuring {branding}
 Once everything is configured and running, hooking up an existing {branding} instance to the authentication scheme is performed by setting a few configuration properties.
 
-. Verify that the `{DISTRIBUTION}/etc/keystores` folder is updated with the correct keystores for your operating environment.
+. Verify that the `${DISTRIBUTION}/etc/keystores` folder is updated with the correct keystores for your operating environment.
 . Start the distribution.
 . Enter the following commands to install the CAS features:+
 +
@@ -4196,6 +5923,119 @@ offset            = 'Z' | (('+' | '-') HH [':' mm [':' ss [('.' | ',') SSS]]]
 
 ===== Examples
 
+==== Command Descriptions
+[cols="1,9a" options="header"]
+|===
+
+|Command
+|Description
+
+|describe
+|Provides a basic description of the Catalog implementation.
+
+|dump
+|Exports metacards from the local Catalog. Does not remove them. See below for date filtering options.
+
+|envlist
+|[IMPORTANT]
+====
+Deprecated as of ddf-catalog 2.5.0. Please use platform:envlist.
+====
+
+Provides a list of environment variables.
+
+|ingest
+|Ingests data files into the Catalog.
+
+|inspect
+|Provides the various fields of a metacard for inspection.
+
+|latest
+|Retrieves the latest records from the Catalog based on the Metacard.MODIFIED date.
+
+|migrate
+|Allows two CatalogProviders to be configured and migrates the data from the primary to the secondary.
+
+|range
+|Searches by the given range arguments (exclusively).
+
+|remove
+|Deletes a record from the local Catalog.
+
+|removeall
+|Attempts to delete all records from the local Catalog.
+
+|replicate
+|Replicates data from a federated source into the local Catalog.
+
+|search
+|Searches records in the local Catalog.
+
+|spatial
+|Searches spatially the local Catalog.
+
+|===
+
+==== Available System Console Commands
+To get a list of commands, type in the namespace of the desired extension then press the *Tab* key.
+
+For example, type catalog, then press *Tab*.
+
+==== System Console Command Help
+For details on any command, type help then the command. For example, help search (see results of this command in the example below).
+
+.Example Help
+----
+ddf@local>help search
+DESCRIPTION
+        catalog:search
+        Searches records in the catalog provider.
+SYNTAX
+        catalog:search [options] SEARCH_PHRASE [NUMBER_OF_ITEMS]
+ARGUMENTS
+        SEARCH_PHRASE
+                Phrase to query the catalog provider.
+        NUMBER_OF_ITEMS
+                Number of maximum records to display.
+                (defaults to -1)
+OPTIONS
+        --help
+                Display this help message
+        case-sensitive, -c
+                Makes the search case sensitive
+        -p, -provider
+                Interacts with the provider directly instead of the framework.
+
+----
+
+The `help` command provides a description of the provided command, along with the syntax in how to use it, arguments it accepts, and available options.
+
+==== catalog:dump Options
+
+The `catalog:dump` command was extended in {branding} version 2.5.0 to provide selective export of metacards based on date ranges.
+The `--created-after` and `--created-before` options allow filtering on the date and time that the metacard was created, while `--modified-after` and `--modified-before` options allow filtering on the date and time that the metacard was last modified (which is the created date if no other modifications were made). These date ranges are exclusive (i.e., if the date and time match exactly, the metacard will not be included). The date filtering options (`--created-after`, `--created-before`, `--modified-after`, and `--modified-before`) can be used in any combination, with the export result including only metacards that match all of the provided conditions.
+
+If no date filtering options are provided, created and modified dates are ignored, so that all metacards match.
+
+==== Date Syntax
+Supported dates are taken from the common subset of ISO8601, matching the datetime from the following syntax:
+----
+datetime          = time | date-opt-time
+time              = 'T' time-element [offset]
+date-opt-time     = date-element ['T' [time-element] [offset]]
+date-element      = std-date-element | ord-date-element | week-date-element
+std-date-element  = yyyy ['-' MM ['-' dd]]
+ord-date-element  = yyyy ['-' DDD]
+week-date-element = xxxx '-W' ww ['-' e]
+time-element      = HH [minute-element] | [fraction]
+minute-element    = ':' mm [second-element] | [fraction]
+second-element    = ':' ss [fraction]
+fraction          = ('.' | ',') digit+
+offset            = 'Z' | (('+' | '-') HH [':' mm [':' ss [('.' | ',') SSS]]]
+----
+
+===== Examples
+
 ----
 ddf@local>// Given we've ingested a few metacards
 ddf@local>catalog:latest                                
@@ -4211,38 +6051,20 @@ ddf@local>catalog:dump --created-after 2014-06-13T09:55:00+10:00 /home/bradh/ddf
 ddf@local>// Filter out new file
 ddf@local>catalog:dump --created-before 2014-06-13T09:55:00+10:00 /home/bradh/ddf-catalog-dump
  2 file(s) dumped in 0.023 seconds
- 
+
 ddf@local>// Choose middle file
 ddf@local>catalog:dump --created-after 2014-06-13T09:50:00+10:00 --created-before 2014-06-13T09:55:00+10:00 /home/bradh/ddf-catalog-dump
  1 file(s) dumped in 0.020 seconds
  
 ddf@local>// Modified dates work the same way
 ddf@local>catalog:dump --modified-after 2014-06-13T09:50:00+10:00 --modified-before 2014-06-13T09:55:00+10:00 /home/bradh/ddf-catalog-dump
- 1 file(s) dumped in 0.015 seconds
- 
-ddf@local>// Can mix and match, most restrictive limits apply
-ddf@local>catalog:dump --modified-after 2014-06-13T09:45:00+10:00 --modified-before 2014-06-13T09:55:00+10:00 --created-before 2014-06-13T09:50:00+10:00 /home/bradh/ddf-catalog-dump
- 1 file(s) dumped in 0.024 seconds
- 
+ 1 file(s) dumped in 0.015 seconds 
+
 ddf@local>// Can use UTC instead of (or in combination with) explicit timezone offset
 ddf@local>catalog:dump --modified-after 2014-06-13T09:50:00+10:00 --modified-before 2014-06-13T09:55:00Z /home/bradh/ddf-catalog-dump
  2 file(s) dumped in 0.020 seconds
-ddf@local>catalog:dump --modified-after 2014-06-13T09:50:00+10:00 --modified-before 2014-06-12T23:55:00Z /home/bradh/ddf-catalog-dump
- 1 file(s) dumped in 0.015 seconds
- 
-ddf@local>// Can leave off timezone, but default (local time on server) may not match what you expect!
-ddf@local>catalog:dump --modified-after 2014-06-13T09:50:00 --modified-before 2014-06-13T09:55:00 /home/bradh/ddf-catalog-dump
- 1 file(s) dumped in 0.018 seconds
- 
-ddf@local>// Can leave off trailing minutes / seconds
-ddf@local>catalog:dump --modified-after 2014-06-13T09 --modified-before 2014-06-13T09:55 /home/bradh/ddf-catalog-dump
- 2 file(s) dumped in 0.024 seconds
- 
-ddf@local>// Can use year and day number
-ddf@local>catalog:dump --modified-after 2014-164T09:50:00 /home/bradh/ddf-catalog-dump
- 2 file(s) dumped in 0.027 seconds
-----
 
+---- 
 ==== Known Command Issues
 
 [cols="3,7" options="header"]
