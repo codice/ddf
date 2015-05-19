@@ -54,6 +54,10 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.github.sixro</groupId>
+                <artifactId>confluence-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 
