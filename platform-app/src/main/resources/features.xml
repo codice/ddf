@@ -845,4 +845,9 @@
         <bundle>mvn:ddf.platform.security/platform-security-session/${project.version}</bundle>
     </feature>
 
+    <feature name="platform-http-proxy" install="manual" version="${project.version}" description="HTTP to HTTPS proxy.">
+        <feature>camel-jetty</feature>
+        <bundle>mvn:ddf.platform/platform-http-proxy/${project.version}</bundle>
+    </feature>
+
 </features>
