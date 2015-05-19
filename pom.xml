@@ -702,6 +702,7 @@
                 <asciidoctor.maven.plugin.version>1.5.2</asciidoctor.maven.plugin.version>
                 <packaging>pom</packaging>
                 <module>docs</module>
+                <image-width>500</image-width>
             </properties>
             <repositories>
                 <repository>
@@ -741,9 +742,6 @@
                 <pluginManagement>
                     <plugins>
                         <plugin>
-                            <properties>
-                                <image-width>500</image-width>
-                            </properties>
                             <artifactId>maven-resources-plugin</artifactId>
                             <version>2.7</version>
                             <executions>
