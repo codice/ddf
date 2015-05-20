@@ -133,35 +133,42 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
             return deferred;
         },
         destroy: function() {
-            var deferred = $.Deferred(),
-                model = this;
-            var deleteUrl = [model.configUrl, "delete", model.get('properties').get("service.pid")].join("/");
+            var deleteUrl = [
+                this.configUrl,
+                "delete",
+                this.get('properties').get("service.pid")
+            ].join("/");
 
             return $.ajax({
                 type: 'GET',
                 url: deleteUrl
-            }).done(function (result) {
-                  deferred.resolve(result);
-                }).fail(function (error) {
-                    deferred.fail(error);
-                });
+            });
+        },
+        initializeFromModel: function (model) {
+            if (model.get("factory")) {
+                return this.initializeFromMSF(model);
+            } else {
+                return this.initializeFromService(model);
+            }
         },
         initializeFromMSF: function(msf) {
-            this.set({"fpid":msf.get("id")});
-            this.set({"name":msf.get("name")});
-            this.get('properties').set({"service.factoryPid": msf.get("id")});
-            this.initializeFromService(msf);
+            this.set({"fpid": msf.get("id")})
+                .set({"name": msf.get("name")});
+            this.get('properties')
+                .set({"service.factoryPid": msf.get("id")});
+            return this.initializeFromService(msf);
         },
         initializeFromService: function(service) {
-            this.initializeFromMetatype(service.get("metatype"));
+            return this.initializeFromMetatype(service.get("metatype"));
         },
         initializeFromMetatype: function(metatype) {
-            var model = this;
+            var properties = this.get('properties');
             metatype.forEach(function(obj){
                 var id = obj.get('id');
                 var val = obj.get('defaultValue');
-                model.get('properties').set(id, (val) ? val.toString() : null);
+                properties.set(id, (val) ? val.toString() : null);
             });
+            return this;
         }
     });
 

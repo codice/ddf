@@ -56,8 +56,11 @@ define([
             var question = "Are you sure you want to remove the configuration: "+this.model.get("service.pid")+"?";
             var confirmation = window.confirm(question);
             if(confirmation) {
-                this.model.destroy();
-                this.close();
+                var configuration = this;
+                configuration.model.destroy().done(function () {
+                    wreqr.vent.trigger('refreshConfigurations');
+                    configuration.close();
+                });
             }
         }
     });
@@ -81,21 +84,25 @@ define([
         onRender: function() {
             this.collectionRegion.show(new ServiceView.ConfigurationTable({ collection: this.model.get("configurations") }));
         },
-        newConfiguration: function() {
-            if(this.model.get("factory") === false && !this.model.get("configurations").isEmpty()){
-                this.editModal.show(new ConfigurationEdit.View({model: this.model.get("configurations").at(0), service: this.model}));
-            } else if (this.model.has("factory") || !this.model.get("configurations").isEmpty()) {
+        /**
+         * If it is a factory OR it has no existing configurations, generate a configuration from the model.
+         * Otherwise, use the existing configuration.
+         * Then show an editing modal with the configuration.
+         */
+        newConfiguration: function () {
+            var configuration;
+            var model = this.model;
+            var hasFactory = model.get("factory");
+            var existingConfigurations = model.get("configurations");
+
+            if (hasFactory || existingConfigurations.isEmpty()) {
                 wreqr.vent.trigger('poller:stop');
-                var configuration = new Service.Configuration();
-                if (this.model.get("factory")) {
-                    configuration.initializeFromMSF(this.model);
-                } else {
-                    configuration.initializeFromService(this.model);
-                }
-                this.editModal.show(new ConfigurationEdit.View({model: configuration, service: this.model}));
-            } else if (this.model.get("configurations").isEmpty()) {
-                this.editModal.show(new ConfigurationEdit.View({model: this.model.get("configurations").at(0), service: this.model}));
+                configuration = (new Service.Configuration()).initializeFromModel(model);
+            } else {
+                configuration = existingConfigurations.at(0);
             }
+
+            this.editModal.show(new ConfigurationEdit.View({model: configuration, service: model}));
         }
     });
 
