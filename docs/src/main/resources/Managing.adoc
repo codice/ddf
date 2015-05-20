@@ -1263,11 +1263,11 @@ Important: When updating the Solr URL's be sure to include "/solr" at the end of
 
 |*Security STS Server
 |Signature Username
-|<Alias> *Only change this filed if you change the alias in the keystore
+|<Alias> *Only change this field if you change the alias in the keystore
 
 |*Security STS Server
 |Encryption Username
-|<Alias> *Only change this filed if you change the alias in the keystore
+|<Alias> *Only change this field if you change the alias in the keystore
 
 |=== 
 +
@@ -1282,14 +1282,15 @@ ddf@local> shutdown -f
 ===== Update Files in {branding}_HOME
 
 Update the user properties.
-[source,bash]
+[source]
 ----
 $> cd <DDF_HOME>/etc
 $> vi user.properties
 ## Edit this line
-localhost=localhost,admin
+localhost=localhost,group,admin,manager,viewer,webconsole
 ## To be:
-<FQDN>=<FQDN>,admin## Save and close the user.properties
+<FQDN>=<FQDN>,group,admin,manager,viewer,webconsole
+## Save and close the user.properties
 ----
 
 [IMPORTANT]
