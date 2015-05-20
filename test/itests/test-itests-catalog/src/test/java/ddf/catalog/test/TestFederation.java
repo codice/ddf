@@ -16,6 +16,7 @@ package ddf.catalog.test;
 
 import com.jayway.restassured.http.ContentType;
 import org.apache.commons.io.FileUtils;
+import org.hamcrest.xml.HasXPath;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 import static com.jayway.restassured.RestAssured.expect;
@@ -281,6 +283,22 @@ public class TestFederation extends TestCatalog {
 
         when().get(queryUrl).then().log().all().assertThat().body(containsString(RECORD_TITLE_1),
                 containsString(RECORD_TITLE_2));
+    }
+
+
+    @Test
+    public void testFanout() {
+        try {
+            setFanout();
+
+            String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&src="
+                    + CSW_SOURCE_ID;
+
+            when().get(queryUrl).then().log().all().assertThat().body(containsString("Unknown source"));
+
+        } catch (IOException e) {
+            fail("Unable to set fanout: " + e.getMessage());
+        }
     }
 
     public class OpenSearchSourceProperties extends HashMap<String, Object> {

@@ -22,6 +22,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 import static org.junit.Assert.fail;
 
+import ddf.catalog.CatalogFramework;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +30,8 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+
+import java.io.IOException;
 
 /**
  * Tests the Catalog framework components. Includes helper methods at the Catalog level.
@@ -93,6 +96,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         deleteMetacard(id);
     }
 
+
+
     protected void deleteMetacard(String id) {
         LOGGER.info("Deleteing metacard {}", id);
         delete(REST_PATH + id).then().assertThat().statusCode(200).log().all();
@@ -107,5 +112,4 @@ public class TestCatalog extends AbstractIntegrationTest {
         return given().body(data).header("Content-Type", mimeType).expect().log().all()
                 .statusCode(201).when().post(REST_PATH).getHeader("id");
     }
-
 }

@@ -15,6 +15,7 @@
 package ddf.catalog.test;
 
 import com.jayway.restassured.response.Response;
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import org.apache.commons.lang.StringUtils;
@@ -163,12 +164,10 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configureDistribution() {
-        return options(
-                karafDistributionConfiguration(
+        return options(karafDistributionConfiguration(
                         maven().groupId("ddf.distribution").artifactId("ddf").type("zip")
                                 .versionAsInProject().getURL(), "ddf", KARAF_VERSION)
-                        .unpackDirectory(new
-                                File("target/exam")).useDeployFolder(false));
+                        .unpackDirectory(new File("target/exam")).useDeployFolder(false));
 
     }
 
@@ -257,7 +256,8 @@ public abstract class AbstractIntegrationTest {
         return options(
                 editConfigurationFileExtend("etc/org.apache.karaf.features.cfg", "featuresBoot",
                         "security-services-app,catalog-app,solr-app,spatial-app,sdk-app"),
-                editConfigurationFileExtend("etc/org.apache.karaf.features.cfg", "featuresRepositories",
+                editConfigurationFileExtend("etc/org.apache.karaf.features.cfg",
+                        "featuresRepositories",
                         "mvn:ddf.sdk/sdk-app/2.3.0.ALPHA1-SNAPSHOT/xml/features"));
 
     }
@@ -321,6 +321,19 @@ public abstract class AbstractIntegrationTest {
         }
 
         logConfig.update(properties);
+    }
+
+    protected void setFanout() throws IOException {
+        Configuration configuration = configAdmin.getConfiguration(
+                "ddf.catalog.CatalogFrameworkImpl", null);
+
+        Dictionary<String, Object> properties =  configuration.getProperties();
+        if(properties == null)
+        {
+            properties = new Hashtable<String, Object>();
+        }
+        properties.put("fanoutEnabled", "true");
+        configuration.update(properties);
     }
 
     protected void waitForAllBundles() throws InterruptedException {
@@ -493,6 +506,21 @@ public abstract class AbstractIntegrationTest {
         }
 
         LOGGER.info("Sources at {} ready.", path);
+    }
+
+    protected CatalogFramework getCatalogFramework() throws InterruptedException {
+        LOGGER.info("getting framework");
+
+        CatalogFramework catalogFramework = null;
+
+        ServiceReference<CatalogFramework> providerRef = bundleCtx
+                .getServiceReference(CatalogFramework.class);
+        if (providerRef != null) {
+            catalogFramework = bundleCtx.getService(providerRef);
+        }
+
+        LOGGER.info("CatalogProvider is available.");
+        return catalogFramework;
     }
 
     protected Map<String, Object> getMetatypeDefaults(String symbolicName, String factoryPid) {
