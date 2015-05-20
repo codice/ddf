@@ -328,7 +328,6 @@ A developer can also set up Save Actions to format the source code automatically
 . Select the *Apply* button.
 . Select the *OK* button.
 
-
 === Format Source Code Using IntelliJ
 In the toolbar, select *Code → Reformat Code* or use the keyboard shortcut `Ctrl-Alt-L`.
 
