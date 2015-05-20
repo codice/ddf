@@ -39,14 +39,23 @@
         <org.geotools.bundle.version>${org.geotools.version}_1</org.geotools.bundle.version>
         <opengis.bundle.version>${org.geotools.version}_1</opengis.bundle.version>
         <tika.version>1.7</tika.version>
-        <xalan.version>2.7.1</xalan.version>
+        <xalan.version>2.7.2</xalan.version>
         <xerces.version>2.11.0</xerces.version>
         <saxon.version>9.6.0-4</saxon.version>
         <karaf.version>2.4.1</karaf.version>
         <camel.version>2.14.2</camel.version>
         <cxf.version>3.0.4</cxf.version>
-        <!-- Solr version properies -->
+        <!--
+            Remove restlet.version property and restlet dependencies from the dependencyManagement section when
+            Solr version is updated.
+        -->
         <solr.version>4.7.2</solr.version>
+        <!--
+            Important: version 2.1.4 is being used to address security vulnerabilities CVE-2013-4221 and
+            CVE-2013-4271. As this is a Solr transitive dependency, the restlet.version property and the restlet
+            dependencies found in the dependencyManagement section should be removed.
+        -->
+        <restlet.version>2.1.4</restlet.version>
         <lux.version>1.0.1</lux.version>
         <solr.saxon.version>9.5.1-5</solr.saxon.version>
     </properties>
@@ -364,6 +373,21 @@
                         <artifactId>solr-core</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <!--
+                Important: version 2.1.4 of restlet is being used to address security vulnerabilities CVE-2013-4221 and
+                CVE-2013-4271. As these are Solr transitive dependencies, the restlet dependencies should be removed
+                when the version of Solr is updated.
+            -->
+            <dependency>
+                <groupId>org.restlet.jee</groupId>
+                <artifactId>org.restlet</artifactId>
+                <version>${restlet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.restlet.jee</groupId>
+                <artifactId>org.restlet.ext.servlet</artifactId>
+                <version>${restlet.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
