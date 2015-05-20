@@ -1041,9 +1041,17 @@
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
                         <version>1.2.9</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>ddf.support</groupId>
+                                <artifactId>support-owasp</artifactId>
+                                <version>${ddf.support.version}</version>
+                            </dependency>
+                        </dependencies>
                         <configuration>
-                            <failBuildOnCVSS>8</failBuildOnCVSS>
+                            <failBuildOnCVSS>7</failBuildOnCVSS>
                             <format>ALL</format>
+                            <suppressionFile>dependency-check-maven-config.xml</suppressionFile>
                         </configuration>
                         <executions>
                             <execution>
