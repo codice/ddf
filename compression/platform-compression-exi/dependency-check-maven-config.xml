@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://www.owasp.org/index.php/OWASP_Dependency_Check_Suppression">
+    <!--
+        CVE-2014-9389 applies to Nexus and no evidence exist that the vulnerability was caused by Nagasena.
+     -->
+    <suppress>
+        <notes><![CDATA[
+   file name: nagasena-0000.0002.0049.0.jar
+   ]]></notes>
+        <sha1>8821DF6D1BC22FBA8F608021F4F27698CF3FD91F</sha1>
+        <cve>CVE-2014-9389</cve>
+    </suppress>
+</suppressions>

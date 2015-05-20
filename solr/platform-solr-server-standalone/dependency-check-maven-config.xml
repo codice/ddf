@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://www.owasp.org/index.php/OWASP_Dependency_Check_Suppression">
+    <!--
+        Suppressing vulnerabilities CVE-2013-4221 and CVE-2013-4221 as the offending jar file (org.restlet-2.1.1.jar)
+        is being manually removed from the Solr War and replaced with the fixed version. These should be removed when
+        Solr is updated. See pom file for details.
+    -->
+    <suppress>
+        <notes><![CDATA[
+   file name: solr-4.7.2.war: org.restlet-2.1.1.jar
+   ]]></notes>
+        <sha1>E12C23B962C925F2681729AFA1E40066A350AD27</sha1>
+        <cve>CVE-2013-4221</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: solr-4.7.2.war: org.restlet-2.1.1.jar
+   ]]></notes>
+        <sha1>E12C23B962C925F2681729AFA1E40066A350AD27</sha1>
+        <cve>CVE-2013-4271</cve>
+    </suppress>
+</suppressions>

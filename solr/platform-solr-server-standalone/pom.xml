@@ -124,6 +124,32 @@
                                         ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
                                     </outputDirectory>
                                 </artifactItem>
+                                <!--
+                                    Important: version 2.1.4 of restlet needs to be used to address security
+                                    vulnerabilities CVE-2013-4221 and CVE-2013-4271. As this is a Solr transitive
+                                    dependency, adding the fixed version (2.1.4) here. These two artifactItems and
+                                    the packagingExcludes in maven-war-plugin should be removed after updating Solr.
+                                -->
+                                <artifactItem>
+                                    <groupId>org.restlet.jee</groupId>
+                                    <artifactId>org.restlet</artifactId>
+                                    <version>2.1.4</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.restlet.jee</groupId>
+                                    <artifactId>org.restlet.ext.servlet</artifactId>
+                                    <version>2.1.4</version>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/lib
+                                    </outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -137,6 +163,22 @@
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF
                         </manifestFile>
                     </archive>
+                    <!--
+                        Important: version 2.1.1 of restlet contains security vulnerabilities CVE-2013-4221 and
+                        CVE-2013-4271. As these are part of the Solr War file, excluding the vulnerable version (2.1.1)
+                        here. This packagingExcludes and the two artifactItems used in maven-dependency-plugin should
+                        be removed after updating Solr.
+                    -->
+                    <packagingExcludes>
+                        WEB-INF/lib/org.restlet*-2.1.1.jar
+                    </packagingExcludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <configuration>
+                    <suppressionFile>${basedir}/dependency-check-maven-config.xml</suppressionFile>
                 </configuration>
             </plugin>
             <plugin>
@@ -196,8 +238,8 @@
                             WEB-INF/lib/hadoop-hdfs-2.2.0.jar,
                             WEB-INF/lib/hppc-0.5.2.jar,
                             WEB-INF/lib/joda-time-2.2.jar,
-                            WEB-INF/lib/org.restlet-2.1.1.jar,
-                            WEB-INF/lib/org.restlet.ext.servlet-2.1.1.jar,
+                            WEB-INF/lib/org.restlet-2.1.4.jar,
+                            WEB-INF/lib/org.restlet.ext.servlet-2.1.4.jar,
                             WEB-INF/lib/protobuf-java-2.5.0.jar,
                             WEB-INF/lib/spatial4j-0.4.1.jar,
                             WEB-INF/lib/commons-io-2.1.jar,
@@ -271,7 +313,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

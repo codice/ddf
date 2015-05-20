@@ -26,7 +26,17 @@
   <name>DDF Solr</name>
   
   <properties>
+      <!--
+          Remove restlet.version property and restlet dependencies from the dependencyManagement section when
+          Solr version is updated.
+      -->
       <solr.version>4.7.2</solr.version>
+      <!--
+          Important: version 2.1.4 is being used to address security vulnerabilities CVE-2013-4221 and
+          CVE-2013-4271. As this is a Solr transitive dependency, the restlet.version property and the restlet
+          dependencies found in the dependencyManagement section should be removed.
+      -->
+      <restlet.version>2.1.4</restlet.version>
       <lux.version>1.0.1</lux.version>
 	  <saxon.version>9.5.1-5</saxon.version>
   </properties>
@@ -48,7 +58,22 @@
 			<artifactId>lux</artifactId>
 			<version>${lux.version}</version>
 		</dependency>
-	</dependencies>
+        <!--
+            Important: version 2.1.4 of restlet is being used to address security vulnerabilities CVE-2013-4221 and
+            CVE-2013-4271. As these are Solr transitive dependencies, the restlet dependencies should be removed
+            when the version of Solr is updated.
+        -->
+        <dependency>
+            <groupId>org.restlet.jee</groupId>
+            <artifactId>org.restlet</artifactId>
+            <version>${restlet.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.restlet.jee</groupId>
+            <artifactId>org.restlet.ext.servlet</artifactId>
+            <version>${restlet.version}</version>
+        </dependency>
+    </dependencies>
   </dependencyManagement>
 
   
