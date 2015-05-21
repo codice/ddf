@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
  **/
 
 package ddf.catalog.pubsub;
@@ -33,8 +32,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.lucene.store.Directory;
 import org.geotools.filter.FilterTransformer;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.osgi.service.event.Event;
@@ -70,24 +67,22 @@ public class PredicateTest {
     private static final double NM_PER_DEG_LAT = 60.0;
 
     private static final double METERS_PER_NM = 1852.0;
-    
-    private static final String METADATA_FORMAT = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n"
-            + "<Resource xmlns:gml=\"http://www.opengis.net/gml\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
-            + "  <identifier qualifier=\"http://metadata.abc.com/mdr/ns/MDR/0.1/MDR.owl#URI\" value=\"http://www.abc.com/news/May2004/n05172004_200405174.html\"/>\r\n"
-            + "  <title classification=\"U\" ownerProducer=\"AUS GBR USA\">%s</title>\r\n"
-            + "  <creator classification=\"U\" ownerProducer=\"AUS GBR USA\">\r\n"
-            + "    <Person>\r\n"
-            + "      <name>Donna Miles</name>\r\n"
-            + "      <surname>Cat</surname>\r\n"
-            + "      <affiliation>American Forces Press Service</affiliation>\r\n"
-            + "    </Person>\r\n"
-            + "  </creator>\r\n"
-            + "  <subjectCoverage>\r\n"
-            + "    <Subject>\r\n"
-            + "      <keyword value=\"exercise\"/>\r\n"
-            + "      <category qualifier=\"SubjectCoverageQualifier\" code=\"nitf\" label=\"nitf\"/>\r\n"
-            + "    </Subject>\r\n" + "  </subjectCoverage>\r\n"
-            + "  <security classification=\"U\" ownerProducer=\"USA\"/>\r\n" + "</Resource>";
+
+    private static final String METADATA_FORMAT =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\r\n"
+                    + "<Resource xmlns:gml=\"http://www.opengis.net/gml\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n"
+                    + "  <identifier qualifier=\"http://metadata.abc.com/mdr/ns/MDR/0.1/MDR.owl#URI\" value=\"http://www.abc.com/news/May2004/n05172004_200405174.html\"/>\r\n"
+                    + "  <title classification=\"U\" ownerProducer=\"AUS GBR USA\">%s</title>\r\n"
+                    + "  <creator classification=\"U\" ownerProducer=\"AUS GBR USA\">\r\n"
+                    + "    <Person>\r\n" + "      <name>Donna Miffles</name>\r\n"
+                    + "      <surname>Cat</surname>\r\n"
+                    + "      <affiliation>American Forces Press Service</affiliation>\r\n"
+                    + "    </Person>\r\n" + "  </creator>\r\n" + "  <subjectCoverage>\r\n"
+                    + "    <Subject>\r\n" + "      <keyword value=\"exercise\"/>\r\n"
+                    + "      <category qualifier=\"SubjectCoverageQualifier\" code=\"nitf\" label=\"nitf\"/>\r\n"
+                    + "    </Subject>\r\n" + "  </subjectCoverage>\r\n"
+                    + "  <security classification=\"U\" ownerProducer=\"USA\"/>\r\n"
+                    + "</Resource>";
 
     @Test
     public void testContentTypeEvaluation() throws IOException {
@@ -277,8 +272,8 @@ public class PredicateTest {
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
-        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "unmatchingtype" + ","
-                + "unmatchingversion");
+        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY,
+                "unmatchingtype" + "," + "unmatchingversion");
         testEvent = new Event("topic", properties);
         assertFalse(pred.matches(testEvent));
 
@@ -347,16 +342,17 @@ public class PredicateTest {
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
-        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "unmatchingtype" + ","
-                + "random_version");
+        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY,
+                "unmatchingtype" + "," + "random_version");
         testEvent = new Event("topic", properties);
         assertFalse(pred.matches(testEvent));
 
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
-        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "," + "unmatchingversion"); // Invalid
-                                                                                            // input
+        properties
+                .put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "," + "unmatchingversion"); // Invalid
+        // input
         testEvent = new Event("topic", properties);
         assertFalse(pred.matches(testEvent));
 
@@ -378,7 +374,8 @@ public class PredicateTest {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
 
-        List<MockTypeVersionsExtension> extensions = createContentTypeVersionList("type1,version1|type2,version2|type3,|,version4");
+        List<MockTypeVersionsExtension> extensions = createContentTypeVersionList(
+                "type1,version1|type2,version2|type3,|,version4");
 
         MockQuery query = new MockQuery();
         query.addTypeFilter(extensions);
@@ -429,8 +426,8 @@ public class PredicateTest {
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
-        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "random_type" + ","
-                + "random_version");
+        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY,
+                "random_type" + "," + "random_version");
         testEvent = new Event("topic", properties);
         assertFalse(pred.matches(testEvent));
 
@@ -536,8 +533,8 @@ public class PredicateTest {
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
-        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "random_type" + ","
-                + "random_version");
+        properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY,
+                "random_type" + "," + "random_version");
         testEvent = new Event("topic", properties);
         assertFalse(pred.matches(testEvent));
 
@@ -600,7 +597,7 @@ public class PredicateTest {
         // input that fails temporal
         logger.debug("\nfail temporal.  fail content type.\n");
         XMLGregorianCalendar cal1 = df.newXMLGregorianCalendarDate(2012, 10, 30, 0); // time out of
-                                                                                     // range
+        // range
         Date effectiveDate1 = cal1.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate1);
         logger.debug("metacard date: " + metacard.getEffectiveDate());
@@ -798,7 +795,7 @@ public class PredicateTest {
         // input that fails both temporal and content type
         logger.debug("\nfail temporal.  fail content type.\n");
         XMLGregorianCalendar cal1 = df.newXMLGregorianCalendarDate(2012, 10, 30, 0); // time out of
-                                                                                     // range
+        // range
         Date effectiveDate1 = cal1.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate1);
         logger.debug("metacard date: " + metacard.getEffectiveDate());
@@ -814,7 +811,7 @@ public class PredicateTest {
         // input that passes temporal and fails content type
         logger.debug("\npass temporal.  fail content type\n");
         XMLGregorianCalendar cal2 = df.newXMLGregorianCalendarDate(2011, 10, 26, 0); // time in
-                                                                                     // range
+        // range
         Date effectiveDate2 = cal2.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate2);
         logger.debug("metacard date: " + metacard.getEffectiveDate());
@@ -830,7 +827,7 @@ public class PredicateTest {
         // input that fails temporal and passes content type
         logger.debug("\nfail temporal.  pass content type\n");
         XMLGregorianCalendar cal3 = df.newXMLGregorianCalendarDate(2012, 10, 26, 0); // time out of
-                                                                                     // range
+        // range
         Date effectiveDate3 = cal3.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate3);
         logger.debug("metacard date: " + metacard.getEffectiveDate());
@@ -870,7 +867,7 @@ public class PredicateTest {
         // Create metacard for input
         // time and contentType match
         XMLGregorianCalendar cal4 = df.newXMLGregorianCalendarDate(2011, 10, 26, 0); // time in
-                                                                                     // range
+        // range
         Date effectiveDate4 = cal4.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate4);
         logger.debug("metacard date: " + metacard.getEffectiveDate());
@@ -885,7 +882,7 @@ public class PredicateTest {
 
         // time and contentType match against content type 3 with any version
         XMLGregorianCalendar cal5 = df.newXMLGregorianCalendarDate(2011, 10, 26, 0); // time in
-                                                                                     // range
+        // range
         Date effectiveDate5 = cal5.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate5);
         logger.debug("metacard date: " + metacard.getEffectiveDate());
@@ -900,7 +897,7 @@ public class PredicateTest {
 
         // time matches and contentType matches type2
         XMLGregorianCalendar cal6 = df.newXMLGregorianCalendarDate(2011, 10, 26, 0); // time in
-                                                                                     // range
+        // range
         Date effectiveDate6 = cal6.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate6);
         logger.debug("metacard date: " + metacard.getEffectiveDate());
@@ -915,7 +912,7 @@ public class PredicateTest {
 
         // time matches and content type doesn't match
         XMLGregorianCalendar cal7 = df.newXMLGregorianCalendarDate(2011, 10, 26, 0); // time in
-                                                                                     // range
+        // range
         Date effectiveDate7 = cal7.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate7);
         logger.debug("metacard date: " + metacard.getEffectiveDate());
@@ -1093,23 +1090,23 @@ public class PredicateTest {
 
         String searchPhrase = "laZy BROwn foX";
         Predicate predicate = getPredicate(searchPhrase, true);
-        
+
         String metadata = String.format(METADATA_FORMAT, "laZy BROwn foX");
         Event testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "lazy brown fox");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "laZy bROwn foX");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "laZyBROwn foX");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         logger.debug("***************  END: " + methodName + "  *****************");
     }
 
@@ -1125,7 +1122,7 @@ public class PredicateTest {
         // of "-test" (i.e., no escaping)
         String searchPhrase = "-test";
         Predicate predicate = getPredicate(searchPhrase);
-        
+
         String metadata = String.format(METADATA_FORMAT, "-test");
         Event testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
@@ -1133,31 +1130,31 @@ public class PredicateTest {
         metadata = String.format(METADATA_FORMAT, "_test");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker-test");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker_test");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test-");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "test-marker");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_marker");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         logger.debug("***************  END: " + methodName + "  *****************");
     }
 
@@ -1168,7 +1165,7 @@ public class PredicateTest {
 
         String searchPhrase = "_test";
         Predicate predicate = getPredicate(searchPhrase);
-        
+
         String metadata = String.format(METADATA_FORMAT, "-test");
         Event testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
@@ -1176,31 +1173,31 @@ public class PredicateTest {
         metadata = String.format(METADATA_FORMAT, "_test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker-test");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker_test");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test-");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "test-marker");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_marker");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         logger.debug("***************  END: " + methodName + "  *****************");
     }
 
@@ -1211,7 +1208,7 @@ public class PredicateTest {
 
         String searchPhrase = "test-";
         Predicate predicate = getPredicate(searchPhrase);
-        
+
         String metadata = String.format(METADATA_FORMAT, "-test");
         Event testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
@@ -1219,31 +1216,31 @@ public class PredicateTest {
         metadata = String.format(METADATA_FORMAT, "_test");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker-test");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker_test");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test-");
         testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent)); 
-        
+        assertTrue(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "test-marker");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_marker");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         logger.debug("***************  END: " + methodName + "  *****************");
     }
 
@@ -1254,7 +1251,7 @@ public class PredicateTest {
 
         String searchPhrase = "test_";
         Predicate predicate = getPredicate(searchPhrase);
-        
+
         String metadata = String.format(METADATA_FORMAT, "-test");
         Event testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
@@ -1262,31 +1259,31 @@ public class PredicateTest {
         metadata = String.format(METADATA_FORMAT, "_test");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker-test");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker_test");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test-");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "test-marker");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_marker");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         logger.debug("***************  END: " + methodName + "  *****************");
     }
 
@@ -1301,7 +1298,7 @@ public class PredicateTest {
         // client registering the subscription would specify a search phrase
         // of "+test" (i.e., no escaping). This applies to all of the
         // special characters in this unit test.
-        
+
         String searchPhrase = "+test";
         Predicate predicate = getPredicate(searchPhrase);
 
@@ -1642,7 +1639,8 @@ public class PredicateTest {
 
     @Test
     public void testTemporalEvaluator() throws Exception {
-        logger.debug("**************************  START: testTemporalEvaluator()  ***********************");
+        logger.debug(
+                "**************************  START: testTemporalEvaluator()  ***********************");
 
         Calendar calendar = Calendar.getInstance();
         Date start = calendar.getTime();
@@ -1654,12 +1652,14 @@ public class PredicateTest {
 
         assertTrue(status);
 
-        logger.debug("**************************  END: testTemporalEvaluator()  ***********************");
+        logger.debug(
+                "**************************  END: testTemporalEvaluator()  ***********************");
     }
 
     @Test
     public void testGeospatialEvaluator_Overlaps() throws Exception {
-        logger.debug("**************************  START: testGeospatialEvaluator_Overlaps()  ***********************");
+        logger.debug(
+                "**************************  START: testGeospatialEvaluator_Overlaps()  ***********************");
 
         // WKT specifies points in LON LAT order
         String geometryWkt = "POLYGON ((40 34, 40 33, 44.5 33, 44.5 34, 40 34))";
@@ -1668,16 +1668,16 @@ public class PredicateTest {
         GeospatialPredicate predicate = new GeospatialPredicate(geometryWkt, operation, distance);
         Geometry geoCriteria = predicate.getGeoCriteria();
 
-        String geospatialXml = "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml\" gml:id=\"BGE-1\" srsName=\"http://metadata.dod.mil/mdr/ns/GSIP/crs/WGS84E_2D\">\n"
-                + "    <gml:exterior>\n"
-                + "        <gml:LinearRing>\n"
-                + "            <gml:pos>34.0 44.0</gml:pos>\n"
-                + "            <gml:pos>33.0 44.0</gml:pos>\n"
-                + "            <gml:pos>33.0 45.0</gml:pos>\n"
-                + "            <gml:pos>34.0 45.0</gml:pos>\n"
-                + "            <gml:pos>34.0 44.0</gml:pos>\n"
-                + "        </gml:LinearRing>\n"
-                + "    </gml:exterior>\n" + "</gml:Polygon>";
+        String geospatialXml =
+                "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml\" gml:id=\"BGE-1\">\n"
+                        + "    <gml:exterior>\n" + "        <gml:LinearRing>\n"
+                        + "            <gml:pos>34.0 44.0</gml:pos>\n"
+                        + "            <gml:pos>33.0 44.0</gml:pos>\n"
+                        + "            <gml:pos>33.0 45.0</gml:pos>\n"
+                        + "            <gml:pos>34.0 45.0</gml:pos>\n"
+                        + "            <gml:pos>34.0 44.0</gml:pos>\n"
+                        + "        </gml:LinearRing>\n" + "    </gml:exterior>\n"
+                        + "</gml:Polygon>";
 
         Geometry input = GeospatialEvaluator.buildGeometry(geospatialXml);
         logger.debug("input.toText() = " + input.toText());
@@ -1687,7 +1687,8 @@ public class PredicateTest {
 
         assertTrue(status);
 
-        logger.debug("**************************  END: testGeospatialEvaluator_Overlaps()  ***********************");
+        logger.debug(
+                "**************************  END: testGeospatialEvaluator_Overlaps()  ***********************");
     }
 
     @Test
@@ -1744,7 +1745,8 @@ public class PredicateTest {
 
     @Test
     public void testGeospatialEvaluator_PointRadius_NotContains() throws Exception {
-        logger.debug("**************************  START: testGeospatialEvaluator_PointRadius_NotContains()  ***********************");
+        logger.debug(
+                "**************************  START: testGeospatialEvaluator_PointRadius_NotContains()  ***********************");
 
         // WKT specifies points in LON LAT order
         String geometryWkt = "POINT (44.5 34.5)";
@@ -1756,16 +1758,16 @@ public class PredicateTest {
         Geometry geoCriteria = predicate.getGeoCriteria();
         logger.debug("geoCriteria.toText() = " + geoCriteria.toText());
 
-        String geospatialXml = "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml\" gml:id=\"BGE-1\" srsName=\"http://metadata.dod.mil/mdr/ns/GSIP/crs/WGS84E_2D\">\n"
-                + "    <gml:exterior>\n"
-                + "        <gml:LinearRing>\n"
-                + "            <gml:pos>24.0 22.0</gml:pos>\n"
-                + "            <gml:pos>23.0 22.0</gml:pos>\n"
-                + "            <gml:pos>23.0 24.0</gml:pos>\n"
-                + "            <gml:pos>24.0 24.0</gml:pos>\n"
-                + "            <gml:pos>24.0 22.0</gml:pos>\n"
-                + "        </gml:LinearRing>\n"
-                + "    </gml:exterior>\n" + "</gml:Polygon>";
+        String geospatialXml =
+                "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml\" gml:id=\"BGE-1\">\n"
+                        + "    <gml:exterior>\n" + "        <gml:LinearRing>\n"
+                        + "            <gml:pos>24.0 22.0</gml:pos>\n"
+                        + "            <gml:pos>23.0 22.0</gml:pos>\n"
+                        + "            <gml:pos>23.0 24.0</gml:pos>\n"
+                        + "            <gml:pos>24.0 24.0</gml:pos>\n"
+                        + "            <gml:pos>24.0 22.0</gml:pos>\n"
+                        + "        </gml:LinearRing>\n" + "    </gml:exterior>\n"
+                        + "</gml:Polygon>";
 
         Geometry input = GeospatialEvaluator.buildGeometry(geospatialXml);
         logger.debug("input.toText() = " + input.toText());
@@ -1775,37 +1777,39 @@ public class PredicateTest {
 
         assertFalse(status);
 
-        logger.debug("**************************  END: testGeospatialEvaluator_PointRadius_NotContains()  ***********************");
+        logger.debug(
+                "**************************  END: testGeospatialEvaluator_PointRadius_NotContains()  ***********************");
     }
 
     @Test
     public void testGeospatialEvaluator_PointRadius_Contains() throws Exception {
-        logger.debug("**************************  START: testGeospatialEvaluator_PointRadius_Contains()  ***********************");
+        logger.debug(
+                "**************************  START: testGeospatialEvaluator_PointRadius_Contains()  ***********************");
 
         // WKT specifies points in LON LAT order
         String geometryWkt = "POINT (44.5 34.5)";
         String operation = "point_radius";
         double distance = 0.6 * NM_PER_DEG_LAT * METERS_PER_NM; // 0.6 degrees
-                                                                // latitude in
-                                                                // meters
+        // latitude in
+        // meters
         double radiusInDegrees = (distance * 180.0) / (Math.PI * EQUATORIAL_RADIUS_IN_METERS);
-        logger.debug("distance (in meters) = " + distance + ",   radiusInDegrees = "
-                + radiusInDegrees);
+        logger.debug(
+                "distance (in meters) = " + distance + ",   radiusInDegrees = " + radiusInDegrees);
         GeospatialPredicate predicate = new GeospatialPredicate(geometryWkt, operation,
                 radiusInDegrees);
         Geometry geoCriteria = predicate.getGeoCriteria();
         logger.debug("geoCriteria.toText() = " + geoCriteria.toText());
 
-        String geospatialXml = "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml\" gml:id=\"BGE-1\" srsName=\"http://metadata.dod.mil/mdr/ns/GSIP/crs/WGS84E_2D\">\n"
-                + "    <gml:exterior>\n"
-                + "        <gml:LinearRing>\n"
-                + "            <gml:pos>34.0 44.0</gml:pos>\n"
-                + "            <gml:pos>33.0 44.0</gml:pos>\n"
-                + "            <gml:pos>33.0 45.0</gml:pos>\n"
-                + "            <gml:pos>34.0 45.0</gml:pos>\n"
-                + "            <gml:pos>34.0 44.0</gml:pos>\n"
-                + "        </gml:LinearRing>\n"
-                + "    </gml:exterior>\n" + "</gml:Polygon>";
+        String geospatialXml =
+                "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml\" gml:id=\"BGE-1\">\n"
+                        + "    <gml:exterior>\n" + "        <gml:LinearRing>\n"
+                        + "            <gml:pos>34.0 44.0</gml:pos>\n"
+                        + "            <gml:pos>33.0 44.0</gml:pos>\n"
+                        + "            <gml:pos>33.0 45.0</gml:pos>\n"
+                        + "            <gml:pos>34.0 45.0</gml:pos>\n"
+                        + "            <gml:pos>34.0 44.0</gml:pos>\n"
+                        + "        </gml:LinearRing>\n" + "    </gml:exterior>\n"
+                        + "</gml:Polygon>";
 
         Geometry input = GeospatialEvaluator.buildGeometry(geospatialXml);
         logger.debug("input.toText() = " + input.toText());
@@ -1815,7 +1819,8 @@ public class PredicateTest {
 
         assertTrue(status);
 
-        logger.debug("**************************  END: testGeospatialEvaluator_PointRadius_Contains()  ***********************");
+        logger.debug(
+                "**************************  END: testGeospatialEvaluator_PointRadius_Contains()  ***********************");
     }
 
     @Test
@@ -1896,7 +1901,8 @@ public class PredicateTest {
 
     @Test
     public void testContentTypeEvaluator_OnlyType_Match() throws Exception {
-        logger.debug("**************************  START: testContentTypeEvaluator_OnlyType_Match()  ***********************");
+        logger.debug(
+                "**************************  START: testContentTypeEvaluator_OnlyType_Match()  ***********************");
 
         // Match on "nitf", all versions
         ContentTypePredicate predicate = new ContentTypePredicate("nitf", null);
@@ -1909,12 +1915,14 @@ public class PredicateTest {
         boolean status = ContentTypeEvaluator.evaluate(ctec);
         assertTrue(status);
 
-        logger.debug("**************************  END: testContentTypeEvaluator_OnlyType_Match()  ***********************");
+        logger.debug(
+                "**************************  END: testContentTypeEvaluator_OnlyType_Match()  ***********************");
     }
 
     @Test
     public void testContentTypeEvaluator_OnlyType_NoMatch() throws Exception {
-        logger.debug("**************************  START: testContentTypeEvaluator_OnlyType_NoMatch()  ***********************");
+        logger.debug(
+                "**************************  START: testContentTypeEvaluator_OnlyType_NoMatch()  ***********************");
 
         // Match on "nitf", all versions
         ContentTypePredicate predicate = new ContentTypePredicate("nitf", null);
@@ -1927,12 +1935,14 @@ public class PredicateTest {
         boolean status = ContentTypeEvaluator.evaluate(ctec);
         assertFalse(status);
 
-        logger.debug("**************************  END: testContentTypeEvaluator_OnlyType_NoMatch()  ***********************");
+        logger.debug(
+                "**************************  END: testContentTypeEvaluator_OnlyType_NoMatch()  ***********************");
     }
 
     @Test
     public void testContentTypeEvaluator_TypeAndVersion_Match() throws Exception {
-        logger.debug("**************************  START: testContentTypeEvaluator_TypeAndVersion_Match()  ***********************");
+        logger.debug(
+                "**************************  START: testContentTypeEvaluator_TypeAndVersion_Match()  ***********************");
 
         // Match on "nitf, v20"
         ContentTypePredicate predicate = new ContentTypePredicate("nitf", "v20");
@@ -1945,12 +1955,14 @@ public class PredicateTest {
         boolean status = ContentTypeEvaluator.evaluate(ctec);
         assertTrue(status);
 
-        logger.debug("**************************  END: testContentTypeEvaluator_TypeAndVersion_Match()  ***********************");
+        logger.debug(
+                "**************************  END: testContentTypeEvaluator_TypeAndVersion_Match()  ***********************");
     }
 
     @Test
     public void testContentTypeEvaluator_TypeAndVersion_TypeMismatch() throws Exception {
-        logger.debug("**************************  START: testContentTypeEvaluator_TypeAndVersion_TypeMismatch()  ***********************");
+        logger.debug(
+                "**************************  START: testContentTypeEvaluator_TypeAndVersion_TypeMismatch()  ***********************");
 
         // Match on "nitf, v20"
         ContentTypePredicate predicate = new ContentTypePredicate("nitf", "v20");
@@ -1963,12 +1975,14 @@ public class PredicateTest {
         boolean status = ContentTypeEvaluator.evaluate(ctec);
         assertFalse(status);
 
-        logger.debug("**************************  END: testContentTypeEvaluator_TypeAndVersion_TypeMismatch()  ***********************");
+        logger.debug(
+                "**************************  END: testContentTypeEvaluator_TypeAndVersion_TypeMismatch()  ***********************");
     }
 
     @Test
     public void testContentTypeEvaluator_TypeAndVersion_VersionMismatch() throws Exception {
-        logger.debug("**************************  START: testContentTypeEvaluator_TypeAndVersion_VersionMismatch()  ***********************");
+        logger.debug(
+                "**************************  START: testContentTypeEvaluator_TypeAndVersion_VersionMismatch()  ***********************");
 
         // Match on "nitf, v20"
         ContentTypePredicate predicate = new ContentTypePredicate("nitf", "v20");
@@ -1981,7 +1995,8 @@ public class PredicateTest {
         boolean status = ContentTypeEvaluator.evaluate(ctec);
         assertFalse(status);
 
-        logger.debug("**************************  END: testContentTypeEvaluator_TypeAndVersion_VersionMismatch()  ***********************");
+        logger.debug(
+                "**************************  END: testContentTypeEvaluator_TypeAndVersion_VersionMismatch()  ***********************");
     }
 
     /*
@@ -1993,7 +2008,7 @@ public class PredicateTest {
      * for (int i = 0; i < strings.length; i++) { analyze( "contents", strings[i] ); } } END DEBUG
      */
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      *
@@ -2024,8 +2039,9 @@ public class PredicateTest {
             }
 
             if (version != null && !version.isEmpty()) {
-                if (ext == null)
+                if (ext == null) {
                     ext = new MockTypeVersionsExtension();
+                }
                 List<String> extVersions = ext.getVersions();
                 extVersions.add(version);
             }
@@ -2037,25 +2053,26 @@ public class PredicateTest {
 
         return extensions;
     }
-    
+
     private Predicate getPredicate(String searchPhrase) {
         return getPredicate(searchPhrase, null, false);
     }
-    
+
     private Predicate getPredicate(String searchPhrase, boolean caseSensitive) {
         return getPredicate(searchPhrase, null, caseSensitive);
     }
-    
-    private Predicate getPredicate(String searchPhrase, String textPathSections, boolean caseSensitive) {
+
+    private Predicate getPredicate(String searchPhrase, String textPathSections,
+            boolean caseSensitive) {
         MockQuery query = new MockQuery();
         query.addContextualFilter(searchPhrase, textPathSections, caseSensitive);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate predicate = (Predicate) query.getFilter().accept(visitor, null);
-        
+
         return predicate;
     }
-    
+
     private Event getEvent(String metadata) throws Exception {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId("ABC123");
@@ -2069,7 +2086,7 @@ public class PredicateTest {
         properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
 
         Event testEvent = new Event("topic", properties);
-        
+
         return testEvent;
     }
 

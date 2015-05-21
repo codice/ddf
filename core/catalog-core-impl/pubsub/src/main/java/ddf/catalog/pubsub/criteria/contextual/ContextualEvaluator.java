@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 
 package ddf.catalog.pubsub.criteria.contextual;
@@ -25,7 +24,6 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.document.Document;
@@ -53,21 +51,23 @@ public final class ContextualEvaluator {
 
     private static final String CASE_SENSITIVE_FIELD_NAME = "cs_Resource";
 
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(ContextualEvaluator.class));
+    private static final XLogger logger = new XLogger(
+            LoggerFactory.getLogger(ContextualEvaluator.class));
 
-    private static final String DEFAULT_XPATH_1 = "/*[local-name()=\"Resource\"]/*"
-            + "[local-name() != \"identifier\" and " + "local-name() != \"language\" and "
-            + "local-name() != \"dates\" and " + "local-name() != \"rights\" and "
-            + "local-name() != \"format\" and " + "local-name() != \"subjectCoverage\" and "
-            + "local-name() != \"temporalCoverage\" and "
-            + "local-name() != \"geospatialCoverage\"  " + "] ";
+    private static final String DEFAULT_XPATH_1 =
+            "/*[local-name()=\"Resource\"]/*" + "[local-name() != \"identifier\" and "
+                    + "local-name() != \"language\" and " + "local-name() != \"dates\" and "
+                    + "local-name() != \"rights\" and " + "local-name() != \"format\" and "
+                    + "local-name() != \"subjectCoverage\" and "
+                    + "local-name() != \"temporalCoverage\" and "
+                    + "local-name() != \"geospatialCoverage\"  " + "] ";
 
     private static final String DEFAULT_XPATH_2 = "/*[local-name()=\"Resource\"]"
             + "/*[local-name()=\"geospatialCoverage\"]/*[local-name()=\"GeospatialExtent\"]"
             + "/*[not(ancestor::node()[local-name()=\"boundingGeometry\"] or descendant-or-self::node()[local-name()=\"boundingGeometry\"])] ";
 
     private static final String[] DEFAULT_XPATH_SELECTORS = new String[] {DEFAULT_XPATH_1,
-        DEFAULT_XPATH_2};
+            DEFAULT_XPATH_2};
 
     private ContextualEvaluator() {
         throw new UnsupportedOperationException(
@@ -82,8 +82,8 @@ public final class ContextualEvaluator {
      * @throws IOException
      * @throws ParseException
      */
-    public static boolean evaluate(ContextualEvaluationCriteria cec) throws IOException,
-        ParseException {
+    public static boolean evaluate(ContextualEvaluationCriteria cec)
+            throws IOException, ParseException {
         String methodName = "evaluate";
         logger.entry(methodName);
 
@@ -106,7 +106,8 @@ public final class ContextualEvaluator {
                 }
             }
 
-            logger.trace("No search phrase specified and could not find element/attribute based on textPaths");
+            logger.trace(
+                    "No search phrase specified and could not find element/attribute based on textPaths");
             logger.exit(methodName + " - returning false");
             return false;
         }
@@ -123,8 +124,8 @@ public final class ContextualEvaluator {
             queryParser.setLowercaseExpandedTerms(false);
         } else {
             logger.debug("Doing case-insensitive search ...");
-            queryParser = new QueryParser(Version.LUCENE_30, FIELD_NAME, new ContextualAnalyzer(
-                    Version.LUCENE_30));
+            queryParser = new QueryParser(Version.LUCENE_30, FIELD_NAME,
+                    new ContextualAnalyzer(Version.LUCENE_30));
         }
 
         // Configures Lucene query parser to allow a wildcard as first character in the
@@ -161,7 +162,7 @@ public final class ContextualEvaluator {
      * @throws IOException
      */
     private static void addDoc(IndexWriter indexWriter, String fieldName, String value)
-        throws IOException {
+            throws IOException {
         Document doc = new Document();
         doc.add(new Field(fieldName, value, Field.Store.YES, Field.Index.ANALYZED,
                 Field.TermVector.WITH_POSITIONS_OFFSETS));
@@ -202,7 +203,7 @@ public final class ContextualEvaluator {
      * @throws IOException
      */
     public static Directory buildIndex(String fullDocument, String[] xpathSelectors)
-        throws IOException {
+            throws IOException {
         String methodName = "buildIndex";
         logger.entry(methodName);
 
@@ -250,7 +251,8 @@ public final class ContextualEvaluator {
         return index;
     }
 
-    private static void logTokens(Analyzer analyzer, String fieldName, String fullDocument, String analyzerName) throws IOException {
+    private static void logTokens(Analyzer analyzer, String fieldName, String fullDocument,
+            String analyzerName) throws IOException {
         if (!logger.isDebugEnabled()) {
             return;
         }
@@ -329,11 +331,10 @@ public final class ContextualEvaluator {
                         // any white space between each Text node's value, e.g., JohnDoe vs. John
                         // Doe
                         // That's not good ...
-                    }
-
-                    else {
-                        logger.debug("Unsupported node type: " + node.getNodeType()
-                                + ",   node name = " + node.getNodeName());
+                    } else {
+                        logger.debug(
+                                "Unsupported node type: " + node.getNodeType() + ",   node name = "
+                                        + node.getNodeName());
                     }
                 }
             }
