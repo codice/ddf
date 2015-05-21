@@ -70,7 +70,7 @@
             	org.apache.camel.core.osgi,
             	*
             </Import-Package>
-            <Embed-Dependency>camel-servlet, camel-core-osgi</Embed-Dependency>
+            <Embed-Dependency>camel-servlet, camel-core-osgi, camel-jetty</Embed-Dependency>
             <Export-Package>
             	org.apache.camel.component.servlet,
             	org.apache.camel.core.osgi,
