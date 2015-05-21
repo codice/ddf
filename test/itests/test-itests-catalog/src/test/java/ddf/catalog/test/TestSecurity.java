@@ -14,14 +14,11 @@
  **/
 package ddf.catalog.test;
 
-import org.hamcrest.xml.HasXPath;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.junit.PaxExam;
-import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
-import org.osgi.service.cm.Configuration;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.fail;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.when;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -32,11 +29,14 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.TimeZone;
 
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.fail;
+import org.hamcrest.xml.HasXPath;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.osgi.service.cm.Configuration;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -120,10 +120,12 @@ public class TestSecurity extends AbstractIntegrationTest {
                 equalTo(200)).assertThat().header("Set-Cookie", containsString("JSESSIONID")).extract().cookie("JSESSIONID");
 
         //try again with the sso token
-        given().cookie("JSESSIONID", cookie).when().get(url).then().log().all().assertThat().statusCode(equalTo(200));
+        given().cookie("JSESSIONID", cookie).when().get(url).then().log().all().assertThat().statusCode(
+                equalTo(200));
 
         //try to hit an admin restricted page and see that we are unauthorized
-        given().cookie("JSESSIONID", cookie).when().get("https://localhost:9993/admin/index.html").then().log().all().assertThat().statusCode(equalTo(403));
+        given().cookie("JSESSIONID", cookie).when().get("https://localhost:9993/admin/index.html").then().log().all().assertThat().statusCode(
+                equalTo(403));
     }
 
     @Test
@@ -136,7 +138,8 @@ public class TestSecurity extends AbstractIntegrationTest {
         when().get(url).then().log().all().assertThat().statusCode(equalTo(401));
 
         //try a random user and get a 401
-        given().auth().basic("bad", "user").when().get(url).then().log().all().assertThat().statusCode(equalTo(401));
+        given().auth().basic("bad", "user").when().get(url).then().log().all().assertThat().statusCode(
+                equalTo(401));
 
         //try a real user and get an sso token back
         String cookie = given().auth().basic("admin", "admin").when().get(url).then().log().all()
@@ -151,8 +154,11 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     private void configureRestForAnonymous() throws IOException, InterruptedException {
         PolicyProperties policyProperties = new PolicyProperties();
-        policyProperties.put("authenticationTypes", "/=SAML|ANON,/admin=SAML|basic,/jolokia=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic");
-        policyProperties.put("whiteListContexts", "/services/SecurityTokenService,/services/internal,/proxy," + SERVICE_ROOT + "/sdk/SoapService");
+        policyProperties.put("authenticationTypes",
+                "/=SAML|ANON,/admin=SAML|basic,/jolokia=SAML|basic,/system=SAML|basic,/solr=SAML|PKI|basic");
+        policyProperties.put("whiteListContexts",
+                "/services/SecurityTokenService,/services/internal,/proxy," + SERVICE_ROOT
+                        + "/sdk/SoapService");
         Configuration config = configAdmin.getConfiguration(PolicyProperties.FACTORY_PID, null);
         Dictionary<String, ?> configProps = new Hashtable<>(policyProperties);
         config.update(configProps);
@@ -183,7 +189,30 @@ public class TestSecurity extends AbstractIntegrationTest {
         //we are only testing anonymous because that hits the most code, testing with an assertion would be mostly testing the same stuff that this is hitting
         given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8").header("SOAPAction", "helloWorld").expect().statusCode(
                 equalTo(200)).when().post(SERVICE_ROOT + "/sdk/SoapService").then().log().all().assertThat()
-                        .body(HasXPath.hasXPath("//*[local-name()='helloWorldResponse']/result/text()", containsString("Anonymous")));
+                        .body(HasXPath
+                                .hasXPath("//*[local-name()='helloWorldResponse']/result/text()",
+                                        containsString("Anonymous")));
+    }
+
+    @Test
+    public void testAnonymousSoapAccessHttp() throws Exception {
+        configureRestForAnonymous();
+
+        startFeature(true, "platform-http-proxy");
+
+        String body = "<soapenv:Envelope xmlns:hel=\"http://ddf.sdk/soap/hello\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+                + "   <soapenv:Header>\n"
+                + "   </soapenv:Header>\n"
+                + "   <soapenv:Body>\n"
+                + "      <hel:helloWorld/>\n"
+                + "   </soapenv:Body>\n"
+                + "</soapenv:Envelope>";
+        //we are only testing anonymous because that hits the most code, testing with an assertion would be mostly testing the same stuff that this is hitting
+        given().log().all().body(body).header("Content-Type", "text/xml; charset=utf-8").header("SOAPAction", "helloWorld").expect().statusCode(
+                equalTo(200)).when().post(INSECURE_SERVICE_ROOT + "/sdk/SoapService").then().log().all().assertThat()
+                .body(HasXPath.hasXPath("//*[local-name()='helloWorldResponse']/result/text()", containsString("Anonymous")));
+
+        stopFeature(false, "platform-http-proxy");
     }
 
     /* These STS tests are here to prove out functionality that doesn't get hit when accessing internal services. The standard UsernameToken and BinarySecurityToken elements are supported
