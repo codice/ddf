@@ -43,6 +43,7 @@
         <tika.version>1.7</tika.version>
         <cas.client.version>3.1.10</cas.client.version>
         <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
+        <ddf.httpproxy.version>1.0.3-SNAPSHOT</ddf.httpproxy.version>
     </properties>
 
     <distributionManagement>
@@ -338,6 +339,7 @@
         <module>util</module>
         <module>platform-filter-delegate</module>
         <module>error</module>
+        <module>platform-http-proxy</module>
         <module>platform-app</module>
         <module>docs</module>
     </modules>
