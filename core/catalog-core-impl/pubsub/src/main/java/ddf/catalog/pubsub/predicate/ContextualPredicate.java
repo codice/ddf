@@ -1,24 +1,25 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
  **/
 
 package ddf.catalog.pubsub.predicate;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -81,9 +82,10 @@ public class ContextualPredicate implements Predicate {
         // source is deleting the catalog entry and did not send any metadata with the delete
         // event), then
         // cannot apply any contextual filtering - just send the event on to the subscriber
-        if (operation.equals(PubSubConstants.DELETE)
-                && metadata.equals(PubSubConstants.METADATA_DELETED)) {
-            LOGGER.debug("Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
+        if (operation.equals(PubSubConstants.DELETE) && metadata
+                .equals(PubSubConstants.METADATA_DELETED)) {
+            LOGGER.debug(
+                    "Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
             return true;
         }
 
@@ -95,8 +97,7 @@ public class ContextualPredicate implements Predicate {
         if (this.textPaths != null && !this.textPaths.isEmpty()) {
             LOGGER.debug("creating criteria with textPaths and metadata document");
             try {
-                cec = new ContextualEvaluationCriteriaImpl(searchPhrase, fuzzy,
-                        caseSensitiveSearch,
+                cec = new ContextualEvaluationCriteriaImpl(searchPhrase, fuzzy, caseSensitiveSearch,
                         (String[]) this.textPaths.toArray(new String[this.textPaths.size()]),
                         (String) contextualMap.get("METADATA"));
             } catch (IOException e) {
@@ -154,18 +155,15 @@ public class ContextualPredicate implements Predicate {
 
     /**
      * Normalizes a search phrase for a Lucene query
-     * 
-     * @param inputPhrase
-     *            the input phrase
-     * @param isFuzzy
-     *            true indicates the criteria is fuzzy
-     * 
+     *
+     * @param inputPhrase the input phrase
+     * @param isFuzzy     true indicates the criteria is fuzzy
      * @return a search phrase aligned to Lucene syntax
      */
     public static String normalizePhrase(String inputPhrase, boolean isFuzzy) {
         String phrase = "";
         if (inputPhrase != null && !inputPhrase.equals("")) {
-            phrase = inputPhrase.trim();
+            phrase = escapeSpecialCharacters(inputPhrase.trim());
             String parts[] = phrase.split("\"");
             LOGGER.debug("phrase = [{}]    parts.length = {}", phrase, parts.length);
             // if multiple parts found, then exact (quoted) phrases are present
@@ -193,24 +191,14 @@ public class ContextualPredicate implements Predicate {
                 StringBuilder phraseBuilder = new StringBuilder("");
                 for (int i = 0; i < parts.length; i++) {
                     phraseBuilder.append(parts[i]);
-                    if (i < (parts.length - 1))
+                    if (i < (parts.length - 1)) {
                         phraseBuilder.append("\"");
+                    }
                 }
                 phrase = phraseBuilder.toString();
             } else {
                 LOGGER.debug("parts.length <= 1:  phrase = {}", phrase);
                 phrase = normalizeBooleanOperators(phrase);
-
-                // if ( isFuzzy && !isBooleanOperator( phrase ) )
-                // {
-                // phrase = phrase.trim().replace(" ", "~ ");
-                //
-                // // add to last word
-                // phrase = phrase + "~";
-                // phrase = phrase.replace( "~~", "~" );
-                //
-                // LOGGER.debug( "Fuzzy Search adding a tilde: {}", phrase );
-                // }
                 if (isFuzzy) {
                     String[] words = phrase.trim().split("[ ]+");
                     for (int i = 0; i < words.length; i++) {
@@ -218,7 +206,7 @@ public class ContextualPredicate implements Predicate {
                         for (String subPart : subParts) {
                             if (!subPart.isEmpty() && !isBooleanOperator(subPart)) {
                                 String fuzzySubPart = subPart + "~";
-                                phrase = phrase.replaceFirst(subPart, fuzzySubPart);
+                                phrase = phrase.replaceFirst(Pattern.quote(subPart), fuzzySubPart);
                                 LOGGER.debug("2. Fuzzy Search adding a tilde: {}", subPart);
                                 LOGGER.debug("phrase = {}", phrase);
                             }
@@ -227,40 +215,15 @@ public class ContextualPredicate implements Predicate {
                         phrase = phrase.replace("~~", "~");
                     }
 
-                    // append a tilde to each word in the phrase
-                    // phrase = phrase.trim().replace(" ", "~ ");
-
-                    // add tilde to last word in entire search phrase
-                    // phrase = phrase + "~";
-
                     LOGGER.debug("2. Fuzzy-fied phrase: {}", phrase);
                 }
             }
-            /*
-             * if ( isFuzzy ) { phrase = phrase.trim().replace( " ", "~ " );
-             * 
-             * // add to last word phrase = phrase + "~";
-             * 
-             * LOGGER.debug( "Fuzzy Search adding a tilde: {}", phrase );
-             * 
-             * phrase = phrase.replace( " NOT~ ", " NOT " ); phrase = phrase.replace( " AND~ ",
-             * " AND " ); phrase = phrase.replace( " OR~ ", " OR " ); phrase = phrase.replace( "~~",
-             * "~" ); }
-             */
-            // The keyword NOT should not be the last word in the search phrase
-            // if ( phrase.length() > 3 )
-            // {
-            // if ( phrase.lastIndexOf( "NOT" ) == phrase.length() - 4 )
-            // {
-            // phrase = phrase.substring( 0, phrase.length() - 4 );
-            // phrase = phrase.concat( "~" );
-            // }
-            // }
 
             // Pass thru the last literal double quote
             if (inputPhrase.lastIndexOf("\"") == inputPhrase.length() - 1) {
                 phrase = phrase + "\"";
             }
+
         } else {
             phrase = "";
         }
@@ -269,17 +232,30 @@ public class ContextualPredicate implements Predicate {
         return phrase;
     }
 
+    private static String escapeSpecialCharacters(String phrase) {
+        StringBuilder sb = new StringBuilder();
+        char[] chars = phrase.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            char aChar = chars[i];
+            if (Arrays.asList("-", "+", "^", "|", "!", "(", ")", "{", "}", "[", "]", "?", ":", "~")
+                    .contains(Character.toString(aChar)) && (i == 0 || !Character
+                    .toString(chars[i - 1]).equals("\\"))) {
+                sb.append("\\");
+            }
+            sb.append(aChar);
+        }
+        phrase = sb.toString();
+        return phrase;
+    }
+
     /**
      * Normalize all Boolean operators in the phrase since Lucene grammar requires all boolean
      * operators to be uppercase.
-     * 
-     * @param phrase
-     *            the input phrase
-     * 
+     *
+     * @param phrase the input phrase
      * @return the normalized phrase
      */
     private static String normalizeBooleanOperators(String phrase) {
-        // phrase = phrase.replace( "~", "NOT " );
         phrase = phrase.replace(" not ", " NOT ");
         phrase = phrase.replace(" or ", " OR ");
         phrase = phrase.replace(" and ", " AND ");
@@ -290,8 +266,8 @@ public class ContextualPredicate implements Predicate {
     }
 
     private static boolean isBooleanOperator(String input) {
-        int index = StringUtils.indexOfAny(input.trim().toLowerCase(), new String[] {"not", "and",
-            "or", "&", "|"});
+        int index = StringUtils.indexOfAny(input.trim().toLowerCase(),
+                new String[] {"not", "and", "or", "&", "|"});
 
         return index == 0;
     }

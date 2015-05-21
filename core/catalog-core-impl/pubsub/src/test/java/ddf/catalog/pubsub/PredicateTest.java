@@ -736,7 +736,6 @@ public class PredicateTest {
     }
 
     @Test
-    @Ignore
     public void testMultipleCriteriaWithContentTypes() throws Exception {
         String methodName = "testMultipleCriteriaWithContentTypes";
         logger.debug("***************  START: " + methodName + "  *****************");
@@ -1124,7 +1123,7 @@ public class PredicateTest {
         // automatically added during the subscription creation, so the
         // client registering the subscription would specify a search phrase
         // of "-test" (i.e., no escaping)
-        String searchPhrase = "\\-test";
+        String searchPhrase = "-test";
         Predicate predicate = getPredicate(searchPhrase);
         
         String metadata = String.format(METADATA_FORMAT, "-test");
@@ -1303,101 +1302,101 @@ public class PredicateTest {
         // of "+test" (i.e., no escaping). This applies to all of the
         // special characters in this unit test.
         
-        String searchPhrase = "\\+test";
+        String searchPhrase = "+test";
         Predicate predicate = getPredicate(searchPhrase);
-        
+
         String metadata = String.format(METADATA_FORMAT, "+test");
         Event testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
+
         // NOTE: "|" and "&" are reserved boolean operators and should not
         // be escaped in the search phrase, hence no tests for them.
-        
-        searchPhrase = "\\!test";
+
+        searchPhrase = "!test";
         predicate = getPredicate(searchPhrase);
-        
+
         metadata = String.format(METADATA_FORMAT, "!test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
-        searchPhrase = "\\(test";
+
+        searchPhrase = "(test";
         predicate = getPredicate(searchPhrase);
-        
+
         metadata = String.format(METADATA_FORMAT, "(test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
-        searchPhrase = "\\)test";
+
+        searchPhrase = ")test";
         predicate = getPredicate(searchPhrase);
-        
+
         metadata = String.format(METADATA_FORMAT, ")test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
-        searchPhrase = "\\{test";
+
+        searchPhrase = "{test";
         predicate = getPredicate(searchPhrase);
-        
+
         metadata = String.format(METADATA_FORMAT, "{test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
-        searchPhrase = "\\}test";
+
+        searchPhrase = "}test";
         predicate = getPredicate(searchPhrase);
-        
+
         metadata = String.format(METADATA_FORMAT, "}test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
-        searchPhrase = "\\[test";
+
+        searchPhrase = "[test";
         predicate = getPredicate(searchPhrase);
-        
+
         metadata = String.format(METADATA_FORMAT, "[test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
-        searchPhrase = "\\]test";
+
+        searchPhrase = "]test";
         predicate = getPredicate(searchPhrase);
-        
+
         metadata = String.format(METADATA_FORMAT, "]test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
-        searchPhrase = "\\^test";
+
+        searchPhrase = "^test";
         predicate = getPredicate(searchPhrase);
-        
+
         metadata = String.format(METADATA_FORMAT, "^test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
-        searchPhrase = "\\*test";
+
+        searchPhrase = "*test";
         predicate = getPredicate(searchPhrase);
-        
+
         metadata = String.format(METADATA_FORMAT, "*test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
-        searchPhrase = "\\?test";
+
+        searchPhrase = "?test";
         predicate = getPredicate(searchPhrase);
-        
+
         metadata = String.format(METADATA_FORMAT, "?test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
-        searchPhrase = "\\:test";
+
+        searchPhrase = ":test";
         predicate = getPredicate(searchPhrase);
-        
+
         metadata = String.format(METADATA_FORMAT, ":test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
-        searchPhrase = "\\~test";
+
+        searchPhrase = "~test";
         predicate = getPredicate(searchPhrase);
-        
+
         metadata = String.format(METADATA_FORMAT, "~test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
     }
-    
+
     @Test
     public void testContextualQuerySurroundedByWildcards() throws Exception {
         String methodName = "testContextualQuerySurroundedByWildcards";
@@ -1405,7 +1404,7 @@ public class PredicateTest {
 
         String searchPhrase = "*test*";
         Predicate predicate = getPredicate(searchPhrase);
-        
+
         String metadata = String.format(METADATA_FORMAT, "-test");
         Event testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
@@ -1413,31 +1412,31 @@ public class PredicateTest {
         metadata = String.format(METADATA_FORMAT, "_test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker-test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker_test");
         testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent)); 
-        
+        assertTrue(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test-");
         testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent)); 
-        
+        assertTrue(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "test-marker");
         testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent)); 
-        
+        assertTrue(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_marker");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
+
         logger.debug("***************  END: " + methodName + "  *****************");
     }
 
@@ -1448,7 +1447,7 @@ public class PredicateTest {
 
         String searchPhrase = "*test";
         Predicate predicate = getPredicate(searchPhrase);
-        
+
         String metadata = String.format(METADATA_FORMAT, "-test");
         Event testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
@@ -1456,31 +1455,31 @@ public class PredicateTest {
         metadata = String.format(METADATA_FORMAT, "_test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker-test");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker_test");
         testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent)); 
-        
+        assertTrue(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test-");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "test-marker");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_marker");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         logger.debug("***************  END: " + methodName + "  *****************");
     }
 
@@ -1491,7 +1490,7 @@ public class PredicateTest {
 
         String searchPhrase = "test*";
         Predicate predicate = getPredicate(searchPhrase);
-        
+
         String metadata = String.format(METADATA_FORMAT, "-test");
         Event testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
@@ -1499,31 +1498,31 @@ public class PredicateTest {
         metadata = String.format(METADATA_FORMAT, "_test");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker-test");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker_test");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test-");
         testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent)); 
-        
+        assertTrue(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "test-marker");
         testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent)); 
-        
+        assertTrue(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_marker");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
+
         logger.debug("***************  END: " + methodName + "  *****************");
     }
 
@@ -1534,7 +1533,7 @@ public class PredicateTest {
 
         String searchPhrase = "test-marker";
         Predicate predicate = getPredicate(searchPhrase);
-        
+
         String metadata = String.format(METADATA_FORMAT, "-test");
         Event testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
@@ -1542,31 +1541,31 @@ public class PredicateTest {
         metadata = String.format(METADATA_FORMAT, "_test");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker-test");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker_test");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test-");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "test-marker");
         testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent)); 
-        
+        assertTrue(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_marker");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         logger.debug("***************  END: " + methodName + "  *****************");
     }
 
@@ -1577,7 +1576,7 @@ public class PredicateTest {
 
         String searchPhrase = "test_marker";
         Predicate predicate = getPredicate(searchPhrase);
-        
+
         String metadata = String.format(METADATA_FORMAT, "-test");
         Event testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
@@ -1585,34 +1584,34 @@ public class PredicateTest {
         metadata = String.format(METADATA_FORMAT, "_test");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker-test");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "marker_test");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test-");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_");
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
-        
+
         metadata = String.format(METADATA_FORMAT, "test-marker");
         testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent)); 
-        
+        assertFalse(predicate.matches(testEvent));
+
         metadata = String.format(METADATA_FORMAT, "test_marker");
         testEvent = getEvent(metadata);
         assertTrue(predicate.matches(testEvent));
-        
+
         logger.debug("***************  END: " + methodName + "  *****************");
     }
-    
+
     @Test
     public void testContextualQueryNullMetadata() throws Exception {
         String methodName = "testContextualQueryNullMetadata";
@@ -1987,17 +1986,17 @@ public class PredicateTest {
 
     /*
      * DEBUG - for testing CaseSensitiveStandardAnalyzer
-     * 
+     *
      * @Test public void testAnalyzers() throws Exception { String[] strings = {
      * "The QUICK brown Fox jumped over the laZy dogs" };
-     * 
+     *
      * for (int i = 0; i < strings.length; i++) { analyze( "contents", strings[i] ); } } END DEBUG
      */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * 
+     *
      * @param typesVersions
      *            List of types and versions where each type/version pairs are pipe delimited and
      *            each type/version is comma-delimited

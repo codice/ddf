@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 
 package ddf.catalog.pubsub.criteria.contextual;
@@ -76,9 +76,9 @@ public final class ContextualEvaluator {
 
     /**
      * @param cec
-     * 
+     *
      * @return
-     * 
+     *
      * @throws IOException
      * @throws ParseException
      */
@@ -153,11 +153,11 @@ public final class ContextualEvaluator {
     /**
      * Create a field with the specified field name and value, and add it to a Lucene Document to be
      * added to the specified IndexWriter.
-     * 
+     *
      * @param indexWriter
      * @param fieldName
      * @param value
-     * 
+     *
      * @throws IOException
      */
     private static void addDoc(IndexWriter indexWriter, String fieldName, String value)
@@ -172,12 +172,12 @@ public final class ContextualEvaluator {
      * Build one Lucene index for the specified XML Document that contains both case-insensitive and
      * case-sensitive indexed text. Use the default XPath selectors to extract the indexable text
      * from the specified XML document.
-     * 
+     *
      * @param fullDocument
      *            the XML document to be indexed
-     * 
+     *
      * @return the Lucene index for the indexed text from the XML document
-     * 
+     *
      * @throws IOException
      */
     public static Directory buildIndex(String fullDocument) throws IOException {
@@ -191,14 +191,14 @@ public final class ContextualEvaluator {
      * Build one Lucene index for the specified XML Document that contains both case-insensitive and
      * case-sensitive indexed text. Use the provided XPath selectors to extract the indexable text
      * from the specified XML document.
-     * 
+     *
      * @param fullDocument
      *            the XML document to be indexed
      * @param xpathSelectors
      *            the XPath selectors to use to extract the indexable text from the XML document
-     * 
+     *
      * @return the Lucene index for the indexed text from the XML document
-     * 
+     *
      * @throws IOException
      */
     public static Directory buildIndex(String fullDocument, String[] xpathSelectors)
@@ -210,7 +210,6 @@ public final class ContextualEvaluator {
 
         // 0. Specify the analyzer for tokenizing text.
         // The same analyzer should be used for indexing and searching
-//        StandardAnalyzer standardAnalyzer = new StandardAnalyzer(Version.LUCENE_30);
         ContextualAnalyzer contextualAnalyzer = new ContextualAnalyzer(Version.LUCENE_30);
 
         // 1. create the index
@@ -223,8 +222,6 @@ public final class ContextualEvaluator {
         // Create an IndexWriter using the case-insensitive StandardAnalyzer
         // NOTE: the boolean arg in the IndexWriter constructor means to create a new index,
         // overwriting any existing index
-//        IndexWriter indexWriter = new IndexWriter(index, standardAnalyzer, true,
-//                IndexWriter.MaxFieldLength.UNLIMITED);
         IndexWriter indexWriter = new IndexWriter(index, contextualAnalyzer, true,
                 IndexWriter.MaxFieldLength.UNLIMITED);
         logTokens(indexWriter.getAnalyzer(), FIELD_NAME, fullDocument, "ContextualAnalyzer");
@@ -252,12 +249,12 @@ public final class ContextualEvaluator {
 
         return index;
     }
-    
+
     private static void logTokens(Analyzer analyzer, String fieldName, String fullDocument, String analyzerName) throws IOException {
         if (!logger.isDebugEnabled()) {
             return;
         }
-        
+
         TokenStream tokenStream = analyzer.tokenStream(fieldName, new StringReader(fullDocument));
         OffsetAttribute offsetAttribute = tokenStream.getAttribute(OffsetAttribute.class);
         TermAttribute termAttribute = tokenStream.getAttribute(TermAttribute.class);
@@ -270,11 +267,11 @@ public final class ContextualEvaluator {
         }
         logger.debug("-----  END:  {} tokens  -----", analyzerName);
     }
-    
+
     /**
      * Extract the text from the specified XML Document that is to be indexed using the specified
      * XPath selectors.
-     * 
+     *
      * @param document
      * @param xpathSelectors
      * @return
@@ -285,15 +282,11 @@ public final class ContextualEvaluator {
 
         List<String> indexedText = new ArrayList<String>();
 
-        // logger.debug( XPathHelper.xmlToString( document ) );
-
         logger.debug("xpathSelectors.size = " + xpathSelectors.length);
 
         StringBuilder sbuilder = new StringBuilder();
 
         try {
-            // logger.trace( "BEFORE - xmlString:\n" + document );
-
             // TODO Is this safe for all cases? Can there be multiple default namespaces such that
             // this would screw up the metadata?
 
@@ -308,14 +301,11 @@ public final class ContextualEvaluator {
             // xmlns="any chars between single or double quotes"
 
             document = document.replaceAll("xmlns=['\"].*?['\"]", "");
-            // logger.trace( "AFTER - xmlString:\n" + document );
 
             XPathHelper xHelper = new XPathHelper(document);
 
             for (String xpath : xpathSelectors) {
                 logger.debug("Processing xpath selector:\n" + xpath);
-                // NodeList nodeList = (NodeList) xHelper.evaluate( xpath, XPathConstants.NODESET,
-                // new NamespaceResolver() );
                 NodeList nodeList = (NodeList) xHelper.evaluate(xpath, XPathConstants.NODESET);
                 logger.debug("nodeList length = " + nodeList.getLength());
 
@@ -332,7 +322,6 @@ public final class ContextualEvaluator {
                     // any Text nodes it has, adding their text values to the list of indexable text
                     else if (node.getNodeType() == Node.ELEMENT_NODE) {
                         Element elem = (Element) node;
-                        // logger.trace( "Element node " + elem.getNodeName() + " detected" );
                         traverse(elem, indexedText);
 
                         // getTextContent() concatenates *all* text from all descendant Text nodes
@@ -340,9 +329,6 @@ public final class ContextualEvaluator {
                         // any white space between each Text node's value, e.g., JohnDoe vs. John
                         // Doe
                         // That's not good ...
-                        // logger.debug( "Adding text [" + elem.getTextContent() + "]" );
-                        //
-                        // sbuilder.append( elem.getTextContent() + " " );
                     }
 
                     else {
@@ -360,15 +346,12 @@ public final class ContextualEvaluator {
             sbuilder.append(text);
         }
 
-        // logger.debug( "Indexable Text: " + sbuilder.toString() );
-
         logger.exit(methodName);
 
         return sbuilder.toString();
     }
 
     private static void traverse(Node n, List<String> indexedText) {
-        // logger.trace( "Node: " + n.getNodeName() + "test=[" + n.getNodeValue() + "]" );
 
         // Traverse the rest of the tree in depth-first order.
         if (n.getNodeType() == Node.TEXT_NODE) {
