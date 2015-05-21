@@ -14,42 +14,7 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-
-import org.apache.commons.collections.map.LRUMap;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.ui.searchui.query.model.QueryStatus;
-import org.codice.ddf.ui.searchui.query.model.Search;
-import org.codice.ddf.ui.searchui.query.model.SearchRequest;
-import org.cometd.bayeux.server.BayeuxServer;
-import org.cometd.bayeux.server.ConfigurableServerChannel;
-import org.cometd.bayeux.server.ServerMessage;
-import org.cometd.bayeux.server.ServerSession;
-import org.cometd.server.ServerMessageImpl;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Ordering;
-
 import ddf.action.Action;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
@@ -75,6 +40,37 @@ import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.TemporalResultComparator;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import org.apache.commons.collections.map.LRUMap;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.ui.searchui.query.model.QueryStatus;
+import org.codice.ddf.ui.searchui.query.model.Search;
+import org.codice.ddf.ui.searchui.query.model.SearchRequest;
+import org.cometd.bayeux.server.BayeuxServer;
+import org.cometd.bayeux.server.ConfigurableServerChannel;
+import org.cometd.bayeux.server.ServerMessage;
+import org.cometd.bayeux.server.ServerSession;
+import org.cometd.server.ServerMessageImpl;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * The SearchController class handles all of the query threads for asynchronous queries.
@@ -337,9 +333,9 @@ public class SearchController {
             if (query != null) {
                 List<String> sourceIds;
                 if (sourceId == null) {
-                    sourceIds = new ArrayList(searchRequest.getSourceIds());
+                    sourceIds = new ArrayList<>(searchRequest.getSourceIds());
                 } else {
-                    sourceIds = Arrays.asList(sourceId);
+                    sourceIds = Collections.singletonList(sourceId);
                 }
                 QueryRequest request = new QueryRequestImpl(query, false, sourceIds, properties);
 
@@ -352,10 +348,7 @@ public class SearchController {
                 LOGGER.debug("Sending query: {}", query);
                 response = framework.query(request);
             }
-        } catch (UnsupportedQueryException e) {
-            LOGGER.warn("Error executing query", e);
-            response.getProcessingDetails().add(new ProcessingDetailsImpl(sourceId, e));
-        } catch (FederationException e) {
+        } catch (UnsupportedQueryException | FederationException e) {
             LOGGER.warn("Error executing query", e);
             response.getProcessingDetails().add(new ProcessingDetailsImpl(sourceId, e));
         } catch (SourceUnavailableException e) {
@@ -377,7 +370,7 @@ public class SearchController {
     private QueryResponse getEmptyResponse(String sourceId) {
         // No query was specified
         QueryRequest queryRequest = new QueryRequestImpl(null, false,
-                Arrays.asList(sourceId), null);
+                Collections.singletonList(sourceId), null);
 
         // Create a dummy QueryResponse with zero results
         return new QueryResponseImpl(queryRequest, new ArrayList<Result>(), 0);
@@ -396,7 +389,7 @@ public class SearchController {
         JSONObject rootObject = new JSONObject();
 
         addObject(rootObject, Search.HITS, search.getHits());
-        addObject(rootObject, Search.ID, searchRequest.getId().toString());
+        addObject(rootObject, Search.ID, searchRequest.getId());
         addObject(rootObject, Search.RESULTS, getResultList(upstreamResponse.getResults(),
                 metaTypes));
         addObject(rootObject, Search.STATUS, getQueryStatus(search.getQueryStatus()));
@@ -510,10 +503,11 @@ public class SearchController {
         JSONObject fields = new JSONObject();
 
         for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {
-            if (descriptor.isIndexed()) {
-                fields.put(descriptor.getName(),
-                        descriptor.getType().getAttributeFormat().toString());
-            }
+            JSONObject description = new JSONObject();
+            description.put("format", descriptor.getType().getAttributeFormat().toString());
+            description.put("indexed", descriptor.isIndexed());
+
+            fields.put(descriptor.getName(), description);
         }
         return fields;
     }

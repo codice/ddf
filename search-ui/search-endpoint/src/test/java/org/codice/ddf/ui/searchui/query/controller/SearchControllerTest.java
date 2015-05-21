@@ -14,20 +14,32 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import ddf.action.ActionProvider;
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.federation.FederationException;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
+import net.minidev.json.JSONObject;
+import org.codice.ddf.ui.searchui.query.actions.ActionRegistryImpl;
+import org.codice.ddf.ui.searchui.query.model.Search;
+import org.codice.ddf.ui.searchui.query.model.SearchRequest;
+import org.cometd.bayeux.server.BayeuxServer;
+import org.cometd.bayeux.server.ServerChannel;
+import org.cometd.bayeux.server.ServerMessage;
+import org.cometd.bayeux.server.ServerMessage.Mutable;
+import org.cometd.bayeux.server.ServerSession;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -45,32 +57,19 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.codice.ddf.ui.searchui.query.actions.ActionRegistryImpl;
-import org.codice.ddf.ui.searchui.query.model.Search;
-import org.codice.ddf.ui.searchui.query.model.SearchRequest;
-import org.cometd.bayeux.server.BayeuxServer;
-import org.cometd.bayeux.server.ServerChannel;
-import org.cometd.bayeux.server.ServerMessage;
-import org.cometd.bayeux.server.ServerMessage.Mutable;
-import org.cometd.bayeux.server.ServerSession;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ddf.action.ActionProvider;
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Test cases for {@link org.codice.ddf.ui.searchui.query.controller.SearchController}
@@ -237,22 +236,23 @@ public class SearchControllerTest {
             assertThat(types.get("ddf.metacard"), instanceOf(Map.class));
 
             @SuppressWarnings("unchecked")
-            Map<String, String> typeInfo = (Map<String, String>) types.get("ddf.metacard");
+            Map<String, JSONObject> typeInfo = (Map<String, JSONObject>) types.get("ddf.metacard");
 
-            assertThat(typeInfo.get("effective"), is("DATE"));
-            assertThat(typeInfo.get("modified"), is("DATE"));
-            assertThat(typeInfo.get("created"), is("DATE"));
-            assertThat(typeInfo.get("expiration"), is("DATE"));
-            assertThat(typeInfo.get("id"), is("STRING"));
-            assertThat(typeInfo.get("title"), is("STRING"));
-            assertThat(typeInfo.get("metadata-content-type"), is("STRING"));
-            assertThat(typeInfo.get("metadata-content-type-version"), is("STRING"));
-            assertThat(typeInfo.get("metadata-target-namespace"), is("STRING"));
-            assertThat(typeInfo.get("resource-uri"), is("STRING"));
+            assertThat((String) typeInfo.get("effective").get("format"), is("DATE"));
+            assertThat((String) typeInfo.get("modified").get("format"), is("DATE"));
+            assertThat((String) typeInfo.get("created").get("format"), is("DATE"));
+            assertThat((String) typeInfo.get("expiration").get("format"), is("DATE"));
+            assertThat((String) typeInfo.get("id").get("format"), is("STRING"));
+            assertThat((String) typeInfo.get("title").get("format"), is("STRING"));
+            assertThat((String) typeInfo.get("metadata-content-type").get("format"), is("STRING"));
+            assertThat((String) typeInfo.get("metadata-content-type-version").get("format"), is("STRING"));
+            assertThat((String) typeInfo.get("metadata-target-namespace").get("format"), is("STRING"));
+            assertThat((String) typeInfo.get("resource-uri").get("format"), is("STRING"));
+            assertThat((Boolean) typeInfo.get("resource-uri").get("indexed"), is(true));
             // since resource-size is not indexed, it should be filtered out
-            assertNull(typeInfo.get("resource-size"));
-            assertThat(typeInfo.get("metadata"), is("XML"));
-            assertThat(typeInfo.get("location"), is("GEOMETRY"));
+            assertThat((Boolean) typeInfo.get("resource-size").get("indexed"), is(false));
+            assertThat((String) typeInfo.get("metadata").get("format"), is("XML"));
+            assertThat((String) typeInfo.get("location").get("format"), is("GEOMETRY"));
         }
     }
     
