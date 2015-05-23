@@ -25,6 +25,7 @@
 	<packaging>pom</packaging>
 
 	<modules>
+		<module>test-itests-common</module>
 		<module>test-itests-catalog</module>
 	</modules>
     
@@ -133,6 +134,7 @@
             <artifactId>javax.inject</artifactId>
             <scope>test</scope>
         </dependency>
+
         <!-- End of pax exam dependencies -->
     </dependencies>
 
