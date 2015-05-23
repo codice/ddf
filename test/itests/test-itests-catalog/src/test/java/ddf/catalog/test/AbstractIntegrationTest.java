@@ -176,54 +176,53 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configurePaxExam() {
-        return options(
-                logLevel(LogLevelOption.LogLevel.INFO),
-                keepRuntimeFolder(),
+        return options(logLevel(LogLevelOption.LogLevel.INFO), keepRuntimeFolder(),
                 useOwnExamBundlesStartLevel(100),
                 // increase timeout for TravisCI
                 systemTimeout(TimeUnit.MINUTES.toMillis(10)));
     }
 
     protected Option[] configureAdditionalBundles() {
-        return options(
-                junitBundles(),
+        return options(junitBundles(),
                 // HACK: incorrect version exported to override hamcrest-core from exam
                 // feature which causes a split package issue for rest-assured
                 wrappedBundle(mavenBundle("org.hamcrest", "hamcrest-all").versionAsInProject())
-                        .exports("*;version=1.3.0.10"),
+                        .exports("*;version=1.3.0.10"), wrappedBundle(
+                        mavenBundle("org.apache.karaf.itests", "itests").classifier("tests")
+                                .versionAsInProject()), wrappedBundle(
+                        mavenBundle("ddf.test.itests", "test-itests-common").classifier("tests")
+                                .versionAsInProject()).bundleSymbolicName("test-itests-common"),
                 mavenBundle("ddf.test.thirdparty", "rest-assured").versionAsInProject());
     }
 
     protected Option[] configureConfigurationPorts() throws URISyntaxException {
-        return options(
-                editConfigurationFilePut("etc/system.properties", "urlScheme", "https"),
+        return options(editConfigurationFilePut("etc/system.properties", "urlScheme", "https"),
                 editConfigurationFilePut("etc/system.properties", "host", "localhost"),
                 editConfigurationFilePut("etc/system.properties", "jetty.port", HTTPS_PORT),
                 editConfigurationFilePut("etc/system.properties", "hostContext", "/solr"),
                 editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
                 editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", SSH_PORT),
                 editConfigurationFilePut("etc/ddf.platform.config.cfg", "port", HTTP_PORT),
-                editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
-                        "org.osgi.service.http.port", HTTP_PORT),
-                editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
+                editConfigurationFilePut("etc/org.ops4j.pax.web.cfg", "org.osgi.service.http.port",
+                        HTTP_PORT), editConfigurationFilePut("etc/org.ops4j.pax.web.cfg",
                         "org.osgi.service.http.port.secure", HTTPS_PORT),
-                editConfigurationFilePut("etc/org.apache.karaf.management.cfg",
-                        "rmiRegistryPort", RMI_REG_PORT),
-                editConfigurationFilePut("etc/org.apache.karaf.management.cfg",
-                        "rmiServerPort", RMI_SERVER_PORT),
-                replaceConfigurationFile("etc/hazelcast.xml", new File(this.getClass()
-                        .getResource("/hazelcast.xml").toURI())),
-                replaceConfigurationFile("etc/ddf.security.sts.client.configuration.cfg",
-                        new File(this.getClass()
-                        .getResource("/ddf.security.sts.client.configuration.cfg").toURI())),
-                replaceConfigurationFile("etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg",
-                        new File(this.getClass()
-                                .getResource("/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg").toURI())));
+                editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiRegistryPort",
+                        RMI_REG_PORT),
+                editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort",
+                        RMI_SERVER_PORT), replaceConfigurationFile("etc/hazelcast.xml",
+                        new File(this.getClass().getResource("/hazelcast.xml").toURI())),
+                replaceConfigurationFile("etc/ddf.security.sts.client.configuration.cfg", new File(
+                                this.getClass()
+                                        .getResource("/ddf.security.sts.client.configuration.cfg")
+                                        .toURI())), replaceConfigurationFile(
+                        "etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg", new File(
+                                this.getClass().getResource(
+                                        "/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg")
+                                        .toURI())));
     }
 
     protected Option[] configureMavenRepos() {
-        return options(
-                editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
+        return options(editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
                         "org.ops4j.pax.url.mvn.repositories",
                         "http://repo1.maven.org/maven2@id=central,"
                                 + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
@@ -236,8 +235,7 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configureSystemSettings() {
-        return options(
-                when(System.getProperty(TEST_LOGLEVEL_PROPERTY) != null).useOptions(
+        return options(when(System.getProperty(TEST_LOGLEVEL_PROPERTY) != null).useOptions(
                         systemProperty(TEST_LOGLEVEL_PROPERTY)
                                 .value(System.getProperty(TEST_LOGLEVEL_PROPERTY, ""))),
                 when(Boolean.getBoolean("isDebugEnabled")).useOptions(
@@ -248,9 +246,7 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configureVmOptions() {
-        return options(
-                vmOption("-Xmx2048M"),
-                vmOption("-XX:PermSize=128M"),
+        return options(vmOption("-Xmx2048M"), vmOption("-XX:PermSize=128M"),
                 vmOption("-XX:MaxPermSize=512M"),
                 // avoid integration tests stealing focus on OS X
                 vmOption("-Djava.awt.headless=true"));
@@ -282,8 +278,8 @@ public abstract class AbstractIntegrationTest {
      * @throws IOException          if access to persistent storage fails
      * @throws InterruptedException
      */
-    public void createManagedService(String factoryPid, Map<String,
-            Object> properties) throws IOException, InterruptedException {
+    public void createManagedService(String factoryPid, Map<String, Object> properties)
+            throws IOException, InterruptedException {
 
         final Configuration sourceConfig = configAdmin.createFactoryConfiguration(factoryPid, null);
 
@@ -359,8 +355,8 @@ public abstract class AbstractIntegrationTest {
                     }
 
                     if (!((bundle.getHeaders().get("Fragment-Host") != null
-                            && bundle.getState() == Bundle.RESOLVED) || bundle
-                            .getState() == Bundle.ACTIVE)) {
+                            && bundle.getState() == Bundle.RESOLVED)
+                            || bundle.getState() == Bundle.ACTIVE)) {
                         LOGGER.info("{} bundle not ready yet", bundleName);
                         ready = false;
                     }
@@ -408,8 +404,8 @@ public abstract class AbstractIntegrationTest {
         return provider;
     }
 
-    protected FederatedSource waitForFederatedSource(String id) throws InterruptedException,
-            InvalidSyntaxException {
+    protected FederatedSource waitForFederatedSource(String id)
+            throws InterruptedException, InvalidSyntaxException {
         LOGGER.info("Waiting for FederatedSource {} to become available.", id);
 
         FederatedSource source = null;
@@ -475,9 +471,8 @@ public abstract class AbstractIntegrationTest {
             Response response = get(path);
             String body = response.getBody().asString();
             if (StringUtils.isNotBlank(body)) {
-                available = response.getStatusCode() == 200 && body.length() > 0
-                        && !body.contains("false") && response.getBody().jsonPath().getList("id")
-                        != null;
+                available = response.getStatusCode() == 200 && body.length() > 0 && !body
+                        .contains("false") && response.getBody().jsonPath().getList("id") != null;
                 if (available) {
                     List<Object> ids = response.getBody().jsonPath().getList("id");
                     for (String source : sources) {
@@ -503,12 +498,14 @@ public abstract class AbstractIntegrationTest {
         Map<String, Object> properties = new HashMap<>();
         ObjectClassDefinition bundleMetatype = getObjectClassDefinition(symbolicName, factoryPid);
 
-        for (AttributeDefinition attributeDef : bundleMetatype.getAttributeDefinitions(
-                ObjectClassDefinition.ALL)) {
+        for (AttributeDefinition attributeDef : bundleMetatype
+                .getAttributeDefinitions(ObjectClassDefinition.ALL)) {
             if (attributeDef.getID() != null) {
                 if (attributeDef.getDefaultValue() != null) {
                     if (attributeDef.getCardinality() == 0) {
-                        properties.put(attributeDef.getID(), getAttributeValue(attributeDef.getDefaultValue()[0], attributeDef.getType()));
+                        properties.put(attributeDef.getID(),
+                                getAttributeValue(attributeDef.getDefaultValue()[0],
+                                        attributeDef.getType()));
                     } else {
                         properties.put(attributeDef.getID(), attributeDef.getDefaultValue());
                     }
@@ -554,8 +551,8 @@ public abstract class AbstractIntegrationTest {
                     MetaTypeInformation mti = metatype.getMetaTypeInformation(bundle);
                     if (mti != null) {
                         try {
-                            ObjectClassDefinition ocd = mti.getObjectClassDefinition(pid,
-                                    Locale.getDefault().toString());
+                            ObjectClassDefinition ocd = mti
+                                    .getObjectClassDefinition(pid, Locale.getDefault().toString());
                             if (ocd != null) {
                                 return ocd;
                             }
