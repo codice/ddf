@@ -110,7 +110,8 @@ public abstract class AbstractIntegrationTest {
 
     protected static final String SERVICE_ROOT = "https://localhost:" + HTTPS_PORT + "/services";
 
-    protected static final String INSECURE_SERVICE_ROOT = "http://localhost:" + HTTP_PORT + "/services";
+    protected static final String INSECURE_SERVICE_ROOT =
+            "http://localhost:" + HTTP_PORT + "/services";
 
     protected static final String REST_PATH = SERVICE_ROOT + "/catalog/";
 
@@ -169,9 +170,9 @@ public abstract class AbstractIntegrationTest {
 
     protected Option[] configureDistribution() {
         return options(karafDistributionConfiguration(
-                        maven().groupId("ddf.distribution").artifactId("ddf").type("zip")
-                                .versionAsInProject().getURL(), "ddf", KARAF_VERSION)
-                        .unpackDirectory(new File("target/exam")).useDeployFolder(false));
+                maven().groupId("ddf.distribution").artifactId("ddf").type("zip")
+                        .versionAsInProject().getURL(), "ddf", KARAF_VERSION)
+                .unpackDirectory(new File("target/exam")).useDeployFolder(false));
 
     }
 
@@ -212,9 +213,8 @@ public abstract class AbstractIntegrationTest {
                         RMI_SERVER_PORT), replaceConfigurationFile("etc/hazelcast.xml",
                         new File(this.getClass().getResource("/hazelcast.xml").toURI())),
                 replaceConfigurationFile("etc/ddf.security.sts.client.configuration.cfg", new File(
-                                this.getClass()
-                                        .getResource("/ddf.security.sts.client.configuration.cfg")
-                                        .toURI())), replaceConfigurationFile(
+                        this.getClass().getResource("/ddf.security.sts.client.configuration.cfg")
+                                .toURI())), replaceConfigurationFile(
                         "etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg", new File(
                                 this.getClass().getResource(
                                         "/ddf.catalog.solr.external.SolrHttpCatalogProvider.cfg")
@@ -223,15 +223,14 @@ public abstract class AbstractIntegrationTest {
 
     protected Option[] configureMavenRepos() {
         return options(editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
-                        "org.ops4j.pax.url.mvn.repositories",
-                        "http://repo1.maven.org/maven2@id=central,"
-                                + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
-                                + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
-                                + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
-                                + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
-                                + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
-                                + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
-                                + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"));
+                "org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2@id=central,"
+                        + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
+                        + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
+                        + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
+                        + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
+                        + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
+                        + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
+                        + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"));
     }
 
     protected Option[] configureSystemSettings() {
