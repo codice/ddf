@@ -271,14 +271,16 @@ public abstract class AbstractIntegrationTest {
     /**
      * Creates a Managed Service that is created from a Managed Service Factory. Waits for the
      * asynchronous call that the properties have been updated and the service can be used.
+     * <p/>
+     * For Managed Services not created from a Managed Service Factory, use
+     * {@link #startManagedService(String, Map)} instead.
      *
      * @param factoryPid the factory pid of the Managed Service Factory
      * @param properties the service properties for the Managed Service
-     * @throws IOException          if access to persistent storage fails
-     * @throws InterruptedException
+     * @throws IOException if access to persistent storage fails
      */
     public void createManagedService(String factoryPid, Map<String, Object> properties)
-            throws IOException, InterruptedException {
+            throws IOException {
 
         final Configuration sourceConfig = configAdmin.createFactoryConfiguration(factoryPid, null);
 
