@@ -53,18 +53,20 @@ define([
         url: '/jolokia/exec/org.apache.karaf:type=features,name=root/',
         installUrl:'/jolokia/exec/org.apache.karaf:type=features,name=root/installFeature(java.lang.String)/',
         uninstallUrl: '/jolokia/exec/org.apache.karaf:type=features,name=root/uninstallFeature(java.lang.String)/',
-        defaults: {
-            hasNext: true,
-            hasPrevious: false,
-            totalSteps: 4,
-            stepNumber: 0,
-            percentComplete: 0,
-            busy: false,
-            message: '',
-            steps: [],
-            showInstallProfileStep: false,
-            selectedProfile: null,
-            isCustomProfile: false
+        defaults: function () {
+            return {
+                hasNext: true,
+                hasPrevious: false,
+                totalSteps: 4,
+                stepNumber: 0,
+                percentComplete: 0,
+                busy: false,
+                message: '',
+                steps: [],
+                showInstallProfileStep: false,
+                selectedProfile: null,
+                isCustomProfile: false
+            };
         },
         initialize: function() {
             _.bindAll(this);

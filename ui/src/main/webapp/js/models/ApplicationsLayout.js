@@ -37,9 +37,11 @@ define([
     // installed. This node can have zero or more children (which are also 'Applications.Treenode`
     // nodes themselves).
     Applications.TreeNode = Backbone.Model.extend({
-        defaults: {
-            chosenApp: false,
-            selected: false
+        defaults: function () {
+            return {
+                chosenApp: false,
+                selected: false
+            };
         },
 
         initialize: function(){
