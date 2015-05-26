@@ -282,6 +282,29 @@ public abstract class AbstractIntegrationTest {
 
         final Configuration sourceConfig = configAdmin.createFactoryConfiguration(factoryPid, null);
 
+        startManagedService(sourceConfig, properties);
+    }
+
+    /**
+     * Starts a Managed Service. Waits for the asynchronous call that the properties have bee
+     * updated and the service can be used.
+     * <p/>
+     * For Managed Services created from a Managed Service Factory, use
+     * {@link #createManagedService(String, Map)} instead.
+     *
+     * @param servicePid persistent identifier of the Managed Service to start
+     * @param properties service configuration properties
+     * @throws IOException thrown if if access to persistent storage fails
+     */
+    public void startManagedService(String servicePid, Map<String, Object> properties)
+            throws IOException {
+        Configuration sourceConfig = configAdmin.getConfiguration(servicePid);
+
+        startManagedService(sourceConfig, properties);
+    }
+
+    private void startManagedService(Configuration sourceConfig, Map<String, Object> properties)
+            throws IOException {
         ServiceConfigurationListener listener = new ServiceConfigurationListener(
                 sourceConfig.getPid());
 
