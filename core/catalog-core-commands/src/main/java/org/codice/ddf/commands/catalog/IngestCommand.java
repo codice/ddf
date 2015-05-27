@@ -29,6 +29,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.codice.ddf.platform.util.Exceptions;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
@@ -196,7 +197,13 @@ public class IngestCommand extends CatalogCommands {
                     elapsedTime, calculateRecordsPerSecond(ingestCount.get(), start, end));
             INGEST_LOGGER.info("{} file(s) ingested in {} [{} records/sec]", ingestCount.get(),
                     elapsedTime, calculateRecordsPerSecond(ingestCount.get(), start, end));
-            console.println();
+            if (INGEST_LOGGER.isWarnEnabled() && fileCount.get() != ingestCount.get()) {
+                console.println();
+                String failedAmount = Integer.toString(fileCount.get() - ingestCount.get());
+                printErrorMessage(failedAmount
+                        + " file(s) failed to be ingested.  See the ingest log for more details.");
+                INGEST_LOGGER.warn("{} files(s) failed to be ingested.", failedAmount);
+            }
 
             return null;
         } else if (inputFile.isFile()) {
@@ -208,6 +215,8 @@ public class IngestCommand extends CatalogCommands {
                 result = readMetacard(inputFile);
             } catch (IngestException e) {
                 result = null;
+                printErrorMessage("Failed to ingest file [" + inputFile.getAbsolutePath()
+                        + "].  See the ingest log for more details.");
                 logIngestException(e, inputFile);
                 if (failedIngestDirectory != null) {
                     moveToFailedIngestDirectory(inputFile);
@@ -305,11 +314,8 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private void logIngestException(IngestException exception, File inputFile) {
-        printErrorMessage("Failed to ingest file [" + inputFile.getAbsolutePath() + "].");
-        printErrorMessage(exception.getMessage());
-        if (INGEST_LOGGER.isWarnEnabled()) {
-            INGEST_LOGGER.warn("Failed to ingest file [{}].", inputFile.getAbsolutePath(), exception);
-        }
+        LOGGER.debug("Failed to ingest file [{}].", inputFile.getAbsolutePath(), exception);
+        INGEST_LOGGER.warn("Failed to ingest file [{}]:  \n{}", inputFile.getAbsolutePath(), Exceptions.getFullMessage(exception));
     }
 
     private CreateResponse createMetacards(CatalogFacade catalog, List<Metacard> listOfMetaCards)
