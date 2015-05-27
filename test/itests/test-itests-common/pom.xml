@@ -11,36 +11,28 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>ddf.test.itests</groupId>
-		<artifactId>itests</artifactId>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ddf.test.itests</groupId>
+        <artifactId>itests</artifactId>
         <version>2.7.0-SNAPSHOT</version>
-	</parent>
-	<artifactId>test-itests-catalog</artifactId>
-	<name>DDF :: Test :: Integration :: Catalog</name>
+    </parent>
 
-	<dependencies>
-		<dependency>
-			<groupId>ddf.catalog.core</groupId>
-			<artifactId>catalog-core-api</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-            <version>2.4</version>
-		</dependency>
-		<dependency>
-			<groupId>ddf.test.itests</groupId>
-			<artifactId>test-itests-common</artifactId>
-			<version>${project.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+    <artifactId>test-itests-common</artifactId>
+    <name>DDF :: Test :: Integration :: Common</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.karaf.itests</groupId>
+            <artifactId>itests</artifactId>
+            <version>2.4.2</version>
+            <type>test-jar</type>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
