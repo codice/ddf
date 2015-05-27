@@ -3,7 +3,7 @@
     <!--
         Suppressing vulnerabilities CVE-2013-4221 and CVE-2013-4221 as the offending jar file (org.restlet-2.1.1.jar)
         is being manually removed from the Solr War and replaced with the fixed version. These should be removed when
-        Solr is updated. See pom file for details.
+        Solr is updated (DDF-1110). See pom file for details.
     -->
     <suppress>
         <notes><![CDATA[

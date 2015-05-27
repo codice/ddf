@@ -128,7 +128,8 @@
                                     Important: version 2.1.4 of restlet needs to be used to address security
                                     vulnerabilities CVE-2013-4221 and CVE-2013-4271. As this is a Solr transitive
                                     dependency, adding the fixed version (2.1.4) here. These two artifactItems and
-                                    the packagingExcludes in maven-war-plugin should be removed after updating Solr.
+                                    the packagingExcludes in maven-war-plugin should be removed after updating Solr
+                                    (see DDF-1110).
                                 -->
                                 <artifactItem>
                                     <groupId>org.restlet.jee</groupId>

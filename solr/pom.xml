@@ -28,7 +28,7 @@
   <properties>
       <!--
           Remove restlet.version property and restlet dependencies from the dependencyManagement section when
-          Solr version is updated.
+          Solr version is updated (see DDF-1110).
       -->
       <solr.version>4.7.2</solr.version>
       <!--
