@@ -16,7 +16,6 @@ package ddf.catalog.pubsub.predicate;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -32,9 +31,12 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.pubsub.criteria.contextual.ContextualEvaluationCriteria;
 import ddf.catalog.pubsub.criteria.contextual.ContextualEvaluationCriteriaImpl;
 import ddf.catalog.pubsub.criteria.contextual.ContextualEvaluator;
+import ddf.catalog.pubsub.criteria.contextual.ContextualTokenizer;
 import ddf.catalog.pubsub.internal.PubSubConstants;
 
 public class ContextualPredicate implements Predicate {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContextualPredicate.class);
+
     private String searchPhrase;
 
     private boolean fuzzy;
@@ -42,8 +44,6 @@ public class ContextualPredicate implements Predicate {
     private boolean caseSensitiveSearch;
 
     private Collection<String> textPaths;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContextualPredicate.class);
 
     public ContextualPredicate(String searchPhrase, boolean fuzzy, boolean caseSensitiveSearch,
             Collection<String> textPaths) {
@@ -57,100 +57,8 @@ public class ContextualPredicate implements Predicate {
         this.searchPhrase = normalizePhrase(searchPhrase, fuzzy);
     }
 
-    public boolean matches(Event properties) {
-        String methodName = "matches";
-        LOGGER.debug("ENTERING: {}", methodName);
-
-        LOGGER.debug("Headers: {}", properties);
-
-        ContextualEvaluationCriteria cec = null;
-        Map<String, Object> contextualMap = (Map<String, Object>) properties
-                .getProperty(PubSubConstants.HEADER_CONTEXTUAL_KEY);
-
-        if (contextualMap == null) {
-            LOGGER.debug("No contextual metadata to search against.");
-            return false;
-        }
-
-        String operation = (String) properties.getProperty(PubSubConstants.HEADER_OPERATION_KEY);
-        LOGGER.debug("operation = {}", operation);
-        String metadata = (String) contextualMap.get("METADATA");
-        LOGGER.debug("metadata = [{}]", metadata);
-
-        // If deleting a catalog entry and the entry's metadata is only the word "deleted" (i.e.,
-        // the
-        // source is deleting the catalog entry and did not send any metadata with the delete
-        // event), then
-        // cannot apply any contextual filtering - just send the event on to the subscriber
-        if (operation.equals(PubSubConstants.DELETE) && metadata
-                .equals(PubSubConstants.METADATA_DELETED)) {
-            LOGGER.debug(
-                    "Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
-            return true;
-        }
-
-        // If predicate specified one or more text paths, then extract the entry's metadata from the
-        // Event properties and
-        // pass it and the text path(s) to the evaluation criteria (which will build a Lucene index
-        // on the metadata using the
-        // text paths)
-        if (this.textPaths != null && !this.textPaths.isEmpty()) {
-            LOGGER.debug("creating criteria with textPaths and metadata document");
-            try {
-                cec = new ContextualEvaluationCriteriaImpl(searchPhrase, fuzzy, caseSensitiveSearch,
-                        (String[]) this.textPaths.toArray(new String[this.textPaths.size()]),
-                        (String) contextualMap.get("METADATA"));
-            } catch (IOException e) {
-                LOGGER.error("IO exception during context evaluation", e);
-                return false;
-            }
-        }
-
-        // This predicate has no text paths specified, so can use default Lucene search index, which
-        // indexed the entry's entire metadata
-        // per the default XPath expressions in ContextualEvaluator, from the event's properties
-        // data
-        else {
-            LOGGER.debug("using default Lucene search index for metadata");
-            cec = new ContextualEvaluationCriteriaImpl(searchPhrase, fuzzy, caseSensitiveSearch,
-                    (Directory) contextualMap.get("DEFAULT_INDEX"));
-        }
-
-        try {
-            return ContextualEvaluator.evaluate(cec);
-        } catch (IOException e) {
-            LOGGER.error("IO Exception evaluating context criteria", e);
-        } catch (ParseException e) {
-            LOGGER.error("Parse Exception evaluating context criteria", e);
-        }
-
-        LOGGER.debug("EXITING: {}", methodName);
-
-        return false;
-    }
-
     public static boolean isContextual(String searchPhrase) {
         return !searchPhrase.isEmpty();
-    }
-
-    public String getSearchPhrase() {
-        return searchPhrase;
-    }
-
-    public boolean isFuzzy() {
-        return fuzzy;
-    }
-
-    public boolean isCaseSensitive() {
-        return caseSensitiveSearch;
-    }
-
-    public boolean hasTextPaths() {
-        return textPaths != null && !textPaths.isEmpty();
-    }
-
-    public Collection<String> getTextPaths() {
-        return textPaths;
     }
 
     /**
@@ -237,9 +145,10 @@ public class ContextualPredicate implements Predicate {
         char[] chars = phrase.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             char aChar = chars[i];
-            if (Arrays.asList("-", "+", "^", "|", "!", "(", ")", "{", "}", "[", "]", "?", ":", "~")
-                    .contains(Character.toString(aChar)) && (i == 0 || !Character
-                    .toString(chars[i - 1]).equals("\\"))) {
+            // * is escaped by the subscription when not a wildcard
+            // if the character has already been manually escaped, don't double escape
+            if (aChar != '*' && ContextualTokenizer.SPECIAL_CHARACTERS_SET.contains(aChar) && (
+                    i == 0 || !Character.toString(chars[i - 1]).equals("\\"))) {
                 sb.append("\\");
             }
             sb.append(aChar);
@@ -270,6 +179,98 @@ public class ContextualPredicate implements Predicate {
                 new String[] {"not", "and", "or", "&", "|"});
 
         return index == 0;
+    }
+
+    public boolean matches(Event properties) {
+        String methodName = "matches";
+        LOGGER.debug("ENTERING: {}", methodName);
+
+        LOGGER.debug("Headers: {}", properties);
+
+        ContextualEvaluationCriteria cec = null;
+        Map<String, Object> contextualMap = (Map<String, Object>) properties
+                .getProperty(PubSubConstants.HEADER_CONTEXTUAL_KEY);
+
+        if (contextualMap == null) {
+            LOGGER.debug("No contextual metadata to search against.");
+            return false;
+        }
+
+        String operation = (String) properties.getProperty(PubSubConstants.HEADER_OPERATION_KEY);
+        LOGGER.debug("operation = {}", operation);
+        String metadata = (String) contextualMap.get("METADATA");
+        LOGGER.debug("metadata = [{}]", metadata);
+
+        // If deleting a catalog entry and the entry's metadata is only the word "deleted" (i.e.,
+        // the
+        // source is deleting the catalog entry and did not send any metadata with the delete
+        // event), then
+        // cannot apply any contextual filtering - just send the event on to the subscriber
+        if (operation.equals(PubSubConstants.DELETE) && metadata
+                .equals(PubSubConstants.METADATA_DELETED)) {
+            LOGGER.debug(
+                    "Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
+            return true;
+        }
+
+        // If predicate specified one or more text paths, then extract the entry's metadata from the
+        // Event properties and
+        // pass it and the text path(s) to the evaluation criteria (which will build a Lucene index
+        // on the metadata using the
+        // text paths)
+        if (this.textPaths != null && !this.textPaths.isEmpty()) {
+            LOGGER.debug("creating criteria with textPaths and metadata document");
+            try {
+                cec = new ContextualEvaluationCriteriaImpl(searchPhrase, fuzzy, caseSensitiveSearch,
+                        this.textPaths.toArray(new String[this.textPaths.size()]),
+                        (String) contextualMap.get("METADATA"));
+            } catch (IOException e) {
+                LOGGER.error("IO exception during context evaluation", e);
+                return false;
+            }
+        }
+
+        // This predicate has no text paths specified, so can use default Lucene search index, which
+        // indexed the entry's entire metadata
+        // per the default XPath expressions in ContextualEvaluator, from the event's properties
+        // data
+        else {
+            LOGGER.debug("using default Lucene search index for metadata");
+            cec = new ContextualEvaluationCriteriaImpl(searchPhrase, fuzzy, caseSensitiveSearch,
+                    (Directory) contextualMap.get("DEFAULT_INDEX"));
+        }
+
+        try {
+            return ContextualEvaluator.evaluate(cec);
+        } catch (IOException e) {
+            LOGGER.error("IO Exception evaluating context criteria", e);
+        } catch (ParseException e) {
+            LOGGER.error("Parse Exception evaluating context criteria", e);
+        }
+
+        LOGGER.debug("EXITING: {}", methodName);
+
+        return false;
+    }
+
+    public String getSearchPhrase() {
+        return searchPhrase;
+    }
+
+    public boolean isFuzzy() {
+        return fuzzy;
+    }
+
+    public boolean isCaseSensitive() {
+        return caseSensitiveSearch;
+    }
+
+    public boolean hasTextPaths() {
+        return textPaths != null && !textPaths.isEmpty();
+    }
+
+    public Collection<String> getTextPaths() {
+        return textPaths;
     }
 
     public String toString() {
