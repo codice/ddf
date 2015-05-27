@@ -18,6 +18,7 @@
 
 
     <parent>
+        <!-- FIXME (DDF-1198) - Remove owasp profile when this pom uses the latest ddf-parent pom -->
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
         <version>3.0.0</version>
@@ -67,6 +68,58 @@
     </build>
 
     <profiles>
+        <!-- FIXME (DDF-1198) - Remove this profile when this pom inherits from the latest ddf-parent pom -->
+        <profile>
+            <id>owasp</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <version>1.2.9</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>ddf.support</groupId>
+                                <artifactId>support-owasp</artifactId>
+                                <version>2.3.1-SNAPSHOT</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <failBuildOnCVSS>7</failBuildOnCVSS>
+                            <format>ALL</format>
+                            <suppressionFile>dependency-check-maven-config.xml</suppressionFile>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <version>1.2.9</version>
+                        <reportSets>
+                            <reportSet>
+                                <reports>
+                                    <report>aggregate</report>
+                                </reports>
+                            </reportSet>
+                        </reportSets>
+                    </plugin>
+                </plugins>
+            </reporting>
+        </profile>
         <profile>
             <id>ddf-release</id>
             <activation>
