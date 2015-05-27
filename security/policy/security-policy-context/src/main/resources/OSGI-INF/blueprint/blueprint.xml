@@ -20,9 +20,9 @@
                 persistent-id="org.codice.ddf.security.policy.context.impl.PolicyManager"
                 update-strategy="component-managed" update-method="setPolicies"/>
 
-        <property name="authenticationTypes" value="/=SAML|ANON,/admin=SAML|basic,/jolokia=SAML|basic,/system=basic,/solr=SAML|PKI|basic" />
-        <property name="realms" value="/=karaf,/admin=karaf,/system=karaf,/solr=karaf,/jolokia=karaf" />
-        <property name="requiredAttributes" value="/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/jolokia={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}" />
+        <property name="authenticationTypes" value="/=SAML|ANON,/admin=SAML|basic,/jolokia=SAML|basic,/system=basic,/solr=SAML|PKI|basic,/sources=SAML|basic,/security-config=SAML|basic" />
+        <property name="realms" value="/=karaf,/admin=karaf,/system=karaf,/solr=karaf,/jolokia=karaf,/sources=karaf,/security-config=karaf" />
+        <property name="requiredAttributes" value="/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/jolokia={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/sources={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin}" />
         <property name="whiteListContexts" value="/services/SecurityTokenService,/services/internal,/proxy" />
     </bean>
 
