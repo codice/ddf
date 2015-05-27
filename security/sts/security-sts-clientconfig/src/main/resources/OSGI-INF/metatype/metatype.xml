@@ -20,13 +20,13 @@
          id="ddf.security.sts.client.configuration">
 
         <AD name="SAML Assertion Type:" id="assertionType" description="The version of SAML to use. Most services require SAML v2.0. Changing this value from the default could cause services to stop responding." required="true" type="String"
-            default="SAML v2.0">
+            default="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0">
             <Option label="SAML v2.0" value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
             <Option label="SAML v1.1" value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1"/>
         </AD>
 
         <AD name="SAML Key Type:" id="keyType" description="The key type to use with SAML. Most services require Bearer. Changing this value from the default could cause services to stop responding." required="true" type="String"
-            default="Bearer">
+            default="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer">
             <Option label="Bearer" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer"/>
             <Option label="PublicKey" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey"/>
             <Option label="SymmetricKey" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/SymmetricKey"/>
