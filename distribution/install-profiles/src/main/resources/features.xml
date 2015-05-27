@@ -23,6 +23,7 @@
         <feature>content-app</feature>
         <feature>search-ui-app</feature>
         <feature>solr-app</feature>
+        <feature>spatial-app</feature>
     </feature>
 
     <feature name="profile-full" install="manual" version="${project.version}" 
