@@ -152,22 +152,25 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
             }
         },
         initializeFromMSF: function(msf) {
-            this.set({"fpid": msf.get("id")})
-                .set({"name": msf.get("name")});
+            var fpid = msf.get("id");
+            this.set({
+                "fpid": fpid,
+                "name": msf.get("name")
+            });
             this.get('properties')
-                .set({"service.factoryPid": msf.get("id")});
+                .set({"service.factoryPid": fpid});
             return this.initializeFromService(msf);
         },
         initializeFromService: function(service) {
             return this.initializeFromMetatype(service.get("metatype"));
         },
         initializeFromMetatype: function(metatype) {
-            var properties = this.get('properties');
-            metatype.forEach(function(obj){
-                var id = obj.get('id');
-                var val = obj.get('defaultValue');
-                properties.set(id, (val) ? val.toString() : null);
-            });
+            this.get('properties')
+                .set(metatype.reduce(function (defaults, obj) {
+                    var val = obj.get('defaultValue');
+                    defaults[obj.get('id')] = (val) ? val.toString() : null;
+                    return defaults;
+                }, {}));
             return this;
         }
     });
