@@ -30,8 +30,6 @@
         <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
         <jasypt.version>1.9.0</jasypt.version>
         <wss4j.version>2.0.3</wss4j.version>
-        <shiro.version>1.2.1</shiro.version>
-        <karaf.version>2.4.1</karaf.version>
         <powermock.version>1.5.4</powermock.version>
         <powermock.agent>${settings.localRepository}/org/powermock/powermock-module-javaagent/${powermock.version}/powermock-module-javaagent-${powermock.version}.jar</powermock.agent>
     </properties>

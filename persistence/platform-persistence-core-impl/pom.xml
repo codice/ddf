@@ -32,6 +32,26 @@
         <solr.version>4.7.2</solr.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <!--
+                Important: version 2.1.4 of restlet is being used to address security vulnerabilities CVE-2013-4221 and
+                CVE-2013-4271. As these are Solr transitive dependencies, the restlet dependencies should be removed
+                when the version of Solr is updated (see DDF-1110).
+            -->
+            <dependency>
+                <groupId>org.restlet.jee</groupId>
+                <artifactId>org.restlet</artifactId>
+                <version>2.1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.restlet.jee</groupId>
+                <artifactId>org.restlet.ext.servlet</artifactId>
+                <version>2.1.4</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>ddf.platform.solr</groupId>
@@ -43,6 +63,7 @@
             <artifactId>persistence-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Remove restlet dependencies from dependencyManagement section when Solr is updated -->
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>

@@ -26,6 +26,20 @@
     <artifactId>security-filter-login</artifactId>
     <packaging>bundle</packaging>
 
+    <dependencyManagement>
+        <dependencies>
+            <!--
+                Forcing Xalan to version 2.7.2 to address security vulnerability CVE-2014-0107. Remove when OpenSaml is
+                updated to a more recent version (see DDF-1216).
+            -->
+            <dependency>
+                <groupId>xalan</groupId>
+                <artifactId>xalan</artifactId>
+                <version>2.7.2</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -64,6 +78,9 @@
             <artifactId>security-policy-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--
+            Remove Xalan dependency from dependencyManagement section when OpenSaml is updated to a newer version.
+        -->
         <dependency>
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml</artifactId>

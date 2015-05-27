@@ -25,7 +25,6 @@
     <artifactId>compression-exi</artifactId>
     <packaging>bundle</packaging>
 
-
     <dependencies>
         <dependency>
             <groupId>org.openexi</groupId>
@@ -61,12 +60,6 @@
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
             <version>2.11.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.saxon</groupId>
-            <artifactId>saxon</artifactId>
-            <version>9.1.0.8</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -141,8 +134,15 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <configuration>
+                    <suppressionFile>${basedir}/dependency-check-maven-config.xml</suppressionFile>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
 
 </project>
