@@ -14,6 +14,33 @@
  **/
 package ddf.catalog.cache.solr.impl;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.Phaser;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationStrategy;
@@ -35,38 +62,11 @@ import ddf.catalog.plugin.PostFederatedQueryPlugin;
 import ddf.catalog.plugin.PostIngestPlugin;
 import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.DistanceResultComparator;
 import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.TemporalResultComparator;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.Phaser;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * This class represents a {@link ddf.catalog.federation.FederationStrategy} based on sorting {@link ddf.catalog.data.Metacard}s. The
@@ -101,7 +101,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private final SolrCache cache;
 
-    private ExecutorService cacheExecutorService = Executors.newCachedThreadPool();
+    private final ExecutorService cacheExecutorService = Executors.newFixedThreadPool(8);
 
     private ExecutorService queryExecutorService;
 
@@ -109,10 +109,11 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     private int maxStartIndex;
 
-    // register one party for scheduled phase advancer
-    private CacheCommitPhaser phaser = new CacheCommitPhaser(1);
+    private CacheCommitPhaser cacheCommitPhaser = new CacheCommitPhaser();
 
-    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private CacheBulkProcessor cacheBulkProcessor;
+
+    private boolean isCachingEverything = false;
 
     /**
      * The {@link List} of pre-federated query plugins to execute on the query request before the
@@ -140,8 +141,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         this.postQuery = postQuery;
         this.maxStartIndex = DEFAULT_MAX_START_INDEX;
         this.cache = cache;
-        // phase advancer blocks waiting for next phase advance, delay 1 second between advances
-        scheduler.scheduleWithFixedDelay(new PhaseAdvancer(phaser), 1, 1, TimeUnit.SECONDS);
+        cacheBulkProcessor = new CacheBulkProcessor(cache);
     }
 
     @Override
@@ -366,22 +366,24 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                     request.getProperties()));
 
             if (INDEX_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
-                // block next phase
-                phaser.register();
-                // cache results
-                cache.create(getMetacards(sourceResponse.getResults()));
-                // unblock phase and wait for all other parties to unblock phase
-                phaser.awaitAdvance(phaser.arriveAndDeregister());
+                cacheCommitPhaser.add(sourceResponse.getResults());
             } else if (!NATIVE_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
-                cacheExecutorService.submit(new Runnable() {
-                    @Override public void run() {
-                        cache.create(getMetacards(sourceResponse.getResults()));
-                    }
-                });
+                if (isCachingEverything) {
+                    cacheExecutorService.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                cacheBulkProcessor.add(sourceResponse.getResults());
+                            } catch (Throwable throwable) {
+                                logger.warn("Unable to add results for bulk processing", throwable);
+                            }
+                        }
+                    });
+                }
             }
 
             return sourceResponse;
-        };
+        }
     }
 
     private List<Metacard> getMetacards(List<Result> results) {
@@ -460,6 +462,10 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     public void setExpirationAgeInMinutes(long expirationAgeInMinutes) {
         cache.setExpirationAgeInMinutes(expirationAgeInMinutes);
+    }
+
+    public void setCachingEverything(boolean cachingEverything) {
+        this.isCachingEverything = cachingEverything;
     }
 
     protected Runnable createMonitor(final CompletionService<SourceResponse> completionService,
@@ -622,25 +628,56 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     }
 
-    // Phaser that forces all added documents to commit to the cache on phase advance
+    /**
+     * Phaser that forces all added metacards to commit to the cache on phase advance
+     */
     private class CacheCommitPhaser extends Phaser {
 
-        public CacheCommitPhaser(int parties) {
-            super(parties);
+        private final ScheduledExecutorService phaseScheduler = Executors
+                .newSingleThreadScheduledExecutor();
+
+        public CacheCommitPhaser() {
+            // There will always be at least one party which will be the PhaseAdvancer
+            super(1);
+
+            // PhaseAdvancer blocks waiting for next phase advance, delay 1 second between advances
+            // this is used to block queries that request to be indexed before continuing
+            // committing Solr more often than 1 second can cause performance issues and exceptions
+            phaseScheduler.scheduleWithFixedDelay(new PhaseAdvancer(this), 1, 1, TimeUnit.SECONDS);
         }
 
         @Override
         protected boolean onAdvance(int phase, int registeredParties) {
-            // registeredParties should be 1 since all parties other than the first
-            // will arriveAndDeregister when advancing
+            // registeredParties should be 1 since all parties other than the PhaseAdvancer
+            // will arriveAndDeregister in the add method
             cache.forceCommit();
 
             return super.onAdvance(phase, registeredParties);
         }
 
+        /**
+         * Adds results to cache and blocks for next phase advance
+         *
+         * @param results metacards to add to cache
+         */
+        public void add(List<Result> results) {
+            // block next phase
+            this.register();
+            // add results to cache
+            cache.create(getMetacards(results));
+            // unblock phase and wait for all other parties to unblock phase
+            this.awaitAdvance(this.arriveAndDeregister());
+        }
+
+        public void shutdown() {
+            this.forceTermination();
+            phaseScheduler.shutdown();
+        }
     }
 
-    // Runnable that makes one party arrive to a phaser on run
+    /**
+     * Runnable that makes one party arrive to a phaser on each run
+     */
     private static class PhaseAdvancer implements Runnable {
 
         private final Phaser phaser;
@@ -653,11 +690,12 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         public void run() {
             phaser.arriveAndAwaitAdvance();
         }
+
     }
 
     public void shutdown() {
-        phaser.forceTermination();
-        scheduler.shutdown();
+        cacheCommitPhaser.shutdown();
+        cacheBulkProcessor.shutdown();
     }
 
 }

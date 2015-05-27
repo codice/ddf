@@ -42,6 +42,9 @@
 
         <AD description="HTTP URL of Solr 4.x Server" name="Solr URL" id="url"
             required="true" type="String" default="https://localhost:8993/solr"/>
+
+        <AD description="Cache all results unless configured as native" name="Cache Everything"
+            id="cachingEverything" required="true" type="Boolean" default="false"/>
     </OCD>
 
     <Designate pid="ddf.catalog.federation.impl.CachingFederationStrategy">
