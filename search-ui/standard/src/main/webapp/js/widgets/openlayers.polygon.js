@@ -58,11 +58,13 @@ define([
             modelToPolygon: function (model) {
                 var polygon = model.get('polygon');
                 var coords = [];
-                if (polygon) {
-                    _.each(polygon, function (item) {
-                        coords.push(ol.proj.transform([item[0], item[1]], 'EPSG:4326', properties.projection));
-                    });
+                var setArr = _.uniq(polygon);
+                if(setArr.length < 3){
+                    return;
                 }
+                _.each(setArr, function (item) {
+                    coords.push(ol.proj.transform([item[0], item[1]], 'EPSG:4326', properties.projection));
+                });
 
                 var rectangle = new ol.geom.LineString(coords);
                 return rectangle;

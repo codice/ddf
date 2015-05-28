@@ -35,7 +35,11 @@ define([
             },
             drawPolygon: function (model) {
                 var polygonPoints = model.toJSON().polygon;
-                if(!polygonPoints || polygonPoints.length < 3){
+                if(!polygonPoints) {
+                    return;
+                }
+                var setArr = _.uniq(polygonPoints);
+                if(setArr.length < 3){
                     return;
                 }
 
@@ -50,7 +54,7 @@ define([
                         new Cesium.GeometryInstance({
                             geometry: new Cesium.PolygonOutlineGeometry({
                                 polygonHierarchy: {
-                                    positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(polygonPoints))
+                                    positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(setArr))
                                 }
                             }),
                             attributes: {
