@@ -189,6 +189,10 @@
     <feature name="catalog-security-logging" install="manual" version="${project.version}" description="DDF Security Logging">
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
     </feature>
+
+    <feature name="catalog-security-auditplugin" install="manual" version="${project.version}" description="DDF Security Audit Plugins">
+        <bundle>mvn:ddf.catalog.security/catalog-security-auditplugin/${project.version}</bundle>
+    </feature>
     
     <feature name="catalog-admin-module-sources" install="manual" vrsion="${project.version}" description="DDF Admin Module">
         <bundle>mvn:ddf.catalog.admin/catalog-admin-module-sources/${project.version}</bundle>

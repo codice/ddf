@@ -30,6 +30,7 @@
             <module>catalog-security-filter</module>
             <module>catalog-security-plugin</module>
             <module>catalog-security-logging</module>
+            <module>catalog-security-auditplugin</module>
 	</modules>
 	
 </project>
