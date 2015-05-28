@@ -53,7 +53,7 @@ define([
             wreqr.vent.trigger('refresh');
         },
         removeConfiguration: function() {
-            var question = "Are you sure you want to remove the configuration: "+this.model.get("service.pid")+"?";
+            var question = "Are you sure you want to remove the configuration: "+this.model.get('properties').get("service.pid")+"?";
             var confirmation = window.confirm(question);
             if(confirmation) {
                 var configuration = this;

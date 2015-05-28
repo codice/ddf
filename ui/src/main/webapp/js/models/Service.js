@@ -32,8 +32,10 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
     Service.Configuration = Backbone.AssociatedModel.extend({
         configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
 
-        defaults: {
-            properties: new Service.Properties()
+        defaults: function () {
+            return {
+                properties: new Service.Properties()
+            };
         },
 
         relations: [
@@ -182,9 +184,11 @@ define(['backbone', 'jquery','backboneassociations'],function (Backbone, $) {
     Service.Model = Backbone.AssociatedModel.extend({
         configUrl: "/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0",
 
-        defaults: {
-            configurations: new Service.ConfigurationList()
-        }, 
+        defaults: function () {
+            return {
+                configurations: new Service.ConfigurationList()
+            };
+        },
 
 
         relations: [
