@@ -292,15 +292,9 @@ public class TestFederation extends TestCatalog {
 
 
     @Test
-    public void testFanoutQueryAgainstUnknownSource() {
-        try {
-            setFanout(true);
-            waitForAllBundles();
-        } catch (IOException e) {
-            fail("Unable to set fanout: " + e.getMessage());
-        } catch (InterruptedException e) {
-            fail("Interrupted while waiting for bundles: " + e.getMessage());
-        }
+    public void testFanoutQueryAgainstUnknownSource() throws IOException, InterruptedException {
+        setFanout(true);
+        waitForAllBundles();
 
         String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&src="
                 + CSW_SOURCE_ID;
@@ -308,41 +302,23 @@ public class TestFederation extends TestCatalog {
         when().get(queryUrl).then().log().all().assertThat().body(
                 containsString("Unknown source"));
 
-        try {
-            setFanout(false);
-            waitForAllBundles();
-        } catch (IOException e) {
-            fail("Unable to set fanout: " + e.getMessage());
-        } catch (InterruptedException e) {
-            fail("Interrupted while waiting for bundles: " + e.getMessage());
-        }
+        setFanout(false);
+        waitForAllBundles();
     }
 
     @Test
-    public void testFanoutQueryAgainstKnownSource() {
+    public void testFanoutQueryAgainstKnownSource() throws IOException, InterruptedException {
 
-        try {
-            setFanout(true);
-            waitForAllBundles();
-        } catch (IOException e) {
-            fail("Unable to set fanout: " + e.getMessage());
-        } catch (InterruptedException e) {
-            fail("Interrupted while waiting for bundles: " + e.getMessage());
-        }
+        setFanout(true);
+        waitForAllBundles();
 
         String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&src="
                 + localSourceID;
 
         when().get(queryUrl).then().log().all().assertThat().body(containsString(localSourceID));
 
-        try {
-            setFanout(false);
-            waitForAllBundles();
-        } catch (IOException e) {
-            fail("Unable to set fanout: " + e.getMessage());
-        } catch (InterruptedException e) {
-            fail("Interrupted while waiting for bundles: " + e.getMessage());
-        }
+        setFanout(false);
+        waitForAllBundles();
     }
 
     public class OpenSearchSourceProperties extends HashMap<String, Object> {
