@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.proxy.http.HttpProxyService;
 import org.codice.proxy.http.HttpProxyServiceImpl;
@@ -90,16 +91,17 @@ public class HttpProxy {
      * Returns the pax web properties.
      * @return Properties - contains pax web properties
      */
-    Properties getProperties() {
+    Properties getProperties() throws IOException {
         File paxConfig = new File(
                 System.getProperty(KARAF_HOME) + File.separator + CONFIG_DIR + File.separator
                         + PAX_CONFIG);
         Properties properties = new Properties();
         if (paxConfig.exists()) {
+            FileReader reader = new FileReader(paxConfig);
             try {
-                properties.load(new FileReader(paxConfig));
-            } catch (IOException e) {
-                LOGGER.error("Error reading file {}, not starting proxy.", PAX_CONFIG, e);
+                properties.load(reader);
+            } finally {
+                IOUtils.closeQuietly(reader);
             }
         }
         return properties;

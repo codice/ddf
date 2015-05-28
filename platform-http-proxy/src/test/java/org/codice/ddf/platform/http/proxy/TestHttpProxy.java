@@ -100,7 +100,7 @@ public class TestHttpProxy {
     }
 
     @Test
-    public void testLoadProperties() {
+    public void testLoadProperties() throws IOException {
         HttpProxyService httpProxyService = mock(HttpProxyService.class);
         HttpProxy httpProxy = new HttpProxy(httpProxyService);
         Properties properties = httpProxy.getProperties();
