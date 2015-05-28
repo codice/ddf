@@ -15,10 +15,11 @@ package ddf.catalog.pubsub.criteria.contextual;
 
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.CharTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,16 +29,16 @@ import org.slf4j.LoggerFactory;
  */
 public class ContextualTokenizer extends CharTokenizer {
 
+    public static final Set<Character> SPECIAL_CHARACTERS_SET;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ContextualTokenizer.class);
 
-    public static final Set<?> SPECIAL_CHARACTERS_SET;
-
     static {
-        final List<String> specialChars = Arrays
-                .asList("-", "_", "+", "|", "!", "(", ")", "{", "}", "[", "]", "~", "?", ":", "*");
-        final CharArraySet specialCharsSet = new CharArraySet(specialChars.size(), false);
-        specialCharsSet.addAll(specialChars);
-        SPECIAL_CHARACTERS_SET = CharArraySet.unmodifiableSet(specialCharsSet);
+        final List<Character> specialChars = Arrays
+                .asList('-', '_', '+', '&', '|', '!', '(', ')', '{', '}', '[', ']', '~', '?', ':',
+                        '*', '\\', '^');
+        final HashSet<Character> specialCharsSet = new HashSet<>(specialChars);
+        SPECIAL_CHARACTERS_SET = Collections.unmodifiableSet(specialCharsSet);
     }
 
     public ContextualTokenizer(Reader input) {
@@ -46,10 +47,7 @@ public class ContextualTokenizer extends CharTokenizer {
 
     @Override
     protected boolean isTokenChar(char c) {
-        if (Character.isLetterOrDigit(c) || SPECIAL_CHARACTERS_SET.contains(c)) {
-            return true;
-        }
-        return false;
+        return Character.isLetterOrDigit(c) || SPECIAL_CHARACTERS_SET.contains(c);
     }
 
 }

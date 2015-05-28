@@ -14,13 +14,17 @@
 
 package ddf.catalog.pubsub;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +34,7 @@ import java.util.Map;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.store.Directory;
 import org.geotools.filter.FilterTransformer;
 import org.junit.Test;
@@ -45,6 +50,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.pubsub.criteria.contenttype.ContentTypeEvaluationCriteriaImpl;
 import ddf.catalog.pubsub.criteria.contenttype.ContentTypeEvaluator;
 import ddf.catalog.pubsub.criteria.contextual.ContextualEvaluator;
+import ddf.catalog.pubsub.criteria.contextual.ContextualTokenizer;
 import ddf.catalog.pubsub.criteria.geospatial.GeospatialEvaluationCriteria;
 import ddf.catalog.pubsub.criteria.geospatial.GeospatialEvaluationCriteriaImpl;
 import ddf.catalog.pubsub.criteria.geospatial.GeospatialEvaluator;
@@ -84,8 +90,17 @@ public class PredicateTest {
                     + "  <security classification=\"U\" ownerProducer=\"USA\"/>\r\n"
                     + "</Resource>";
 
+    private static final String LEADING_TERM = "%stest";
+
+    private static final String TRAILING_TERM = "test%s";
+
+    private static final String EMBEDDED_TERM = "test%smarker";
+
+    private static final String EMBEDDED_TERM_REVERSED = "marker%stest";
+
     @Test
     public void testContentTypeEvaluation() throws IOException {
+
         String methodName = "testContentTypeEvaluation";
         logger.debug("***************  START: " + methodName + "  *****************");
 
@@ -101,7 +116,7 @@ public class PredicateTest {
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
 
         ContentTypePredicate ctp = new ContentTypePredicate("type1", "version1");
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "type1,version1");
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
 
@@ -184,10 +199,8 @@ public class PredicateTest {
         String methodName = "testContentTypeEvaluationNullMetadata";
         logger.debug("***************  START: " + methodName + "  *****************");
 
-        MetacardImpl metacard = new MetacardImpl();
-
         ContentTypePredicate ctp = new ContentTypePredicate("type1", "version1");
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "type1,version1");
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         // No Contextual map added to properties containing indexed metadata
@@ -207,7 +220,7 @@ public class PredicateTest {
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
 
         ContentTypePredicate ctp = new ContentTypePredicate("type1", "version1");
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "type1,version1");
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, null);
         Map<String, Object> contextualMap = constructContextualMap(metacard);
@@ -230,7 +243,7 @@ public class PredicateTest {
         String type = "type_1";
         String version = "v1";
 
-        List<MockTypeVersionsExtension> extensions = new ArrayList<MockTypeVersionsExtension>();
+        List<MockTypeVersionsExtension> extensions = new ArrayList<>();
         MockTypeVersionsExtension ext1 = new MockTypeVersionsExtension();
         List<String> ext1Versions = ext1.getVersions();
         ext1Versions.add(version);
@@ -243,7 +256,7 @@ public class PredicateTest {
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
 
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, type + "," + version);
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
 
@@ -282,7 +295,7 @@ public class PredicateTest {
 
     private Map<String, Object> constructContextualMap(MetacardImpl metacard) throws IOException {
         Directory index = ContextualEvaluator.buildIndex(metacard.getMetadata());
-        Map<String, Object> contextualMap = new HashMap<String, Object>();
+        Map<String, Object> contextualMap = new HashMap<>();
         contextualMap.put("DEFAULT_INDEX", index);
         contextualMap.put("METADATA", metacard.getMetadata());
         return contextualMap;
@@ -297,7 +310,7 @@ public class PredicateTest {
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
 
         String type1 = "type_1";
-        List<MockTypeVersionsExtension> extensions = new ArrayList<MockTypeVersionsExtension>();
+        List<MockTypeVersionsExtension> extensions = new ArrayList<>();
         MockTypeVersionsExtension ext1 = new MockTypeVersionsExtension();
         ext1.setExtensionTypeName(type1);
         extensions.add(ext1);
@@ -310,7 +323,7 @@ public class PredicateTest {
         assertEquals(type1, pred.getType());
         assertNull(pred.getVersion());
 
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
 
         Map<String, Object> contextualMap = constructContextualMap(metacard);
@@ -384,7 +397,7 @@ public class PredicateTest {
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
         logger.debug("Resulting Predicate: " + pred);
 
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
 
         Map<String, Object> contextualMap = constructContextualMap(metacard);
@@ -459,7 +472,7 @@ public class PredicateTest {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
 
-        List<MockTypeVersionsExtension> extensions = new ArrayList<MockTypeVersionsExtension>();
+        List<MockTypeVersionsExtension> extensions = new ArrayList<>();
         MockTypeVersionsExtension ext1 = new MockTypeVersionsExtension();
         List<String> ext1Versions = ext1.getVersions();
         ext1Versions.add(version1);
@@ -490,7 +503,7 @@ public class PredicateTest {
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
         logger.debug("Resulting Predicate: " + pred);
 
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
 
         Map<String, Object> contextualMap = constructContextualMap(metacard);
@@ -582,7 +595,7 @@ public class PredicateTest {
         Date effectiveDate = cal.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate);
 
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
 
         Map<String, Object> contextualMap = constructContextualMap(metacard);
@@ -645,7 +658,7 @@ public class PredicateTest {
         Date effectiveDate = cal.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate);
 
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         // no contextual map containing indexed contextual data
 
@@ -691,7 +704,7 @@ public class PredicateTest {
         Date effectiveDate = cal.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate);
 
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, null);
         Map<String, Object> contextualMap = constructContextualMap(metacard);
         properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
@@ -711,12 +724,11 @@ public class PredicateTest {
 
         MockQuery query = new MockQuery();
 
-        DatatypeFactory df = DatatypeFactory.newInstance();
         // XMLGregorianCalendar start = df.newXMLGregorianCalendarDate( 2011, 10, 25, 0 );
         // XMLGregorianCalendar end = df.newXMLGregorianCalendarDate( 2011, 10, 27, 0 );
         // query.addTemporalFilter( start, end, Metacard.EFFECTIVE );
         String geometryWkt = "POINT(44.5 34.5)";
-        Double inputRadius = new Double(66672.0);
+        Double inputRadius = 66672.0;
         String linearUnit = Distance.LinearUnit.METER.name();
         String spatialType = "POINT_RADIUS";
         query.addSpatialFilter(geometryWkt, inputRadius, linearUnit, spatialType);
@@ -748,7 +760,7 @@ public class PredicateTest {
         String version1 = "version1";
         String type1 = "type1";
 
-        List<MockTypeVersionsExtension> extensions = new ArrayList<MockTypeVersionsExtension>();
+        List<MockTypeVersionsExtension> extensions = new ArrayList<>();
         MockTypeVersionsExtension ext1 = new MockTypeVersionsExtension();
         List<String> ext1Versions = ext1.getVersions();
         ext1Versions.add(version1);
@@ -779,7 +791,7 @@ public class PredicateTest {
         Date effectiveDate = cal.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate);
 
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
 
         Map<String, Object> contextualMap = constructContextualMap(metacard);
@@ -960,7 +972,7 @@ public class PredicateTest {
         Date modifiedDate = cal.toGregorianCalendar().getTime();
         metacard.setModifiedDate(modifiedDate);
 
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_ID_KEY, metacard.getId());
         properties.put(PubSubConstants.HEADER_ENTRY_KEY, metacard);
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -1054,7 +1066,7 @@ public class PredicateTest {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId("ABC123");
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_ID_KEY, metacard.getId());
         properties.put(PubSubConstants.HEADER_ENTRY_KEY, metacard);
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -1111,502 +1123,102 @@ public class PredicateTest {
     }
 
     @Test
-    public void testContextualQueryWithLeadingHyphen() throws Exception {
-        String methodName = "testContextualQueryWithLeadingHyphen";
-        logger.debug("***************  START: " + methodName + "  *****************");
-
-        // NOTE: Escape character is necessary to prevent Lucene from
-        // interpreting "-" and the NOT operator. This escaping would be
-        // automatically added during the subscription creation, so the
-        // client registering the subscription would specify a search phrase
-        // of "-test" (i.e., no escaping)
-        String searchPhrase = "-test";
-        Predicate predicate = getPredicate(searchPhrase);
-
-        String metadata = String.format(METADATA_FORMAT, "-test");
-        Event testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "_test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker-test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker_test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-marker");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_marker");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        logger.debug("***************  END: " + methodName + "  *****************");
+    public void testContextualQuerySpecialMatch() throws IOException {
+        for (String term : Arrays.asList(LEADING_TERM, TRAILING_TERM, EMBEDDED_TERM)) {
+            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, aChar);
+                String metadata = String
+                        .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
+                Predicate predicate = getPredicate("\"" + phrase + "\"");
+                Event testEvent = getEvent(metadata);
+                assertThat(phrase + " not matched", predicate.matches(testEvent),
+                        is(equalTo(true)));
+            }
+        }
     }
 
     @Test
-    public void testContextualQueryWithLeadingUnderscore() throws Exception {
-        String methodName = "testContextualQueryWithLeadingUnderscore";
-        logger.debug("***************  START: " + methodName + "  *****************");
-
-        String searchPhrase = "_test";
-        Predicate predicate = getPredicate(searchPhrase);
-
-        String metadata = String.format(METADATA_FORMAT, "-test");
-        Event testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "_test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker-test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker_test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-marker");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_marker");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        logger.debug("***************  END: " + methodName + "  *****************");
-    }
-
-    @Test
-    public void testContextualQueryWithTrailingHyphen() throws Exception {
-        String methodName = "testContextualQueryWithTrailingHyphen";
-        logger.debug("***************  START: " + methodName + "  *****************");
-
-        String searchPhrase = "test-";
-        Predicate predicate = getPredicate(searchPhrase);
-
-        String metadata = String.format(METADATA_FORMAT, "-test");
-        Event testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "_test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker-test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker_test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-marker");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_marker");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        logger.debug("***************  END: " + methodName + "  *****************");
-    }
-
-    @Test
-    public void testContextualQueryWithTrailingUnderscore() throws Exception {
-        String methodName = "testContextualQueryWithTrailingUnderscore";
-        logger.debug("***************  START: " + methodName + "  *****************");
-
-        String searchPhrase = "test_";
-        Predicate predicate = getPredicate(searchPhrase);
-
-        String metadata = String.format(METADATA_FORMAT, "-test");
-        Event testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "_test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker-test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker_test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-marker");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_marker");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        logger.debug("***************  END: " + methodName + "  *****************");
-    }
-
-    @Test
-    public void testContextualQueryWithLeadingSpecialChars() throws Exception {
-        String methodName = "testContextualQueryWithLeadingSpecialChars";
-        logger.debug("***************  START: " + methodName + "  *****************");
-
-        // NOTE: Escape character is necessary to prevent Lucene from
-        // interpreting special chars. This escaping would be
-        // automatically added during the subscription creation, so the
-        // client registering the subscription would specify a search phrase
-        // of "+test" (i.e., no escaping). This applies to all of the
-        // special characters in this unit test.
-
-        String searchPhrase = "+test";
-        Predicate predicate = getPredicate(searchPhrase);
-
-        String metadata = String.format(METADATA_FORMAT, "+test");
-        Event testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        // NOTE: "|" and "&" are reserved boolean operators and should not
-        // be escaped in the search phrase, hence no tests for them.
-
-        searchPhrase = "!test";
-        predicate = getPredicate(searchPhrase);
-
-        metadata = String.format(METADATA_FORMAT, "!test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        searchPhrase = "(test";
-        predicate = getPredicate(searchPhrase);
-
-        metadata = String.format(METADATA_FORMAT, "(test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        searchPhrase = ")test";
-        predicate = getPredicate(searchPhrase);
-
-        metadata = String.format(METADATA_FORMAT, ")test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        searchPhrase = "{test";
-        predicate = getPredicate(searchPhrase);
-
-        metadata = String.format(METADATA_FORMAT, "{test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        searchPhrase = "}test";
-        predicate = getPredicate(searchPhrase);
-
-        metadata = String.format(METADATA_FORMAT, "}test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        searchPhrase = "[test";
-        predicate = getPredicate(searchPhrase);
-
-        metadata = String.format(METADATA_FORMAT, "[test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        searchPhrase = "]test";
-        predicate = getPredicate(searchPhrase);
-
-        metadata = String.format(METADATA_FORMAT, "]test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        searchPhrase = "^test";
-        predicate = getPredicate(searchPhrase);
-
-        metadata = String.format(METADATA_FORMAT, "^test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        searchPhrase = "*test";
-        predicate = getPredicate(searchPhrase);
-
-        metadata = String.format(METADATA_FORMAT, "*test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        searchPhrase = "?test";
-        predicate = getPredicate(searchPhrase);
-
-        metadata = String.format(METADATA_FORMAT, "?test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        searchPhrase = ":test";
-        predicate = getPredicate(searchPhrase);
-
-        metadata = String.format(METADATA_FORMAT, ":test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        searchPhrase = "~test";
-        predicate = getPredicate(searchPhrase);
-
-        metadata = String.format(METADATA_FORMAT, "~test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
+    public void testContextualQuerySpecialNotMatch() throws IOException {
+        for (String term : Arrays.asList(LEADING_TERM, TRAILING_TERM, EMBEDDED_TERM)) {
+            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, aChar);
+                for (Character bChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                    if (aChar != bChar) {
+                        String metadata = String.format(METADATA_FORMAT,
+                                StringEscapeUtils.escapeXml(String.format(term, bChar)));
+                        Predicate predicate = getPredicate("\"" + phrase + "\"");
+                        Event testEvent = getEvent(metadata);
+                        assertThat(phrase + " matched", predicate.matches(testEvent),
+                                is(equalTo(false)));
+                    }
+                }
+            }
+        }
     }
 
     @Test
     public void testContextualQuerySurroundedByWildcards() throws Exception {
-        String methodName = "testContextualQuerySurroundedByWildcards";
-        logger.debug("***************  START: " + methodName + "  *****************");
-
-        String searchPhrase = "*test*";
-        Predicate predicate = getPredicate(searchPhrase);
-
-        String metadata = String.format(METADATA_FORMAT, "-test");
-        Event testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "_test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker-test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker_test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-marker");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_marker");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        logger.debug("***************  END: " + methodName + "  *****************");
+        Predicate predicate = getPredicate("*test*");
+        for (String term : Arrays.asList(LEADING_TERM, TRAILING_TERM, EMBEDDED_TERM)) {
+            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, aChar);
+                String metadata = String
+                        .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
+                Event testEvent = getEvent(metadata);
+                assertThat(phrase + " not matched", predicate.matches(testEvent),
+                        is(equalTo(true)));
+            }
+        }
     }
 
     @Test
     public void testContextualQueryLeadingWildcard() throws Exception {
-        String methodName = "testContextualQueryLeadingWildcard";
-        logger.debug("***************  START: " + methodName + "  *****************");
-
-        String searchPhrase = "*test";
-        Predicate predicate = getPredicate(searchPhrase);
-
-        String metadata = String.format(METADATA_FORMAT, "-test");
-        Event testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "_test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker-test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker_test");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-marker");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_marker");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        logger.debug("***************  END: " + methodName + "  *****************");
+        Predicate predicate = getPredicate("*test");
+        for (String term : Arrays.asList(LEADING_TERM, EMBEDDED_TERM_REVERSED)) {
+            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, aChar);
+                String metadata = String
+                        .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
+                Event testEvent = getEvent(metadata);
+                assertThat(phrase + " not matched", predicate.matches(testEvent),
+                        is(equalTo(true)));
+            }
+        }
+        for (String term : Arrays.asList(TRAILING_TERM, EMBEDDED_TERM)) {
+            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, aChar);
+                String metadata = String
+                        .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
+                Event testEvent = getEvent(metadata);
+                assertThat(phrase + " not matched", predicate.matches(testEvent),
+                        is(equalTo(false)));
+            }
+        }
     }
 
     @Test
     public void testContextualQueryTrailingWildcard() throws Exception {
-        String methodName = "testContextualQueryTrailingWildcard";
-        logger.debug("***************  START: " + methodName + "  *****************");
-
-        String searchPhrase = "test*";
-        Predicate predicate = getPredicate(searchPhrase);
-
-        String metadata = String.format(METADATA_FORMAT, "-test");
-        Event testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "_test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker-test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker_test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-marker");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_marker");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        logger.debug("***************  END: " + methodName + "  *****************");
-    }
-
-    @Test
-    public void testContextualQueryPhraseWithEmbeddedHyphen() throws Exception {
-        String methodName = "testContextualQueryPhraseWithEmbeddedHyphen";
-        logger.debug("***************  START: " + methodName + "  *****************");
-
-        String searchPhrase = "test-marker";
-        Predicate predicate = getPredicate(searchPhrase);
-
-        String metadata = String.format(METADATA_FORMAT, "-test");
-        Event testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "_test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker-test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker_test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-marker");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_marker");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        logger.debug("***************  END: " + methodName + "  *****************");
-    }
-
-    @Test
-    public void testContextualQueryPhraseWithEmbeddedUnderscore() throws Exception {
-        String methodName = "testContextualQueryPhraseWithEmbeddedUnderscore";
-        logger.debug("***************  START: " + methodName + "  *****************");
-
-        String searchPhrase = "test_marker";
-        Predicate predicate = getPredicate(searchPhrase);
-
-        String metadata = String.format(METADATA_FORMAT, "-test");
-        Event testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "_test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker-test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "marker_test");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test-marker");
-        testEvent = getEvent(metadata);
-        assertFalse(predicate.matches(testEvent));
-
-        metadata = String.format(METADATA_FORMAT, "test_marker");
-        testEvent = getEvent(metadata);
-        assertTrue(predicate.matches(testEvent));
-
-        logger.debug("***************  END: " + methodName + "  *****************");
+        Predicate predicate = getPredicate("test*");
+        for (String term : Arrays.asList(TRAILING_TERM, EMBEDDED_TERM)) {
+            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, aChar);
+                String metadata = String
+                        .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
+                Event testEvent = getEvent(metadata);
+                assertThat(phrase + " not matched", predicate.matches(testEvent),
+                        is(equalTo(true)));
+            }
+        }
+        for (String term : Arrays.asList(LEADING_TERM, EMBEDDED_TERM_REVERSED)) {
+            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, aChar);
+                String metadata = String
+                        .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
+                Event testEvent = getEvent(metadata);
+                assertThat(phrase + " not matched", predicate.matches(testEvent),
+                        is(equalTo(false)));
+            }
+        }
     }
 
     @Test
@@ -1625,7 +1237,7 @@ public class PredicateTest {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId("ABC123");
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_ID_KEY, metacard.getId());
         properties.put(PubSubConstants.HEADER_ENTRY_KEY, metacard);
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -1704,7 +1316,7 @@ public class PredicateTest {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setLocation("POINT (41 34)");
 
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "type1,version1");
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
         properties.put(PubSubConstants.HEADER_ENTRY_KEY, metacard);
@@ -1730,7 +1342,7 @@ public class PredicateTest {
         metacard.setLocation("POINT (41 34)");
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
 
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_CONTENT_TYPE_KEY, "type1,version1");
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, null);
         properties.put(PubSubConstants.HEADER_ENTRY_KEY, metacard);
@@ -2011,14 +1623,11 @@ public class PredicateTest {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     *
-     * @param typesVersions
-     *            List of types and versions where each type/version pairs are pipe delimited and
-     *            each type/version is comma-delimited
-     * @return
+     * @param typesVersions List of types and versions where each type/version pairs are pipe delimited and
+     *                      each type/version is comma-delimited
      */
     private List<MockTypeVersionsExtension> createContentTypeVersionList(String typesVersions) {
-        List<MockTypeVersionsExtension> extensions = new ArrayList<MockTypeVersionsExtension>();
+        List<MockTypeVersionsExtension> extensions = new ArrayList<>();
 
         logger.debug("typesVersions = " + typesVersions);
         String[] typeVersionPairs = typesVersions.split("\\|");
@@ -2068,16 +1677,15 @@ public class PredicateTest {
         query.addContextualFilter(searchPhrase, textPathSections, caseSensitive);
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-        Predicate predicate = (Predicate) query.getFilter().accept(visitor, null);
 
-        return predicate;
+        return (Predicate) query.getFilter().accept(visitor, null);
     }
 
-    private Event getEvent(String metadata) throws Exception {
+    private Event getEvent(String metadata) throws IOException {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setId("ABC123");
         metacard.setMetadata(metadata);
-        HashMap<String, Object> properties = new HashMap<String, Object>();
+        HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_ID_KEY, metacard.getId());
         properties.put(PubSubConstants.HEADER_ENTRY_KEY, metacard);
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -2085,9 +1693,7 @@ public class PredicateTest {
         Map<String, Object> contextualMap = constructContextualMap(metacard);
         properties.put(PubSubConstants.HEADER_CONTEXTUAL_KEY, contextualMap);
 
-        Event testEvent = new Event("topic", properties);
-
-        return testEvent;
+        return new Event("topic", properties);
     }
 
     // private static void analyze( String fieldName, String text ) throws IOException
