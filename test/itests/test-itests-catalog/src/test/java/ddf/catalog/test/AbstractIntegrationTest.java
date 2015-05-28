@@ -323,7 +323,7 @@ public abstract class AbstractIntegrationTest {
         logConfig.update(properties);
     }
 
-    protected void setFanout() throws IOException {
+    protected void setFanout(boolean fanoutEnabled) throws IOException {
         Configuration configuration = configAdmin.getConfiguration(
                 "ddf.catalog.CatalogFrameworkImpl", null);
 
@@ -332,7 +332,12 @@ public abstract class AbstractIntegrationTest {
         {
             properties = new Hashtable<String, Object>();
         }
-        properties.put("fanoutEnabled", "true");
+        if(fanoutEnabled) {
+            properties.put("fanoutEnabled", "True");
+        } else {
+            properties.put("fanoutEnabled", "False");
+        }
+
         configuration.update(properties);
     }
 
@@ -395,8 +400,8 @@ public abstract class AbstractIntegrationTest {
 
         while (!available) {
             if (provider == null) {
-                ServiceReference<CatalogProvider> providerRef = bundleCtx
-                        .getServiceReference(CatalogProvider.class);
+                ServiceReference<CatalogProvider> providerRef = bundleCtx.getServiceReference(
+                        CatalogProvider.class);
                 if (providerRef != null) {
                     provider = bundleCtx.getService(providerRef);
                 }

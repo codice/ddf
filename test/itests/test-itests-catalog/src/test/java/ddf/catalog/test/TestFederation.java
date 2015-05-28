@@ -18,6 +18,7 @@ import com.jayway.restassured.http.ContentType;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.xml.HasXPath;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -77,6 +78,8 @@ public class TestFederation extends TestCatalog {
 
     private static String[] metacardIds = new String[2];
 
+    private String localSourceID = "";
+
     /**
      * Runs each time before each test, items that don't need to be run each time have a conditional
      * flag.
@@ -87,6 +90,8 @@ public class TestFederation extends TestCatalog {
         if (!ranBefore) {
             try {
                 LOGGER.info("Running one-time federation setup.");
+
+                localSourceID = getCatalogFramework().getId();
 
                 OpenSearchSourceProperties openSearchProperties = new OpenSearchSourceProperties(
                         OPENSEARCH_SOURCE_ID);
@@ -287,18 +292,33 @@ public class TestFederation extends TestCatalog {
 
 
     @Test
-    public void testFanout() {
-        try {
-            setFanout();
+    public void testFanoutQueryAgainstUnknownSource() throws IOException, InterruptedException {
+        setFanout(true);
+        waitForAllBundles();
 
-            String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&src="
-                    + CSW_SOURCE_ID;
+        String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&src="
+                + CSW_SOURCE_ID;
 
-            when().get(queryUrl).then().log().all().assertThat().body(containsString("Unknown source"));
+        when().get(queryUrl).then().log().all().assertThat().body(
+                containsString("Unknown source"));
 
-        } catch (IOException e) {
-            fail("Unable to set fanout: " + e.getMessage());
-        }
+        setFanout(false);
+        waitForAllBundles();
+    }
+
+    @Test
+    public void testFanoutQueryAgainstKnownSource() throws IOException, InterruptedException {
+
+        setFanout(true);
+        waitForAllBundles();
+
+        String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&src="
+                + localSourceID;
+
+        when().get(queryUrl).then().log().all().assertThat().body(containsString(localSourceID));
+
+        setFanout(false);
+        waitForAllBundles();
     }
 
     public class OpenSearchSourceProperties extends HashMap<String, Object> {
