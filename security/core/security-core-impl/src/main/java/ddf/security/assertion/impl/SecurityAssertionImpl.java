@@ -14,10 +14,27 @@
  **/
 package ddf.security.assertion.impl;
 
-import ddf.security.SecurityConstants;
-import ddf.security.assertion.SecurityAssertion;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Attribute;
@@ -47,20 +64,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.x500.X500Principal;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import ddf.security.SecurityConstants;
+import ddf.security.assertion.SecurityAssertion;
 
 /**
  * Implementation of the SecurityAssertion interface. This class wraps a SecurityToken.
@@ -268,6 +273,25 @@ public class SecurityAssertionImpl implements SecurityAssertion {
             return principal;
         }
         return null;
+    }
+
+    @Override
+    public Set<Principal> getPrincipals() {
+        Set<Principal> principals = new HashSet<>();
+        Principal primary = getPrincipal();
+        principals.add(primary);
+        principals.add(new RolePrincipal(primary.getName()));
+        for (AttributeStatement attributeStatement : getAttibuteStatements()) {
+            for (Attribute attr : attributeStatement.getAttributes()) {
+                if (StringUtils.containsIgnoreCase(attr.getName(), "role")) {
+                    for (final XMLObject obj : attr.getAttributeValues()) {
+                        principals.add(new RolePrincipal(((XSString) obj).getValue()));
+                    }
+                }
+            }
+        }
+
+        return principals;
     }
 
     /*

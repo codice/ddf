@@ -14,14 +14,26 @@
  **/
 package org.codice.ddf.security.filter.login;
 
-import ddf.security.PropertiesLoader;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.common.util.SecurityTokenHolder;
-import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
+import java.io.IOException;
+import java.security.PrivilegedExceptionAction;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -58,22 +70,14 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.Callable;
+import ddf.security.PropertiesLoader;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.common.util.SecurityTokenHolder;
+import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
 
 /**
  * Servlet filter that exchanges all incoming tokens for a SAML assertion via an
@@ -160,7 +164,7 @@ public class LoginFilter implements Filter {
             chain.doFilter(request, response);
         } else {
             // perform validation
-            Subject subject = validateRequest(httpRequest, httpResponse);
+            final Subject subject = validateRequest(httpRequest, httpResponse);
             if (subject != null) {
                 httpRequest.setAttribute(SecurityConstants.SECURITY_SUBJECT, subject);
                 LOGGER.debug("Now performing request as user {} for {}", subject.getPrincipal(), StringUtils.isNotBlank(httpRequest.getContextPath()) ? httpRequest.getContextPath() : httpRequest.getServletPath());
@@ -169,7 +173,17 @@ public class LoginFilter implements Filter {
 
                     @Override
                     public Object call() throws Exception {
-                        chain.doFilter(request, response);
+                        PrivilegedExceptionAction<Void> action = new PrivilegedExceptionAction<Void>() {
+                            @Override
+                            public Void run() throws Exception {
+                                chain.doFilter(request, response);
+                                return null;
+                            }
+                        };
+                        SecurityAssertion securityAssertion = subject.getPrincipals().oneByType(SecurityAssertion.class);
+                        HashSet emptySet = new HashSet();
+                        javax.security.auth.Subject javaSubject = new javax.security.auth.Subject(true, securityAssertion.getPrincipals(), emptySet, emptySet);
+                        javax.security.auth.Subject.doAs(javaSubject, action);
                         return null;
                     }
 
