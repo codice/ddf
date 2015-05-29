@@ -33,12 +33,14 @@ public class RetrieveResourceAuditPlugin implements PreResourcePlugin, PostResou
     @Override
     public ResourceRequest process(ResourceRequest input)
             throws PluginExecutionException, StopProcessingException {
-        Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
-        if (subjectObj instanceof Subject) {
-            String username = SubjectUtils.getName((Subject) subjectObj);
-            String msg = "User [" + username + "] is attempting to retrieve resource [" + input
-                    .getAttributeValue() + "] by [" + input.getAttributeName() + "].";
-            SecurityLogger.logInfo(msg);
+        if (input != null) {
+            Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
+            if (subjectObj instanceof Subject) {
+                String username = SubjectUtils.getName((Subject) subjectObj);
+                String msg = "User [" + username + "] is attempting to retrieve resource [" + input
+                        .getAttributeValue() + "] by [" + input.getAttributeName() + "].";
+                SecurityLogger.logInfo(msg);
+            }
         }
         return input;
     }
@@ -46,15 +48,18 @@ public class RetrieveResourceAuditPlugin implements PreResourcePlugin, PostResou
     @Override
     public ResourceResponse process(ResourceResponse input)
             throws PluginExecutionException, StopProcessingException {
-        Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
-        if (subjectObj instanceof Subject) {
-            String username = SubjectUtils.getName((Subject) subjectObj);
-            String msg =
-                    "User [" + username + "] successfully retrieved resource [" + input.getRequest()
-                            .getAttributeValue()
-                            + "] by [" + input.getRequest().getAttributeName()
-                            + "] with file name [" + input.getResource().getName() + "].";
-            SecurityLogger.logInfo(msg);
+        if (input != null) {
+            Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
+            if (subjectObj instanceof Subject) {
+                String username = SubjectUtils.getName((Subject) subjectObj);
+                String msg =
+                        "User [" + username + "] successfully retrieved resource [" + input
+                                .getRequest()
+                                .getAttributeValue()
+                                + "] by [" + input.getRequest().getAttributeName()
+                                + "] with file name [" + input.getResource().getName() + "].";
+                SecurityLogger.logInfo(msg);
+            }
         }
         return input;
     }
