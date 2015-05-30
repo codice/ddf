@@ -462,9 +462,12 @@ public class TestWfsFilterDelegate {
         assertThat(binaryTemporalOpType.isSetValueReference(), is(true));
         assertThat(binaryTemporalOpType.getValueReference(), is(mockFeatureProperty));
         assertThat(binaryTemporalOpType.isSetExpression(), is(true));
-        TimeInstantType timeInstant = (TimeInstantType) binaryTemporalOpType.getExpression().getValue();
-        assertThat(timeInstant.getTimePosition().getValue().get(0), is(ISODateTimeFormat.dateTimeNoMillis().withZone( DateTimeZone.UTC).print(date)));
-        assertThat(timeInstant.getId(), is(matchesPattern(new PatternMatcher(sequence(mockFeatureType, ".", oneOrMore(anyCharacterIn("0-9")))))));
+        TimeInstantType timeInstant = (TimeInstantType) binaryTemporalOpType.getExpression()
+                .getValue();
+        assertThat(timeInstant.getTimePosition().getValue().get(0),
+                is(ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC).print(date)));
+        assertThat(timeInstant.getId(), is(matchesPattern(new PatternMatcher(
+                sequence(mockFeatureType, ".", oneOrMore(anyCharacterIn("0-9")))))));
     }
 
     /**
