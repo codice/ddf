@@ -754,7 +754,7 @@ Because of its modular nature, DDF may require a few or many system resources, d
 == Web Service Security Architecture
 
 The Web Service Security (WSS) functionality that comes with {branding} is integrated throughout the system. 
-This is a central resource describing how all of the pieces work together where they are located within the system. 
+This is a central resource describing how all of the pieces work together and where they are located within the system.
 
 {branding} comes with a Security Framework and Security Services. 
 The Security Framework is the set of APIs that define the integration with the {branding} framework and the Security Services are the reference implementations of those APIs built for a realistic end-to-end use case.
@@ -831,7 +831,7 @@ Authenticating Realms are used to authenticate an incoming authentication token 
 |Description
 
 |ddf.security.realm.sts.StsRealm    
-|This realm delegates authentication to the STS. It creates a RequestSecurityToken message from the incoming Authentication Token and converts a successful STS response into a Subject.
+|This realm delegates authentication to the Secure Token Service (STS). It creates a RequestSecurityToken message from the incoming Authentication Token and converts a successful STS response into a Subject.
 
 |===
 
@@ -858,6 +858,9 @@ They are passed in the AuthorizationInfo of the Subject along with the Permissio
 
 |ddf.security.pdp.realm.SimpleAuthZRealm    
 |This realm performs the authorization decision without delegating to an external service. It uses the incoming permissions to create a decision.
+
+=== Securing REST
+
 
 |===
 
@@ -1000,7 +1003,7 @@ In the above example, the user's claims are represented very simply and are simi
 ==== Redaction Policies
 The procedure for setting up a policy differs depending on which PDP implementation installed. The `security-pdp-java` implementation is the simplest PDP to use, so it will be covered here.
 
-. Open the http://localhost:8181/system/console/configuration.*
+. Open the https://localhost:8993/system/console/configuration.*
 . Click on the Authz Security Settings configuration.
 . Add any roles that are allowed to access protected services.
 . Add any SOAP actions that are not to be protected by the PDP.
@@ -1074,7 +1077,7 @@ The validators verifies authentication against configured services, such as LDAP
 If the request is found to be invalid, the process ends and an error is returned.
 Next, the claims handlers determine how to handle the request, adding user attributes or properties as configured.
 The token issuer creates a SAML 2.0 assertion and associates it with the subject. 
-The STS server now sends subject back to login filter.
+The STS server sends an assertion back to the requestor, which is used in both SOAP and REST cases.
 
 ==== Using the Security Token Service (STS)
 Once installed, the STS can be used to request SAML v2.0 assertions via a SOAP web service request. 
@@ -1098,12 +1101,12 @@ This list is not a comprehensive list of every feature that can be uninstalled; 
 Claims handlers are classes that convert the incoming user credentials into a set of attribute claims that will be populated in the SAML assertion. 
 An example in action would be the LDAPClaimsHandler that takes in the user's credentials and retrieves the user's attributes from a backend LDAP server. 
 These attributes are then mapped and added to the SAML assertion being created. 
-Integrators and developers can add moreclaims handlers that can handle other types of external services that store user attributes.
+Integrators and developers can add more claims handlers that can handle other types of external services that store user attributes.
 
 ===== Add a Custom Claims Handler
 
 ====== Description
-A claim is an additional piece of data about a principal that can be included in a token along with basic token data. 
+A claim is an additional piece of data about a subject that can be included in a token along with basic token data. 
 A claims manager provides hooks for a developer to plug in claims handlers to ensure that the STS includes the specified claims in the issued token.
 
 ====== Motivation
@@ -2659,24 +2662,44 @@ ddf@local>expand Title "VP-Engineering Manager"
 | |        |------------->|             |                      |
 | |  SOAP  |     WSDL     |             |                      |
 | | Secure |<-------------|    SOAP     |                      |
-| | Client |secure call to|  Endpoint   |<-------\             |
-| |        |------------->|             |        |             |
-| | cDEF   |   results    |        cDEF |        |             |
-| |        |<-------------|             |        |             |
-| \--------/              \-------------/        |             | 
-|                                                |             |
-| /--------\              /-------------\        |             |
-| |        |              |             |        |             |
-| |  Dumb  |              |  Anonymous  |        |             |
-| |  SOAP  |              | Interceptor |        |             |
-| | Client |call endpoint | /---------\ |        |             |
-| |        |------------->| |  Read   | |        |             |
-| | cDEF   |              | | Policy  | |        |             |
-| |        |              | \---------/ |        |             |
-| \--------/              |      |      |        |             |
-|                         |      v      |        |             |
-|                         | /---------\ |        |             |
-|                         | |  Build  | |        |             |
+| | Client |              |  Endpoint   |                      |
+| |        |              |             |                      |
+| |        |              |        cDEF |                      |
+| |        |              |             |                      |
+| |        |              \-------------/                      |
+| |        |                                                   |
+| |        |  get token   /-------------\                      |
+| |        |------------->|             |                      |
+| |        |     token    |             |                      |
+| |        |<-------------|    STS      |                      |
+| |        |              |             |<---------------\     |
+| |        |              |             |                |     |
+| |        |              |        cDEF |                |     |
+| |        |              |             |                |     |
+| |        |              \-------------/                |     | 
+| |        |                                             |     |
+| |        |              /-------------\                |     |
+| |        |              |             |                |     |
+| |        |              |             |                |     |
+| |        |              |    SOAP     |                |     |
+| |        |secure call to|  Endpoint   |<-------\       |     |
+| |        |------------->|             |        |       |     |
+| | cDEF   |   results    |        cDEF |        |       |     |
+| |        |<-------------|             |        |       |     |
+| \--------/              \-------------/        |       |     | 
+|                                                |       |     |
+| /--------\              /-------------\        |       |     |
+| |        |              |             |        |       |     |
+| |  Dumb  |              |  Anonymous  |        |       |     |
+| |  SOAP  |              | Interceptor |        |       |     |
+| | Client |call endpoint | /---------\ |        |       |     |
+| |        |------------->| |  Read   | |        |       |     |
+| | cDEF   |              | | Policy  | |        |       |     |
+| |        |              | \---------/ |        |       |     |
+| \--------/              |      |      |        |       |     |
+|                         |      v      |        |       |     |
+|                         | /---------\ |        |       |     |
+|                         | |  Build  | |        |       |     |
 |                         | |Security | |        |   /-------\ |
 |                         | | Headers | |        |   |       | |
 |                         | \---------/ |        |   |  STS  | |
