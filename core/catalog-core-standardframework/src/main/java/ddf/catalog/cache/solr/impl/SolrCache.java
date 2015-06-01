@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -102,7 +103,7 @@ public class SolrCache {
         return client.query(request);
     }
 
-    public void create(List<Metacard> metacards) {
+    public void create(Collection<Metacard> metacards) {
         if (metacards == null || metacards.size() == 0) {
             return;
         }

@@ -4838,6 +4838,12 @@ Configuration -> Catalog Federation Strategy.
 |https://localhost:8993/solr
 |yes
 
+|cachingEverything
+|Boolean
+|Cache all results unless configured as native
+|false
+|yes
+
 |===
 
 [cols="2" options="header"]
