@@ -17,6 +17,7 @@ package ddf.security.assertion;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.opensaml.saml2.core.AttributeStatement;
@@ -64,6 +65,13 @@ public interface SecurityAssertion extends Serializable {
      * @return List<AuthzDecisionStatement>
      */
     List<AuthzDecisionStatement> getAuthzDecisionStatements();
+
+    /**
+     * Returns primary principal and all attributes as principals
+     *
+     * @return List<Principal>
+     */
+    Set<Principal> getPrincipals();
 
     /**
      * Returns the underlying SecurityToken that this object wraps
