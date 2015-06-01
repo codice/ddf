@@ -1334,7 +1334,6 @@ In <{branding}_HOME>/etc/ws-security/issuer, modify signature.properties
 org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
 org.apache.ws.security.crypto.merlin.keystore.type=jks
 org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
-org.apache.ws.security.crypto.merlin.keystore.private.password=<NewPassword>
 org.apache.ws.security.crypto.merlin.keystore.alias=<Alias>
 org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
 ----
@@ -1348,9 +1347,9 @@ In <{branding}_HOME>/etc/ws-security/server, modify encryption.properties
 org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
 org.apache.ws.security.crypto.merlin.keystore.type=jks
 org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
+org.apache.ws.security.crypto.merlin.keystore.private.password=<NewPassword>
 org.apache.ws.security.crypto.merlin.keystore.alias=<Alias>
 org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
-#org.apache.ws.security.crypto.merlin.x509crl.file=etc/certs/demoCA/crl/crl.pem
 ----
 
 In <{branding}_HOME>/etc/ws-security/server, modify signature.properties
@@ -1362,6 +1361,7 @@ In <{branding}_HOME>/etc/ws-security/server, modify signature.properties
 org.apache.ws.security.crypto.provider=org.apache.ws.security.components.crypto.Merlin
 org.apache.ws.security.crypto.merlin.keystore.type=jks
 org.apache.ws.security.crypto.merlin.keystore.password=<NewPassword>
+org.apache.ws.security.crypto.merlin.keystore.private.password=<NewPassword>
 org.apache.ws.security.crypto.merlin.keystore.alias=<Alias>
 org.apache.ws.security.crypto.merlin.keystore.file=etc/keystores/serverKeystore.jks
 ----
@@ -1447,7 +1447,7 @@ $> ./CertSwap.sh <systemname>/<systemname>.jks systemname
 ==== Configure hostname mapping
 In `/etc/hosts` add the following mapping:
 
-* 127.0.0.1       ddf
+* 127.0.0.1       <FQDN>
 
 
 ==== You're Done
