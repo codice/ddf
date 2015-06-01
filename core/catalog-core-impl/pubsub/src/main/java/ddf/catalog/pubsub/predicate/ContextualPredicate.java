@@ -147,11 +147,24 @@ public class ContextualPredicate implements Predicate {
             char aChar = chars[i];
             // * is escaped by the subscription when not a wildcard
             // if the character has already been manually escaped, don't double escape
-            if (aChar != '*' && ContextualTokenizer.SPECIAL_CHARACTERS_SET.contains(aChar) && (
-                    i == 0 || !Character.toString(chars[i - 1]).equals("\\"))) {
-                sb.append("\\");
+            Character bChar = null;
+            if (i + 1 < chars.length) {
+                bChar = chars[i + 1];
             }
-            sb.append(aChar);
+            if (aChar == '\\' && bChar != null && ContextualTokenizer.SPECIAL_CHARACTERS_SET
+                    .contains(bChar)) {
+                // these two tokens constitute an escaped character,
+                // so consume them together
+                i = i + 1;
+                sb.append(aChar);
+                sb.append(bChar);
+            } else if (aChar != '*' && ContextualTokenizer.SPECIAL_CHARACTERS_SET.contains(aChar)) {
+                // handle unescaped special characters
+                sb.append("\\");
+                sb.append(aChar);
+            } else {
+                sb.append(aChar);
+            }
         }
         phrase = sb.toString();
         return phrase;
