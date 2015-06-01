@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 import static com.jayway.restassured.RestAssured.expect;
@@ -67,6 +68,8 @@ public class TestFederation extends TestCatalog {
     private static final String CSW_SOURCE_ID = "cswSource";
 
     private static final String CSW_SOURCE_WITH_METACARD_XML_ID = "cswSource2";
+
+    private String localSourceID = "";
 
     /*
      * The fields must be static if they are purposely used across all test methods.
@@ -261,6 +264,36 @@ public class TestFederation extends TestCatalog {
         given().headers("Accept", "application/json", "Content-Type", "application/xml")
                 .body(titleQuery).when().post(CSW_PATH).then().log().all().assertThat()
                 .contentType(ContentType.JSON);
+    }
+
+    @Test
+    public void testFanoutQueryAgainstUnknownSource() throws IOException, InterruptedException {
+        setFanout(true);
+        waitForAllBundles();
+
+        String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&src="
+                + CSW_SOURCE_ID;
+
+        when().get(queryUrl).then().log().all().assertThat().body(
+                containsString("Unknown source"));
+
+        setFanout(false);
+        waitForAllBundles();
+    }
+
+    @Test
+    public void testFanoutQueryAgainstKnownSource() throws IOException, InterruptedException {
+
+        setFanout(true);
+        waitForAllBundles();
+
+        String queryUrl = OPENSEARCH_PATH + "?q=" + DEFAULT_KEYWORD + "&src="
+                + localSourceID;
+
+        when().get(queryUrl).then().log().all().assertThat().body(containsString(localSourceID));
+
+        setFanout(false);
+        waitForAllBundles();
     }
 
     @Test

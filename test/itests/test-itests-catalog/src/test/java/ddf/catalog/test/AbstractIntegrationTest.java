@@ -48,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import ddf.catalog.CatalogFramework;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.osgi.BlueprintListener;
@@ -346,6 +347,24 @@ public abstract class AbstractIntegrationTest {
         logConfig.update(properties);
     }
 
+    protected void setFanout(boolean fanoutEnabled) throws IOException {
+        Configuration configuration = configAdmin.getConfiguration(
+                "ddf.catalog.CatalogFrameworkImpl", null);
+
+        Dictionary<String, Object> properties =  configuration.getProperties();
+        if(properties == null)
+        {
+            properties = new Hashtable<String, Object>();
+        }
+        if(fanoutEnabled) {
+            properties.put("fanoutEnabled", "True");
+        } else {
+            properties.put("fanoutEnabled", "False");
+        }
+
+        configuration.update(properties);
+    }
+
     protected void waitForAllBundles() throws InterruptedException {
         waitForRequiredBundles("");
     }
@@ -515,6 +534,20 @@ public abstract class AbstractIntegrationTest {
         }
 
         LOGGER.info("Sources at {} ready.", path);
+    }
+
+    protected CatalogFramework getCatalogFramework() throws InterruptedException {
+        LOGGER.info("getting framework");
+
+        CatalogFramework catalogFramework = null;
+
+        ServiceReference<CatalogFramework> providerRef = bundleCtx
+                .getServiceReference(CatalogFramework.class);
+        if (providerRef != null) {
+            catalogFramework = bundleCtx.getService(providerRef);
+        }
+
+        return catalogFramework;
     }
 
     protected Map<String, Object> getMetatypeDefaults(String symbolicName, String factoryPid) {
