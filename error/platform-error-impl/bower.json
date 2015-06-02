@@ -1,20 +1,20 @@
 {
-    "name": "ddf-admin",
-    "version": "0.0.1",
-    "private": true,
-    "dependencies": {
-        "components-backbone": "1.1.0",
-        "icanhandlebarz": "atomicobject/ICanHandlebarz.js#f6ac1d1f8e1d796045563f1483eca6c4911ed7d1",
-        "handlebars": "2.0.0-alpha.2",
-        "html5shiv": "3.7.2",
-        "jquery": "components/jquery#1.11.0",
-        "lodash": "2.4.1",
-        "marionette": "1.8.8",
-        "requirejs": "2.1.15",
-        "requirejs-plugins": "v1.0.2",
-        "lato": "0.2.0"
-    },
-    "resolutions": {
-        "jquery": "1.11.0"
-    }
+  "name": "ddf-admin",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "components-backbone": "1.1.0",
+    "icanhandlebarz": "atomicobject/ICanHandlebarz.js#f6ac1d1f8e1d796045563f1483eca6c4911ed7d1",
+    "handlebars": "2.0.0-alpha.2",
+    "html5shiv": "3.7.2",
+    "jquery": "components/jquery#1.11.0",
+    "lodash": "2.4.1",
+    "marionette": "1.8.8",
+    "requirejs": "2.1.15",
+    "requirejs-plugins": "v1.0.2",
+    "lato": "0.2.0"
+  },
+  "resolutions": {
+    "jquery": "~1.11.0"
+  }
 }
