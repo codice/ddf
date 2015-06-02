@@ -60,7 +60,7 @@ Questions about {branding} or this documentation should be posted to the {brandi
 {branding} Administrative Application::
 The administrative application enhances administrative capabilities when installing and managing {branding}. It contains various services and interfaces that allow administrators more control over their systems. 
 {branding} Catalog Application::
-The {branding} Catalog provides a framework for storing, searching, processing, and transforming information. 
+The {branding} Catalog provides a framework for storing, searching, processing, and transforming information.
 Clients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog. 
 At the core of the Catalog functionality is the *Catalog Framework*, which routes all requests and responses through the system, invoking additional processing per the system configuration.
 {branding} Content Application::
@@ -1124,6 +1124,83 @@ Be sure to note the port number that replaced 8181 then enter that number in the
 ====
 Only root can access ports<1024 on Unix systems. For suggested ways to run {branding} with ports < 1024 see How do I use port 80 as a non-root user?.
 ====
+
+=== Enable and Configure HTTP to HTTPS Proxy
+
+
+
+What it does: This feature proxies http to https.
+
+When to use: Use this feature when you have legacy clients that can’t use HTTPS.
+
+
+
+==== How to install this feature using the DDF terminal:
+	Note: If DDF has not been installed, use the “How to install this feature using the AdminUI” guide found below
+
+1.) Launch the DDF application.
+
+2.) In the DDF console, type the command “features:install platform-http-proxy”
+
+
+
+==== How to install this feature using the AdminUI:
+
+
+1.) Navigate your browser to https://localhost:8993/admin/index.html. The admin console appears.
+
+1.a) If this is not a new install, skip to step 9
+
+2.) At the admin console, click on “Start” to begin the setup process. The general settings page will appear.
+
+3.) Configure the general settings by entering in values for the “Protocol”, “Host”, “Port”, “Site Name”, and “Organization.” Descriptions for these settings can be found on the “Configure general settings” page.
+
+4.) Click “Next” and the “Setup Types” page appears.
+
+5.) Choose whichever setup type that corresponds to the suite of applications you would like installed.
+
+6.) [Optional] Click “Customize” and a window appears allowing you to customize which features will be included in your installation.
+
+7.) Click “Next” and the installation begins
+
+8.) Once the installation is finished, click “Finish” to conclude the setup and the page will refresh.
+
+9.) On the left hand side of the screen, select the “Applications” tab.
+
+10.) Under “Active Applications” choose the “>” arrow under “DDF Platform”. This will bring up the configuration page for the DDF Platform application. This arrow is shown here circled in red:
+
+image::platform_circled.png[Platform Circled]
+
+11.) Under the “DDF Platform” heading, choose the “Features” tab. The features tab shows us all the features we can install to the currently selected app.
+
+12.) Scroll through the list of features and find “platform-http-proxy.” The feature will be listed as “Uninstalled” click on the arrow button to the right of the word “Uninstalled” in order to install the platform-http-proxy. This arrow button is shown here circled in red:
+
+image::proxy_install_circled.png[Proxy Install Button Circled]
+
+
+
+==== Configuring the proxy:
+Note: The hostname should be set by default. Only configure the proxy if this is not working.
+
+
+1.) Navigate your browser to https://localhost:8993/admin/index.html. The admin console appears.
+
+2.) On the left hand side of the screen, select the “Applications” tab.
+
+3.) Under “Active Applications” choose the “>” arrow under “DDF Platform”. This will bring up the configuration page for the DDF Platform application. This arrow is shown here circled in red:
+
+image::platform_circled.png[Platform Circled]
+
+4.) Under the “DDF Platform” heading, ensure that the “Configuration” tab is selected.
+
+5.) Under the “Name” heading, select “HTTP to HTTPS Proxy Settings” and the settings menu appears.
+
+6.) Under “Hostname”, enter in the Hostname to use for HTTPS connection in the proxy.
+
+7.) Click “Save changes” to save the Hostname.
+
+
+
 
 ==== Enable SSL for Clients
 In order for outbound secure connections (HTTPS) to be made from components like Federated Sources and Resource Readers configuration may need to be updated with keystores and security properties. These values are configured in the <{branding}_INSTALL_DIR>/etc/system.properties file. The following values can be set:
