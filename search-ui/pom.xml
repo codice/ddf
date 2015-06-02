@@ -30,7 +30,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <ddf.httpproxy.version>1.0.3-SNAPSHOT</ddf.httpproxy.version>
+        <ddf.httpproxy.version>1.0.3</ddf.httpproxy.version>
     </properties>
 
     <modules>
