@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>3.0.1-SNAPSHOT</version>
+        <version>3.0.1</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -30,7 +30,7 @@
 
     <properties>
         <!-- At minimum, needs platform version 2.3.0 -->
-        <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
+        <ddf.platform.app.version>2.7.0</ddf.platform.app.version>
     </properties>
 
     <distributionManagement>
