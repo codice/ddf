@@ -1125,8 +1125,8 @@ public class PredicateTest {
     @Test
     public void testContextualQuerySpecialMatch() throws IOException {
         for (String term : Arrays.asList(LEADING_TERM, TRAILING_TERM, EMBEDDED_TERM)) {
-            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
-                String phrase = String.format(term, aChar);
+            for (Character specialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, specialChar);
                 String metadata = String
                         .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
                 Predicate predicate = getPredicate("\"" + phrase + "\"");
@@ -1140,12 +1140,12 @@ public class PredicateTest {
     @Test
     public void testContextualQuerySpecialNotMatch() throws IOException {
         for (String term : Arrays.asList(LEADING_TERM, TRAILING_TERM, EMBEDDED_TERM)) {
-            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
-                String phrase = String.format(term, aChar);
-                for (Character bChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
-                    if (aChar != bChar) {
-                        String metadata = String.format(METADATA_FORMAT,
-                                StringEscapeUtils.escapeXml(String.format(term, bChar)));
+            for (Character specialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, specialChar);
+                for (Character differentSpecialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                    if (specialChar != differentSpecialChar) {
+                        String metadata = String.format(METADATA_FORMAT, StringEscapeUtils
+                                .escapeXml(String.format(term, differentSpecialChar)));
                         Predicate predicate = getPredicate("\"" + phrase + "\"");
                         Event testEvent = getEvent(metadata);
                         assertThat(phrase + " matched", predicate.matches(testEvent),
@@ -1160,8 +1160,8 @@ public class PredicateTest {
     public void testContextualQuerySurroundedByWildcards() throws Exception {
         Predicate predicate = getPredicate("*test*");
         for (String term : Arrays.asList(LEADING_TERM, TRAILING_TERM, EMBEDDED_TERM)) {
-            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
-                String phrase = String.format(term, aChar);
+            for (Character specialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, specialChar);
                 String metadata = String
                         .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
                 Event testEvent = getEvent(metadata);
@@ -1175,8 +1175,8 @@ public class PredicateTest {
     public void testContextualQueryLeadingWildcard() throws Exception {
         Predicate predicate = getPredicate("*test");
         for (String term : Arrays.asList(LEADING_TERM, EMBEDDED_TERM_REVERSED)) {
-            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
-                String phrase = String.format(term, aChar);
+            for (Character specialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, specialChar);
                 String metadata = String
                         .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
                 Event testEvent = getEvent(metadata);
@@ -1185,13 +1185,12 @@ public class PredicateTest {
             }
         }
         for (String term : Arrays.asList(TRAILING_TERM, EMBEDDED_TERM)) {
-            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
-                String phrase = String.format(term, aChar);
+            for (Character specialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, specialChar);
                 String metadata = String
                         .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
                 Event testEvent = getEvent(metadata);
-                assertThat(phrase + " matched", predicate.matches(testEvent),
-                        is(equalTo(false)));
+                assertThat(phrase + " matched", predicate.matches(testEvent), is(equalTo(false)));
             }
         }
     }
@@ -1200,8 +1199,8 @@ public class PredicateTest {
     public void testContextualQueryTrailingWildcard() throws Exception {
         Predicate predicate = getPredicate("test*");
         for (String term : Arrays.asList(TRAILING_TERM, EMBEDDED_TERM)) {
-            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
-                String phrase = String.format(term, aChar);
+            for (Character specialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, specialChar);
                 String metadata = String
                         .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
                 Event testEvent = getEvent(metadata);
@@ -1210,13 +1209,12 @@ public class PredicateTest {
             }
         }
         for (String term : Arrays.asList(LEADING_TERM, EMBEDDED_TERM_REVERSED)) {
-            for (Character aChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
-                String phrase = String.format(term, aChar);
+            for (Character specialChar : ContextualTokenizer.SPECIAL_CHARACTERS_SET) {
+                String phrase = String.format(term, specialChar);
                 String metadata = String
                         .format(METADATA_FORMAT, StringEscapeUtils.escapeXml(phrase));
                 Event testEvent = getEvent(metadata);
-                assertThat(phrase + " matched", predicate.matches(testEvent),
-                        is(equalTo(false)));
+                assertThat(phrase + " matched", predicate.matches(testEvent), is(equalTo(false)));
             }
         }
     }
