@@ -43,6 +43,7 @@
         <module>kernel</module>
         <module>install-profiles</module>
         <module>ddf</module>
+        <module>test</module>
     </modules>
 
     <repositories>

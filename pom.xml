@@ -31,7 +31,6 @@
         <module>distribution</module>
 		<module>sdk</module>
         <module>docs</module>
-		<module>test</module>
 	</modules>
 
     <build>
