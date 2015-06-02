@@ -28,6 +28,7 @@
         "lato": "0.2.0"
     },
     "resolutions": {
-        "jquery": "1.11.0"
+        "jquery": "~1.11.0",
+        "underscore": "~1.8.2"
     }
 }

@@ -31,7 +31,7 @@
         "backbone-associations": "v0.6.2"
     },
     "resolutions": {
-        "jquery": "1.11.0",
+        "jquery": "~1.11.0",
         "underscore": "~1.8.2"
     }
 }
