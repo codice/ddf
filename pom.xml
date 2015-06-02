@@ -155,7 +155,7 @@
         <ddf.support.version>2.3.1</ddf.support.version>
 
         <!-- Must MANUALLY update this if the ddf/support-pmd project's version changes -->
-        <ddf.support.pmd.version>3.0.1-SNAPSHOT</ddf.support.pmd.version>
+        <ddf.support.pmd.version>3.0.1</ddf.support.pmd.version>
 
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
