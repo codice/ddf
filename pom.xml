@@ -20,7 +20,7 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>3.0.1-SNAPSHOT</version>
+        <version>3.0.1</version>
     </parent>
 
     <groupId>ddf.platform</groupId>
@@ -43,7 +43,7 @@
         <tika.version>1.7</tika.version>
         <cas.client.version>3.1.10</cas.client.version>
         <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
-        <ddf.httpproxy.version>1.0.3-SNAPSHOT</ddf.httpproxy.version>
+        <ddf.httpproxy.version>1.0.3</ddf.httpproxy.version>
     </properties>
 
     <distributionManagement>
