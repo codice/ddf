@@ -17,7 +17,7 @@
 
     <groupId>ddf</groupId>
     <artifactId>ddf-parent</artifactId>
-    <version>3.0.1</version>
+    <version>3.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DDF Parent</name>
     <description>Distributed Data Framework (DDF) Parent</description>
@@ -153,7 +153,7 @@
         <ddf.support.version>2.3.1</ddf.support.version>
 
         <!-- Must MANUALLY update this if the ddf/support-pmd project's version changes -->
-        <ddf.support.pmd.version>3.0.1</ddf.support.pmd.version>
+        <ddf.support.pmd.version>3.0.2-SNAPSHOT</ddf.support.pmd.version>
 
         <!-- Do NOT set karaf.data or karaf.base -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -171,7 +171,7 @@
         <url>https://github.com/codice/ddf-parent.git</url>
         <connection>scm:git:git://github.com/codice/ddf-parent.git</connection>
         <developerConnection>scm:git:git://github.com/codice/ddf-parent.git</developerConnection>
-        <tag>ddf-parent-3.0.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
