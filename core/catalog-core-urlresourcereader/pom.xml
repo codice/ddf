@@ -27,10 +27,6 @@
     <name>DDF :: Catalog :: Core :: URL Resource Reader</name>
     <packaging>bundle</packaging>
 
-    <properties>
-        <ddf.security.app.version>2.7.0-SNAPSHOT</ddf.security.app.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -92,7 +88,6 @@
         <dependency>
             <groupId>ddf.security</groupId>
             <artifactId>ddf-security-common</artifactId>
-            <version>${ddf.security.app.version}</version>
         </dependency>
     </dependencies>
 
