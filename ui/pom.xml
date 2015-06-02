@@ -15,7 +15,7 @@
     <parent>
         <artifactId>admin</artifactId>
         <groupId>ddf.admin</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.2.0</version>
     </parent>
 
     <name>DDF :: Admin :: UI</name>
@@ -28,7 +28,7 @@
         <!-- filtered plugin properties -->
         <plugin-context>/${project.artifactId}</plugin-context>
         <plugin-name>${project.artifactId}</plugin-name>
-        <plugin-domain/>
+        <plugin-domain />
         <plugin-scripts>app/js/hawt-io-tab.js,app/js/underscore/underscore.js,app/js/backbone.js,app/client/views/ManagedServiceFactory.view.js</plugin-scripts>
 
     </properties>
@@ -84,7 +84,7 @@
                         <Web-ContextPath>/admin</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package/>
+                        <Export-Package />
                         <Import-Package>
                             *,
                             org.eclipse.jetty.server;version="8.1.9.v20130131",
