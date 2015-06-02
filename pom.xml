@@ -152,7 +152,7 @@
         <snapshots.repository.url/>
 
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
-        <ddf.support.version>2.3.1-SNAPSHOT</ddf.support.version>
+        <ddf.support.version>2.3.1</ddf.support.version>
 
         <!-- Must MANUALLY update this if the ddf/support-pmd project's version changes -->
         <ddf.support.pmd.version>3.0.1-SNAPSHOT</ddf.support.pmd.version>
