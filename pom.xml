@@ -30,7 +30,7 @@
 
     <properties>
         <!-- At minimum, needs platform version 2.3.0 -->
-        <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
+        <ddf.platform.app.version>2.7.0</ddf.platform.app.version>
     </properties>
 
     <distributionManagement>
