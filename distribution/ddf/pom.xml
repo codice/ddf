@@ -18,7 +18,7 @@
     <parent>
         <artifactId>kernel</artifactId>
         <groupId>ddf.distribution</groupId>
-        <version>2.7.0-SNAPSHOT</version>
+        <version>2.7.0</version>
         <relativePath>../kernel/pom.xml</relativePath>
     </parent>
 
@@ -36,13 +36,13 @@
 
     <properties>
         <distribution.file.name>ddf-${project.version}</distribution.file.name>
-        <opendj-embedded.app.version>1.2.1-SNAPSHOT</opendj-embedded.app.version>
-        <ddf.platform.app.version>2.7.0-SNAPSHOT</ddf.platform.app.version>
-        <ddf.content.app.version>2.5.0-SNAPSHOT</ddf.content.app.version>
-        <ddf.catalog.app.version>2.7.0-SNAPSHOT</ddf.catalog.app.version>
-        <ddf.searchui.app.version>2.7.0-SNAPSHOT</ddf.searchui.app.version>
-        <ddf.spatial.app.version>2.7.0-SNAPSHOT</ddf.spatial.app.version>
-        <ddf.admin.app.version>1.2.0-SNAPSHOT</ddf.admin.app.version>
+        <opendj-embedded.app.version>1.2.0</opendj-embedded.app.version>
+        <ddf.platform.app.version>2.7.0</ddf.platform.app.version>
+        <ddf.content.app.version>2.5.0</ddf.content.app.version>
+        <ddf.catalog.app.version>2.7.0</ddf.catalog.app.version>
+        <ddf.searchui.app.version>2.7.0</ddf.searchui.app.version>
+        <ddf.spatial.app.version>2.7.0</ddf.spatial.app.version>
+        <ddf.admin.app.version>1.2.0</ddf.admin.app.version>
         <install-profiles.app.version>${project.version}</install-profiles.app.version>
         <sitename.default>ddf.distribution</sitename.default>
     </properties>
