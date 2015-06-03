@@ -39,6 +39,8 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.google.common.collect.Lists;
+
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 
@@ -131,8 +133,14 @@ public class CacheBulkProcessorTest {
     @Test
     public void updateMetacards() throws Exception {
         cacheBulkProcessor.setFlushInterval(TimeUnit.MINUTES.toMillis(1));
-        List<Result> mockResults = getMockResults(10);
-        Collections.addAll(mockResults, mockResults.toArray(new Result[10]));
+
+        List<List<Result>> mockResultHalfs = Lists.partition(getMockResults(10), 5);
+        List<Result> mockResults = new ArrayList<>(mockResultHalfs.get(0));
+
+        // Duplicate the first half
+        Collections.addAll(mockResults, mockResultHalfs.get(0).toArray(new Result[5]));
+        // Add the second half
+        Collections.addAll(mockResults, mockResultHalfs.get(1).toArray(new Result[5]));
 
         cacheBulkProcessor.add(mockResults);
         waitForPendingMetacardsToCache();
