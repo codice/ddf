@@ -19,6 +19,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -46,6 +47,7 @@ import org.opengis.filter.PropertyIsGreaterThan;
 import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
 import org.opengis.filter.PropertyIsLessThan;
 import org.opengis.filter.PropertyIsLessThanOrEqualTo;
+import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.PropertyIsNotEqualTo;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
@@ -395,6 +397,32 @@ public class TestCswRecordMapperFilterVisitor {
         
         assertThat(literal.getValue(), instanceOf(String.class));
         assertThat((String) literal.getValue(), equalTo(dateString));
+    }
+
+    @Test
+    public void testSourceIdFilter() {
+        Expression val = factory.literal("source1");
+        Expression val2 = factory.literal("source2");
+
+        Expression sourceExpr = factory.property(Metacard.SOURCE_ID);
+
+        PropertyIsEqualTo filter = factory.equal(sourceExpr, val, false);
+
+        Filter filter2 = factory.equal(sourceExpr, val2, false);
+
+        Filter likeFilter = factory.like(attrExpr, "something");
+
+        Filter sourceFilter = factory.or(filter, filter2);
+
+        Filter totalFilter = factory.and(sourceFilter, likeFilter);
+
+        Object obj = totalFilter.accept(visitor, null);
+
+        assertThat(obj, instanceOf(PropertyIsLike.class));
+        PropertyIsLike duplicate = (PropertyIsLike) obj;
+        assertThat(duplicate.getExpression(), equalTo(attrExpr));
+        assertThat(duplicate.getLiteral(), equalTo("something"));
+        assertThat(visitor.getSourceIds().size(), is(2));
     }
 
 }
