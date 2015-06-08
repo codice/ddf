@@ -19,8 +19,10 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>3.0.1-SNAPSHOT</version>
+        <version>3.0.1</version>
     </parent>
+
+    <version>2.7.0.RC1</version>
 
     <artifactId>docs</artifactId>
     <name>DDF DOCS</name>
