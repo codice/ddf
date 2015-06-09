@@ -1,20 +1,50 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.content.endpoint.rest;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.io.FileBackedOutputStream;
+
 import ddf.content.ContentFramework;
 import ddf.content.ContentFrameworkException;
 import ddf.content.data.ContentItem;
@@ -34,34 +64,6 @@ import ddf.content.operation.impl.ReadRequestImpl;
 import ddf.content.operation.impl.UpdateRequestImpl;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
-import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 
 /**
  * The REST Endpoint for the Content Framework that provides URLs to create, read, update, and
@@ -72,7 +74,9 @@ import java.util.Set;
  */
 @Path("/")
 public class ContentEndpoint {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContentEndpoint.class);
+    public static final int KB = 1024;
+
+    public static final int MB = 1024 * KB;
 
     static final String CONTENT_DISPOSITION = "Content-Disposition";
 
@@ -82,7 +86,14 @@ public class ContentEndpoint {
      * Basic mime types that will be attempted to refine to a more accurate mime type
      * based on the file extension of the filename specified in the create request.
      */
-    static final List<String> REFINEABLE_MIME_TYPES = Arrays.asList(DEFAULT_MIME_TYPE, "text/plain");
+    static final List<String> REFINEABLE_MIME_TYPES = Arrays
+            .asList(DEFAULT_MIME_TYPE, "text/plain");
+
+    static final String DEFAULT_FILE_NAME = "file";
+
+    static final String DEFAULT_FILE_EXTENSION = "bin";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentEndpoint.class);
 
     private static final String DEFAULT_DIRECTIVE = "STORE_AND_PROCESS";
 
@@ -92,17 +103,9 @@ public class ContentEndpoint {
 
     private static final String FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME = "filename";
 
-    static final String DEFAULT_FILE_NAME = "file";
-
-    static final String DEFAULT_FILE_EXTENSION = "bin";
-
     private static final String CONTENT_ID_HTTP_HEADER = "Content-ID";
 
     private static final String CONTENT_URI_HTTP_HEADER = "Content-URI";
-
-    public static final int KB = 1024;
-
-    public static final int MB = 1024 * KB;
 
     private static final int DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD = 1 * MB;
 
@@ -145,10 +148,12 @@ public class ContentEndpoint {
      */
     @POST
     @Path("/")
-    public Response create(MultipartBody multipartBody, @Context UriInfo requestUriInfo) throws ContentEndpointException {
+    public Response create(MultipartBody multipartBody, @Context UriInfo requestUriInfo)
+            throws ContentEndpointException {
         LOGGER.trace("ENTERING: create");
 
-        String directive = multipartBody.getAttachmentObject(DIRECTIVE_ATTACHMENT_CONTENT_ID, String.class);
+        String directive = multipartBody
+                .getAttachmentObject(DIRECTIVE_ATTACHMENT_CONTENT_ID, String.class);
         LOGGER.debug("directive = {}", directive);
 
         String contentUri = multipartBody.getAttachmentObject("contentUri", String.class);
@@ -173,7 +178,8 @@ public class ContentEndpoint {
             LOGGER.debug("No file contents attachment found");
         }
 
-        Response response = doCreate(stream, contentType, directive, filename, contentUri, requestUriInfo);
+        Response response = doCreate(stream, contentType, directive, filename, contentUri,
+                requestUriInfo);
 
         LOGGER.trace("EXITING: create");
 
@@ -206,7 +212,8 @@ public class ContentEndpoint {
             contentType = contentPart.getContentType().toString();
         }
 
-        filename = contentPart.getContentDisposition().getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
+        filename = contentPart.getContentDisposition()
+                .getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
 
         // Only interested in attachments for file uploads. Any others should be covered by
         // the FormParam arguments.
@@ -233,7 +240,8 @@ public class ContentEndpoint {
             // by determining the mime type based on the filename's extension.
             if (StringUtils.isEmpty(contentType) || REFINEABLE_MIME_TYPES.contains(contentType)) {
                 String fileExtension = FilenameUtils.getExtension(filename);
-                LOGGER.debug("fileExtension = {}, contentType before refinement = {}", fileExtension, contentType);
+                LOGGER.debug("fileExtension = {}, contentType before refinement = {}",
+                        fileExtension, contentType);
                 if (fileExtension.equals("xml")) {
                     // FBOS reads file into byte array in memory up to this threshold, then it transitions
                     // to writing to a file.
@@ -241,16 +249,21 @@ public class ContentEndpoint {
                     try {
                         IOUtils.copy(stream, fbos);
                         // Using fbos.asByteSource().openStream() allows us to pass in a copy of the InputStream
-                        contentType = mimeTypeMapper.guessMimeType(fbos.asByteSource().openStream(), fileExtension);
+                        contentType = mimeTypeMapper
+                                .guessMimeType(fbos.asByteSource().openStream(), fileExtension);
                         createInfo.setStream(fbos.asByteSource().openStream());
                     } catch (IOException | MimeTypeResolutionException e) {
-                        LOGGER.debug("Unable to refine contentType {} based on filename extension {}", contentType, fileExtension);
+                        LOGGER.debug(
+                                "Unable to refine contentType {} based on filename extension {}",
+                                contentType, fileExtension);
                     }
                 } else {
                     try {
                         contentType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
                     } catch (MimeTypeResolutionException e) {
-                        LOGGER.debug("Unable to refine contentType {} based on filename extension {}", contentType, fileExtension);
+                        LOGGER.debug(
+                                "Unable to refine contentType {} based on filename extension {}",
+                                contentType, fileExtension);
                     }
                 }
                 LOGGER.debug("Refined contentType = {}", contentType);
@@ -277,8 +290,10 @@ public class ContentEndpoint {
 
     @PUT
     @Path("/{id}")
-    public Response update(InputStream stream, @PathParam("id") String id, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("directive") @DefaultValue("STORE_AND_PROCESS") String directive) throws ContentEndpointException {
+    public Response update(InputStream stream, @PathParam("id") String id,
+            @HeaderParam("Content-Type") String contentType,
+            @HeaderParam("directive") @DefaultValue("STORE_AND_PROCESS") String directive)
+            throws ContentEndpointException {
         LOGGER.trace("ENTERING: update");
         LOGGER.debug("directive = {}", directive);
 
@@ -293,12 +308,14 @@ public class ContentEndpoint {
     // via the content URI (which maps to the DAD URI of the catalog entry)
     @PUT
     @Path("/")
-    public Response updateCatalogOnly(InputStream stream, @HeaderParam("Content-Type") String contentType,
+    public Response updateCatalogOnly(InputStream stream,
+            @HeaderParam("Content-Type") String contentType,
             @HeaderParam("contentUri") String contentUri) throws ContentEndpointException {
         LOGGER.trace("ENTERING: update");
         LOGGER.debug("contentUri = {}", contentUri);
 
-        Response response = doUpdate(stream, null, contentType, Request.Directive.PROCESS.toString(), contentUri);
+        Response response = doUpdate(stream, null, contentType,
+                Request.Directive.PROCESS.toString(), contentUri);
 
         LOGGER.trace("EXITING: update");
 
@@ -307,7 +324,8 @@ public class ContentEndpoint {
 
     @DELETE
     @Path("/{id}")
-    public Response delete(@PathParam("id") String id, @HeaderParam("directive") @DefaultValue("STORE_AND_PROCESS") String directive)
+    public Response delete(@PathParam("id") String id,
+            @HeaderParam("directive") @DefaultValue("STORE_AND_PROCESS") String directive)
             throws ContentEndpointException {
         LOGGER.trace("ENTERING: delete");
         LOGGER.debug("directive = {}", directive);
@@ -323,7 +341,8 @@ public class ContentEndpoint {
     // via the content URI (which maps to the DAD URI of the catalog entry)
     @DELETE
     @Path("/")
-    public Response deleteCatalogOnly(@HeaderParam("contentUri") String contentUri) throws ContentEndpointException {
+    public Response deleteCatalogOnly(@HeaderParam("contentUri") String contentUri)
+            throws ContentEndpointException {
         LOGGER.trace("ENTERING: delete");
         LOGGER.debug("contentUri = {}", contentUri);
 
@@ -334,16 +353,18 @@ public class ContentEndpoint {
         return response;
     }
 
-    protected Response doCreate(InputStream stream, String contentType, String directive, String filename, String contentUri, UriInfo uriInfo)
-            throws ContentEndpointException {
+    protected Response doCreate(InputStream stream, String contentType, String directive,
+            String filename, String contentUri, UriInfo uriInfo) throws ContentEndpointException {
         LOGGER.trace("ENTERING: doCreate");
 
         if (stream == null) {
-            throw new ContentEndpointException("Cannot create content. InputStream is null.", Response.Status.BAD_REQUEST);
+            throw new ContentEndpointException("Cannot create content. InputStream is null.",
+                    Response.Status.BAD_REQUEST);
         }
 
         if (contentType == null) {
-            throw new ContentEndpointException("Cannot create content. Content-Type is null.", Response.Status.BAD_REQUEST);
+            throw new ContentEndpointException("Cannot create content. Content-Type is null.",
+                    Response.Status.BAD_REQUEST);
         }
 
         if (StringUtils.isEmpty(directive)) {
@@ -363,12 +384,14 @@ public class ContentEndpoint {
         try {
             LOGGER.debug("Preparing content item for contentType = {}", contentType);
 
-            ContentItem newItem = new IncomingContentItem(stream, contentType, filename); // DDF-1856
+            ContentItem newItem = new IncomingContentItem(stream, contentType,
+                    filename); // DDF-1856
             newItem.setUri(contentUri);
             LOGGER.debug("Creating content item.");
 
             CreateRequest createRequest = new CreateRequestImpl(newItem, null);
-            CreateResponse createResponse = contentFramework.create(createRequest, requestDirective);
+            CreateResponse createResponse = contentFramework
+                    .create(createRequest, requestDirective);
             if (createResponse != null) {
                 ContentItem contentItem = createResponse.getCreatedContentItem();
 
@@ -378,8 +401,10 @@ public class ContentEndpoint {
 
                 Response.ResponseBuilder responseBuilder;
                 if (createResponse.getCreatedMetadata() != null) {
-                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(createResponse.getCreatedMetadata());
-                    responseBuilder = Response.ok(byteArrayInputStream, createResponse.getCreatedMetadataMimeType());
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+                            createResponse.getCreatedMetadata());
+                    responseBuilder = Response
+                            .ok(byteArrayInputStream, createResponse.getCreatedMetadataMimeType());
                 } else {
                     responseBuilder = Response.ok();
                 }
@@ -408,7 +433,8 @@ public class ContentEndpoint {
             }
         } catch (Exception e) {
             LOGGER.warn("Exception caught during create", e);
-            throw new ContentEndpointException("Bad request, could not create content", Response.Status.BAD_REQUEST);
+            throw new ContentEndpointException("Bad request, could not create content",
+                    Response.Status.BAD_REQUEST);
         }
 
         LOGGER.debug("createdContentId = [{}]", createdContentId);
@@ -422,7 +448,8 @@ public class ContentEndpoint {
         LOGGER.trace("ENTERING: doRead");
 
         if (id == null) {
-            throw new ContentEndpointException("Cannot read content. ID is null.", Response.Status.BAD_REQUEST);
+            throw new ContentEndpointException("Cannot read content. ID is null.",
+                    Response.Status.BAD_REQUEST);
         }
 
         Response response = null;
@@ -452,14 +479,17 @@ public class ContentEndpoint {
             try {
                 builder.header(HttpHeaders.CONTENT_LENGTH, item.getSize());
             } catch (IOException e) {
-                LOGGER.debug("Total number of bytes is unknown, not sending a length with the response: ", e);
+                LOGGER.debug(
+                        "Total number of bytes is unknown, not sending a length with the response: ",
+                        e);
             }
 
             response = builder.build();
 
         } catch (Exception e) {
             LOGGER.error("Error retrieving item from content framework.", e);
-            throw new ContentEndpointException("Content Item " + id + " not found.", Response.Status.NOT_FOUND);
+            throw new ContentEndpointException("Content Item " + id + " not found.",
+                    Response.Status.NOT_FOUND);
         }
 
         LOGGER.trace("EXITING: doRead");
@@ -467,26 +497,30 @@ public class ContentEndpoint {
         return response;
     }
 
-    protected Response doUpdate(InputStream stream, String id, String contentType, String directive, String contentUri)
-            throws ContentEndpointException {
+    protected Response doUpdate(InputStream stream, String id, String contentType, String directive,
+            String contentUri) throws ContentEndpointException {
         LOGGER.trace("ENTERING: doUpdate");
 
         Request.Directive requestDirective = Request.Directive.valueOf(directive);
 
         if (stream == null) {
-            throw new ContentEndpointException("Cannot update content. InputStream is null.", Response.Status.BAD_REQUEST);
+            throw new ContentEndpointException("Cannot update content. InputStream is null.",
+                    Response.Status.BAD_REQUEST);
         }
 
         if (id == null && requestDirective != Request.Directive.PROCESS) {
-            throw new ContentEndpointException("Cannot update content. ID is null.", Response.Status.BAD_REQUEST);
+            throw new ContentEndpointException("Cannot update content. ID is null.",
+                    Response.Status.BAD_REQUEST);
         }
 
         if (contentUri == null && requestDirective == Request.Directive.PROCESS) {
-            throw new ContentEndpointException("Cannot update content. Content URI is null.", Response.Status.BAD_REQUEST);
+            throw new ContentEndpointException("Cannot update content. Content URI is null.",
+                    Response.Status.BAD_REQUEST);
         }
 
         if (contentType == null) {
-            throw new ContentEndpointException("Cannot update content. Content-Type is null.", Response.Status.BAD_REQUEST);
+            throw new ContentEndpointException("Cannot update content. Content-Type is null.",
+                    Response.Status.BAD_REQUEST);
         }
 
         Response response = null;
@@ -499,13 +533,16 @@ public class ContentEndpoint {
         ContentItem updatedItem = null;
         try {
             UpdateRequest updateRequest = new UpdateRequestImpl(itemToUpdate, null);
-            UpdateResponse updateResponse = contentFramework.update(updateRequest, requestDirective);
+            UpdateResponse updateResponse = contentFramework
+                    .update(updateRequest, requestDirective);
             if (updateResponse != null) {
                 updatedItem = updateResponse.getUpdatedContentItem();
                 Response.ResponseBuilder responseBuilder;
                 if (updateResponse.getUpdatedMetadata() != null) {
-                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(updateResponse.getUpdatedMetadata());
-                    responseBuilder = Response.ok(byteArrayInputStream, updateResponse.getUpdatedMetadataMimeType());
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+                            updateResponse.getUpdatedMetadata());
+                    responseBuilder = Response
+                            .ok(byteArrayInputStream, updateResponse.getUpdatedMetadataMimeType());
                 } else {
                     responseBuilder = Response.ok();
                 }
@@ -518,7 +555,8 @@ public class ContentEndpoint {
             }
         } catch (Exception e) {
             LOGGER.error("Error updating item in content framework", e);
-            throw new ContentEndpointException("Content Item " + id + " not found.", Response.Status.NOT_FOUND);
+            throw new ContentEndpointException("Content Item " + id + " not found.",
+                    Response.Status.NOT_FOUND);
         }
 
         LOGGER.trace("EXITING: doUpdate");
@@ -526,17 +564,20 @@ public class ContentEndpoint {
         return response;
     }
 
-    protected Response executeDelete(String id, String directive, String contentUri) throws ContentEndpointException {
+    protected Response executeDelete(String id, String directive, String contentUri)
+            throws ContentEndpointException {
         LOGGER.trace("ENTERING: executeDelete");
 
         Request.Directive requestDirective = Request.Directive.valueOf(directive);
 
         if (id == null && requestDirective != Request.Directive.PROCESS) {
-            throw new ContentEndpointException("Cannot delete content. ID is null.", Response.Status.BAD_REQUEST);
+            throw new ContentEndpointException("Cannot delete content. ID is null.",
+                    Response.Status.BAD_REQUEST);
         }
 
         if (contentUri == null && requestDirective == Request.Directive.PROCESS) {
-            throw new ContentEndpointException("Cannot delete content. Content URI is null.", Response.Status.BAD_REQUEST);
+            throw new ContentEndpointException("Cannot delete content. Content URI is null.",
+                    Response.Status.BAD_REQUEST);
         }
 
         ContentItem itemToDelete = new IncomingContentItem(id, null, null);
@@ -546,7 +587,8 @@ public class ContentEndpoint {
 
         try {
             DeleteRequest deleteRequest = new DeleteRequestImpl(itemToDelete, null);
-            DeleteResponse deleteResponse = contentFramework.delete(deleteRequest, requestDirective);
+            DeleteResponse deleteResponse = contentFramework
+                    .delete(deleteRequest, requestDirective);
 
             if (requestDirective == Request.Directive.PROCESS) {
                 LOGGER.debug("Deleted content item with URI = {}", contentUri);
@@ -557,17 +599,20 @@ public class ContentEndpoint {
             if (deleteResponse != null && deleteResponse.isFileDeleted()) {
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder.status(Response.Status.NO_CONTENT);
-                responseBuilder.header(CONTENT_ID_HTTP_HEADER, deleteResponse.getContentItem().getId());
+                responseBuilder
+                        .header(CONTENT_ID_HTTP_HEADER, deleteResponse.getContentItem().getId());
                 addHttpHeaders(deleteResponse, responseBuilder);
                 response = responseBuilder.build();
             } else {
-                Response.ResponseBuilder responseBuilder = Response.ok("Content Item " + id + " not deleted");
+                Response.ResponseBuilder responseBuilder = Response
+                        .ok("Content Item " + id + " not deleted");
                 responseBuilder.status(Response.Status.NOT_FOUND);
                 response = responseBuilder.build();
             }
         } catch (ContentFrameworkException e) {
             LOGGER.error("Error deleting item from content framework", e);
-            throw new ContentEndpointException("Content Item " + id + " not found.", Response.Status.NOT_FOUND);
+            throw new ContentEndpointException("Content Item " + id + " not found.",
+                    Response.Status.NOT_FOUND);
 
         }
 
@@ -580,7 +625,8 @@ public class ContentEndpoint {
     // Endpoint does not care what the response properties are - the component
     // that added them, e.g., ContentPlugin, by putting them in the responseProperties
     // vs. properties of the Response intended them for public distribution.
-    private <T extends Request> void addHttpHeaders(ddf.content.operation.Response<T> response, Response.ResponseBuilder responseBuilder) {
+    private <T extends Request> void addHttpHeaders(ddf.content.operation.Response<T> response,
+            Response.ResponseBuilder responseBuilder) {
         if (response.hasResponseProperties()) {
             for (String propertyName : (Set<String>) response.getResponsePropertyNames()) {
                 String propertyValue = response.getResponsePropertyValue(propertyName);

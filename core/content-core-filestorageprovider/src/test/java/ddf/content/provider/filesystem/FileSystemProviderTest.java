@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.content.provider.filesystem;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -29,7 +28,6 @@ import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,8 +110,8 @@ public class FileSystemProviderTest {
         assertEquals(id, item.getId());
         assertEquals(NITF_MIME_TYPE, item.getMimeTypeRawData());
 
-        String expectedFilePath = BASE_DIR + File.separator + id + File.separator
-                + item.getFilename();
+        String expectedFilePath =
+                BASE_DIR + File.separator + id + File.separator + item.getFilename();
         assertThat(item.getFile().getAbsolutePath(), endsWith(expectedFilePath));
         assertTrue(item.getSize() > 0);
         assertTrue(item.getFile().exists());
@@ -135,8 +133,8 @@ public class FileSystemProviderTest {
         assertEquals(id, item.getId());
         assertEquals(NITF_MIME_TYPE, item.getMimeTypeRawData());
 
-        String expectedFilePath = BASE_DIR + File.separator + id + File.separator
-                + item.getFilename();
+        String expectedFilePath =
+                BASE_DIR + File.separator + id + File.separator + item.getFilename();
         assertThat(item.getFile().getAbsolutePath(), endsWith(expectedFilePath));
         assertTrue(item.getSize() > 0);
         assertTrue(item.getFile().exists());
@@ -161,10 +159,12 @@ public class FileSystemProviderTest {
         assertNull(item.getFile());
     }
 
-    /***********************************************************************************/
+    /**
+     * *******************************************************************************
+     */
 
     private void assertContentItem(String data, String mimeTypeRawData, String expectedFileSuffix)
-        throws Exception {
+            throws Exception {
         // Simulates what ContentFrameworkImpl would do
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
         ContentItem contentItem = new IncomingContentItem(uuid, IOUtils.toInputStream(data),
@@ -193,10 +193,10 @@ public class FileSystemProviderTest {
     }
 
     private CreateResponse storeContentItem(String data, String mimeType, String filename)
-        throws Exception {
+            throws Exception {
         String id = UUID.randomUUID().toString().replaceAll("-", "");
-        ContentItem contentItem = new IncomingContentItem(id, IOUtils.toInputStream(data),
-                mimeType, filename);
+        ContentItem contentItem = new IncomingContentItem(id, IOUtils.toInputStream(data), mimeType,
+                filename);
         CreateRequest createRequest = new CreateRequestImpl(contentItem, null);
         CreateResponse createResponse = provider.create(createRequest);
 

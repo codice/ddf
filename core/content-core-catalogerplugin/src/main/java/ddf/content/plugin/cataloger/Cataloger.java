@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.content.plugin.cataloger;
 
 import java.net.URI;
@@ -39,16 +38,15 @@ import ddf.content.plugin.PluginExecutionException;
  * Cataloger provides the create, update, and delete capabilities for entries in the Metadata
  * Catalog (MDC) by invoking the {@link CatalogFramework}. Cataloger is the single point of entry
  * from the Content Framework to the {@link CatalogFramework}.
- * 
  */
 public class Cataloger {
-    private static XLogger logger = new XLogger(LoggerFactory.getLogger(Cataloger.class));
-
     private static final String CREATE_WARNING_MSG = "Unable to create catalog entry";
 
     private static final String UPDATE_WARNING_MSG = "Unable to update catalog entry";
 
     private static final String DELETE_WARNING_MSG = "Unable to delete catalog entry";
+
+    private static XLogger logger = new XLogger(LoggerFactory.getLogger(Cataloger.class));
 
     private CatalogFramework catalogFramework;
 
@@ -62,9 +60,8 @@ public class Cataloger {
     /**
      * Creates a catalog entry in the Metadata Catalog (MDC) using the {@link CatalogFramework} for
      * the specified {@link Metacard}.
-     * 
-     * @param metacard
-     *            the {@link Metacard} to create a catalog entry for
+     *
+     * @param metacard the {@link Metacard} to create a catalog entry for
      * @return the catalog ID created in the MDC
      * @throws PluginExecutionException on failure to create the metacard
      */
@@ -109,14 +106,14 @@ public class Cataloger {
     // never
     // provided as an input from the client (via ContentRestEndpoint)
     public String updateMetacard(String productUri, Metacard metacard)
-        throws PluginExecutionException {
+            throws PluginExecutionException {
         logger.trace("ENTERING: updateMetacard");
 
         String updatedCatalogId = null;
 
         if (metacard != null) {
-            logger.debug("Creating catalog UpdateRequest with metacard  (ProductURI = "
-                    + productUri + ")");
+            logger.debug("Creating catalog UpdateRequest with metacard  (ProductURI = " + productUri
+                    + ")");
             URI[] productUris;
             try {
                 productUris = new URI[] {new URI(productUri)};
@@ -162,7 +159,8 @@ public class Cataloger {
         String deletedCatalogId = null;
 
         if (productUri != null) {
-            logger.debug("Creating catalog DeleteRequest with metacard  (URI = " + productUri + ")");
+            logger.debug(
+                    "Creating catalog DeleteRequest with metacard  (URI = " + productUri + ")");
             URI uri;
             try {
                 uri = new URI(productUri);

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.content.operation.impl;
 
 import java.io.Serializable;
@@ -34,24 +33,20 @@ public class DeleteResponseImpl extends ResponseImpl<DeleteRequest> implements D
      * Instantiates a DeleteResponseImpl object with {@link DeleteResponse} object. This is useful
      * for daisy-chaining plugins together because it preserves the response properties and
      * operation properties throughout the sequence of daisy-chained components.
-     * 
-     * @param response
-     *            the {@link DeleteResponse} to instantiate a new {@link DeleteResponse} from
+     *
+     * @param response the {@link DeleteResponse} to instantiate a new {@link DeleteResponse} from
      */
     public DeleteResponseImpl(DeleteResponse response) {
-        this(response.getRequest(), response.getContentItem(), response.isFileDeleted(), response
-                .getResponseProperties(), response.getProperties());
+        this(response.getRequest(), response.getContentItem(), response.isFileDeleted(),
+                response.getResponseProperties(), response.getProperties());
     }
 
     /**
      * Instantiates a DeleteResponseImpl object with the status of the file deleted.
-     * 
-     * @param request
-     *            the original {@link DeleteRequest} that initiated this response
-     * @param contentItem
-     *            the content item to delete
-     * @param fileDeleted
-     *            <code>true</code> if file deleted, <code>false</code> otherwise
+     *
+     * @param request     the original {@link DeleteRequest} that initiated this response
+     * @param contentItem the content item to delete
+     * @param fileDeleted <code>true</code> if file deleted, <code>false</code> otherwise
      */
     public DeleteResponseImpl(DeleteRequest request, ContentItem contentItem, boolean fileDeleted) {
         this(request, contentItem, fileDeleted, null, null);
@@ -60,15 +55,11 @@ public class DeleteResponseImpl extends ResponseImpl<DeleteRequest> implements D
     /**
      * Instantiates a DeleteResponseImpl object with the status of the file deleted and a
      * {@link Map} of properties.
-     * 
-     * @param request
-     *            the original {@link DeleteRequest} that initiated this response
-     * @param contentItem
-     *            the content item to delete
-     * @param fileDeleted
-     *            <code>true</code> if file deleted, <code>false</code> otherwise
-     * @param responseProperties
-     *            the properties associated with this response
+     *
+     * @param request            the original {@link DeleteRequest} that initiated this response
+     * @param contentItem        the content item to delete
+     * @param fileDeleted        <code>true</code> if file deleted, <code>false</code> otherwise
+     * @param responseProperties the properties associated with this response
      */
     public DeleteResponseImpl(DeleteRequest request, ContentItem contentItem, boolean fileDeleted,
             Map<String, String> responseProperties) {
@@ -78,17 +69,12 @@ public class DeleteResponseImpl extends ResponseImpl<DeleteRequest> implements D
     /**
      * Instantiates a DeleteResponseImpl object with the status of the file deleted and a
      * {@link Map} of properties.
-     * 
-     * @param request
-     *            the original {@link DeleteRequest} that initiated this response
-     * @param contentItem
-     *            the content item to delete
-     * @param fileDeleted
-     *            <code>true</code> if file deleted, <code>false</code> otherwise
-     * @param responseProperties
-     *            the properties associated with this response
-     * @param properties
-     *            the properties associated with the operation
+     *
+     * @param request            the original {@link DeleteRequest} that initiated this response
+     * @param contentItem        the content item to delete
+     * @param fileDeleted        <code>true</code> if file deleted, <code>false</code> otherwise
+     * @param responseProperties the properties associated with this response
+     * @param properties         the properties associated with the operation
      */
     public DeleteResponseImpl(DeleteRequest request, ContentItem contentItem, boolean fileDeleted,
             Map<String, String> responseProperties, Map<String, Serializable> properties) {

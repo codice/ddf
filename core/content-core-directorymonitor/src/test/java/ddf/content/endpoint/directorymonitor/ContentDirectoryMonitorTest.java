@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.content.endpoint.directorymonitor;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -54,7 +53,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     public void tearDown() throws Exception {
         LOGGER.debug("INSIDE tearDown");
         //context = null;
-        
+
         // This will also stop all routes/components/endpoints, etc. 
         // and clear internal state/cache
         camelContext.stop();
@@ -147,9 +146,9 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Put file in monitored directory
         String fileContents = "Dummy data in a text file";
         FileUtils.writeStringToFile(new File(INPUT_FILEPATH), fileContents);
-        
-        template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents,
-                Exchange.FILE_NAME, INPUT_FILENAME);
+
+        template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents, Exchange.FILE_NAME,
+                INPUT_FILENAME);
 
         Thread.sleep(3000);
 
@@ -164,7 +163,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
     /**
      * Verify if route has a failure then the file being processed is moved to the .errors
      * directory.
-     * 
+     *
      * @throws Exception
      */
     /*
@@ -220,7 +219,6 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
      * // Cleanup FileUtils.deleteDirectory(new File(monitoredDirectory));
      * camelContext.removeRouteDefinition(routeDefinition); } END TODO
      */
-
     @Test
     // @Ignore
     public void testUpdateExistingDirectoryMonitor() throws Exception {
@@ -234,8 +232,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Put file in monitored directory
         String fileContents = "Dummy data in a text file";
         FileUtils.writeStringToFile(new File(INPUT_FILEPATH), fileContents);
-        template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents,
-                Exchange.FILE_NAME, INPUT_FILENAME);
+        template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents, Exchange.FILE_NAME,
+                INPUT_FILENAME);
 
         Thread.sleep(3000);
 
@@ -266,8 +264,8 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         // Put file in original monitored directory
         fileContents = "Dummy data in third text file";
         FileUtils.writeStringToFile(new File("target/input_3.txt"), fileContents);
-        template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents,
-                Exchange.FILE_NAME, "input_3.txt");
+        template.sendBodyAndHeader("file://" + monitoredDirectory, fileContents, Exchange.FILE_NAME,
+                "input_3.txt");
 
         Thread.sleep(3000);
 
@@ -324,7 +322,9 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
         FileUtils.deleteDirectory(new File(secondMonitoredDirectory));
     }
 
-    /************************************************************************************/
+    /**
+     * ********************************************************************************
+     */
 
     private RouteDefinition createRouteWithAdvice(String monitoredDirectory, String directive,
             boolean copyIngestedFiles) throws Exception {
@@ -366,7 +366,7 @@ public class ContentDirectoryMonitorTest extends CamelTestSupport {
 
     private RouteDefinition createRoute(String monitoredDirectory, String directive,
             boolean copyIngestedFiles) throws Exception {
-        
+
         // Simulates what container would do for <camel:camelContext id="camelContext">
         // declaration in beans.xml file
         camelContext = (ModelCamelContext) super.createCamelContext();

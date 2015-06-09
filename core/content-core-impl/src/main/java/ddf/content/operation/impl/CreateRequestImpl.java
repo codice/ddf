@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.content.operation.impl;
 
 import java.io.Serializable;
@@ -29,9 +28,8 @@ public class CreateRequestImpl extends OperationImpl implements CreateRequest {
 
     /**
      * Instantiates a new CreateRequestImpl with the {@link ContentItem} to be created.
-     * 
-     * @param contentItem
-     *            the {@link ContentItem}
+     *
+     * @param contentItem the {@link ContentItem}
      */
     public CreateRequestImpl(ContentItem contentItem) {
         this(contentItem, null);
@@ -40,11 +38,9 @@ public class CreateRequestImpl extends OperationImpl implements CreateRequest {
     /**
      * Instantiates a new CreateRequestImpl with the {@link ContentItem} to be created and a
      * {@link Map} of properties.
-     * 
-     * @param contentItem
-     *            the {@link ContentItem}
-     * @param properties
-     *            the properties of the operation
+     *
+     * @param contentItem the {@link ContentItem}
+     * @param properties  the properties of the operation
      */
     public CreateRequestImpl(ContentItem contentItem, Map<String, Serializable> properties) {
         super(properties);

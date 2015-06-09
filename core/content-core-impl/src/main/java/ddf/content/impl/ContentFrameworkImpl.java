@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.content.impl;
 
 import java.io.IOException;
@@ -48,19 +47,13 @@ import ddf.content.storage.StorageException;
 import ddf.content.storage.StorageProvider;
 
 /**
- * 
  * ContentFrameworkImpl is the core class of the DDF Content Framework. It is used for create,
  * update, delete, and content retrieval operations for content stored in the DDF Content
  * Repository.
- * 
  */
 public class ContentFrameworkImpl implements ContentFramework {
     private static final XLogger logger = new XLogger(
             LoggerFactory.getLogger(ContentFrameworkImpl.class));
-
-    private BundleContext context;
-
-    private StorageProvider provider;
 
     /**
      * The {@link List} of content plugins to execute on the ingest response after content has been
@@ -68,16 +61,17 @@ public class ContentFrameworkImpl implements ContentFramework {
      */
     protected List<ContentPlugin> contentPlugins;
 
+    private BundleContext context;
+
+    private StorageProvider provider;
+
     /**
      * Instantiates a new ContentFrameworkImpl, usually invoked from blueprint.
-     * 
-     * @param context
-     *            The BundleContext that will be utilized by this instance.
-     * @param provider
-     *            The {@link StorageProvider} used for read, create, update, and delete operations.
-     * @param contentPlugins
-     *            A list of {@link ContentPlugin}(s) that will be invoked after the ingest
-     *            operation.
+     *
+     * @param context        The BundleContext that will be utilized by this instance.
+     * @param provider       The {@link StorageProvider} used for read, create, update, and delete operations.
+     * @param contentPlugins A list of {@link ContentPlugin}(s) that will be invoked after the ingest
+     *                       operation.
      */
     public ContentFrameworkImpl(BundleContext context, StorageProvider provider,
             List<ContentPlugin> contentPlugins) {
@@ -92,7 +86,7 @@ public class ContentFrameworkImpl implements ContentFramework {
 
     @Override
     public CreateResponse create(CreateRequest createRequest, Request.Directive directive)
-        throws ContentFrameworkException {
+            throws ContentFrameworkException {
         logger.trace("ENTERING: create");
 
         logger.debug("directive = " + directive);
@@ -102,10 +96,10 @@ public class ContentFrameworkImpl implements ContentFramework {
         // If directive includes processing and there are no ContentPlugins currently installed to
         // support processing, then throw an exception. (Do not want to do the STORE and get the
         // content repository out of sync with the Metadata Catalog.)
-        if ((directive == Directive.PROCESS || directive == Directive.STORE_AND_PROCESS)
-                && (this.contentPlugins.size() == 0)) {
-            throw new ContentFrameworkException("Unable to perform " + directive
-                    + " because no ContentPlugins are installed.");
+        if ((directive == Directive.PROCESS || directive == Directive.STORE_AND_PROCESS) && (
+                this.contentPlugins.size() == 0)) {
+            throw new ContentFrameworkException(
+                    "Unable to perform " + directive + " because no ContentPlugins are installed.");
         }
 
         // Recreate content item so can add GUID to request
@@ -184,8 +178,8 @@ public class ContentFrameworkImpl implements ContentFramework {
                     // Re-throw the exception (this will fail the Camel route that may have
                     // started this request)
                     throw new ContentFrameworkException(
-                            "Content Plugin processing failed. Did not create catalog entry.\n"
-                                    + e.getMessage(), e);
+                            "Content Plugin processing failed. Did not create catalog entry.\n" + e
+                                    .getMessage(), e);
                 }
             }
         }
@@ -219,7 +213,7 @@ public class ContentFrameworkImpl implements ContentFramework {
 
     @Override
     public UpdateResponse update(final UpdateRequest updateRequest, Request.Directive directive)
-        throws ContentFrameworkException {
+            throws ContentFrameworkException {
         logger.trace("ENTERING: update");
 
         UpdateResponse updateResponse = null;
@@ -227,10 +221,10 @@ public class ContentFrameworkImpl implements ContentFramework {
         // If directive includes processing and there are no ContentPlugins currently installed to
         // support processing, then throw an exception. (Do not want to do the STORE and get the
         // content repository out of sync with the Metadata Catalog.)
-        if ((directive == Directive.PROCESS || directive == Directive.STORE_AND_PROCESS)
-                && (this.contentPlugins.size() == 0)) {
-            throw new ContentFrameworkException("Unable to perform " + directive
-                    + " because no ContentPlugins are installed.");
+        if ((directive == Directive.PROCESS || directive == Directive.STORE_AND_PROCESS) && (
+                this.contentPlugins.size() == 0)) {
+            throw new ContentFrameworkException(
+                    "Unable to perform " + directive + " because no ContentPlugins are installed.");
         }
 
         ContentItem itemToUpdate = updateRequest.getContentItem();
@@ -238,8 +232,8 @@ public class ContentFrameworkImpl implements ContentFramework {
         if (directive == Directive.STORE || directive == Directive.STORE_AND_PROCESS) {
             // Verify content item exists in content repository before trying to update it
             try {
-                ReadRequest readRequest = new ReadRequestImpl(updateRequest.getContentItem()
-                        .getId(), null);
+                ReadRequest readRequest = new ReadRequestImpl(
+                        updateRequest.getContentItem().getId(), null);
                 this.provider.read(readRequest);
             } catch (StorageException e) {
                 logger.info("File does not exist, cannot update, doing a create: ", e);
@@ -256,8 +250,9 @@ public class ContentFrameworkImpl implements ContentFramework {
             try {
                 updateResponse = this.provider.update(updateRequest);
                 try {
-                    logger.debug("updated item file length = "
-                            + updateResponse.getUpdatedContentItem().getSize());
+                    logger.debug(
+                            "updated item file length = " + updateResponse.getUpdatedContentItem()
+                                    .getSize());
                 } catch (IOException ioe) {
                 }
             } catch (StorageException e) {
@@ -294,8 +289,8 @@ public class ContentFrameworkImpl implements ContentFramework {
 
                 // Re-throw the exception (this will fail the Camel route that may have
                 // started this request)
-                throw new ContentFrameworkException("Content Plugin processing failed. "
-                        + e.getMessage(), e);
+                throw new ContentFrameworkException(
+                        "Content Plugin processing failed. " + e.getMessage(), e);
             }
         }
 
@@ -306,7 +301,7 @@ public class ContentFrameworkImpl implements ContentFramework {
 
     @Override
     public DeleteResponse delete(DeleteRequest deleteRequest, Request.Directive directive)
-        throws ContentFrameworkException {
+            throws ContentFrameworkException {
         logger.trace("ENTERING: delete");
 
         DeleteResponse deleteResponse = null;
@@ -314,10 +309,10 @@ public class ContentFrameworkImpl implements ContentFramework {
         // If directive includes processing and there are no ContentPlugins currently installed to
         // support processing, then throw an exception. (Do not want to do the STORE and get the
         // content repository out of sync with the Metadata Catalog.)
-        if ((directive == Directive.PROCESS || directive == Directive.STORE_AND_PROCESS)
-                && (this.contentPlugins.size() == 0)) {
-            throw new ContentFrameworkException("Unable to perform " + directive
-                    + " because no ContentPlugins are installed.");
+        if ((directive == Directive.PROCESS || directive == Directive.STORE_AND_PROCESS) && (
+                this.contentPlugins.size() == 0)) {
+            throw new ContentFrameworkException(
+                    "Unable to perform " + directive + " because no ContentPlugins are installed.");
         }
 
         if (directive == Directive.STORE || directive == Directive.STORE_AND_PROCESS) {

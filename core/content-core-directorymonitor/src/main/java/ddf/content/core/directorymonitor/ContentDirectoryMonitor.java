@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.content.core.directorymonitor;
 
 import java.util.List;
@@ -30,9 +29,10 @@ import ddf.content.operation.Request;
 
 /**
  * @author rodgersh
- * 
  */
 public class ContentDirectoryMonitor implements DirectoryMonitor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitor.class);
+
     private String monitoredDirectory = null;
 
     private String directive = null;
@@ -43,17 +43,14 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
     private List<RouteDefinition> routeCollection;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContentDirectoryMonitor.class);
-
-    
     /**
      * Constructs a monitor for a specific directory that will ingest files into
      * the Content Framework.
-     * 
+     *
      * @param camelContext the Camel context to use across all Content Directory
-     * Monitors. Note that if Apache changes this ModelCamelContext interface there
-     * is no guarantee that whatever DM is being used (Spring in this case) will be
-     * updated accordingly.
+     *                     Monitors. Note that if Apache changes this ModelCamelContext interface there
+     *                     is no guarantee that whatever DM is being used (Spring in this case) will be
+     *                     updated accordingly.
      */
     public ContentDirectoryMonitor(CamelContext camelContext) {
         LOGGER.trace("ContentDirectoryMonitor(CamelContext) constructor: {}", camelContext);
@@ -64,7 +61,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     /**
      * This method will stop and remove any existing Camel routes in this context, and then
      * configure a new Camel route using the properties set in the setter methods.
-     * 
+     * <p/>
      * Invoked after all of the setter methods have been called (for initial route creation), and
      * also called whenever an existing route is updated.
      */
@@ -87,10 +84,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     }
 
     /**
-     * 
+     *
      */
     public void destroy() {
-        LOGGER.trace("INSIDE: destroy()");        
+        LOGGER.trace("INSIDE: destroy()");
         removeRoutes();
     }
 
@@ -98,7 +95,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      * Invoked when updates are made to the configuration of existing directory monitors. This
      * method is invoked by the container as specified by the update-strategy and update-method
      * attributes in Spring beans XML file.
-     * 
+     *
      * @param properties
      */
     public void updateCallback(Map<String, Object> properties) {
@@ -142,7 +139,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     }
 
     /**
-     * 
+     *
      */
     private void configureCamelRoute() {
         LOGGER.trace("ENTERING: configureCamelRoute");
@@ -154,7 +151,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         }
 
         if (StringUtils.isEmpty(directive)) {
-            LOGGER.debug("Cannot setup camel route - must specify a directive for the directory to be monitored");
+            LOGGER.debug(
+                    "Cannot setup camel route - must specify a directive for the directory to be monitored");
             return;
         }
 
@@ -193,12 +191,14 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             // already started the route. But for bundle (or system) restart this call
             // is needed since the addRoutes() for whatever reason did not start the route.
             startRoutes();
-            
+
             if (LOGGER.isDebugEnabled()) {
                 dumpCamelContext("after configureCamelRoute()");
             }
         } catch (Exception e) {
-            LOGGER.error("Unable to configure Camel route - this Content Directory Monitor will be unusable", e);
+            LOGGER.error(
+                    "Unable to configure Camel route - this Content Directory Monitor will be unusable",
+                    e);
         }
 
         LOGGER.trace("EXITING: configureCamelRoute");
@@ -207,7 +207,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
     public List<RouteDefinition> getRouteDefinitions() {
         return camelContext.getRouteDefinitions();
     }
-    
+
     private void startRoutes() {
         LOGGER.trace("ENTERING: startRoutes");
         List<RouteDefinition> routeDefinitions = camelContext.getRouteDefinitions();
@@ -216,7 +216,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
         }
         LOGGER.trace("EXITING: startRoutes");
     }
-    
+
     private void startRoute(RouteDefinition routeDef) {
         String routeId = routeDef.getId();
         try {
@@ -228,14 +228,14 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                     camelContext.startRoute(routeDef);  //DEPRECATED
                     // this method does not reliably start a route that was created, then
                     // app shutdown, and restarted
-    //                camelContext.startRoute(routeId);  
+                    //                camelContext.startRoute(routeId);
                 }
             }
         } catch (Exception e) {
             LOGGER.warn("Unable to start Camel route with route ID = {}", routeId, e);
         }
     }
-    
+
     private void removeRoutes() {
         LOGGER.trace("ENTERING: stopRoutes");
         List<RouteDefinition> routeDefinitions = camelContext.getRouteDefinitions();
@@ -247,7 +247,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 if (isMyRoute(routeDef.getId())) {
                     LOGGER.trace("Stopping route with ID = {}", routeDef.getId());
                     camelContext.stopRoute(routeDef);  //DEPRECATED
-    //                    camelContext.stopRoute(routeDef.getId());
+                    //                    camelContext.stopRoute(routeDef.getId());
                     boolean status = camelContext.removeRoute(routeDef.getId());
                     LOGGER.trace("Status of removing route {} is {}", routeDef.getId(), status);
                     camelContext.removeRouteDefinition(routeDef);
@@ -259,11 +259,11 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
         LOGGER.trace("EXITING: stopRoutes");
     }
-    
+
     private boolean isMyRoute(String routeId) {
-        
+
         boolean status = false;
-        
+
         if (this.routeCollection != null) {
             for (RouteDefinition routeDef : this.routeCollection) {
                 if (routeDef.getId().equals(routeId)) {
@@ -271,10 +271,10 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 }
             }
         }
-        
+
         return status;
     }
-    
+
     private void dumpCamelContext(String msg) {
         LOGGER.debug("\n\n***************  START: {}  *****************", msg);
         List<RouteDefinition> routeDefinitions = camelContext.getRouteDefinitions();

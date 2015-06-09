@@ -1,29 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.camel.component.content;
 
-import com.google.common.io.FileBackedOutputStream;
-import ddf.content.ContentFrameworkException;
-import ddf.content.data.ContentItem;
-import ddf.content.data.impl.IncomingContentItem;
-import ddf.content.operation.CreateRequest;
-import ddf.content.operation.CreateResponse;
-import ddf.content.operation.Request;
-import ddf.content.operation.impl.CreateRequestImpl;
-import ddf.mime.MimeTypeMapper;
-import ddf.mime.MimeTypeResolutionException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.Message;
@@ -37,27 +30,34 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import com.google.common.io.FileBackedOutputStream;
+
+import ddf.content.ContentFrameworkException;
+import ddf.content.data.ContentItem;
+import ddf.content.data.impl.IncomingContentItem;
+import ddf.content.operation.CreateRequest;
+import ddf.content.operation.CreateResponse;
+import ddf.content.operation.Request;
+import ddf.content.operation.impl.CreateRequestImpl;
+import ddf.mime.MimeTypeMapper;
+import ddf.mime.MimeTypeResolutionException;
 
 public class ContentProducer extends DefaultProducer {
-    private ContentEndpoint endpoint;
-
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(ContentProducer.class);
-    
     public static final int KB = 1024;
 
     public static final int MB = 1024 * KB;
-    
+
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(ContentProducer.class);
+
     private static final int DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD = 1 * MB;
+
+    private ContentEndpoint endpoint;
 
     /**
      * Constructs the {@link Producer} for the custom Camel ContentComponent. This producer would
      * map to a Camel <code>&lt;to&gt;</code> route node with a URI like <code>content:framework</code>
-     * 
-     * @param endpoint
-     *            the Camel endpoint that created this consumer
+     *
+     * @param endpoint the Camel endpoint that created this consumer
      */
     public ContentProducer(ContentEndpoint endpoint) {
         super(endpoint);
@@ -67,8 +67,8 @@ public class ContentProducer extends DefaultProducer {
     }
 
     @Override
-    public void process(Exchange exchange) throws ContentComponentException,
-        ContentFrameworkException {
+    public void process(Exchange exchange)
+            throws ContentComponentException, ContentFrameworkException {
         LOGGER.debug("ENTERING: process");
 
         if (!exchange.getPattern().equals(ExchangePattern.InOnly)) {
@@ -82,7 +82,8 @@ public class ContentProducer extends DefaultProducer {
             GenericFile<File> genericFile = (GenericFile<File>) body;
             ingestedFile = (File) genericFile.getFile();
         } else {
-            LOGGER.warn("Unable to cast message body to Camel GenericFile, so unable to process ingested file");
+            LOGGER.warn(
+                    "Unable to cast message body to Camel GenericFile, so unable to process ingested file");
             throw new ContentComponentException(
                     "Unable to cast message body to Camel GenericFile, so unable to process ingested file");
         }
@@ -138,14 +139,16 @@ public class ContentProducer extends DefaultProducer {
                     if (fileExtension.equals("xml")) {
                         // FBOS reads file into byte array in memory up to this threshold, then it transitions
                         // to writing to a file.
-                        fbos = new FileBackedOutputStream(DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD);
+                        fbos = new FileBackedOutputStream(
+                                DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD);
                         IOUtils.copy(fis, fbos);
                         // Using fbos.asByteSource().openStream() allows us to pass in a copy of the InputStream
-                        mimeType = mimeTypeMapper.guessMimeType(fbos.asByteSource().openStream(), fileExtension);
+                        mimeType = mimeTypeMapper
+                                .guessMimeType(fbos.asByteSource().openStream(), fileExtension);
                     } else {
                         mimeType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
                     }
-                    
+
                 } catch (MimeTypeResolutionException | IOException e) {
                     IOUtils.closeQuietly(fis);
                     IOUtils.closeQuietly(fbos);
@@ -155,8 +158,8 @@ public class ContentProducer extends DefaultProducer {
                 IOUtils.closeQuietly(fis);
                 LOGGER.error("Did not find a MimeTypeMapper service");
                 throw new ContentComponentException(
-                        "Unable to find a mime type for the ingested file "
-                                + ingestedFile.getName());
+                        "Unable to find a mime type for the ingested file " + ingestedFile
+                                .getName());
             }
         }
 
@@ -168,7 +171,8 @@ public class ContentProducer extends DefaultProducer {
                 // If the FileBackedOutputStream (FBOS) was used, then must be processing an XML file and need to
                 // get a fresh InputStream from the FBOS to use in the content item
                 if (fbos != null) {
-                    newItem = new IncomingContentItem(fbos.asByteSource().openStream(), mimeType, ingestedFile.getName());
+                    newItem = new IncomingContentItem(fbos.asByteSource().openStream(), mimeType,
+                            ingestedFile.getName());
                 } else {
                     // Otherwise, the InputStream created from the ingested file has never been read,
                     // so can use it in the content item
@@ -189,12 +193,12 @@ public class ContentProducer extends DefaultProducer {
                 }
             } else {
                 LOGGER.debug("mimeType is NULL");
-                throw new ContentComponentException("Unable to determine mime type for the file "
-                        + ingestedFile.getName());
+                throw new ContentComponentException(
+                        "Unable to determine mime type for the file " + ingestedFile.getName());
             }
         } catch (IOException e) {
-            throw new ContentComponentException("Unable to determine mime type for the file "
-                    + ingestedFile.getName());
+            throw new ContentComponentException(
+                    "Unable to determine mime type for the file " + ingestedFile.getName());
         } finally {
             IOUtils.closeQuietly(fis);
             if (fbos != null) {

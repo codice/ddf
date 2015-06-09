@@ -1,18 +1,29 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.content.provider.filesystem;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import javax.activation.MimeType;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
 
 import ddf.content.data.ContentItem;
 import ddf.content.operation.CreateRequest;
@@ -30,41 +41,36 @@ import ddf.content.operation.impl.UpdateResponseImpl;
 import ddf.content.storage.StorageException;
 import ddf.content.storage.StorageProvider;
 import ddf.mime.MimeTypeMapper;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
-import javax.activation.MimeType;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 
 /**
  * The File System Provider provides the implementation to create/update/delete content items as
  * files in the DDF Content Repository. The File System Provider is an implementation of the
  * {@link StorageProvider} interface. When installed, it is invoked by the @link{ContentFramework} to
- *                       create, update, or delete a file in the DDF Content Repository, which is
- *                       located in the <code>&lt;DDF_INSTALL_DIR&gt;/content/store directory</code>.
- * 
+ * create, update, or delete a file in the DDF Content Repository, which is
+ * located in the <code>&lt;DDF_INSTALL_DIR&gt;/content/store directory</code>.
  */
 public class FileSystemProvider implements StorageProvider {
-    private static XLogger LOGGER = new XLogger(LoggerFactory.getLogger(FileSystemProvider.class));
-
-    private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
-
     public static final String CONTENT_URI_PREFIX = "content:";
 
     public static final String DEFAULT_CONTENT_REPOSITORY = "content" + File.separator + "store";
 
-    /** Optional id parameter for mime type, e.g., application/json;id=geojson */
+    private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+
+    /**
+     * Optional id parameter for mime type, e.g., application/json;id=geojson
+     */
     private static final String ID_PARAMETER = "id";
 
-    /** Mapper for file extensions-to-mime types (and vice versa) */
+    private static XLogger LOGGER = new XLogger(LoggerFactory.getLogger(FileSystemProvider.class));
+
+    /**
+     * Mapper for file extensions-to-mime types (and vice versa)
+     */
     private MimeTypeMapper mimeTypeMapper;
 
-    /** Root directory for entire content repository */
+    /**
+     * Root directory for entire content repository
+     */
     private String baseContentDirectory;
 
     /**
@@ -179,7 +185,8 @@ public class FileSystemProvider implements StorageProvider {
                     LOGGER.info("Unable to delete directory {} for id = {}",
                             dirToBeDeleted.getAbsolutePath(), id);
                 }
-                deletedContentItem = new ContentFile(null, id, itemToBeDeleted.getMimeTypeRawData());
+                deletedContentItem = new ContentFile(null, id,
+                        itemToBeDeleted.getMimeTypeRawData());
                 String contentUri = CONTENT_URI_PREFIX + deletedContentItem.getId();
                 LOGGER.debug("contentUri = {}", contentUri);
                 deletedContentItem.setUri(contentUri);
@@ -206,8 +213,9 @@ public class FileSystemProvider implements StorageProvider {
             fileId += File.separator + item.getFilename();
         }
 
-        LOGGER.debug("itemId = " + item.getId() + ",   mimeType = " + mimeType
-                + ",   itemFilename = " + item.getFilename());
+        LOGGER.debug(
+                "itemId = " + item.getId() + ",   mimeType = " + mimeType + ",   itemFilename = "
+                        + item.getFilename());
         LOGGER.debug("fileId = {}", fileId);
 
         File createdFile = createFile(fileId);
@@ -288,7 +296,9 @@ public class FileSystemProvider implements StorageProvider {
             LOGGER.debug("Full filepath = {}", filepath);
             baseURIFile = new File(filepath);
         } else {
-            LOGGER.warn("Could not obtain reference to content item. Possibly invalid content id: {}", id);
+            LOGGER.warn(
+                    "Could not obtain reference to content item. Possibly invalid content id: {}",
+                    id);
         }
 
         LOGGER.trace("EXITING: getFileFromContentRepository");
@@ -327,8 +337,8 @@ public class FileSystemProvider implements StorageProvider {
             File directory = new File(path);
 
             // Create the directory if it doesn't exist
-            if ((!directory.exists() && directory.mkdirs())
-                    || (directory.isDirectory() && directory.canRead())) {
+            if ((!directory.exists() && directory.mkdirs()) || (directory.isDirectory() && directory
+                    .canRead())) {
                 LOGGER.info("Setting base content directory to: {}", path);
                 newBaseDir = path;
             }
@@ -341,12 +351,13 @@ public class FileSystemProvider implements StorageProvider {
                 final File karafHomeDir = new File(System.getProperty("karaf.home"));
 
                 if (karafHomeDir.isDirectory()) {
-                    final File fspDir = new File(karafHomeDir + File.separator
-                            + DEFAULT_CONTENT_REPOSITORY);
+                    final File fspDir = new File(
+                            karafHomeDir + File.separator + DEFAULT_CONTENT_REPOSITORY);
 
                     // if directory does not exist, try to create it
                     if (fspDir.isDirectory() || fspDir.mkdirs()) {
-                        LOGGER.info("Setting base content directory to: {}", fspDir.getAbsolutePath());
+                        LOGGER.info("Setting base content directory to: {}",
+                                fspDir.getAbsolutePath());
                         newBaseDir = fspDir.getAbsolutePath();
                     } else {
                         LOGGER.warn(
@@ -354,10 +365,12 @@ public class FileSystemProvider implements StorageProvider {
                                 fspDir.getAbsolutePath());
                     }
                 } else {
-                    LOGGER.warn("Karaf home folder defined by system property karaf.home is not a directory.  Using default folder.");
+                    LOGGER.warn(
+                            "Karaf home folder defined by system property karaf.home is not a directory.  Using default folder.");
                 }
             } catch (NullPointerException npe) {
-                LOGGER.warn("Unable to create FileSystemProvider folder - karaf.home system property not defined. Using default folder.");
+                LOGGER.warn(
+                        "Unable to create FileSystemProvider folder - karaf.home system property not defined. Using default folder.");
             }
         }
 
@@ -389,8 +402,8 @@ public class FileSystemProvider implements StorageProvider {
 
         File dir = getFileFromContentRepository(contentId);
         if (dir == null || !dir.exists() || !dir.isDirectory()) {
-            throw new StorageException("Directory does not exist in content repository with id = "
-                    + contentId);
+            throw new StorageException(
+                    "Directory does not exist in content repository with id = " + contentId);
         }
 
         LOGGER.trace("EXITING: getDirectoryForContentId");

@@ -1,20 +1,34 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.content.plugin.cataloger;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.activation.MimeType;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+
 import com.google.common.io.FileBackedOutputStream;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -33,18 +47,6 @@ import ddf.content.plugin.ContentPlugin;
 import ddf.content.plugin.PluginExecutionException;
 import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.security.SubjectUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
-import javax.activation.MimeType;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
 
 public class CatalogContentPlugin implements ContentPlugin {
     private static final XLogger LOGGER = new XLogger(
@@ -89,7 +91,8 @@ public class CatalogContentPlugin implements ContentPlugin {
         }
 
         try {
-            Metacard metacard = generateMetacard(createdContentItem, mimeType, createdContentItem.getUri(), stream);
+            Metacard metacard = generateMetacard(createdContentItem, mimeType,
+                    createdContentItem.getUri(), stream);
             String catalogId = cataloger.createMetacard(metacard);
             LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
@@ -97,7 +100,8 @@ public class CatalogContentPlugin implements ContentPlugin {
             response.setResponseProperties(properties);
             if (metacard != null) {
                 try {
-                    BinaryContent binaryContent = catalogFramework.transform(metacard, DEFAULT_METACARD_TRANSFORMER, null);
+                    BinaryContent binaryContent = catalogFramework
+                            .transform(metacard, DEFAULT_METACARD_TRANSFORMER, null);
                     response.setCreatedMetadata(binaryContent.getByteArray());
                     response.setCreatedMetadataMimeType(binaryContent.getMimeType().toString());
                 } catch (IOException | CatalogTransformerException e) {
@@ -141,7 +145,8 @@ public class CatalogContentPlugin implements ContentPlugin {
         }
 
         try {
-            Metacard metacard = generateMetacard(updatedContentItem, mimeType, updatedContentItem.getUri(), stream);
+            Metacard metacard = generateMetacard(updatedContentItem, mimeType,
+                    updatedContentItem.getUri(), stream);
             String catalogId = cataloger.updateMetacard(updatedContentItem.getUri(), metacard);
             LOGGER.debug("catalogId = " + catalogId);
             Map<String, String> properties = response.getResponseProperties();
@@ -149,7 +154,8 @@ public class CatalogContentPlugin implements ContentPlugin {
             response.setResponseProperties(properties);
             if (metacard != null) {
                 try {
-                    BinaryContent binaryContent = catalogFramework.transform(metacard, DEFAULT_METACARD_TRANSFORMER, null);
+                    BinaryContent binaryContent = catalogFramework
+                            .transform(metacard, DEFAULT_METACARD_TRANSFORMER, null);
                     response.setUpdatedMetadata(binaryContent.getByteArray());
                     response.setUpdatedMetadataMimeType(binaryContent.getMimeType().toString());
                 } catch (IOException | CatalogTransformerException e) {
@@ -196,12 +202,12 @@ public class CatalogContentPlugin implements ContentPlugin {
         return response;
     }
 
-    private Metacard generateMetacard(ContentItem contentItem, MimeType mimeType, String uri, InputStream message)
-        throws MetacardCreationException {
+    private Metacard generateMetacard(ContentItem contentItem, MimeType mimeType, String uri,
+            InputStream message) throws MetacardCreationException {
         LOGGER.trace("ENTERING: generateMetacard");
 
-        List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
-                InputTransformer.class, mimeType);
+        List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper
+                .findMatches(InputTransformer.class, mimeType);
 
         LOGGER.debug("List of matches for mimeType [ {} ]: {}", mimeType, listOfCandidates);
 
@@ -222,29 +228,34 @@ public class CatalogContentPlugin implements ContentPlugin {
             // can create the metacard, then do not need to try any remaining InputTransformers.
             for (InputTransformer transformer : listOfCandidates) {
 
-                try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
+                try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource()
+                        .openStream()) {
                     generatedMetacard = transformer.transform(inputStreamMessageCopy);
                     if (generatedMetacard != null) {
                         try {
                             Subject subject = SecurityUtils.getSubject();
-                            if(subject != null) {
-                                generatedMetacard.setAttribute(new AttributeImpl(
-                                        Metacard.POINT_OF_CONTACT, SubjectUtils.getName(subject)));
+                            if (subject != null) {
+                                generatedMetacard.setAttribute(
+                                        new AttributeImpl(Metacard.POINT_OF_CONTACT,
+                                                SubjectUtils.getName(subject)));
                             }
-                        } catch(IllegalStateException e) {
+                        } catch (IllegalStateException e) {
                             LOGGER.debug("Unable to retrieve user from request.", e);
                         }
 
                         if (uri != null) {
                             //Setting the non-transformer specific information not including creation and modification dates/times
-                            generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, uri));
-                            generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(size)));
+                            generatedMetacard
+                                    .setAttribute(new AttributeImpl(Metacard.RESOURCE_URI, uri));
+                            generatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
+                                    String.valueOf(size)));
                         } else {
                             LOGGER.debug("Metacard had a null uri");
                         }
                         if (StringUtils.isBlank(generatedMetacard.getTitle())) {
                             LOGGER.debug("Metacard title was blank. Setting title to filename.");
-                            generatedMetacard.setAttribute(new AttributeImpl(Metacard.TITLE, contentItem.getFilename()));
+                            generatedMetacard.setAttribute(
+                                    new AttributeImpl(Metacard.TITLE, contentItem.getFilename()));
                         }
                         break;
                     }
@@ -255,7 +266,9 @@ public class CatalogContentPlugin implements ContentPlugin {
             }
 
             if (generatedMetacard == null) {
-                throw new MetacardCreationException("Could not create metacard with mimeType " + mimeType + ". No valid transformers found.");
+                throw new MetacardCreationException(
+                        "Could not create metacard with mimeType " + mimeType
+                                + ". No valid transformers found.");
             }
 
             LOGGER.trace("EXITING: generateMetacard");
