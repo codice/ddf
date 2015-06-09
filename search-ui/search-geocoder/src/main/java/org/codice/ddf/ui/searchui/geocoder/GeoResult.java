@@ -14,9 +14,9 @@
  **/
 package org.codice.ddf.ui.searchui.geocoder;
 
-import org.opengis.geometry.primitive.Point;
-
 import java.util.List;
+
+import org.opengis.geometry.primitive.Point;
 
 public class GeoResult {
 

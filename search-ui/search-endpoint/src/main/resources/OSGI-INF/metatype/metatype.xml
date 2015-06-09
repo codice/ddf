@@ -22,8 +22,8 @@
 
     </OCD>
 
-    <Designate 	pid="org.codice.ddf.ui.search.standard.endpoint">
-        <Object ocdref="org.codice.ddf.ui.search.standard.endpoint" />
+    <Designate pid="org.codice.ddf.ui.search.standard.endpoint">
+        <Object ocdref="org.codice.ddf.ui.search.standard.endpoint"/>
     </Designate>
 
 </metatype:MetaData>

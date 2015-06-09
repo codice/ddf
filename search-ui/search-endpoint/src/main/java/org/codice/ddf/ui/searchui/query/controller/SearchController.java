@@ -1,20 +1,51 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.commons.collections.map.LRUMap;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.ui.searchui.query.model.QueryStatus;
+import org.codice.ddf.ui.searchui.query.model.Search;
+import org.codice.ddf.ui.searchui.query.model.SearchRequest;
+import org.cometd.bayeux.server.BayeuxServer;
+import org.cometd.bayeux.server.ConfigurableServerChannel;
+import org.cometd.bayeux.server.ServerMessage;
+import org.cometd.bayeux.server.ServerSession;
+import org.cometd.server.ServerMessageImpl;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Ordering;
+
 import ddf.action.Action;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
@@ -42,35 +73,6 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.apache.commons.collections.map.LRUMap;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.ui.searchui.query.model.QueryStatus;
-import org.codice.ddf.ui.searchui.query.model.Search;
-import org.codice.ddf.ui.searchui.query.model.SearchRequest;
-import org.cometd.bayeux.server.BayeuxServer;
-import org.cometd.bayeux.server.ConfigurableServerChannel;
-import org.cometd.bayeux.server.ServerMessage;
-import org.cometd.bayeux.server.ServerSession;
-import org.cometd.server.ServerMessageImpl;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * The SearchController class handles all of the query threads for asynchronous queries.
@@ -81,7 +83,7 @@ public class SearchController {
 
     private static final DateTimeFormatter ISO_8601_DATE_FORMAT = DateTimeFormat
             .forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").withZoneUTC();
-    
+
     @SuppressWarnings("serial")
     private static final Map<String, Serializable> INDEX_PROPERTIES = Collections
             .unmodifiableMap(new HashMap<String, Serializable>() {
@@ -100,11 +102,10 @@ public class SearchController {
 
     private final ExecutorService executorService = getExecutorService();
 
-    private Boolean cacheDisabled = false;
-
     // TODO: just store the searches in memory for now, change this later
-    private final Map<String, Search> searchMap = Collections
-            .synchronizedMap(new LRUMap(1000));
+    private final Map<String, Search> searchMap = Collections.synchronizedMap(new LRUMap(1000));
+
+    private Boolean cacheDisabled = false;
 
     private CatalogFramework framework;
 
@@ -114,13 +115,35 @@ public class SearchController {
 
     /**
      * Create a new SearchController
-     * 
+     *
      * @param framework
      *            - CatalogFramework that will be handling the actual queries
      */
     public SearchController(CatalogFramework framework, ActionRegistry actionRegistry) {
         this.framework = framework;
         this.actionRegistry = actionRegistry;
+    }
+
+    private static void addObject(JSONObject obj, String name, Object value) {
+        if (value instanceof Number) {
+            if (value instanceof Double) {
+                if (((Double) value).isInfinite()) {
+                    obj.put(name, null);
+                } else {
+                    obj.put(name, value);
+                }
+            } else if (value instanceof Float) {
+                if (((Float) value).isInfinite()) {
+                    obj.put(name, null);
+                } else {
+                    obj.put(name, value);
+                }
+            } else {
+                obj.put(name, value);
+            }
+        } else if (value != null) {
+            obj.put(name, value);
+        }
     }
 
     /**
@@ -136,7 +159,8 @@ public class SearchController {
      * @param jsonData
      * @param serverSession
      */
-    public synchronized void pushResults(String channel, JSONObject jsonData, ServerSession serverSession) {
+    public synchronized void pushResults(String channel, JSONObject jsonData,
+            ServerSession serverSession) {
         String channelName;
         //you can't have 2 leading slashes, but if there isn't one, add it
         if (channel.startsWith("/")) {
@@ -147,12 +171,12 @@ public class SearchController {
 
         LOGGER.debug("Creating channel if it doesn't exist: {}", channelName);
 
-        bayeuxServer.createChannelIfAbsent(channelName, new ConfigurableServerChannel.Initializer()
-        {
-            public void configureChannel(ConfigurableServerChannel channel) {
-                channel.setPersistent(true);
-            }
-        });
+        bayeuxServer
+                .createChannelIfAbsent(channelName, new ConfigurableServerChannel.Initializer() {
+                    public void configureChannel(ConfigurableServerChannel channel) {
+                        channel.setPersistent(true);
+                    }
+                });
 
         ServerMessage.Mutable reply = new ServerMessageImpl();
         reply.put(Search.SUCCESSFUL, true);
@@ -165,13 +189,14 @@ public class SearchController {
 
     /**
      * Execute all of the queries contained within the SearchRequest
-     * 
+     *
      * @param request
      *            - SearchRequest containing a query for 1 or more sources
      * @param session
      *            - Cometd ServerSession
      */
-    public void executeQuery(final SearchRequest request, final ServerSession session, final Subject subject) {
+    public void executeQuery(final SearchRequest request, final ServerSession session,
+            final Subject subject) {
 
         final SearchController controller = this;
 
@@ -181,13 +206,12 @@ public class SearchController {
                 public void run() {
                     // check if there are any currently cached results
                     // search cache for all sources
-                    QueryResponse response = executeQuery(null, request,
-                            subject, new HashMap<>(CACHE_PROPERTIES));
+                    QueryResponse response = executeQuery(null, request, subject,
+                            new HashMap<>(CACHE_PROPERTIES));
 
                     try {
                         Search search = addQueryResponseToSearch(request, response);
-                        pushResults(request.getId(),
-                                controller.transform(search, request),
+                        pushResults(request.getId(), controller.transform(search, request),
                                 session);
                     } catch (InterruptedException e) {
                         LOGGER.error("Failed adding cached search results.", e);
@@ -203,18 +227,17 @@ public class SearchController {
                     @Override
                     public void run() {
                         // update index from federated sources
-                        QueryResponse indexResponse = executeQuery(sourceId, request,
-                                subject, new HashMap<>(INDEX_PROPERTIES));
+                        QueryResponse indexResponse = executeQuery(sourceId, request, subject,
+                                new HashMap<>(INDEX_PROPERTIES));
 
                         // query updated cache
-                        QueryResponse cachedResponse = executeQuery(null, request,
-                                subject, new HashMap<>(CACHE_PROPERTIES));
+                        QueryResponse cachedResponse = executeQuery(null, request, subject,
+                                new HashMap<>(CACHE_PROPERTIES));
 
                         try {
                             Search search = addQueryResponseToSearch(request, cachedResponse);
                             search.updateStatus(sourceId, indexResponse);
-                            pushResults(request.getId(),
-                                    controller.transform(search, request),
+                            pushResults(request.getId(), controller.transform(search, request),
                                     session);
                             if (search.isFinished()) {
                                 searchMap.remove(request.getId());
@@ -230,7 +253,8 @@ public class SearchController {
         } else {
             final Comparator<Result> sortComparator = getResultComparator(request.getQuery());
             final int maxResults = request.getQuery().getPageSize() > 0 ?
-                    request.getQuery().getPageSize() : Integer.MAX_VALUE;
+                    request.getQuery().getPageSize() :
+                    Integer.MAX_VALUE;
             final List<Result> results = Collections.synchronizedList(new ArrayList<Result>());
 
             for (final String sourceId : request.getSourceIds()) {
@@ -238,23 +262,23 @@ public class SearchController {
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
-                        QueryResponse sourceResponse = executeQuery(sourceId, request,
-                                subject, new HashMap<String, Serializable>());
+                        QueryResponse sourceResponse = executeQuery(sourceId, request, subject,
+                                new HashMap<String, Serializable>());
 
                         results.addAll(sourceResponse.getResults());
 
-                        List<Result> sortedResults = Ordering
-                                .from(sortComparator).immutableSortedCopy(results);
+                        List<Result> sortedResults = Ordering.from(sortComparator)
+                                .immutableSortedCopy(results);
 
                         sourceResponse.getResults().clear();
                         sourceResponse.getResults().addAll(sortedResults.size() > maxResults ?
-                                sortedResults.subList(0, maxResults): sortedResults);
+                                sortedResults.subList(0, maxResults) :
+                                sortedResults);
 
                         try {
                             Search search = addQueryResponseToSearch(request, sourceResponse);
                             search.updateStatus(sourceId, sourceResponse);
-                            pushResults(request.getId(),
-                                    controller.transform(search, request),
+                            pushResults(request.getId(), controller.transform(search, request),
                                     session);
                             if (search.isFinished()) {
                                 searchMap.remove(request.getId());
@@ -277,8 +301,9 @@ public class SearchController {
         if (sortBy != null && sortBy.getPropertyName() != null) {
             PropertyName sortingProp = sortBy.getPropertyName();
             String sortType = sortingProp.getPropertyName();
-            SortOrder sortOrder = (sortBy.getSortOrder() == null) ? SortOrder.DESCENDING
-                    : sortBy.getSortOrder();
+            SortOrder sortOrder = (sortBy.getSortOrder() == null) ?
+                    SortOrder.DESCENDING :
+                    sortBy.getSortOrder();
 
             // Temporal searches are currently sorted by the effective time
             if (Metacard.EFFECTIVE.equals(sortType) || Result.TEMPORAL.equals(sortType)) {
@@ -315,16 +340,14 @@ public class SearchController {
 
     /**
      * Executes the OpenSearchQuery and formulates the response
-     * 
+     *
      * @param subject
      *            -the user subject
-     * 
+     *
      * @return the response on the query
      */
     private QueryResponse executeQuery(String sourceId, SearchRequest searchRequest,
-            Subject subject,
-            Map<String,
-            Serializable> properties) {
+            Subject subject, Map<String, Serializable> properties) {
         Query query = searchRequest.getQuery();
         QueryResponse response = getEmptyResponse(sourceId);
         long startTime = System.currentTimeMillis();
@@ -376,22 +399,22 @@ public class SearchController {
         return new QueryResponseImpl(queryRequest, new ArrayList<Result>(), 0);
     }
 
-    private JSONObject transform(Search search, SearchRequest searchRequest)
-        throws CatalogTransformerException {
+    private JSONObject transform(Search search, SearchRequest searchRequest) throws
+            CatalogTransformerException {
 
         SourceResponse upstreamResponse = search.getCompositeQueryResponse();
         Map<String, MetacardType> metaTypes = new HashMap<String, MetacardType>();
         if (upstreamResponse == null) {
-            throw new CatalogTransformerException("Cannot transform null "
-                    + SourceResponse.class.getName());
+            throw new CatalogTransformerException(
+                    "Cannot transform null " + SourceResponse.class.getName());
         }
 
         JSONObject rootObject = new JSONObject();
 
         addObject(rootObject, Search.HITS, search.getHits());
         addObject(rootObject, Search.ID, searchRequest.getId());
-        addObject(rootObject, Search.RESULTS, getResultList(upstreamResponse.getResults(),
-                metaTypes));
+        addObject(rootObject, Search.RESULTS,
+                getResultList(upstreamResponse.getResults(), metaTypes));
         addObject(rootObject, Search.STATUS, getQueryStatus(search.getQueryStatus()));
         addObject(rootObject, Search.METACARD_TYPES, getMetacardTypes(metaTypes.values()));
 
@@ -422,14 +445,14 @@ public class SearchController {
         return statuses;
     }
 
-    private JSONArray getResultList(List<Result> results, Map<String, MetacardType> metaTypes)
-            throws CatalogTransformerException {
+    private JSONArray getResultList(List<Result> results,
+            Map<String, MetacardType> metaTypes) throws CatalogTransformerException {
         JSONArray resultsList = new JSONArray();
         if (results != null) {
             for (Result result : results) {
                 if (result == null) {
-                    throw new CatalogTransformerException("Cannot transform null "
-                            + Result.class.getName());
+                    throw new CatalogTransformerException(
+                            "Cannot transform null " + Result.class.getName());
                 }
                 JSONObject jsonObj = convertToJSON(result, metaTypes);
                 if (jsonObj != null) {
@@ -440,29 +463,29 @@ public class SearchController {
         return resultsList;
     }
 
-    private JSONObject convertToJSON(Result result, Map<String, MetacardType> metaTypes)
-            throws CatalogTransformerException {
+    private JSONObject convertToJSON(Result result, Map<String, MetacardType> metaTypes) throws
+            CatalogTransformerException {
         JSONObject rootObject = new JSONObject();
 
         addObject(rootObject, Search.DISTANCE, result.getDistanceInMeters());
         addObject(rootObject, Search.RELEVANCE, result.getRelevanceScore());
 
-        org.json.simple.JSONObject metacardJson =
-                GeoJsonMetacardTransformer.convertToJSON(result.getMetacard());
+        org.json.simple.JSONObject metacardJson = GeoJsonMetacardTransformer
+                .convertToJSON(result.getMetacard());
         metacardJson.put(Search.ACTIONS, getActions(result.getMetacard()));
 
         Attribute cachedDate = result.getMetacard().getAttribute(Search.CACHED);
         if (cachedDate != null && cachedDate.getValue() != null) {
-            metacardJson.put(Search.CACHED, ISO_8601_DATE_FORMAT.print(new DateTime(cachedDate.getValue())));
+            metacardJson.put(Search.CACHED,
+                    ISO_8601_DATE_FORMAT.print(new DateTime(cachedDate.getValue())));
         } else {
             metacardJson.put(Search.CACHED, ISO_8601_DATE_FORMAT.print(new DateTime()));
         }
 
         addObject(rootObject, Search.METACARD, metacardJson);
 
-
-        if (result.getMetacard().getMetacardType() != null &&
-                !StringUtils.isBlank(result.getMetacard().getMetacardType().getName())) {
+        if (result.getMetacard().getMetacardType() != null && !StringUtils
+                .isBlank(result.getMetacard().getMetacardType().getName())) {
             metaTypes.put(result.getMetacard().getMetacardType().getName(),
                     result.getMetacard().getMetacardType());
         }
@@ -473,7 +496,7 @@ public class SearchController {
         JSONArray actionsJson = new JSONArray();
 
         List<Action> actions = actionRegistry.list(metacard);
-        for(Action action : actions) {
+        for (Action action : actions) {
             JSONObject actionJson = new JSONObject();
             actionJson.put(Search.ACTIONS_ID, action.getId());
             actionJson.put(Search.ACTIONS_TITLE, action.getTitle());
@@ -484,8 +507,8 @@ public class SearchController {
         return actionsJson;
     }
 
-    private JSONObject getMetacardTypes(Collection<MetacardType> types)
-            throws CatalogTransformerException {
+    private JSONObject getMetacardTypes(Collection<MetacardType> types) throws
+            CatalogTransformerException {
         JSONObject typesObject = new JSONObject();
 
         for (MetacardType type : types) {
@@ -498,8 +521,7 @@ public class SearchController {
         return typesObject;
     }
 
-    private JSONObject convertToJSON(MetacardType metacardType)
-            throws CatalogTransformerException {
+    private JSONObject convertToJSON(MetacardType metacardType) throws CatalogTransformerException {
         JSONObject fields = new JSONObject();
 
         for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {
@@ -510,28 +532,6 @@ public class SearchController {
             fields.put(descriptor.getName(), description);
         }
         return fields;
-    }
-
-    private static void addObject(JSONObject obj, String name, Object value) {
-        if (value instanceof Number) {
-            if (value instanceof Double) {
-                if (((Double) value).isInfinite()) {
-                    obj.put(name, null);
-                } else {
-                    obj.put(name, value);
-                }
-            } else if (value instanceof Float) {
-                if (((Float) value).isInfinite()) {
-                    obj.put(name, null);
-                } else {
-                    obj.put(name, value);
-                }
-            } else {
-                obj.put(name, value);
-            }
-        } else if (value != null) {
-            obj.put(name, value);
-        }
     }
 
     public CatalogFramework getFramework() {
@@ -545,7 +545,7 @@ public class SearchController {
     public void setCacheDisabled(Boolean cacheDisabled) {
         this.cacheDisabled = cacheDisabled;
     }
-    
+
     // Override for unit testing
     ExecutorService getExecutorService() {
         return Executors.newCachedThreadPool();

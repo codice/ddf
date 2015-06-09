@@ -14,7 +14,12 @@
  **/
 package org.codice.ddf.ui.searchui.query.service;
 
-import ddf.security.SubjectUtils;
+import java.io.StringReader;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.persistence.PersistenceException;
@@ -34,11 +39,7 @@ import org.cometd.server.ServerMessageImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.StringReader;
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import ddf.security.SubjectUtils;
 
 /**
  * Service to retrieve user related information.
@@ -50,12 +51,12 @@ public class UserService {
 
     private PersistentStore persistentStore;
 
+    @Session
+    private ServerSession serverSession;
+
     public UserService(PersistentStore persistentStore) {
         this.persistentStore = persistentStore;
     }
-
-    @Session
-    private ServerSession serverSession;
 
     @Listener("/service/user")
     public void getUser(final ServerSession remote, Message message) {
@@ -69,18 +70,19 @@ public class UserService {
             LOGGER.debug("Unable to retrieve user from request.", e);
         }
 
-        if(subject != null) {
+        if (subject != null) {
             if (data == null || data.isEmpty()) {
                 Map<String, Object> userMap = new HashMap<>();
                 String username = SubjectUtils.getName(subject);
                 userMap.put("username", username);
                 if (subject instanceof ddf.security.Subject) {
-                    userMap.put("isAnonymous", String.valueOf(((ddf.security.Subject) subject).isAnonymous()));
+                    userMap.put("isAnonymous",
+                            String.valueOf(((ddf.security.Subject) subject).isAnonymous()));
                 }
                 List<Map<String, Object>> preferencesList;
                 try {
-                    preferencesList = persistentStore.get(PersistentStore.PREFERENCES_TYPE,
-                            "user = '" + username + "'");
+                    preferencesList = persistentStore
+                            .get(PersistentStore.PREFERENCES_TYPE, "user = '" + username + "'");
                     if (preferencesList.size() == 1) {
                         Map<String, Object> preferences = preferencesList.get(0);
                         JSONContext.Client jsonContext = new JacksonJSONContextClient();
@@ -88,14 +90,19 @@ public class UserService {
                         LOGGER.debug("preferences extracted JSON text:\n {}", json);
                         Map preferencesMap;
                         try {
-                            preferencesMap = jsonContext.getParser().parse(new StringReader(json), Map.class);
+                            preferencesMap = jsonContext.getParser()
+                                    .parse(new StringReader(json), Map.class);
                             userMap.put("preferences", preferencesMap);
                         } catch (ParseException e) {
-                            LOGGER.info("ParseException while trying to convert persisted preferences for user {} from JSON", username, e);
+                            LOGGER.info(
+                                    "ParseException while trying to convert persisted preferences for user {} from JSON",
+                                    username, e);
                         }
                     }
                 } catch (PersistenceException e) {
-                    LOGGER.info("PersistenceException while trying to retrieve persisted preferences for user {}", username, e);
+                    LOGGER.info(
+                            "PersistenceException while trying to retrieve persisted preferences for user {}",
+                            username, e);
                 }
                 reply.put("user", userMap);
                 reply.put(Search.SUCCESSFUL, true);
@@ -112,7 +119,9 @@ public class UserService {
                 try {
                     persistentStore.add(PersistentStore.PREFERENCES_TYPE, item);
                 } catch (PersistenceException e) {
-                    LOGGER.info("PersistenceException while trying to persist preferences for user {}", username, e);
+                    LOGGER.info(
+                            "PersistenceException while trying to persist preferences for user {}",
+                            username, e);
                 }
             }
         } else {

@@ -13,78 +13,78 @@
  **/
  -->
 
- <!--
-   This file views a single metacard record.  It leverages the rest endpoint and the geojson metacard transformer.
-   It takes a single uri parameter, which should be the id of a record in the local catalog.
-   This page serves as an example of how to embed the record view into another webpage.
- -->
- 
+<!--
+  This file views a single metacard record.  It leverages the rest endpoint and the geojson metacard transformer.
+  It takes a single uri parameter, which should be the id of a record in the local catalog.
+  This page serves as an example of how to embed the record view into another webpage.
+-->
+
 <html>
 <head>
-	<title>Record View</title>
+    <title>Record View</title>
 
-	<!--
-	  Record View is based on bootstrap stylings and uses font-awesome fonts
-	-->
-	<link href="lib/bootstrap-2.3.1/css/bootstrap.min.css" rel="stylesheet">
-	<link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <!--
+      Record View is based on bootstrap stylings and uses font-awesome fonts
+    -->
+    <link href="lib/bootstrap-2.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 
-	<!-- 
-	  Record view specific stylings
-	-->
-	<link href="css/recordView.css" rel="stylesheet">
+    <!--
+      Record view specific stylings
+    -->
+    <link href="css/recordView.css" rel="stylesheet">
 
-	<!-- 
-	  browser compatability scripts 
-	-->
-	<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-	<!--[if lt IE 9]>
-			<script src="lib/shim/html5.js"></script>
-		<![endif]-->
-	<!--[if IE 7]>
-	  <link rel="stylesheet" href="lib/font-awesome/css/font-awesome-ie7.min.css">
-	<![endif]-->
+    <!--
+      browser compatability scripts
+    -->
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="lib/shim/html5.js"></script>
+    <![endif]-->
+    <!--[if IE 7]>
+    <link rel="stylesheet" href="lib/font-awesome/css/font-awesome-ie7.min.css">
+    <![endif]-->
 </head>
 <body>
 
-	<!--
-	  A div where the record content can be loaded
-	-->
-	<div id="recordContentDiv">
-	</div>
-					
-	<!-- 
-	  RecordView and metadataHelper scripts use jquery
-	-->
-	<script type="text/javascript" src="lib/jquery/js/jquery-1.8.2.min.js"></script>
-	<!--
-	  purl.js is a jquery extension to read the url parameter.  It is used in the example script below
-	-->
-	<script type="text/javascript" src="lib/jquery/js/plugin/purl.js"></script>
+<!--
+  A div where the record content can be loaded
+-->
+<div id="recordContentDiv">
+</div>
 
-	<!--
-	  bootstrap.min.js supports bootstrap stylings and fluid containers
-	-->
-	<script type="text/javascript" src="lib/bootstrap-2.3.1/js/bootstrap.min.js"></script>
-	<!-- 
-	  RecordView uses handlebar templates 
-	-->
-	<script type="text/javascript" src="lib/handlebars-1.0.0/handlebars.js"></script>
+<!--
+  RecordView and metadataHelper scripts use jquery
+-->
+<script type="text/javascript" src="lib/jquery/js/jquery-1.8.2.min.js"></script>
+<!--
+  purl.js is a jquery extension to read the url parameter.  It is used in the example script below
+-->
+<script type="text/javascript" src="lib/jquery/js/plugin/purl.js"></script>
 
-	<!--
-	  recordView.js runs the handlebars templates and provides helper functions
-	-->
-	<script type="text/javascript" src="js/recordView.js"></script>
-	
-	<!--
-	  metadataHelper.js converts the xml metadata into a bootstrap tree view
-	-->
-	<script type="text/javascript" src="js/metadataHelper.js"></script>
+<!--
+  bootstrap.min.js supports bootstrap stylings and fluid containers
+-->
+<script type="text/javascript" src="lib/bootstrap-2.3.1/js/bootstrap.min.js"></script>
+<!--
+  RecordView uses handlebar templates
+-->
+<script type="text/javascript" src="lib/handlebars-1.0.0/handlebars.js"></script>
 
-	<!--
-	  Example script to grab the id from the url and load the recordView
-	-->
-	<script type="text/javascript" >
+<!--
+  recordView.js runs the handlebars templates and provides helper functions
+-->
+<script type="text/javascript" src="js/recordView.js"></script>
+
+<!--
+  metadataHelper.js converts the xml metadata into a bootstrap tree view
+-->
+<script type="text/javascript" src="js/metadataHelper.js"></script>
+
+<!--
+  Example script to grab the id from the url and load the recordView
+-->
+<script type="text/javascript">
 		/*
 		 * Grabbing an id from the url parameters.
 		 */
@@ -113,6 +113,7 @@
 		function getServicesUrl() {
 			return "";
 		}
-	</script>
+
+</script>
 </body>
 </html>

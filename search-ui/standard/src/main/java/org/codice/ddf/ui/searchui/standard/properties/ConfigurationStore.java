@@ -15,31 +15,8 @@
 
 package org.codice.ddf.ui.searchui.standard.properties;
 
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
-
-import org.apache.commons.collections.Factory;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.felix.webconsole.BrandingPlugin;
-import org.codice.proxy.http.HttpProxyService;
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import us.bpsm.edn.EdnIOException;
-import us.bpsm.edn.EdnSyntaxException;
-import us.bpsm.edn.parser.Parser;
-import us.bpsm.edn.parser.Parsers;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import static org.boon.Boon.toJson;
+import static us.bpsm.edn.parser.Parsers.defaultConfiguration;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -51,8 +28,30 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import static org.boon.Boon.toJson;
-import static us.bpsm.edn.parser.Parsers.defaultConfiguration;
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.collections.Factory;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.felix.webconsole.BrandingPlugin;
+import org.codice.proxy.http.HttpProxyService;
+import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.BinaryContentImpl;
+import us.bpsm.edn.EdnIOException;
+import us.bpsm.edn.EdnSyntaxException;
+import us.bpsm.edn.parser.Parser;
+import us.bpsm.edn.parser.Parsers;
 
 /**
  * Stores external configuration properties.
@@ -62,13 +61,32 @@ import static us.bpsm.edn.parser.Parsers.defaultConfiguration;
 @Path("/")
 public class ConfigurationStore {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationStore.class);
-
     public static final String SERVLET_PATH = "/proxy";
 
     public static final String URL = "url";
 
     public static final String QUOTE = "\"";
+
+    public static final Factory NEW_SET_FACTORY = new Factory() {
+        public Object create() {
+            return new TreeSet();
+        }
+    };
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationStore.class);
+
+    private static MimeType JSON_MIME_TYPE;
+
+    static {
+        MimeType mime = null;
+        try {
+            String JSON_MIME_TYPE_STRING = "application/json";
+            mime = new MimeType(JSON_MIME_TYPE_STRING);
+        } catch (MimeTypeParseException e) {
+            LOGGER.warn("Failed to create json mimetype.");
+        }
+        JSON_MIME_TYPE = mime;
+    }
 
     private String format;
 
@@ -94,18 +112,16 @@ public class ConfigurationStore {
 
     private BrandingPlugin branding;
 
-    private static MimeType JSON_MIME_TYPE;
-    
     private Integer timeout = 15000;
-    
+
     private HttpProxyService httpProxy;
 
     private BundleContext bundleContext;
-    
-    private int incrementer=0;
+
+    private int incrementer = 0;
 
     private Integer resultCount = 250;
-    
+
     private String bundleName;
 
     private String projection = "EPSG:3857";
@@ -114,30 +130,13 @@ public class ConfigurationStore {
 
     private Map<String, Set<String>> typeNameMapping = new HashMap<String, Set<String>>();
 
-    public static final Factory NEW_SET_FACTORY = new Factory() {
-        public Object create() {
-            return new TreeSet();
-        }
-    };
-
-    static {
-        MimeType mime = null;
-        try {
-            String JSON_MIME_TYPE_STRING = "application/json";
-            mime = new MimeType(JSON_MIME_TYPE_STRING);
-        } catch (MimeTypeParseException e) {
-            LOGGER.warn("Failed to create json mimetype.");
-        }
-        JSON_MIME_TYPE = mime;
-    }
-
     public ConfigurationStore() {
 
     }
 
     public void destroy() {
         if (imageryEndpoints.size() > 0) {
-            for(String endpoint : imageryEndpoints) {
+            for (String endpoint : imageryEndpoints) {
                 try {
                     httpProxy.stop(endpoint);
                 } catch (Exception e) {
@@ -176,8 +175,8 @@ public class ConfigurationStore {
         config.put("helpUrl", helpUrl);
 
         String configJson = toJson(config);
-        BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configJson.getBytes()),
-                JSON_MIME_TYPE);
+        BinaryContent content = new BinaryContentImpl(
+                new ByteArrayInputStream(configJson.getBytes()), JSON_MIME_TYPE);
         response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
 
         return response;
@@ -216,7 +215,7 @@ public class ConfigurationStore {
     public void setFormat(String format) {
         this.format = format;
     }
-    
+
     public Integer getTimeout() {
         return timeout;
     }
@@ -233,10 +232,6 @@ public class ConfigurationStore {
         return imageryProviders;
     }
 
-    public void setImageryProviders(String imageryProviders) {
-        setImageryProviders(Arrays.asList(imageryProviders.split(",")));
-    }
-
     public void setImageryProviders(List<String> imageryProviders) {
         List<String> itemList = new ArrayList<String>();
         for (String item : imageryProviders) {
@@ -249,6 +244,10 @@ public class ConfigurationStore {
         }
         this.imageryProviders = itemList;
         setProxiesForImagery(itemList);
+    }
+
+    public void setImageryProviders(String imageryProviders) {
+        setImageryProviders(Arrays.asList(imageryProviders.split(",")));
     }
 
     public Map<String, Object> getProxiedTerrainProvider() {
@@ -266,7 +265,7 @@ public class ConfigurationStore {
 
     private void setProxiesForImagery(List<String> imageryProviders) {
         if (imageryEndpoints.size() > 0) {
-            for(String endpoint : imageryEndpoints) {
+            for (String endpoint : imageryEndpoints) {
                 try {
                     httpProxy.stop(endpoint);
                 } catch (Exception e) {
@@ -276,7 +275,7 @@ public class ConfigurationStore {
         }
         proxiedImageryProviders.clear();
 
-        for(String provider : imageryProviders) {
+        for (String provider : imageryProviders) {
             Map<String, Object> proxiedProvider = getProxiedProvider(provider, true);
             if (proxiedProvider != null) {
                 proxiedImageryProviders.add(proxiedProvider);
@@ -312,7 +311,7 @@ public class ConfigurationStore {
                         value.getClass().getName(), provider);
                 return null;
             }
-        } catch (EdnSyntaxException|EdnIOException e) {
+        } catch (EdnSyntaxException | EdnIOException e) {
             LOGGER.warn("Unable to parse provider configuration: " + provider, e);
             return null;
         }
@@ -321,7 +320,8 @@ public class ConfigurationStore {
             String url = config.get(URL).toString();
 
             try {
-                bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
+                bundleName =
+                        bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
                 incrementer++;
                 String endpointName = httpProxy.start(bundleName, url, timeout);
                 if (imagery) {
@@ -338,21 +338,21 @@ public class ConfigurationStore {
         return config;
     }
 
-	public HttpProxyService getHttpProxy() {
-		return httpProxy;
-	}
+    public HttpProxyService getHttpProxy() {
+        return httpProxy;
+    }
 
-	public void setHttpProxy(HttpProxyService httpProxy) {
-		this.httpProxy = httpProxy;
-	}
+    public void setHttpProxy(HttpProxyService httpProxy) {
+        this.httpProxy = httpProxy;
+    }
 
-	public BundleContext getBundleContext() {
-		return bundleContext;
-	}
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
 
-	public void setBundleContext(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
-	}
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
 
     public Integer getResultCount() {
         return resultCount;
@@ -422,14 +422,14 @@ public class ConfigurationStore {
         }
     }
 
-    public void setTypeNameMapping(String string) {
-        if (string != null) {
-            this.setTypeNameMapping(new String[]{string});
-        }
-    }
-
     public Map<String, Set<String>> getTypeNameMapping() {
         return typeNameMapping;
+    }
+
+    public void setTypeNameMapping(String string) {
+        if (string != null) {
+            this.setTypeNameMapping(new String[] {string});
+        }
     }
 
     public String getProjection() {

@@ -10,9 +10,9 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/ -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
 
   http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
@@ -35,7 +35,8 @@
         </jaxrs:outInterceptors>
     </jaxrs:server>
 
-    <bean id="locationService" class="org.codice.ddf.ui.searchui.geocoder.endpoint.GeoCoderEndpoint">
+    <bean id="locationService"
+          class="org.codice.ddf.ui.searchui.geocoder.endpoint.GeoCoderEndpoint">
         <argument ref="geoCoder"/>
     </bean>
 

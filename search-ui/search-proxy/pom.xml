@@ -12,7 +12,9 @@
  *
  **/
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>search-ui</artifactId>
         <groupId>ddf.ui.search</groupId>
@@ -80,7 +82,7 @@
                             proxy-camel-servlet,camel-core-osgi,camel-http,proxy-camel-route
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Import />
+                        <Import/>
                         <Export-Package>
                             org.codice.proxy.http
                         </Export-Package>

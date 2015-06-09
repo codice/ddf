@@ -25,21 +25,21 @@ public class WorkspaceServiceTest {
 
     @Test
     public void test() throws Exception {
-//        JSONContext.Client jsonContext = (JSONContext.Client)getClass().getClassLoader().loadClass(JacksonJSONContextClient.class).newInstance();
-//        Data data1 = new Data("data");
-//        Extra extra1 = new Extra(42L);
-//        Map<String, Object> map1 = new HashMap<>();
-//        map1.put("data", data1);
-//        map1.put("extra", extra1);
-//        String json = jsonContext.getGenerator().generate(map1);
+        //        JSONContext.Client jsonContext = (JSONContext.Client)getClass().getClassLoader().loadClass(JacksonJSONContextClient.class).newInstance();
+        //        Data data1 = new Data("data");
+        //        Extra extra1 = new Extra(42L);
+        //        Map<String, Object> map1 = new HashMap<>();
+        //        map1.put("data", data1);
+        //        map1.put("extra", extra1);
+        //        String json = jsonContext.getGenerator().generate(map1);
         JSONContext.Client jsonContext = new JacksonJSONContextClient();
         String json = "{\"id\":\"16\",\"data\":{\"workspaces\":[{\"name\":\"admin_ws\",\"searches\":[{\"radiusUnits\":\"meters\",\"result\":{},\"startIndex\":1,\"count\":250,\"federation\":\"enterprise\",\"q\":\"admin_phrase\",\"name\":\"admin_search\",\"radiusValue\":0,\"radius\":0,\"offsetTimeUnits\":\"hours\",\"src\":\"ddf.distribution\",\"format\":\"geojson\",\"timeType\":\"modified\"}],\"metacards\":[]}],\"successful\":true},\"channel\":\"/service/workspaces\"}";
         Map map2 = jsonContext.getParser().parse(new StringReader(json), Map.class);
         int x = 1;
-//        Data data2 = (Data)map2.get("data");
-//        Extra extra2 = (Extra)map2.get("extra");
-//        Assert.assertEquals(data1.content, data2.content);
-//        Assert.assertEquals(extra1.content, extra2.content);
+        //        Data data2 = (Data)map2.get("data");
+        //        Extra extra2 = (Extra)map2.get("extra");
+        //        Assert.assertEquals(data1.content, data2.content);
+        //        Assert.assertEquals(extra1.content, extra2.content);
     }
 
 }

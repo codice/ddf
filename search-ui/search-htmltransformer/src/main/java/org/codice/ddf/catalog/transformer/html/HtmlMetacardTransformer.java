@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 
 package org.codice.ddf.catalog.transformer.html;
@@ -50,14 +50,11 @@ public class HtmlMetacardTransformer implements MetacardTransformer {
     private static final String TEMPLATE_SUFFIX = ".hbt";
 
     private static final String RECORD_TEMPLATE = "recordContents";
+
     private static final String RECORD_HTML_TEMPLATE = "recordHtml";
 
-    private Handlebars handlebars;
-    private Template template;
-    private ValueResolver[] resolvers;
-    
     private static ClassPathTemplateLoader templateLoader;
-        
+
     static {
         MimeType mimeType = null;
         try {
@@ -66,18 +63,24 @@ public class HtmlMetacardTransformer implements MetacardTransformer {
             LOGGER.warn("Failed to parse mimeType", e);
         }
         DEFAULT_MIME_TYPE = mimeType;
-        
+
         templateLoader = new ClassPathTemplateLoader();
         templateLoader.setPrefix(TEMPLATE_DIRECTORY);
         templateLoader.setSuffix(TEMPLATE_SUFFIX);
     }
 
-    public HtmlMetacardTransformer() {        
+    private Handlebars handlebars;
+
+    private Template template;
+
+    private ValueResolver[] resolvers;
+
+    public HtmlMetacardTransformer() {
         handlebars = new Handlebars(templateLoader);
         handlebars.registerHelpers(new RecordViewHelpers());
-        
-        resolvers = new ValueResolver[] {new MetacardValueResolver(),
-                MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE};
+
+        resolvers = new ValueResolver[] {new MetacardValueResolver(), MapValueResolver.INSTANCE,
+                JavaBeanValueResolver.INSTANCE};
         try {
             handlebars.compile(RECORD_TEMPLATE);
             template = handlebars.compile(RECORD_HTML_TEMPLATE);
@@ -85,27 +88,26 @@ public class HtmlMetacardTransformer implements MetacardTransformer {
             LOGGER.error("Failed to load templates", e);
         }
     }
-    
+
     @Override
-    public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
-            throws CatalogTransformerException {
+    public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments) throws
+            CatalogTransformerException {
 
         if (metacard == null) {
             throw new CatalogTransformerException("Cannot transform null metacard.");
         }
-        
+
         String html = buildHtml(metacard);
 
-        return new ddf.catalog.data.BinaryContentImpl(
-                new ByteArrayInputStream(html.getBytes()), DEFAULT_MIME_TYPE);
+        return new ddf.catalog.data.BinaryContentImpl(new ByteArrayInputStream(html.getBytes()),
+                DEFAULT_MIME_TYPE);
     }
 
     private String buildHtml(Metacard metacard) {
 
-
         try {
             Context context = Context.newBuilder(metacard).resolver(resolvers).build();
-            return template.apply(context);            
+            return template.apply(context);
         } catch (IOException e) {
             LOGGER.error("Failed to apply template", e);
         }

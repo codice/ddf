@@ -14,10 +14,10 @@
  **/
 package org.codice.ddf.ui.searchui.query.model;
 
-import ddf.catalog.operation.ProcessingDetails;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import ddf.catalog.operation.ProcessingDetails;
 
 public class QueryStatus {
 
@@ -29,17 +29,7 @@ public class QueryStatus {
 
     private long hits;
 
-    enum State { ACTIVE, SUCCEEDED, FAILED };
-    
     private State state = State.ACTIVE;
-
-    public long getElapsed() {
-        return elapsedMilliseconds;
-    }
-
-    public void setElapsed(long elapsed) {
-        elapsedMilliseconds = elapsed;
-    }
 
     /* elapsed query time in milliseconds */
     private long elapsedMilliseconds = 0;
@@ -56,12 +46,20 @@ public class QueryStatus {
         this.state = state;
     }
 
+    public long getElapsed() {
+        return elapsedMilliseconds;
+    }
+
+    public void setElapsed(long elapsed) {
+        elapsedMilliseconds = elapsed;
+    }
+
     public State getState() {
         return state;
     }
 
     public void setState(State state) {
-        
+
         this.state = state;
     }
 
@@ -96,10 +94,11 @@ public class QueryStatus {
     public void setSourceId(String sourceId) {
         this.sourceId = sourceId;
     }
-    
+
     public boolean isDone() {
         return !(state == State.ACTIVE);
     }
 
+    enum State {ACTIVE, SUCCEEDED, FAILED}
 
 }

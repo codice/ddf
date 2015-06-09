@@ -14,7 +14,12 @@
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
-import net.minidev.json.JSONObject;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -36,25 +41,22 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.minidev.json.JSONObject;
 
 /**
  * The {@code ActivityController} handles the processing and routing of activities.
  */
 @Service
 public class ActivityController extends AbstractEventController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ActivityController.class);
-    private static final String CANCEL_ACTION = "cancel";
-    private static final String REMOVE_ACTION = "remove";
-
-
     // CometD requires prepending the topic name with a '/' character, whereas
     // the OSGi Event Admin doesn't allow it.
     protected static final String ACTIVITY_TOPIC_COMETD = "/" + ActivityEvent.EVENT_TOPIC;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActivityController.class);
+
+    private static final String CANCEL_ACTION = "cancel";
+
+    private static final String REMOVE_ACTION = "remove";
 
     public ActivityController(PersistentStore persistentStore, BundleContext bundleContext,
             EventAdmin eventAdmin) {
@@ -81,25 +83,25 @@ public class ActivityController extends AbstractEventController {
     @Override
     public void handleEvent(Event event) throws IllegalArgumentException {
 
-        if (null == event.getProperty(ActivityEvent.ID_KEY)
-                || event.getProperty(ActivityEvent.ID_KEY).toString().isEmpty()) {
-            throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.ID_KEY
-                    + "\" property is null or empty");
+        if (null == event.getProperty(ActivityEvent.ID_KEY) || event
+                .getProperty(ActivityEvent.ID_KEY).toString().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Activity Event \"" + ActivityEvent.ID_KEY + "\" property is null or empty");
         }
 
-        if (null == event.getProperty(ActivityEvent.MESSAGE_KEY)
-                || event.getProperty(ActivityEvent.MESSAGE_KEY).toString().isEmpty()) {
+        if (null == event.getProperty(ActivityEvent.MESSAGE_KEY) || event
+                .getProperty(ActivityEvent.MESSAGE_KEY).toString().isEmpty()) {
             throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.MESSAGE_KEY
                     + "\" property is null or empty");
         }
 
         if (null == event.getProperty(ActivityEvent.TIMESTAMP_KEY)) {
-            throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.TIMESTAMP_KEY
-                    + "\" property is null");
+            throw new IllegalArgumentException(
+                    "Activity Event \"" + ActivityEvent.TIMESTAMP_KEY + "\" property is null");
         }
 
-        if (null == event.getProperty(ActivityEvent.STATUS_KEY)
-                || event.getProperty(ActivityEvent.STATUS_KEY).toString().isEmpty()) {
+        if (null == event.getProperty(ActivityEvent.STATUS_KEY) || event
+                .getProperty(ActivityEvent.STATUS_KEY).toString().isEmpty()) {
             throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.MESSAGE_KEY
                     + "\" property is null or empty");
         }
@@ -130,8 +132,8 @@ public class ActivityController extends AbstractEventController {
             JSONObject jsonPropMap = new JSONObject();
 
             for (String key : event.getPropertyNames()) {
-                if (!EventConstants.EVENT_TOPIC.equals(key)
-                        && !ActivityEvent.USER_ID_KEY.equals(key) && event.getProperty(key) != null) {
+                if (!EventConstants.EVENT_TOPIC.equals(key) && !ActivityEvent.USER_ID_KEY
+                        .equals(key) && event.getProperty(key) != null) {
                     jsonPropMap.put(key, event.getProperty(key));
                 }
             }
@@ -142,8 +144,9 @@ public class ActivityController extends AbstractEventController {
                     jsonPropMap.toJSONString(), null);
 
         } else {
-            LOGGER.debug("Session with ID \"{}\" is not connected to the server. "
-                    + "Ignoring activity", sessionId);
+            LOGGER.debug(
+                    "Session with ID \"{}\" is not connected to the server. " + "Ignoring activity",
+                    sessionId);
         }
     }
 
@@ -151,8 +154,8 @@ public class ActivityController extends AbstractEventController {
         List<Map<String, Object>> activities = new ArrayList<Map<String, Object>>();
         List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
         try {
-            results = persistentStore.get(PersistentStore.ACTIVITY_TYPE, ActivityEvent.USER_ID_KEY
-                    + " = '" + userId + "'");
+            results = persistentStore.get(PersistentStore.ACTIVITY_TYPE,
+                    ActivityEvent.USER_ID_KEY + " = '" + userId + "'");
         } catch (PersistenceException e) {
             LOGGER.debug("PersistenceException trying to get activities for user {}", userId, e);
         }
@@ -162,12 +165,9 @@ public class ActivityController extends AbstractEventController {
             activity.put(ActivityEvent.OPERATIONS_KEY, new HashMap<String, String>());
             for (Map.Entry<String, Object> entry : sanitizedResult.entrySet()) {
                 if (entry.getKey().contains(ActivityEvent.OPERATIONS_KEY + "_")) {
-                    ((Map) activity.get(ActivityEvent.OPERATIONS_KEY)).put(
-                            entry.getKey()
-                                    .substring(
-                                            (ActivityEvent.OPERATIONS_KEY + "_")
-                                                    .length()), entry
-                                    .getValue().toString());
+                    ((Map) activity.get(ActivityEvent.OPERATIONS_KEY)).put(entry.getKey()
+                                    .substring((ActivityEvent.OPERATIONS_KEY + "_").length()),
+                            entry.getValue().toString());
                 } else {
                     activity.put(entry.getKey(), entry.getValue().toString());
                 }
@@ -226,7 +226,9 @@ public class ActivityController extends AbstractEventController {
         Map<String, Object> dataAsMap = serverMessage.getDataAsMap();
         if (dataAsMap != null) {
             Object activitiesPreCast = dataAsMap.get("data");
-            Object[] activities = activitiesPreCast instanceof List ? ((List) activitiesPreCast).toArray() : (Object[]) activitiesPreCast;
+            Object[] activities = activitiesPreCast instanceof List ?
+                    ((List) activitiesPreCast).toArray() :
+                    (Object[]) activitiesPreCast;
 
             for (Object activityObject : activities) {
                 Map activity = (Map) activityObject;
@@ -238,9 +240,11 @@ public class ActivityController extends AbstractEventController {
                         //You can have a blank id for anonymous
                         if (id != null) {
                             try {
-                                this.persistentStore.delete(PersistentStore.ACTIVITY_TYPE, "id = '" + id + "'");
+                                this.persistentStore
+                                        .delete(PersistentStore.ACTIVITY_TYPE, "id = '" + id + "'");
                             } catch (PersistenceException e) {
-                                throw new IllegalArgumentException("Unable to delete activity with id = " + id);
+                                throw new IllegalArgumentException(
+                                        "Unable to delete activity with id = " + id);
                             }
                         } else {
                             throw new IllegalArgumentException("Message id is null");
@@ -257,7 +261,8 @@ public class ActivityController extends AbstractEventController {
                         JSONObject jsonPropMap = new JSONObject();
                         jsonPropMap.put(ActivityEvent.DOWNLOAD_ID_KEY, id);
 
-                        Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL, jsonPropMap);
+                        Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL,
+                                jsonPropMap);
                         eventAdmin.postEvent(event);
 
                     }
@@ -272,6 +277,6 @@ public class ActivityController extends AbstractEventController {
 
     @Override
     public String getControllerRootTopic() {
-        return ActivityEvent.EVENT_TOPIC; 
+        return ActivityEvent.EVENT_TOPIC;
     }
 }

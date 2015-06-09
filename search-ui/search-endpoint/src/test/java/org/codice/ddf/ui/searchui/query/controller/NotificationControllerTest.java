@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.ui.searchui.query.controller;
 
@@ -39,10 +39,10 @@ import org.osgi.service.event.EventAdmin;
  * Test cases for {@link NotificationController}
  */
 public class NotificationControllerTest {
-    private NotificationController notificationController;
-
     // NOTE: The ServerSession ID == The ClientSession ID
     private static final String MOCK_SESSION_ID = "1234-5678-9012-3456";
+
+    private NotificationController notificationController;
 
     private ServerSession mockServerSession = mock(ServerSession.class);
 
@@ -88,7 +88,7 @@ public class NotificationControllerTest {
     /**
      * Test method for
      * {@link NotificationController#registerUserSession(ServerSession, ServerMessage)}.
-     * 
+     *
      * Verifies that method throws {@code NullPointerException} when ServerSession is null.
      */
     @Test(expected = IllegalArgumentException.class)
@@ -100,7 +100,7 @@ public class NotificationControllerTest {
     /**
      * Test method for
      * {@link NotificationController#registerUserSession(ServerSession, ServerMessage)}.
-     * 
+     *
      * Verifies that method throws {@code NullPointerException} when ServerSession ID is null.
      */
     @Test(expected = IllegalArgumentException.class)
@@ -121,8 +121,8 @@ public class NotificationControllerTest {
         notificationController.registerUserSession(mockServerSession, mockServerMessage);
         assertEquals(NotificationController.class.getName()
                 + " did not return correctly store a user-id-based "
-                + "referece to the ServerSession", MOCK_SESSION_ID, notificationController
-                .getSessionByUserId(MOCK_SESSION_ID).getId());
+                + "referece to the ServerSession", MOCK_SESSION_ID,
+                notificationController.getSessionByUserId(MOCK_SESSION_ID).getId());
     }
 
     /**
@@ -140,14 +140,14 @@ public class NotificationControllerTest {
         assertNotNull("ServerSession ID is null", serverSessionId);
 
         assertEquals(NotificationController.class.getName() + " did not return the expected "
-                + ServerSession.class.getName() + " object", serverSessionId,
+                        + ServerSession.class.getName() + " object", serverSessionId,
                 mockServerSession.getId());
     }
 
     /**
      * Test method for
      * {@link NotificationController#deregisterUserSession(ServerSession, ServerMessage)}
-     * 
+     *
      * Verifies that {@code NullPointerException} is thrown when {@code ServerSession} is null.
      */
     @Test(expected = IllegalArgumentException.class)
@@ -158,7 +158,7 @@ public class NotificationControllerTest {
     /**
      * Test method for
      * {@link NotificationController#deregisterUserSession(ServerSession, ServerMessage)}
-     * 
+     *
      * Verifies that {@code NullPointerException} is thrown when {@code ServerSession} ID is null.
      */
     @Test(expected = IllegalArgumentException.class)
@@ -170,7 +170,7 @@ public class NotificationControllerTest {
     /**
      * Test method for
      * {@link NotificationController#deregisterUserSession(ServerSession, ServerMessage)}
-     * 
+     *
      * Verifies that a the method removes the client's user from the {@code NotificationController}
      * 's known clients.
      */
@@ -185,125 +185,125 @@ public class NotificationControllerTest {
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * 
+     *
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_APPLICATION} property is empty.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyApplication() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_APPLICATION, "");
-        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
-                testEventProperties));
+        notificationController.handleEvent(
+                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
     }
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * 
+     *
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_MESSAGE} property is empty.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyMessage() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_MESSAGE, "");
-        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
-                testEventProperties));
+        notificationController.handleEvent(
+                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
     }
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * 
+     *
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_TITLE property is empty.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyTitle() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_TITLE, "");
-        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
-                testEventProperties));
+        notificationController.handleEvent(
+                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
     }
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * 
+     *
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_USER_ID} property is empty.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnEmptyUser() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_USER_ID, "");
-        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
-                testEventProperties));
+        notificationController.handleEvent(
+                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
     }
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * 
+     *
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_APPLICATION} property is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullApplication() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_APPLICATION, null);
-        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
-                testEventProperties));
+        notificationController.handleEvent(
+                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
     }
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * 
+     *
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_MESSAGE} property is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullMessage() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_MESSAGE, null);
-        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
-                testEventProperties));
+        notificationController.handleEvent(
+                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
     }
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * 
+     *
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_TIMESTAMP} property is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullTimestamp() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_TIMESTAMP, null);
-        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
-                testEventProperties));
+        notificationController.handleEvent(
+                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
     }
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * 
+     *
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_TITLE} property is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullTitle() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_TITLE, null);
-        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
-                testEventProperties));
+        notificationController.handleEvent(
+                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
     }
 
     /**
      * Test method for {@link NotificationController#handleEvent(org.osgi.service.event.Event)}
-     * 
+     *
      * Verifies that {@code IllegalArgumentException} is thrown when {@code Event}'s
      * {@link Notification#NOTIFICATION_KEY_USER_ID} property is null.
      */
     @Test(expected = IllegalArgumentException.class)
     public void testHandleEventThrowsIllegalArgumentExceptionOnNullUser() {
         testEventProperties.put(Notification.NOTIFICATION_KEY_USER_ID, null);
-        notificationController.handleEvent(new Event(Notification.NOTIFICATION_TOPIC_BROADCAST,
-                testEventProperties));
+        notificationController.handleEvent(
+                new Event(Notification.NOTIFICATION_TOPIC_BROADCAST, testEventProperties));
     }
 
     /**
      * Test method for deletePersistentNotification(ServerSession serverSession, ServerMessage
      * serverMessage)
-     * 
+     *
      * Verifies that {@code IllegalArgumentException} is thrown when serverSession is null.
      */
     @Test(expected = IllegalArgumentException.class)
@@ -314,7 +314,7 @@ public class NotificationControllerTest {
     /**
      * Test method for deletePersistentNotification(ServerSession serverSession, ServerMessage
      * serverMessage)
-     * 
+     *
      * Verifies that {@code IllegalArgumentException} is thrown when serverMessage is null.
      */
     @Test(expected = IllegalArgumentException.class)

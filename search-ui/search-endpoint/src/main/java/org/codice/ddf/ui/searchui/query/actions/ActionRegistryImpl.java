@@ -14,12 +14,12 @@
  **/
 package org.codice.ddf.ui.searchui.query.actions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.action.ActionRegistry;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The {@code ActionRegistryImpl} provides an ActionRegistry for {@code Metacard}s.
@@ -35,9 +35,9 @@ public class ActionRegistryImpl implements ActionRegistry {
     public <Metacard> List<Action> list(Metacard metacard) {
         List<Action> actions = new ArrayList<Action>();
 
-        for(ActionProvider provider : providers) {
+        for (ActionProvider provider : providers) {
             Action action = provider.getAction(metacard);
-            if(action != null) {
+            if (action != null) {
                 actions.add(action);
             }
         }

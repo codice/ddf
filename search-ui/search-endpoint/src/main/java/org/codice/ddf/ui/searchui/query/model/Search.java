@@ -14,26 +14,25 @@
  **/
 package org.codice.ddf.ui.searchui.query.model;
 
-import ddf.catalog.data.Result;
-import ddf.catalog.operation.ProcessingDetails;
-import ddf.catalog.operation.QueryResponse;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.collections.Bag;
 import org.apache.commons.collections.bag.HashBag;
 import org.codice.ddf.ui.searchui.query.model.QueryStatus.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import ddf.catalog.data.Result;
+import ddf.catalog.operation.ProcessingDetails;
+import ddf.catalog.operation.QueryResponse;
 
 /**
  * This class represents the cached asynchronous query response from all sources.
  */
 public class Search {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Search.class);
 
     public static final String HITS = "hits";
 
@@ -71,6 +70,8 @@ public class Search {
 
     public static final String CACHED = "cached";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Search.class);
+
     private SearchRequest searchRequest;
 
     private QueryResponse compositeQueryResponse;
@@ -88,8 +89,8 @@ public class Search {
      *
      * @throws InterruptedException
      */
-    public synchronized void addQueryResponse(QueryResponse queryResponse)
-            throws InterruptedException {
+    public synchronized void addQueryResponse(QueryResponse queryResponse) throws
+            InterruptedException {
         if (queryResponse != null) {
             compositeQueryResponse = queryResponse;
             updateResultStatus(queryResponse.getResults());
@@ -105,7 +106,9 @@ public class Search {
         status.setHits(queryResponse.getHits());
         hits += queryResponse.getHits();
         status.setElapsed((Long) queryResponse.getProperties().get("elapsed"));
-        status.setState((isSuccessful(queryResponse.getProcessingDetails()) ? State.SUCCEEDED : State.FAILED));
+        status.setState((isSuccessful(queryResponse.getProcessingDetails()) ?
+                State.SUCCEEDED :
+                State.FAILED));
         responseNum++;
     }
 
@@ -117,7 +120,7 @@ public class Search {
         }
         return true;
     }
-    
+
     private void updateResultStatus(List<Result> results) {
         Bag hitSourceCount = new HashBag();
 

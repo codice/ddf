@@ -14,18 +14,20 @@
  **/
 package org.codice.ddf.ui.searchui.geocoder.endpoint;
 
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import org.codice.ddf.ui.searchui.geocoder.GeoCoder;
-import org.codice.ddf.ui.searchui.geocoder.GeoResult;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.geometry.primitive.Point;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import java.util.List;
+
+import org.codice.ddf.ui.searchui.geocoder.GeoCoder;
+import org.codice.ddf.ui.searchui.geocoder.GeoResult;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.geometry.primitive.Point;
+
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 
 @Path("/")
 public class GeoCoderEndpoint {
@@ -37,7 +39,8 @@ public class GeoCoderEndpoint {
     }
 
     @GET
-    public Response getLocation(@QueryParam("jsonp") String jsonp, @QueryParam("query") String query) {
+    public Response getLocation(@QueryParam("jsonp") String jsonp,
+            @QueryParam("query") String query) {
         Response response;
 
         GeoResult geoResult = geoCoder.getLocation(query);
@@ -75,7 +78,7 @@ public class GeoCoderEndpoint {
         resource.put("name", geoResult.getFullName());
         resources.add(resource);
 
-        response = Response.ok(jsonp+"("+jsonObject.toJSONString()+")").build();
+        response = Response.ok(jsonp + "(" + jsonObject.toJSONString() + ")").build();
         return response;
     }
 }
