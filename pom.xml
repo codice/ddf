@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ddf</groupId>
@@ -146,8 +148,8 @@
     <properties>
 
         <!--  default URL properties -->
-        <ddf.scm.connection.url />
-        <snapshots.repository.url />
+        <ddf.scm.connection.url/>
+        <snapshots.repository.url/>
 
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.version>2.3.1</ddf.support.version>
@@ -826,9 +828,9 @@
                                         </requires>
                                         <!-- WARNING callout bullets don't yet work with CodeRay -->
                                         <attributes>
-                                            <pagenums />
-                                            <toc />
-                                            <idprefix />
+                                            <pagenums/>
+                                            <toc/>
+                                            <idprefix/>
                                             <idseparator>-</idseparator>
                                         </attributes>
                                     </configuration>
