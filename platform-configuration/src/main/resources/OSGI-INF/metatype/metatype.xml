@@ -21,7 +21,7 @@
          id="ddf.platform.config">
 
         <AD name="Protocol" id="protocol" type="String" required="true"
-            description="The protocol used to advertise the system. When selecting the protocol, be sure to enter the port number corresponding to that protocol." default="http">
+            description="The protocol used to advertise the system. When selecting the protocol, be sure to enter the port number corresponding to that protocol." default="https">
             <Option label="http" value="http://"/>
             <Option label="https" value="https://"/>
         </AD>
