@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
@@ -35,19 +35,22 @@ import ddf.catalog.data.Metacard;
  * provides functions to retrieve the mapped values in either direction, and to retrieve metacard
  * fields for a CSW field as a {@link QName} or just a local name as a {@link String}. If a mapped
  * value isn't found, then the input value is used as the mapped value.
- * 
+ *
  */
 public class DefaultCswRecordMap {
     private static final Map<QName, String> cswRecordQNameMapping;
+
     private static final Map<String, String> cswRecordLocalNameMapping;
+
     private static final Map<String, List<QName>> metacardMapping;
 
     private static final Map<String, String> prefixToUriMapping;
+
     private static final DefaultCswRecordMap mapping;
-    
+
     static {
         Map<String, String> localNameMap = new CaseInsensitiveMap();
-        
+
         localNameMap.put(CswConstants.ANY_TEXT, Metacard.ANY_TEXT);
         localNameMap.put(CswConstants.CSW_TITLE, Metacard.TITLE);
         localNameMap.put(CswRecordMetacardType.CSW_TITLE, Metacard.TITLE);
@@ -65,12 +68,12 @@ public class DefaultCswRecordMap {
         localNameMap.put(CswRecordMetacardType.CSW_ISSUED, Metacard.MODIFIED);
         localNameMap.put(CswRecordMetacardType.CSW_DATE_ACCEPTED, Metacard.EFFECTIVE);
         localNameMap.put(CswRecordMetacardType.CSW_DATE_COPYRIGHTED, Metacard.EFFECTIVE);
-        localNameMap.put(CswRecordMetacardType.CSW_VALID, Metacard.EXPIRATION); 
+        localNameMap.put(CswRecordMetacardType.CSW_VALID, Metacard.EXPIRATION);
 
         cswRecordLocalNameMapping = Collections.unmodifiableMap(localNameMap);
-        
+
         Map<QName, String> qNameMap = new HashMap<QName, String>();
-        
+
         qNameMap.put(CswRecordMetacardType.CSW_IDENTIFIER_QNAME, Metacard.ID);
         qNameMap.put(CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION_QNAME, Metacard.ID);
         qNameMap.put(CswRecordMetacardType.CSW_SOURCE_QNAME, Metacard.RESOURCE_URI);
@@ -84,21 +87,29 @@ public class DefaultCswRecordMap {
         qNameMap.put(CswRecordMetacardType.CSW_DATE_COPYRIGHTED_QNAME, Metacard.EFFECTIVE);
         qNameMap.put(CswRecordMetacardType.CSW_DATE_SUBMITTED_QNAME, Metacard.MODIFIED);
         qNameMap.put(CswRecordMetacardType.CSW_ISSUED_QNAME, Metacard.MODIFIED);
-        qNameMap.put(CswRecordMetacardType.CSW_VALID_QNAME, Metacard.EXPIRATION);        
+        qNameMap.put(CswRecordMetacardType.CSW_VALID_QNAME, Metacard.EXPIRATION);
 
         cswRecordQNameMapping = Collections.unmodifiableMap(qNameMap);
 
         Map<String, List<QName>> metacardMap = new HashMap<String, List<QName>>();
 
-        metacardMap.put(Metacard.ID, Arrays.asList(CswRecordMetacardType.CSW_IDENTIFIER_QNAME, CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION_QNAME));
-        metacardMap.put(Metacard.TITLE, Arrays.asList(CswRecordMetacardType.CSW_TITLE_QNAME, CswRecordMetacardType.CSW_ALTERNATIVE_QNAME));
+        metacardMap.put(Metacard.ID, Arrays.asList(CswRecordMetacardType.CSW_IDENTIFIER_QNAME,
+                CswRecordMetacardType.CSW_BIBLIOGRAPHIC_CITATION_QNAME));
+        metacardMap.put(Metacard.TITLE, Arrays.asList(CswRecordMetacardType.CSW_TITLE_QNAME,
+                CswRecordMetacardType.CSW_ALTERNATIVE_QNAME));
         metacardMap.put(Metacard.CONTENT_TYPE, Arrays.asList(CswRecordMetacardType.CSW_TYPE_QNAME));
-        metacardMap.put(Metacard.MODIFIED, Arrays.asList(CswRecordMetacardType.CSW_DATE_QNAME, CswRecordMetacardType.CSW_MODIFIED_QNAME, CswRecordMetacardType.CSW_DATE_SUBMITTED_QNAME, CswRecordMetacardType.CSW_ISSUED_QNAME));
+        metacardMap.put(Metacard.MODIFIED, Arrays.asList(CswRecordMetacardType.CSW_DATE_QNAME,
+                CswRecordMetacardType.CSW_MODIFIED_QNAME,
+                CswRecordMetacardType.CSW_DATE_SUBMITTED_QNAME,
+                CswRecordMetacardType.CSW_ISSUED_QNAME));
 
-        metacardMap.put(Metacard.CREATED,  Arrays.asList(CswRecordMetacardType.CSW_CREATED_QNAME));
-        metacardMap.put(Metacard.EFFECTIVE, Arrays.asList(CswRecordMetacardType.CSW_DATE_ACCEPTED_QNAME, CswRecordMetacardType.CSW_DATE_COPYRIGHTED_QNAME));
+        metacardMap.put(Metacard.CREATED, Arrays.asList(CswRecordMetacardType.CSW_CREATED_QNAME));
+        metacardMap.put(Metacard.EFFECTIVE,
+                Arrays.asList(CswRecordMetacardType.CSW_DATE_ACCEPTED_QNAME,
+                        CswRecordMetacardType.CSW_DATE_COPYRIGHTED_QNAME));
         metacardMap.put(Metacard.EXPIRATION, Arrays.asList(CswRecordMetacardType.CSW_VALID_QNAME));
-        metacardMap.put(Metacard.RESOURCE_URI, Arrays.asList(CswRecordMetacardType.CSW_SOURCE_QNAME));
+        metacardMap
+                .put(Metacard.RESOURCE_URI, Arrays.asList(CswRecordMetacardType.CSW_SOURCE_QNAME));
 
         metacardMapping = Collections.unmodifiableMap(metacardMap);
 
@@ -107,12 +118,12 @@ public class DefaultCswRecordMap {
         prefixMapping.put(XMLConstants.XML_NS_PREFIX, XMLConstants.XML_NS_URI);
         prefixMapping.put(CswConstants.XML_SCHEMA_INSTANCE_NAMESPACE_PREFIX,
                 XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
-        prefixMapping.put(CswConstants.XML_SCHEMA_NAMESPACE_PREFIX,
-                XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        prefixMapping
+                .put(CswConstants.XML_SCHEMA_NAMESPACE_PREFIX, XMLConstants.W3C_XML_SCHEMA_NS_URI);
         prefixMapping.put(CswConstants.OWS_NAMESPACE_PREFIX, CswConstants.OWS_NAMESPACE);
         prefixMapping.put(CswConstants.CSW_NAMESPACE_PREFIX, CswConstants.CSW_OUTPUT_SCHEMA);
-        prefixMapping.put(CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX,
-                CswConstants.DUBLIN_CORE_SCHEMA);
+        prefixMapping
+                .put(CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX, CswConstants.DUBLIN_CORE_SCHEMA);
         prefixMapping.put(CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX,
                 CswConstants.DUBLIN_CORE_TERMS_SCHEMA);
 
@@ -120,7 +131,7 @@ public class DefaultCswRecordMap {
 
         mapping = new DefaultCswRecordMap();
     }
-    
+
     public static DefaultCswRecordMap getDefaultCswRecordMap() {
         return mapping;
     }
@@ -131,12 +142,12 @@ public class DefaultCswRecordMap {
     public Map<String, String> getCswToMetacardAttributeNames() {
         return cswRecordLocalNameMapping;
     }
-    
+
     public String getDefaultMetacardFieldFor(QName cswField) {
         if (cswRecordQNameMapping.containsKey(cswField)) {
             return cswRecordQNameMapping.get(cswField);
         }
-        
+
         return getDefaultMetacardFieldFor(cswField.getLocalPart());
     }
 
@@ -152,7 +163,7 @@ public class DefaultCswRecordMap {
         if (cswRecordLocalNameMapping.containsKey(cswField)) {
             return cswRecordLocalNameMapping.get(cswField);
         }
-        
+
         return cswField;
     }
 
@@ -199,7 +210,7 @@ public class DefaultCswRecordMap {
         }
         return name;
     }
-    
+
     public List<QName> getCswFieldsFor(String metacardField) {
         if (metacardMapping.containsKey(metacardField)) {
             return metacardMapping.get(metacardField);

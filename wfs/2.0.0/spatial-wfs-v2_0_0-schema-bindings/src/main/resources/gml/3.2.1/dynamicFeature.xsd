@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
 		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:dynamicFeature:3.2.1">dynamicFeature.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 15.6.
@@ -35,7 +36,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 			<element ref="gml:dataSourceReference" minOccurs="0"/>
 		</sequence>
 	</group>
-	<element name="DynamicFeature" type="gml:DynamicFeatureType" substitutionGroup="gml:AbstractFeature">
+	<element name="DynamicFeature" type="gml:DynamicFeatureType"
+             substitutionGroup="gml:AbstractFeature">
 		<annotation>
 			<documentation>States are captured by time-stamped instances of a feature. The content model extends the standard gml:AbstractFeatureType with the gml:dynamicProperties model group.
 Each time-stamped instance represents a 'snapshot' of a feature. The dynamic feature classes will normally be extended to suit particular applications.  A dynamic feature bears either a time stamp or a history.</documentation>
@@ -48,7 +50,8 @@ Each time-stamped instance represents a 'snapshot' of a feature. The dynamic fea
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="DynamicFeatureCollection" type="gml:DynamicFeatureCollectionType" substitutionGroup="gml:DynamicFeature">
+	<element name="DynamicFeatureCollection" type="gml:DynamicFeatureCollectionType"
+             substitutionGroup="gml:DynamicFeature">
 		<annotation>
 			<documentation>A gml:DynamicFeatureCollection is a feature collection that has a gml:validTime property (i.e. is a snapshot of the feature collection) or which has a gml:history property that contains one or more gml:AbstractTimeSlices each of which contain values of the time varying properties of the feature collection.  Note that the gml:DynamicFeatureCollection may be one of the following:
 1.	A feature collection which consists of static feature members (members do not change in time) but which has properties of the collection object as a whole that do change in time .  
@@ -75,7 +78,8 @@ Each time-stamped instance represents a 'snapshot' of a feature. The dynamic fea
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="AbstractTimeSlice" type="gml:AbstractTimeSliceType" abstract="true" substitutionGroup="gml:AbstractGML">
+	<element name="AbstractTimeSlice" type="gml:AbstractTimeSliceType" abstract="true"
+             substitutionGroup="gml:AbstractGML">
 		<annotation>
 			<documentation>To describe an event — an action that occurs at an instant or over an interval of time — GML provides the gml:AbtractTimeSlice element. A timeslice encapsulates the time-varying properties of a dynamic feature -- it shall be extended to represent a time stamped projection of a specific feature. The gml:dataSource property describes how the temporal data was acquired.
 A gml:AbstractTimeSlice instance is a GML object that encapsulates updates of the dynamic—or volatile—properties that reflect some change event; it thus includes only those feature properties that have actually changed due to some process.

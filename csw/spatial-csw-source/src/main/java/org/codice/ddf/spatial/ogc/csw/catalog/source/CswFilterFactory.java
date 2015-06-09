@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
@@ -35,6 +35,21 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.BinarySpatialOperand;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
+import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311GeometryConverter;
+import org.jvnet.ogc.gml.v_3_1_1.jts.MarshallerImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+
 import net.opengis.filter.v_1_1_0.AbstractIdType;
 import net.opengis.filter.v_1_1_0.BBOXType;
 import net.opengis.filter.v_1_1_0.BinaryComparisonOpType;
@@ -57,21 +72,6 @@ import net.opengis.gml.v_3_1_1.AbstractGeometryType;
 import net.opengis.gml.v_3_1_1.DirectPositionType;
 import net.opengis.gml.v_3_1_1.EnvelopeType;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.BinarySpatialOperand;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
-import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311GeometryConverter;
-import org.jvnet.ogc.gml.v_3_1_1.jts.MarshallerImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
-
 /**
  * Factory for creating OGC filters.
  */
@@ -90,14 +90,15 @@ public class CswFilterFactory {
     private net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
 
     private boolean isLonLatOrder;
+
     private boolean isSetUsePosList;
 
     /**
      * Constructor for CswFilterFactory.
-     * 
+     *
      * @param isLonLatOrder
      *            True if coordinate order is longitude, latitude; False, otherwise.
-     * 
+     *
      * @param isSetUsePosList
      *            True if a single <posList> element, rather than a set of <pos>
      *            elements, should be used in LinearRings when constructing XML 
@@ -106,6 +107,27 @@ public class CswFilterFactory {
     public CswFilterFactory(boolean isLonLatOrder, boolean isSetUsePosList) {
         this.isLonLatOrder = isLonLatOrder;
         this.isSetUsePosList = isSetUsePosList;
+    }
+
+    private static JAXBContext initJaxbContext() {
+        JAXBContext jaxbContext = null;
+
+        // JAXB context path
+        // "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0"
+        String contextPath = StringUtils
+                .join(new String[] {CswConstants.OGC_CSW_PACKAGE, CswConstants.OGC_FILTER_PACKAGE,
+                        CswConstants.OGC_GML_PACKAGE, CswConstants.OGC_OWS_PACKAGE}, ":");
+
+        try {
+            LOGGER.debug("Creating JAXB context with context path: {}.", contextPath);
+            jaxbContext = JAXBContext
+                    .newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
+            LOGGER.debug(jaxbContext.toString());
+        } catch (JAXBException e) {
+            LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
+        }
+
+        return jaxbContext;
     }
 
     public FilterType buildNotFilter(FilterType filter) {
@@ -139,7 +161,8 @@ public class CswFilterFactory {
     public FilterType buildPropertyIsBetweenFilter(String propertyName, Object lowerBoundary,
             Object upperBoundary) {
         FilterType filter = new FilterType();
-        filter.setComparisonOps(createPropertyIsBetween(propertyName, lowerBoundary, upperBoundary));
+        filter.setComparisonOps(
+                createPropertyIsBetween(propertyName, lowerBoundary, upperBoundary));
         return filter;
 
     }
@@ -178,7 +201,8 @@ public class CswFilterFactory {
         return filter;
     }
 
-    public FilterType buildPropertyIsGreaterThanOrEqualToFilter(String propertyName, Object literal) {
+    public FilterType buildPropertyIsGreaterThanOrEqualToFilter(String propertyName,
+            Object literal) {
         FilterType filter = new FilterType();
         filter.setComparisonOps(createPropertyIsGreaterThanOrEqualTo(propertyName, literal));
         return filter;
@@ -231,7 +255,8 @@ public class CswFilterFactory {
         return filter;
     }
 
-    public FilterType buildBeyondGeospatialFilter(String propertyName, String wkt, double distance) {
+    public FilterType buildBeyondGeospatialFilter(String propertyName, String wkt,
+            double distance) {
         FilterType filter = new FilterType();
         filter.setSpatialOps(createBeyondType(propertyName, wkt, distance));
         return filter;
@@ -244,7 +269,8 @@ public class CswFilterFactory {
         return filter;
     }
 
-    public FilterType buildDWithinGeospatialFilter(String propertyName, String wkt, double distance) {
+    public FilterType buildDWithinGeospatialFilter(String propertyName, String wkt,
+            double distance) {
         FilterType filter = new FilterType();
         filter.setSpatialOps(createDWithinType(propertyName, wkt, distance));
         return filter;
@@ -374,15 +400,15 @@ public class CswFilterFactory {
     private JAXBElement<BinarySpatialOpType> createIntersectsType(String propertyName, String wkt,
             BinarySpatialOperand geometryOrEnvelope) {
         PropertyNameType propertyNameType = createPropertyNameType(propertyName);
-        return filterObjectFactory.createIntersects(createBinarySpatialOpType(propertyNameType,
-                wkt, geometryOrEnvelope));
+        return filterObjectFactory.createIntersects(
+                createBinarySpatialOpType(propertyNameType, wkt, geometryOrEnvelope));
     }
 
     private JAXBElement<BinarySpatialOpType> createCrossesType(String propertyName, String wkt,
             BinarySpatialOperand geometryOrEnvelope) {
         PropertyNameType propertyNameType = createPropertyNameType(propertyName);
-        return filterObjectFactory.createCrosses(createBinarySpatialOpType(propertyNameType, wkt,
-                geometryOrEnvelope));
+        return filterObjectFactory.createCrosses(
+                createBinarySpatialOpType(propertyNameType, wkt, geometryOrEnvelope));
     }
 
     private JAXBElement<DistanceBufferType> createBeyondType(String propertyName, String wkt,
@@ -401,8 +427,8 @@ public class CswFilterFactory {
     private JAXBElement<BinarySpatialOpType> createDisjointType(String propertyName, String wkt,
             BinarySpatialOperand geometryOrEnvelope) {
         PropertyNameType propertyNameType = createPropertyNameType(propertyName);
-        return filterObjectFactory.createDisjoint(createBinarySpatialOpType(propertyNameType, wkt,
-                geometryOrEnvelope));
+        return filterObjectFactory.createDisjoint(
+                createBinarySpatialOpType(propertyNameType, wkt, geometryOrEnvelope));
     }
 
     private JAXBElement<DistanceBufferType> createDWithinType(String propertyName, String wkt,
@@ -421,29 +447,29 @@ public class CswFilterFactory {
     private JAXBElement<BinarySpatialOpType> createContainsType(String propertyName, String wkt,
             BinarySpatialOperand geometryOrEnvelope) {
         PropertyNameType propertyNameType = createPropertyNameType(propertyName);
-        return filterObjectFactory.createContains(createBinarySpatialOpType(propertyNameType, wkt,
-                geometryOrEnvelope));
+        return filterObjectFactory.createContains(
+                createBinarySpatialOpType(propertyNameType, wkt, geometryOrEnvelope));
     }
 
     private JAXBElement<BinarySpatialOpType> createTouchesType(String propertyName, String wkt,
             BinarySpatialOperand geometryOrEnvelope) {
         PropertyNameType propertyNameType = createPropertyNameType(propertyName);
-        return filterObjectFactory.createTouches(createBinarySpatialOpType(propertyNameType, wkt,
-                geometryOrEnvelope));
+        return filterObjectFactory.createTouches(
+                createBinarySpatialOpType(propertyNameType, wkt, geometryOrEnvelope));
     }
 
     private JAXBElement<BinarySpatialOpType> createOverlapsType(String propertyName, String wkt,
             BinarySpatialOperand geometryOrEnvelope) {
         PropertyNameType propertyNameType = createPropertyNameType(propertyName);
-        return filterObjectFactory.createOverlaps(createBinarySpatialOpType(propertyNameType, wkt,
-                geometryOrEnvelope));
+        return filterObjectFactory.createOverlaps(
+                createBinarySpatialOpType(propertyNameType, wkt, geometryOrEnvelope));
     }
 
     private JAXBElement<BinarySpatialOpType> createWithinType(String propertyName, String wkt,
             BinarySpatialOperand geometryOrEnvelope) {
         PropertyNameType propertyNameType = createPropertyNameType(propertyName);
-        return filterObjectFactory.createWithin(createBinarySpatialOpType(propertyNameType, wkt,
-                geometryOrEnvelope));
+        return filterObjectFactory
+                .createWithin(createBinarySpatialOpType(propertyNameType, wkt, geometryOrEnvelope));
     }
 
     @SuppressWarnings("unchecked")
@@ -452,13 +478,13 @@ public class CswFilterFactory {
         JAXBElement<? extends AbstractGeometryType> abstractGeometry = null;
         try {
             Map<String, String> geoConverterProps = new HashMap<String, String>();
-            geoConverterProps.put(
-                    CswJTSToGML311GeometryConverter.USE_POS_LIST_GEO_CONVERTER_PROP_KEY, 
-                    String.valueOf(this.isSetUsePosList));
-            
-            JTSToGML311GeometryConverter converter = 
-                    new CswJTSToGML311GeometryConverter(geoConverterProps);
-            
+            geoConverterProps
+                    .put(CswJTSToGML311GeometryConverter.USE_POS_LIST_GEO_CONVERTER_PROP_KEY,
+                            String.valueOf(this.isSetUsePosList));
+
+            JTSToGML311GeometryConverter converter = new CswJTSToGML311GeometryConverter(
+                    geoConverterProps);
+
             Marshaller marshaller = new MarshallerImpl(JAXB_CONTEXT.createMarshaller(), converter);
             StringWriter writer = new StringWriter();
             marshaller.marshal(geometry, writer);
@@ -524,10 +550,10 @@ public class CswFilterFactory {
         Envelope envelope = getEnvelopeFromWkt(wkt);
 
         if (envelope != null) {
-            envelopeType.setLowerCorner(createDirectPositionType(envelope.getMinX(),
-                    envelope.getMinY()));
-            envelopeType.setUpperCorner(createDirectPositionType(envelope.getMaxX(),
-                    envelope.getMaxY()));
+            envelopeType.setLowerCorner(
+                    createDirectPositionType(envelope.getMinX(), envelope.getMinY()));
+            envelopeType.setUpperCorner(
+                    createDirectPositionType(envelope.getMaxX(), envelope.getMaxY()));
         }
 
         return this.gmlObjectFactory.createEnvelope(envelopeType);
@@ -556,13 +582,14 @@ public class CswFilterFactory {
         return propertyNameType;
     }
 
-    private JAXBElement<PropertyIsLikeType> createPropertyIsLike(String propertyName, Object literal) {
+    private JAXBElement<PropertyIsLikeType> createPropertyIsLike(String propertyName,
+            Object literal) {
         PropertyIsLikeType propertyIsLikeType = new PropertyIsLikeType();
         propertyIsLikeType.setEscapeChar(CswConstants.ESCAPE);
         propertyIsLikeType.setSingleChar(CswConstants.SINGLE_CHAR);
         propertyIsLikeType.setWildCard(CswConstants.WILD_CARD);
-        propertyIsLikeType.setPropertyName(createPropertyNameType(
-                Arrays.asList(new Object[] {propertyName})).getValue());
+        propertyIsLikeType.setPropertyName(
+                createPropertyNameType(Arrays.asList(new Object[] {propertyName})).getValue());
         propertyIsLikeType.setLiteral(createLiteralType(literal).getValue());
         return filterObjectFactory.createPropertyIsLike(propertyIsLikeType);
     }
@@ -571,8 +598,8 @@ public class CswFilterFactory {
             Object literal, boolean isCaseSensitive) {
         BinaryComparisonOpType propertyIsEqualTo = new BinaryComparisonOpType();
         propertyIsEqualTo.setMatchCase(isCaseSensitive);
-        propertyIsEqualTo.getExpression().add(
-                createPropertyNameType(Arrays.asList(new Object[] {propertyName})));
+        propertyIsEqualTo.getExpression()
+                .add(createPropertyNameType(Arrays.asList(new Object[] {propertyName})));
         propertyIsEqualTo.getExpression().add(createLiteralType(literal));
         return filterObjectFactory.createPropertyIsEqualTo(propertyIsEqualTo);
     }
@@ -581,8 +608,8 @@ public class CswFilterFactory {
             Object literal, boolean isCaseSensitive) {
         BinaryComparisonOpType propertyIsNotEqualTo = new BinaryComparisonOpType();
         propertyIsNotEqualTo.setMatchCase(isCaseSensitive);
-        propertyIsNotEqualTo.getExpression().add(
-                createPropertyNameType(Arrays.asList(new Object[] {propertyName})));
+        propertyIsNotEqualTo.getExpression()
+                .add(createPropertyNameType(Arrays.asList(new Object[] {propertyName})));
         propertyIsNotEqualTo.getExpression().add(createLiteralType(literal));
         return filterObjectFactory.createPropertyIsNotEqualTo(propertyIsNotEqualTo);
     }
@@ -590,8 +617,8 @@ public class CswFilterFactory {
     private JAXBElement<BinaryComparisonOpType> createPropertyIsGreaterThan(String propertyName,
             Object literal) {
         BinaryComparisonOpType propertyIsGreaterThan = new BinaryComparisonOpType();
-        propertyIsGreaterThan.getExpression().add(
-                createPropertyNameType(Arrays.asList(new Object[] {propertyName})));
+        propertyIsGreaterThan.getExpression()
+                .add(createPropertyNameType(Arrays.asList(new Object[] {propertyName})));
         propertyIsGreaterThan.getExpression().add(createLiteralType(literal));
         return filterObjectFactory.createPropertyIsGreaterThan(propertyIsGreaterThan);
     }
@@ -599,8 +626,8 @@ public class CswFilterFactory {
     private JAXBElement<BinaryComparisonOpType> createPropertyIsGreaterThanOrEqualTo(
             String propertyName, Object literal) {
         BinaryComparisonOpType propertyIsGreaterThanAOrEqualTo = new BinaryComparisonOpType();
-        propertyIsGreaterThanAOrEqualTo.getExpression().add(
-                createPropertyNameType(Arrays.asList(new Object[] {propertyName})));
+        propertyIsGreaterThanAOrEqualTo.getExpression()
+                .add(createPropertyNameType(Arrays.asList(new Object[] {propertyName})));
         propertyIsGreaterThanAOrEqualTo.getExpression().add(createLiteralType(literal));
         return filterObjectFactory
                 .createPropertyIsGreaterThanOrEqualTo(propertyIsGreaterThanAOrEqualTo);
@@ -609,8 +636,8 @@ public class CswFilterFactory {
     private JAXBElement<BinaryComparisonOpType> createPropertyIsLessThan(String propertyName,
             Object literal) {
         BinaryComparisonOpType propertyIsLessThan = new BinaryComparisonOpType();
-        propertyIsLessThan.getExpression().add(
-                createPropertyNameType(Arrays.asList(new Object[] {propertyName})));
+        propertyIsLessThan.getExpression()
+                .add(createPropertyNameType(Arrays.asList(new Object[] {propertyName})));
         propertyIsLessThan.getExpression().add(createLiteralType(literal));
         return filterObjectFactory.createPropertyIsLessThan(propertyIsLessThan);
     }
@@ -618,8 +645,8 @@ public class CswFilterFactory {
     private JAXBElement<BinaryComparisonOpType> createPropertyIsLessThanOrEqualTo(
             String propertyName, Object literal) {
         BinaryComparisonOpType propertyIsLessThanAOrEqualTo = new BinaryComparisonOpType();
-        propertyIsLessThanAOrEqualTo.getExpression().add(
-                createPropertyNameType(Arrays.asList(new Object[] {propertyName})));
+        propertyIsLessThanAOrEqualTo.getExpression()
+                .add(createPropertyNameType(Arrays.asList(new Object[] {propertyName})));
         propertyIsLessThanAOrEqualTo.getExpression().add(createLiteralType(literal));
         return filterObjectFactory.createPropertyIsLessThanOrEqualTo(propertyIsLessThanAOrEqualTo);
     }
@@ -629,15 +656,15 @@ public class CswFilterFactory {
         PropertyIsBetweenType propertyIsBetween = new PropertyIsBetweenType();
         propertyIsBetween.setLowerBoundary(createLowerBoundary(lowerBoundary));
         propertyIsBetween.setUpperBoundary(createUpperBoundary(upperBoundary));
-        propertyIsBetween.setExpression(createPropertyNameType(Arrays
-                .asList(new Object[] {propertyName})));
+        propertyIsBetween
+                .setExpression(createPropertyNameType(Arrays.asList(new Object[] {propertyName})));
         return filterObjectFactory.createPropertyIsBetween(propertyIsBetween);
     }
 
     private JAXBElement<PropertyIsNullType> createPropertyIsNull(String propertyName) {
         PropertyIsNullType propertyIsNull = new PropertyIsNullType();
-        propertyIsNull.setPropertyName(createPropertyNameType(
-                Arrays.asList(new Object[] {propertyName})).getValue());
+        propertyIsNull.setPropertyName(
+                createPropertyNameType(Arrays.asList(new Object[] {propertyName})).getValue());
         return filterObjectFactory.createPropertyIsNull(propertyIsNull);
     }
 
@@ -681,7 +708,8 @@ public class CswFilterFactory {
     private String convertWktToLatLonOrdering(String wktInLonLat) {
 
         if (!isLonLatOrder) {
-            LOGGER.debug("Converting WKT from LON/LAT coordinate ordering to LAT/LON coordinate ordering.");
+            LOGGER.debug(
+                    "Converting WKT from LON/LAT coordinate ordering to LAT/LON coordinate ordering.");
 
             // Normalize all whitespace in WKT before processing.
             wktInLonLat = normalizeWhitespaceInWkt(wktInLonLat);
@@ -734,14 +762,15 @@ public class CswFilterFactory {
         return binarySpatialOpType;
     }
 
-    private BinarySpatialOpType createBinarySpatialOpType(PropertyNameType propertyName,
-            String wkt, BinarySpatialOperand geometryOrEnvelope) {
+    private BinarySpatialOpType createBinarySpatialOpType(PropertyNameType propertyName, String wkt,
+            BinarySpatialOperand geometryOrEnvelope) {
         BinarySpatialOpType binarySpatialOpType = null;
 
         if (geometryOrEnvelope == BinarySpatialOperand.GEOMETRY) {
             wkt = convertWktToLatLonOrdering(wkt);
             Geometry geometry = getGeometryFromWkt(wkt);
-            JAXBElement<? extends AbstractGeometryType> geometryJaxbElement = convertGeometry(geometry);
+            JAXBElement<? extends AbstractGeometryType> geometryJaxbElement = convertGeometry(
+                    geometry);
             binarySpatialOpType = createBinarySpatialOpTypeUsingGeometry(propertyName,
                     geometryJaxbElement);
         } else {
@@ -751,27 +780,6 @@ public class CswFilterFactory {
         }
 
         return binarySpatialOpType;
-    }
-
-    private static JAXBContext initJaxbContext() {
-        JAXBContext jaxbContext = null;
-
-        // JAXB context path
-        // "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0"
-        String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
-            CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
-            CswConstants.OGC_OWS_PACKAGE}, ":");
-
-        try {
-            LOGGER.debug("Creating JAXB context with context path: {}.", contextPath);
-            jaxbContext = JAXBContext.newInstance(contextPath,
-                    CswJAXBElementProvider.class.getClassLoader());
-            LOGGER.debug(jaxbContext.toString());
-        } catch (JAXBException e) {
-            LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
-        }
-
-        return jaxbContext;
     }
 
 }

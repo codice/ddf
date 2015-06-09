@@ -14,46 +14,19 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.DataHolder;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.core.TreeMarshaller;
-import com.thoughtworks.xstream.core.TreeUnmarshaller;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.xml.DomReader;
-import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
-import com.thoughtworks.xstream.io.xml.WstxDriver;
-import com.thoughtworks.xstream.io.xml.XppDriver;
-import com.thoughtworks.xstream.io.xml.XppReader;
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.transform.CatalogTransformerException;
-import net.opengis.cat.csw.v_2_0_2.ElementSetType;
-import org.apache.commons.io.IOUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.custommonkey.xmlunit.exceptions.XpathException;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
+import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
+import static net.opengis.cat.csw.v_2_0_2.ElementSetType.BRIEF;
+import static net.opengis.cat.csw.v_2_0_2.ElementSetType.FULL;
+import static net.opengis.cat.csw.v_2_0_2.ElementSetType.SUMMARY;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -71,25 +44,53 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static net.opengis.cat.csw.v_2_0_2.ElementSetType.BRIEF;
-import static net.opengis.cat.csw.v_2_0_2.ElementSetType.FULL;
-import static net.opengis.cat.csw.v_2_0_2.ElementSetType.SUMMARY;
-import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
+import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.io.IOUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordMetacardType;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.exceptions.XpathException;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.core.TreeMarshaller;
+import com.thoughtworks.xstream.core.TreeUnmarshaller;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.xml.DomReader;
+import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
+import com.thoughtworks.xstream.io.xml.WstxDriver;
+import com.thoughtworks.xstream.io.xml.XppDriver;
+import com.thoughtworks.xstream.io.xml.XppReader;
+
+import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.transform.CatalogTransformerException;
+import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 
 public class TestCswRecordConverter {
 
     private static final transient Logger LOGGER = LoggerFactory
             .getLogger(TestCswRecordConverter.class);
-
-    private static DateTimeFormatter dateFormatter;
 
     private static final String THUMBNAIL_URL = "THUMBNAIL_URL";
 
@@ -101,6 +102,10 @@ public class TestCswRecordConverter {
 
     private static final GregorianCalendar EFFECTIVE_DATE = new GregorianCalendar(2015, 10, 1);
 
+    private static final String ACTION_URL = "http://example.com/source/id?transform=resource";
+
+    private static DateTimeFormatter dateFormatter;
+
     private static String MODIFIED;
 
     private static String EFFECTIVE;
@@ -108,8 +113,6 @@ public class TestCswRecordConverter {
     private static String CREATED;
 
     private static CswRecordConverter converter;
-
-    private static final String ACTION_URL = "http://example.com/source/id?transform=resource";
 
     static {
         DatatypeFactory factory = null;
@@ -180,8 +183,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testUnmarshalWriteNamespaces()
-            throws IOException, SAXException, XmlPullParserException {
+    public void testUnmarshalWriteNamespaces() throws IOException, SAXException,
+            XmlPullParserException {
         XStream xstream = new XStream(new XppDriver());
 
         xstream.registerConverter(converter);
@@ -190,8 +193,8 @@ public class TestCswRecordConverter {
         xstream.alias("csw:Record", MetacardImpl.class);
         InputStream is = IOUtils.toInputStream(getRecordNoNamespaceDeclaration());
 
-        HierarchicalStreamReader reader = new XppReader(new InputStreamReader(is), XmlPullParserFactory
-                .newInstance().newPullParser());
+        HierarchicalStreamReader reader = new XppReader(new InputStreamReader(is),
+                XmlPullParserFactory.newInstance().newPullParser());
         DataHolder args = xstream.newDataHolder();
         Map<String, String> namespaces = new HashMap<>();
         namespaces.put(CswConstants.XMLNS + CswConstants.NAMESPACE_DELIMITER
@@ -220,8 +223,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testUnmarshalSingleCswRecordToMetacardContentTypeMapsToFormat()
-            throws ParserConfigurationException, IOException, SAXException {
+    public void testUnmarshalSingleCswRecordToMetacardContentTypeMapsToFormat() throws
+            ParserConfigurationException, IOException, SAXException {
         XStream xstream = new XStream(new WstxDriver());
 
         Map<String, String> metacardAttributeMappings = getMetacardAttributeMappings();
@@ -275,13 +278,13 @@ public class TestCswRecordConverter {
 
         assertThat(mc, not(nullValue()));
         LOGGER.debug("Metacard title = {}", (String) mc.getAttribute(Metacard.TITLE).getValue());
-        LOGGER.debug("CSW title = {}", (String) mc.getAttribute(CswRecordMetacardType.CSW_TITLE)
-                .getValue());
+        LOGGER.debug("CSW title = {}",
+                (String) mc.getAttribute(CswRecordMetacardType.CSW_TITLE).getValue());
         assertThat(mc.getTitle(), equalTo("First title"));
-        assertListStringAttribute(mc, CswRecordMetacardType.CSW_TITLE, new String[] {"First title",
-                "Second title"});
-        assertListStringAttribute(mc, CswRecordMetacardType.CSW_SUBJECT, new String[] {"Subject 1",
-                "Subject 2"});
+        assertListStringAttribute(mc, CswRecordMetacardType.CSW_TITLE,
+                new String[] {"First title", "Second title"});
+        assertListStringAttribute(mc, CswRecordMetacardType.CSW_SUBJECT,
+                new String[] {"Subject 1", "Subject 2"});
     }
 
     @Test
@@ -314,8 +317,8 @@ public class TestCswRecordConverter {
 
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
                 startsWith("08976079-9c53-465f-b921-97d0717262f5"));
-        assertThat((String) mc.getAttribute(Metacard.ID).getValue(), equalTo((String) mc
-                .getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
+        assertThat((String) mc.getAttribute(Metacard.ID).getValue(),
+                equalTo((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
 
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_TYPE).getValue(),
                 equalTo("IMAGE-PRODUCT"));
@@ -324,7 +327,6 @@ public class TestCswRecordConverter {
         // CREATED
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
                 equalTo("2003-01-28T07:09:16Z"));
-
 
         assertDates(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED, mc);
 
@@ -353,8 +355,8 @@ public class TestCswRecordConverter {
 
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
                 startsWith("08976079-9c53-465f-d921-97d0717262f5"));
-        assertThat((String) mc.getAttribute(Metacard.ID).getValue(), equalTo((String) mc
-                .getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
+        assertThat((String) mc.getAttribute(Metacard.ID).getValue(),
+                equalTo((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
 
         // Verify extensible CSW attributes in metacard were populated
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
@@ -373,8 +375,8 @@ public class TestCswRecordConverter {
 
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
                 startsWith("08976079-9c53-465f-c921-97d0717262f5"));
-        assertThat((String) mc.getAttribute(Metacard.ID).getValue(), equalTo((String) mc
-                .getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
+        assertThat((String) mc.getAttribute(Metacard.ID).getValue(),
+                equalTo((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
 
         // Verify extensible CSW attributes in metacard were populated
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
@@ -395,8 +397,8 @@ public class TestCswRecordConverter {
         xstream.alias("csw:Record", MetacardImpl.class);
         InputStream is = TestCswRecordConverter.class.getResourceAsStream("/Csw_Record.xml");
 
-        HierarchicalStreamReader reader = new XppReader(new InputStreamReader(is), XmlPullParserFactory
-                .newInstance().newPullParser());
+        HierarchicalStreamReader reader = new XppReader(new InputStreamReader(is),
+                XmlPullParserFactory.newInstance().newPullParser());
         DataHolder args = xstream.newDataHolder();
         Map<String, String> dateMappings = new HashMap<>();
         dateMappings.put(CswRecordMetacardType.CSW_DATE_SUBMITTED, Metacard.EFFECTIVE);
@@ -410,14 +412,13 @@ public class TestCswRecordConverter {
 
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue(),
                 is(equalTo("08976079-9c53-465f-b921-97d0717262f5")));
-        assertThat((String) mc.getAttribute(Metacard.ID).getValue(), equalTo((String) mc
-                .getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
+        assertThat((String) mc.getAttribute(Metacard.ID).getValue(),
+                equalTo((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
 
         // Verify extensible CSW attributes in metacard were populated
         // CREATED
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
                 equalTo("2003-01-28T07:09:16Z"));
-
 
         assertDates(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED, mc);
 
@@ -450,8 +451,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testUnmarshalCswRecordWithCustomDateMappings()
-            throws ParserConfigurationException, IOException, SAXException {
+    public void testUnmarshalCswRecordWithCustomDateMappings() throws ParserConfigurationException,
+            IOException, SAXException {
         XStream xstream = new XStream(new WstxDriver());
 
         // Custom date mappings
@@ -538,8 +539,8 @@ public class TestCswRecordConverter {
     @Test
     public void testConvertISODateMetacardAttribute() {
         String dateStr = "2013-05-03T17:25:04Z";
-        Serializable ser = CswRecordConverter.convertStringValueToMetacardValue(
-                AttributeFormat.DATE, dateStr);
+        Serializable ser = CswRecordConverter
+                .convertStringValueToMetacardValue(AttributeFormat.DATE, dateStr);
         assertThat(ser, not(nullValue()));
         assertThat(Date.class.isAssignableFrom(ser.getClass()), is(true));
         Date date = (Date) ser;
@@ -557,8 +558,8 @@ public class TestCswRecordConverter {
     @Test
     public void testConvertInvalidTimeZoneInDateMetacardAttribute() {
         String dateStr = "2013-05-13T10:56:39EDT";
-        Serializable ser = CswRecordConverter.convertStringValueToMetacardValue(
-                AttributeFormat.DATE, dateStr);
+        Serializable ser = CswRecordConverter
+                .convertStringValueToMetacardValue(AttributeFormat.DATE, dateStr);
 
         assertDateConversion(ser, Calendar.getInstance());
     }
@@ -569,8 +570,8 @@ public class TestCswRecordConverter {
     @Test
     public void testConvertInvalidDateMetacardAttribute() {
         String dateStr = "26021000ZFEB11";
-        Serializable ser = CswRecordConverter.convertStringValueToMetacardValue(
-                AttributeFormat.DATE, dateStr);
+        Serializable ser = CswRecordConverter
+                .convertStringValueToMetacardValue(AttributeFormat.DATE, dateStr);
 
         assertDateConversion(ser, Calendar.getInstance());
     }
@@ -686,8 +687,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testMetacardTransformOmitXmlDeclaration() throws IOException, JAXBException, SAXException,
-            XpathException, CatalogTransformerException {
+    public void testMetacardTransformOmitXmlDeclaration() throws IOException, JAXBException,
+            SAXException, XpathException, CatalogTransformerException {
         Metacard metacard = getTestMetacard();
 
         Map<String, Serializable> args = new HashMap<>();
@@ -704,8 +705,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testMetacardTransformOmitNamespaces() throws IOException, JAXBException, SAXException,
-            XpathException, CatalogTransformerException {
+    public void testMetacardTransformOmitNamespaces() throws IOException, JAXBException,
+            SAXException, XpathException, CatalogTransformerException {
         Metacard metacard = getTestMetacard();
 
         Map<String, Serializable> args = new HashMap<>();
@@ -718,8 +719,8 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testInputTransformWithNoNamespaceDeclaration()
-            throws IOException, CatalogTransformerException {
+    public void testInputTransformWithNoNamespaceDeclaration() throws IOException,
+            CatalogTransformerException {
         InputStream is = IOUtils.toInputStream(getRecordNoNamespaceDeclaration());
         Metacard mc = converter.transform(is);
 
@@ -737,7 +738,7 @@ public class TestCswRecordConverter {
     @Test
     public void testInputTransform() throws IOException, CatalogTransformerException {
 
-              InputStream is = TestCswRecordConverter.class.getResourceAsStream("/Csw_Record.xml");
+        InputStream is = TestCswRecordConverter.class.getResourceAsStream("/Csw_Record.xml");
         Metacard mc = converter.transform(is);
 
         assertThat(mc, not(nullValue()));
@@ -821,48 +822,37 @@ public class TestCswRecordConverter {
                 + "<csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" "
                 + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
                 + "xmlns:dct=\"http://purl.org/dc/terms/\" "
-                + "xmlns:ows=\"http://www.opengis.net/ows\">\n"
-                + "  <dct:created>" + CREATED + "</dct:created>\n"
-                + "  <dc:date>" + MODIFIED + "</dc:date>\n"
-                + "  <dct:modified>" + MODIFIED + "</dct:modified>\n"
-                + "  <dct:dateSubmitted>" + MODIFIED + "</dct:dateSubmitted>\n"
-                + "  <dct:issued>" + MODIFIED + "</dct:issued>\n"
-                + "  <dc:identifier>ID</dc:identifier>\n"
-                + "  <dct:bibliographicCitation>ID</dct:bibliographicCitation>\n"
-                + "  <dc:source>" + ACTION_URL + "</dc:source>\n"
-                + "  <dc:title>This is my title</dc:title>\n"
+                + "xmlns:ows=\"http://www.opengis.net/ows\">\n" + "  <dct:created>" + CREATED
+                + "</dct:created>\n" + "  <dc:date>" + MODIFIED + "</dc:date>\n"
+                + "  <dct:modified>" + MODIFIED + "</dct:modified>\n" + "  <dct:dateSubmitted>"
+                + MODIFIED + "</dct:dateSubmitted>\n" + "  <dct:issued>" + MODIFIED
+                + "</dct:issued>\n" + "  <dc:identifier>ID</dc:identifier>\n"
+                + "  <dct:bibliographicCitation>ID</dct:bibliographicCitation>\n" + "  <dc:source>"
+                + ACTION_URL + "</dc:source>\n" + "  <dc:title>This is my title</dc:title>\n"
                 + "  <dct:alternative>This is my title</dct:alternative>\n"
-                + "  <dc:type>I have some content type</dc:type>\n"
-                + "  <dct:dateAccepted>" + EFFECTIVE + "</dct:dateAccepted>\n"
-                + "  <dct:dateCopyrighted>" + EFFECTIVE + "</dct:dateCopyrighted>\n"
-                + "  <dc:publisher>sourceID</dc:publisher>\n"
+                + "  <dc:type>I have some content type</dc:type>\n" + "  <dct:dateAccepted>"
+                + EFFECTIVE + "</dct:dateAccepted>\n" + "  <dct:dateCopyrighted>" + EFFECTIVE
+                + "</dct:dateCopyrighted>\n" + "  <dc:publisher>sourceID</dc:publisher>\n"
                 + "  <ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
                 + "    <ows:LowerCorner>10.0 10.0</ows:LowerCorner>\n"
-                + "    <ows:UpperCorner>40.0 40.0</ows:UpperCorner>\n"
-                + "  </ows:BoundingBox>\n"
+                + "    <ows:UpperCorner>40.0 40.0</ows:UpperCorner>\n" + "  </ows:BoundingBox>\n"
                 + "</csw:Record>\n";
     }
 
     private String getRecordNoNamespaceDeclaration() {
-        return "<csw:Record>\n"
-                + "  <dct:created>" + CREATED + "</dct:created>\n"
-                + "  <dc:date>" + MODIFIED + "</dc:date>\n"
-                + "  <dct:modified>" + MODIFIED + "</dct:modified>\n"
-                + "  <dct:dateSubmitted>" + MODIFIED + "</dct:dateSubmitted>\n"
-                + "  <dct:issued>" + MODIFIED + "</dct:issued>\n"
-                + "  <dc:identifier>ID</dc:identifier>\n"
-                + "  <dct:bibliographicCitation>ID</dct:bibliographicCitation>\n"
-                + "  <dc:source>" + ACTION_URL + "</dc:source>\n"
-                + "  <dc:title>This is my title</dc:title>\n"
+        return "<csw:Record>\n" + "  <dct:created>" + CREATED + "</dct:created>\n" + "  <dc:date>"
+                + MODIFIED + "</dc:date>\n" + "  <dct:modified>" + MODIFIED + "</dct:modified>\n"
+                + "  <dct:dateSubmitted>" + MODIFIED + "</dct:dateSubmitted>\n" + "  <dct:issued>"
+                + MODIFIED + "</dct:issued>\n" + "  <dc:identifier>ID</dc:identifier>\n"
+                + "  <dct:bibliographicCitation>ID</dct:bibliographicCitation>\n" + "  <dc:source>"
+                + ACTION_URL + "</dc:source>\n" + "  <dc:title>This is my title</dc:title>\n"
                 + "  <dct:alternative>This is my title</dct:alternative>\n"
-                + "  <dc:type>I have some content type</dc:type>\n"
-                + "  <dct:dateAccepted>" + EFFECTIVE + "</dct:dateAccepted>\n"
-                + "  <dct:dateCopyrighted>" + EFFECTIVE + "</dct:dateCopyrighted>\n"
-                + "  <dc:publisher>sourceID</dc:publisher>\n"
+                + "  <dc:type>I have some content type</dc:type>\n" + "  <dct:dateAccepted>"
+                + EFFECTIVE + "</dct:dateAccepted>\n" + "  <dct:dateCopyrighted>" + EFFECTIVE
+                + "</dct:dateCopyrighted>\n" + "  <dc:publisher>sourceID</dc:publisher>\n"
                 + "  <ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
                 + "    <ows:LowerCorner>10.0 10.0</ows:LowerCorner>\n"
-                + "    <ows:UpperCorner>40.0 40.0</ows:UpperCorner>\n"
-                + "  </ows:BoundingBox>\n"
+                + "    <ows:UpperCorner>40.0 40.0</ows:UpperCorner>\n" + "  </ows:BoundingBox>\n"
                 + "</csw:Record>\n";
     }
 

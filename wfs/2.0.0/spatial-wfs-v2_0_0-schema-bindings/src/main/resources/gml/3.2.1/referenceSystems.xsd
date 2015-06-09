@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" elementFormDefault="qualified" xml:lang="en" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" version="3.2.1.2">
+<schema xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gml="http://www.opengis.net/gml/3.2"
+        targetNamespace="http://www.opengis.net/gml/3.2" elementFormDefault="qualified"
+        xml:lang="en" xmlns="http://www.w3.org/2001/XMLSchema"
+        version="3.2.1.2">
 	<annotation>
 		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:referenceSystems:3.2.1">referenceSystems.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 13.2.
@@ -15,7 +18,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 	</annotation>
 	<include schemaLocation="gml.xsd"/>
 	<include schemaLocation="dictionary.xsd"/>
-	<import namespace="http://www.isotc211.org/2005/gmd" schemaLocation="http://schemas.opengis.net/iso/19139/20070417/gmd/gmd.xsd"/>
+	<import namespace="http://www.isotc211.org/2005/gmd"
+            schemaLocation="http://schemas.opengis.net/iso/19139/20070417/gmd/gmd.xsd"/>
 	<complexType name="IdentifiedObjectType" abstract="true">
 		<annotation>
 			<documentation>gml:IdentifiedObjectType provides identification properties of a CRS-related object. In gml:DefinitionType, the gml:identifier element shall be the primary name by which this object is identified, encoding the "name" attribute in the UML model.
@@ -27,7 +31,8 @@ Any needed version information shall be included in the codeSpace attribute of a
 			<extension base="gml:DefinitionType"/>
 		</complexContent>
 	</complexType>
-	<element name="AbstractCRS" type="gml:AbstractCRSType" abstract="true" substitutionGroup="gml:Definition">
+	<element name="AbstractCRS" type="gml:AbstractCRSType" abstract="true"
+             substitutionGroup="gml:Definition">
 		<annotation>
 			<documentation>gml:AbstractCRS specifies a coordinate reference system which is usually single but may be compound. This abstract complex type shall not be used, extended, or restricted, in a GML Application Schema, to define a concrete subtype with a meaning equivalent to a concrete subtype specified in this document.</documentation>
 		</annotation>

@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source;
 
@@ -26,6 +26,34 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants.SPATIAL_OPERATORS;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10JTStoGML200Converter;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.io.WKTWriter;
+
+import ddf.catalog.data.Metacard;
+import ddf.catalog.filter.FilterDelegate;
 import ogc.schema.opengis.filter.v_1_0_0.BBOXType;
 import ogc.schema.opengis.filter.v_1_0_0.BinaryComparisonOpType;
 import ogc.schema.opengis.filter.v_1_0_0.BinaryLogicOpType;
@@ -44,49 +72,18 @@ import ogc.schema.opengis.filter.v_1_0_0.PropertyNameType;
 import ogc.schema.opengis.filter.v_1_0_0.SpatialOpsType;
 import ogc.schema.opengis.filter.v_1_0_0.UnaryLogicOpType;
 import ogc.schema.opengis.filter.v_1_0_0.UpperBoundaryType;
-
 import ogc.schema.opengis.gml.v_2_1_2.AbstractGeometryType;
-import ogc.schema.opengis.gml.v_2_1_2.GeometryCollectionType;
-import ogc.schema.opengis.gml.v_2_1_2.MultiPolygonType;
-
 import ogc.schema.opengis.gml.v_2_1_2.BoxType;
 import ogc.schema.opengis.gml.v_2_1_2.CoordinatesType;
+import ogc.schema.opengis.gml.v_2_1_2.GeometryCollectionType;
 import ogc.schema.opengis.gml.v_2_1_2.LineStringType;
 import ogc.schema.opengis.gml.v_2_1_2.LinearRingMemberType;
 import ogc.schema.opengis.gml.v_2_1_2.LinearRingType;
 import ogc.schema.opengis.gml.v_2_1_2.MultiLineStringType;
 import ogc.schema.opengis.gml.v_2_1_2.MultiPointType;
+import ogc.schema.opengis.gml.v_2_1_2.MultiPolygonType;
 import ogc.schema.opengis.gml.v_2_1_2.PointType;
 import ogc.schema.opengis.gml.v_2_1_2.PolygonType;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants.SPATIAL_OPERATORS;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10JTStoGML200Converter;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
-import com.vividsolutions.jts.io.WKTWriter;
-
-import ddf.catalog.data.Metacard;
-import ddf.catalog.filter.FilterDelegate;
 
 /**
  * The purpose of this class is to convert DDF OGC Filters into WFS compatible OGC Filters. This
@@ -95,17 +92,17 @@ import ddf.catalog.filter.FilterDelegate;
  */
 public class WfsFilterDelegate extends FilterDelegate<FilterType> {
 
-    private FeatureMetacardType featureMetacardType;
-
-    private ObjectFactory filterObjectFactory = new ObjectFactory();
-
-    private ogc.schema.opengis.gml.v_2_1_2.ObjectFactory gmlObjectFactory = new ogc.schema.opengis.gml.v_2_1_2.ObjectFactory();
-
     private static final Logger LOGGER = LoggerFactory.getLogger(WfsFilterDelegate.class);
 
     private static final String MISSING_PARAMETERS_MSG = "Required parameters are missing";
 
     private static final String PROPERTY_NOT_QUERYABLE = "'%s' is not a queryable property.";
+
+    private FeatureMetacardType featureMetacardType;
+
+    private ObjectFactory filterObjectFactory = new ObjectFactory();
+
+    private ogc.schema.opengis.gml.v_2_1_2.ObjectFactory gmlObjectFactory = new ogc.schema.opengis.gml.v_2_1_2.ObjectFactory();
 
     private List<String> supportedGeo;
 
@@ -145,10 +142,6 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     public void setSupportedGeoFilters(List<String> supportedGeos) {
         LOGGER.debug("Updating supportedGeos to: {}", Arrays.toString(supportedGeos.toArray()));
         this.supportedGeo = supportedGeos;
-    }
-
-    private static enum PROPERTY_IS_OPS {
-        PropertyIsEqualTo, PropertyIsLike, PropertyIsNotEqualTo, PropertyIsGreaterThan, PropertyIsGreaterThanOrEqualTo, PropertyIsLessThan, PropertyIsLessThanOrEqualTo;
     }
 
     @Override
@@ -288,12 +281,13 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
 
     private Boolean isFilterSet(FilterType filter) {
-        return (filter.isSetComparisonOps() || filter.isSetLogicOps() || filter.isSetSpatialOps() || filter
-                .isSetFeatureId());
+        return (filter.isSetComparisonOps() || filter.isSetLogicOps() || filter.isSetSpatialOps()
+                || filter.isSetFeatureId());
     }
 
     @Override
-    public FilterType propertyIsEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
+    public FilterType propertyIsEqualTo(String propertyName, String literal,
+            boolean isCaseSensitive) {
         return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
     }
 
@@ -562,7 +556,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
 
     @Override
-    public FilterType propertyIsBetween(String propertyName, Date lowerBoundary, Date upperBoundary) {
+    public FilterType propertyIsBetween(String propertyName, Date lowerBoundary,
+            Date upperBoundary) {
         return buildPropertyIsBetweenFilterType(propertyName,
                 convertDateToIso8601Format(lowerBoundary),
                 convertDateToIso8601Format(upperBoundary));
@@ -580,7 +575,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
 
     @Override
-    public FilterType propertyIsBetween(String propertyName, long lowerBoundary, long upperBoundary) {
+    public FilterType propertyIsBetween(String propertyName, long lowerBoundary,
+            long upperBoundary) {
         return buildPropertyIsBetweenFilterType(propertyName, lowerBoundary, upperBoundary);
     }
 
@@ -609,11 +605,12 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             FeatureAttributeDescriptor featureAttributeDescriptor = (FeatureAttributeDescriptor) featureMetacardType
                     .getAttributeDescriptor(propertyName);
             if (featureAttributeDescriptor.isIndexed()) {
-                filter.setComparisonOps(createPropertyIsBetween(
-                        featureAttributeDescriptor.getPropertyName(), lowerBoundary, upperBoundary));
+                filter.setComparisonOps(
+                        createPropertyIsBetween(featureAttributeDescriptor.getPropertyName(),
+                                lowerBoundary, upperBoundary));
             } else {
-                throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE,
-                        propertyName));
+                throw new IllegalArgumentException(
+                        String.format(PROPERTY_NOT_QUERYABLE, propertyName));
             }
         } else {
             return null;
@@ -647,10 +644,12 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                 FeatureAttributeDescriptor attrDescriptor = (FeatureAttributeDescriptor) featureMetacardType
                         .getAttributeDescriptor(featureMetacardType.getTextualProperties().get(0));
                 if (attrDescriptor.isIndexed()) {
-                    returnFilter.setComparisonOps(createPropertyIsFilter(
-                            attrDescriptor.getPropertyName(), literal, propertyIsType));
+                    returnFilter.setComparisonOps(
+                            createPropertyIsFilter(attrDescriptor.getPropertyName(), literal,
+                                    propertyIsType));
                 } else {
-                    LOGGER.debug("All textual properties have been blacklisted.  Removing from query.");
+                    LOGGER.debug(
+                            "All textual properties have been blacklisted.  Removing from query.");
                     return null;
                 }
             } else {
@@ -661,8 +660,9 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                             .getAttributeDescriptor(property);
                     if (attrDesc.isIndexed()) {
                         FilterType filter = new FilterType();
-                        filter.setComparisonOps(createPropertyIsFilter(attrDesc.getPropertyName(),
-                                literal, propertyIsType));
+                        filter.setComparisonOps(
+                                createPropertyIsFilter(attrDesc.getPropertyName(), literal,
+                                        propertyIsType));
                         binaryCompOpsToBeOred.add(filter);
                     } else {
                         LOGGER.debug(String.format(PROPERTY_NOT_QUERYABLE, property));
@@ -671,7 +671,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                 if (!binaryCompOpsToBeOred.isEmpty()) {
                     returnFilter = or(binaryCompOpsToBeOred);
                 } else {
-                    LOGGER.debug("All textual properties have been blacklisted.  Removing from query.");
+                    LOGGER.debug(
+                            "All textual properties have been blacklisted.  Removing from query.");
                     return null;
                 }
             }
@@ -680,12 +681,13 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             FeatureAttributeDescriptor attrDesc = (FeatureAttributeDescriptor) featureMetacardType
                     .getAttributeDescriptor(propertyName);
             if (attrDesc.isIndexed()) {
-                returnFilter.setComparisonOps(createPropertyIsFilter(attrDesc.getPropertyName(),
-                        literal, propertyIsType));
+                returnFilter.setComparisonOps(
+                        createPropertyIsFilter(attrDesc.getPropertyName(), literal,
+                                propertyIsType));
             } else {
                 // blacklisted property encountered
-                throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE,
-                        propertyName));
+                throw new IllegalArgumentException(
+                        String.format(PROPERTY_NOT_QUERYABLE, propertyName));
             }
         } else if (Metacard.ID.equals(propertyName)) {
             LOGGER.debug("feature id query for : {}", literal);
@@ -795,8 +797,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
     }
 
     private boolean isValidInputParameters(String propertyName, Object literal) {
-        if (literal == null || StringUtils.isEmpty(propertyName)
-                || StringUtils.isEmpty(literal.toString())) {
+        if (literal == null || StringUtils.isEmpty(propertyName) || StringUtils
+                .isEmpty(literal.toString())) {
             return false;
         }
         return true;
@@ -841,8 +843,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         }
 
         if (supportedGeo.contains(SPATIAL_OPERATORS.Beyond.getValue())) {
-            return buildGeospatialFilterType(SPATIAL_OPERATORS.Beyond.toString(), propertyName,
-                    wkt, distance);
+            return buildGeospatialFilterType(SPATIAL_OPERATORS.Beyond.toString(), propertyName, wkt,
+                    distance);
         } else if (supportedGeo.contains(SPATIAL_OPERATORS.DWithin.getValue())) {
             return not(dwithin(propertyName, wkt, distance));
         } else {
@@ -930,15 +932,17 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         }
 
         if (supportedGeo.contains(SPATIAL_OPERATORS.DWithin.getValue())) {
-            return this.buildGeospatialFilterType(SPATIAL_OPERATORS.DWithin.toString(),
-                    propertyName, wkt, distance);
+            return this
+                    .buildGeospatialFilterType(SPATIAL_OPERATORS.DWithin.toString(), propertyName,
+                            wkt, distance);
         } else if (supportedGeo.contains(SPATIAL_OPERATORS.Beyond.getValue())) {
             return not(beyond(propertyName, wkt, distance));
         } else if (supportedGeo.contains(SPATIAL_OPERATORS.Intersect.getValue())) {
             String bufferedWkt = bufferGeometry(wkt, distance);
             return intersects(propertyName, bufferedWkt);
         } else {
-            LOGGER.debug("WFS Source does not support the DWithin filter or any of its fallback filters (Not Beyond or Intersects).");
+            LOGGER.debug(
+                    "WFS Source does not support the DWithin filter or any of its fallback filters (Not Beyond or Intersects).");
             return null;
         }
     }
@@ -1016,8 +1020,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
         }
 
         if (supportedGeo.contains(SPATIAL_OPERATORS.Within.getValue())) {
-            return buildGeospatialFilterType(SPATIAL_OPERATORS.Within.toString(), propertyName,
-                    wkt, null);
+            return buildGeospatialFilterType(SPATIAL_OPERATORS.Within.toString(), propertyName, wkt,
+                    null);
         } else if (supportedGeo.contains(SPATIAL_OPERATORS.Contains.getValue())) {
             return not(within(propertyName, wkt));
         } else {
@@ -1059,8 +1063,9 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                 FeatureAttributeDescriptor attrDesc = (FeatureAttributeDescriptor) featureMetacardType
                         .getAttributeDescriptor(featureMetacardType.getGmlProperties().get(0));
                 if (attrDesc != null && attrDesc.isIndexed()) {
-                    returnFilter.setSpatialOps(createSpatialOpType(spatialOpType,
-                            attrDesc.getPropertyName(), wkt, distance));
+                    returnFilter.setSpatialOps(
+                            createSpatialOpType(spatialOpType, attrDesc.getPropertyName(), wkt,
+                                    distance));
                 } else {
                     LOGGER.debug("All GEO properties have been blacklisted. Removing from query");
                     return null;
@@ -1073,8 +1078,9 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                             .getAttributeDescriptor(property);
                     if (attrDesc != null && attrDesc.isIndexed()) {
                         FilterType filter = new FilterType();
-                        filter.setSpatialOps(createSpatialOpType(spatialOpType,
-                                attrDesc.getPropertyName(), wkt, distance));
+                        filter.setSpatialOps(
+                                createSpatialOpType(spatialOpType, attrDesc.getPropertyName(), wkt,
+                                        distance));
                         filtersToBeOred.add(filter);
                     } else {
                         LOGGER.debug(String.format(PROPERTY_NOT_QUERYABLE, property));
@@ -1092,13 +1098,14 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     .getAttributeDescriptor(propertyName);
             if (attrDesc != null && attrDesc.isIndexed()) {
                 FilterType filter = new FilterType();
-                filter.setSpatialOps(createSpatialOpType(spatialOpType, attrDesc.getPropertyName(),
-                        wkt, distance));
+                filter.setSpatialOps(
+                        createSpatialOpType(spatialOpType, attrDesc.getPropertyName(), wkt,
+                                distance));
                 return filter;
             } else {
                 // blacklisted property encountered
-                throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE,
-                        propertyName));
+                throw new IllegalArgumentException(
+                        String.format(PROPERTY_NOT_QUERYABLE, propertyName));
             }
         } else {
             return null;
@@ -1122,7 +1129,8 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     wkt);
         case Crosses:
             return buildBinarySpatialOpType(
-                    filterObjectFactory.createCrosses(new BinarySpatialOpType()), propertyName, wkt);
+                    filterObjectFactory.createCrosses(new BinarySpatialOpType()), propertyName,
+                    wkt);
         case Disjoint:
             return buildBinarySpatialOpType(
                     filterObjectFactory.createDisjoint(new BinarySpatialOpType()), propertyName,
@@ -1141,13 +1149,15 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
                     wkt);
         case Touches:
             return buildBinarySpatialOpType(
-                    filterObjectFactory.createTouches(new BinarySpatialOpType()), propertyName, wkt);
+                    filterObjectFactory.createTouches(new BinarySpatialOpType()), propertyName,
+                    wkt);
         case Within:
             return buildBinarySpatialOpType(
                     filterObjectFactory.createWithin(new BinarySpatialOpType()), propertyName, wkt);
         default:
-            throw new UnsupportedOperationException("Unsupported geospatial filter type "
-                    + SPATIAL_OPERATORS.valueOf(operation) + " specified");
+            throw new UnsupportedOperationException(
+                    "Unsupported geospatial filter type " + SPATIAL_OPERATORS.valueOf(operation)
+                            + " specified");
         }
 
     }
@@ -1470,10 +1480,15 @@ public class WfsFilterDelegate extends FilterDelegate<FilterType> {
             if (isGeometryOperandSupported(Wfs10Constants.GEOMETRY_COLLECTION)) {
                 return createGeometryCollection(wktGeometry);
             } else {
-                throw new IllegalArgumentException("The GeometryCollection operand is not supported.");
+                throw new IllegalArgumentException(
+                        "The GeometryCollection operand is not supported.");
             }
         }
         throw new IllegalArgumentException("Unable to create Geometry from WKT String");
+    }
+
+    private static enum PROPERTY_IS_OPS {
+        PropertyIsEqualTo, PropertyIsLike, PropertyIsNotEqualTo, PropertyIsGreaterThan, PropertyIsGreaterThanOrEqualTo, PropertyIsLessThan, PropertyIsLessThanOrEqualTo;
     }
 
 }

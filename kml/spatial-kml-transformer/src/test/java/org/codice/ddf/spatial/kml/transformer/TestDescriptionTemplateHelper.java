@@ -1,19 +1,20 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.kml.transformer;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -22,7 +23,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.hamcrest.Matchers.is;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -40,29 +40,29 @@ import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
-import ddf.action.Action;
-import ddf.action.ActionProvider;
-import org.codice.ddf.configuration.ConfigurationManager;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.github.jknack.handlebars.Options;
 
+import ddf.action.Action;
+import ddf.action.ActionProvider;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 
 public class TestDescriptionTemplateHelper {
 
     private static final String ID = "id";
-    private static final String SOURCE = "sourceId";
 
-    private static ActionProvider mockActionProvider;
-    private static Action mockAction;
+    private static final String SOURCE = "sourceId";
 
     private static final String ACTION_URL = "http://example.com/source/id?transform=resource";
 
     private static final String DEFAULT_URI = "http://example.com/something/different";
+
+    private static ActionProvider mockActionProvider;
+
+    private static Action mockAction;
 
     private static DescriptionTemplateHelper helper;
 
@@ -74,7 +74,7 @@ public class TestDescriptionTemplateHelper {
         when(mockAction.getUrl()).thenReturn(new URL(ACTION_URL));
         helper = new DescriptionTemplateHelper(mockActionProvider);
     }
-    
+
     @Test
     public void testUnsetEffectiveTime() throws ParseException {
         MetacardImpl metacard = new MetacardImpl();
@@ -85,7 +85,7 @@ public class TestDescriptionTemplateHelper {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         assertNotNull(effectiveTime);
     }
-    
+
     @Test
     public void testSetEffectiveTime() throws ParseException {
         MetacardImpl metacard = new MetacardImpl();
@@ -94,14 +94,16 @@ public class TestDescriptionTemplateHelper {
         calendar.set(Calendar.MILLISECOND, 0);
         Date date = calendar.getTime();
         metacard.setEffectiveDate(date);
-        
-        String effectiveTime = helper.prettyPrint(metacard.getAttribute(Metacard.EFFECTIVE), metacard.getMetacardType().getAttributeDescriptor(Metacard.EFFECTIVE).getType().getAttributeFormat());
+
+        String effectiveTime = helper.prettyPrint(metacard.getAttribute(Metacard.EFFECTIVE),
+                metacard.getMetacardType().getAttributeDescriptor(Metacard.EFFECTIVE).getType()
+                        .getAttributeFormat());
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         Date retrievedDate = dateFormat.parse(effectiveTime);
         assertNotNull(effectiveTime);
         assertThat(effectiveTime, is(dateFormat.format(date)));
         assertThat(date, is(dateFormat.parse(effectiveTime)));
-        assertEquals(date, retrievedDate);        
+        assertEquals(date, retrievedDate);
     }
 
     @Test
@@ -120,7 +122,7 @@ public class TestDescriptionTemplateHelper {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setSourceId(SOURCE);
         metacard.setId(ID);
-        
+
         String url = helper.resourceUrl(metacard);
         assertThat(url, is(ACTION_URL));
     }
@@ -134,7 +136,7 @@ public class TestDescriptionTemplateHelper {
         Options mockOptions = mock(Options.class);
         when(mockOptions.fn()).thenReturn(ifOption);
         when(mockOptions.inverse()).thenReturn(elseOption);
-        
+
         String result = helper.hasThumbnail(metacard, mockOptions).toString();
         assertEquals(elseOption, result);
     }
@@ -149,10 +151,10 @@ public class TestDescriptionTemplateHelper {
         Options mockOptions = mock(Options.class);
         when(mockOptions.fn()).thenReturn(ifOption);
         when(mockOptions.inverse()).thenReturn(elseOption);
-        
+
         String result = helper.hasThumbnail(metacard, mockOptions).toString();
         assertEquals(ifOption, result);
-        
+
     }
 
     @Test
@@ -160,31 +162,31 @@ public class TestDescriptionTemplateHelper {
         byte[] expected = new byte[] {1, 2, 3};
         MetacardImpl metacard = new MetacardImpl();
         metacard.setThumbnail(expected);
-        
+
         String result = helper.base64Thumbnail(metacard);
-        
+
         byte[] actual = DatatypeConverter.parseBase64Binary(result);
-        
-        assertArrayEquals(expected, actual);        
+
+        assertArrayEquals(expected, actual);
     }
 
     @Test
     public void testResourceSizeStringNoneSet() {
         MetacardImpl metacard = new MetacardImpl();
-        
+
         String result = helper.resourceSizeString(metacard);
-        
-        assertNull(result);        
+
+        assertNull(result);
     }
 
     @Test
     public void testResourceSizeStringNASet() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("N/A");
-        
+
         String result = helper.resourceSizeString(metacard);
-        
-        assertNull(result);        
+
+        assertNull(result);
     }
 
     @Test
@@ -193,12 +195,11 @@ public class TestDescriptionTemplateHelper {
 
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize(size);
-        
-        String result = helper.resourceSizeString(metacard);
-        
-        assertEquals(size, result);        
-    }
 
+        String result = helper.resourceSizeString(metacard);
+
+        assertEquals(size, result);
+    }
 
     @Test
     public void testResourceSizeStringNumericSet() {
@@ -215,8 +216,8 @@ public class TestDescriptionTemplateHelper {
         String result;
         for (String val : sizes.keySet()) {
             metacard.setResourceSize(val);
-            result = helper.resourceSizeString(metacard);        
-            assertEquals(sizes.get(val), result);        
+            result = helper.resourceSizeString(metacard);
+            assertEquals(sizes.get(val), result);
         }
     }
 }

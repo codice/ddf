@@ -1,24 +1,21 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import net.opengis.gml.v_3_1_1.DirectPositionListType;
-import net.opengis.gml.v_3_1_1.LinearRingType;
 
 import org.jvnet.ogc.gml.v_3_1_1.ObjectFactoryInterface;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311CoordinateConverter;
@@ -27,6 +24,9 @@ import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311SRSReferenceGroupConverterInterf
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LinearRing;
+
+import net.opengis.gml.v_3_1_1.DirectPositionListType;
+import net.opengis.gml.v_3_1_1.LinearRingType;
 
 /**
  * An implementation of {@link JTSToGML311LinearRingConverter} that provides a 
@@ -37,7 +37,7 @@ import com.vividsolutions.jts.geom.LinearRing;
  */
 public class CswJTSToGML311LinearRingConverter extends JTSToGML311LinearRingConverter {
     boolean usePosList = false;
-    
+
     /**
      * Constructs a LinearRing converter that is functionally identical to the
      * converter constructed by 
@@ -61,8 +61,7 @@ public class CswJTSToGML311LinearRingConverter extends JTSToGML311LinearRingConv
      */
     public CswJTSToGML311LinearRingConverter(ObjectFactoryInterface objectFactory,
             JTSToGML311SRSReferenceGroupConverterInterface srsReferenceGroupConverter,
-            JTSToGML311CoordinateConverter coordinateConverter,
-            boolean usePosList) {
+            JTSToGML311CoordinateConverter coordinateConverter, boolean usePosList) {
         super(objectFactory, srsReferenceGroupConverter, coordinateConverter);
         this.usePosList = usePosList;
     }
@@ -72,17 +71,17 @@ public class CswJTSToGML311LinearRingConverter extends JTSToGML311LinearRingConv
      */
     @Override
     protected LinearRingType doCreateGeometryType(LinearRing linearRing) {
-        final LinearRingType resultLinearRing;        
+        final LinearRingType resultLinearRing;
 
         if (usePosList) {
             resultLinearRing = getObjectFactory().createLinearRingType();
-            
+
             List<Double> posDoubleList = new ArrayList<Double>();
             for (Coordinate coordinate : linearRing.getCoordinates()) {
                 posDoubleList.add(coordinate.x);
                 posDoubleList.add(coordinate.y);
             }
-            
+
             DirectPositionListType directPosListType = new DirectPositionListType();
             directPosListType.setValue(posDoubleList);
             resultLinearRing.setPosList(directPosListType);

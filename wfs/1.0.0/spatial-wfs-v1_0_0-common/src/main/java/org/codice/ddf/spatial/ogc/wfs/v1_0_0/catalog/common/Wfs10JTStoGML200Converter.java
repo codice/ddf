@@ -16,6 +16,14 @@ package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common;
 
 import java.io.StringReader;
 
+import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.gml2.GMLWriter;
+
 import ogc.schema.opengis.gml.v_2_1_2.AbstractGeometryType;
 import ogc.schema.opengis.gml.v_2_1_2.GeometryCollectionType;
 import ogc.schema.opengis.gml.v_2_1_2.LineStringType;
@@ -25,14 +33,6 @@ import ogc.schema.opengis.gml.v_2_1_2.MultiPolygonType;
 import ogc.schema.opengis.gml.v_2_1_2.ObjectFactory;
 import ogc.schema.opengis.gml.v_2_1_2.PointType;
 import ogc.schema.opengis.gml.v_2_1_2.PolygonType;
-
-import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
-
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.gml2.GMLWriter;
 
 public class Wfs10JTStoGML200Converter {
 
@@ -45,12 +45,12 @@ public class Wfs10JTStoGML200Converter {
     public static String convertGeometryToGML(Geometry geometry) throws JAXBException {
         GMLWriter gmlWriter = new GMLWriter(true);
         return gmlWriter.write(geometry);
-//        String gml = gmlWriter.write(geometry);
-//        return gml.replaceAll("\n", "");
+        //        String gml = gmlWriter.write(geometry);
+        //        return gml.replaceAll("\n", "");
     }
 
-    public static AbstractGeometryType convertGMLToGeometryType(String gml, QName qName)
-            throws JAXBException {
+    public static AbstractGeometryType convertGMLToGeometryType(String gml, QName qName) throws
+            JAXBException {
 
         String type = qName.getLocalPart().toUpperCase();
 

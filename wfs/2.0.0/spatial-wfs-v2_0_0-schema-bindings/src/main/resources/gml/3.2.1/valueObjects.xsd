@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
-		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:valueObjects:3.2.1">valueObjects.xsd</appinfo>
+		<appinfo
+                source="urn:x-ogc:specification:gml:schema-xsd:valueObjects:3.2.1">valueObjects.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 17.5.
 The elements declared in this Clause build on other GML schema components, in particular gml:AbstractTimeObject, gml:AbstractGeometry, and the following types:  gml:MeasureType, gml:MeasureListType, gml:CodeType, gml:CodeOrNilReasonListType, gml:BooleanOrNilReasonListType, gml:IntegerOrNilReasonList.  
 Of particular interest are elements that are the heads of substitution groups, and one named choice group. These are the primary reasons for the value objects schema, since they may act as variables in the definition of content models, such as Observations, when it is desired to permit alternative value types to occur some of which may have complex content such as arrays, geometry and time objects, and where it is useful not to prescribe the actual value type in advance. The members of the groups include quantities, category classifications, boolean, count, temporal and spatial values, and aggregates of these.  
@@ -30,7 +32,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 			</simpleContent>
 		</complexType>
 	</element>
-	<element name="BooleanList" type="gml:booleanOrNilReasonList" substitutionGroup="gml:AbstractScalarValueList"/>
+	<element name="BooleanList" type="gml:booleanOrNilReasonList"
+             substitutionGroup="gml:AbstractScalarValueList"/>
 	<element name="Category" substitutionGroup="gml:AbstractScalarValue" nillable="true">
 		<annotation>
 			<documentation>A gml:Category has an optional XML attribute codeSpace, whose value is a URI which identifies a dictionary, codelist or authority for the term.</documentation>
@@ -43,7 +46,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 			</simpleContent>
 		</complexType>
 	</element>
-	<element name="CategoryList" type="gml:CodeOrNilReasonListType" substitutionGroup="gml:AbstractScalarValueList"/>
+	<element name="CategoryList" type="gml:CodeOrNilReasonListType"
+             substitutionGroup="gml:AbstractScalarValueList"/>
 	<element name="Count" substitutionGroup="gml:AbstractScalarValue" nillable="true">
 		<complexType>
 			<simpleContent>
@@ -53,7 +57,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 			</simpleContent>
 		</complexType>
 	</element>
-	<element name="CountList" type="gml:integerOrNilReasonList" substitutionGroup="gml:AbstractScalarValueList"/>
+	<element name="CountList" type="gml:integerOrNilReasonList"
+             substitutionGroup="gml:AbstractScalarValueList"/>
 	<element name="Quantity" substitutionGroup="gml:AbstractScalarValue" nillable="true">
 		<annotation>
 			<documentation>An XML attribute uom ("unit of measure") is required, whose value is a URI which identifies the definition of a ratio scale or units by which the numeric value shall be multiplied, or an interval or position scale on which the value occurs.</documentation>
@@ -66,19 +71,23 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 			</simpleContent>
 		</complexType>
 	</element>
-	<element name="QuantityList" type="gml:MeasureOrNilReasonListType" substitutionGroup="gml:AbstractScalarValueList"/>
-	<element name="AbstractValue" type="anyType" abstract="true" substitutionGroup="gml:AbstractObject">
+	<element name="QuantityList" type="gml:MeasureOrNilReasonListType"
+             substitutionGroup="gml:AbstractScalarValueList"/>
+	<element name="AbstractValue" type="anyType" abstract="true"
+             substitutionGroup="gml:AbstractObject">
 		<annotation>
 			<documentation>gml:AbstractValue is an abstract element which acts as the head of a substitution group which contains gml:AbstractScalarValue, gml:AbstractScalarValueList, gml:CompositeValue and gml:ValueExtent, and (transitively) the elements in their substitution groups.
 These elements may be used in an application schema as variables, so that in an XML instance document any member of its substitution group may occur.</documentation>
 		</annotation>
 	</element>
-	<element name="AbstractScalarValue" type="anyType" abstract="true" substitutionGroup="gml:AbstractValue">
+	<element name="AbstractScalarValue" type="anyType" abstract="true"
+             substitutionGroup="gml:AbstractValue">
 		<annotation>
 			<documentation>gml:AbstractScalarValue is an abstract element which acts as the head of a substitution group which contains gml:Boolean, gml:Category, gml:Count and gml:Quantity, and (transitively) the elements in their substitution groups.</documentation>
 		</annotation>
 	</element>
-	<element name="AbstractScalarValueList" type="anyType" abstract="true" substitutionGroup="gml:AbstractValue">
+	<element name="AbstractScalarValueList" type="anyType" abstract="true"
+             substitutionGroup="gml:AbstractValue">
 		<annotation>
 			<documentation>gml:AbstractScalarValueList is an abstract element which acts as the head of a substitution group which contains gml:BooleanList, gml:CategoryList, gml:CountList and gml:QuantityList, and (transitively) the elements in their substitution groups.</documentation>
 		</annotation>
@@ -122,7 +131,8 @@ These elements may be used in an application schema as variables, so that in an 
 		</sequence>
 		<attributeGroup ref="gml:OwnershipAttributeGroup"/>
 	</complexType>
-	<element name="CompositeValue" type="gml:CompositeValueType" substitutionGroup="gml:AbstractValue">
+	<element name="CompositeValue" type="gml:CompositeValueType"
+             substitutionGroup="gml:AbstractValue">
 		<annotation>
 			<documentation>gml:CompositeValue is an aggregate value built from other values . It contains zero or an arbitrary number of gml:valueComponent elements, and zero or one gml:valueComponents property elements.  It may be used for strongly coupled aggregates (vectors, tensors) or for arbitrary collections of values.</documentation>
 		</annotation>
@@ -156,7 +166,8 @@ ValueArray has the same content model as CompositeValue, but the member values s
 		<attribute name="codeSpace" type="anyURI"/>
 		<attribute name="uom" type="gml:UomIdentifier"/>
 	</attributeGroup>
-	<element name="CategoryExtent" type="gml:CategoryExtentType" substitutionGroup="gml:AbstractValue"/>
+	<element name="CategoryExtent" type="gml:CategoryExtentType"
+             substitutionGroup="gml:AbstractValue"/>
 	<complexType name="CategoryExtentType">
 		<simpleContent>
 			<restriction base="gml:CodeOrNilReasonListType">
@@ -170,7 +181,8 @@ ValueArray has the same content model as CompositeValue, but the member values s
 			<length value="2"/>
 		</restriction>
 	</simpleType>
-	<element name="QuantityExtent" type="gml:QuantityExtentType" substitutionGroup="gml:AbstractValue"/>
+	<element name="QuantityExtent" type="gml:QuantityExtentType"
+             substitutionGroup="gml:AbstractValue"/>
 	<complexType name="QuantityExtentType">
 		<simpleContent>
 			<restriction base="gml:MeasureOrNilReasonListType">

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema
-   targetNamespace="http://www.opengis.net/fes/2.0"
-   xmlns:fes="http://www.opengis.net/fes/2.0"
-   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-   elementFormDefault="qualified"
-   version="2.0.0">
+        xmlns:fes="http://www.opengis.net/fes/2.0"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.opengis.net/fes/2.0"
+        elementFormDefault="qualified"
+        version="2.0.0">
 
    <xsd:annotation>
       <xsd:documentation>
@@ -31,10 +31,10 @@
       </xsd:complexContent>
    </xsd:complexType>
 
-   <!-- =================================================================== -->
-   <!-- FILTER PREDICATES                                                   -->
-   <!-- =================================================================== -->
-   <xsd:group name="FilterPredicates">
+    <!-- =================================================================== -->
+    <!-- FILTER PREDICATES                                                   -->
+    <!-- =================================================================== -->
+    <xsd:group name="FilterPredicates">
      <xsd:choice>
          <xsd:element ref="fes:comparisonOps"/>
          <xsd:element ref="fes:spatialOps"/>
@@ -46,12 +46,12 @@
       </xsd:choice>
    </xsd:group>
 
-   <!-- =================================================================== -->
-   <!-- COMPARISON OPERATORS                                                -->
-   <!-- =================================================================== -->
-   <xsd:element name="comparisonOps"
-                type="fes:ComparisonOpsType"
-                abstract="true"/>
+    <!-- =================================================================== -->
+    <!-- COMPARISON OPERATORS                                                -->
+    <!-- =================================================================== -->
+    <xsd:element name="comparisonOps"
+                 type="fes:ComparisonOpsType"
+                 abstract="true"/>
    <xsd:complexType name="ComparisonOpsType" abstract="true"/>
    <xsd:element name="PropertyIsEqualTo"
                 type="fes:BinaryComparisonOpType"
@@ -84,10 +84,10 @@
                 type="fes:PropertyIsBetweenType"
                 substitutionGroup="fes:comparisonOps"/>
 
-   <!-- =================================================================== -->
-   <!-- SPATIAL OPERATORS                                                   -->
-   <!-- =================================================================== -->
-   <xsd:element name="spatialOps" type="fes:SpatialOpsType" abstract="true"/>
+    <!-- =================================================================== -->
+    <!-- SPATIAL OPERATORS                                                   -->
+    <!-- =================================================================== -->
+    <xsd:element name="spatialOps" type="fes:SpatialOpsType" abstract="true"/>
    <xsd:complexType name="SpatialOpsType" abstract="true"/>
    <xsd:element name="Equals"
                 type="fes:BinarySpatialOpType"
@@ -123,10 +123,10 @@
                 type="fes:BBOXType"
                 substitutionGroup="fes:spatialOps"/>
 
-   <!-- =================================================================== -->
-   <!-- TEMPORAL OPERATORS                                                  -->
-   <!-- =================================================================== -->
-   <xsd:element name="temporalOps" type="fes:TemporalOpsType" abstract="true"/>
+    <!-- =================================================================== -->
+    <!-- TEMPORAL OPERATORS                                                  -->
+    <!-- =================================================================== -->
+    <xsd:element name="temporalOps" type="fes:TemporalOpsType" abstract="true"/>
    <xsd:complexType name="TemporalOpsType" abstract="true"/>
    <xsd:element name="After"
                 type="fes:BinaryTemporalOpType"
@@ -171,10 +171,10 @@
                 type="fes:BinaryTemporalOpType"
                 substitutionGroup="fes:temporalOps"/>
 
-   <!-- =================================================================== -->
-   <!-- LOGICAL OPERATORS                                                   -->
-   <!-- =================================================================== -->
-   <xsd:element name="logicOps" type="fes:LogicOpsType" abstract="true"/>
+    <!-- =================================================================== -->
+    <!-- LOGICAL OPERATORS                                                   -->
+    <!-- =================================================================== -->
+    <xsd:element name="logicOps" type="fes:LogicOpsType" abstract="true"/>
    <xsd:complexType name="LogicOpsType" abstract="true"/>
    <xsd:element name="And"
                 type="fes:BinaryLogicOpType"
@@ -186,26 +186,26 @@
                 type="fes:UnaryLogicOpType"
                 substitutionGroup="fes:logicOps"/>
 
-   <!-- =================================================================== -->
-   <!-- EXTENSION OPERATORS                                                 -->
-   <!-- =================================================================== -->
-   <xsd:element name="extensionOps"
-                type="fes:ExtensionOpsType"
-                abstract="true"/>
+    <!-- =================================================================== -->
+    <!-- EXTENSION OPERATORS                                                 -->
+    <!-- =================================================================== -->
+    <xsd:element name="extensionOps"
+                 type="fes:ExtensionOpsType"
+                 abstract="true"/>
    <xsd:complexType name="ExtensionOpsType" abstract="true"/>
 
-   <!-- =================================================================== -->
-   <!-- OBJECT/RECORDS IDENTIFIERS                                          -->
-   <!-- =================================================================== -->
-   <xsd:element name="_Id" type="fes:AbstractIdType" abstract="true"/>
+    <!-- =================================================================== -->
+    <!-- OBJECT/RECORDS IDENTIFIERS                                          -->
+    <!-- =================================================================== -->
+    <xsd:element name="_Id" type="fes:AbstractIdType" abstract="true"/>
    <xsd:complexType name="AbstractIdType" abstract="true"/>
 
-   <!-- =================================================================== -->
-   <!-- CONCRETE OBJECT IDENTIFIERS                                         -->
-   <!-- =================================================================== -->
-   <xsd:element name="ResourceId"
-                type="fes:ResourceIdType"
-                substitutionGroup="fes:_Id"/>
+    <!-- =================================================================== -->
+    <!-- CONCRETE OBJECT IDENTIFIERS                                         -->
+    <!-- =================================================================== -->
+    <xsd:element name="ResourceId"
+                 type="fes:ResourceIdType"
+                 substitutionGroup="fes:_Id"/>
    <xsd:complexType name="ResourceIdType">
       <xsd:complexContent>
          <xsd:extension base="fes:AbstractIdType">
@@ -233,10 +233,10 @@
       </xsd:restriction>
    </xsd:simpleType>
 
-   <!-- =================================================================== -->
-   <!-- TYPE DECLARATIONS                                                   -->
-   <!-- =================================================================== -->
-   <xsd:complexType name="BinaryComparisonOpType">
+    <!-- =================================================================== -->
+    <!-- TYPE DECLARATIONS                                                   -->
+    <!-- =================================================================== -->
+    <xsd:complexType name="BinaryComparisonOpType">
       <xsd:complexContent>
          <xsd:extension base="fes:ComparisonOpsType">
             <xsd:sequence>

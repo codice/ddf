@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml/3.2" elementFormDefault="qualified" xml:lang="en" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" xml:lang="en"
+        version="3.2.1.2">
 	<annotation>
 		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:coordinateReferenceSystems:3.2.1">coordinateReferenceSystems.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 13.3.
@@ -15,7 +17,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 	<include schemaLocation="coordinateSystems.xsd"/>
 	<include schemaLocation="datums.xsd"/>
 	<include schemaLocation="coordinateOperations.xsd"/>
-	<element name="AbstractSingleCRS" type="gml:AbstractCRSType" abstract="true" substitutionGroup="gml:AbstractCRS">
+	<element name="AbstractSingleCRS" type="gml:AbstractCRSType" abstract="true"
+             substitutionGroup="gml:AbstractCRS">
 		<annotation>
 			<documentation>gml:AbstractSingleCRS implements a coordinate reference system consisting of one coordinate system and one datum (as opposed to a Compound CRS).</documentation>
 		</annotation>
@@ -29,7 +32,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="AbstractGeneralDerivedCRS" type="gml:AbstractGeneralDerivedCRSType" abstract="true" substitutionGroup="gml:AbstractSingleCRS">
+	<element name="AbstractGeneralDerivedCRS" type="gml:AbstractGeneralDerivedCRSType"
+             abstract="true" substitutionGroup="gml:AbstractSingleCRS">
 		<annotation>
 			<documentation>gml:AbstractGeneralDerivedCRS is a coordinate reference system that is defined by its coordinate conversion from another coordinate reference system. This abstract complex type shall not be used, extended, or restricted, in a GML Application Schema, to define a concrete subtype with a meaning equivalent to a concrete subtype specified in this document.</documentation>
 		</annotation>
@@ -57,7 +61,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 		<complexContent>
 			<extension base="gml:AbstractCRSType">
 				<sequence>
-					<element ref="gml:componentReferenceSystem" minOccurs="2" maxOccurs="unbounded"/>
+					<element ref="gml:componentReferenceSystem" minOccurs="2"
+                             maxOccurs="unbounded"/>
 				</sequence>
 				<attributeGroup ref="gml:AggregationAttributeGroup"/>
 			</extension>
@@ -77,7 +82,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="GeodeticCRS" type="gml:GeodeticCRSType" substitutionGroup="gml:AbstractSingleCRS"/>
+	<element name="GeodeticCRS" type="gml:GeodeticCRSType"
+             substitutionGroup="gml:AbstractSingleCRS"/>
 	<complexType name="GeodeticCRSType">
 		<annotation>
 			<documentation>gml:GeodeticCRS is a coordinate reference system based on a geodetic datum.</documentation>
@@ -125,7 +131,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="VerticalCRS" type="gml:VerticalCRSType" substitutionGroup="gml:AbstractSingleCRS">
+	<element name="VerticalCRS" type="gml:VerticalCRSType"
+             substitutionGroup="gml:AbstractSingleCRS">
 		<annotation>
 			<documentation>gml:VerticalCRS is a 1D coordinate reference system used for recording heights or depths. Vertical CRSs make use of the direction of gravity to define the concept of height or depth, but the relationship with gravity may not be straightforward. By implication, ellipsoidal heights (h) cannot be captured in a vertical coordinate reference system. Ellipsoidal heights cannot exist independently, but only as an inseparable part of a 3D coordinate tuple defined in a geographic 3D coordinate reference system.</documentation>
 		</annotation>
@@ -159,7 +166,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="ProjectedCRS" type="gml:ProjectedCRSType" substitutionGroup="gml:AbstractGeneralDerivedCRS">
+	<element name="ProjectedCRS" type="gml:ProjectedCRSType"
+             substitutionGroup="gml:AbstractGeneralDerivedCRS">
 		<annotation>
 			<documentation>gml:ProjectedCRS is a 2D coordinate reference system used to approximate the shape of the earth on a planar surface, but in such a way that the distortion that is inherent to the approximation is carefully controlled and known. Distortion correction is commonly applied to calculated bearings and distances to produce values that are a close match to actual field values.</documentation>
 		</annotation>
@@ -191,7 +199,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="DerivedCRS" type="gml:DerivedCRSType" substitutionGroup="gml:AbstractGeneralDerivedCRS">
+	<element name="DerivedCRS" type="gml:DerivedCRSType"
+             substitutionGroup="gml:AbstractGeneralDerivedCRS">
 		<annotation>
 			<documentation>gml:DerivedCRS is a single coordinate reference system that is defined by its coordinate conversion from another single coordinate reference system known as the base CRS. The base CRS can be a projected coordinate reference system, if this DerivedCRS is used for a georectified grid coverage as described in ISO 19123, Clause 8.</documentation>
 		</annotation>
@@ -231,7 +240,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="EngineeringCRS" type="gml:EngineeringCRSType" substitutionGroup="gml:AbstractSingleCRS">
+	<element name="EngineeringCRS" type="gml:EngineeringCRSType"
+             substitutionGroup="gml:AbstractSingleCRS">
 		<annotation>
 			<documentation>gml:EngineeringCRS is a contextually local coordinate reference system which can be divided into two broad categories:
 -	earth-fixed systems applied to engineering activities on or near the surface of the earth;
@@ -333,7 +343,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="TemporalCRS" type="gml:TemporalCRSType" substitutionGroup="gml:AbstractSingleCRS">
+	<element name="TemporalCRS" type="gml:TemporalCRSType"
+             substitutionGroup="gml:AbstractSingleCRS">
 		<annotation>
 			<documentation>gml:TemporalCRS is a 1D coordinate reference system used for the recording of time.</documentation>
 		</annotation>

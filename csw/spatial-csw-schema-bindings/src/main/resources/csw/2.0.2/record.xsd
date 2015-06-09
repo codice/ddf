@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<xsd:schema id="csw-record"
-   targetNamespace="http://www.opengis.net/cat/csw/2.0.2"
-   xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
-   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:dct="http://purl.org/dc/terms/" xmlns:ows="http://www.opengis.net/ows"
-   elementFormDefault="qualified" version="2.0.2">
+<xsd:schema xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:dct="http://purl.org/dc/terms/"
+            xmlns:ows="http://www.opengis.net/ows"
+            id="csw-record" targetNamespace="http://www.opengis.net/cat/csw/2.0.2"
+            elementFormDefault="qualified" version="2.0.2">
    <xsd:annotation>
       <xsd:appinfo>
          <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">http://schemas.opengis.net/csw/2.0.2/record.xsd</dc:identifier>
@@ -25,7 +25,7 @@
                schemaLocation="../../ows/1.0.0/owsAll.xsd"/>
 
    <xsd:element name="AbstractRecord" id="AbstractRecord"
-                type="csw:AbstractRecordType" abstract="true" />
+                type="csw:AbstractRecordType" abstract="true"/>
    <xsd:complexType name="AbstractRecordType" id="AbstractRecordType"
                     abstract="true"/>
 
@@ -133,5 +133,5 @@
          </xsd:extension>
       </xsd:complexContent>
    </xsd:complexType>
-   <xsd:complexType name="EmptyType" />
+   <xsd:complexType name="EmptyType"/>
 </xsd:schema>

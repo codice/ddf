@@ -17,7 +17,8 @@
 	In order to validate with xerces, changed the "x:" prefix to "xml:" in the namespace declaration and references to "lang" and "space" attributes
 =================== OpenGIS ============================ 
 -->
-<schema targetNamespace="http://www.w3.org/XML/1998/namespace" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="http://www.w3.org/XML/1998/namespace"
+        xmlns="http://www.w3.org/2001/XMLSchema">
 	<attribute name="lang" type="language">
 		<annotation>
 			<documentation>In due course, we should install the relevant ISO 2- and 3-letter

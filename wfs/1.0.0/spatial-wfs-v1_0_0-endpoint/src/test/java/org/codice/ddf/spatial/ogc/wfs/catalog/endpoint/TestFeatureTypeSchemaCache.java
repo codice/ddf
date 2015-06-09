@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.endpoint;
 
@@ -63,8 +63,6 @@ import ddf.catalog.source.impl.SourceDescriptorImpl;
 
 public class TestFeatureTypeSchemaCache {
 
-    private FeatureTypeSchemaCache cache;
-
     private static final String REPORT = "report";
 
     private static final String THING = "thing";
@@ -76,6 +74,8 @@ public class TestFeatureTypeSchemaCache {
     private static CatalogFramework catalogFramework = mock(CatalogFramework.class);
 
     private static SourceInfoResponse mockSourceInfoResponse = mock(SourceInfoResponse.class);
+
+    private FeatureTypeSchemaCache cache;
 
     private Set<ContentType> contentTypes = new HashSet<ContentType>();
 
@@ -90,8 +90,8 @@ public class TestFeatureTypeSchemaCache {
     @Before
     public void setUp() throws SourceUnavailableException {
         mockServiceList.bindService(new MockMetacardType(), MockMetacardType.PROPERTIES);
-        when(catalogFramework.getSourceInfo(any(SourceInfoRequest.class))).thenReturn(
-                mockSourceInfoResponse);
+        when(catalogFramework.getSourceInfo(any(SourceInfoRequest.class)))
+                .thenReturn(mockSourceInfoResponse);
         Set<SourceDescriptor> sourceDescriptors = new HashSet<SourceDescriptor>();
         contentTypes.add(new ContentTypeImpl(MockMetacardType.IMAGE, MockMetacardType.IMAGE));
         contentTypes.add(new ContentTypeImpl(MockMetacardType.VIDEO, MockMetacardType.VIDEO));
@@ -102,8 +102,8 @@ public class TestFeatureTypeSchemaCache {
 
     @Test
     public void testGetSchemaByQnameMockMetacard() throws UnsupportedEncodingException {
-        XmlSchema schema = cache.getSchemaByQname(WfsQnameBuilder.buildQName(MockMetacardType.NAME,
-                MockMetacardType.IMAGE));
+        XmlSchema schema = cache.getSchemaByQname(
+                WfsQnameBuilder.buildQName(MockMetacardType.NAME, MockMetacardType.IMAGE));
 
         StringWriter writer = new StringWriter();
         schema.write(writer);
@@ -136,8 +136,9 @@ public class TestFeatureTypeSchemaCache {
                 for (XmlSchemaSequenceMember xmlSchemaSequenceMember : elements) {
                     XmlSchemaElement element = (XmlSchemaElement) xmlSchemaSequenceMember;
                     if (descriptor.getName().equals(element.getName())) {
-                        assertTrue(compareDescriptorTypeToElementType(descriptor.getType()
-                                .getAttributeFormat(), element.getSchemaTypeName()));
+                        assertTrue(compareDescriptorTypeToElementType(
+                                descriptor.getType().getAttributeFormat(),
+                                element.getSchemaTypeName()));
                         assertNotBasicAttribute(element);
                         found = true;
                     }
@@ -174,8 +175,8 @@ public class TestFeatureTypeSchemaCache {
         assertEquals(2, qnames.size());
         for (QName qName : qnames) {
 
-            assertTrue(MockMetacardType.IMAGE.equals(qName.getLocalPart())
-                    || MockMetacardType.VIDEO.equals(qName.getLocalPart()));
+            assertTrue(MockMetacardType.IMAGE.equals(qName.getLocalPart()) || MockMetacardType.VIDEO
+                    .equals(qName.getLocalPart()));
             assertTrue(qName.getPrefix().startsWith(MockMetacardType.NAME));
         }
     }
@@ -226,8 +227,8 @@ public class TestFeatureTypeSchemaCache {
     }
 
     private List<String> getBasicAttributeNames() {
-        List<String> basicNames = new ArrayList<String>(BasicTypes.BASIC_METACARD
-                .getAttributeDescriptors().size());
+        List<String> basicNames = new ArrayList<String>(
+                BasicTypes.BASIC_METACARD.getAttributeDescriptors().size());
         for (AttributeDescriptor ad : BasicTypes.BASIC_METACARD.getAttributeDescriptors()) {
             basicNames.add(ad.getName());
         }

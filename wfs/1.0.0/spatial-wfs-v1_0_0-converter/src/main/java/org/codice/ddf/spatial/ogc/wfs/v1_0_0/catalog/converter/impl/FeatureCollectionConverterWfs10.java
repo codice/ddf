@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter.impl;
@@ -51,28 +51,30 @@ import ddf.catalog.data.impl.MetacardImpl;
  * This class works in conjunction with XStream to convert a {@link WfsFeatureCollection} to XML
  * according to the GML 3.2.1 spec. It will also convert respective XML into a
  * {@link WfsFeatureCollection}.
- * 
+ *
  */
 
 public class FeatureCollectionConverterWfs10 implements Converter {
 
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(FeatureCollectionConverterWfs10.class);
+
     protected String featureMember = "";
 
+    protected Map<String, String> prefixToUriMapping = new HashMap<String, String>();
+
     private String contextRoot;
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeatureCollectionConverterWfs10.class);
 
     private Map<String, FeatureConverter> featureConverterMap = new HashMap<String, FeatureConverter>();
-    
-    protected Map<String, String> prefixToUriMapping = new HashMap<String, String>();
-    
+
     public FeatureCollectionConverterWfs10() {
         featureMember = "featureMember";
-        prefixToUriMapping.put(Wfs10Constants.XSI_PREFIX, XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
+        prefixToUriMapping
+                .put(Wfs10Constants.XSI_PREFIX, XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
         prefixToUriMapping.put(Wfs10Constants.WFS_NAMESPACE_PREFIX, Wfs10Constants.WFS_NAMESPACE);
         prefixToUriMapping.put(Wfs10Constants.GML_PREFIX, Wfs10Constants.GML_NAMESPACE);
     }
-    
+
     @Override
     public boolean canConvert(Class clazz) {
         if (!WfsFeatureCollection.class.isAssignableFrom(clazz)) {
@@ -89,7 +91,8 @@ public class FeatureCollectionConverterWfs10 implements Converter {
                 prefixToUriMapping);
 
         for (Entry<String, String> entry : prefixToUriMapping.entrySet()) {
-            writer.addAttribute(XMLConstants.XMLNS_ATTRIBUTE + ":" + entry.getKey(), entry.getValue());
+            writer.addAttribute(XMLConstants.XMLNS_ATTRIBUTE + ":" + entry.getKey(),
+                    entry.getValue());
         }
         writer.addAttribute(WfsConstants.ATTRIBUTE_SCHEMA_LOCATION, schemaLoc);
 
@@ -100,8 +103,7 @@ public class FeatureCollectionConverterWfs10 implements Converter {
         }
 
         for (Metacard mc : wfc.getFeatureMembers()) {
-            writer.startNode(WfsConstants.GML_PREFIX + ":"
-                    + featureMember);
+            writer.startNode(WfsConstants.GML_PREFIX + ":" + featureMember);
             context.convertAnother(mc);
             writer.endNode();
         }
@@ -117,8 +119,8 @@ public class FeatureCollectionConverterWfs10 implements Converter {
             Map<String, String> prefixToUriMapping) {
 
         StringBuilder descFeatureService = new StringBuilder();
-        descFeatureService.append(contextRoot).append(
-                "/wfs?service=wfs&request=DescribeFeatureType&version=1.0.0&typeName=");
+        descFeatureService.append(contextRoot)
+                .append("/wfs?service=wfs&request=DescribeFeatureType&version=1.0.0&typeName=");
 
         StringBuilder schemaLocation = new StringBuilder();
         Set<QName> qnames = new HashSet<QName>();
@@ -128,10 +130,8 @@ public class FeatureCollectionConverterWfs10 implements Converter {
         }
         for (QName qname : qnames) {
             prefixToUriMapping.put(qname.getPrefix(), qname.getNamespaceURI());
-            schemaLocation.append(qname.getNamespaceURI()).append(" ")
-                    .append(descFeatureService).append(qname.getPrefix())
-                    .append(":").append(qname.getLocalPart())
-                    .append(" ");
+            schemaLocation.append(qname.getNamespaceURI()).append(" ").append(descFeatureService)
+                    .append(qname.getPrefix()).append(":").append(qname.getLocalPart()).append(" ");
 
         }
         return schemaLocation.toString();
@@ -148,7 +148,7 @@ public class FeatureCollectionConverterWfs10 implements Converter {
                     }
                 }
             }
-    
+
             Geometry allGeometry = new GeometryCollection(geometries.toArray(new Geometry[0]),
                     new GeometryFactory());
             return allGeometry;
@@ -169,9 +169,9 @@ public class FeatureCollectionConverterWfs10 implements Converter {
             if (featureMember.equals(nodeName)) {
                 reader.moveDown();
                 // lookup the converter for this featuretype
-                featureCollection.getFeatureMembers().add(
-                        (Metacard) context.convertAnother(null, MetacardImpl.class,
-                                featureConverterMap.get(reader.getNodeName())));
+                featureCollection.getFeatureMembers().add((Metacard) context
+                                .convertAnother(null, MetacardImpl.class,
+                                        featureConverterMap.get(reader.getNodeName())));
                 reader.moveUp();
             }
             reader.moveUp();

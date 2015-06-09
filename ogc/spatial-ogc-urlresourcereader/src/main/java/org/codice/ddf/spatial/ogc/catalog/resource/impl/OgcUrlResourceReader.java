@@ -14,21 +14,6 @@
  **/
 package org.codice.ddf.spatial.ogc.catalog.resource.impl;
 
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.impl.ResourceResponseImpl;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceReader;
-import ddf.catalog.resource.impl.ResourceImpl;
-import ddf.catalog.resource.impl.URLResourceReader;
-import ddf.mime.MimeTypeMapper;
-import org.apache.commons.lang.StringUtils;
-import org.apache.tika.Tika;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.activation.MimeType;
-import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -38,14 +23,31 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.activation.MimeType;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.tika.Tika;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.impl.ResourceResponseImpl;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.resource.impl.ResourceImpl;
+import ddf.catalog.resource.impl.URLResourceReader;
+import ddf.mime.MimeTypeMapper;
+
 /**
  * Overloaded implementation of {@link URLResourceReader} to provide redirection when a product is text/html.
  */
 public class OgcUrlResourceReader extends URLResourceReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(OgcUrlResourceReader.class);
 
-    private static final List<String> UNKNOWN_MIME_TYPES = Collections.unmodifiableList(
-            Arrays.asList("application/unknown", "application/octet-stream"));
+    private static final List<String> UNKNOWN_MIME_TYPES = Collections
+            .unmodifiableList(Arrays.asList("application/unknown", "application/octet-stream"));
 
     public OgcUrlResourceReader(MimeTypeMapper mimeTypeMapper) {
         super(mimeTypeMapper);
@@ -61,8 +63,8 @@ public class OgcUrlResourceReader extends URLResourceReader {
      * @return A {@link ResourceResponse} containing the retrieved {@link Resource}.
      */
     @Override
-    public ResourceResponse retrieveResource(URI resourceURI, Map<String, Serializable> properties)
-            throws IOException, ResourceNotFoundException {
+    public ResourceResponse retrieveResource(URI resourceURI,
+            Map<String, Serializable> properties) throws IOException, ResourceNotFoundException {
         ResourceResponse response = super.retrieveResource(resourceURI, properties);
         Resource resource = response.getResource();
         MimeType mimeType = resource.getMimeType();

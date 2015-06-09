@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2"
+		targetNamespace="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema"
+		elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
 		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:geometryAggregates:3.2.1">geometryAggregates.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 12.3.
@@ -19,7 +21,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="AbstractGeometricAggregate" type="gml:AbstractGeometricAggregateType" abstract="true" substitutionGroup="gml:AbstractGeometry">
+	<element name="AbstractGeometricAggregate" type="gml:AbstractGeometricAggregateType"
+             abstract="true" substitutionGroup="gml:AbstractGeometry">
 		<annotation>
 			<documentation>gml:AbstractGeometricAggregate is the abstract head of the substitution group for all geometric aggregates.</documentation>
 		</annotation>
@@ -34,7 +37,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="MultiGeometry" type="gml:MultiGeometryType" substitutionGroup="gml:AbstractGeometricAggregate">
+	<element name="MultiGeometry" type="gml:MultiGeometryType"
+             substitutionGroup="gml:AbstractGeometricAggregate">
 		<annotation>
 			<documentation>gml:MultiGeometry is a collection of one or more GML geometry objects of arbitrary type. 
 The members of the geometric aggregate may be specified either using the "standard" property (gml:geometryMember) or the array property (gml:geometryMembers). It is also valid to use both the "standard" and the array properties in the same collection.</documentation>
@@ -70,7 +74,8 @@ The members of the geometric aggregate may be specified either using the "standa
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="MultiPoint" type="gml:MultiPointType" substitutionGroup="gml:AbstractGeometricAggregate">
+	<element name="MultiPoint" type="gml:MultiPointType"
+             substitutionGroup="gml:AbstractGeometricAggregate">
 		<annotation>
 			<documentation>A gml:MultiPoint consists of one or more gml:Points.
 The members of the geometric aggregate may be specified either using the "standard" property (gml:pointMember) or the array property (gml:pointMembers). It is also valid to use both the "standard" and the array properties in the same collection.</documentation>
@@ -106,7 +111,8 @@ The members of the geometric aggregate may be specified either using the "standa
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="MultiCurve" type="gml:MultiCurveType" substitutionGroup="gml:AbstractGeometricAggregate">
+	<element name="MultiCurve" type="gml:MultiCurveType"
+             substitutionGroup="gml:AbstractGeometricAggregate">
 		<annotation>
 			<documentation>A gml:MultiCurve is defined by one or more gml:AbstractCurves.
 The members of the geometric aggregate may be specified either using the "standard" property (gml:curveMember) or the array property (gml:curveMembers). It is also valid to use both the "standard" and the array properties in the same collection.</documentation>
@@ -137,7 +143,8 @@ The members of the geometric aggregate may be specified either using the "standa
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="MultiSurface" type="gml:MultiSurfaceType" substitutionGroup="gml:AbstractGeometricAggregate">
+	<element name="MultiSurface" type="gml:MultiSurfaceType"
+             substitutionGroup="gml:AbstractGeometricAggregate">
 		<annotation>
 			<documentation>A gml:MultiSurface is defined by one or more gml:AbstractSurfaces.
 The members of the geometric aggregate may be specified either using the "standard" property (gml:surfaceMember) or the array property (gml:surfaceMembers). It is also valid to use both the "standard" and the array properties in the same collection.</documentation>
@@ -168,7 +175,8 @@ The members of the geometric aggregate may be specified either using the "standa
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="MultiSolid" type="gml:MultiSolidType" substitutionGroup="gml:AbstractGeometricAggregate">
+	<element name="MultiSolid" type="gml:MultiSolidType"
+             substitutionGroup="gml:AbstractGeometricAggregate">
 		<annotation>
 			<documentation>A gml:MultiSolid is defined by one or more gml:AbstractSolids.
 The members of the geometric aggregate may be specified either using the "standard" property (gml:solidMember) or the array property (gml:solidMembers). It is also valid to use both the "standard" and the array properties in the same collection.</documentation>

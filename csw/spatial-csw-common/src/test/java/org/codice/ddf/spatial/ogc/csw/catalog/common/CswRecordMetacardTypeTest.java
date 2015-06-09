@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
@@ -26,8 +26,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
-
 import org.apache.cxf.common.util.CollectionUtils;
 import org.junit.Test;
 
@@ -36,6 +34,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 
 public class CswRecordMetacardTypeTest {
 
@@ -139,13 +138,13 @@ public class CswRecordMetacardTypeTest {
                 equalTo("relation_1"));
         assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_MODIFIED).getValue(),
                 equalTo(cswModifiedDate));
-        assertThat(
-                (String) metacard.getAttribute(CswRecordMetacardType.CSW_DESCRIPTION).getValue(),
+        assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_DESCRIPTION).getValue(),
                 equalTo("abstract_1"));
         assertThat((String) metacard.getAttribute(CswRecordMetacardType.CSW_SPATIAL).getValue(),
                 equalTo(cswSpatial));
-        assertThat((String) metacard.getAttribute(CswRecordMetacardType.OWS_BOUNDING_BOX)
-                .getValue(), equalTo(cswBBox));
+        assertThat(
+                (String) metacard.getAttribute(CswRecordMetacardType.OWS_BOUNDING_BOX).getValue(),
+                equalTo(cswBBox));
     }
 
     /**
@@ -236,8 +235,7 @@ public class CswRecordMetacardTypeTest {
                 equalTo(cswModifiedDate));
         assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
                 equalTo(cswCreatedDate));
-        assertThat(
-                (Date) metacard.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED).getValue(),
+        assertThat((Date) metacard.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED).getValue(),
                 equalTo(cswDateAccepted));
     }
 

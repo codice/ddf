@@ -14,23 +14,6 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer;
 
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.QueryResponseTransformer;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyWriter;
-import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -42,6 +25,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Provider;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.QueryResponseTransformer;
+
 /**
  * CswRecordCollectionMessageBodyWriter generates an xml response for a {@link CswRecordCollection}
  */
@@ -52,10 +53,10 @@ public class CswRecordCollectionMessageBodyWriter
     private static final Logger LOGGER = LoggerFactory
             .getLogger(CswRecordCollectionMessageBodyWriter.class);
 
-    private final TransformerManager transformerManager;
+    private static final List<String> XML_MIME_TYPES = Collections
+            .unmodifiableList(Arrays.asList(MediaType.APPLICATION_XML, MediaType.TEXT_XML));
 
-    private static final List<String> XML_MIME_TYPES = Collections.unmodifiableList(Arrays
-            .asList(MediaType.APPLICATION_XML, MediaType.TEXT_XML));
+    private final TransformerManager transformerManager;
 
     public CswRecordCollectionMessageBodyWriter(TransformerManager manager) {
         this.transformerManager = manager;
@@ -76,8 +77,8 @@ public class CswRecordCollectionMessageBodyWriter
     @Override
     public void writeTo(CswRecordCollection recordCollection, Class<?> type, Type genericType,
             Annotation[] annotations, MediaType mediaType,
-            MultivaluedMap<String, Object> httpHeaders, OutputStream outStream)
-            throws IOException, WebApplicationException {
+            MultivaluedMap<String, Object> httpHeaders, OutputStream outStream) throws IOException,
+            WebApplicationException {
 
         final String mimeType = recordCollection.getMimeType();
         LOGGER.debug(
@@ -87,8 +88,7 @@ public class CswRecordCollectionMessageBodyWriter
         Map<String, Serializable> arguments = new HashMap<String, Serializable>();
         if (StringUtils.isBlank(recordCollection.getOutputSchema()) && StringUtils
                 .isNotBlank(mimeType) && !XML_MIME_TYPES.contains(mimeType)) {
-            transformer = transformerManager
-                    .getTransformerByMimeType(mimeType);
+            transformer = transformerManager.getTransformerByMimeType(mimeType);
         } else {
             transformer = transformerManager.getCswQueryResponseTransformer();
             if (recordCollection.getElementName() != null) {

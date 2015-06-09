@@ -24,7 +24,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsResponseExceptionMapper;
 import org.junit.Test;
 
 public class TestWfsResponseExceptionMapper {
@@ -38,14 +37,14 @@ public class TestWfsResponseExceptionMapper {
 
     @Test
     public void testWfsExceptionWithInvalidEntityType() {
-        String serviceExceptionReportXml = "<?xml version='1.0'?>\r\n"
-                + "<ServiceExceptionReport version='1.2.0'\r\n"
-                + "    xmlns='http://www.opengis.net/ogc'\r\n"
-                + "    xsi:schemaLocation='http://www.opengis.net/ogc http://schemas.opengis.net/wfs/1.0.0/OGC-exception.xsd'\r\n"
-                + "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>\r\n"
-                + "    <ServiceException code='GeneralException'>Schema\r\n"
-                + "        does not exist.</ServiceException>\r\n"
-                + "</ServiceExceptionReport>";
+        String serviceExceptionReportXml =
+                "<?xml version='1.0'?>\r\n" + "<ServiceExceptionReport version='1.2.0'\r\n"
+                        + "    xmlns='http://www.opengis.net/ogc'\r\n"
+                        + "    xsi:schemaLocation='http://www.opengis.net/ogc http://schemas.opengis.net/wfs/1.0.0/OGC-exception.xsd'\r\n"
+                        + "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>\r\n"
+                        + "    <ServiceException code='GeneralException'>Schema\r\n"
+                        + "        does not exist.</ServiceException>\r\n"
+                        + "</ServiceExceptionReport>";
         ResponseBuilder responseBuilder = Response.ok(serviceExceptionReportXml);
         responseBuilder.type("text/xml");
         Response response = responseBuilder.build();
@@ -58,14 +57,14 @@ public class TestWfsResponseExceptionMapper {
 
     @Test
     public void testInvalidWfsException() {
-        String serviceExceptionReportXml = "<?xml version='1.0'?>\r\n"
-                + "<ServiceExceptionReport version='1.2.0'\r\n"
-                + "    xmlns='http://www.opengis.net/ogc'\r\n"
-                + "    xsi:schemaLocation='http://www.opengis.net/ogc http://schemas.opengis.net/wfs/1.0.0/OGC-exception.xsd'\r\n"
-                + "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>\r\n"
-                + "    <INVALID_TAG code='GeneralException'>Schema\r\n"
-                + "        does not exist.</ServiceException>\r\n"
-                + "</ServiceExceptionReport>";
+        String serviceExceptionReportXml =
+                "<?xml version='1.0'?>\r\n" + "<ServiceExceptionReport version='1.2.0'\r\n"
+                        + "    xmlns='http://www.opengis.net/ogc'\r\n"
+                        + "    xsi:schemaLocation='http://www.opengis.net/ogc http://schemas.opengis.net/wfs/1.0.0/OGC-exception.xsd'\r\n"
+                        + "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>\r\n"
+                        + "    <INVALID_TAG code='GeneralException'>Schema\r\n"
+                        + "        does not exist.</ServiceException>\r\n"
+                        + "</ServiceExceptionReport>";
         WfsException wfsException = createWfsException(serviceExceptionReportXml);
 
         assertThat(wfsException.getMessage(), containsString("Error parsing Response"));
@@ -73,12 +72,12 @@ public class TestWfsResponseExceptionMapper {
 
     @Test
     public void testEmptyWfsException() {
-        String serviceExceptionReportXml = "<?xml version='1.0'?>\r\n"
-                + "<ServiceExceptionReport version='1.2.0'\r\n"
-                + "    xmlns='http://www.opengis.net/ogc'\r\n"
-                + "    xsi:schemaLocation='http://www.opengis.net/ogc http://schemas.opengis.net/wfs/1.0.0/OGC-exception.xsd'\r\n"
-                + "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>\r\n"
-                + "</ServiceExceptionReport>";
+        String serviceExceptionReportXml =
+                "<?xml version='1.0'?>\r\n" + "<ServiceExceptionReport version='1.2.0'\r\n"
+                        + "    xmlns='http://www.opengis.net/ogc'\r\n"
+                        + "    xsi:schemaLocation='http://www.opengis.net/ogc http://schemas.opengis.net/wfs/1.0.0/OGC-exception.xsd'\r\n"
+                        + "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>\r\n"
+                        + "</ServiceExceptionReport>";
         WfsException wfsException = createWfsException(serviceExceptionReportXml);
 
         assertThat(wfsException.getMessage(),
@@ -87,14 +86,14 @@ public class TestWfsResponseExceptionMapper {
 
     @Test
     public void testWfsExceptionWithMultipleServiceExceptions() {
-        String serviceExceptionReportXml = "<?xml version='1.0'?>\r\n"
-                + "<ServiceExceptionReport version='1.2.0'\r\n"
-                + "    xmlns='http://www.opengis.net/ogc'\r\n"
-                + "    xsi:schemaLocation='http://www.opengis.net/ogc http://schemas.opengis.net/wfs/1.0.0/OGC-exception.xsd'\r\n"
-                + "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>\r\n"
-                + "    <ServiceException code='GeneralException'>First exception text</ServiceException>\r\n"
-                + "    <ServiceException code='GeneralException'>Second exception text</ServiceException>\r\n"
-                + "</ServiceExceptionReport>";
+        String serviceExceptionReportXml =
+                "<?xml version='1.0'?>\r\n" + "<ServiceExceptionReport version='1.2.0'\r\n"
+                        + "    xmlns='http://www.opengis.net/ogc'\r\n"
+                        + "    xsi:schemaLocation='http://www.opengis.net/ogc http://schemas.opengis.net/wfs/1.0.0/OGC-exception.xsd'\r\n"
+                        + "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>\r\n"
+                        + "    <ServiceException code='GeneralException'>First exception text</ServiceException>\r\n"
+                        + "    <ServiceException code='GeneralException'>Second exception text</ServiceException>\r\n"
+                        + "</ServiceExceptionReport>";
 
         WfsException wfsException = createWfsException(serviceExceptionReportXml);
 

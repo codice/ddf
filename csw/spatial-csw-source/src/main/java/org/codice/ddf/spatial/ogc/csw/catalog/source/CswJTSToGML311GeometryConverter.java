@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
@@ -18,12 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.bind.JAXBElement;
-
-import net.opengis.gml.v_3_1_1.AbstractGeometryType;
-import net.opengis.gml.v_3_1_1.AbstractRingPropertyType;
-import net.opengis.gml.v_3_1_1.LinearRingType;
-import net.opengis.gml.v_3_1_1.PolygonPropertyType;
-import net.opengis.gml.v_3_1_1.PolygonType;
 
 import org.jvnet.ogc.gml.v_3_1_1.ObjectFactoryInterface;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311Constants;
@@ -39,6 +33,12 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
+import net.opengis.gml.v_3_1_1.AbstractGeometryType;
+import net.opengis.gml.v_3_1_1.AbstractRingPropertyType;
+import net.opengis.gml.v_3_1_1.LinearRingType;
+import net.opengis.gml.v_3_1_1.PolygonPropertyType;
+import net.opengis.gml.v_3_1_1.PolygonType;
+
 /**
  * An implementation of {@link JTSToGML311GeometryConverter} that provides a means 
  * of customizing the GML output. By default, the
@@ -47,14 +47,16 @@ import com.vividsolutions.jts.geom.Polygon;
  * be customized by supplying a {@code Map} of configuration properties.
  */
 public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverter {
-    
+
     public static final String USE_POS_LIST_GEO_CONVERTER_PROP_KEY = "usePosList";
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(
-            CswJTSToGML311GeometryConverter.class);
-    
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(CswJTSToGML311GeometryConverter.class);
+
     private final JTSToGML311CoordinateConverter cswCoordinateConverter;
+
     private final JTSToGML311ConverterInterface<LinearRingType, AbstractRingPropertyType, LinearRing> cswLinearRingConverter;
+
     private final JTSToGML311ConverterInterface<PolygonType, PolygonPropertyType, Polygon> cswPolygonConverter;
 
     /**
@@ -65,32 +67,31 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
     public CswJTSToGML311GeometryConverter() {
         this(null);
     }
-    
+
     /**
      * Constructs a JTS to GML Geometry converter that is functionally identical
      * to the converter constructed by 
      * {@link JTSToGML311GeometryConverter#JTSToGML311GeometryConverter()
      * with the exception that the GML that output is customized based on the 
      * properties contained in a property {@link Map}.
-     * 
+     *
      * Valid properties include:
-     *    
+     *
      *    {@code USE_POS_LIST_GEO_CONVERTER_PROP_KEY}, ["true" | "false" ] - 
      *       When "true", {@link LinearRingType}s constructed by the
      *       converter will have the posList, rather than the 
      *       posOrPointPropertyOrPointRep, member variable set and populated. 
      *       When converted to a string, this results in the GML containing a 
      *       single <posList> element rather than a list of <pos> elements.
-     *       
-     * @param propertyMap 
+     *
+     * @param propertyMap
      *      A map of properties that indicate a desired set of customizations
      *      to the GML output by the converter.
-     *    
+     *
      */
     public CswJTSToGML311GeometryConverter(Map<String, String> propertyMap) {
         this(JTSToGML311Constants.DEFAULT_OBJECT_FACTORY,
-             JTSToGML311Constants.DEFAULT_SRS_REFERENCE_GROUP_CONVERTER, 
-             propertyMap);
+                JTSToGML311Constants.DEFAULT_SRS_REFERENCE_GROUP_CONVERTER, propertyMap);
     }
 
     /**
@@ -99,16 +100,16 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
      * {@link JTSToGML311GeometryConverter#JTSToGML311GeometryConverter(ObjectFactoryInterface, JTSToGML311SRSReferenceGroupConverterInterface)}
      * with the exception that the GML that output is customized based on the 
      * properties contained in a property {@link Map}.
-     * 
+     *
      * Valid properties include:
-     *    
+     *
      *    {@code USE_POS_LIST_GEO_CONVERTER_PROP_KEY}, ["true" | "false" ] - 
      *       When "true", {@link LinearRingType}s constructed by the
      *       converter will have the posList, rather than the 
      *       posOrPointPropertyOrPointRep, member variable set and populated. 
      *       When converted to a string, this results in the GML containing a 
      *       single <posList> element rather than a list of <pos> elements.
-     *     
+     *
      * @param objectFactory
      * @param srsReferenceGroupConverter
      * @param propertyMap
@@ -119,26 +120,26 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
             JTSToGML311SRSReferenceGroupConverterInterface srsReferenceGroupConverter,
             Map<String, String> propertyMap) {
         super(objectFactory, srsReferenceGroupConverter);
-        
+
         if (null == propertyMap) {
             propertyMap = new HashMap<String, String>();
         }
-        
-        this.cswCoordinateConverter = new JTSToGML311CoordinateConverter(
-                objectFactory, srsReferenceGroupConverter);
-        this.cswLinearRingConverter = new CswJTSToGML311LinearRingConverter(
-                objectFactory, srsReferenceGroupConverter, this.cswCoordinateConverter,
+
+        this.cswCoordinateConverter = new JTSToGML311CoordinateConverter(objectFactory,
+                srsReferenceGroupConverter);
+        this.cswLinearRingConverter = new CswJTSToGML311LinearRingConverter(objectFactory,
+                srsReferenceGroupConverter, this.cswCoordinateConverter,
                 Boolean.valueOf(propertyMap.get(USE_POS_LIST_GEO_CONVERTER_PROP_KEY)));
         this.cswPolygonConverter = new JTSToGML311PolygonConverter(objectFactory,
                 srsReferenceGroupConverter, this.cswLinearRingConverter);
     }
-    
+
     /**
      * @see {@code JTSToGML311GeometryConverter#doCreateGeometryType(Geometry geometry}
      */
     @Override
-    protected AbstractGeometryType doCreateGeometryType(Geometry geometry) 
-            throws IllegalArgumentException {
+    protected AbstractGeometryType doCreateGeometryType(Geometry geometry) throws
+            IllegalArgumentException {
         if (geometry instanceof LinearRing) {
             LOGGER.debug("Creating LinearRingType");
             return cswLinearRingConverter.createGeometryType((LinearRing) geometry);
@@ -146,18 +147,19 @@ public class CswJTSToGML311GeometryConverter extends JTSToGML311GeometryConverte
             LOGGER.debug("Creating PolygonType");
             return cswPolygonConverter.createGeometryType((Polygon) geometry);
         } else {
-            LOGGER.debug("Passing Geometry to superclass for default doCreateGeometryType processing");
+            LOGGER.debug(
+                    "Passing Geometry to superclass for default doCreateGeometryType processing");
             return super.doCreateGeometryType(geometry);
         }
     }
-    
+
     /**
      * @see {@code JTSToGML311GeometryConverter#createElement(Geometry)
      */
     @Override
-    public JAXBElement<? extends AbstractGeometryType> createElement(
-            Geometry geometry) throws IllegalArgumentException {
-        
+    public JAXBElement<? extends AbstractGeometryType> createElement(Geometry geometry) throws
+            IllegalArgumentException {
+
         if (geometry instanceof LinearRing) {
             LOGGER.debug("Creating LinearRing");
             return cswLinearRingConverter.createElement((LinearRing) geometry);

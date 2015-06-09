@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
@@ -24,7 +24,7 @@ import ddf.catalog.data.Metacard;
  * Domain object to encapsulate the configuration of an instance of a {@link CswSource}. CSW
  * converters, readers, etc. will access this object to determine the latest configuration of the
  * {@link CswSource} they are working on.
- * 
+ *
  */
 public class CswSourceConfiguration {
 
@@ -45,7 +45,7 @@ public class CswSourceConfiguration {
     private String thumbnailMapping;
 
     private boolean isLonLatOrder;
-    
+
     private boolean usePosList;
 
     private Integer pollIntervalMinutes;
@@ -118,12 +118,16 @@ public class CswSourceConfiguration {
         return resourceUriMapping;
     }
 
+    public void setResourceUriMapping(String resourceUriMapping) {
+        this.resourceUriMapping = resourceUriMapping;
+    }
+
     public String getContentTypeMapping() {
         return metacardCswMappings.get(Metacard.CONTENT_TYPE);
     }
 
-    public void setResourceUriMapping(String resourceUriMapping) {
-        this.resourceUriMapping = resourceUriMapping;
+    public void setContentTypeMapping(String contentTypeMapping) {
+        metacardCswMappings.put(Metacard.CONTENT_TYPE, contentTypeMapping);
     }
 
     public String getThumbnailMapping() {
@@ -162,17 +166,13 @@ public class CswSourceConfiguration {
     public boolean isLonLatOrder() {
         return this.isLonLatOrder;
     }
-    
+
     public boolean isSetUsePosList() {
         return usePosList;
     }
-    
+
     public void setUsePosList(boolean usePosList) {
         this.usePosList = usePosList;
-    }
-
-    public void setContentTypeMapping(String contentTypeMapping) {
-        metacardCswMappings.put(Metacard.CONTENT_TYPE, contentTypeMapping);
     }
 
     public Integer getPollIntervalMinutes() {
@@ -196,7 +196,7 @@ public class CswSourceConfiguration {
     }
 
     public void setReceiveTimeout(Integer receiveTimeout) {
-        this.receiveTimeout= receiveTimeout;
+        this.receiveTimeout = receiveTimeout;
     }
 
     public void setIsCqlForced(boolean isForceCql) {

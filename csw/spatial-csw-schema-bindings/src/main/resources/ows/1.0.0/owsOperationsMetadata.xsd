@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/ows" 
-xmlns:ows="http://www.opengis.net/ows" 
-xmlns="http://www.w3.org/2001/XMLSchema" 
-elementFormDefault="qualified" version="1.0.0" xml:lang="en">
+<schema xmlns:ows="http://www.opengis.net/ows"
+        targetNamespace="http://www.opengis.net/ows"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified" version="1.0.0" xml:lang="en">
 	<annotation>
 		<appinfo>owsOperationsMetadata.xsd 2005-11-21</appinfo>
 		<documentation>This XML Schema Document encodes the basic contents of the "OperationsMetadata" section of the GetCapabilities operation response, also known as the Capabilities XML document.
 		Copyright © 2005 Open Geospatial Consortium, Inc. All Rights Reserved. </documentation>
 	</annotation>
-	<!-- ==============================================================
-		includes and imports
-	============================================================== -->
-	<include schemaLocation="owsCommon.xsd"/>
+    <!-- ==============================================================
+        includes and imports
+    ============================================================== -->
+    <include schemaLocation="owsCommon.xsd"/>
 	<include schemaLocation="ows19115subset.xsd"/>
-	<!-- ==============================================================
-		elements and types
-	============================================================== -->
-	<element name="OperationsMetadata">
+    <!-- ==============================================================
+        elements and types
+    ============================================================== -->
+    <element name="OperationsMetadata">
 		<annotation>
 			<documentation>Metadata about the operations and related abilities specified by this service and implemented by this server, including the URLs for operation requests. The basic contents of this section shall be the same for all OWS types, but individual services can add elements and/or change the optionality of optional elements. </documentation>
 		</annotation>
@@ -32,7 +32,8 @@ elementFormDefault="qualified" version="1.0.0" xml:lang="en">
 						<documentation>Optional unordered list of parameter valid domains that each apply to one or more operations which this server interface implements. The list of required and optional parameter domain limitations shall be specified in the Implementation Specification for this service. </documentation>
 					</annotation>
 				</element>
-				<element name="Constraint" type="ows:DomainType" minOccurs="0" maxOccurs="unbounded">
+				<element name="Constraint" type="ows:DomainType" minOccurs="0"
+                         maxOccurs="unbounded">
 					<annotation>
 						<documentation>Optional unordered list of valid domain constraints on non-parameter quantities that each apply to this server. The list of required and optional constraints shall be specified in the Implementation Specification for this service. </documentation>
 					</annotation>
@@ -41,14 +42,14 @@ elementFormDefault="qualified" version="1.0.0" xml:lang="en">
 			</sequence>
 		</complexType>
 	</element>
-	<!-- ========================================================== -->
-	<element name="ExtendedCapabilities" type="anyType">
+    <!-- ========================================================== -->
+    <element name="ExtendedCapabilities" type="anyType">
 		<annotation>
 			<documentation>Individual software vendors and servers can use this element to provide metadata about any additional server abilities. </documentation>
 		</annotation>
 	</element>
-	<!-- ========================================================== -->
-	<element name="Operation">
+    <!-- ========================================================== -->
+    <element name="Operation">
 		<annotation>
 			<documentation>Metadata for one operation that this server implements. </documentation>
 		</annotation>
@@ -64,7 +65,8 @@ elementFormDefault="qualified" version="1.0.0" xml:lang="en">
 						<documentation>Optional unordered list of parameter domains that each apply to this operation which this server implements. If one of these Parameter elements has the same "name" attribute as a Parameter element in the OperationsMetadata element, this Parameter element shall override the other one for this operation. The list of required and optional parameter domain limitations for this operation shall be specified in the Implementation Specification for this service. </documentation>
 					</annotation>
 				</element>
-				<element name="Constraint" type="ows:DomainType" minOccurs="0" maxOccurs="unbounded">
+				<element name="Constraint" type="ows:DomainType" minOccurs="0"
+                         maxOccurs="unbounded">
 					<annotation>
 						<documentation>Optional unordered list of valid domain constraints on non-parameter quantities that each apply to this operation. If one of these Constraint elements has the same "name" attribute as a Constraint element in the OperationsMetadata element, this Constraint element shall override the other one for this operation. The list of required and optional constraints for this operation shall be specified in the Implementation Specification for this service. </documentation>
 					</annotation>
@@ -82,8 +84,8 @@ elementFormDefault="qualified" version="1.0.0" xml:lang="en">
 			</attribute>
 		</complexType>
 	</element>
-	<!-- ========================================================== -->
-	<element name="DCP">
+    <!-- ========================================================== -->
+    <element name="DCP">
 		<annotation>
 			<documentation>Information for one distributed Computing Platform (DCP) supported for this operation. At present, only the HTTP DCP is defined, so this element only includes the HTTP element.
 </documentation>
@@ -94,8 +96,8 @@ elementFormDefault="qualified" version="1.0.0" xml:lang="en">
 			</choice>
 		</complexType>
 	</element>
-	<!-- ========================================================== -->
-	<element name="HTTP">
+    <!-- ========================================================== -->
+    <element name="HTTP">
 		<annotation>
 			<documentation>Connect point URLs for the HTTP Distributed Computing Platform (DCP). Normally, only one Get and/or one Post is included in this element. More than one Get and/or Post is allowed to support including alternative URLs for uses such as load balancing or backup. </documentation>
 		</annotation>
@@ -114,15 +116,16 @@ elementFormDefault="qualified" version="1.0.0" xml:lang="en">
 			</choice>
 		</complexType>
 	</element>
-	<!-- ========================================================== -->
-	<complexType name="RequestMethodType">
+    <!-- ========================================================== -->
+    <complexType name="RequestMethodType">
 		<annotation>
 			<documentation>Connect point URL and any constraints for this HTTP request method for this operation request. In the OnlineResourceType, the xlink:href attribute in the xlink:simpleLink attribute group shall be used to contain this URL. The other attributes in the xlink:simpleLink attribute group should not be used. </documentation>
 		</annotation>
 		<complexContent>
 			<extension base="ows:OnlineResourceType">
 				<sequence>
-					<element name="Constraint" type="ows:DomainType" minOccurs="0" maxOccurs="unbounded">
+					<element name="Constraint" type="ows:DomainType" minOccurs="0"
+                             maxOccurs="unbounded">
 						<annotation>
 							<documentation>Optional unordered list of valid domain constraints on non-parameter quantities that each apply to this request method for this operation. If one of these Constraint elements has the same "name" attribute as a Constraint element in the OperationsMetadata or Operation element, this Constraint element shall override the other one for this operation. The list of required and optional constraints for this request method for this operation shall be specified in the Implementation Specification for this service. </documentation>
 						</annotation>
@@ -131,8 +134,8 @@ elementFormDefault="qualified" version="1.0.0" xml:lang="en">
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ========================================================== -->
-	<complexType name="DomainType">
+    <!-- ========================================================== -->
+    <complexType name="DomainType">
 		<annotation>
 			<documentation>Valid domain (or set of values) of one parameter or other quantity used by this server. A non-parameter quantity may not be explicitly represented in the server software. (Informative: An example is the outputFormat parameter of a WFS. Each WFS server should provide a Parameter element for the outputFormat parameter that lists the supported output formats, such as GML2, GML3, etc. as the allowed "Value" elements.) </documentation>
 		</annotation>

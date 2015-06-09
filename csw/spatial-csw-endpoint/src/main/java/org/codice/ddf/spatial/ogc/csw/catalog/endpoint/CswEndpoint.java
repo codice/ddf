@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
@@ -47,45 +47,6 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
-import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
-import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
-import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
-import net.opengis.cat.csw.v_2_0_2.ElementSetType;
-import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordByIdType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
-import net.opengis.cat.csw.v_2_0_2.QueryType;
-import net.opengis.cat.csw.v_2_0_2.ResultType;
-import net.opengis.cat.csw.v_2_0_2.SchemaComponentType;
-import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
-import net.opengis.cat.csw.v_2_0_2.TransactionType;
-import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
-import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
-import net.opengis.filter.v_1_1_0.EID;
-import net.opengis.filter.v_1_1_0.FilterCapabilities;
-import net.opengis.filter.v_1_1_0.FilterType;
-import net.opengis.filter.v_1_1_0.GeometryOperandsType;
-import net.opengis.filter.v_1_1_0.IdCapabilitiesType;
-import net.opengis.filter.v_1_1_0.LogicalOperators;
-import net.opengis.filter.v_1_1_0.ScalarCapabilitiesType;
-import net.opengis.filter.v_1_1_0.SortByType;
-import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
-import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
-import net.opengis.filter.v_1_1_0.SpatialOperatorType;
-import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
-import net.opengis.ows.v_1_0_0.CodeType;
-import net.opengis.ows.v_1_0_0.DCP;
-import net.opengis.ows.v_1_0_0.DomainType;
-import net.opengis.ows.v_1_0_0.HTTP;
-import net.opengis.ows.v_1_0_0.OnlineResourceType;
-import net.opengis.ows.v_1_0_0.Operation;
-import net.opengis.ows.v_1_0_0.OperationsMetadata;
-import net.opengis.ows.v_1_0_0.RequestMethodType;
-import net.opengis.ows.v_1_0_0.ResponsiblePartySubsetType;
-import net.opengis.ows.v_1_0_0.ServiceIdentification;
-import net.opengis.ows.v_1_0_0.ServiceProvider;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -133,13 +94,98 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
+import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
+import net.opengis.cat.csw.v_2_0_2.ElementSetType;
+import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordByIdType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
+import net.opengis.cat.csw.v_2_0_2.QueryType;
+import net.opengis.cat.csw.v_2_0_2.ResultType;
+import net.opengis.cat.csw.v_2_0_2.SchemaComponentType;
+import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
+import net.opengis.cat.csw.v_2_0_2.TransactionType;
+import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
+import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
+import net.opengis.filter.v_1_1_0.EID;
+import net.opengis.filter.v_1_1_0.FilterCapabilities;
+import net.opengis.filter.v_1_1_0.FilterType;
+import net.opengis.filter.v_1_1_0.GeometryOperandsType;
+import net.opengis.filter.v_1_1_0.IdCapabilitiesType;
+import net.opengis.filter.v_1_1_0.LogicalOperators;
+import net.opengis.filter.v_1_1_0.ScalarCapabilitiesType;
+import net.opengis.filter.v_1_1_0.SortByType;
+import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
+import net.opengis.ows.v_1_0_0.CodeType;
+import net.opengis.ows.v_1_0_0.DCP;
+import net.opengis.ows.v_1_0_0.DomainType;
+import net.opengis.ows.v_1_0_0.HTTP;
+import net.opengis.ows.v_1_0_0.OnlineResourceType;
+import net.opengis.ows.v_1_0_0.Operation;
+import net.opengis.ows.v_1_0_0.OperationsMetadata;
+import net.opengis.ows.v_1_0_0.RequestMethodType;
+import net.opengis.ows.v_1_0_0.ResponsiblePartySubsetType;
+import net.opengis.ows.v_1_0_0.ServiceIdentification;
+import net.opengis.ows.v_1_0_0.ServiceProvider;
 
 /**
  * CswEndpoint provides a server implementation of the Catalogue Service for Web (CSW) 2.0.2.
  */
 public class CswEndpoint implements Csw {
 
+    protected static final String SERVICE_TITLE = "Catalog Service for the Web";
+
+    protected static final String SERVICE_ABSTRACT = "DDF CSW Endpoint";
+
+    protected static final List<String> SERVICE_TYPE_VERSION = Collections
+            .unmodifiableList(Arrays.asList(CswConstants.VERSION_2_0_2));
+
+    protected static final List<SpatialOperatorNameType> SPATIAL_OPERATORS = Collections
+            .unmodifiableList(
+                    Arrays.asList(SpatialOperatorNameType.BBOX, SpatialOperatorNameType.BEYOND,
+                            SpatialOperatorNameType.CONTAINS, SpatialOperatorNameType.CROSSES,
+                            SpatialOperatorNameType.DISJOINT, SpatialOperatorNameType.D_WITHIN,
+                            SpatialOperatorNameType.INTERSECTS, SpatialOperatorNameType.OVERLAPS,
+                            SpatialOperatorNameType.TOUCHES, SpatialOperatorNameType.WITHIN));
+
+    protected static final List<ComparisonOperatorType> COMPARISON_OPERATORS = Collections
+            .unmodifiableList(
+                    Arrays.asList(ComparisonOperatorType.BETWEEN, ComparisonOperatorType.NULL_CHECK,
+                            ComparisonOperatorType.LIKE, ComparisonOperatorType.EQUAL_TO,
+                            ComparisonOperatorType.GREATER_THAN,
+                            ComparisonOperatorType.GREATER_THAN_EQUAL_TO,
+                            ComparisonOperatorType.LESS_THAN,
+                            ComparisonOperatorType.LESS_THAN_EQUAL_TO,
+                            ComparisonOperatorType.EQUAL_TO, ComparisonOperatorType.NOT_EQUAL_TO));
+
+    protected static final String PROVIDER_NAME = "DDF";
+
+    protected static final String SERVICE_IDENTIFICATION = "ServiceIdentification";
+
+    protected static final String SERVICE_PROVIDER = "ServiceProvider";
+
+    protected static final String OPERATIONS_METADATA = "OperationsMetadata";
+
+    protected static final String FILTER_CAPABILITIES = "Filter_Capabilities";
+
+    protected static final List<String> GET_CAPABILITIES_PARAMS = Collections.unmodifiableList(
+            Arrays.asList(SERVICE_IDENTIFICATION, SERVICE_PROVIDER, OPERATIONS_METADATA,
+                    FILTER_CAPABILITIES));
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CswEndpoint.class);
+
+    private static final Configuration PARSER_CONFIG = new org.geotools.filter.v1_1.OGCConfiguration();
+
+    private static final String DEFAULT_OUTPUT_FORMAT = MediaType.APPLICATION_XML;
+
+    private static Map<String, Element> documentElements = new HashMap<String, Element>();
+
+    private static JAXBContext jaxBContext;
 
     private final TransformerManager mimeTypeTransformerManager;
 
@@ -152,53 +198,6 @@ public class CswEndpoint implements Csw {
     private CatalogFramework framework;
 
     private CapabilitiesType capabilitiesType;
-
-    protected static final String SERVICE_TITLE = "Catalog Service for the Web";
-
-    protected static final String SERVICE_ABSTRACT = "DDF CSW Endpoint";
-        
-    protected static final List<String> SERVICE_TYPE_VERSION = Collections.unmodifiableList(Arrays
-            .asList(CswConstants.VERSION_2_0_2));
-
-    protected static final List<SpatialOperatorNameType> SPATIAL_OPERATORS = Collections
-            .unmodifiableList(Arrays.asList(
-                    SpatialOperatorNameType.BBOX, SpatialOperatorNameType.BEYOND,
-                    SpatialOperatorNameType.CONTAINS, SpatialOperatorNameType.CROSSES,
-                    SpatialOperatorNameType.DISJOINT, SpatialOperatorNameType.D_WITHIN,
-                    SpatialOperatorNameType.INTERSECTS, SpatialOperatorNameType.OVERLAPS,
-                    SpatialOperatorNameType.TOUCHES, SpatialOperatorNameType.WITHIN));
-
-    protected static final List<ComparisonOperatorType> COMPARISON_OPERATORS = Collections
-            .unmodifiableList(Arrays.asList(
-                    ComparisonOperatorType.BETWEEN, ComparisonOperatorType.NULL_CHECK,
-                    ComparisonOperatorType.LIKE, ComparisonOperatorType.EQUAL_TO,
-                    ComparisonOperatorType.GREATER_THAN,
-                    ComparisonOperatorType.GREATER_THAN_EQUAL_TO,
-                    ComparisonOperatorType.LESS_THAN, ComparisonOperatorType.LESS_THAN_EQUAL_TO,
-                    ComparisonOperatorType.EQUAL_TO, ComparisonOperatorType.NOT_EQUAL_TO));
-
-    protected static final String PROVIDER_NAME = "DDF";
-
-    protected static final String SERVICE_IDENTIFICATION = "ServiceIdentification";
-
-    protected static final String SERVICE_PROVIDER = "ServiceProvider";
-
-    protected static final String OPERATIONS_METADATA = "OperationsMetadata";
-
-    protected static final String FILTER_CAPABILITIES = "Filter_Capabilities";
-
-    protected static final List<String> GET_CAPABILITIES_PARAMS = Collections
-            .unmodifiableList(Arrays.asList(
-                    SERVICE_IDENTIFICATION, SERVICE_PROVIDER, OPERATIONS_METADATA,
-                    FILTER_CAPABILITIES));
-
-    private static Map<String, Element> documentElements = new HashMap<String, Element>();
-
-    private static JAXBContext jaxBContext;
-
-    private static final Configuration PARSER_CONFIG = new org.geotools.filter.v1_1.OGCConfiguration();
-
-    private static final String DEFAULT_OUTPUT_FORMAT = MediaType.APPLICATION_XML;
 
     @Context
     private UriInfo uri;
@@ -224,18 +223,18 @@ public class CswEndpoint implements Csw {
 
     public static synchronized JAXBContext getJaxBContext() throws JAXBException {
         if (jaxBContext == null) {
-            jaxBContext = JAXBContext.newInstance("net.opengis.cat.csw.v_2_0_2:" +  
-                    "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0");
+            jaxBContext = JAXBContext.newInstance("net.opengis.cat.csw.v_2_0_2:"
+                    + "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0");
         }
         return jaxBContext;
     }
-    
+
     @Override
     @GET
-    @Consumes({ "text/xml", "application/xml" })
-    @Produces({ "text/xml", "application/xml" })
-    public CapabilitiesType getCapabilities(@QueryParam("")
-        GetCapabilitiesRequest request) throws CswException {
+    @Consumes({"text/xml", "application/xml"})
+    @Produces({"text/xml", "application/xml"})
+    public CapabilitiesType getCapabilities(@QueryParam("") GetCapabilitiesRequest request) throws
+            CswException {
 
         capabilitiesType = buildCapabilitiesType();
 
@@ -254,8 +253,8 @@ public class CswEndpoint implements Csw {
 
     @Override
     @POST
-    @Consumes({ "text/xml", "application/xml" })
-    @Produces({ "text/xml", "application/xml" })
+    @Consumes({"text/xml", "application/xml"})
+    @Produces({"text/xml", "application/xml"})
     public CapabilitiesType getCapabilities(GetCapabilitiesType request) throws CswException {
         capabilitiesType = buildCapabilitiesType();
 
@@ -273,39 +272,40 @@ public class CswEndpoint implements Csw {
 
     @Override
     @GET
-    @Consumes({ "text/xml", "application/xml" })
-    @Produces({ "text/xml", "application/xml" })
-    public DescribeRecordResponseType describeRecord(@QueryParam("")
-        DescribeRecordRequest request) throws CswException {
+    @Consumes({"text/xml", "application/xml"})
+    @Produces({"text/xml", "application/xml"})
+    public DescribeRecordResponseType describeRecord(
+            @QueryParam("") DescribeRecordRequest request) throws CswException {
 
         if (request == null) {
             throw new CswException("DescribeRecordRequest request is null");
         }
-        
+
         validateOutputFormat(request.getOutputFormat());
 
         validateSchemaLanguage(request.getSchemaLanguage());
 
-        Map<String, String> namespacePrefixToUriMappings = request.parseNamespaces(request.getNamespace());
-        
-        validateTypeNameToNamespaceMappings(request.getTypeName(), request.getNamespace(), namespacePrefixToUriMappings);
-        
+        Map<String, String> namespacePrefixToUriMappings = request
+                .parseNamespaces(request.getNamespace());
+
+        validateTypeNameToNamespaceMappings(request.getTypeName(), request.getNamespace(),
+                namespacePrefixToUriMappings);
+
         if (request.getVersion() != null) {
             validateVersion(request.getVersion());
         }
-  
+
         List<QName> types = typeStringToQNames(request.getTypeName(), namespacePrefixToUriMappings);
 
         return buildDescribeRecordResponseFromTypes(types, request.getVersion());
     }
 
-
     @Override
     @POST
-    @Consumes({ "text/xml", "application/xml" })
-    @Produces({ "text/xml", "application/xml" })
-    public DescribeRecordResponseType describeRecord(DescribeRecordType request)
-        throws CswException {
+    @Consumes({"text/xml", "application/xml"})
+    @Produces({"text/xml", "application/xml"})
+    public DescribeRecordResponseType describeRecord(DescribeRecordType request) throws
+            CswException {
 
         if (request == null) {
             throw new CswException("DescribeRecordRequest request is null");
@@ -314,15 +314,15 @@ public class CswEndpoint implements Csw {
         validateOutputFormat(request.getOutputFormat());
         validateSchemaLanguage(request.getSchemaLanguage());
 
-        return buildDescribeRecordResponseFromTypes(request.getTypeName(), CswConstants.VERSION_2_0_2);
+        return buildDescribeRecordResponseFromTypes(request.getTypeName(),
+                CswConstants.VERSION_2_0_2);
     }
-
 
     @Override
     @GET
-    @Produces({ MediaType.WILDCARD })
-    public CswRecordCollection getRecords(@QueryParam("")
-        GetRecordsRequest request) throws CswException {
+    @Produces({MediaType.WILDCARD})
+    public CswRecordCollection getRecords(@QueryParam("") GetRecordsRequest request) throws
+            CswException {
 
         if (request == null) {
             throw new CswException("GetRecordsRequest request is null");
@@ -338,10 +338,10 @@ public class CswEndpoint implements Csw {
 
     @Override
     @POST
-    @Consumes({ MediaType.TEXT_XML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.WILDCARD })
+    @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.WILDCARD})
     public CswRecordCollection getRecords(GetRecordsType request) throws CswException {
-        
+
         if (request == null) {
             throw new CswException("GetRecordsType request is null");
         }
@@ -349,17 +349,17 @@ public class CswEndpoint implements Csw {
         validateOutputFormat(request.getOutputFormat());
 
         validateOutputSchema(request.getOutputSchema());
-        
+
         if (request.getAbstractQuery() != null) {
             if (!request.getAbstractQuery().getValue().getClass().equals(QueryType.class)) {
-                throw new CswException("Unknown QueryType: "
-                        + request.getAbstractQuery().getValue().getClass());
+                throw new CswException(
+                        "Unknown QueryType: " + request.getAbstractQuery().getValue().getClass());
             }
-            
+
             QueryType query = (QueryType) request.getAbstractQuery().getValue();
-            
+
             validateTypes(query.getTypeNames(), CswConstants.VERSION_2_0_2);
-                        
+
             if (query.getConstraint() != null &&
                     query.getConstraint().isSetFilter() && query.getConstraint().isSetCqlText()) {
                 throw new CswException("A Csw Query can only have a Filter or CQL constraint");
@@ -371,30 +371,30 @@ public class CswEndpoint implements Csw {
 
     @Override
     @GET
-    @Consumes({ "text/xml", "application/xml" })
-    @Produces({ "text/xml", "application/xml" })
-    public CswRecordCollection getRecordById(@QueryParam("")
-        GetRecordByIdRequest request) throws CswException {
-        if (request == null){
+    @Consumes({"text/xml", "application/xml"})
+    @Produces({"text/xml", "application/xml"})
+    public CswRecordCollection getRecordById(@QueryParam("") GetRecordByIdRequest request) throws
+            CswException {
+        if (request == null) {
             throw new CswException("GetRecordByIdRequest request is null");
         }
-        
+
         validateOutputFormat(request.getOutputFormat());
 
         validateOutputSchema(request.getOutputSchema());
-        
+
         if (StringUtils.isNotBlank(request.getId())) {
-            List<String> ids = Arrays.<String> asList(request.getId().split(CswConstants.COMMA));
-            
+            List<String> ids = Arrays.<String>asList(request.getId().split(CswConstants.COMMA));
+
             CswRecordCollection response = queryById(ids);
             response.setOutputSchema(request.getOutputSchema());
-            if (StringUtils.isNotBlank(request.getElementSetName())){
+            if (StringUtils.isNotBlank(request.getElementSetName())) {
                 response.setElementSetType(ElementSetType.fromValue(request.getElementSetName()));
             } else {
                 response.setElementSetType(ElementSetType.SUMMARY);
             }
             return response;
-        }else{
+        } else {
             throw new CswException("A GetRecordById Query must contain an ID.",
                     CswConstants.MISSING_PARAMETER_VALUE, "id");
         }
@@ -402,8 +402,8 @@ public class CswEndpoint implements Csw {
 
     @Override
     @POST
-    @Consumes({ "text/xml", "application/xml" })
-    @Produces({ "text/xml", "application/xml" })
+    @Consumes({"text/xml", "application/xml"})
+    @Produces({"text/xml", "application/xml"})
     public CswRecordCollection getRecordById(GetRecordByIdType request) throws CswException {
         if (request == null) {
             throw new CswException("GetRecordByIdRequest request is null");
@@ -430,53 +430,50 @@ public class CswEndpoint implements Csw {
 
     @Override
     @POST
-    @Consumes({ "text/xml", "application/xml" })
-    @Produces({ "text/xml", "application/xml" })
+    @Consumes({"text/xml", "application/xml"})
+    @Produces({"text/xml", "application/xml"})
     public TransactionResponseType transaction(TransactionType request) throws CswException {
         notImplemented("Transaction_POST");
         return null;
     }
 
     @GET
-    @Consumes({ "text/xml", "application/xml" })
-    @Produces({ "text/xml", "application/xml" })
-    public void unknownService(@QueryParam("")
-        CswRequest request) throws CswException {
-        if(request.getService() == null) {
-            throw new CswException("Missing service value",
-                    CswConstants.MISSING_PARAMETER_VALUE, "service");            
+    @Consumes({"text/xml", "application/xml"})
+    @Produces({"text/xml", "application/xml"})
+    public void unknownService(@QueryParam("") CswRequest request) throws CswException {
+        if (request.getService() == null) {
+            throw new CswException("Missing service value", CswConstants.MISSING_PARAMETER_VALUE,
+                    "service");
         }
         throw new CswException("Unknown service (" + request.getService() + ")",
                 CswConstants.INVALID_PARAMETER_VALUE, "service");
     }
 
     @POST
-    @Consumes({ "text/xml", "application/xml" })
-    @Produces({ "text/xml", "application/xml" })
+    @Consumes({"text/xml", "application/xml"})
+    @Produces({"text/xml", "application/xml"})
     public void unknownService() throws CswException {
         throw new CswException("Unknown Service", CswConstants.INVALID_PARAMETER_VALUE, "service");
     }
 
     @GET
-    @Consumes({ "text/xml", "application/xml" })
-    @Produces({ "text/xml", "application/xml" })
-    public void unknownOperation(@QueryParam("")
-        CswRequest request) throws CswException {
+    @Consumes({"text/xml", "application/xml"})
+    @Produces({"text/xml", "application/xml"})
+    public void unknownOperation(@QueryParam("") CswRequest request) throws CswException {
         throw new CswException("No such operation: " + request.getRequest(),
                 CswConstants.OPERATION_NOT_SUPPORTED, request.getRequest());
     }
 
     @POST
-    @Consumes({ "text/xml", "application/xml" })
-    @Produces({ "text/xml", "application/xml" })
+    @Consumes({"text/xml", "application/xml"})
+    @Produces({"text/xml", "application/xml"})
     public void unknownOperation() throws CswException {
         throw new CswException("No such operation", CswConstants.OPERATION_NOT_SUPPORTED, null);
     }
-    
 
     /**
      * Validates TypeName to namspace uri mapping in query request.
-     * 
+     *
      * @param typeNames this can be a comma separated list of types which
      *                  can be prefixed with prefixes.
      *                  example csw:Record
@@ -504,29 +501,30 @@ public class CswEndpoint implements Csw {
             } else {
                 prefix = "";
             }
-            
+
             // if the prefix does not map to a provided namespace, throw an exception.
             if (!namespacePrefixToUriMappings.containsKey(prefix)) {
-                throw new CswException("Unable to map [" + type
-                        + "] to one of the following namespaces [" + namespaces + "].");
+                throw new CswException(
+                        "Unable to map [" + type + "] to one of the following namespaces ["
+                                + namespaces + "].");
 
             }
         }
 
     }
-    
+
     /**
-    *
-    * Returns a list of QNames based on typeNames and namespaces given
-    *
-    *
-    * @param typeNames this can be a comma separated list of types which
-    *                  can be prefixed with prefixes.
-    *                  example csw:Record
-    * @param namespacePrefixToUriMappings map of namespace prefixes to namespace uri
-    *                  example key=csw value=http://www.opengis.net/cat/csw/2.0.2
-    * @return List of QNames so that types and namespaces are associated
-    */
+     *
+     * Returns a list of QNames based on typeNames and namespaces given
+     *
+     *
+     * @param typeNames this can be a comma separated list of types which
+     *                  can be prefixed with prefixes.
+     *                  example csw:Record
+     * @param namespacePrefixToUriMappings map of namespace prefixes to namespace uri
+     *                  example key=csw value=http://www.opengis.net/cat/csw/2.0.2
+     * @return List of QNames so that types and namespaces are associated
+     */
     private List<QName> typeStringToQNames(String typeNames,
             Map<String, String> namespacePrefixToUriMappings) throws CswException {
         List<QName> qNames = new ArrayList<QName>();
@@ -539,19 +537,23 @@ public class CswEndpoint implements Csw {
         for (String typeName : types) {
             // if type name is in the format prefix:localPart (eg. csw:Record).
             if (typeName.indexOf(CswConstants.NAMESPACE_DELIMITER) != -1) {
-                String prefix = typeName.substring(0, typeName.indexOf(CswConstants.NAMESPACE_DELIMITER));
-                String localPart = typeName.substring(typeName.indexOf(CswConstants.NAMESPACE_DELIMITER) + 1);
-                QName qname = new QName(getNamespaceFromType(prefix, localPart, namespacePrefixToUriMappings), localPart, prefix);
+                String prefix = typeName
+                        .substring(0, typeName.indexOf(CswConstants.NAMESPACE_DELIMITER));
+                String localPart = typeName
+                        .substring(typeName.indexOf(CswConstants.NAMESPACE_DELIMITER) + 1);
+                QName qname = new QName(
+                        getNamespaceFromType(prefix, localPart, namespacePrefixToUriMappings),
+                        localPart, prefix);
                 qNames.add(qname);
             } else {
-                QName qname = new QName(getNamespaceFromType("", typeName, namespacePrefixToUriMappings), typeName);
+                QName qname = new QName(
+                        getNamespaceFromType("", typeName, namespacePrefixToUriMappings), typeName);
                 qNames.add(qname);
             }
         }
 
         return qNames;
     }
-
 
     /**
      * for a single type, or localName, this returns the corresponding namespace
@@ -564,14 +566,15 @@ public class CswEndpoint implements Csw {
      *                  example key=csw value=http://www.opengis.net/cat/csw/2.0.2
      * @return corresponding namespace for the given type
      */
-    private String getNamespaceFromType(String typePrefix, String type, Map<String, String> namespacePrefixToUriMappings) throws CswException {
+    private String getNamespaceFromType(String typePrefix, String type,
+            Map<String, String> namespacePrefixToUriMappings) throws CswException {
         if (namespacePrefixToUriMappings == null) {
             return "";
         }
-        
+
         String namespaceUri = namespacePrefixToUriMappings.get(typePrefix);
-        
-        if(namespaceUri == null) {
+
+        if (namespaceUri == null) {
             throw createUnknownTypeException(type);
         }
 
@@ -603,17 +606,19 @@ public class CswEndpoint implements Csw {
                     Marshaller marshaller = getJaxBContext().createMarshaller();
                     marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
-                    JAXBElement<GetRecordsType> jaxbElement = new ObjectFactory().createGetRecords(request);
+                    JAXBElement<GetRecordsType> jaxbElement = new ObjectFactory()
+                            .createGetRecords(request);
                     marshaller.marshal(jaxbElement, writer);
                 } catch (JAXBException e) {
-                    LOGGER.debug("Unable to marshall {} to XML.  Exception {}", GetRecordsType.class, e);
+                    LOGGER.debug("Unable to marshall {} to XML.  Exception {}",
+                            GetRecordsType.class, e);
                 }
                 LOGGER.debug(writer.toString());
             } catch (Exception e) {
                 LOGGER.debug("Unable to create debug message for getRecordsType: {}", e);
             }
         }
-        
+
         QueryType query = (QueryType) request.getAbstractQuery().getValue();
 
         CswRecordCollection response = new CswRecordCollection();
@@ -667,7 +672,7 @@ public class CswEndpoint implements Csw {
                 throw new CswException(e);
             }
         }
-        
+
         return response;
     }
 
@@ -690,9 +695,10 @@ public class CswEndpoint implements Csw {
             //filter = Filter.INCLUDE;
             filter = builder.attribute(Metacard.ID).is().like().text(FilterDelegate.WILDCARD_CHAR);
         }
-        
-        if(filter == null) {
-            throw new CswException("Invalid Filter Expression", CswConstants.NO_APPLICABLE_CODE, null);
+
+        if (filter == null) {
+            throw new CswException("Invalid Filter Expression", CswConstants.NO_APPLICABLE_CODE,
+                    null);
         }
         visitor.setVisitedFilter(filter);
         if (query.getTypeNames().contains(new QName(CswConstants.CSW_OUTPUT_SCHEMA, 
@@ -706,22 +712,21 @@ public class CswEndpoint implements Csw {
         }
         return visitor;
     }
-    
+
     private SortBy buildSort(SortByType sort) throws CswException {
         if (sort == null || sort.getSortProperty() == null) {
             return null;
         }
-        
-        
+
         SortBy[] sortByArr = parseSortBy(sort);
 
-        if(sortByArr.length > 1) {
+        if (sortByArr.length > 1) {
             LOGGER.warn("Query request has multiple sort criteria, only primary will be used");
         }
-        
+
         SortBy sortBy = sortByArr[0];
 
-        if(sortBy.getPropertyName() == null) {
+        if (sortBy.getPropertyName() == null) {
             LOGGER.warn("No property name in primary sort criteria");
             return null;
         }
@@ -740,10 +745,10 @@ public class CswEndpoint implements Csw {
                         sortBy.getPropertyName().getNamespaceContext());
 
         PropertyName propName = new AttributeExpressionImpl(new NameImpl(name));
-        
+
         return new SortByImpl(propName, sortBy.getSortOrder());
     }
-    
+
     private SchemaComponentType getSchemaComponentType() throws CswException {
         SchemaComponentType schemaComponentType = new SchemaComponentType();
         List<Object> listOfObject = new ArrayList<Object>();
@@ -756,7 +761,7 @@ public class CswEndpoint implements Csw {
 
     private Element getDocElementFromResourcePath(String resourcePath) throws CswException {
         Element element = documentElements.get(resourcePath);
-        if (element == null){
+        if (element == null) {
             element = loadDocElementFromResourcePath(resourcePath);
             documentElements.put(resourcePath, element);
         }
@@ -774,14 +779,16 @@ public class CswEndpoint implements Csw {
             doc = docBuilder.parse(recordUrl.openStream());
         } catch (ParserConfigurationException e) {
             throw new CswException(e);
-        } catch (SAXException  e) {
+        } catch (SAXException e) {
             throw new CswException(e);
         } catch (IOException e) {
             throw new CswException(e);
         }
 
         if (doc == null) {
-            throw new CswException("Document was NULL in attempting to parse from resource path '" + resourcePath + "'");
+            throw new CswException(
+                    "Document was NULL in attempting to parse from resource path '" + resourcePath
+                            + "'");
         }
         return doc.getDocumentElement();
     }
@@ -789,7 +796,7 @@ public class CswEndpoint implements Csw {
     /**
      * Creates a CapabilitiesType object with only specified sections to be returned as a
      * GetCapabilities response.
-     * 
+     *
      * @param sections
      *            The list of desired sections for the GetCapabilities response
      *
@@ -808,15 +815,15 @@ public class CswEndpoint implements Csw {
         // Grab the desired sections from the global capabilitiesType variable
         for (String section : sections) {
             if (section.equalsIgnoreCase(SERVICE_IDENTIFICATION)) {
-                cswCapabilities.setServiceIdentification(capabilitiesType
-                        .getServiceIdentification());
+                cswCapabilities
+                        .setServiceIdentification(capabilitiesType.getServiceIdentification());
             } else if (section.equalsIgnoreCase(SERVICE_PROVIDER)) {
                 cswCapabilities.setServiceProvider(capabilitiesType.getServiceProvider());
             } else if (section.equalsIgnoreCase(OPERATIONS_METADATA)) {
                 cswCapabilities.setOperationsMetadata(capabilitiesType.getOperationsMetadata());
             }
         }
-        
+
         // filterCapabilities is required.  Add it even if it isn't in the sections list.
         cswCapabilities.setFilterCapabilities(capabilitiesType.getFilterCapabilities());
 
@@ -825,7 +832,7 @@ public class CswEndpoint implements Csw {
 
     /**
      * Creates a full CapabilitiesType element to be returned as the GetCapabilities response
-     * 
+     *
      * @return The constructed CapabilitiesType object
      */
     private CapabilitiesType buildCapabilitiesType() {
@@ -847,7 +854,7 @@ public class CswEndpoint implements Csw {
      * Creates the Filter_Capabilities section of the GetCapabilities response. These are defined
      * statically by the DDF FilterAdapter implementation TODO: If the implementation changes,
      * update this method to reflect the changes.
-     * 
+     *
      * @return The constructed FilterCapabilities object
      */
     private FilterCapabilities buildFilterCapabilities() {
@@ -886,7 +893,7 @@ public class CswEndpoint implements Csw {
 
         IdCapabilitiesType idCapabilities = new IdCapabilitiesType();
         idCapabilities.getEIDOrFID().add(new EID());
-        
+
         filterCapabilities.setIdCapabilities(idCapabilities);
 
         return filterCapabilities;
@@ -896,7 +903,7 @@ public class CswEndpoint implements Csw {
      * Creates the OperationsMetadata portion of the GetCapabilities response TODO: As these
      * operations are implemented or added, update their descriptions to ensure they match up with
      * the functionality
-     * 
+     *
      * @return The constructed OperationsMetadata object
      */
     private OperationsMetadata buildOperationsMetadata() {
@@ -927,8 +934,7 @@ public class CswEndpoint implements Csw {
                 Arrays.asList("hits", "results", "validate"), getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordsOp);
         addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER,
-                schemaTransformerManager.getAvailableSchemas(),
-                getRecordsOp);
+                schemaTransformerManager.getAvailableSchemas(), getRecordsOp);
         addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER,
                 Arrays.asList(CswConstants.CSW_RECORD), getRecordsOp);
         addOperationParameter(CswConstants.CONSTRAINT_LANGUAGE_PARAMETER, Arrays.asList(
@@ -940,16 +946,15 @@ public class CswEndpoint implements Csw {
         // Builds GetRecordById operation metadata
         Operation getRecordByIdOp = buildOperation(CswConstants.GET_RECORD_BY_ID, getAndPost);
         addOperationParameter(CswConstants.OUTPUT_SCHEMA_PARAMETER,
-                schemaTransformerManager.getAvailableSchemas(),
-                getRecordByIdOp);
+                schemaTransformerManager.getAvailableSchemas(), getRecordByIdOp);
         addOperationParameter(CswConstants.OUTPUT_FORMAT_PARAMETER, mimeTypes, getRecordByIdOp);
         addOperationParameter(CswConstants.RESULT_TYPE_PARAMETER,
                 Arrays.asList("hits", "results", "validate"), getRecordByIdOp);
         addOperationParameter(CswConstants.ELEMENT_SET_NAME_PARAMETER,
                 Arrays.asList("brief", "summary", "full"), getRecordByIdOp);
 
-        List<Operation> ops = Arrays.asList(getCapabilitiesOp, describeRecordOp, getRecordsOp,
-                getRecordByIdOp);
+        List<Operation> ops = Arrays
+                .asList(getCapabilitiesOp, describeRecordOp, getRecordsOp, getRecordByIdOp);
         om.setOperation(ops);
 
         om.getParameter().add(createDomainType(CswConstants.SERVICE, CswConstants.CSW));
@@ -962,7 +967,7 @@ public class CswEndpoint implements Csw {
      * Creates the ServiceIdentification portion of the GetCapabilities response TODO: Add more
      * DDF-specific information if desired (Fees, Keywords, and AccessConstraints are all currently
      * empty, and the abstract is very basic)
-     * 
+     *
      * @return The constructed ServiceIdentification object
      */
     private ServiceIdentification buildServiceIdentification() {
@@ -980,7 +985,7 @@ public class CswEndpoint implements Csw {
     /**
      * Creates the ServiceProvider portion of the GetCapabilities response TODO: Add more
      * DDF-specific information if desired
-     * 
+     *
      * @return The constructed ServiceProvider object
      */
     private ServiceProvider buildServiceProvider() {
@@ -1003,7 +1008,7 @@ public class CswEndpoint implements Csw {
      */
     private Operation buildOperation(String name, List<QName> types) {
         Operation op = new Operation();
-        
+
         op.setName(name);
         ArrayList<DCP> dcpList = new ArrayList<DCP>();
         DCP dcp = new DCP();
@@ -1011,9 +1016,9 @@ public class CswEndpoint implements Csw {
         for (QName type : types) {
             RequestMethodType rmt = new RequestMethodType();
             rmt.setHref(uri.getBaseUri().toASCIIString());
-            JAXBElement<RequestMethodType> requestElement = new JAXBElement<RequestMethodType>(
-                    type, RequestMethodType.class, rmt);
-            if(type.equals(CswConstants.POST)) {
+            JAXBElement<RequestMethodType> requestElement = new JAXBElement<RequestMethodType>(type,
+                    RequestMethodType.class, rmt);
+            if (type.equals(CswConstants.POST)) {
                 requestElement.getValue().getConstraint()
                         .add(createDomainType(CswConstants.POST_ENCODING, CswConstants.XML));
             }
@@ -1022,7 +1027,6 @@ public class CswEndpoint implements Csw {
         dcp.setHTTP(http);
         dcpList.add(dcp);
         op.setDCP(dcpList);
-        
 
         return op;
     }
@@ -1051,7 +1055,7 @@ public class CswEndpoint implements Csw {
 
     /**
      * Verifies that that if types are passed, then they are fully qualified
-     * 
+     *
      * @param types
      *            List of QNames representing types
      */
@@ -1064,10 +1068,9 @@ public class CswEndpoint implements Csw {
         }
     }
 
-    
     /**
      * Verifies that if types are passed, then they exist.
-     * 
+     *
      * @param types
      *            List of QNames representing types
      * @param version the specified version of the types
@@ -1093,21 +1096,22 @@ public class CswEndpoint implements Csw {
         }
         throw createUnknownSchemaException(schema);
     }
-    
+
     private void validateVersion(String versions) throws CswException {
         if (!versions.contains(CswConstants.VERSION_2_0_2)) {
-            throw new CswException("Version(s) " + versions
-                    + " is not supported, we currently support version "
-                    + CswConstants.VERSION_2_0_2,
-                    CswConstants.VERSION_NEGOTIATION_FAILED, null);
+            throw new CswException(
+                    "Version(s) " + versions + " is not supported, we currently support version "
+                            + CswConstants.VERSION_2_0_2, CswConstants.VERSION_NEGOTIATION_FAILED,
+                    null);
         }
     }
 
     private void validateOutputFormat(String format) throws CswException {
         if (!StringUtils.isEmpty(format)) {
-            if (!DEFAULT_OUTPUT_FORMAT.equals(format) && !mimeTypeTransformerManager.getAvailableMimeTypes().contains(format)){
-                throw new CswException("Invalid output format '"
-                        + format + "'", CswConstants.INVALID_PARAMETER_VALUE, "outputformat");
+            if (!DEFAULT_OUTPUT_FORMAT.equals(format) && !mimeTypeTransformerManager
+                    .getAvailableMimeTypes().contains(format)) {
+                throw new CswException("Invalid output format '" + format + "'",
+                        CswConstants.INVALID_PARAMETER_VALUE, "outputformat");
             }
         }
     }
@@ -1145,8 +1149,8 @@ public class CswEndpoint implements Csw {
     }
 
     private Filter parseFilter(FilterType filterType) throws CswException {
-        if (!filterType.isSetComparisonOps() && !filterType.isSetId()
-                && !filterType.isSetLogicOps() && !filterType.isSetSpatialOps()) {
+        if (!filterType.isSetComparisonOps() && !filterType.isSetId() && !filterType.isSetLogicOps()
+                && !filterType.isSetSpatialOps()) {
             throw new CswException("Empty Filter provided. Unable to preform query.",
                     CswConstants.INVALID_PARAMETER_VALUE, "Filter");
         }
@@ -1180,14 +1184,15 @@ public class CswEndpoint implements Csw {
             throw new CswException("Failed to parse Element: (SAXException): " + e.getMessage(),
                     CswConstants.INVALID_PARAMETER_VALUE, null);
         } catch (ParserConfigurationException e) {
-            throw new CswException("Failed to parse Element: (ParserConfigurationException): "
-                    + e.getMessage(), CswConstants.INVALID_PARAMETER_VALUE, null);
+            throw new CswException(
+                    "Failed to parse Element: (ParserConfigurationException): " + e.getMessage(),
+                    CswConstants.INVALID_PARAMETER_VALUE, null);
         } catch (RuntimeException e) {
             throw new CswException("Failed to parse Element: (RuntimeException): " + e.getMessage(),
                     CswConstants.INVALID_PARAMETER_VALUE, null);
         }
     }
-    
+
     private CswRecordCollection queryById(List<String> ids) throws CswException {
         List<Filter> filters = new ArrayList<Filter>();
         for (String id : ids) {

@@ -11,7 +11,7 @@
  *
  **/
  -->
- 
+
 <!--
      NOTE: This features XML file uses the Karaf "install" attribute to specify whether a feature
      is automatically installed when an app's KAR file is hot deployed.
@@ -26,12 +26,12 @@
 <features name="${project.artifactId}-${project.version}">
     
     <feature name="spatial-kml-transformer" install="manual" version="${project.version}"
-        description="KML Transformer transforms metacards and query results into KML.">
+             description="KML Transformer transforms metacards and query results into KML.">
         <bundle>mvn:ddf.spatial.kml/spatial-kml-transformer/${project.version}</bundle>
     </feature>
 
     <feature name="spatial-kml-networklinkendpoint" install="manual" version="${project.version}"
-        description="KML Network Link Endpoint generates view-based KML Network Links for dynamic query results in KML viewer.">
+             description="KML Network Link Endpoint generates view-based KML Network Links for dynamic query results in KML viewer.">
         <feature>spatial-kml-transformer</feature>
         <bundle>mvn:ddf.spatial.kml/spatial-kml-networklinkendpoint/${project.version}</bundle>
     </feature>
@@ -71,8 +71,8 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-csw-endpoint/${project.version}</bundle>
     </feature>
 
-    <feature name="spatial-app"  install="auto" version="${project.version}"
-        description="DDF Spatial contains standards-based, geospatial endpoints, sources, and transforms.::DDF Spatial">
+    <feature name="spatial-app" install="auto" version="${project.version}"
+             description="DDF Spatial contains standards-based, geospatial endpoints, sources, and transforms.::DDF Spatial">
         <feature>catalog-app</feature>
         <feature>search-ui-app</feature>
         <feature>spatial-kml-transformer</feature>

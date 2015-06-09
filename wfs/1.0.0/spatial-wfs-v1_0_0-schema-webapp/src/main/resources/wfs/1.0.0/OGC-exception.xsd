@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema
-   targetNamespace="http://www.opengis.net/ogc"
-   xmlns:ogc="http://www.opengis.net/ogc"
-   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-   elementFormDefault="qualified"
-   version="1.0.0.3">
+        xmlns:ogc="http://www.opengis.net/ogc"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.opengis.net/ogc"
+        elementFormDefault="qualified"
+        version="1.0.0.3">
    
    <!--
       WFS is an OGC Standard.
@@ -12,7 +12,7 @@
       To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
    -->
 
-   <xsd:element name="ServiceExceptionReport">
+    <xsd:element name="ServiceExceptionReport">
       <xsd:annotation>
          <xsd:documentation>
             The ServiceExceptionReport element contains one

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gml="http://www.opengis.net/gml" elementFormDefault="qualified" version="3.1.1">
+<schema xmlns:gml="http://www.opengis.net/gml" targetNamespace="http://www.opengis.net/gml"
+		xmlns="http://www.w3.org/2001/XMLSchema"
+		elementFormDefault="qualified" version="3.1.1">
 	<annotation>
 		<appinfo source="urn:opengis:specification:gml:schema-xsd:temporalTopology:3.1.1"/>
 		<documentation xml:lang="en">The temporal topology schema for ISO19136 provides constructs for handling topological complexes and 
@@ -14,32 +16,34 @@
     Copyright (c) 2002-2005 OGC, All Rights Reserved.
 	For conditions, see OGC Software Notice http://www.opengeospatial.org/about/?page=ipr</documentation>
 	</annotation>
-	<!-- ===================================== -->
-	<include schemaLocation="temporal.xsd"/>
-	<!-- ===================================== -->
-	<!-- ================================================================== -->
-	<!-- == TimeTopologyComplex == -->
-	<!-- ================================================================== -->
-	<element name="TimeTopologyComplex" type="gml:TimeTopologyComplexType" substitutionGroup="gml:_TimeComplex">
+    <!-- ===================================== -->
+    <include schemaLocation="temporal.xsd"/>
+    <!-- ===================================== -->
+    <!-- ================================================================== -->
+    <!-- == TimeTopologyComplex == -->
+    <!-- ================================================================== -->
+    <element name="TimeTopologyComplex" type="gml:TimeTopologyComplexType"
+             substitutionGroup="gml:_TimeComplex">
 		<annotation>
 			<documentation xml:lang="en">This element represents temporal topology complex. It shall be the connected acyclic directed graph composed of time nodes and time edges.</documentation>
 		</annotation>
 	</element>
-	<!-- ================================================================== -->
-	<complexType name="TimeTopologyComplexType">
+    <!-- ================================================================== -->
+    <complexType name="TimeTopologyComplexType">
 		<annotation>
 			<documentation xml:lang="en">A temporal topology complex.</documentation>
 		</annotation>
 		<complexContent>
 			<extension base="gml:AbstractTimeComplexType">
 				<sequence>
-					<element name="primitive" type="gml:TimeTopologyPrimitivePropertyType" maxOccurs="unbounded"/>
+					<element name="primitive" type="gml:TimeTopologyPrimitivePropertyType"
+                             maxOccurs="unbounded"/>
 				</sequence>
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<complexType name="TimeTopologyComplexPropertyType">
+    <!-- ================================================================== -->
+    <complexType name="TimeTopologyComplexPropertyType">
 		<annotation>
 			<documentation>A time topology complex property can either be any time topology complex element
 			 encapsulated in an element of this type or an XLink reference to a remote time topology complex element 
@@ -51,16 +55,17 @@
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- ================================================================== -->
-	<!--  == TimeTopologyPrimitive == -->
-	<!-- ================================================================== -->
-	<element name="_TimeTopologyPrimitive" type="gml:AbstractTimeTopologyPrimitiveType" abstract="true" substitutionGroup="gml:_TimePrimitive">
+    <!-- ================================================================== -->
+    <!--  == TimeTopologyPrimitive == -->
+    <!-- ================================================================== -->
+    <element name="_TimeTopologyPrimitive" type="gml:AbstractTimeTopologyPrimitiveType"
+             abstract="true" substitutionGroup="gml:_TimePrimitive">
 		<annotation>
 			<documentation xml:lang="en">This abstract element acts as the head of the substitution group for temporal topology primitives.</documentation>
 		</annotation>
 	</element>
-	<!-- ================================================================== -->
-	<complexType name="AbstractTimeTopologyPrimitiveType" abstract="true">
+    <!-- ================================================================== -->
+    <complexType name="AbstractTimeTopologyPrimitiveType" abstract="true">
 		<annotation>
 			<documentation xml:lang="en">The element "complex" carries a reference to the complex containing this primitive.</documentation>
 		</annotation>
@@ -72,8 +77,8 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<complexType name="TimeTopologyPrimitivePropertyType">
+    <!-- ================================================================== -->
+    <complexType name="TimeTopologyPrimitivePropertyType">
 		<annotation>
 			<documentation>A time topology primitive property can either hold any time topology complex element
 			 eor carry an XLink reference to a remote time topology complex element 
@@ -85,10 +90,10 @@
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- ================================================================== -->
-	<!--  ======= TimeNode ======= -->
-	<!-- ================================================================== -->
-	<element name="TimeNode" type="gml:TimeNodeType" substitutionGroup="gml:_TimeTopologyPrimitive">
+    <!-- ================================================================== -->
+    <!--  ======= TimeNode ======= -->
+    <!-- ================================================================== -->
+    <element name="TimeNode" type="gml:TimeNodeType" substitutionGroup="gml:_TimeTopologyPrimitive">
 		<annotation>
 			<documentation xml:lang="en">"TimeNode" is a zero dimensional temporal topology primitive, 
 			expresses a position in topological time, and is a start and an end of time edge, which represents states of time.
@@ -96,23 +101,25 @@
 			An isolated node may not be an element of any temporal topology complex.</documentation>
 		</annotation>
 	</element>
-	<!-- ================================================================== -->
-	<complexType name="TimeNodeType">
+    <!-- ================================================================== -->
+    <complexType name="TimeNodeType">
 		<annotation>
 			<documentation xml:lang="en">Type declaration of the element "TimeNode".</documentation>
 		</annotation>
 		<complexContent>
 			<extension base="gml:AbstractTimeTopologyPrimitiveType">
 				<sequence>
-					<element name="previousEdge" type="gml:TimeEdgePropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<element name="nextEdge" type="gml:TimeEdgePropertyType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="previousEdge" type="gml:TimeEdgePropertyType" minOccurs="0"
+                             maxOccurs="unbounded"/>
+					<element name="nextEdge" type="gml:TimeEdgePropertyType" minOccurs="0"
+                             maxOccurs="unbounded"/>
 					<element name="position" type="gml:TimeInstantPropertyType" minOccurs="0"/>
 				</sequence>
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<complexType name="TimeNodePropertyType">
+    <!-- ================================================================== -->
+    <complexType name="TimeNodePropertyType">
 		<annotation>
 			<documentation>A time node property can either be any time node element encapsulated in an element of this type 
 			or an XLink reference to a remote time node element (where remote includes elements located elsewhere in the same document). 
@@ -123,18 +130,18 @@
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- ================================================================== -->
-	<!--  ======= TimeEdge ======= -->
-	<!-- ================================================================== -->
-	<element name="TimeEdge" type="gml:TimeEdgeType" substitutionGroup="gml:_TimeTopologyPrimitive">
+    <!-- ================================================================== -->
+    <!--  ======= TimeEdge ======= -->
+    <!-- ================================================================== -->
+    <element name="TimeEdge" type="gml:TimeEdgeType" substitutionGroup="gml:_TimeTopologyPrimitive">
 		<annotation>
 			<documentation xml:lang="en">TimeEdge is one dimensional temporal topology primitive,
 			 expresses a state in topological time. It has an orientation from its start toward the end, 
 			 and its boundaries shall associate with two different time nodes.</documentation>
 		</annotation>
 	</element>
-	<!-- ================================================================== -->
-	<complexType name="TimeEdgeType">
+    <!-- ================================================================== -->
+    <complexType name="TimeEdgeType">
 		<annotation>
 			<documentation xml:lang="en">Type declaration of the element "TimeEdge".</documentation>
 		</annotation>
@@ -148,8 +155,8 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<complexType name="TimeEdgePropertyType">
+    <!-- ================================================================== -->
+    <complexType name="TimeEdgePropertyType">
 		<annotation>
 			<documentation>A time edge property can either be any time edge element encapsulated in an element of this type 
 			or an XLink reference to a remote time edge element (where remote includes elements located elsewhere in the same document). 
@@ -160,10 +167,10 @@
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- ================================================================== -->
-	<!-- ===       Succession        === -->
-	<!-- ================================================================== -->
-	<simpleType name="SuccessionType">
+    <!-- ================================================================== -->
+    <!-- ===       Succession        === -->
+    <!-- ================================================================== -->
+    <simpleType name="SuccessionType">
 		<annotation>
 			<documentation>Feature succession is a semantic relationship derived from evaluation of observer, and 
 			Feature Substitution, Feature Division and Feature Fusion are defined as associations between 
@@ -179,5 +186,5 @@
 			<enumeration value="initiation"/>
 		</restriction>
 	</simpleType>
-	<!-- ================================================================== -->
+    <!-- ================================================================== -->
 </schema>

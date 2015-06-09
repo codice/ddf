@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.source;
 
@@ -39,25 +39,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
-
-import net.opengis.cat.csw.v_2_0_2.AbstractRecordType;
-import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
-import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import net.opengis.cat.csw.v_2_0_2.RecordType;
-import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
-import net.opengis.cat.csw.v_2_0_2.SummaryRecordType;
-import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
-import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
-import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
-import net.opengis.filter.v_1_1_0.FilterCapabilities;
-import net.opengis.filter.v_1_1_0.LogicalOperators;
-import net.opengis.filter.v_1_1_0.ScalarCapabilitiesType;
-import net.opengis.ows.v_1_0_0.DomainType;
-import net.opengis.ows.v_1_0_0.Operation;
-import net.opengis.ows.v_1_0_0.OperationsMetadata;
-import net.opengis.ows.v_1_0_0.ServiceIdentification;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
@@ -88,18 +69,36 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
+import net.opengis.cat.csw.v_2_0_2.AbstractRecordType;
+import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
+import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsResponseType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.RecordType;
+import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
+import net.opengis.cat.csw.v_2_0_2.SummaryRecordType;
+import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
+import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
+import net.opengis.filter.v_1_1_0.ComparisonOperatorsType;
+import net.opengis.filter.v_1_1_0.FilterCapabilities;
+import net.opengis.filter.v_1_1_0.LogicalOperators;
+import net.opengis.filter.v_1_1_0.ScalarCapabilitiesType;
+import net.opengis.ows.v_1_0_0.DomainType;
+import net.opengis.ows.v_1_0_0.Operation;
+import net.opengis.ows.v_1_0_0.OperationsMetadata;
+import net.opengis.ows.v_1_0_0.ServiceIdentification;
 
 public class TestCswSourceBase {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestCswSourceBase.class);
 
     /**
      * ISO 8601 date time format with milliseconds and colon between hours/minutes in time zone,
      * e.g., 2013-05-22T16:28:38.345-07:00
-     * 
+     *
      * The ZZ gives the colon in the time zone.
      */
     protected static final String ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestCswSourceBase.class);
 
     protected static String ID = "MyCswSource";
 
@@ -113,67 +112,56 @@ public class TestCswSourceBase {
 
     protected AvailabilityTask mockAvailabilityTask = mock(AvailabilityTask.class);
 
-    protected String getRecordsControlXml202 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-            + "<ns4:GetRecords resultType=\"results\" outputFormat=\"application/xml\""
-            + " outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\""
-            + " maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" xmlns:ns2=\"http://www.w3.org/1999/xlink\""
-            + " xmlns=\"http://www.opengis.net/ows\" xmlns:ns4=\"http://www.opengis.net/cat/csw/2.0.2\""
-            + " xmlns:ns3=\"http://www.opengis.net/ogc\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\""
-            + " xmlns:ns5=\"http://www.opengis.net/gml\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\""
-            + " xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">"
-            + "<ns4:Query typeNames=\"Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/ows\">"
-            + "<ns4:ElementSetName>full</ns4:ElementSetName>"
-            + "<ns4:Constraint version=\"1.1.0\">"
-            + "<ns3:Filter>"
-            + "<ns3:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\">"
-            + "<ns3:PropertyName>"
-            + CswConstants.ANY_TEXT
-            + "</ns3:PropertyName>"
-            + "<ns3:Literal>*th*e</ns3:Literal>"
-            + "</ns3:PropertyIsLike>"
-            + "</ns3:Filter>"
-            + "</ns4:Constraint>" + "</ns4:Query>" + "</ns4:GetRecords>";
+    protected String getRecordsControlXml202 =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+                    + "<ns4:GetRecords resultType=\"results\" outputFormat=\"application/xml\""
+                    + " outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\""
+                    + " maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" xmlns:ns2=\"http://www.w3.org/1999/xlink\""
+                    + " xmlns=\"http://www.opengis.net/ows\" xmlns:ns4=\"http://www.opengis.net/cat/csw/2.0.2\""
+                    + " xmlns:ns3=\"http://www.opengis.net/ogc\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\""
+                    + " xmlns:ns5=\"http://www.opengis.net/gml\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\""
+                    + " xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">"
+                    + "<ns4:Query typeNames=\"Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/ows\">"
+                    + "<ns4:ElementSetName>full</ns4:ElementSetName>"
+                    + "<ns4:Constraint version=\"1.1.0\">" + "<ns3:Filter>"
+                    + "<ns3:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\">"
+                    + "<ns3:PropertyName>" + CswConstants.ANY_TEXT + "</ns3:PropertyName>"
+                    + "<ns3:Literal>*th*e</ns3:Literal>" + "</ns3:PropertyIsLike>" + "</ns3:Filter>"
+                    + "</ns4:Constraint>" + "</ns4:Query>" + "</ns4:GetRecords>";
 
-    protected String getRecordsControlXml201 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-            + "<ns4:GetRecords resultType=\"results\" outputFormat=\"application/xml\""
-            + " outputSchema=\"OGCCORE\" startPosition=\"1\""
-            + " maxRecords=\"10\" service=\"CSW\" version=\"2.0.1\" xmlns:ns2=\"http://www.w3.org/1999/xlink\""
-            + " xmlns=\"http://www.opengis.net/ows\" xmlns:ns4=\"http://www.opengis.net/cat/csw\""
-            + " xmlns:ns3=\"http://www.opengis.net/ogc\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\""
-            + " xmlns:ns5=\"http://www.opengis.net/gml\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\""
-            + " xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">"
-            + "<ns4:Query typeNames=\"csw:Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/ows\">"
-            + "<ns4:ElementSetName>full</ns4:ElementSetName>"
-            + "<ns4:Constraint version=\"1.1.0\">"
-            + "<ns3:Filter>"
-            + "<ns3:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\">"
-            + "<ns3:PropertyName>"
-            + CswConstants.ANY_TEXT
-            + "</ns3:PropertyName>"
-            + "<ns3:Literal>*th*e</ns3:Literal>"
-            + "</ns3:PropertyIsLike>"
-            + "</ns3:Filter>"
-            + "</ns4:Constraint>" + "</ns4:Query>" + "</ns4:GetRecords>";
+    protected String getRecordsControlXml201 =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+                    + "<ns4:GetRecords resultType=\"results\" outputFormat=\"application/xml\""
+                    + " outputSchema=\"OGCCORE\" startPosition=\"1\""
+                    + " maxRecords=\"10\" service=\"CSW\" version=\"2.0.1\" xmlns:ns2=\"http://www.w3.org/1999/xlink\""
+                    + " xmlns=\"http://www.opengis.net/ows\" xmlns:ns4=\"http://www.opengis.net/cat/csw\""
+                    + " xmlns:ns3=\"http://www.opengis.net/ogc\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\""
+                    + " xmlns:ns5=\"http://www.opengis.net/gml\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\""
+                    + " xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">"
+                    + "<ns4:Query typeNames=\"csw:Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/ows\">"
+                    + "<ns4:ElementSetName>full</ns4:ElementSetName>"
+                    + "<ns4:Constraint version=\"1.1.0\">" + "<ns3:Filter>"
+                    + "<ns3:PropertyIsLike wildCard=\"*\" singleChar=\"#\" escapeChar=\"!\">"
+                    + "<ns3:PropertyName>" + CswConstants.ANY_TEXT + "</ns3:PropertyName>"
+                    + "<ns3:Literal>*th*e</ns3:Literal>" + "</ns3:PropertyIsLike>" + "</ns3:Filter>"
+                    + "</ns4:Constraint>" + "</ns4:Query>" + "</ns4:GetRecords>";
 
-    protected String getRecordsControlXml202ContentTypeMappedToFormat = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-            + "<GetRecords resultType=\"results\" outputFormat=\"application/xml\""
-            + " outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\""
-            + " maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" xmlns:ns2=\"http://www.opengis.net/ogc\""
-            + " xmlns=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ns4=\"http://www.w3.org/1999/xlink\""
-            + " xmlns:ns3=\"http://www.opengis.net/gml\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\""
-            + " xmlns:ns5=\"http://purl.org/dc/elements/1.1/\" xmlns:ns6=\"http://www.opengis.net/ows\""
-            + " xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">"
-            + "<ns10:Query typeNames=\"Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/cat/csw/2.0.2\">"
-            + "<ns10:ElementSetName>full</ns10:ElementSetName>"
-            + "<ns10:Constraint version=\"1.1.0\">"
-            + "<ns2:Filter>"
-            + "<ns2:PropertyIsEqualTo matchCase=\"true\">"
-            + "<ns2:PropertyName>"
-            + CswRecordMetacardType.CSW_FORMAT
-            + "</ns2:PropertyName>"
-            + "<ns2:Literal>myContentType</ns2:Literal>"
-            + "</ns2:PropertyIsEqualTo>"
-            + "</ns2:Filter>" + "</ns10:Constraint>" + "</ns10:Query>" + "</GetRecords>";
+    protected String getRecordsControlXml202ContentTypeMappedToFormat =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+                    + "<GetRecords resultType=\"results\" outputFormat=\"application/xml\""
+                    + " outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\""
+                    + " maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" xmlns:ns2=\"http://www.opengis.net/ogc\""
+                    + " xmlns=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ns4=\"http://www.w3.org/1999/xlink\""
+                    + " xmlns:ns3=\"http://www.opengis.net/gml\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\""
+                    + " xmlns:ns5=\"http://purl.org/dc/elements/1.1/\" xmlns:ns6=\"http://www.opengis.net/ows\""
+                    + " xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">"
+                    + "<ns10:Query typeNames=\"Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/cat/csw/2.0.2\">"
+                    + "<ns10:ElementSetName>full</ns10:ElementSetName>"
+                    + "<ns10:Constraint version=\"1.1.0\">" + "<ns2:Filter>"
+                    + "<ns2:PropertyIsEqualTo matchCase=\"true\">" + "<ns2:PropertyName>"
+                    + CswRecordMetacardType.CSW_FORMAT + "</ns2:PropertyName>"
+                    + "<ns2:Literal>myContentType</ns2:Literal>" + "</ns2:PropertyIsEqualTo>"
+                    + "</ns2:Filter>" + "</ns10:Constraint>" + "</ns10:Query>" + "</GetRecords>";
 
     @BeforeClass
     public static void init() {
@@ -192,10 +180,12 @@ public class TestCswSourceBase {
         ServiceReference ref = mock(ServiceReference.class);
         ServiceReference[] serviceRefs = new ServiceReference[] {ref};
         try {
-            when(mockContext.getServiceReferences(eq(MetadataTransformer.class.getName()),
-                anyString())).thenReturn(serviceRefs);
-            when(mockContext.getServiceReferences(eq(STSClientConfiguration.class.getName()),
-                anyString())).thenReturn(null);
+            when(mockContext
+                    .getServiceReferences(eq(MetadataTransformer.class.getName()), anyString()))
+                    .thenReturn(serviceRefs);
+            when(mockContext
+                    .getServiceReferences(eq(STSClientConfiguration.class.getName()), anyString()))
+                    .thenReturn(null);
         } catch (InvalidSyntaxException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -233,8 +223,8 @@ public class TestCswSourceBase {
         RemoteCsw mockRemoteCsw = mock(RemoteCsw.class);
         InputStream stream = getClass().getResourceAsStream("/getCapabilities.xml");
         CapabilitiesType capabilities = parseXml(stream);
-        when(mockRemoteCsw.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(
-                capabilities);
+        when(mockRemoteCsw.getCapabilities(any(GetCapabilitiesRequest.class)))
+                .thenReturn(capabilities);
 
         CswRecordCollection collection = generateCswCollection("/getBriefRecordsResponse.xml");
         when(mockRemoteCsw.getRecords(any(GetRecordsType.class))).thenReturn(collection);
@@ -271,8 +261,8 @@ public class TestCswSourceBase {
                     if ("identifier".equals(jb.getName().getLocalPart())) {
                         metacard.setId(jb.getValue().getContent().get(0));
                     }
-                    if ("type".equals(jb.getName().getLocalPart())
-                            && !CollectionUtils.isEmpty(jb.getValue().getContent())) {
+                    if ("type".equals(jb.getName().getLocalPart()) && !CollectionUtils
+                            .isEmpty(jb.getValue().getContent())) {
                         metacard.setContentTypeName(jb.getValue().getContent().get(0));
                     }
                 }
@@ -280,10 +270,10 @@ public class TestCswSourceBase {
         }
         CswRecordCollection collection = new CswRecordCollection();
         collection.setCswRecords(cswRecords);
-        collection.setNumberOfRecordsMatched(records.getSearchResults().getNumberOfRecordsMatched()
-                .intValue());
-        collection.setNumberOfRecordsReturned(records.getSearchResults()
-                .getNumberOfRecordsReturned().intValue());
+        collection.setNumberOfRecordsMatched(
+                records.getSearchResults().getNumberOfRecordsMatched().intValue());
+        collection.setNumberOfRecordsReturned(
+                records.getSearchResults().getNumberOfRecordsReturned().intValue());
         return collection;
     }
 
@@ -306,22 +296,22 @@ public class TestCswSourceBase {
     protected String getGetRecordsTypeAsXml(GetRecordsType getRecordsType, String cswVersion) {
         Writer writer = new StringWriter();
         try {
-            JAXBContext jaxbContext = JAXBContext
-                    .newInstance("net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0");
+            JAXBContext jaxbContext = JAXBContext.newInstance(
+                    "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0");
             Marshaller marshaller = jaxbContext.createMarshaller();
 
             JAXBElement<GetRecordsType> jaxbElement = null;
             if (CswConstants.VERSION_2_0_2.equals(cswVersion)) {
                 // QName("http://www.opengis.net/cat/csw/2.0.2", ""GetRecords")
-                jaxbElement = new JAXBElement<GetRecordsType>(new QName(
-                        CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS),
+                jaxbElement = new JAXBElement<GetRecordsType>(
+                        new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS),
                         GetRecordsType.class, getRecordsType);
             } else {
                 // CSW 2.0.1
                 // QName("http://www.opengis.net/cat/csw", ""GetRecords")
                 LOGGER.debug("Called 2.0.1");
-                jaxbElement = new JAXBElement<GetRecordsType>(new QName(
-                        "http://www.opengis.net/cat/csw", CswConstants.GET_RECORDS),
+                jaxbElement = new JAXBElement<GetRecordsType>(
+                        new QName("http://www.opengis.net/cat/csw", CswConstants.GET_RECORDS),
                         GetRecordsType.class, getRecordsType);
             }
             marshaller.marshal(jaxbElement, writer);
@@ -348,8 +338,8 @@ public class TestCswSourceBase {
         when(mockCapabilities.getVersion()).thenReturn(cswVersion);
         when(mockCapabilities.getServiceIdentification()).thenReturn(mockServiceIdentification);
         when(mockCapabilities.getServiceIdentification()).thenReturn(mockServiceIdentification);
-        when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(
-                mockCapabilities);
+        when(mockCsw.getCapabilities(any(GetCapabilitiesRequest.class)))
+                .thenReturn(mockCapabilities);
 
         FilterCapabilities mockFilterCapabilities = mock(FilterCapabilities.class);
         when(mockCapabilities.getFilterCapabilities()).thenReturn(mockFilterCapabilities);
@@ -422,18 +412,18 @@ public class TestCswSourceBase {
             }
 
             SearchResultsType searchResults = mock(SearchResultsType.class);
-            when(searchResults.getNumberOfRecordsMatched()).thenReturn(
-                    BigInteger.valueOf(numRecordsMatched));
-            when(searchResults.getNumberOfRecordsReturned()).thenReturn(
-                    BigInteger.valueOf(numRecordsReturned));
+            when(searchResults.getNumberOfRecordsMatched())
+                    .thenReturn(BigInteger.valueOf(numRecordsMatched));
+            when(searchResults.getNumberOfRecordsReturned())
+                    .thenReturn(BigInteger.valueOf(numRecordsReturned));
 
             CswRecordCollection mockCswRecordCollection = mock(CswRecordCollection.class);
 
             when(mockCswRecordCollection.getCswRecords()).thenReturn(metacards);
 
             when(mockCswRecordCollection.getNumberOfRecordsMatched()).thenReturn(numRecordsMatched);
-            when(mockCswRecordCollection.getNumberOfRecordsReturned()).thenReturn(
-                    (long) numRecordsReturned);
+            when(mockCswRecordCollection.getNumberOfRecordsReturned())
+                    .thenReturn((long) numRecordsReturned);
             when(mockCsw.getRecords(any(GetRecordsType.class))).thenReturn(mockCswRecordCollection);
         }
 
@@ -441,11 +431,13 @@ public class TestCswSourceBase {
 
     protected void setupMockContextForMetacardTypeRegistrationAndUnregistration(
             List<String> contentTypes) {
-        ServiceRegistration<?> mockRegisteredMetacardType = (ServiceRegistration<?>) mock(ServiceRegistration.class);
-        doReturn(mockRegisteredMetacardType).when(mockContext).registerService(
-                eq(MetacardType.class.getName()), any(CswRecordMetacardType.class),
-                Matchers.<Dictionary<String, ?>> any());
-        ServiceReference<?> mockServiceReference = (ServiceReference<?>) mock(ServiceReference.class);
+        ServiceRegistration<?> mockRegisteredMetacardType = (ServiceRegistration<?>) mock(
+                ServiceRegistration.class);
+        doReturn(mockRegisteredMetacardType).when(mockContext)
+                .registerService(eq(MetacardType.class.getName()), any(CswRecordMetacardType.class),
+                        Matchers.<Dictionary<String, ?>>any());
+        ServiceReference<?> mockServiceReference = (ServiceReference<?>) mock(
+                ServiceReference.class);
         doReturn(mockServiceReference).when(mockRegisteredMetacardType).getReference();
         when(mockServiceReference.getProperty(eq(Metacard.CONTENT_TYPE))).thenReturn(contentTypes);
     }

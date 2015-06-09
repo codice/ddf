@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
@@ -65,8 +65,7 @@ public interface CswConstants {
      * 
      * TODO: If this proves to be a continuing problem amongst supported services, getRecordsRequest
      * may need to support typeName as well.
-     */
-    String TYPE_NAME_PARAMETER = "typeName";
+     */ String TYPE_NAME_PARAMETER = "typeName";
 
     String TYPE_NAMES_PARAMETER = "typeNames";
 
@@ -87,7 +86,7 @@ public interface CswConstants {
     String POST_ENCODING = "PostEncoding";
 
     String XMLNS = "xmlns";
-    
+
     String XMLNS_DEFINITION_PREFIX = XMLNS + "(";
 
     String XMLNS_DEFINITION_POSTFIX = ")";
@@ -108,7 +107,7 @@ public interface CswConstants {
     String ANY_TEXT = "AnyText";
 
     String XML_SCHEMA_NAMESPACE_PREFIX = "xs";
-    
+
     String XML_SCHEMA_INSTANCE_NAMESPACE_PREFIX = "xsi";
 
     String OWS_NAMESPACE_PREFIX = "ows";
@@ -131,9 +130,11 @@ public interface CswConstants {
 
     String CSW_RECORD = CSW_NAMESPACE_PREFIX + NAMESPACE_DELIMITER + CSW_RECORD_LOCAL_NAME;
 
-    String CSW_SUMMARY_RECORD = CSW_NAMESPACE_PREFIX + NAMESPACE_DELIMITER + CSW_SUMMARY_RECORD_LOCAL_NAME;
+    String CSW_SUMMARY_RECORD =
+            CSW_NAMESPACE_PREFIX + NAMESPACE_DELIMITER + CSW_SUMMARY_RECORD_LOCAL_NAME;
 
-    String CSW_BRIEF_RECORD = CSW_NAMESPACE_PREFIX + NAMESPACE_DELIMITER + CSW_BRIEF_RECORD_LOCAL_NAME;
+    String CSW_BRIEF_RECORD =
+            CSW_NAMESPACE_PREFIX + NAMESPACE_DELIMITER + CSW_BRIEF_RECORD_LOCAL_NAME;
 
     String CSW_OUTPUT_SCHEMA = "http://www.opengis.net/cat/csw/2.0.2";
 
@@ -146,7 +147,7 @@ public interface CswConstants {
     String DUBLIN_CORE_TERMS_SCHEMA = "http://purl.org/dc/terms/";
 
     String CSW_OGCCORE_OUTPUT_SCHEMA = "OGCCORE";
-    
+
     String CONSTRAINT_VERSION = "1.1.0";
 
     String OGC_CSW_PACKAGE = "net.opengis.cat.csw.v_2_0_2";
@@ -156,7 +157,7 @@ public interface CswConstants {
     String OGC_GML_PACKAGE = "net.opengis.gml.v_3_1_1";
 
     String OGC_OWS_PACKAGE = "net.opengis.ows.v_1_0_0";
-    
+
     String XML_SCHEMA_LANGUAGE = "http://www.w3.org/XML/Schema";
 
     String CSW_TYPE = "type";
@@ -164,13 +165,13 @@ public interface CswConstants {
     String CSW_TITLE = "title";
 
     String CSW_MODIFIED = "modified";
-    
+
     String CSW_CREATED = "created";
-    
+
     String GML_POINT = "Point";
-    
+
     String GML_LINESTRING = "LineString";
-    
+
     String GML_POLYGON = "Polygon";
 
     String BBOX_PROP = "ows:BoundingBox";
@@ -180,28 +181,28 @@ public interface CswConstants {
     String METERS = "METERS";
 
     String CRS = "crs";
-    
+
     String SRS_NAME = "EPSG:4326";
-    
+
     String SRS_URL = "urn:x-ogc:def:crs:EPSG:6.11:4326";
-    
+
     String OWS_UPPER_CORNER = "UpperCorner";
-    
+
     String OWS_LOWER_CORNER = "LowerCorner";
-    
+
     double DEGREES_TO_RADIANS = Math.PI / 180.0;
 
     double RADIANS_TO_DEGREES = 1 / DEGREES_TO_RADIANS;
 
     double EARTH_MEAN_RADIUS_METERS = 6371008.7714;
-    
+
     // Exception Codes
     static final String VERSION_NEGOTIATION_FAILED = "VersionNegotiationFailed";
     static final String MISSING_PARAMETER_VALUE = "MissingParameterValue";
     static final String INVALID_PARAMETER_VALUE = "InvalidParameterValue";
     static final String NONEXISTENT_TYPE = "NonexistentType";
     static final String OPERATION_NOT_SUPPORTED = "OperationNotSupported";
-    static final String NO_APPLICABLE_CODE = "NoApplicableCode";    
+    static final String NO_APPLICABLE_CODE = "NoApplicableCode";
 
     public static final String OUTPUT_FORMAT_XML = MediaType.APPLICATION_XML;
 
@@ -209,33 +210,21 @@ public interface CswConstants {
     public static final String SCHEMA_LANGUAGE_X_SCHEMA = "http://www.w3.org/XMLSchema";
     public static final String SCHEMA_LANGUAGE_XML_SCHEMA = "http://www.w3.org/XML/Schema";
     public static final String SCHEMA_LANGUAGE_XML_TR = "http://www.w3.org/TR/xmlschema-1/";
-    
+
     public static final List<String> VALID_SCHEMA_LANGUAGES = new ArrayList<String>(
-            Arrays.asList(
-                    SCHEMA_LANGUAGE_X_SCHEMA,
-                    SCHEMA_LANGUAGE_XML_SCHEMA,
-                    SCHEMA_LANGUAGE_X_SCHEMA_2001,
-                    SCHEMA_LANGUAGE_XML_TR));
+            Arrays.asList(SCHEMA_LANGUAGE_X_SCHEMA, SCHEMA_LANGUAGE_XML_SCHEMA,
+                    SCHEMA_LANGUAGE_X_SCHEMA_2001, SCHEMA_LANGUAGE_XML_TR));
+    String ELEMENT_SET_TYPE = "ELEMENT_SET_TYPE";
+    String ELEMENT_NAMES = "ELEMENT_NAMES";
+    String IS_BY_ID_QUERY = "IS_BY_ID_QUERY";
+    String WRITE_NAMESPACES = "WRITE_NAMESPACES";
+    String ROOT_NODE_NAME = "ROOT_NODE_NAME";
+    String CSW_MAPPING = "CSW_MAPPING";
+    String PRODUCT_RETRIEVAL_METHOD = "PRODUCT_RETRIEVAL_METHOD";
+    String IS_LON_LAT_ORDER_PROPERTY = "isLonLatOrder";
+    String OMIT_XML_DECLARATION = "OMIT_XML_DECLARATION";
 
     enum BinarySpatialOperand {
         GEOMETRY, ENVELOPE, NONE
     }
-
-    String ELEMENT_SET_TYPE = "ELEMENT_SET_TYPE";
-
-    String ELEMENT_NAMES = "ELEMENT_NAMES";
-
-    String IS_BY_ID_QUERY = "IS_BY_ID_QUERY";
-
-    String WRITE_NAMESPACES = "WRITE_NAMESPACES";
-
-    String ROOT_NODE_NAME = "ROOT_NODE_NAME";
-
-    String CSW_MAPPING = "CSW_MAPPING";
-
-    String PRODUCT_RETRIEVAL_METHOD = "PRODUCT_RETRIEVAL_METHOD";
-
-    String IS_LON_LAT_ORDER_PROPERTY = "isLonLatOrder";
-
-    String OMIT_XML_DECLARATION = "OMIT_XML_DECLARATION";
 }

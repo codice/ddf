@@ -12,10 +12,10 @@
  *
  **/
 -->
-<beans:beans xmlns="http://www.springframework.org/schema/osgi"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
              xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns="http://www.springframework.org/schema/osgi"
              xsi:schemaLocation="http://www.springframework.org/schema/osgi
         http://www.springframework.org/schema/osgi/spring-osgi.xsd
      http://www.springframework.org/schema/osgi-compendium 
@@ -26,19 +26,23 @@
     <!-- Get reference to Filter Adapter implementation -->
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
-    <list id="converterList" interface="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter.FeatureConverterFactory" cardinality="0..N"/>
+    <list id="converterList"
+          interface="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.converter.FeatureConverterFactory"
+          cardinality="0..N"/>
 
     <reference id="securitySettings" interface="ddf.security.settings.SecuritySettingsService"/>
 
     <osgix:managed-service-factory
-            id="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsFederatedSource.id" factory-pid="Wfs_v1_0_0_Federated_Source"
+            id="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsFederatedSource.id"
+            factory-pid="Wfs_v1_0_0_Federated_Source"
             update-strategy="bean-managed" update-method="refresh">
 
         <osgix:interfaces>
             <beans:value>ddf.catalog.source.FederatedSource</beans:value>
         </osgix:interfaces>
 
-        <beans:bean id="Wfs_v1_0_0_Federated_Source" class="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsSource"
+        <beans:bean id="Wfs_v1_0_0_Federated_Source"
+                    class="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsSource"
                     init-method="init" destroy-method="destroy">
             <beans:property name="context" ref="bundleContext"/>
             <beans:property name="filterAdapter" ref="filterAdapter"/>
@@ -52,7 +56,7 @@
             </beans:property>
             <beans:property name="featureConverterFactoryList" ref="converterList"/>
             <beans:property name="pollInterval" value=""/>
-            <beans:property name="forceSpatialFilter" value="" />
+            <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>
             <beans:property name="receiveTimeout" value=""/>
             <beans:property name="securitySettings" ref="securitySettings"/>
@@ -60,13 +64,15 @@
     </osgix:managed-service-factory>
 
     <osgix:managed-service-factory
-            id="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsConnectedSource.id" factory-pid="Wfs_v1_0_0_Connected_Source"
+            id="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsConnectedSource.id"
+            factory-pid="Wfs_v1_0_0_Connected_Source"
             update-strategy="bean-managed" update-method="refresh">
 
         <osgix:interfaces>
             <beans:value>ddf.catalog.source.ConnectedSource</beans:value>
         </osgix:interfaces>
-        <beans:bean id="Wfs_v1_0_0_Connected_Source" class="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsSource"
+        <beans:bean id="Wfs_v1_0_0_Connected_Source"
+                    class="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsSource"
                     init-method="init" destroy-method="destroy">
             <beans:property name="context" ref="bundleContext"/>
             <beans:property name="filterAdapter" ref="filterAdapter"/>
@@ -81,7 +87,7 @@
             </beans:property>
             <beans:property name="featureConverterFactoryList" ref="converterList"/>
             <beans:property name="pollInterval" value=""/>
-            <beans:property name="forceSpatialFilter" value="" />
+            <beans:property name="forceSpatialFilter" value=""/>
             <beans:property name="connectionTimeout" value=""/>
             <beans:property name="receiveTimeout" value=""/>
             <beans:property name="securitySettings" ref="securitySettings"/>

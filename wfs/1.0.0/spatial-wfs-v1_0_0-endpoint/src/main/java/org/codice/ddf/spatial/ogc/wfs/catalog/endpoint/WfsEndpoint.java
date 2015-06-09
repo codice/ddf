@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.wfs.catalog.endpoint;
 
@@ -39,6 +39,38 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.cxf.common.util.StringUtils;
+import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.apache.ws.commons.schema.XmlSchemaForm;
+import org.apache.ws.commons.schema.XmlSchemaImport;
+import org.apache.ws.commons.schema.XmlSchemaSerializer;
+import org.apache.ws.commons.schema.utils.NamespaceMap;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.visitor.EncodedFilterVisitor;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs;
+import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
+import org.geotools.xml.Configuration;
+import org.geotools.xml.Parser;
+import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.federation.FederationException;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ogc.schema.opengis.BaseVisitor;
 import ogc.schema.opengis.DepthFirstTraverserImpl;
 import ogc.schema.opengis.filter.v_1_0_0.FilterType;
@@ -82,47 +114,12 @@ import ogc.schema.opengis.wfs_capabilities.v_1_0_0.SchemaDescriptionLanguageType
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.ServiceType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.cxf.common.util.StringUtils;
-import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
-import org.apache.ws.commons.schema.XmlSchemaForm;
-import org.apache.ws.commons.schema.XmlSchemaImport;
-import org.apache.ws.commons.schema.XmlSchemaSerializer;
-import org.apache.ws.commons.schema.utils.NamespaceMap;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs;
-import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
-import org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.visitor.EncodedFilterVisitor;
-import org.geotools.xml.Configuration;
-import org.geotools.xml.Parser;
-import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
-
 /**
  * Implementation of a WFS server. Supports both HTTP GET and POST.
- * 
+ *
  */
 @Path("/")
 public class WfsEndpoint implements Wfs {
-
-    private ObjectFactory capsObjectFactory = new ObjectFactory();
 
     private static final String SERVICE_NAME = "WFS";
 
@@ -132,15 +129,17 @@ public class WfsEndpoint implements Wfs {
 
     private static final String ERROR_PARSING_MSG = "Error parsing request: ";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(WfsEndpoint.class);
+
+    private static final Configuration PARSER_CONFIG = new org.geotools.filter.v1_0.OGCConfiguration();
+
+    private ObjectFactory capsObjectFactory = new ObjectFactory();
+
     private FilterBuilder builder;
 
     private CatalogFramework framework;
 
     private FeatureTypeSchemaCache schemaCache;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(WfsEndpoint.class);
-
-    private static final Configuration PARSER_CONFIG = new org.geotools.filter.v1_0.OGCConfiguration();
 
     @Context
     private UriInfo uri;
@@ -168,8 +167,8 @@ public class WfsEndpoint implements Wfs {
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public WFSCapabilitiesType getCapabilities(@QueryParam("")
-    GetCapabilitiesRequest request) throws WfsException {
+    public WFSCapabilitiesType getCapabilities(
+            @QueryParam("") GetCapabilitiesRequest request) throws WfsException {
         LOGGER.debug("Got getCapabilites via HTTP GET");
         if (request == null) {
             throw new WfsException("GetCapabilities request is null");
@@ -208,8 +207,8 @@ public class WfsEndpoint implements Wfs {
     @GET
     @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
     @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-    public XmlSchema describeFeatureType(@QueryParam("")
-    DescribeFeatureTypeRequest request) throws WfsException {
+    public XmlSchema describeFeatureType(@QueryParam("") DescribeFeatureTypeRequest request) throws
+            WfsException {
         LOGGER.debug("Got describeFeatureType via HTTP GET");
         if (request == null) {
             throw new WfsException("DescribeFeatureType request is null");
@@ -296,15 +295,13 @@ public class WfsEndpoint implements Wfs {
         for (QName qName : qnames) {
             XmlSchemaImport schemaImport = new XmlSchemaImport(schema);
             schemaImport.setNamespace(qName.getNamespaceURI());
-            URI fullUri = UriBuilder
-                    .fromUri(uri.getBaseUri())
+            URI fullUri = UriBuilder.fromUri(uri.getBaseUri())
                     .queryParam("request", Wfs10Constants.DESCRIBE_FEATURE_TYPE)
                     .queryParam("version", Wfs10Constants.VERSION_1_0_0)
-                    .queryParam("service", Wfs10Constants.WFS)
-                    .queryParam(
-                            "typeName",
-                            (StringUtils.isEmpty(qName.getPrefix())) ? qName.getLocalPart() : qName
-                                    .getPrefix() + ":" + qName.getLocalPart()).build();
+                    .queryParam("service", Wfs10Constants.WFS).queryParam("typeName",
+                            (StringUtils.isEmpty(qName.getPrefix())) ?
+                                    qName.getLocalPart() :
+                                    qName.getPrefix() + ":" + qName.getLocalPart()).build();
             schemaImport.setSchemaLocation(fullUri.toString());
             schema.getExternals().add(schemaImport);
         }
@@ -350,8 +347,8 @@ public class WfsEndpoint implements Wfs {
                         throw new WfsException(e);
                     }
 
-                    if (filterType.isSetComparisonOps() || filterType.isSetLogicOps()
-                            || filterType.isSetSpatialOps()) {
+                    if (filterType.isSetComparisonOps() || filterType.isSetLogicOps() || filterType
+                            .isSetSpatialOps()) {
 
                         InputStream inputStream = null;
                         try {
@@ -380,8 +377,9 @@ public class WfsEndpoint implements Wfs {
 
             QueryImpl query = new QueryImpl(totalFilter);
             query.setStartIndex(1);
-            query.setPageSize((request.getMaxFeatures() == null) ? DEFAULT_PAGE_SIZE : request
-                    .getMaxFeatures().intValue());
+            query.setPageSize((request.getMaxFeatures() == null) ?
+                    DEFAULT_PAGE_SIZE :
+                    request.getMaxFeatures().intValue());
 
             WfsFeatureCollection featureCollection = new WfsFeatureCollection();
             try {
@@ -411,8 +409,8 @@ public class WfsEndpoint implements Wfs {
     }
 
     private Boolean validateRequestParameters(final String service, final String version) {
-        return (service != null && version != null && Wfs10Constants.WFS.equalsIgnoreCase(service) && Wfs10Constants.VERSION_1_0_0
-                .equalsIgnoreCase(version));
+        return (service != null && version != null && Wfs10Constants.WFS.equalsIgnoreCase(service)
+                && Wfs10Constants.VERSION_1_0_0.equalsIgnoreCase(version));
     }
 
     private WFSCapabilitiesType buildWfsCapabilitiesType() {
@@ -463,12 +461,12 @@ public class WfsEndpoint implements Wfs {
         // Create The Capability Type
         CapabilityType capability = new CapabilityType();
         RequestType wfsRequest = new RequestType();
-        wfsRequest.getGetCapabilitiesOrDescribeFeatureTypeOrTransaction().add(
-                capsObjectFactory.createRequestTypeGetCapabilities(getCapsType));
-        wfsRequest.getGetCapabilitiesOrDescribeFeatureTypeOrTransaction().add(
-                capsObjectFactory.createRequestTypeDescribeFeatureType(describeFeatureType));
-        wfsRequest.getGetCapabilitiesOrDescribeFeatureTypeOrTransaction().add(
-                capsObjectFactory.createRequestTypeGetFeature(getFeatureType));
+        wfsRequest.getGetCapabilitiesOrDescribeFeatureTypeOrTransaction()
+                .add(capsObjectFactory.createRequestTypeGetCapabilities(getCapsType));
+        wfsRequest.getGetCapabilitiesOrDescribeFeatureTypeOrTransaction()
+                .add(capsObjectFactory.createRequestTypeDescribeFeatureType(describeFeatureType));
+        wfsRequest.getGetCapabilitiesOrDescribeFeatureTypeOrTransaction()
+                .add(capsObjectFactory.createRequestTypeGetFeature(getFeatureType));
         capability.setRequest(wfsRequest);
         wfsCapabilities.setCapability(capability);
 
@@ -484,15 +482,15 @@ public class WfsEndpoint implements Wfs {
         // DDF FilterAdapter implementation
         FilterCapabilities filterCapabilities = new FilterCapabilities();
         ScalarCapabilitiesType scalarCapabilites = new ScalarCapabilitiesType();
-        scalarCapabilites.getLogicalOperatorsOrComparisonOperatorsOrArithmeticOperators().add(
-                new LogicalOperators());
+        scalarCapabilites.getLogicalOperatorsOrComparisonOperatorsOrArithmeticOperators()
+                .add(new LogicalOperators());
         ComparisonOperatorsType compOpsType = new ComparisonOperatorsType();
         compOpsType.getSimpleComparisonsOrLikeOrBetween().add(new Between());
         compOpsType.getSimpleComparisonsOrLikeOrBetween().add(new NullCheck());
         compOpsType.getSimpleComparisonsOrLikeOrBetween().add(new Like());
         compOpsType.getSimpleComparisonsOrLikeOrBetween().add(new SimpleComparisons());
-        scalarCapabilites.getLogicalOperatorsOrComparisonOperatorsOrArithmeticOperators().add(
-                compOpsType);
+        scalarCapabilites.getLogicalOperatorsOrComparisonOperatorsOrArithmeticOperators()
+                .add(compOpsType);
         filterCapabilities.setScalarCapabilities(scalarCapabilites);
         SpatialOperatorsType spatialOpsType = new SpatialOperatorsType();
         spatialOpsType.getBBOXOrEqualsOrDisjoint().add(new Beyond());
@@ -540,7 +538,7 @@ public class WfsEndpoint implements Wfs {
     }
 
     private Filter parseFilter(FilterType filterType) throws JAXBException, IOException,
-        SAXException, ParserConfigurationException {
+            SAXException, ParserConfigurationException {
         Parser filterParser = new Parser(PARSER_CONFIG);
         InputStream inputStream = null;
 
@@ -553,8 +551,9 @@ public class WfsEndpoint implements Wfs {
 
     private WfsException createUnexpectedServiceException(final String service,
             final String version, final String request) {
-        return new WfsException("Unexpected service (" + service + ") or version (" + version
-                + ") in request " + request + ".");
+        return new WfsException(
+                "Unexpected service (" + service + ") or version (" + version + ") in request "
+                        + request + ".");
     }
 
     private WfsException createUnknownTypeException(final String type) {

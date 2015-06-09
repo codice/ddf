@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml/3.2" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2"
+		targetNamespace="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema"
+		elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
 		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:grids:3.2.1">grids.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 20.2.
@@ -19,7 +21,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 The gml:limits element contains a single gml:GridEnvelope. The gml:low and gml:high property elements of the envelope are each integerLists, which are coordinate tuples, the coordinates being measured as offsets from the origin of the grid along each axis, of the diagonally opposing corners of a "rectangular" region of interest.</documentation>
 		</annotation>
 	</element>
-	<element name="AbstractImplicitGeometry" type="gml:AbstractGeometryType" abstract="true" substitutionGroup="gml:AbstractGeometry"/>
+	<element name="AbstractImplicitGeometry" type="gml:AbstractGeometryType" abstract="true"
+             substitutionGroup="gml:AbstractGeometry"/>
 	<complexType name="GridType">
 		<complexContent>
 			<extension base="gml:AbstractGeometryType">

@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema
-   targetNamespace="http://www.opengis.net/wfs"
-   xmlns:wfs="http://www.opengis.net/wfs"
-   xmlns:gml="http://www.opengis.net/gml"
-   xmlns:ogc="http://www.opengis.net/ogc"
-   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-   elementFormDefault="unqualified"
-   version="1.0.0.3">
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.opengis.net/wfs"
+        elementFormDefault="unqualified"
+        version="1.0.0.3">
    
    <xsd:annotation>
       <xsd:documentation>All-components schema for the Web Feature Service namespace.
@@ -17,8 +14,8 @@
       </xsd:documentation>
    </xsd:annotation>
 
-   <!-- ==================  includes and imports  ======================= -->
-   <xsd:include schemaLocation="./WFS-basic.xsd"/>
+    <!-- ==================  includes and imports  ======================= -->
+    <xsd:include schemaLocation="./WFS-basic.xsd"/>
    <xsd:include schemaLocation="./WFS-transaction.xsd"/>
-   <!-- ================================================================= -->
+    <!-- ================================================================= -->
 </xsd:schema>

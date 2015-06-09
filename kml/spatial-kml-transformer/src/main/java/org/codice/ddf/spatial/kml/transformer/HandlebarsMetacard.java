@@ -14,16 +14,16 @@
  **/
 package org.codice.ddf.spatial.kml.transformer;
 
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
+
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
-
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Created by kcwire on 1/28/15.

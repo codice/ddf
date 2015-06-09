@@ -14,7 +14,24 @@
  **/
 package org.codice.ddf.spatial.ogc.catalog.common;
 
-import ddf.security.settings.SecuritySettingsService;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.SocketException;
+import java.security.KeyStore;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -31,22 +48,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import java.io.File;
-import java.io.FileInputStream;
-import java.net.SocketException;
-import java.security.KeyStore;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import ddf.security.settings.SecuritySettingsService;
 
 /**
  * Tests that the certificates are properly added to outgoing requests and allow for mutual
@@ -56,12 +58,8 @@ public class TestTrustedRemoteSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestTrustedRemoteSource.class);
 
-    private static Server server;
-
-    private static int serverPort = 0;
-
-    private static final String GOOD_KEYSTORE_PATH = TestTrustedRemoteSource.class.getResource(
-            "/clientKeystore.jks").getPath();
+    private static final String GOOD_KEYSTORE_PATH = TestTrustedRemoteSource.class
+            .getResource("/clientKeystore.jks").getPath();
 
     private static final String GOOD_TRUSTSTORE_PATH = TestTrustedRemoteSource.class
             .getResource("/clientTruststore.jks").getPath();
@@ -72,6 +70,10 @@ public class TestTrustedRemoteSource {
     private static final String GOOD_PASSWORD = "changeit";
 
     private static final String BAD_PASSWORD = "";
+
+    private static Server server;
+
+    private static int serverPort = 0;
 
     private static KeyStore keyStore;
 
@@ -125,6 +127,24 @@ public class TestTrustedRemoteSource {
         trustStore = createKeyStore(GOOD_TRUSTSTORE_PATH, GOOD_PASSWORD);
         keyStore = createKeyStore(GOOD_KEYSTORE_PATH, GOOD_PASSWORD);
         badStore = createKeyStore(BAD_KEYSTORE_PATH, BAD_PASSWORD);
+    }
+
+    private static KeyStore createKeyStore(String path, String password) {
+        KeyStore keyStore = null;
+        File keyStoreFile = new File(path);
+        FileInputStream fis = null;
+        if (StringUtils.isNotBlank(password)) {
+            try {
+                keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                fis = new FileInputStream(keyStoreFile);
+                keyStore.load(fis, password.toCharArray());
+            } catch (Exception e) {
+                LOGGER.warn("Could not load keystore from {} with password {}", path, password);
+            } finally {
+                IOUtils.closeQuietly(fis);
+            }
+        }
+        return keyStore;
     }
 
     /**
@@ -190,37 +210,18 @@ public class TestTrustedRemoteSource {
         return rs;
     }
 
-    private static KeyStore createKeyStore(String path, String password) {
-        KeyStore keyStore = null;
-        File keyStoreFile = new File(path);
-        FileInputStream fis = null;
-        if (StringUtils.isNotBlank(password)) {
-            try {
-                keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                fis = new FileInputStream(keyStoreFile);
-                keyStore.load(fis, password.toCharArray());
-            } catch (Exception e) {
-                LOGGER.warn("Could not load keystore from {} with password {}", path, password);
-            } finally {
-                IOUtils.closeQuietly(fis);
-            }
-        }
-        return keyStore;
-    }
-
     private TLSClientParameters getTLSParameters(KeyStore keyStore, String keystorePassword,
             KeyStore trustStore) {
         TLSClientParameters tlsParams = new TLSClientParameters();
         try {
             TrustManagerFactory trustFactory = TrustManagerFactory
-                    .getInstance(TrustManagerFactory
-                            .getDefaultAlgorithm());
+                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustFactory.init(trustStore);
             TrustManager[] tm = trustFactory.getTrustManagers();
             tlsParams.setTrustManagers(tm);
 
-            KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory
-                    .getDefaultAlgorithm());
+            KeyManagerFactory keyFactory = KeyManagerFactory
+                    .getInstance(KeyManagerFactory.getDefaultAlgorithm());
             keyFactory.init(keyStore, keystorePassword.toCharArray());
             KeyManager[] km = keyFactory.getKeyManagers();
             tlsParams.setKeyManagers(km);

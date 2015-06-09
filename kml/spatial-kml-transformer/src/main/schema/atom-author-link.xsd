@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema"
-  elementFormDefault="qualified"
-  targetNamespace="http://www.w3.org/2005/Atom"
-  xmlns:atom="http://www.w3.org/2005/Atom" version="1.0.0">
+<schema xmlns:atom="http://www.w3.org/2005/Atom"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified"
+        targetNamespace="http://www.w3.org/2005/Atom" version="1.0.0">
 
   <annotation>
     <appinfo>atom-author-link.xsd 2008-01-23</appinfo>
@@ -11,8 +11,8 @@
       ogckml22.xsd is defined here. </documentation>
   </annotation>
 
-  <!-- Person Construct -->
-  <complexType name="atomPersonConstruct">
+    <!-- Person Construct -->
+    <complexType name="atomPersonConstruct">
 
     <choice minOccurs="0" maxOccurs="unbounded">
       <element ref="atom:name"/>
@@ -26,11 +26,11 @@
 
   <element name="email" type="atom:atomEmailAddress"/>
 
-  <!-- atom:author -->
-  <element name="author" type="atom:atomPersonConstruct"/>
+    <!-- atom:author -->
+    <element name="author" type="atom:atomPersonConstruct"/>
 
-  <!-- atom:link -->
-  <element name="link">
+    <!-- atom:link -->
+    <element name="link">
     <complexType>
 
       <attribute name="href" use="required"/>
@@ -45,23 +45,23 @@
 
   </element>
 
-  <!-- Whatever a media type is, it contains at least one slash -->
-  <simpleType name="atomMediaType">
+    <!-- Whatever a media type is, it contains at least one slash -->
+    <simpleType name="atomMediaType">
     <restriction base="string">
       <pattern value=".+/.+"/>
     </restriction>
   </simpleType>
 
-  <!-- As defined in RFC 3066 -->
-  <simpleType name="atomLanguageTag">
+    <!-- As defined in RFC 3066 -->
+    <simpleType name="atomLanguageTag">
 
     <restriction base="string">
       <pattern value="[A-Za-z]{1,8}(-[A-Za-z0-9]{1,8})*"/>
     </restriction>
   </simpleType>
 
-  <!-- Whatever an email address is, it contains at least one @ -->
-  <simpleType name="atomEmailAddress">
+    <!-- Whatever an email address is, it contains at least one @ -->
+    <simpleType name="atomEmailAddress">
     <restriction base="string">
       <pattern value=".+@.+"/>
 

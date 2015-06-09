@@ -13,10 +13,12 @@
 -->
 <csw:GetRecordsResponse xmlns:csw="http://www.opengis.net/cat/csw">
   <csw:SearchStatus status="subset" timestamp="2013-05-01T02:13:36+0200"/>
-  <csw:SearchResults elementSet="full" nextRecord="11" numberOfRecordsMatched="479" numberOfRecordsReturned="10" recordSchema="csw:Record">
+  <csw:SearchResults elementSet="full" nextRecord="11" numberOfRecordsMatched="479"
+                     numberOfRecordsReturned="10" recordSchema="csw:Record">
     <csw:Record xmlns:csw="http://www.opengis.net/cat/csw">
       <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">{8C1F6297-EC96-4302-A01E-14988C9149FD}</dc:identifier>
-      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol Lnight geluidscontouren 1998</dc:title>
+      <dc:title
+              xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol Lnight geluidscontouren 1998</dc:title>
       <dct:modified xmlns:dct="http://purl.org/dc/terms/">2008-12-15</dct:modified>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Geluidcontouren</dc:subject>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Level night Lnight</dc:subject>
@@ -34,7 +36,8 @@ De dB(A) contourwaarden in de kaart variëren van 30 dB(A) tot 60 dB(A). Tussen 
     </csw:Record>
     <csw:Record xmlns:csw="http://www.opengis.net/cat/csw">
       <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">{23362852-F370-4369-B0B2-BE74B2859614}</dc:identifier>
-      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol NA60 geluidsniveau's 1998</dc:title>
+      <dc:title
+              xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol NA60 geluidsniveau's 1998</dc:title>
       <dct:modified xmlns:dct="http://purl.org/dc/terms/">2008-12-15</dct:modified>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Geluidcontouren</dc:subject>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Number Above NA**</dc:subject>
@@ -51,7 +54,8 @@ De dB(A) contourwaarden in de kaart variëren van 30 dB(A) tot 60 dB(A). Tussen 
     </csw:Record>
     <csw:Record xmlns:csw="http://www.opengis.net/cat/csw">
       <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">{5DF3DF00-8A24-4632-BF70-8E43C0E4562B}</dc:identifier>
-      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol Ke geluidscontouren 1999</dc:title>
+      <dc:title
+              xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol Ke geluidscontouren 1999</dc:title>
       <dct:modified xmlns:dct="http://purl.org/dc/terms/">2008-12-15</dct:modified>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Geluidcontouren</dc:subject>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Kosteneenheid Ke</dc:subject>
@@ -72,10 +76,12 @@ De Ke-formule drukt bovenstaande drie aspecten uit in één getal: de geluidbela
     </csw:Record>
     <csw:Record xmlns:csw="http://www.opengis.net/cat/csw">
       <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">{62721A62-02AB-4B15-AE59-1280547C92F4}</dc:identifier>
-      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol Lden geluidscontouren 1999</dc:title>
+      <dc:title
+              xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol Lden geluidscontouren 1999</dc:title>
       <dct:modified xmlns:dct="http://purl.org/dc/terms/">2008-12-15</dct:modified>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Geluidcontouren</dc:subject>
-      <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Level day evening night Lden</dc:subject>
+      <dc:subject
+              xmlns:dc="http://purl.org/dc/elements/1.1/">Level day evening night Lden</dc:subject>
       <dct:abstract xmlns:dct="http://purl.org/dc/terms/">Geluidscontouren 1999, uitgedrukt in Lden. De Lden (Loudness day-evening-night) is de Europese dosismaat voor de geluidsbelasting van verkeer en industrie welke is geïntroduceerd in 2003. Hierbij wordt niet langer gewerkt met zones en zoneringspunten, zoals gebruikt bij de Ke, maar met zogenaamde handhavingspunten. In elk van de handhavingspunten, die zijn gelegen in de buurt van de bebouwing rondom Schiphol, is een maximale geluidsbelasting vastgesteld die niet mag worden overschreden.  De geluidsbelasting wordt gemeten in tijdsblokken binnen een etmaal; day van 7u tot 19u, evening van 19u tot 23u en night  van 23u tot 7u. De geluidsbelastingen tijdens de avond en tijdens de nacht worden respectievelijk met een factor 5 en een factor 10 zwaarder geteld dan de geluidsbelasting overdag. De meting van de geluidsbelasting beslaat een geheel jaar en wordt uitgedrukt in dB(A), d.w.z. een decibelmeting met A-filter. Met het A-filter worden de eigenschappen van het menselijk gehoor (minder gevoelig voor lage- en zeer hoge tonen) zo goed mogelijk benaderd in de meetapparatuur.
 De dB(A) contourwaarden in de kaart variëren van 40 dB(A) tot 75 dB(A). Tussen deze uiterste waarden worden met stappen van 5 db(A) nog zes contourlijnen weergegeven. Bovendien worden de 53 dB(A) en de 58 dB(A) contourlijnen weergegeven die de gebieden omsluiten die in aanmerking komen voor eventuele sanering volgens de Wet Geluidhinder.</dct:abstract>
       <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">copyright</dc:rights>
@@ -90,7 +96,8 @@ De dB(A) contourwaarden in de kaart variëren van 40 dB(A) tot 75 dB(A). Tussen 
     </csw:Record>
     <csw:Record xmlns:csw="http://www.opengis.net/cat/csw">
       <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">{FF70628F-BCBB-43E9-BFDC-5C0877051A63}</dc:identifier>
-      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol NA60 geluidsniveau's 1999</dc:title>
+      <dc:title
+              xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol NA60 geluidsniveau's 1999</dc:title>
       <dct:modified xmlns:dct="http://purl.org/dc/terms/">2008-12-15</dct:modified>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Geluidcontouren</dc:subject>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Number Above NA**</dc:subject>
@@ -107,10 +114,12 @@ De dB(A) contourwaarden in de kaart variëren van 40 dB(A) tot 75 dB(A). Tussen 
     </csw:Record>
     <csw:Record xmlns:csw="http://www.opengis.net/cat/csw">
       <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">{9308D022-D4E3-45EC-BA3B-5B24E89DB552}</dc:identifier>
-      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol IMU-3 externe veiligheid 2001</dc:title>
+      <dc:title
+              xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol IMU-3 externe veiligheid 2001</dc:title>
       <dct:modified xmlns:dct="http://purl.org/dc/terms/">2008-12-17</dct:modified>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Externe Veiligheid EV</dc:subject>
-      <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Plaatsgebonden Risico PR IMU*</dc:subject>
+      <dc:subject
+              xmlns:dc="http://purl.org/dc/elements/1.1/">Plaatsgebonden Risico PR IMU*</dc:subject>
       <dct:abstract xmlns:dct="http://purl.org/dc/terms/">Externe Veiligheid 2001, uitgedrukt in PR IMU-3; Plaatsgebonden Risico volgens het  Interim Model Update 3. Plaatsgebonden risico is het risico op een plaats buiten het luchtvaartterrein, uitgedrukt in de kans per jaar dat iemand die onafgebroken en onbeschermd aanwezig is op die plaats komt te overlijden als gevolg van een vliegtuigongeval. Een PR waarde van 5 op de kaart betekent een kans van 1 op de 100.000 (10 tot de macht min 5) op zo'n gebeurtenis, PR 6 is een kans van 1 op 1 miljoen, PR 7 is een kans van 1 op 10 miljoen. Door punten met gelijk plaatsgebonden risico te verbinden worden risicocontouren verkregen. IMU-3 is de verbeterde methodiek uit 2000 (de oudere is uit 1993) waarmee de kansenberekening van het risico wordt uitgevoerd.</dct:abstract>
       <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">copyright</dc:rights>
       <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">copyright</dc:rights>
@@ -124,7 +133,8 @@ De dB(A) contourwaarden in de kaart variëren van 40 dB(A) tot 75 dB(A). Tussen 
     </csw:Record>
     <csw:Record xmlns:csw="http://www.opengis.net/cat/csw">
       <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">{EA876967-EF72-4D29-881F-E535F1E304D9}</dc:identifier>
-      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol Ke geluidscontouren 2001</dc:title>
+      <dc:title
+              xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol Ke geluidscontouren 2001</dc:title>
       <dct:modified xmlns:dct="http://purl.org/dc/terms/">2008-12-15</dct:modified>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Geluidcontouren</dc:subject>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Kosteneenheid Ke</dc:subject>
@@ -145,7 +155,8 @@ De Ke-formule drukt bovenstaande drie aspecten uit in één getal: de geluidbela
     </csw:Record>
     <csw:Record xmlns:csw="http://www.opengis.net/cat/csw">
       <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">{03319F3E-9EDC-43A4-89B5-69CF7FC725E6}</dc:identifier>
-      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol NA70 geluidsniveau's 1996</dc:title>
+      <dc:title
+              xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol NA70 geluidsniveau's 1996</dc:title>
       <dct:modified xmlns:dct="http://purl.org/dc/terms/">2008-12-15</dct:modified>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Geluidcontouren</dc:subject>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Number Above NA**</dc:subject>
@@ -162,7 +173,8 @@ De Ke-formule drukt bovenstaande drie aspecten uit in één getal: de geluidbela
     </csw:Record>
     <csw:Record xmlns:csw="http://www.opengis.net/cat/csw">
       <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">{70BAF78D-4BF6-4657-A41C-DDC159274CC6}</dc:identifier>
-      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol Lnight geluidscontouren 1997</dc:title>
+      <dc:title
+              xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol Lnight geluidscontouren 1997</dc:title>
       <dct:modified xmlns:dct="http://purl.org/dc/terms/">2008-12-15</dct:modified>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Geluidcontouren</dc:subject>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Level night Lnight</dc:subject>
@@ -180,10 +192,12 @@ De dB(A) contourwaarden in de kaart variëren van 30 dB(A) tot 60 dB(A). Tussen 
     </csw:Record>
     <csw:Record xmlns:csw="http://www.opengis.net/cat/csw">
       <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">{904B6372-BFC0-489B-B03C-9A8267C60C39}</dc:identifier>
-      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol IMU-1 externe veiligheid 1993</dc:title>
+      <dc:title
+              xmlns:dc="http://purl.org/dc/elements/1.1/">Schiphol IMU-1 externe veiligheid 1993</dc:title>
       <dct:modified xmlns:dct="http://purl.org/dc/terms/">2008-12-17</dct:modified>
       <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Externe Veiligheid EV</dc:subject>
-      <dc:subject xmlns:dc="http://purl.org/dc/elements/1.1/">Plaatsgebonden Risico PR IMU*</dc:subject>
+      <dc:subject
+              xmlns:dc="http://purl.org/dc/elements/1.1/">Plaatsgebonden Risico PR IMU*</dc:subject>
       <dct:abstract xmlns:dct="http://purl.org/dc/terms/">Externe Veiligheid 1993, uitgedrukt in PR IMU-1; Plaatsgebonden Risico volgens het  Interim Model Update 1. Plaatsgebonden risico is het risico op een plaats buiten het luchtvaartterrein, uitgedrukt in de kans per jaar dat iemand die onafgebroken en onbeschermd aanwezig is op die plaats komt te overlijden als gevolg van een vliegtuigongeval. Een PR waarde van 5 op de kaart betekent een kans van 1 op de 100.000 (10 tot de macht min 5) op zo'n gebeurtenis, PR 6 is een kans van 1 op 1 miljoen, PR 7 is een kans van 1 op 10 miljoen. Door punten met gelijk plaatsgebonden risico te verbinden worden risicocontouren verkregen. IMU-1 is de (wat oudere) methodiek uit 1993 waarmee de kansenberekening van het risico wordt uitgevoerd.</dct:abstract>
       <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">copyright</dc:rights>
       <dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">copyright</dc:rights>

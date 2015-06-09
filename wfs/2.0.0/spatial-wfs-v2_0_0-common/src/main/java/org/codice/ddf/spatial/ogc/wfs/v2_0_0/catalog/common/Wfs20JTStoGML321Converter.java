@@ -17,8 +17,18 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.gml2.GMLWriter;
+
 import net.opengis.gml.v_3_2_1.AbstractRingPropertyType;
 import net.opengis.gml.v_3_2_1.CoordinatesType;
 import net.opengis.gml.v_3_2_1.CurvePropertyType;
@@ -36,21 +46,12 @@ import net.opengis.gml.v_3_2_1.PolygonType;
 import net.opengis.gml.v_3_2_1.RingType;
 import net.opengis.gml.v_3_2_1.SurfacePropertyType;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-
 public class Wfs20JTStoGML321Converter {
 
     private static final ObjectFactory gml320ObjectFactory = new ObjectFactory();
 
-    public static DirectPositionType convertToDirectPositionType(Coordinate coordinate, String srsName) {
+    public static DirectPositionType convertToDirectPositionType(Coordinate coordinate,
+            String srsName) {
         DirectPositionType directPositionType = gml320ObjectFactory.createDirectPositionType();
         directPositionType.getValue().add(new Double(coordinate.x));
         directPositionType.getValue().add(new Double(coordinate.y));
@@ -167,7 +168,8 @@ public class Wfs20JTStoGML321Converter {
      * @param multiPolygon
      * @return MultiSurfaceType
      */
-    public static MultiSurfaceType convertToMultiSurfaceType(MultiPolygon multiPolygon, String srsName) {
+    public static MultiSurfaceType convertToMultiSurfaceType(MultiPolygon multiPolygon,
+            String srsName) {
         MultiSurfaceType multiSurfaceType = gml320ObjectFactory.createMultiSurfaceType();
         for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
             Polygon poly = (Polygon) multiPolygon.getGeometryN(i);
@@ -194,16 +196,19 @@ public class Wfs20JTStoGML321Converter {
 
         for (int index = 0; index < multiGeometry.getNumGeometries(); index++) {
             final Geometry geometry = multiGeometry.getGeometryN(index);
-            multiGeometryType.getGeometryMember().add(createGeometryPropertyType(geometry, srsName));
+            multiGeometryType.getGeometryMember()
+                    .add(createGeometryPropertyType(geometry, srsName));
         }
         return multiGeometryType;
     }
 
-    public static JAXBElement<MultiGeometryType> convertMultiGeometryTypeToJAXB(MultiGeometryType multiGeometryType) {
+    public static JAXBElement<MultiGeometryType> convertMultiGeometryTypeToJAXB(
+            MultiGeometryType multiGeometryType) {
         return gml320ObjectFactory.createMultiGeometry(multiGeometryType);
     }
 
-    private static GeometryPropertyType createGeometryPropertyType(Geometry geometry, String srsName) {
+    private static GeometryPropertyType createGeometryPropertyType(Geometry geometry,
+            String srsName) {
         final GeometryPropertyType geometryPropertyType = gml320ObjectFactory
                 .createGeometryPropertyType();
         if (geometry instanceof Point) {
@@ -228,7 +233,8 @@ public class Wfs20JTStoGML321Converter {
             geometryPropertyType
                     .setAbstractGeometry(convertMultiSurfaceTypeToJAXB(multiSurfaceType));
         } else if (geometry instanceof GeometryCollection) {
-            MultiGeometryType multiGeometryType = convertToMultiGeometryType((GeometryCollection) geometry, srsName);
+            MultiGeometryType multiGeometryType = convertToMultiGeometryType(
+                    (GeometryCollection) geometry, srsName);
             geometryPropertyType
                     .setAbstractGeometry(convertMultiGeometryTypeToJAXB(multiGeometryType));
         } else {

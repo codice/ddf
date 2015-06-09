@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+		xmlns="http://www.w3.org/2001/XMLSchema"
+		elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
 		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:geometryBasic0d1d:3.2.1">geometryBasic0d1d.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 Clause 10.
@@ -47,7 +49,8 @@ The attribute uomLabels is an ordered list of unit of measure (uom) labels for a
 		<attribute name="axisLabels" type="gml:NCNameList"/>
 		<attribute name="uomLabels" type="gml:NCNameList"/>
 	</attributeGroup>
-	<element name="AbstractGeometry" type="gml:AbstractGeometryType" abstract="true" substitutionGroup="gml:AbstractGML">
+	<element name="AbstractGeometry" type="gml:AbstractGeometryType" abstract="true"
+             substitutionGroup="gml:AbstractGML">
 		<annotation>
 			<documentation>The AbstractGeometry element is the abstract head of the substitution group for all geometry elements of GML. This includes pre-defined and user-defined geometry elements. Any geometry element shall be a direct or indirect extension/restriction of AbstractGeometryType and shall be directly or indirectly in the substitution group of AbstractGeometry.</documentation>
 		</annotation>
@@ -159,7 +162,8 @@ The use of the properties "coordinates" and "pos" has been deprecated. The expli
 			<extension base="gml:AbstractGeometryType"/>
 		</complexContent>
 	</complexType>
-	<element name="AbstractGeometricPrimitive" type="gml:AbstractGeometricPrimitiveType" abstract="true" substitutionGroup="gml:AbstractGeometry">
+	<element name="AbstractGeometricPrimitive" type="gml:AbstractGeometricPrimitiveType"
+             abstract="true" substitutionGroup="gml:AbstractGeometry">
 		<annotation>
 			<documentation>The AbstractGeometricPrimitive element is the abstract head of the substitution group for all (pre- and user-defined) geometric primitives.</documentation>
 		</annotation>
@@ -223,7 +227,8 @@ The use of the properties "coordinates" and "pos" has been deprecated. The expli
 			<extension base="gml:AbstractGeometricPrimitiveType"/>
 		</complexContent>
 	</complexType>
-	<element name="AbstractCurve" type="gml:AbstractCurveType" abstract="true" substitutionGroup="gml:AbstractGeometricPrimitive">
+	<element name="AbstractCurve" type="gml:AbstractCurveType" abstract="true"
+             substitutionGroup="gml:AbstractGeometricPrimitive">
 		<annotation>
 			<documentation>The AbstractCurve element is the abstract head of the substitution group for all (continuous) curve elements.</documentation>
 		</annotation>

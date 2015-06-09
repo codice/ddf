@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml" elementFormDefault="qualified" version="3.1.1">
+<schema xmlns:gml="http://www.opengis.net/gml" targetNamespace="http://www.opengis.net/gml"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.1.1">
 	<annotation>
 		<appinfo source="urn:opengis:specification:gml:schema-xsd:temporalReferenceSystems:3.1.1"/>
 		<documentation xml:lang="en">The Temporal Reference Systems schema for GML 3.1 provides constructs for handling various styles of temporal reference system. 
@@ -7,19 +8,20 @@
     Copyright (c) 2002-2005 OGC, All Rights Reserved.
 	For conditions, see OGC Software Notice http://www.opengeospatial.org/about/?page=ipr</documentation>
 	</annotation>
-	<!-- ================================================================== -->
-	<include schemaLocation="temporalTopology.xsd"/>
+    <!-- ================================================================== -->
+    <include schemaLocation="temporalTopology.xsd"/>
 	<include schemaLocation="dictionary.xsd"/>
-	<!-- ================================================================== -->
-	<!-- == Time Reference System == -->
-	<!-- ================================================================== -->
-	<element name="_TimeReferenceSystem" type="gml:AbstractTimeReferenceSystemType" abstract="true" substitutionGroup="gml:Definition">
+    <!-- ================================================================== -->
+    <!-- == Time Reference System == -->
+    <!-- ================================================================== -->
+    <element name="_TimeReferenceSystem" type="gml:AbstractTimeReferenceSystemType" abstract="true"
+             substitutionGroup="gml:Definition">
 		<annotation>
 			<documentation>Abstract element serves primarily as the head of a substitution group for temporal reference systems.</documentation>
 		</annotation>
 	</element>
-	<!-- ===================================== -->
-	<complexType name="AbstractTimeReferenceSystemType" abstract="true">
+    <!-- ===================================== -->
+    <complexType name="AbstractTimeReferenceSystemType" abstract="true">
 		<annotation>
 			<documentation xml:lang="en">A value in the time domain is measured relative to a temporal reference system. Common 
         types of reference systems include calendars, ordinal temporal reference systems, and 
@@ -33,12 +35,13 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<!-- == Time Coordinate System == -->
-	<!-- ================================================================== -->
-	<element name="TimeCoordinateSystem" type="gml:TimeCoordinateSystemType" substitutionGroup="gml:_TimeReferenceSystem"/>
-	<!-- ===================================== -->
-	<complexType name="TimeCoordinateSystemType">
+    <!-- ================================================================== -->
+    <!-- == Time Coordinate System == -->
+    <!-- ================================================================== -->
+    <element name="TimeCoordinateSystem" type="gml:TimeCoordinateSystemType"
+             substitutionGroup="gml:_TimeReferenceSystem"/>
+    <!-- ===================================== -->
+    <complexType name="TimeCoordinateSystemType">
 		<annotation>
 			<documentation xml:lang="en">A temporal coordinate system is based on a continuous interval scale defined in terms of a single time interval.</documentation>
 		</annotation>
@@ -54,12 +57,13 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<!-- == Time Ordinal System == -->
-	<!-- ================================================================== -->
-	<element name="TimeOrdinalReferenceSystem" type="gml:TimeOrdinalReferenceSystemType" substitutionGroup="gml:_TimeReferenceSystem"/>
-	<!-- ===================================== -->
-	<complexType name="TimeOrdinalReferenceSystemType">
+    <!-- ================================================================== -->
+    <!-- == Time Ordinal System == -->
+    <!-- ================================================================== -->
+    <element name="TimeOrdinalReferenceSystem" type="gml:TimeOrdinalReferenceSystemType"
+             substitutionGroup="gml:_TimeReferenceSystem"/>
+    <!-- ===================================== -->
+    <complexType name="TimeOrdinalReferenceSystemType">
 		<annotation>
 			<documentation xml:lang="en">In an ordinal reference system the order of events in time can be well 
       established, but the magnitude of the intervals between them can not be 
@@ -68,15 +72,16 @@
 		<complexContent>
 			<extension base="gml:AbstractTimeReferenceSystemType">
 				<sequence>
-					<element name="component" type="gml:TimeOrdinalEraPropertyType" maxOccurs="unbounded"/>
+					<element name="component" type="gml:TimeOrdinalEraPropertyType"
+                             maxOccurs="unbounded"/>
 				</sequence>
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<element name="TimeOrdinalEra" type="gml:TimeOrdinalEraType"/>
-	<!-- ===================================== -->
-	<complexType name="TimeOrdinalEraType">
+    <!-- ================================================================== -->
+    <element name="TimeOrdinalEra" type="gml:TimeOrdinalEraType"/>
+    <!-- ===================================== -->
+    <complexType name="TimeOrdinalEraType">
 		<annotation>
 			<documentation xml:lang="en">Ordinal temporal reference systems are often hierarchically structured 
       such that an ordinal era at a given level of the hierarchy includes a 
@@ -91,11 +96,13 @@
 		<complexContent>
 			<extension base="gml:DefinitionType">
 				<sequence>
-					<element name="relatedTime" type="gml:RelatedTimeType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="relatedTime" type="gml:RelatedTimeType" minOccurs="0"
+                             maxOccurs="unbounded"/>
 					<element name="start" type="gml:TimeNodePropertyType"/>
 					<element name="end" type="gml:TimeNodePropertyType"/>
 					<element name="extent" type="gml:TimePeriodPropertyType" minOccurs="0"/>
-					<element name="member" type="gml:TimeOrdinalEraPropertyType" minOccurs="0" maxOccurs="unbounded">
+					<element name="member" type="gml:TimeOrdinalEraPropertyType" minOccurs="0"
+                             maxOccurs="unbounded">
 						<annotation>
 							<documentation>An Era may be composed of several member Eras. The "member" element implements the association to the Era at the next level down the hierarchy.  "member" follows the standard GML property pattern whereby its (complex) value may be either described fully inline, or may be the target of a link carried on the member element and described fully elsewhere, either in the same document or from another service.</documentation>
 						</annotation>
@@ -113,19 +120,20 @@ However, if the hierarchy is represented by links carried on the "member" proper
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<complexType name="TimeOrdinalEraPropertyType">
+    <!-- ================================================================== -->
+    <complexType name="TimeOrdinalEraPropertyType">
 		<sequence minOccurs="0">
 			<element ref="gml:TimeOrdinalEra"/>
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- ================================================================== -->
-	<!-- == Calendar == -->
-	<!-- ================================================================== -->
-	<element name="TimeCalendar" type="gml:TimeCalendarType" substitutionGroup="gml:_TimeReferenceSystem"/>
-	<!-- ===================================== -->
-	<complexType name="TimeCalendarType">
+    <!-- ================================================================== -->
+    <!-- == Calendar == -->
+    <!-- ================================================================== -->
+    <element name="TimeCalendar" type="gml:TimeCalendarType"
+             substitutionGroup="gml:_TimeReferenceSystem"/>
+    <!-- ===================================== -->
+    <complexType name="TimeCalendarType">
 		<annotation>
 			<documentation xml:lang="en">A calendar is a discrete temporal reference system 
       that provides a basis for defining temporal position to a resolution of one day. 
@@ -134,7 +142,8 @@ However, if the hierarchy is represented by links carried on the "member" proper
 		<complexContent>
 			<extension base="gml:AbstractTimeReferenceSystemType">
 				<sequence>
-					<element name="referenceFrame" type="gml:TimeCalendarEraPropertyType" maxOccurs="unbounded">
+					<element name="referenceFrame" type="gml:TimeCalendarEraPropertyType"
+                             maxOccurs="unbounded">
 						<annotation>
 							<documentation>Link to the CalendarEras that it uses as a reference for dating.</documentation>
 						</annotation>
@@ -143,17 +152,18 @@ However, if the hierarchy is represented by links carried on the "member" proper
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<complexType name="TimeCalendarPropertyType">
+    <!-- ================================================================== -->
+    <complexType name="TimeCalendarPropertyType">
 		<sequence minOccurs="0">
 			<element ref="gml:TimeCalendar"/>
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- ================================================================== -->
-	<element name="TimeCalendarEra" type="gml:TimeCalendarEraType" substitutionGroup="gml:Definition"/>
-	<!-- ===================================== -->
-	<complexType name="TimeCalendarEraType">
+    <!-- ================================================================== -->
+    <element name="TimeCalendarEra" type="gml:TimeCalendarEraType"
+             substitutionGroup="gml:Definition"/>
+    <!-- ===================================== -->
+    <complexType name="TimeCalendarEraType">
 		<annotation>
 			<documentation xml:lang="en">In every calendar, years are numbered relative to the date of a 
       reference event that defines a calendar era. 
@@ -194,19 +204,20 @@ However, if the hierarchy is represented by links carried on the "member" proper
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<complexType name="TimeCalendarEraPropertyType">
+    <!-- ================================================================== -->
+    <complexType name="TimeCalendarEraPropertyType">
 		<sequence minOccurs="0">
 			<element ref="gml:TimeCalendarEra"/>
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- ================================================================== -->
-	<!-- == Clock == -->
-	<!-- ================================================================== -->
-	<element name="TimeClock" type="gml:TimeClockType" substitutionGroup="gml:_TimeReferenceSystem"/>
-	<!-- ===================================== -->
-	<complexType name="TimeClockType" final="#all">
+    <!-- ================================================================== -->
+    <!-- == Clock == -->
+    <!-- ================================================================== -->
+    <element name="TimeClock" type="gml:TimeClockType"
+             substitutionGroup="gml:_TimeReferenceSystem"/>
+    <!-- ===================================== -->
+    <complexType name="TimeClockType" final="#all">
 		<annotation>
 			<documentation xml:lang="en">A clock provides a basis for defining temporal position within a day. 
       A clock must be used with a calendar in order to provide a complete description of a temporal position 
@@ -232,17 +243,18 @@ However, if the hierarchy is represented by links carried on the "member" proper
 							<documentation>24 hour local or UTC time that corresponds to the reference time.</documentation>
 						</annotation>
 					</element>
-					<element name="dateBasis" type="gml:TimeCalendarPropertyType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="dateBasis" type="gml:TimeCalendarPropertyType" minOccurs="0"
+                             maxOccurs="unbounded"/>
 				</sequence>
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<complexType name="TimeClockPropertyType">
+    <!-- ================================================================== -->
+    <complexType name="TimeClockPropertyType">
 		<sequence minOccurs="0">
 			<element ref="gml:TimeClock"/>
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- ================================================================== -->
+    <!-- ================================================================== -->
 </schema>

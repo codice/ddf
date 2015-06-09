@@ -14,27 +14,14 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer;
 
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.QueryResponseTransformer;
-import net.opengis.cat.csw.v_2_0_2.ElementSetType;
-import net.opengis.cat.csw.v_2_0_2.ResultType;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,13 +30,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
+import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.QueryResponseTransformer;
+import net.opengis.cat.csw.v_2_0_2.ElementSetType;
+import net.opengis.cat.csw.v_2_0_2.ResultType;
 
 public class CswRecordCollectionMessageBodyWriterTest {
 
@@ -60,16 +59,15 @@ public class CswRecordCollectionMessageBodyWriterTest {
     private BinaryContent mockContent = mock(BinaryContent.class);
 
     @Test
-    public void testWriteToWithSchema()
-            throws WebApplicationException, IOException, JAXBException,
+    public void testWriteToWithSchema() throws WebApplicationException, IOException, JAXBException,
             CatalogTransformerException {
         CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
                 mockManager);
         when(mockManager.getCswQueryResponseTransformer()).thenReturn(mockTransformer);
 
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
-        when(mockTransformer.transform(any(SourceResponse.class), any(Map.class))).thenReturn(
-                mockContent);
+        when(mockTransformer.transform(any(SourceResponse.class), any(Map.class)))
+                .thenReturn(mockContent);
         when(mockContent.getInputStream()).thenReturn(new ByteArrayInputStream("bytes".getBytes()));
 
         CswRecordCollection collection = createCswRecordCollection(6);
@@ -91,9 +89,10 @@ public class CswRecordCollectionMessageBodyWriterTest {
 
         Map arguments = captor.getValue();
         assertThat((Boolean) arguments.get(CswConstants.WRITE_NAMESPACES), is(false));
-        assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(
-                EXAMPLE_SCHEMA));
-        assertThat((ResultType)arguments.get(CswConstants.RESULT_TYPE_PARAMETER), is(ResultType.HITS));
+        assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+                is(EXAMPLE_SCHEMA));
+        assertThat((ResultType) arguments.get(CswConstants.RESULT_TYPE_PARAMETER),
+                is(ResultType.HITS));
         assertThat((Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY), is(true));
         assertThat((ElementSetType) arguments.get(CswConstants.ELEMENT_SET_TYPE),
                 is(ElementSetType.BRIEF));
@@ -101,16 +100,15 @@ public class CswRecordCollectionMessageBodyWriterTest {
     }
 
     @Test
-    public void testWriteValidate()
-            throws WebApplicationException, IOException, JAXBException,
+    public void testWriteValidate() throws WebApplicationException, IOException, JAXBException,
             CatalogTransformerException {
         CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
                 mockManager);
         when(mockManager.getCswQueryResponseTransformer()).thenReturn(mockTransformer);
 
         ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
-        when(mockTransformer.transform(any(SourceResponse.class), any(Map.class))).thenReturn(
-                mockContent);
+        when(mockTransformer.transform(any(SourceResponse.class), any(Map.class)))
+                .thenReturn(mockContent);
         when(mockContent.getInputStream()).thenReturn(new ByteArrayInputStream("bytes".getBytes()));
 
         CswRecordCollection collection = createCswRecordCollection(6);
@@ -132,9 +130,10 @@ public class CswRecordCollectionMessageBodyWriterTest {
 
         Map arguments = captor.getValue();
         assertThat((Boolean) arguments.get(CswConstants.WRITE_NAMESPACES), is(false));
-        assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER), is(
-                CswConstants.CSW_OUTPUT_SCHEMA));
-        assertThat((ResultType)arguments.get(CswConstants.RESULT_TYPE_PARAMETER), is(ResultType.VALIDATE));
+        assertThat((String) arguments.get(CswConstants.OUTPUT_SCHEMA_PARAMETER),
+                is(CswConstants.CSW_OUTPUT_SCHEMA));
+        assertThat((ResultType) arguments.get(CswConstants.RESULT_TYPE_PARAMETER),
+                is(ResultType.VALIDATE));
         assertThat((Boolean) arguments.get(CswConstants.IS_BY_ID_QUERY), is(true));
         assertThat((ElementSetType) arguments.get(CswConstants.ELEMENT_SET_TYPE),
                 is(ElementSetType.BRIEF));
@@ -142,14 +141,13 @@ public class CswRecordCollectionMessageBodyWriterTest {
     }
 
     @Test
-    public void testWriteToWithMimeType()
-            throws WebApplicationException, IOException, JAXBException,
-            CatalogTransformerException {
+    public void testWriteToWithMimeType() throws WebApplicationException, IOException,
+            JAXBException, CatalogTransformerException {
         CswRecordCollectionMessageBodyWriter writer = new CswRecordCollectionMessageBodyWriter(
                 mockManager);
         when(mockManager.getTransformerByMimeType(any(String.class))).thenReturn(mockTransformer);
-        when(mockTransformer.transform(any(SourceResponse.class), any(Map.class))).thenReturn(
-                mockContent);
+        when(mockTransformer.transform(any(SourceResponse.class), any(Map.class)))
+                .thenReturn(mockContent);
         when(mockContent.getInputStream()).thenReturn(new ByteArrayInputStream("bytes".getBytes()));
 
         CswRecordCollection collection = createCswRecordCollection(6);

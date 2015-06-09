@@ -14,26 +14,28 @@
  **/
 package org.codice.ddf.spatial.kml.transformer;
 
-import com.github.jknack.handlebars.Options;
-import ddf.action.Action;
-import ddf.action.ActionProvider;
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.data.Metacard;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+
+import javax.xml.bind.DatatypeConverter;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.github.jknack.handlebars.Options;
+
+import ddf.action.Action;
+import ddf.action.ActionProvider;
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.Metacard;
 
 /**
  * A handlebars template helper class that creates handlebar helpers which are used in the
@@ -43,13 +45,13 @@ public class DescriptionTemplateHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DescriptionTemplateHelper.class);
 
-    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-
-    private ActionProvider resourceActionProvider;
-
     private static final List<String> NON_PRINTABLE_ATTRIBUTES = Collections.unmodifiableList(
             Arrays.asList(Metacard.RESOURCE_SIZE, Metacard.RESOURCE_URI, Metacard.GEOGRAPHY,
                     Metacard.METADATA, Metacard.THUMBNAIL, Metacard.CONTENT_TYPE_VERSION));
+
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+
+    private ActionProvider resourceActionProvider;
 
     public DescriptionTemplateHelper(ActionProvider actionProvider) {
         this.resourceActionProvider = actionProvider;
@@ -102,8 +104,7 @@ public class DescriptionTemplateHelper {
     }
 
     public CharSequence hasThumbnail(Metacard context, Options options) {
-        if ((context.getThumbnail() != null && context
-                .getThumbnail().length != 0)) {
+        if ((context.getThumbnail() != null && context.getThumbnail().length != 0)) {
             try {
                 return options.fn();
             } catch (IOException e) {
@@ -121,7 +122,8 @@ public class DescriptionTemplateHelper {
     }
 
     public String base64Thumbnail(Metacard context) {
-        if(null != context && context.getThumbnail() != null && context.getThumbnail().length != 0) {
+        if (null != context && context.getThumbnail() != null
+                && context.getThumbnail().length != 0) {
             return DatatypeConverter.printBase64Binary(context.getThumbnail());
         } else {
             return null;
@@ -154,8 +156,7 @@ public class DescriptionTemplateHelper {
         try {
             size = Long.parseLong(resourceSize);
         } catch (NumberFormatException nfe) {
-            LOGGER.debug(
-                    "Failed to parse resourceSize ({}), assuming already formatted.",
+            LOGGER.debug("Failed to parse resourceSize ({}), assuming already formatted.",
                     StringUtils.trim(resourceSize));
             return resourceSize;
         }
@@ -163,12 +164,10 @@ public class DescriptionTemplateHelper {
         if (size <= 0) {
             return "0";
         }
-        int t2 = (int) Math
-                .min(Math.floor(Math.log(size) / Math.log(1024)), 12);
+        int t2 = (int) Math.min(Math.floor(Math.log(size) / Math.log(1024)), 12);
         char c = sizePrefixes.charAt(t2);
-        return (Math.round(size * 100 / Math.pow(1024, t2)) / 100) + " "
-                + (c == ' ' ? "" : c) + "B";
+        return (Math.round(size * 100 / Math.pow(1024, t2)) / 100) + " " + (c == ' ' ? "" : c)
+                + "B";
     }
-
 
 }

@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
@@ -19,30 +19,29 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.SourceResponse;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import net.opengis.cat.csw.v_2_0_2.QueryType;
-import ddf.catalog.data.Metacard;
 import net.opengis.cat.csw.v_2_0_2.ResultType;
 
 /**
  * This class represents the domain object for the list of metacards corresponding to the list of
  * CSW records returned in a GetRecords request.
- * 
+ *
  * @author rodgersh
- * 
+ *
  */
 public class CswRecordCollection {
 
     private GetRecordsType request;
-    
+
     private List<Metacard> cswRecords = new ArrayList<Metacard>();
 
     private long numberOfRecordsReturned;
 
     private long numberOfRecordsMatched;
-    
+
     private boolean isById;
 
     private ElementSetType elementSetType;
@@ -63,7 +62,7 @@ public class CswRecordCollection {
 
     /**
      * Retrieves the request made that generated this set of CSW Records, if applicable
-     * 
+     *
      * @return the {@link GetRecordsType} request
      */
     public GetRecordsType getRequest() {
@@ -72,7 +71,7 @@ public class CswRecordCollection {
 
     /**
      * Sets the request used to generate this list of records
-     * 
+     *
      * @param request A {@link GetRecordsType} used to generate this request
      */
     public void setRequest(GetRecordsType request) {
@@ -81,7 +80,7 @@ public class CswRecordCollection {
 
     /**
      * Retrieves the list of metacards built from the CSW Records returned in a GetRecordsResponse.
-     * 
+     *
      * @return
      */
     public List<Metacard> getCswRecords() {
@@ -90,7 +89,7 @@ public class CswRecordCollection {
 
     /**
      * Sets the list of metacards built from the CSW Records returned in a GetRecordsResponse.
-     * 
+     *
      * @param cswRecords
      */
     public void setCswRecords(List<Metacard> cswRecords) {
@@ -145,36 +144,36 @@ public class CswRecordCollection {
         this.outputSchema = outputSchema;
     }
 
-    public SourceResponse getSourceResponse(){
+    public SourceResponse getSourceResponse() {
         return sourceResponse;
     }
 
-    public void setSourceResponse(SourceResponse response){
+    public void setSourceResponse(SourceResponse response) {
         this.sourceResponse = response;
     }
-    
-    public String getMimeType(){
+
+    public String getMimeType() {
         return mimeType;
     }
-    
-    public void setMimeType(String mimeType){
+
+    public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
     }
 
-    public void setStartPosition(int start){
-        this.startPosition = start;
-    }
-
-    public int getStartPosition(){
+    public int getStartPosition() {
         return startPosition;
     }
 
-    public void setResultType(ResultType resultType) {
-        this.resultType = resultType;
+    public void setStartPosition(int start) {
+        this.startPosition = start;
     }
 
     public ResultType getResultType() {
         return this.resultType;
+    }
+
+    public void setResultType(ResultType resultType) {
+        this.resultType = resultType;
     }
 
     public boolean isDoWriteNamespaces() {

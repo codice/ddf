@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -20,7 +19,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
@@ -29,7 +27,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,45 +50,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
-
-import ddf.catalog.transform.QueryResponseTransformer;
-import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
-import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
-import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
-import net.opengis.cat.csw.v_2_0_2.DistributedSearchType;
-import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
-import net.opengis.cat.csw.v_2_0_2.ElementSetType;
-import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
-import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
-import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
-import net.opengis.cat.csw.v_2_0_2.QueryType;
-import net.opengis.cat.csw.v_2_0_2.ResultType;
-import net.opengis.cat.csw.v_2_0_2.SchemaComponentType;
-import net.opengis.filter.v_1_1_0.BinaryComparisonOpType;
-import net.opengis.filter.v_1_1_0.BinarySpatialOpType;
-import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
-import net.opengis.filter.v_1_1_0.DistanceBufferType;
-import net.opengis.filter.v_1_1_0.DistanceType;
-import net.opengis.filter.v_1_1_0.FilterCapabilities;
-import net.opengis.filter.v_1_1_0.FilterType;
-import net.opengis.filter.v_1_1_0.LiteralType;
-import net.opengis.filter.v_1_1_0.ObjectFactory;
-import net.opengis.filter.v_1_1_0.PropertyNameType;
-import net.opengis.filter.v_1_1_0.SortByType;
-import net.opengis.filter.v_1_1_0.SortPropertyType;
-import net.opengis.filter.v_1_1_0.SpatialOperatorType;
-import net.opengis.gml.v_3_1_1.AbstractGeometryType;
-import net.opengis.gml.v_3_1_1.AbstractRingPropertyType;
-import net.opengis.gml.v_3_1_1.CoordType;
-import net.opengis.gml.v_3_1_1.LinearRingType;
-import net.opengis.gml.v_3_1_1.PolygonType;
-import net.opengis.ows.v_1_0_0.AcceptVersionsType;
-import net.opengis.ows.v_1_0_0.DomainType;
-import net.opengis.ows.v_1_0_0.Operation;
-import net.opengis.ows.v_1_0_0.OperationsMetadata;
-import net.opengis.ows.v_1_0_0.SectionsType;
-import net.opengis.ows.v_1_0_0.ServiceIdentification;
-import net.opengis.ows.v_1_0_0.ServiceProvider;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -159,22 +117,48 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.QueryResponseTransformer;
+import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
+import net.opengis.cat.csw.v_2_0_2.DescribeRecordType;
+import net.opengis.cat.csw.v_2_0_2.DistributedSearchType;
+import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
+import net.opengis.cat.csw.v_2_0_2.ElementSetType;
+import net.opengis.cat.csw.v_2_0_2.GetCapabilitiesType;
+import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
+import net.opengis.cat.csw.v_2_0_2.QueryType;
+import net.opengis.cat.csw.v_2_0_2.ResultType;
+import net.opengis.cat.csw.v_2_0_2.SchemaComponentType;
+import net.opengis.filter.v_1_1_0.BinaryComparisonOpType;
+import net.opengis.filter.v_1_1_0.BinarySpatialOpType;
+import net.opengis.filter.v_1_1_0.ComparisonOperatorType;
+import net.opengis.filter.v_1_1_0.DistanceBufferType;
+import net.opengis.filter.v_1_1_0.DistanceType;
+import net.opengis.filter.v_1_1_0.FilterCapabilities;
+import net.opengis.filter.v_1_1_0.FilterType;
+import net.opengis.filter.v_1_1_0.LiteralType;
+import net.opengis.filter.v_1_1_0.ObjectFactory;
+import net.opengis.filter.v_1_1_0.PropertyNameType;
+import net.opengis.filter.v_1_1_0.SortByType;
+import net.opengis.filter.v_1_1_0.SortPropertyType;
+import net.opengis.filter.v_1_1_0.SpatialOperatorType;
+import net.opengis.gml.v_3_1_1.AbstractGeometryType;
+import net.opengis.gml.v_3_1_1.AbstractRingPropertyType;
+import net.opengis.gml.v_3_1_1.CoordType;
+import net.opengis.gml.v_3_1_1.LinearRingType;
+import net.opengis.gml.v_3_1_1.PolygonType;
+import net.opengis.ows.v_1_0_0.AcceptVersionsType;
+import net.opengis.ows.v_1_0_0.DomainType;
+import net.opengis.ows.v_1_0_0.Operation;
+import net.opengis.ows.v_1_0_0.OperationsMetadata;
+import net.opengis.ows.v_1_0_0.SectionsType;
+import net.opengis.ows.v_1_0_0.ServiceIdentification;
+import net.opengis.ows.v_1_0_0.ServiceProvider;
 
 public class TestCswEndpoint {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCswEndpoint.class);
-
-    private static UriInfo mockUriInfo = mock(UriInfo.class);
-
-    private static Bundle mockBundle = mock(Bundle.class);
-
-    private static CswEndpoint csw;
-
-    private static FilterBuilder filterBuilder = mock(FilterBuilder.class);
-
-    private static CatalogFramework catalogFramework = mock(CatalogFramework.class);
-
-    private static BundleContext mockContext = mock(BundleContext.class);
 
     private static final String BAD_VERSION = "4";
 
@@ -210,65 +194,80 @@ public class TestCswEndpoint {
 
     private static final String POLYGON_STR = "POLYGON((10 10, 10 25, 40 25, 40 10, 10 10))";
 
-    private static Geometry POLYGON;
-
     private static final double REL_GEO_DISTANCE = 100;
 
     private static final String REL_GEO_UNITS = "kilometers";
 
     private static final double EXPECTED_GEO_DISTANCE = REL_GEO_DISTANCE * 1000;
 
-    private static final String CQL_CONTEXTUAL_LIKE_QUERY = CONTEXTUAL_TEST_ATTRIBUTE + " Like '"
-            + CQL_CONTEXTUAL_PATTERN + "'";
+    private static final String CQL_CONTEXTUAL_LIKE_QUERY =
+            CONTEXTUAL_TEST_ATTRIBUTE + " Like '" + CQL_CONTEXTUAL_PATTERN + "'";
 
     private static final String CQL_FEDERATED_QUERY =
             "\"source-id\" = 'source1' AND " + CQL_CONTEXTUAL_LIKE_QUERY;
 
-    private static final String CQL_SPATIAL_EQUALS_QUERY = "equals(" + SPATIAL_TEST_ATTRIBUTE
-            + ", " + POLYGON_STR + ")";
+    private static final String CQL_SPATIAL_EQUALS_QUERY =
+            "equals(" + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ")";
 
-    private static final String CQL_SPATIAL_DISJOINT_QUERY = "disjoint("
-            + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ")";
+    private static final String CQL_SPATIAL_DISJOINT_QUERY =
+            "disjoint(" + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ")";
 
-    private static final String CQL_SPATIAL_INTERSECTS_QUERY = "intersects("
-            + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ")";
+    private static final String CQL_SPATIAL_INTERSECTS_QUERY =
+            "intersects(" + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ")";
 
-    private static final String CQL_SPATIAL_TOUCHES_QUERY = "touches(" + SPATIAL_TEST_ATTRIBUTE
-            + ", " + POLYGON_STR + ")";
+    private static final String CQL_SPATIAL_TOUCHES_QUERY =
+            "touches(" + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ")";
 
-    private static final String CQL_SPATIAL_CROSSES_QUERY = "crosses(" + SPATIAL_TEST_ATTRIBUTE
-            + ", " + POLYGON_STR + ")";
+    private static final String CQL_SPATIAL_CROSSES_QUERY =
+            "crosses(" + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ")";
 
-    private static final String CQL_SPATIAL_WITHIN_QUERY = "within(" + SPATIAL_TEST_ATTRIBUTE
-            + ", " + POLYGON_STR + ")";
+    private static final String CQL_SPATIAL_WITHIN_QUERY =
+            "within(" + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ")";
 
-    private static final String CQL_SPATIAL_CONTAINS_QUERY = "contains("
-            + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ")";
+    private static final String CQL_SPATIAL_CONTAINS_QUERY =
+            "contains(" + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ")";
 
-    private static final String CQL_SPATIAL_OVERLAPS_QUERY = "overlaps("
-            + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ")";
+    private static final String CQL_SPATIAL_OVERLAPS_QUERY =
+            "overlaps(" + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ")";
 
-    private static final String CQL_SPATIAL_DWITHIN_QUERY = "dwithin(" + SPATIAL_TEST_ATTRIBUTE
-            + ", " + POLYGON_STR + ", " + REL_GEO_DISTANCE + ", " + REL_GEO_UNITS + ")";
+    private static final String CQL_SPATIAL_DWITHIN_QUERY =
+            "dwithin(" + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ", " + REL_GEO_DISTANCE
+                    + ", " + REL_GEO_UNITS + ")";
 
-    private static final String CQL_SPATIAL_BEYOND_QUERY = "beyond(" + SPATIAL_TEST_ATTRIBUTE
-            + ", " + POLYGON_STR + ", " + REL_GEO_DISTANCE + ", " + REL_GEO_UNITS + ")";
+    private static final String CQL_SPATIAL_BEYOND_QUERY =
+            "beyond(" + SPATIAL_TEST_ATTRIBUTE + ", " + POLYGON_STR + ", " + REL_GEO_DISTANCE + ", "
+                    + REL_GEO_UNITS + ")";
 
     private static final String TIMESTAMP = "2009-12-04T12:00:00Z";
-    
+
     private static final String DURATION = "P40D";
-    
+
     private static final String CQL_BEFORE = "before";
 
     private static final String CQL_AFTER = "after";
-    
+
     private static final String CQL_DURING = "during";
-    
+
     private static final String CQL_BEFORE_OR_DURING = "before or during";
 
     private static final String CQL_DURING_OR_AFTER = "during OR after";
-    
+
+    private static UriInfo mockUriInfo = mock(UriInfo.class);
+
+    private static Bundle mockBundle = mock(Bundle.class);
+
+    private static CswEndpoint csw;
+
+    private static FilterBuilder filterBuilder = mock(FilterBuilder.class);
+
+    private static CatalogFramework catalogFramework = mock(CatalogFramework.class);
+
+    private static BundleContext mockContext = mock(BundleContext.class);
+
+    private static Geometry POLYGON;
+
     private static net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory;
+
     private static ObjectFactory filterObjectFactory;
 
     private static TransformerManager mockMimeTypeManager = mock(TransformerManager.class);
@@ -278,8 +277,9 @@ public class TestCswEndpoint {
     private static QueryResponseTransformer mockTransformer = mock(QueryResponseTransformer.class);
 
     @BeforeClass
-    public static void setUpBeforeClass() throws URISyntaxException, SourceUnavailableException,
-        UnsupportedQueryException, FederationException, ParseException {
+    public static void setUpBeforeClass()
+            throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
+            FederationException, ParseException {
         URI mockUri = new URI("http://example.com/services/csw");
         when(mockUriInfo.getBaseUri()).thenReturn(mockUri);
         when(mockContext.getBundle()).thenReturn(mockBundle);
@@ -306,12 +306,12 @@ public class TestCswEndpoint {
         POLYGON = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
         filterObjectFactory = new ObjectFactory();
-        when(mockMimeTypeManager.getAvailableMimeTypes()).thenReturn(
-                Arrays.asList(MediaType.APPLICATION_XML));
-        when(mockSchemaManager.getAvailableSchemas()).thenReturn(
-                Arrays.asList(CswConstants.CSW_OUTPUT_SCHEMA));
-        when(mockSchemaManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA)).thenReturn(
-                mockTransformer);
+        when(mockMimeTypeManager.getAvailableMimeTypes())
+                .thenReturn(Arrays.asList(MediaType.APPLICATION_XML));
+        when(mockSchemaManager.getAvailableSchemas())
+                .thenReturn(Arrays.asList(CswConstants.CSW_OUTPUT_SCHEMA));
+        when(mockSchemaManager.getTransformerBySchema(CswConstants.CSW_OUTPUT_SCHEMA))
+                .thenReturn(mockTransformer);
     }
 
     @Test
@@ -394,8 +394,9 @@ public class TestCswEndpoint {
     public void testCapabilitiesRequestAllSections() {
         // Should return all sections
         GetCapabilitiesRequest gcr = createDefaultGetCapabilitiesRequest();
-        gcr.setSections(CswEndpoint.SERVICE_IDENTIFICATION + "," + CswEndpoint.SERVICE_PROVIDER
-                + "," + CswEndpoint.OPERATIONS_METADATA + "," + CswEndpoint.FILTER_CAPABILITIES);
+        gcr.setSections(
+                CswEndpoint.SERVICE_IDENTIFICATION + "," + CswEndpoint.SERVICE_PROVIDER + ","
+                        + CswEndpoint.OPERATIONS_METADATA + "," + CswEndpoint.FILTER_CAPABILITIES);
 
         CapabilitiesType ct = null;
         try {
@@ -587,8 +588,9 @@ public class TestCswEndpoint {
         // Should return all sections
         GetCapabilitiesType gct = createDefaultGetCapabilitiesType();
         SectionsType stv = new SectionsType();
-        stv.setSection(Arrays.asList(CswEndpoint.SERVICE_IDENTIFICATION, CswEndpoint.SERVICE_PROVIDER,
-                CswEndpoint.OPERATIONS_METADATA, CswEndpoint.FILTER_CAPABILITIES));
+        stv.setSection(
+                Arrays.asList(CswEndpoint.SERVICE_IDENTIFICATION, CswEndpoint.SERVICE_PROVIDER,
+                        CswEndpoint.OPERATIONS_METADATA, CswEndpoint.FILTER_CAPABILITIES));
         gct.setSections(stv);
         CapabilitiesType ct = null;
         try {
@@ -692,7 +694,8 @@ public class TestCswEndpoint {
                 }
             }
         }
-        fail("Didn't find [" + CswConstants.FEDERATED_CATALOGS + "] in request [" + CswConstants.GET_RECORDS + "]");
+        fail("Didn't find [" + CswConstants.FEDERATED_CATALOGS + "] in request ["
+                + CswConstants.GET_RECORDS + "]");
     }
 
     @Test
@@ -826,7 +829,7 @@ public class TestCswEndpoint {
         DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
         drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + "," + VALID_PREFIX + ":" + BAD_TYPE);
         DescribeRecordResponseType response = csw.describeRecord(drr);
-            
+
         // spec does not say specifically it should throw an exception, 
         // and NSG interoperability tests require to skip the unknown ones, and 
         // potentially return an empty list if none are known
@@ -841,7 +844,7 @@ public class TestCswEndpoint {
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, BAD_TYPE, VALID_PREFIX));
         drt.setTypeName(typeNames);
         DescribeRecordResponseType response = csw.describeRecord(drt);
-        
+
         assertThat(response.getSchemaComponent().size(), is(1));
     }
 
@@ -870,7 +873,7 @@ public class TestCswEndpoint {
         drr.setNamespace("xmlns(" + CswConstants.CSW_OUTPUT_SCHEMA + ")");
 
         DescribeRecordResponseType response = csw.describeRecord(drr);
-            
+
         assertThat(response.getSchemaComponent(), is(empty()));
     }
 
@@ -896,8 +899,9 @@ public class TestCswEndpoint {
     public void testDescribeRecordMultipleTypesMultipleNamespacesMultiplePrefixes() {
         DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
         drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + ",csw2:test4");
-        drr.setNamespace("xmlns(" + VALID_PREFIX + "=" + CswConstants.CSW_OUTPUT_SCHEMA + ")" + "," +
-                         "xmlns(" + "csw2" + "=" + CswConstants.CSW_OUTPUT_SCHEMA + "2" + ")");
+        drr.setNamespace(
+                "xmlns(" + VALID_PREFIX + "=" + CswConstants.CSW_OUTPUT_SCHEMA + ")" + "," +
+                        "xmlns(" + "csw2" + "=" + CswConstants.CSW_OUTPUT_SCHEMA + "2" + ")");
         DescribeRecordResponseType drrt = null;
         try {
             drrt = csw.describeRecord(drr);
@@ -916,8 +920,9 @@ public class TestCswEndpoint {
     public void testDescribeRecordMultipleTypesMultipleNamespacesMultiplePrefixesMismatchedPrefix() {
         DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
         drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + ",csw3:test4");
-        drr.setNamespace("xmlns(" + VALID_PREFIX + "=" + CswConstants.CSW_OUTPUT_SCHEMA + ")" + "," +
-                "xmlns(" + "csw2" + "=" + CswConstants.CSW_OUTPUT_SCHEMA + "2" + ")");
+        drr.setNamespace(
+                "xmlns(" + VALID_PREFIX + "=" + CswConstants.CSW_OUTPUT_SCHEMA + ")" + "," +
+                        "xmlns(" + "csw2" + "=" + CswConstants.CSW_OUTPUT_SCHEMA + "2" + ")");
         try {
             csw.describeRecord(drr);
             fail("Should have thrown an exception indicating an invalid type.");
@@ -1202,8 +1207,8 @@ public class TestCswEndpoint {
         List<QName> typeNames = new ArrayList<QName>();
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, BAD_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1212,8 +1217,9 @@ public class TestCswEndpoint {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testPostGetRecordsDistributedSearchNotSet() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsDistributedSearchNotSet()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         CatalogFramework framework = mock(CatalogFramework.class);
@@ -1231,8 +1237,9 @@ public class TestCswEndpoint {
 
     @SuppressWarnings("unchecked")
     @Test(expected = CswException.class)
-    public void testPostGetRecordsEmptyFilter() throws CswException, UnsupportedQueryException,
-        SourceUnavailableException, FederationException {
+    public void testPostGetRecordsEmptyFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
@@ -1243,8 +1250,8 @@ public class TestCswEndpoint {
         constraint.setFilter(new FilterType());
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1261,8 +1268,9 @@ public class TestCswEndpoint {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testPostGetRecordsDistributedSearchSetToOne() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsDistributedSearchSetToOne()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         DistributedSearchType distributedSearch = new DistributedSearchType();
@@ -1285,8 +1293,9 @@ public class TestCswEndpoint {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testPostGetRecordsDistributedSearchSetToTen() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsDistributedSearchSetToTen()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         DistributedSearchType distributedSearch = new DistributedSearchType();
@@ -1309,8 +1318,9 @@ public class TestCswEndpoint {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testPostGetRecordsDistributedSearchSpecificSources() throws CswException,
-            UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsDistributedSearchSpecificSources()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         DistributedSearchType distributedSearch = new DistributedSearchType();
@@ -1329,8 +1339,8 @@ public class TestCswEndpoint {
 
         query.setConstraint(constraint);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
         grr.setAbstractQuery(jaxbQuery);
 
         CatalogFramework framework = mock(CatalogFramework.class);
@@ -1358,8 +1368,8 @@ public class TestCswEndpoint {
         constraint.setCqlText(CQL_BAD_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1367,8 +1377,9 @@ public class TestCswEndpoint {
     }
 
     @Test
-    public void testPostGetRecordsContextualCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsContextualCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
@@ -1379,8 +1390,8 @@ public class TestCswEndpoint {
         constraint.setCqlText(CQL_CONTEXTUAL_LIKE_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1402,8 +1413,9 @@ public class TestCswEndpoint {
     }
 
     @Test
-    public void testPostGetRecordsResults() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsResults()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         grr.setResultType(ResultType.RESULTS);
@@ -1418,8 +1430,8 @@ public class TestCswEndpoint {
         ElementSetNameType esnt = new ElementSetNameType();
         esnt.setValue(ElementSetType.SUMMARY);
         query.setElementSetName(esnt);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
         final String EXAMPLE_SCHEMA = CswConstants.CSW_OUTPUT_SCHEMA;
@@ -1431,7 +1443,7 @@ public class TestCswEndpoint {
         List<Result> results = new LinkedList<Result>();
         final long RESULT_COUNT = 10;
         final long TOTAL_COUNT = 10;
-        for(int i = 0; i < RESULT_COUNT; i++) {
+        for (int i = 0; i < RESULT_COUNT; i++) {
             Result result = new ResultImpl();
             results.add(result);
         }
@@ -1451,11 +1463,10 @@ public class TestCswEndpoint {
         assertThat(collection.getElementSetType(), is(ElementSetType.SUMMARY));
     }
 
-
-
     @Test
-    public void testPostGetRecordsHits() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsHits()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         grr.setResultType(ResultType.HITS);
@@ -1467,8 +1478,8 @@ public class TestCswEndpoint {
         constraint.setCqlText(CQL_CONTEXTUAL_LIKE_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1476,7 +1487,7 @@ public class TestCswEndpoint {
         List<Result> results = new LinkedList<Result>();
         final long RESULT_COUNT = 10;
         final long TOTAL_COUNT = 10;
-        for(int i = 0; i < RESULT_COUNT; i++) {
+        for (int i = 0; i < RESULT_COUNT; i++) {
             Result result = new ResultImpl();
             results.add(result);
         }
@@ -1494,8 +1505,9 @@ public class TestCswEndpoint {
     }
 
     @Test
-    public void testPostGetRecordsValidate() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsValidate()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         grr.setResultType(ResultType.VALIDATE);
@@ -1507,8 +1519,8 @@ public class TestCswEndpoint {
         constraint.setCqlText(CQL_CONTEXTUAL_LIKE_QUERY);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1535,8 +1547,9 @@ public class TestCswEndpoint {
     }
 
     @Test
-    public void testPostGetRecordsValidSort() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsValidSort()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         grr.setResultType(ResultType.RESULTS);
@@ -1545,13 +1558,13 @@ public class TestCswEndpoint {
         SortByType incomingSort = new SortByType();
         SortPropertyType propType = new SortPropertyType();
         PropertyNameType propName = new PropertyNameType();
-        propName.setContent(Arrays.asList((Object) TITLE_TEST_ATTRIBUTE)); 
+        propName.setContent(Arrays.asList((Object) TITLE_TEST_ATTRIBUTE));
         propType.setPropertyName(propName);
         incomingSort.getSortProperty().add(propType);
         query.setSortBy(incomingSort);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1568,13 +1581,15 @@ public class TestCswEndpoint {
 
         SortBy resultSort = argument.getValue().getQuery().getSortBy();
 
-        assertThat(resultSort.getPropertyName().getPropertyName(), is(CQL_FRAMEWORK_TEST_ATTRIBUTE));
+        assertThat(resultSort.getPropertyName().getPropertyName(),
+                is(CQL_FRAMEWORK_TEST_ATTRIBUTE));
         assertThat(resultSort.getSortOrder(), is(SortOrder.ASCENDING));
     }
 
     @Test(expected = CswException.class)
-    public void testPostGetRecordsSortOnUnknownField() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSortOnUnknownField()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         grr.setResultType(ResultType.RESULTS);
@@ -1583,13 +1598,13 @@ public class TestCswEndpoint {
         SortByType incomingSort = new SortByType();
         SortPropertyType propType = new SortPropertyType();
         PropertyNameType propName = new PropertyNameType();
-        propName.setContent(Arrays.asList((Object) UNKNOWN_TEST_ATTRIBUTE)); 
+        propName.setContent(Arrays.asList((Object) UNKNOWN_TEST_ATTRIBUTE));
         propType.setPropertyName(propName);
         incomingSort.getSortProperty().add(propType);
         query.setSortBy(incomingSort);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1604,258 +1619,277 @@ public class TestCswEndpoint {
 
         cswEndpoint.getRecords(grr);
     }
-    
+
     @Test
-    public void testPostGetRecordsSpatialEqualsCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialEqualsCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         cqlSpatialQuery(Equals.class, CQL_SPATIAL_EQUALS_QUERY);
     }
 
     @Test
-    public void testPostGetRecordsSpatialDisjointCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialDisjointCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         cqlSpatialQuery(Disjoint.class, CQL_SPATIAL_DISJOINT_QUERY);
     }
 
     @Test
-    public void testPostGetRecordsSpatialIntersectsCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialIntersectsCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         cqlSpatialQuery(Intersects.class, CQL_SPATIAL_INTERSECTS_QUERY);
     }
 
     @Test
-    public void testPostGetRecordsSpatialTouchesCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialTouchesCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         cqlSpatialQuery(Touches.class, CQL_SPATIAL_TOUCHES_QUERY);
     }
 
     @Test
-    public void testPostGetRecordsSpatialCrossesCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialCrossesCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         cqlSpatialQuery(Crosses.class, CQL_SPATIAL_CROSSES_QUERY);
     }
 
     @Test
-    public void testPostGetRecordsSpatialWithinCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialWithinCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         cqlSpatialQuery(Within.class, CQL_SPATIAL_WITHIN_QUERY);
     }
 
     @Test
-    public void testPostGetRecordsSpatialContainsCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialContainsCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         cqlSpatialQuery(Contains.class, CQL_SPATIAL_CONTAINS_QUERY);
     }
 
     @Test
-    public void testPostGetRecordsSpatialOverlapsCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialOverlapsCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         cqlSpatialQuery(Overlaps.class, CQL_SPATIAL_OVERLAPS_QUERY);
     }
 
     @Test
-    public void testPostGetRecordsSpatialDWithinCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialDWithinCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         cqlSpatialRelativeQuery(DWithin.class, CQL_SPATIAL_DWITHIN_QUERY);
     }
 
     @Test
-    public void testPostGetRecordsSpatialBeyondCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialBeyondCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         cqlSpatialRelativeQuery(Beyond.class, CQL_SPATIAL_BEYOND_QUERY);
     }
 
     @Test
-    public void testPostGetRecordsSpatialEqualsOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialEqualsOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         BinarySpatialOpType op = createBinarySpatialOpType();
 
         ogcSpatialQuery(Equals.class, filterObjectFactory.createEquals(op));
     }
-    
+
     @Test
-    public void testPostGetRecordsSpatialDisjointOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialDisjointOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         BinarySpatialOpType op = createBinarySpatialOpType();
         ogcSpatialQuery(Disjoint.class, filterObjectFactory.createDisjoint(op));
     }
-    
+
     @Test
-    public void testPostGetRecordsSpatialIntersectsOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialIntersectsOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         BinarySpatialOpType op = createBinarySpatialOpType();
         ogcSpatialQuery(Intersects.class, filterObjectFactory.createIntersects(op));
     }
-    
+
     @Test
-    public void testPostGetRecordsSpatialTouchesOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialTouchesOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         BinarySpatialOpType op = createBinarySpatialOpType();
         ogcSpatialQuery(Touches.class, filterObjectFactory.createTouches(op));
     }
-    
+
     @Test
-    public void testPostGetRecordsSpatialCrossesOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialCrossesOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         BinarySpatialOpType op = createBinarySpatialOpType();
         ogcSpatialQuery(Crosses.class, filterObjectFactory.createCrosses(op));
     }
-    
+
     @Test
-    public void testPostGetRecordsSpatialWithinOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialWithinOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         BinarySpatialOpType op = createBinarySpatialOpType();
         ogcSpatialQuery(Within.class, filterObjectFactory.createWithin(op));
     }
-    
+
     @Test
-    public void testPostGetRecordsSpatialContainsOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialContainsOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         BinarySpatialOpType op = createBinarySpatialOpType();
         ogcSpatialQuery(Contains.class, filterObjectFactory.createContains(op));
     }
-    
+
     @Test
-    public void testPostGetRecordsSpatialOverlapsOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialOverlapsOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         BinarySpatialOpType op = createBinarySpatialOpType();
         ogcSpatialQuery(Overlaps.class, filterObjectFactory.createOverlaps(op));
     }
-    
+
     @Test
-    public void testPostGetRecordsSpatialDWithinOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialDWithinOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         DistanceBufferType op = createDistanceBufferType();
         ogcSpatialRelativeQuery(DWithin.class, filterObjectFactory.createDWithin(op));
     }
-    
+
     @Test
-    public void testPostGetRecordsSpatialBeyondOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testPostGetRecordsSpatialBeyondOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         DistanceBufferType op = createDistanceBufferType();
         ogcSpatialRelativeQuery(Beyond.class, filterObjectFactory.createBeyond(op));
     }
-    
+
     @Test
-    public void testGetGetRecordsSpatialDWithinOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testGetGetRecordsSpatialDWithinOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         String constraint = createDistanceBufferQuery("DWithin");
         ogcSpatialRelativeQuery(DWithin.class, constraint);
     }
-    
+
     @Test
-    public void testGetGetRecordsSpatialBeyondOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
+    public void testGetGetRecordsSpatialBeyondOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
         String constraint = createDistanceBufferQuery("Beyond");
         ogcSpatialRelativeQuery(Beyond.class, constraint);
     }
 
     @Test
-    public void testPostGetRecordsTemporalPropertyIsLessOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
-        BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED, TIMESTAMP);
-        ogcTemporalQuery(Metacard.CREATED, filterObjectFactory.createPropertyIsLessThan(op), Before.class);
-    }
-    
-    @Ignore("TODO: the functions this test tests has been augmented to play well with the limited capabilities of the Solr provider.  " +
-    		"These tests and the functions they test should be reenabled and refactored after DDF-311 is addressed")
-    @Test
-    public void testPostGetRecordsTemporalPropertyIsLessOrEqualOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
-        BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED, TIMESTAMP);
-        ogcOrdTemporalQuery(Metacard.CREATED, filterObjectFactory.createPropertyIsLessThanOrEqualTo(op), BegunBy.class, TEquals.class);
+    public void testPostGetRecordsTemporalPropertyIsLessOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
+        BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
+                TIMESTAMP);
+        ogcTemporalQuery(Metacard.CREATED, filterObjectFactory.createPropertyIsLessThan(op),
+                Before.class);
     }
 
-    @Ignore("TODO: the functions this test tests has been augmented to play well with the limited capabilities of the Solr provider.  " +
-            "These tests and the functions they test should be reenabled and refactored after DDF-311 is addressed")
+    @Ignore("TODO: the functions this test tests has been augmented to play well with the limited capabilities of the Solr provider.  "
+            + "These tests and the functions they test should be reenabled and refactored after DDF-311 is addressed")
     @Test
-    public void testPostGetRecordsTemporalPropertyIsGreaterOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
-        BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED, TIMESTAMP);
-        ogcTemporalQuery(Metacard.CREATED, filterObjectFactory.createPropertyIsGreaterThan(op), After.class);
+    public void testPostGetRecordsTemporalPropertyIsLessOrEqualOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
+        BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
+                TIMESTAMP);
+        ogcOrdTemporalQuery(Metacard.CREATED,
+                filterObjectFactory.createPropertyIsLessThanOrEqualTo(op), BegunBy.class,
+                TEquals.class);
     }
-    
-    @Ignore("TODO: the functions this test tests has been augmented to play well with the limited capabilities of the Solr provider.  " +
-            "These tests and the functions they test should be reenabled and refactored after DDF-311 is addressed")
+
+    @Ignore("TODO: the functions this test tests has been augmented to play well with the limited capabilities of the Solr provider.  "
+            + "These tests and the functions they test should be reenabled and refactored after DDF-311 is addressed")
     @Test
-    public void testPostGetRecordsTemporalPropertyIsGreaterOrEqualOgcFilter() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
-        BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED, TIMESTAMP);
-        ogcOrdTemporalQuery(Metacard.CREATED, filterObjectFactory.createPropertyIsGreaterThanOrEqualTo(op), After.class, TEquals.class);
+    public void testPostGetRecordsTemporalPropertyIsGreaterOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
+        BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
+                TIMESTAMP);
+        ogcTemporalQuery(Metacard.CREATED, filterObjectFactory.createPropertyIsGreaterThan(op),
+                After.class);
+    }
+
+    @Ignore("TODO: the functions this test tests has been augmented to play well with the limited capabilities of the Solr provider.  "
+            + "These tests and the functions they test should be reenabled and refactored after DDF-311 is addressed")
+    @Test
+    public void testPostGetRecordsTemporalPropertyIsGreaterOrEqualOgcFilter()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
+        BinaryComparisonOpType op = createTemporalBinaryComparisonOpType(CswConstants.CSW_CREATED,
+                TIMESTAMP);
+        ogcOrdTemporalQuery(Metacard.CREATED,
+                filterObjectFactory.createPropertyIsGreaterThanOrEqualTo(op), After.class,
+                TEquals.class);
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testPostGetRecordsTemporalBeforeCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
-        
-        String[] cqlTextValues = new String[] {
-            CswConstants.CSW_CREATED,
-            CQL_BEFORE,
-            TIMESTAMP
-        };
+    public void testPostGetRecordsTemporalBeforeCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
+
+        String[] cqlTextValues = new String[] {CswConstants.CSW_CREATED, CQL_BEFORE, TIMESTAMP};
         String cqlText = StringUtils.join(cqlTextValues, " ");
         cqlTemporalQuery(Metacard.CREATED, cqlText, new Class[] {Before.class});
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testPostGetRecordsTemporalAfterCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
-        
-        String[] cqlTextValues = new String[] {
-            CswRecordMetacardType.CSW_ISSUED,
-            CQL_AFTER,
-            TIMESTAMP
-        };
+    public void testPostGetRecordsTemporalAfterCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
+
+        String[] cqlTextValues = new String[] {CswRecordMetacardType.CSW_ISSUED, CQL_AFTER,
+                TIMESTAMP};
         String cqlText = StringUtils.join(cqlTextValues, " ");
         cqlTemporalQuery(Metacard.MODIFIED, cqlText, new Class[] {After.class});
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testPostGetRecordsTemporalDuringCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
-        
-        String[] cqlTextValues = new String[] {
-            CswRecordMetacardType.CSW_DATE_ACCEPTED,
-            CQL_DURING,
-            TIMESTAMP,
-            "/",
-            DURATION
-        };
+    public void testPostGetRecordsTemporalDuringCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
+
+        String[] cqlTextValues = new String[] {CswRecordMetacardType.CSW_DATE_ACCEPTED, CQL_DURING,
+                TIMESTAMP, "/", DURATION};
         String cqlText = StringUtils.join(cqlTextValues, " ");
         cqlTemporalQuery(Metacard.EFFECTIVE, cqlText, new Class[] {During.class});
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testPostGetRecordsTemporalBeforeOrDuringCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
-        
-        String[] cqlTextValues = new String[] {
-            CswRecordMetacardType.CSW_DATE,
-            CQL_BEFORE_OR_DURING,
-            TIMESTAMP,
-            "/",
-            DURATION
-        };
+    public void testPostGetRecordsTemporalBeforeOrDuringCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
+
+        String[] cqlTextValues = new String[] {CswRecordMetacardType.CSW_DATE, CQL_BEFORE_OR_DURING,
+                TIMESTAMP, "/", DURATION};
         String cqlText = StringUtils.join(cqlTextValues, " ");
         cqlTemporalQuery(Metacard.MODIFIED, cqlText, new Class[] {Before.class, During.class});
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testPostGetRecordsTemporalAfterOrDuringCQLQuery() throws CswException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException {
-        
-        String[] cqlTextValues = new String[] {
-            CswRecordMetacardType.CSW_VALID,
-            CQL_DURING_OR_AFTER,
-            TIMESTAMP,
-            "/",
-            DURATION
-        };
+    public void testPostGetRecordsTemporalAfterOrDuringCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
+
+        String[] cqlTextValues = new String[] {CswRecordMetacardType.CSW_VALID, CQL_DURING_OR_AFTER,
+                TIMESTAMP, "/", DURATION};
         String cqlText = StringUtils.join(cqlTextValues, " ");
         cqlTemporalQuery(Metacard.EXPIRATION, cqlText, new Class[] {During.class, After.class});
     }
@@ -1899,8 +1933,8 @@ public class TestCswEndpoint {
         JAXBContext context;
         try {
 
-            context = JAXBContext
-                    .newInstance("net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1");
+            context = JAXBContext.newInstance(
+                    "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1");
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
@@ -1922,20 +1956,20 @@ public class TestCswEndpoint {
 
     /**
      * Runs a binary Spatial CQL Query, verifying that the right filter class is generated based on CQL
-     * 
+     *
      * @param clz
      *            Class of filter to generate
      * @param cql
      *            CQL Query String
-     * 
+     *
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException
      * @throws CswException
      */
     private <N extends BinarySpatialOperator> void cqlSpatialQuery(Class<N> clz, String cql)
-        throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-        CswException {
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+            CswException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
@@ -1946,8 +1980,8 @@ public class TestCswEndpoint {
         constraint.setCqlText(cql);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -1970,23 +2004,24 @@ public class TestCswEndpoint {
         assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
                 is(SPATIAL_TEST_ATTRIBUTE));
     }
-    
+
     /**
      * Runs a relative spatial CQL Query, verifying that the right filter class is generated based on CQL
-     * 
+     *
      * @param clz
      *            Class of filter to generate
      * @param cql
      *            CQL Query String
-     * 
+     *
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException
      * @throws CswException
      */
-    private <N extends DistanceBufferOperator> void cqlSpatialRelativeQuery(Class<N> clz, String cql)
-        throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-        CswException {
+    private <N extends DistanceBufferOperator> void cqlSpatialRelativeQuery(Class<N> clz,
+            String cql)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+            CswException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
@@ -1997,8 +2032,8 @@ public class TestCswEndpoint {
         constraint.setCqlText(cql);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2025,24 +2060,25 @@ public class TestCswEndpoint {
         assertThat(spatial.getDistance(), is(EXPECTED_GEO_DISTANCE));
     }
 
-    private BinaryComparisonOpType createTemporalBinaryComparisonOpType(String attr, String comparison) {
+    private BinaryComparisonOpType createTemporalBinaryComparisonOpType(String attr,
+            String comparison) {
         BinaryComparisonOpType comparisonOp = new BinaryComparisonOpType();
-        
+
         PropertyNameType propName = new PropertyNameType();
         propName.getContent().add(attr);
-                
+
         comparisonOp.getExpression().add(filterObjectFactory.createPropertyName(propName));
 
         LiteralType literal = new LiteralType();
         literal.getContent().add(comparison);
-        
+
         comparisonOp.getExpression().add(filterObjectFactory.createLiteral(literal));
         return comparisonOp;
     }
 
     private BinarySpatialOpType createBinarySpatialOpType() {
         BinarySpatialOpType binarySpatialOps = new BinarySpatialOpType();
-        
+
         PropertyNameType propName = new PropertyNameType();
         propName.getContent().add(SPATIAL_TEST_ATTRIBUTE);
         binarySpatialOps.setPropertyName(propName);
@@ -2050,33 +2086,36 @@ public class TestCswEndpoint {
         binarySpatialOps.setGeometry(createPolygon());
         return binarySpatialOps;
     }
-    
-    private String createDistanceBufferQuery(String comparison) {
-        String query = 
-                "      <ogc:Filter xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:gml=\"http://www.opengis.net/gml\">" +
-                "        <ogc:" + comparison + ">" +
-                "          <ogc:PropertyName>" + SPATIAL_TEST_ATTRIBUTE + "</ogc:PropertyName>" +
-                "          <gml:Polygon gml:id=\"Pl001\">" +
-                "            <gml:exterior>" +
-                "              <gml:LinearRing>" +
-                "                <gml:pos>10 10</gml:pos>" +
-                "                <gml:pos>10 25</gml:pos>" +
-                "                <gml:pos>40 25</gml:pos>" +
-                "                <gml:pos>40 10</gml:pos>" +
-                "                <gml:pos>10 10</gml:pos>" +
-                "              </gml:LinearRing>" +
-                "            </gml:exterior>" +
-                "          </gml:Polygon>" +
-                "          <ogc:Distance units=\"" + REL_GEO_UNITS + "\">" + REL_GEO_DISTANCE + "</ogc:Distance>" +
-                "        </ogc:" + comparison + ">" +
-                "      </ogc:Filter>";
 
-        return query;        
+    private String createDistanceBufferQuery(String comparison) {
+        String query =
+                "      <ogc:Filter xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:gml=\"http://www.opengis.net/gml\">"
+                        +
+                        "        <ogc:" + comparison + ">" +
+                        "          <ogc:PropertyName>" + SPATIAL_TEST_ATTRIBUTE
+                        + "</ogc:PropertyName>" +
+                        "          <gml:Polygon gml:id=\"Pl001\">" +
+                        "            <gml:exterior>" +
+                        "              <gml:LinearRing>" +
+                        "                <gml:pos>10 10</gml:pos>" +
+                        "                <gml:pos>10 25</gml:pos>" +
+                        "                <gml:pos>40 25</gml:pos>" +
+                        "                <gml:pos>40 10</gml:pos>" +
+                        "                <gml:pos>10 10</gml:pos>" +
+                        "              </gml:LinearRing>" +
+                        "            </gml:exterior>" +
+                        "          </gml:Polygon>" +
+                        "          <ogc:Distance units=\"" + REL_GEO_UNITS + "\">"
+                        + REL_GEO_DISTANCE + "</ogc:Distance>" +
+                        "        </ogc:" + comparison + ">" +
+                        "      </ogc:Filter>";
+
+        return query;
     }
 
     private DistanceBufferType createDistanceBufferType() {
         DistanceBufferType distanceBuffer = new DistanceBufferType();
-        
+
         PropertyNameType propName = new PropertyNameType();
         propName.getContent().add(SPATIAL_TEST_ATTRIBUTE);
         distanceBuffer.setPropertyName(propName);
@@ -2084,15 +2123,15 @@ public class TestCswEndpoint {
         DistanceType distance = filterObjectFactory.createDistanceType();
         distance.setUnits(REL_GEO_UNITS);
         distance.setContent(Double.toString(REL_GEO_DISTANCE));
-        
+
         distanceBuffer.setDistance(distance);
         distanceBuffer.setGeometry(createPolygon());
-        return distanceBuffer;        
+        return distanceBuffer;
     }
 
     private JAXBElement<AbstractGeometryType> createPolygon() {
         PolygonType polygon = new PolygonType();
-        
+
         LinearRingType ring = new LinearRingType();
         for (Coordinate coordinate : POLYGON.getCoordinates()) {
             CoordType coord = new CoordType();
@@ -2107,25 +2146,27 @@ public class TestCswEndpoint {
         abstractRing.setRing(gmlObjectFactory.createLinearRing(ring));
         polygon.setExterior(gmlObjectFactory.createExterior(abstractRing));
 
-        JAXBElement<AbstractGeometryType> agt = new JAXBElement<AbstractGeometryType>(new QName(
-                "http://www.opengis.net/gml", "Polygon"), AbstractGeometryType.class, null, polygon);
+        JAXBElement<AbstractGeometryType> agt = new JAXBElement<AbstractGeometryType>(
+                new QName("http://www.opengis.net/gml", "Polygon"), AbstractGeometryType.class,
+                null, polygon);
         return agt;
     }
-    
+
     /**
      * Runs a binary Spatial OGC Query, verifying that the right filter class is generated based on OGC Filter
-     * 
+     *
      * @param constraint
      *            The OGC Filter Constraint as an XML string
-     * 
+     *
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException
      * @throws CswException
      */
     private <N extends DistanceBufferOperator> void ogcSpatialRelativeQuery(Class<N> clz,
-            String constraint) throws UnsupportedQueryException,
-        SourceUnavailableException, FederationException, CswException {
+            String constraint)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+            CswException {
         GetRecordsRequest grr = createDefaultGetRecordsRequest();
 
         grr.setConstraintLanguage("FILTER");
@@ -2153,18 +2194,19 @@ public class TestCswEndpoint {
 
     /**
      * Runs a binary Spatial OGC Query, verifying that the right filter class is generated based on OGC Filter
-     * 
+     *
      * @param spatialOps
      *            BinarySpatialOps query
-     * 
+     *
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException
      * @throws CswException
      */
     private <N extends DistanceBufferOperator> void ogcSpatialRelativeQuery(Class<N> clz,
-            JAXBElement<DistanceBufferType> spatialOps) throws UnsupportedQueryException,
-        SourceUnavailableException, FederationException, CswException {
+            JAXBElement<DistanceBufferType> spatialOps)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+            CswException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
@@ -2172,14 +2214,14 @@ public class TestCswEndpoint {
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
-        FilterType filter = new FilterType();        
+        FilterType filter = new FilterType();
         filter.setSpatialOps(spatialOps);
-        
+
         constraint.setFilter(filter);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2202,21 +2244,22 @@ public class TestCswEndpoint {
         assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
                 is(SPATIAL_TEST_ATTRIBUTE));
     }
-    
+
     /**
      * Runs a binary Spatial OGC Query, verifying that the right filter class is generated based on OGC Filter
-     * 
+     *
      * @param spatialOps
      *            BinarySpatialOps query
-     * 
+     *
      * @throws UnsupportedQueryException
      * @throws SourceUnavailableException
      * @throws FederationException
      * @throws CswException
      */
     private <N extends BinarySpatialOperator> void ogcSpatialQuery(Class<N> clz,
-            JAXBElement<BinarySpatialOpType> spatialOps) throws UnsupportedQueryException,
-        SourceUnavailableException, FederationException, CswException {
+            JAXBElement<BinarySpatialOpType> spatialOps)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+            CswException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
@@ -2224,14 +2267,14 @@ public class TestCswEndpoint {
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
-        FilterType filter = new FilterType();        
+        FilterType filter = new FilterType();
         filter.setSpatialOps(spatialOps);
-        
+
         constraint.setFilter(filter);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2255,11 +2298,10 @@ public class TestCswEndpoint {
                 is(SPATIAL_TEST_ATTRIBUTE));
     }
 
-
     /**
      * Runs a binary Temporal OGC Query, verifying that the right filter class is generated based on
      * OGC Filter
-     * 
+     *
      * @param expectedAttr
      *            Exprected Mapped Attribute
      * @param temporalOps
@@ -2273,23 +2315,22 @@ public class TestCswEndpoint {
      */
     @SuppressWarnings("unchecked")
     private <N extends BinaryTemporalOperator> void ogcTemporalQuery(String expectedAttr,
-            JAXBElement<BinaryComparisonOpType> temporalOps, Class<N> clz) throws UnsupportedQueryException,
-        SourceUnavailableException, FederationException, CswException {
+            JAXBElement<BinaryComparisonOpType> temporalOps, Class<N> clz)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+            CswException {
         Filter filter = generateTemporalFilter(temporalOps);
-        
+
         assertThat(filter, instanceOf(clz));
 
         N temporal = (N) filter;
-        assertThat(
-                ((AttributeExpressionImpl) temporal.getExpression1())
-                        .getPropertyName(),
+        assertThat(((AttributeExpressionImpl) temporal.getExpression1()).getPropertyName(),
                 is(expectedAttr));
     }
 
     /**
      * Runs an Or'd query of multiple binary Temporal OGC Query, verifying that the right filter
      * class is generated based on OGC Filter
-     * 
+     *
      * @param expectedAttr
      *            Exprected Mapped Attribute
      * @param temporalOps
@@ -2304,16 +2345,17 @@ public class TestCswEndpoint {
     @SuppressWarnings("unchecked")
     private void ogcOrdTemporalQuery(String expectedAttr,
             JAXBElement<BinaryComparisonOpType> temporalOps,
-            Class<? extends BinaryTemporalOperator> ... clzzes) throws UnsupportedQueryException,
-        SourceUnavailableException, FederationException, CswException {
+            Class<? extends BinaryTemporalOperator>... clzzes)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+            CswException {
         Filter filter = generateTemporalFilter(temporalOps);
 
         assertThat(filter, instanceOf(Or.class));
-        
+
         Or ordTemporal = (Or) filter;
-        
+
         List<Filter> temporalFilters = ordTemporal.getChildren();
-        
+
         List<Class<? extends BinaryTemporalOperator>> classes = new ArrayList<Class<? extends BinaryTemporalOperator>>();
 
         for (Filter temporal : temporalFilters) {
@@ -2322,9 +2364,9 @@ public class TestCswEndpoint {
         }
     }
 
-    private Filter generateTemporalFilter(
-            JAXBElement<BinaryComparisonOpType> temporalOps) throws UnsupportedQueryException,
-        SourceUnavailableException, FederationException, CswException {
+    private Filter generateTemporalFilter(JAXBElement<BinaryComparisonOpType> temporalOps)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+            CswException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
@@ -2332,14 +2374,14 @@ public class TestCswEndpoint {
         typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
         query.setTypeNames(typeNames);
         QueryConstraintType constraint = new QueryConstraintType();
-        FilterType filter = new FilterType();        
+        FilterType filter = new FilterType();
         filter.setComparisonOps(temporalOps);
-        
+
         constraint.setFilter(filter);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2355,11 +2397,12 @@ public class TestCswEndpoint {
         QueryImpl frameworkQuery = (QueryImpl) argument.getValue().getQuery();
         return frameworkQuery.getFilter();
     }
-    
+
     @SuppressWarnings("unchecked")
     private <N extends BinaryTemporalOperator> void cqlTemporalQuery(String expectedAttr,
-            String cqlSpatialDwithinQuery, Class<N>[] classes) throws UnsupportedQueryException,
-        SourceUnavailableException, FederationException, CswException {
+            String cqlSpatialDwithinQuery, Class<N>[] classes)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+            CswException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
 
         QueryType query = new QueryType();
@@ -2370,8 +2413,8 @@ public class TestCswEndpoint {
         constraint.setCqlText(cqlSpatialDwithinQuery);
 
         query.setConstraint(constraint);
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
 
         grr.setAbstractQuery(jaxbQuery);
 
@@ -2403,7 +2446,7 @@ public class TestCswEndpoint {
 
     /**
      * Creates default GetCapabilities GET request, with no sections specified
-     * 
+     *
      * @return Vanilla GetCapabilitiesRequest object
      */
     private GetCapabilitiesRequest createDefaultGetCapabilitiesRequest() {
@@ -2416,7 +2459,7 @@ public class TestCswEndpoint {
 
     /**
      * Creates default DescribeRecordRequest GET request, with no sections specified
-     * 
+     *
      * @return Vanilla DescribeRecordRequest object
      */
     private DescribeRecordRequest createDefaultDescribeRecordRequest() {
@@ -2430,7 +2473,7 @@ public class TestCswEndpoint {
 
     /**
      * Creates default GetRecordsRequest GET request, with no sections specified
-     * 
+     *
      * @return Vanilla valid GetRecordsRequest object
      */
     private GetRecordsRequest createDefaultGetRecordsRequest() {
@@ -2440,7 +2483,7 @@ public class TestCswEndpoint {
         grr.setRequest(CswConstants.GET_RECORDS);
         grr.setNamespace(CswConstants.XMLNS_DEFINITION_PREFIX + CswConstants.CSW_NAMESPACE_PREFIX
                 + CswConstants.EQUALS + CswConstants.CSW_OUTPUT_SCHEMA
-                + CswConstants.XMLNS_DEFINITION_POSTFIX + CswConstants.COMMA  
+                + CswConstants.XMLNS_DEFINITION_POSTFIX + CswConstants.COMMA
 
                 + CswConstants.XMLNS_DEFINITION_PREFIX + CswConstants.OGC_NAMESPACE_PREFIX
                 + CswConstants.EQUALS + CswConstants.OGC_SCHEMA
@@ -2448,9 +2491,8 @@ public class TestCswEndpoint {
 
                 + CswConstants.XMLNS_DEFINITION_PREFIX + CswConstants.GML_NAMESPACE_PREFIX
                 + CswConstants.EQUALS + CswConstants.GML_SCHEMA
-                + CswConstants.XMLNS_DEFINITION_POSTFIX + CswConstants.COMMA
-        );
-        
+                + CswConstants.XMLNS_DEFINITION_POSTFIX + CswConstants.COMMA);
+
         grr.setOutputSchema(CswConstants.CSW_OUTPUT_SCHEMA);
         grr.setOutputFormat(CswConstants.OUTPUT_FORMAT_XML);
         grr.setTypeNames(VALID_TYPES);
@@ -2459,7 +2501,7 @@ public class TestCswEndpoint {
 
     /**
      * Creates default GetRecordsType POST request, with no sections specified
-     * 
+     *
      * @return Vanilla valid GetRecordsType object
      */
     private GetRecordsType createDefaultPostRecordsRequest() {
@@ -2474,8 +2516,8 @@ public class TestCswEndpoint {
 
         query.setTypeNames(typeNames);
 
-        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
-                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(
+                new QName("http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
         grr.setAbstractQuery(jaxbQuery);
         return grr;
     }
@@ -2486,7 +2528,7 @@ public class TestCswEndpoint {
 
     /**
      * Creates default GetCapabilities POST request, with no sections specified
-     * 
+     *
      * @return Vanilla GetCapabilitiesType object
      */
     private GetCapabilitiesType createDefaultGetCapabilitiesType() {
@@ -2500,7 +2542,7 @@ public class TestCswEndpoint {
 
     /**
      * Helper method to verify the ServiceProvider section matches the endpoint's definition
-     * 
+     *
      * @param ct
      *            The CapabilitiesType to verify
      */
@@ -2511,7 +2553,7 @@ public class TestCswEndpoint {
 
     /**
      * Helper method to verify the ServiceIdentification section matches the endpoint's definition
-     * 
+     *
      * @param ct
      *            The CapabilitiesType to verify
      */
@@ -2525,7 +2567,7 @@ public class TestCswEndpoint {
 
     /**
      * Helper method to verify the OperationsMetadata section matches the endpoint's definition
-     * 
+     *
      * @param ct
      *            The CapabilitiesType to verify
      */
@@ -2544,7 +2586,7 @@ public class TestCswEndpoint {
 
     /**
      * Helper method to verify the FilterCapabilities section matches the endpoint's definition
-     * 
+     *
      * @param ct
      *            The CapabilitiesType to verify
      */

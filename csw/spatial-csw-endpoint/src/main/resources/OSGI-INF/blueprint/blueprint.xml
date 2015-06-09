@@ -12,16 +12,18 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<blueprint xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
     <bean id="CswResourceComparator"
           class="org.codice.ddf.spatial.ogc.catalog.common.EndpointOperationInfoResourceComparator">
-        <argument value="csw" />          
+        <argument value="csw"/>
     </bean>
 
-    <bean id="cswJaxbElementProvider" class="org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider">
+    <bean id="cswJaxbElementProvider"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider">
         <property name="marshallAsJaxbElement" value="true"/>
         <property name="marshallerProperties">
             <map/>
@@ -48,41 +50,49 @@
     </bean>
 
     <!-- QueryResponseTransformer TransformerManager -->
-    <bean id="queryResponseTransformerManager" class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager" >
-        <argument ref="blueprintBundleContext" />
-        <argument ref="queryResponseTransformers" />
+    <bean id="queryResponseTransformerManager"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager">
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="queryResponseTransformers"/>
     </bean>
 
-    <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList" />
-    <reference-list id="queryResponseTransformerList" member-type="service-reference" interface="ddf.catalog.transform.QueryResponseTransformer" >
-        <reference-listener bind-method="bindService" unbind-method="unbindService" ref="queryResponseTransformers" />
+    <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list id="queryResponseTransformerList" member-type="service-reference"
+                    interface="ddf.catalog.transform.QueryResponseTransformer">
+        <reference-listener bind-method="bindService" unbind-method="unbindService"
+                            ref="queryResponseTransformers"/>
     </reference-list>
 
     <!-- MetacardTransformer Manager -->
-    <bean id="metacardTransformerManager" class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager" >
-        <argument ref="blueprintBundleContext" />
-        <argument ref="metacardTransformers" />
+    <bean id="metacardTransformerManager"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager">
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="metacardTransformers"/>
     </bean>
 
-    <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList" />
-    <reference-list id="metacardTransformerList" member-type="service-reference" interface="ddf.catalog.transform.MetacardTransformer" >
-        <reference-listener bind-method="bindService" unbind-method="unbindService" ref="metacardTransformers" />
+    <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
+    <reference-list id="metacardTransformerList" member-type="service-reference"
+                    interface="ddf.catalog.transform.MetacardTransformer">
+        <reference-listener bind-method="bindService" unbind-method="unbindService"
+                            ref="metacardTransformers"/>
     </reference-list>
 
-    <bean id="cswExceptionMapperProvider" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswExceptionMapper" />
-    <bean id="cswRecordCollectionWriter" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer.CswRecordCollectionMessageBodyWriter">
-    	<argument ref="queryResponseTransformerManager" />
+    <bean id="cswExceptionMapperProvider"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswExceptionMapper"/>
+    <bean id="cswRecordCollectionWriter"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.writer.CswRecordCollectionMessageBodyWriter">
+    	<argument ref="queryResponseTransformerManager"/>
     </bean>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
     <bean id="CswSvc" class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswEndpoint">
-        <argument ref="blueprintBundleContext" />
+        <argument ref="blueprintBundleContext"/>
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
-        <argument ref="queryResponseTransformerManager" />
-        <argument ref="metacardTransformerManager" />
+        <argument ref="queryResponseTransformerManager"/>
+        <argument ref="metacardTransformerManager"/>
     </bean>
 
     <jaxrs:server id="CswService" address="/csw">
@@ -94,8 +104,8 @@
         </jaxrs:resourceComparator>
         <jaxrs:providers>
             <ref component-id="cswJaxbElementProvider"/>
-            <ref component-id="cswExceptionMapperProvider" />
-            <ref component-id="cswRecordCollectionWriter" />
+            <ref component-id="cswExceptionMapperProvider"/>
+            <ref component-id="cswRecordCollectionWriter"/>
         </jaxrs:providers>
     </jaxrs:server>
 

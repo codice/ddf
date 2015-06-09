@@ -14,6 +14,25 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.DataHolder;
@@ -25,38 +44,19 @@ import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
 import com.thoughtworks.xstream.io.xml.xppdom.XppFactory;
+
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transform.MetacardTransformer;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.transformer.TransformerManager;
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Class to determine what transformer to use based on the schema and transforms the data appropriately.
  */
 public class CswTransformProvider implements Converter {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(CswTransformProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CswTransformProvider.class);
 
     private TransformerManager metacardTransformerManager;
 
@@ -79,8 +79,8 @@ public class CswTransformProvider implements Converter {
      *                to identify which transformer to use. Also contains properties for any
      *                arguments to provide the transformer.
      */
-    @Override public void marshal(Object o, HierarchicalStreamWriter writer,
-            MarshallingContext context) {
+    @Override
+    public void marshal(Object o, HierarchicalStreamWriter writer, MarshallingContext context) {
         if (o == null) {
             return;
         }
@@ -146,8 +146,8 @@ public class CswTransformProvider implements Converter {
      * @param context
      * @return
      */
-    @Override public Object unmarshal(HierarchicalStreamReader reader,
-            UnmarshallingContext context) {
+    @Override
+    public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         Object arg = context.get(CswConstants.OUTPUT_SCHEMA_PARAMETER);
         InputTransformer transformer = null;
         if (arg == null || CswConstants.CSW_OUTPUT_SCHEMA.equals((String) arg)) {
@@ -158,7 +158,8 @@ public class CswTransformProvider implements Converter {
             }
         } else {
             String outputSchema = (String) arg;
-            transformer = inputTransformerManager.<InputTransformer>getTransformerBySchema(outputSchema);
+            transformer = inputTransformerManager
+                    .<InputTransformer>getTransformerBySchema(outputSchema);
         }
 
         if (transformer == null) {
@@ -188,7 +189,8 @@ public class CswTransformProvider implements Converter {
         return IOUtils.toInputStream(stringWriter.toString());
     }
 
-    @Override public boolean canConvert(Class clazz) {
+    @Override
+    public boolean canConvert(Class clazz) {
         return Metacard.class.isAssignableFrom(clazz);
     }
 }

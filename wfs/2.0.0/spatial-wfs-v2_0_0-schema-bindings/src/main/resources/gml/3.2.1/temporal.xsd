@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml/3.2" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
-		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:temporal:3.2.1">temporal.xsd</appinfo>
+		<appinfo
+                source="urn:x-ogc:specification:gml:schema-xsd:temporal:3.2.1">temporal.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 15.2.
 The GML temporal schemas include components for describing temporal geometry and topology, temporal reference systems, and the temporal characteristics of geographic data. The model underlying the representation constitutes a profile of the conceptual schema described in ISO 19108. The underlying spatiotemporal model strives to accommodate both feature-level and attribute-level time stamping; basic support for tracking moving objects is also included. 
 Time is measured on two types of scales: interval and ordinal.  An interval scale offers a basis for measuring duration, an ordinal scale provides information only about relative position in time.
@@ -15,7 +17,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 	</annotation>
 	<include schemaLocation="gml.xsd"/>
 	<include schemaLocation="gmlBase.xsd"/>
-	<element name="AbstractTimeObject" type="gml:AbstractTimeObjectType" abstract="true" substitutionGroup="gml:AbstractGML">
+	<element name="AbstractTimeObject" type="gml:AbstractTimeObjectType" abstract="true"
+             substitutionGroup="gml:AbstractGML">
 		<annotation>
 			<documentation>gml:AbstractTimeObject acts as the head of a substitution group for all temporal primitives and complexes.</documentation>
 		</annotation>
@@ -25,7 +28,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 			<extension base="gml:AbstractGMLType"/>
 		</complexContent>
 	</complexType>
-	<element name="AbstractTimePrimitive" type="gml:AbstractTimePrimitiveType" abstract="true" substitutionGroup="gml:AbstractTimeObject">
+	<element name="AbstractTimePrimitive" type="gml:AbstractTimePrimitiveType" abstract="true"
+             substitutionGroup="gml:AbstractTimeObject">
 		<annotation>
 			<documentation>gml:AbstractTimePrimitive acts as the head of a substitution group for geometric and topological temporal primitives.</documentation>
 		</annotation>
@@ -34,7 +38,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 		<complexContent>
 			<extension base="gml:AbstractTimeObjectType">
 				<sequence>
-					<element name="relatedTime" type="gml:RelatedTimeType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="relatedTime" type="gml:RelatedTimeType" minOccurs="0"
+                             maxOccurs="unbounded"/>
 				</sequence>
 			</extension>
 		</complexContent>
@@ -82,7 +87,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="AbstractTimeComplex" type="gml:AbstractTimeComplexType" abstract="true" substitutionGroup="gml:AbstractTimeObject">
+	<element name="AbstractTimeComplex" type="gml:AbstractTimeComplexType" abstract="true"
+             substitutionGroup="gml:AbstractTimeObject">
 		<annotation>
 			<documentation>gml:AbstractTimeComplex is an aggregation of temporal primitives and acts as the head of a substitution group for temporal complexes.</documentation>
 		</annotation>
@@ -92,7 +98,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 			<extension base="gml:AbstractTimeObjectType"/>
 		</complexContent>
 	</complexType>
-	<element name="AbstractTimeGeometricPrimitive" type="gml:AbstractTimeGeometricPrimitiveType" abstract="true" substitutionGroup="gml:AbstractTimePrimitive">
+	<element name="AbstractTimeGeometricPrimitive" type="gml:AbstractTimeGeometricPrimitiveType"
+             abstract="true" substitutionGroup="gml:AbstractTimePrimitive">
 		<annotation>
 			<documentation>gml:TimeGeometricPrimitive acts as the head of a substitution group for geometric temporal primitives.
 A temporal geometry shall be associated with a temporal reference system through the frame attribute that provides a URI reference that identifies a description of the reference system. Following ISO 19108, the Gregorian calendar with UTC is the default reference system, but others may also be used. The GPS calendar is an alternative reference systems in common use.
@@ -106,7 +113,8 @@ The two geometric primitives in the temporal dimension are the instant and the p
 			</extension>
 		</complexContent>
 	</complexType>
-	<element name="TimeInstant" type="gml:TimeInstantType" substitutionGroup="gml:AbstractTimeGeometricPrimitive">
+	<element name="TimeInstant" type="gml:TimeInstantType"
+             substitutionGroup="gml:AbstractTimeGeometricPrimitive">
 		<annotation>
 			<documentation>gml:TimeInstant acts as a zero-dimensional geometric primitive that represents an identifiable position in time.</documentation>
 		</annotation>
@@ -130,7 +138,8 @@ The two geometric primitives in the temporal dimension are the instant and the p
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 		<attributeGroup ref="gml:OwnershipAttributeGroup"/>
 	</complexType>
-	<element name="TimePeriod" type="gml:TimePeriodType" substitutionGroup="gml:AbstractTimeGeometricPrimitive">
+	<element name="TimePeriod" type="gml:TimePeriodType"
+             substitutionGroup="gml:AbstractTimeGeometricPrimitive">
 		<annotation>
 			<documentation>gml:TimePeriod acts as a one-dimensional geometric primitive that represents an identifiable extent in time.
 The location in of a gml:TimePeriod is described by the temporal positions of the instants at which it begins and ends. The length of the period is equal to the temporal distance between the two bounding temporal positions. 

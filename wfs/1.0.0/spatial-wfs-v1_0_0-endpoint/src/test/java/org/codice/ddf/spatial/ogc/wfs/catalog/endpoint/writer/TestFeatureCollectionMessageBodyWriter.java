@@ -60,7 +60,7 @@ public class TestFeatureCollectionMessageBodyWriter {
 
     private static final String CONTENT_TYPE_VERSION = "1.0.0";
 
-    private static final Date DATE = new Date(1364320829000l);
+    private static final Date DATE = new Date(1364320829000L);
 
     private static final String ID = "team_id";
 
@@ -94,7 +94,7 @@ public class TestFeatureCollectionMessageBodyWriter {
 
     @Test
     public void testWriteToGeneratesGMLConformantXml() throws IOException, WebApplicationException,
-        SAXException {
+            SAXException {
 
         FeatureCollectionMessageBodyWriter wtr = new FeatureCollectionMessageBodyWriter();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -147,8 +147,8 @@ public class TestFeatureCollectionMessageBodyWriter {
             }
         });
 
-        Source wfsSchemaSource = new StreamSource(getClass().getResourceAsStream(
-                "/wfs/1.0.0/wfs.xsd"));
+        Source wfsSchemaSource = new StreamSource(
+                getClass().getResourceAsStream("/wfs/1.0.0/wfs.xsd"));
         Source testSchemaSource = new StreamSource(getClass().getResourceAsStream("/schema.xsd"));
 
         Schema schema = schemaFactory.newSchema(new Source[] {wfsSchemaSource, testSchemaSource});
@@ -162,7 +162,7 @@ public class TestFeatureCollectionMessageBodyWriter {
 
     @Test
     public void testWriteToGeneratesExpectedNonBasicMetacard() throws IOException,
-        WebApplicationException, SAXException {
+            WebApplicationException, SAXException {
 
         FeatureCollectionMessageBodyWriter wtr = new FeatureCollectionMessageBodyWriter();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -178,7 +178,7 @@ public class TestFeatureCollectionMessageBodyWriter {
 
     @Test
     public void testWriteToGeneratesExpectedBasicMetacard() throws IOException,
-        WebApplicationException, SAXException {
+            WebApplicationException, SAXException {
 
         FeatureCollectionMessageBodyWriter wtr = new FeatureCollectionMessageBodyWriter();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();

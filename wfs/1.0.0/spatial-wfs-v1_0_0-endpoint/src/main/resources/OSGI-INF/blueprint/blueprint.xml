@@ -12,12 +12,13 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<blueprint xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
-    <bean id="metacardTypeSortedList" class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.utils.ServicePropertiesMap"/>
+    <bean id="metacardTypeSortedList"
+          class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.utils.ServicePropertiesMap"/>
 
     <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType"
                     availability="optional" member-type="service-object">
@@ -25,15 +26,19 @@
                             unbind-method="unbindService" ref="metacardTypeSortedList"/>
     </reference-list>
 
-    <bean id="schemaCache" class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.FeatureTypeSchemaCache">
+    <bean id="schemaCache"
+          class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.FeatureTypeSchemaCache">
         <argument ref="blueprintBundleContext"/>
         <argument ref="metacardTypeSortedList"/>
         <argument ref="ddf"/>
     </bean>
 
-    <bean id="WfsResourceComparator" class="org.codice.ddf.spatial.ogc.catalog.common.EndpointOperationInfoResourceComparator"/>
-    <bean id="XmlSchemaWriter" class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.writer.XmlSchemaMessageBodyWriter"/>
-    <bean id="FeatureCollectionWriter" class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.writer.FeatureCollectionMessageBodyWriter"/>
+    <bean id="WfsResourceComparator"
+          class="org.codice.ddf.spatial.ogc.catalog.common.EndpointOperationInfoResourceComparator"/>
+    <bean id="XmlSchemaWriter"
+          class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.writer.XmlSchemaMessageBodyWriter"/>
+    <bean id="FeatureCollectionWriter"
+          class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.writer.FeatureCollectionMessageBodyWriter"/>
     <service ref="FeatureCollectionWriter" interface="ddf.catalog.util.DdfConfigurationWatcher"/>
 
 
@@ -42,7 +47,8 @@
         <property name="marshallerProperties">
             <map/>
         </property>
-        <property name="schemaLocation" value="http://www.opengis.net/wfs /ogc/wfs/1.0.0/WFS-capabilities.xsd"/>
+        <property name="schemaLocation"
+                  value="http://www.opengis.net/wfs /ogc/wfs/1.0.0/WFS-capabilities.xsd"/>
         <property name="jaxbElementClassMap">
             <map>
                 <entry>
@@ -55,7 +61,8 @@
         </property>
     </bean>
 
-    <bean id="wfsExceptionMapperProvider" class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.WfsExceptionMapper"/>
+    <bean id="wfsExceptionMapperProvider"
+          class="org.codice.ddf.spatial.ogc.wfs.catalog.endpoint.WfsExceptionMapper"/>
 
     <reference id="ddf" interface="ddf.catalog.CatalogFramework"/>
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>

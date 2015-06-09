@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 
 package org.codice.ddf.spatial.ogc.catalog.common.converter;
@@ -48,6 +48,35 @@ public class XmlNode {
     public XmlNode(HierarchicalStreamReader reader) {
         this.reader = reader;
         this.buffer = new StringBuffer();
+    }
+
+    public static void writeGeometry(String attributeName, MarshallingContext context,
+            HierarchicalStreamWriter writer, Geometry geo) {
+        if (null != geo) {
+            writer.startNode(attributeName);
+            context.convertAnother(geo);
+            writer.endNode();
+        }
+    }
+
+    public static void writeEnvelope(String attributeName, MarshallingContext context,
+            HierarchicalStreamWriter writer, Envelope envelope) {
+        if (null != envelope) {
+            writer.startNode(attributeName);
+            context.convertAnother(envelope);
+            writer.endNode();
+        }
+    }
+
+    public static Geometry readGeometry(String value) {
+        WKTReader wktReader = new WKTReader();
+        Geometry geo = null;
+        try {
+            geo = wktReader.read(value);
+        } catch (ParseException e) {
+            LOGGER.warn("Failed to parse geometry information.", e);
+        }
+        return geo;
     }
 
     /*
@@ -96,35 +125,6 @@ public class XmlNode {
     @Override
     public String toString() {
         return reconstructNode();
-    }
-
-    public static void writeGeometry(String attributeName, MarshallingContext context,
-            HierarchicalStreamWriter writer, Geometry geo) {
-        if (null != geo) {
-            writer.startNode(attributeName);
-            context.convertAnother(geo);
-            writer.endNode();
-        }
-    }
-
-    public static void writeEnvelope(String attributeName, MarshallingContext context,
-            HierarchicalStreamWriter writer, Envelope envelope) {
-        if (null != envelope) {
-            writer.startNode(attributeName);
-            context.convertAnother(envelope);
-            writer.endNode();
-        }
-    }
-
-    public static Geometry readGeometry(String value) {
-        WKTReader wktReader = new WKTReader();
-        Geometry geo = null;
-        try {
-            geo = wktReader.read(value);
-        } catch (ParseException e) {
-            LOGGER.warn("Failed to parse geometry information.", e);
-        }
-        return geo;
     }
 
 }

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.2.1.2">
 	<annotation>
-		<appinfo source="urn:opengis:specification:gml:schema-xsd:dictionary:v3.2.1">dictionary.xsd</appinfo>
+		<appinfo
+                source="urn:opengis:specification:gml:schema-xsd:dictionary:v3.2.1">dictionary.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 Clause 16.
 Many applications require definitions of terms which are used within instance documents as the values of certain properties or as reference information to tie properties to standard information values in some way.  Units of measure and descriptions of measurable phenomena are two particular examples. 
 It will often be convenient to use definitions provided by external authorities. These may already be packaged for delivery in various ways, both online and offline. In order that they may be referred to from GML documents it is generally necessary that a URI be available for each definition. Where this is the case then it is usually preferable to refer to these directly. 

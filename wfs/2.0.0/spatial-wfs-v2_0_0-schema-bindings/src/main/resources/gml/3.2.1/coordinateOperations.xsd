@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml/3.2" elementFormDefault="qualified" xml:lang="en" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns="http://www.w3.org/2001/XMLSchema" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gmd="http://www.isotc211.org/2005/gmd"
+        targetNamespace="http://www.opengis.net/gml/3.2" elementFormDefault="qualified"
+        xml:lang="en" xmlns="http://www.w3.org/2001/XMLSchema"
+        version="3.2.1.2">
 	<annotation>
 		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:coordinateOperations:3.2.1">coordinateOperations.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 13.6.
@@ -19,8 +22,10 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 	<include schemaLocation="gml.xsd"/>
 	<include schemaLocation="referenceSystems.xsd"/>
 	<include schemaLocation="measures.xsd"/>
-	<import namespace="http://www.isotc211.org/2005/gmd" schemaLocation="http://schemas.opengis.net/iso/19139/20070417/gmd/gmd.xsd"/>
-	<element name="AbstractCoordinateOperation" type="gml:AbstractCoordinateOperationType" abstract="true" substitutionGroup="gml:Definition">
+	<import namespace="http://www.isotc211.org/2005/gmd"
+            schemaLocation="http://schemas.opengis.net/iso/19139/20070417/gmd/gmd.xsd"/>
+	<element name="AbstractCoordinateOperation" type="gml:AbstractCoordinateOperationType"
+             abstract="true" substitutionGroup="gml:Definition">
 		<annotation>
 			<documentation>gml:AbstractCoordinateOperation is a mathematical operation on coordinates that transforms or converts coordinates to another coordinate reference system. Many but not all coordinate operations (from CRS A to CRS B) also uniquely define the inverse operation (from CRS B to CRS A). In some cases, the operation method algorithm for the inverse operation is the same as for the forward algorithm, but the signs of some operation parameter values shall be reversed. In other cases, different algorithms are required for the forward and inverse operations, but the same operation parameter values are used. If (some) entirely different parameter values are needed, a different coordinate operation shall be defined.
 The optional coordinateOperationAccuracy property elements provide estimates of the impact of this coordinate operation on point position accuracy.</documentation>
@@ -33,7 +38,8 @@ The optional coordinateOperationAccuracy property elements provide estimates of 
 					<element ref="gml:domainOfValidity" minOccurs="0"/>
 					<element ref="gml:scope" maxOccurs="unbounded"/>
 					<element ref="gml:operationVersion" minOccurs="0"/>
-					<element ref="gml:coordinateOperationAccuracy" minOccurs="0" maxOccurs="unbounded"/>
+					<element ref="gml:coordinateOperationAccuracy" minOccurs="0"
+                             maxOccurs="unbounded"/>
 					<element ref="gml:sourceCRS" minOccurs="0"/>
 					<element ref="gml:targetCRS" minOccurs="0"/>
 				</sequence>
@@ -75,7 +81,8 @@ The optional coordinateOperationAccuracy property elements provide estimates of 
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="AbstractSingleOperation" type="gml:AbstractCoordinateOperationType" abstract="true" substitutionGroup="gml:AbstractCoordinateOperation">
+	<element name="AbstractSingleOperation" type="gml:AbstractCoordinateOperationType"
+             abstract="true" substitutionGroup="gml:AbstractCoordinateOperation">
 		<annotation>
 			<documentation>gml:AbstractSingleOperation is a single (not concatenated) coordinate operation.</documentation>
 		</annotation>
@@ -89,7 +96,8 @@ The optional coordinateOperationAccuracy property elements provide estimates of 
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="AbstractGeneralConversion" type="gml:AbstractGeneralConversionType" abstract="true" substitutionGroup="gml:AbstractOperation">
+	<element name="AbstractGeneralConversion" type="gml:AbstractGeneralConversionType"
+             abstract="true" substitutionGroup="gml:AbstractOperation">
 		<annotation>
 			<documentation>gm:AbstractGeneralConversion is an abstract operation on coordinates that does not include any change of datum. The best-known example of a coordinate conversion is a map projection. The parameters describing coordinate conversions are defined rather than empirically derived. Note that some conversions have no parameters. The operationVersion, sourceCRS, and targetCRS elements are omitted in a coordinate conversion.
 This abstract complex type is expected to be extended for well-known operation methods with many Conversion instances, in GML Application Schemas that define operation-method-specialized element names and contents. This conversion uses an operation method, usually with associated parameter values. However, operation methods and parameter values are directly associated with concrete subtypes, not with this abstract type. All concrete types derived from this type shall extend this type to include a "usesMethod" element that references the "OperationMethod" element. Similarly, all concrete types derived from this type shall extend this type to include zero or more elements each named "uses...Value" that each use the type of an element substitutable for the "AbstractGeneralParameterValue" element.</documentation>
@@ -107,7 +115,8 @@ This abstract complex type is expected to be extended for well-known operation m
 					<element ref="gml:remarks" minOccurs="0"/>
 					<element ref="gml:domainOfValidity" minOccurs="0"/>
 					<element ref="gml:scope" maxOccurs="unbounded"/>
-					<element ref="gml:coordinateOperationAccuracy" minOccurs="0" maxOccurs="unbounded"/>
+					<element ref="gml:coordinateOperationAccuracy" minOccurs="0"
+                             maxOccurs="unbounded"/>
 				</sequence>
 				<attribute ref="gml:id" use="required"/>
 			</restriction>
@@ -122,7 +131,8 @@ This abstract complex type is expected to be extended for well-known operation m
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="AbstractGeneralTransformation" type="gml:AbstractGeneralTransformationType" abstract="true" substitutionGroup="gml:AbstractOperation">
+	<element name="AbstractGeneralTransformation" type="gml:AbstractGeneralTransformationType"
+             abstract="true" substitutionGroup="gml:AbstractOperation">
 		<annotation>
 			<documentation>gml:AbstractGeneralTransformation is an abstract operation on coordinates that usually includes a change of Datum. The parameters of a coordinate transformation are empirically derived from data containing the coordinates of a series of points in both coordinate reference systems. This computational process is usually "over-determined", allowing derivation of error (or accuracy) estimates for the transformation. Also, the stochastic nature of the parameters may result in multiple (different) versions of the same coordinate transformation. The operationVersion, sourceCRS, and targetCRS proeprty elements are mandatory in a coordinate transformation.
 This abstract complex type is expected to be extended for well-known operation methods with many Transformation instances, in Application Schemas that define operation-method-specialized value element names and contents. This transformation uses an operation method with associated parameter values. However, operation methods and parameter values are directly associated with concrete subtypes, not with this abstract type. All concrete types derived from this type shall extend this type to include a "usesMethod" element that references one "OperationMethod" element. Similarly, all concrete types derived from this type shall extend this type to include one or more elements each named "uses...Value" that each use the type of an element substitutable for the "AbstractGeneralParameterValue" element.</documentation>
@@ -141,7 +151,8 @@ This abstract complex type is expected to be extended for well-known operation m
 					<element ref="gml:domainOfValidity" minOccurs="0"/>
 					<element ref="gml:scope" maxOccurs="unbounded"/>
 					<element ref="gml:operationVersion"/>
-					<element ref="gml:coordinateOperationAccuracy" minOccurs="0" maxOccurs="unbounded"/>
+					<element ref="gml:coordinateOperationAccuracy" minOccurs="0"
+                             maxOccurs="unbounded"/>
 					<element ref="gml:sourceCRS"/>
 					<element ref="gml:targetCRS"/>
 				</sequence>
@@ -158,7 +169,8 @@ This abstract complex type is expected to be extended for well-known operation m
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="ConcatenatedOperation" type="gml:ConcatenatedOperationType" substitutionGroup="gml:AbstractCoordinateOperation"/>
+	<element name="ConcatenatedOperation" type="gml:ConcatenatedOperationType"
+             substitutionGroup="gml:AbstractCoordinateOperation"/>
 	<complexType name="ConcatenatedOperationType">
 		<annotation>
 			<documentation>gml:ConcatenatedOperation is an ordered sequence of two or more coordinate operations. This sequence of operations is constrained by the requirement that the source coordinate reference system of step (n+1) must be the same as the target coordinate reference system of step (n). The source coordinate reference system of the first step and the target coordinate reference system of the last step are the source and target coordinate reference system associated with the concatenated operation. Instead of a forward operation, an inverse operation may be used for one or more of the operation steps mentioned above, if the inverse operation is uniquely defined by the forward operation.
@@ -187,7 +199,8 @@ The gml:coordOperation property elements are an ordered sequence of associations
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="PassThroughOperation" type="gml:PassThroughOperationType" substitutionGroup="gml:AbstractSingleOperation">
+	<element name="PassThroughOperation" type="gml:PassThroughOperationType"
+             substitutionGroup="gml:AbstractSingleOperation">
 		<annotation>
 			<documentation>gml:PassThroughOperation is a pass-through operation specifies that a subset of a coordinate tuple is subject to a specific coordinate operation.
 The modifiedCoordinate property elements are an ordered sequence of positive integers defining the positions in a coordinate tuple of the coordinates affected by this pass-through operation. The AggregationAttributeGroup should be used to specify that the modifiedCoordinate elements are ordered.</documentation>
@@ -218,7 +231,8 @@ The modifiedCoordinate property elements are an ordered sequence of positive int
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="Conversion" type="gml:ConversionType" substitutionGroup="gml:AbstractGeneralConversion">
+	<element name="Conversion" type="gml:ConversionType"
+             substitutionGroup="gml:AbstractGeneralConversion">
 		<annotation>
 			<documentation>gml:Conversion is a concrete operation on coordinates that does not include any change of Datum. The best-known example of a coordinate conversion is a map projection. The parameters describing coordinate conversions are defined rather than empirically derived. Note that some conversions have no parameters.
 This concrete complex type can be used without using a GML Application Schema that defines operation-method-specialized element names and contents, especially for methods with only one Conversion instance.
@@ -254,7 +268,8 @@ The usesValue property elements are an unordered list of composition association
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="Transformation" type="gml:TransformationType" substitutionGroup="gml:AbstractGeneralTransformation">
+	<element name="Transformation" type="gml:TransformationType"
+             substitutionGroup="gml:AbstractGeneralTransformation">
 		<annotation>
 			<documentation>gml:Transformation is a concrete object element derived from gml:GeneralTransformation (13.6.2.13).
 This concrete object can be used for all operation methods, without using a GML Application Schema that defines operation-method-specialized element names and contents, especially for methods with only one Transformation instance.
@@ -280,7 +295,8 @@ The parameterValue elements are an unordered list of composition associations to
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="AbstractGeneralParameterValue" type="gml:AbstractGeneralParameterValueType" abstract="true" substitutionGroup="gml:AbstractObject">
+	<element name="AbstractGeneralParameterValue" type="gml:AbstractGeneralParameterValueType"
+             abstract="true" substitutionGroup="gml:AbstractObject">
 		<annotation>
 			<documentation>gml:AbstractGeneralParameterValue is an abstract parameter value or group of parameter values.
 This abstract complexType is expected to be extended and restricted for well-known operation methods with many instances, in Application Schemas that define operation-method-specialized element names and contents. Specific parameter value elements are directly contained in concrete subtypes, not in this abstract type. All concrete types derived from this type shall extend this type to include one "...Value" element with an appropriate type, which should be one of the element types allowed in the ParameterValueType. In addition, all derived concrete types shall extend this type to include a "operationParameter" property element that references one element substitutable for the "OperationParameter" object element.</documentation>
@@ -297,7 +313,8 @@ This abstract complexType is expected to be extended and restricted for well-kno
 			<element ref="gml:AbstractGeneralParameterValue"/>
 		</sequence>
 	</complexType>
-	<element name="ParameterValue" type="gml:ParameterValueType" substitutionGroup="gml:AbstractGeneralParameterValue">
+	<element name="ParameterValue" type="gml:ParameterValueType"
+             substitutionGroup="gml:AbstractGeneralParameterValue">
 		<annotation>
 			<documentation>gml:ParameterValue is a parameter value, an ordered sequence of values, or a reference to a file of parameter values. This concrete complex type may be used for operation methods without using an Application Schema that defines operation-method-specialized element names and contents, especially for methods with only one instance. This complex type may be used, extended, or restricted for well-known operation methods, especially for methods with many instances.</documentation>
 		</annotation>
@@ -361,7 +378,8 @@ This abstract complexType is expected to be extended and restricted for well-kno
 			<documentation>gml:operationParameter is an association role to the operation parameter of which this is a value.</documentation>
 		</annotation>
 	</element>
-	<element name="ParameterValueGroup" type="gml:ParameterValueGroupType" substitutionGroup="gml:AbstractGeneralParameterValue">
+	<element name="ParameterValueGroup" type="gml:ParameterValueGroupType"
+             substitutionGroup="gml:AbstractGeneralParameterValue">
 		<annotation>
 			<documentation>gml:ParameterValueGroup is a group of related parameter values. The same group can be repeated more than once in a Conversion, Transformation, or higher level ParameterValueGroup, if those instances contain different values of one or more parameterValues which suitably distinquish among those groups. This concrete complex type can be used for operation methods without using an Application Schema that defines operation-method-specialized element names and contents. This complex type may be used, extended, or restricted for well-known operation methods, especially for methods with only one instance.
 The parameterValue elements are an unordered set of composition association roles to the parameter values and groups of values included in this group.</documentation>
@@ -382,7 +400,8 @@ The parameterValue elements are an unordered set of composition association role
 			<documentation>gml:group is an association role to the operation parameter group for which this element provides parameter values.</documentation>
 		</annotation>
 	</element>
-	<element name="OperationMethod" type="gml:OperationMethodType" substitutionGroup="gml:Definition">
+	<element name="OperationMethod" type="gml:OperationMethodType"
+             substitutionGroup="gml:Definition">
 		<annotation>
 			<documentation>gml:OperationMethod is a method (algorithm or procedure) used to perform a coordinate operation. Most operation methods use a number of operation parameters, although some coordinate conversions use none. Each coordinate operation using the method assigns values to these parameters.
 The parameter elements are an unordered list of associations to the set of operation parameters and parameter groups used by this operation method.</documentation>
@@ -443,7 +462,9 @@ The parameter elements are an unordered list of associations to the set of opera
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="AbstractGeneralOperationParameter" type="gml:AbstractGeneralOperationParameterType" abstract="true" substitutionGroup="gml:Definition">
+	<element name="AbstractGeneralOperationParameter"
+             type="gml:AbstractGeneralOperationParameterType" abstract="true"
+             substitutionGroup="gml:Definition">
 		<annotation>
 			<documentation>gml:GeneralOperationParameter is the abstract definition of a parameter or group of parameters used by an operation method.</documentation>
 		</annotation>
@@ -471,7 +492,8 @@ The parameter elements are an unordered list of associations to the set of opera
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="OperationParameter" type="gml:OperationParameterType" substitutionGroup="gml:AbstractGeneralOperationParameter">
+	<element name="OperationParameter" type="gml:OperationParameterType"
+             substitutionGroup="gml:AbstractGeneralOperationParameter">
 		<annotation>
 			<documentation>gml:OperationParameter is the definition of a parameter used by an operation method. Most parameter values are numeric, but other types of parameter values are possible. This complex type is expected to be used or extended for all operation methods, without defining operation-method-specialized element names.</documentation>
 		</annotation>
@@ -492,7 +514,8 @@ The parameter elements are an unordered list of associations to the set of opera
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="OperationParameterGroup" type="gml:OperationParameterGroupType" substitutionGroup="gml:AbstractGeneralOperationParameter">
+	<element name="OperationParameterGroup" type="gml:OperationParameterGroupType"
+             substitutionGroup="gml:AbstractGeneralOperationParameter">
 		<annotation>
 			<documentation>gml:OperationParameterGroup is the definition of a group of parameters used by an operation method. This complex type is expected to be used or extended for all applicable operation methods, without defining operation-method-specialized element names.
 The generalOperationParameter elements are an unordered list of associations to the set of operation parameters that are members of this group.</documentation>

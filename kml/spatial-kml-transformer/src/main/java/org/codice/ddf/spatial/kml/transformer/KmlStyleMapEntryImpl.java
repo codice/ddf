@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.kml.transformer;
 
@@ -28,19 +28,19 @@ import ddf.catalog.data.Metacard;
 
 /**
  * Default Implentation of {@link KmlStyleMapEntry}.
- * 
+ *
  * @author Keith C Wire
- * 
+ *
  */
 public class KmlStyleMapEntryImpl implements KmlStyleMapEntry {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KmlStyleMapEntryImpl.class);
 
     private String attributeName;
 
     private String attributeValue;
 
     private String styleUrl;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(KmlStyleMapEntryImpl.class);
 
     public KmlStyleMapEntryImpl() {
     }
@@ -64,8 +64,8 @@ public class KmlStyleMapEntryImpl implements KmlStyleMapEntry {
         } else {
             Attribute attribute = metacard.getAttribute(attributeName);
             if (attribute != null) {
-                if (attributeValueMatch(attribute, metacard.getMetacardType()
-                        .getAttributeDescriptor(attributeName))) {
+                if (attributeValueMatch(attribute,
+                        metacard.getMetacardType().getAttributeDescriptor(attributeName))) {
                     LOGGER.debug("Found match for Attribute: {} Value: {} URL: {}", attributeName,
                             attributeValue, styleUrl);
                     return true;
@@ -80,22 +80,22 @@ public class KmlStyleMapEntryImpl implements KmlStyleMapEntry {
         return this.attributeName;
     }
 
+    public void setAttributeName(String attributeName) {
+        this.attributeName = attributeName;
+    }
+
     @Override
     public String getAttributeValue() {
         return this.attributeValue;
     }
 
+    public void setAttributeValue(String attributeValue) {
+        this.attributeValue = attributeValue;
+    }
+
     @Override
     public String getStyleUrl() {
         return this.styleUrl;
-    }
-
-    public void setAttributeName(String attributeName) {
-        this.attributeName = attributeName;
-    }
-
-    public void setAttributeValue(String attributeValue) {
-        this.attributeValue = attributeValue;
     }
 
     public void setStyleUrl(String styleUrl) {

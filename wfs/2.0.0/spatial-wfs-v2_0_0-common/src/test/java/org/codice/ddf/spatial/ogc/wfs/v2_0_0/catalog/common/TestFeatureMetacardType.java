@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common;
 
@@ -33,7 +33,6 @@ import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.constants.Constants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
-import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.junit.Test;
 
 import ddf.catalog.data.AttributeDescriptor;
@@ -44,8 +43,7 @@ public class TestFeatureMetacardType {
 
     private static final QName FEATURE_TYPE = new QName("", "FeatureTypeName");
 
-    private static final String PROPERTY_PREFIX = FEATURE_TYPE.getLocalPart()
-            + ".";
+    private static final String PROPERTY_PREFIX = FEATURE_TYPE.getLocalPart() + ".";
 
     private static final String GML = "GML";
 
@@ -404,7 +402,7 @@ public class TestFeatureMetacardType {
 
         schema.getElements().put(new QName(ELEMENT_NAME), element);
         FeatureMetacardType fmt = new FeatureMetacardType(schema, FEATURE_TYPE, NON_QUERYABLE_PROPS,
-        		Wfs20Constants.GML_3_2_NAMESPACE);
+                Wfs20Constants.GML_3_2_NAMESPACE);
 
         for (AttributeDescriptor ad : BasicTypes.BASIC_METACARD.getAttributeDescriptors()) {
             assertBasicAttributeDescriptor(fmt, ad.getName(), ad.getType());

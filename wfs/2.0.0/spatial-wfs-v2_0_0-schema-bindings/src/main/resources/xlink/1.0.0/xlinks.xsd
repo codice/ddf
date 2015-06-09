@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- File: xlinks.xsd  -->
-<schema targetNamespace="http://www.w3.org/1999/xlink" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" version="2.0">
+<schema xmlns:xlink="http://www.w3.org/1999/xlink" targetNamespace="http://www.w3.org/1999/xlink"
+		xmlns="http://www.w3.org/2001/XMLSchema"
+		version="2.0">
 	<annotation>
 		<appinfo source="urn:opengis:specification:gml:schema-xlinks:v3.0c2">xlinks.xsd v3.0b2 2001-07</appinfo>
 		<documentation>
 			GML 3.0 candidate xlinks schema. Copyright (c) 2001 OGC, All Rights Reserved.
 		</documentation>
 	</annotation>
-	<!-- ==============================================================
+    <!-- ==============================================================
        global declarations
-  	=============================================================== -->
-	<!-- locator attribute -->
-	<attribute name="href" type="anyURI"/>
-	<!-- semantic attributes -->
-	<attribute name="role" type="anyURI"/>
+      =============================================================== -->
+    <!-- locator attribute -->
+    <attribute name="href" type="anyURI"/>
+    <!-- semantic attributes -->
+    <attribute name="role" type="anyURI"/>
 	<attribute name="arcrole" type="anyURI"/>
 	<attribute name="title" type="string"/>
-	<!-- behavior attributes -->
-	<attribute name="show">
+    <!-- behavior attributes -->
+    <attribute name="show">
 		<annotation>
 			<documentation>
         The 'show' attribute is used to communicate the desired presentation 
@@ -69,15 +71,15 @@
 			</restriction>
 		</simpleType>
 	</attribute>
-	<!-- traversal attributes -->
-	<attribute name="label" type="string"/>
+    <!-- traversal attributes -->
+    <attribute name="label" type="string"/>
 	<attribute name="from" type="string"/>
 	<attribute name="to" type="string"/>
-	<!-- ==============================================================
+    <!-- ==============================================================
        Attributes grouped by XLink type, as specified in the W3C 
        Proposed Recommendation (dated 2000-12-20)
-	============================================================== -->
-	<attributeGroup name="simpleLink">
+    ============================================================== -->
+    <attributeGroup name="simpleLink">
 		<attribute name="type" type="string" fixed="simple" form="qualified"/>
 		<attribute ref="xlink:href" use="optional"/>
 		<attribute ref="xlink:role" use="optional"/>

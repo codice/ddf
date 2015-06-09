@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v5 rel. 2 U (http://www.xmlspy.com) by Clemens Portele (interactive instruments) -->
-<schema targetNamespace="http://www.opengis.net/gml/3.2" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml/3.2" elementFormDefault="qualified" xml:lang="en" version="3.2.1.2">
+<schema xmlns:gml="http://www.opengis.net/gml/3.2" targetNamespace="http://www.opengis.net/gml/3.2"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" xml:lang="en"
+        version="3.2.1.2">
 	<annotation>
 		<appinfo source="urn:x-ogc:specification:gml:schema-xsd:datums:3.2.1">datums.xsd</appinfo>
 		<documentation>See ISO/DIS 19136 13.5
@@ -18,7 +20,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 	<include schemaLocation="gml.xsd"/>
 	<include schemaLocation="referenceSystems.xsd"/>
 	<include schemaLocation="measures.xsd"/>
-	<element name="AbstractDatum" type="gml:AbstractDatumType" abstract="true" substitutionGroup="gml:Definition">
+	<element name="AbstractDatum" type="gml:AbstractDatumType" abstract="true"
+             substitutionGroup="gml:Definition">
 		<annotation>
 			<documentation>A gml:AbstractDatum specifies the relationship of a coordinate system to the earth, thus creating a coordinate reference system. A datum uses a parameter or set of parameters that determine the location of the origin of the coordinate reference system. Each datum subtype may be associated with only specific types of coordinate systems. This abstract complex type shall not be used, extended, or restricted, in a GML Application Schema, to define a concrete subtype with a meaning equivalent to a concrete subtype specified in this document.</documentation>
 		</annotation>
@@ -58,7 +61,8 @@ To obtain additional rights of use, visit http://www.opengeospatial.org/legal/ .
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="GeodeticDatum" type="gml:GeodeticDatumType" substitutionGroup="gml:AbstractDatum">
+	<element name="GeodeticDatum" type="gml:GeodeticDatumType"
+             substitutionGroup="gml:AbstractDatum">
 		<annotation>
 			<documentation>gml:GeodeticDatum is a geodetic datum defines the precise location and orientation in 3-dimensional space of a defined ellipsoid (or sphere), or of a Cartesian coordinate system centered in this ellipsoid (or sphere).</documentation>
 		</annotation>
@@ -170,7 +174,8 @@ The semiMinorAxis element contains the length of the semi-minor axis of the elli
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="EngineeringDatum" type="gml:EngineeringDatumType" substitutionGroup="gml:AbstractDatum">
+	<element name="EngineeringDatum" type="gml:EngineeringDatumType"
+             substitutionGroup="gml:AbstractDatum">
 		<annotation>
 			<documentation>gml:EngineeringDatum defines the origin of an engineering coordinate reference system, and is used in a region around that origin. This origin may be fixed with respect to the earth (such as a defined point at a construction site), or be a defined point on a moving vehicle (such as on a ship or satellite).</documentation>
 		</annotation>
@@ -217,7 +222,8 @@ The semiMinorAxis element contains the length of the semi-minor axis of the elli
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="VerticalDatum" type="gml:VerticalDatumType" substitutionGroup="gml:AbstractDatum">
+	<element name="VerticalDatum" type="gml:VerticalDatumType"
+             substitutionGroup="gml:AbstractDatum">
 		<annotation>
 			<documentation>gml:VerticalDatum is a textual description and/or a set of parameters identifying a particular reference level surface used as a zero-height surface, including its position with respect to the Earth for any of the height types recognized by this International Standard.</documentation>
 		</annotation>
@@ -236,7 +242,8 @@ The semiMinorAxis element contains the length of the semi-minor axis of the elli
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<element name="TemporalDatum" type="gml:TemporalDatumType" substitutionGroup="gml:AbstractDatum">
+	<element name="TemporalDatum" type="gml:TemporalDatumType"
+             substitutionGroup="gml:AbstractDatum">
 		<annotation>
 			<documentation>A gml:TemporalDatum defines the origin of a Temporal Reference System. This type omits the "anchorDefinition" and "realizationEpoch" elements and adds the "origin" element with the dateTime type.</documentation>
 		</annotation>

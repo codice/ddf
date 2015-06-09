@@ -13,7 +13,8 @@
  **/
 -->
 <wfs:FeatureCollection xmlns:wfs="http://www.opengis.net/wfs" xmlns:gml="http://www.opengis.net/gml"
-                       xmlns:Sport="urn:ddf.catalog.gml.Sport" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                       xmlns:Sport="urn:ddf.catalog.gml.Sport"
+                       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                        xsi:schemaLocation="urn:ddf.catalog.gml.Sport http://null:nullnull/wfs?service=wfs&amp;request=DescribeFeatureType&amp;version=1.0.0&amp;typeName=Sport ">
     <gml:boundedBy>
         <gml:Box srsName="EPSG:4326">

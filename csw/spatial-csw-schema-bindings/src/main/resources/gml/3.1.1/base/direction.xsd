@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml" xmlns:gml="http://www.opengis.net/gml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink" elementFormDefault="qualified"
-        version="3.1.1">
+<schema xmlns:gml="http://www.opengis.net/gml" targetNamespace="http://www.opengis.net/gml"
+		xmlns="http://www.w3.org/2001/XMLSchema"
+		elementFormDefault="qualified"
+		version="3.1.1">
 	<annotation>
-		<appinfo source="urn:opengis:specification:gml:schema-xsd:direction:3.1.1">direction.xsd</appinfo>
+		<appinfo
+                source="urn:opengis:specification:gml:schema-xsd:direction:3.1.1">direction.xsd</appinfo>
 		<documentation>This schema defines "direction" element and type.
     Copyright (c) 2002-2005 OGC, All Rights Reserved.
 	For conditions, see OGC Software Notice http://www.opengeospatial.org/about/?page=ipr</documentation>
 	</annotation>
-	<!-- ==============================================================
+    <!-- ==============================================================
        includes and imports
-	============================================================== -->
-	<include schemaLocation="geometryBasic0d1d.xsd"/>
-	<!-- ============================================================== -->
-	<!--===================================================================  -->
-	<element name="direction" type="gml:DirectionPropertyType"/>
-	<!--===================================================================  -->
-	<complexType name="DirectionPropertyType">
+    ============================================================== -->
+    <include schemaLocation="geometryBasic0d1d.xsd"/>
+    <!-- ============================================================== -->
+    <!--===================================================================  -->
+    <element name="direction" type="gml:DirectionPropertyType"/>
+    <!--===================================================================  -->
+    <complexType name="DirectionPropertyType">
 		<annotation>
 			<documentation/>
 		</annotation>
@@ -27,10 +30,10 @@
 		</choice>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!--===================================================================  -->
-	<element name="DirectionVector" type="gml:DirectionVectorType"/>
-	<!--===================================================================  -->
-	<complexType name="DirectionVectorType">
+    <!--===================================================================  -->
+    <element name="DirectionVector" type="gml:DirectionVectorType"/>
+    <!--===================================================================  -->
+    <complexType name="DirectionVectorType">
 		<annotation>
 			<documentation>Direction expressed as a vector, either using components, or using angles.</documentation>
 		</annotation>
@@ -42,10 +45,10 @@
 			</sequence>
 		</choice>
 	</complexType>
-	<!--===================================================================  -->
-	<element name="CompassPoint" type="gml:CompassPointEnumeration"/>
-	<!--===================================================================  -->
-	<simpleType name="CompassPointEnumeration">
+    <!--===================================================================  -->
+    <element name="CompassPoint" type="gml:CompassPointEnumeration"/>
+    <!--===================================================================  -->
+    <simpleType name="CompassPointEnumeration">
 		<restriction base="string">
 			<enumeration value="N"/>
 			<enumeration value="NNE"/>
@@ -65,5 +68,5 @@
 			<enumeration value="NNW"/>
 		</restriction>
 	</simpleType>
-	<!--===================================================================  -->
+    <!--===================================================================  -->
 </schema>

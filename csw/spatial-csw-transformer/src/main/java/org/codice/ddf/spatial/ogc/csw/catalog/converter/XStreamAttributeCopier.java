@@ -14,13 +14,14 @@
  **/
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
-import org.apache.commons.lang.StringUtils;
-
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * XStream tool to copy contents of a HierarichalStreamReader to a HierarichalStreamWriter.

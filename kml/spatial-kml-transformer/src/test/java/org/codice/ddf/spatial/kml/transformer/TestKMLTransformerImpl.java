@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.kml.transformer;
 
@@ -22,20 +22,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import ddf.action.Action;
-import ddf.action.ActionProvider;
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+import ddf.action.Action;
+import ddf.action.ActionProvider;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -49,13 +48,7 @@ import de.micromata.opengis.kml.v_2_2_0.TimeSpan;
 
 public class TestKMLTransformerImpl {
 
-    private static BundleContext mockContext = mock(BundleContext.class);
-
-    private static Bundle mockBundle = mock(Bundle.class);
-
     private static final String defaultStyleLocation = "/kml-styling/defaultStyling.kml";
-
-    private static KMLTransformerImpl kmlTransformer;
 
     private static final String ID = "1234567890";
 
@@ -73,14 +66,21 @@ public class TestKMLTransformerImpl {
 
     private static final String MULTIPOLYGON_WKT = "MULTIPOLYGON (((1 1,2 1,2 2,1 2,1 1)), ((0 0,1 1,2 0,0 0)))";
 
-    private static final String GEOMETRYCOLLECTION_WKT = "GEOMETRYCOLLECTION (" + POINT_WKT + ", "
-            + LINESTRING_WKT + ", " + POLYGON_WKT + ")";
-
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    private static final String GEOMETRYCOLLECTION_WKT =
+            "GEOMETRYCOLLECTION (" + POINT_WKT + ", " + LINESTRING_WKT + ", " + POLYGON_WKT + ")";
 
     private static final String ACTION_URL = "http://example.com/source/id?transform=resource";
 
+    private static BundleContext mockContext = mock(BundleContext.class);
+
+    private static Bundle mockBundle = mock(Bundle.class);
+
+    private static KMLTransformerImpl kmlTransformer;
+
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
     private static ActionProvider mockActionProvider;
+
     private static Action mockAction;
 
     @BeforeClass
@@ -120,8 +120,8 @@ public class TestKMLTransformerImpl {
     }
 
     @Test
-    public void testPerformDefaultTransformationLineStringLocation()
-        throws CatalogTransformerException {
+    public void testPerformDefaultTransformationLineStringLocation() throws
+            CatalogTransformerException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(LINESTRING_WKT);
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
@@ -138,8 +138,8 @@ public class TestKMLTransformerImpl {
     }
 
     @Test
-    public void testPerformDefaultTransformationPolygonLocation()
-        throws CatalogTransformerException {
+    public void testPerformDefaultTransformationPolygonLocation() throws
+            CatalogTransformerException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(POLYGON_WKT);
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
@@ -156,8 +156,8 @@ public class TestKMLTransformerImpl {
     }
 
     @Test
-    public void testPerformDefaultTransformationMultiPointLocation()
-        throws CatalogTransformerException {
+    public void testPerformDefaultTransformationMultiPointLocation() throws
+            CatalogTransformerException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(MULTIPOINT_WKT);
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
@@ -179,8 +179,8 @@ public class TestKMLTransformerImpl {
     }
 
     @Test
-    public void testPerformDefaultTransformationMultiLineStringLocation()
-        throws CatalogTransformerException {
+    public void testPerformDefaultTransformationMultiLineStringLocation() throws
+            CatalogTransformerException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(MULTILINESTRING_WKT);
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
@@ -201,8 +201,8 @@ public class TestKMLTransformerImpl {
     }
 
     @Test
-    public void testPerformDefaultTransformationMultiPolygonLocation()
-        throws CatalogTransformerException {
+    public void testPerformDefaultTransformationMultiPolygonLocation() throws
+            CatalogTransformerException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(MULTIPOLYGON_WKT);
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
@@ -223,8 +223,8 @@ public class TestKMLTransformerImpl {
     }
 
     @Test
-    public void testPerformDefaultTransformationGeometryCollectionLocation()
-        throws CatalogTransformerException {
+    public void testPerformDefaultTransformationGeometryCollectionLocation() throws
+            CatalogTransformerException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(GEOMETRYCOLLECTION_WKT);
         Placemark placemark = kmlTransformer.performDefaultTransformation(metacard, null);
@@ -247,7 +247,7 @@ public class TestKMLTransformerImpl {
 
     @Test
     public void testTransformMetacardGetsDefaultStyle() throws CatalogTransformerException,
-        IOException {
+            IOException {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(POINT_WKT);
         BinaryContent content = kmlTransformer.transform(metacard, null);

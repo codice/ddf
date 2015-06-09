@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
 
@@ -87,9 +87,9 @@ public class TestGenericFeatureConverter {
     private static final String WIDTH_ELEMENT = "width";
 
     private static final String GROUND_GEOM_ELEMENT = "ground_geom";
-    
+
     private static final String STATES_TITLE_ELEMENT = "STATE_NAME";
-    
+
     private static final String STATES_FEATURE_TYPE = "states";
 
     @Test
@@ -118,33 +118,33 @@ public class TestGenericFeatureConverter {
         assertEquals("video_data_set.2", mc.getTitle());
 
         assertEquals(2L, mc.getAttribute(PROPERTY_PREFIX + ID_ELEMENT).getValue());
-        assertEquals(Long.valueOf(1L), mc.getAttribute(PROPERTY_PREFIX + VERSION_ELEMENT)
-                .getValue());
-        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:54:38.983").getTime(), mc
-                .getAttribute(PROPERTY_PREFIX + END_DATE_ELEMENT).getValue());
+        assertEquals(Long.valueOf(1L),
+                mc.getAttribute(PROPERTY_PREFIX + VERSION_ELEMENT).getValue());
+        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:54:38.983").getTime(),
+                mc.getAttribute(PROPERTY_PREFIX + END_DATE_ELEMENT).getValue());
         assertEquals("/data/test_suite/video/video/videoFile.mpg",
                 mc.getAttribute(PROPERTY_PREFIX + FILENAME_ELEMENT).getValue());
         assertEquals(720L, mc.getAttribute(PROPERTY_PREFIX + HEIGHT_ELEMENT).getValue());
-        assertEquals("a8a55092f0afae881099637ef7746cd8d7066270d9af4cf0f52c41dab53c4005", mc
-                .getAttribute(PROPERTY_PREFIX + INDEX_ID_ELEMENT).getValue());
-        assertEquals(getOtherTagsXml(), mc.getAttribute(PROPERTY_PREFIX + OTHER_TAGS_XML_ELEMENT)
-                .getValue());
+        assertEquals("a8a55092f0afae881099637ef7746cd8d7066270d9af4cf0f52c41dab53c4005",
+                mc.getAttribute(PROPERTY_PREFIX + INDEX_ID_ELEMENT).getValue());
+        assertEquals(getOtherTagsXml(),
+                mc.getAttribute(PROPERTY_PREFIX + OTHER_TAGS_XML_ELEMENT).getValue());
         assertEquals(26L, mc.getAttribute(PROPERTY_PREFIX + REPOSITORY_ID_ELEMENT).getValue());
-        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:53:39.000").getTime(), mc
-                .getAttribute(PROPERTY_PREFIX + START_DATE_ELEMENT).getValue());
+        assertEquals(DatatypeConverter.parseDateTime("2005-04-07T09:53:39.000").getTime(),
+                mc.getAttribute(PROPERTY_PREFIX + START_DATE_ELEMENT).getValue());
         assertEquals(1280L, mc.getAttribute(PROPERTY_PREFIX + WIDTH_ELEMENT).getValue());
 
         assertEquals(getLocation(), mc.getLocation());
-        assertEquals(mc.getLocation(), mc.getAttribute(PROPERTY_PREFIX + GROUND_GEOM_ELEMENT)
-                .getValue());
+        assertEquals(mc.getLocation(),
+                mc.getAttribute(PROPERTY_PREFIX + GROUND_GEOM_ELEMENT).getValue());
 
         assertNotNull(mc.getCreatedDate());
         assertNotNull(mc.getEffectiveDate());
         assertNotNull(mc.getModifiedDate());
 
         assertNotNull(mc.getContentTypeNamespace());
-        assertEquals(mc.getContentTypeNamespace().toString(), Wfs20Constants.NAMESPACE_URN_ROOT
-                + metacardType.getName());
+        assertEquals(mc.getContentTypeNamespace().toString(),
+                Wfs20Constants.NAMESPACE_URN_ROOT + metacardType.getName());
     }
 
     @Test
@@ -173,7 +173,7 @@ public class TestGenericFeatureConverter {
         assertEquals(mc.getId(), "video_data_set.1");
 
     }
-    
+
     @Test
     public void testUnmarshalMultiQueryFeatureCollectionXmlToObject() {
         XStream xstream = new XStream(new WstxDriver());
@@ -197,14 +197,15 @@ public class TestGenericFeatureConverter {
         Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) xstream.fromXML(is);
         assertEquals(7, wfc.getMembers().size());
         Metacard mc = wfc.getMembers().get(0);
-        
+
         assertEquals(mc.getId(), "states.10");
 
         // Verifies that lat/lon was swapped to lon/lat order for the WKT conversion
         // to set the metacard's location        
-        assertTrue(mc.getLocation().startsWith("MULTIPOLYGON (((-89.104965 36.953869, -89.129585 36.86644, -89.166496 36.843422000000004,"));
+        assertTrue(mc.getLocation().startsWith(
+                "MULTIPOLYGON (((-89.104965 36.953869, -89.129585 36.86644, -89.166496 36.843422000000004,"));
     }
-    
+
     @Test
     public void testGeoServerLatLonSwappingForMultiPolygon() {
         XStream xstream = new XStream(new WstxDriver());
@@ -228,14 +229,15 @@ public class TestGenericFeatureConverter {
         Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) xstream.fromXML(is);
         assertEquals(1, wfc.getMembers().size());
         Metacard mc = wfc.getMembers().get(0);
-        
+
         assertEquals(mc.getId(), "states.10");
 
         // Verifies that lat/lon was swapped to lon/lat order for the WKT conversion
         // to set the metacard's location
-        assertTrue(mc.getLocation().startsWith("MULTIPOLYGON (((-89.1 36.1, -89.1 37.1, -88.1 37.1, -88.1 36.1, -89.1 36.1"));
+        assertTrue(mc.getLocation().startsWith(
+                "MULTIPOLYGON (((-89.1 36.1, -89.1 37.1, -88.1 37.1, -88.1 36.1, -89.1 36.1"));
     }
-    
+
     @Test
     public void testGeoServerLatLonSwappingForPoint() {
         XStream xstream = new XStream(new WstxDriver());
@@ -259,14 +261,14 @@ public class TestGenericFeatureConverter {
         Wfs20FeatureCollection wfc = (Wfs20FeatureCollection) xstream.fromXML(is);
         assertEquals(1, wfc.getMembers().size());
         Metacard mc = wfc.getMembers().get(0);
-        
+
         assertEquals(mc.getId(), "states.10");
 
         // Verifies that lat/lon was swapped to lon/lat order for the WKT conversion
         // to set the metacard's location
         assertTrue(mc.getLocation().startsWith("POINT (-123.26 49.41)"));
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void testUnmarshalNoMetacardTypeRegisteredInConverter() throws Throwable {
         XStream xstream = new XStream(new WstxDriver());
@@ -292,7 +294,8 @@ public class TestGenericFeatureConverter {
         xstream.registerConverter(new GenericFeatureConverterWfs20());
         xstream.registerConverter(new GmlGeometryConverter());
         // Required the Implementing class. The interface would not work...
-        xstream.alias(Wfs20Constants.WFS_NAMESPACE_PREFIX + ":" + "FeatureCollection", Wfs20FeatureCollection.class);
+        xstream.alias(Wfs20Constants.WFS_NAMESPACE_PREFIX + ":" + "FeatureCollection",
+                Wfs20FeatureCollection.class);
 
         Metacard mc = new SampleMetacard().getMetacard();
         Wfs20FeatureCollection wfc = new Wfs20FeatureCollection();
@@ -332,18 +335,18 @@ public class TestGenericFeatureConverter {
 
         assertEquals(contents, results);
     }
-    
+
     /*
      * This test will check is the MetacardMapper maps the feature value of 'states.STATE_NAME' to the metacard property 'title'.
      */
     @Test
     public void testUnmarshalMultiQueryFeatureCollectionXmlToObjectWithMetacardMapper() {
-    	//Create Metacard Mapper
-    	String featureProp= "states.STATE_NAME";
-    	String metacardAttr = "title";
-    	MetacardMapper metacardMapper = mock(MetacardMapper.class);
-    	when(metacardMapper.getMetacardAttribute(featureProp)).thenReturn(metacardAttr);
-    	
+        //Create Metacard Mapper
+        String featureProp = "states.STATE_NAME";
+        String metacardAttr = "title";
+        MetacardMapper metacardMapper = mock(MetacardMapper.class);
+        when(metacardMapper.getMetacardAttribute(featureProp)).thenReturn(metacardAttr);
+
         XStream xstream = new XStream(new WstxDriver());
         FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
         Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
@@ -369,7 +372,8 @@ public class TestGenericFeatureConverter {
 
         // Verifies that lat/lon was swapped to lon/lat order for the WKT conversion
         // to set the metacard's location        
-        assertTrue(mc.getLocation().startsWith("MULTIPOLYGON (((-89.104965 36.953869, -89.129585 36.86644, -89.166496 36.843422000000004,"));
+        assertTrue(mc.getLocation().startsWith(
+                "MULTIPOLYGON (((-89.104965 36.953869, -89.129585 36.86644, -89.166496 36.843422000000004,"));
     }
 
     private MetacardType buildMetacardType() {
@@ -415,23 +419,23 @@ public class TestGenericFeatureConverter {
 
         return elementMap;
     }
-    
+
     private MetacardType buildStatesMetacardType() {
 
         XmlSchema schema = new XmlSchema();
         schema.getElements().putAll(buildStatesElementMap(schema));
 
-        return new FeatureMetacardType(schema, new QName(STATES_FEATURE_TYPE), new ArrayList<String>(),
-                Wfs20Constants.GML_3_2_NAMESPACE);
+        return new FeatureMetacardType(schema, new QName(STATES_FEATURE_TYPE),
+                new ArrayList<String>(), Wfs20Constants.GML_3_2_NAMESPACE);
 
     }
-    
+
     private Map<QName, XmlSchemaElement> buildStatesElementMap(XmlSchema schema) {
         Map<QName, XmlSchemaElement> elementMap = new HashMap<QName, XmlSchemaElement>();
 
         elementMap.put(new QName(STATES_TITLE_ELEMENT),
                 buildSchemaElement(STATES_TITLE_ELEMENT, schema, Constants.XSD_STRING));
-        
+
         XmlSchemaElement gmlElement = new XmlSchemaElement(schema, true);
         gmlElement.setSchemaType(new XmlSchemaComplexType(schema, false));
         gmlElement.setSchemaTypeName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, GML));
@@ -441,7 +445,8 @@ public class TestGenericFeatureConverter {
         return elementMap;
     }
 
-    private XmlSchemaElement buildSchemaElement(String elementName, XmlSchema schema, QName typeName) {
+    private XmlSchemaElement buildSchemaElement(String elementName, XmlSchema schema,
+            QName typeName) {
         XmlSchemaElement element = new XmlSchemaElement(schema, true);
         element.setSchemaType(new XmlSchemaSimpleType(schema, false));
         element.setSchemaTypeName(typeName);

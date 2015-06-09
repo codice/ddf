@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
@@ -140,9 +142,9 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <delete dir="./target/generated-sources/xjc/net/opengis/ogc" />
-                                <delete dir="./target/generated-sources/xjc/net/opengis/filter" />
-                                <delete dir="./target/generated-sources/xjc/net/opengis/ows" />
+                                <delete dir="./target/generated-sources/xjc/net/opengis/ogc"/>
+                                <delete dir="./target/generated-sources/xjc/net/opengis/filter"/>
+                                <delete dir="./target/generated-sources/xjc/net/opengis/ows"/>
                             </tasks>
                         </configuration>
                     </execution>

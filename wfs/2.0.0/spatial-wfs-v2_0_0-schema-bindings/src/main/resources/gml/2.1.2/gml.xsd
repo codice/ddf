@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema 
-    targetNamespace="http://www.opengis.net/gml"
-    xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:gml="http://www.opengis.net/gml"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    elementFormDefault="qualified"
-    version="2.1.2.5">
+<schema
+        targetNamespace="http://www.opengis.net/gml"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified"
+        version="2.1.2.5">
     <!-- This version of gml/2.1.2 was previously labeled as 2.1.3 . -->
     <annotation>
         <appinfo>gml.xsd v2.1.2.5</appinfo>
