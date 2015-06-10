@@ -54,170 +54,192 @@ The following is an example of an application/xml response to the GetCapabilitie
 [source,xml,linenums]
 ----
 
-<Capabilities xmlns="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns2="http://www.opengis.net/ogc" xmlns:ns3="http://www.opengis.net/gml" xmlns:ns4="http://www.w3.org/1999/xlink" xmlns:ns5="http://www.opengis.net/ows" xmlns:ns6="http://purl.org/dc/elements/1.1/" xmlns:ns7="http://purl.org/dc/terms/" xmlns:ns8="http://www.w3.org/2001/SMIL20/" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" xsi:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-discovery.xsd">
-  <ns5:ServiceIdentification>
-    <ns5:Title>Catalog Service for the Web</ns5:Title>
-    <ns5:Abstract>DDF CSW Endpoint</ns5:Abstract>
-    <ns5:ServiceType>CSW</ns5:ServiceType>
-    <ns5:ServiceTypeVersion>2.0.2</ns5:ServiceTypeVersion>
-  </ns5:ServiceIdentification>
-  <ns5:ServiceProvider>
-    <ns5:ProviderName>DDF</ns5:ProviderName>
-    <ns5:ProviderSite/>
-    <ns5:ServiceContact/>
-  </ns5:ServiceProvider>
-  <ns5:OperationsMetadata>
-    <ns5:Operation name="GetCapabilities">
-      <ns5:DCP>
-        <ns5:HTTP>
-          <ns5:Get ns4:href="http://localhost:8181/services/csw"/>
-          <ns5:Post ns4:href="http://localhost:8181/services/csw">
-            <ns5:Constraint name="PostEncoding">
-              <ns5:Value>XML</ns5:Value>
-            </ns5:Constraint>
-￼￼￼￼      </ns5:Post>
-        </ns5:HTTP>
-      </ns5:DCP>
-      <ns5:Parameter name="sections">
-        <ns5:Value>ServiceIdentification</ns5:Value>
-        <ns5:Value>ServiceProvider</ns5:Value>
-        <ns5:Value>OperationsMetadata</ns5:Value>
-        <ns5:Value>Filter_Capabilities</ns5:Value>
-      </ns5:Parameter>
-    </ns5:Operation>
-    <ns5:Operation name="DescribeRecord">
-      <ns5:DCP>
-        <ns5:HTTP>
-          <ns5:Get ns4:href="http://localhost:8181/services/csw"/>
-          <ns5:Post ns4:href="http://localhost:8181/services/csw">
-            <ns5:Constraint name="PostEncoding">
-              <ns5:Value>XML</ns5:Value>
-            </ns5:Constraint>
-          </ns5:Post>
-        </ns5:HTTP>
-      </ns5:DCP>
-      <ns5:Parameter name="typeName">
-        <ns5:Value>csw:Record</ns5:Value>
-      </ns5:Parameter>
-      <ns5:Parameter name="OutputFormat">
-        <ns5:Value>text/xml</ns5:Value>
-        <ns5:Value>application/xml</ns5:Value>
-      </ns5:Parameter>
-       <ns5:Parameter name="schemaLanguage">
-        <ns5:Value>http://www.w3.org/XMLSchema</ns5:Value>
-        <ns5:Value>http://www.w3.org/XML/Schema</ns5:Value>
-        <ns5:Value>http://www.w3.org/2001/XMLSchema</ns5:Value>
-        <ns5:Value>http://www.w3.org/TR/xmlschema-1/
-        </ns5:Value>
-      </ns5:Parameter>
-    </ns5:Operation>
-    <ns5:Operation name="GetRecords">
-      <ns5:DCP>
-        <ns5:HTTP>
-          <ns5:Get ns4:href="http://localhost:8181/services/csw"/>
-          <ns5:Post ns4:href="http://localhost:8181/services/csw">
-            <ns5:Constraint name="PostEncoding">
-              <ns5:Value>XML</ns5:Value>
-            </ns5:Constraint>
-          </ns5:Post>
-        </ns5:HTTP>
-      </ns5:DCP>
-      <ns5:Parameter name="ResultType">
-        <ns5:Value>hits</ns5:Value>
-        <ns5:Value>results</ns5:Value>
-        <ns5:Value>validate</ns5:Value>
-      </ns5:Parameter>
-      <ns5:Parameter name="OutputFormat">
-        <ns5:Value>text/xml</ns5:Value>
-        <ns5:Value>application/xml</ns5:Value>
-      </ns5:Parameter>
-      <ns5:Parameter name="OutputSchema">
-        <ns5:Value>http://www.opengis.net/cat/csw/2.0.2</ns5:Value>
-      </ns5:Parameter>
-      <ns5:Parameter name="typeNames">
-        <ns5:Value>csw:Record</ns5:Value>
-  ￼￼￼ </ns5:Parameter>
-      <ns5:Parameter name="ConstraintLanguage">
-        <ns5:Value>Filter</ns5:Value>
-      </ns5:Parameter>
-    </ns5:Operation>
-    <ns5:Operation name="GetRecordById">
-      <ns5:DCP>
-        <ns5:HTTP>
-          <ns5:Get ns4:href="http://localhost:8181/services/csw"/>
-          <ns5:Post ns4:href="http://localhost:8181/services/csw">
-            <ns5:Constraint name="PostEncoding">
-              <ns5:Value>XML</ns5:Value>
-            </ns5:Constraint>
-          </ns5:Post>
-        </ns5:HTTP>
-      </ns5:DCP>
-      <ns5:Parameter name="OutputSchema">
-        <ns5:Value>http://www.opengis.net/cat/csw/2.0.2</ns5:Value>
-      </ns5:Parameter>
-      <ns5:Parameter name="OutputFormat">
-        <ns5:Value>text/xml</ns5:Value>
-        <ns5:Value>application/xml</ns5:Value>
-      </ns5:Parameter>
-      <ns5:Parameter name="ResultType">
-        <ns5:Value>hits</ns5:Value>
-        <ns5:Value>results</ns5:Value>
-        <ns5:Value>validate</ns5:Value>
-      </ns5:Parameter>
-      <ns5:Parameter name="ElementSetName">
-        <ns5:Value>brief</ns5:Value>
-        <ns5:Value>summary</ns5:Value>
-        <ns5:Value>full</ns5:Value>
-      </ns5:Parameter>
-    </ns5:Operation>
-    <ns5:Parameter name="service">
-      <ns5:Value>CSW</ns5:Value>
-    </ns5:Parameter>
-    <ns5:Parameter name="version">
-      <ns5:Value>2.0.2</ns5:Value>
-    </ns5:Parameter>
-  </ns5:OperationsMetadata>
-  <ns2:Filter_Capabilities>
-    <ns2:Spatial_Capabilities>
-      <ns2:GeometryOperands>
-        <ns2:GeometryOperand>ns3:Point</ns2:GeometryOperand>
-        <ns2:GeometryOperand>ns3:Polygon</ns2:GeometryOperand>
-        <ns2:GeometryOperand>ns3:LineString</ns2:GeometryOperand>
-      </ns2:GeometryOperands>
-      <ns2:SpatialOperators>
-        <ns2:SpatialOperator name="BBOX"/>
-         <ns2:SpatialOperator name="Beyond"/>
-         <ns2:SpatialOperator name="Contains"/>
-         <ns2:SpatialOperator name="Crosses"/>
-         <ns2:SpatialOperator name="Disjoint"/>
-         <ns2:SpatialOperator name="DWithin"/>
-         <ns2:SpatialOperator name="Intersects"/>
-         <ns2:SpatialOperator name="Overlaps"/>
-         <ns2:SpatialOperator name="Touches"/>
-         <ns2:SpatialOperator name="Within"/>
-      </ns2:SpatialOperators>
-￼￼￼</ns2:Spatial_Capabilities>
-  <ns2:Scalar_Capabilities>
-    <ns2:LogicalOperators/>
-      <ns2:ComparisonOperators>
-        <ns2:ComparisonOperator>Between</ns2:ComparisonOperator>
-        <ns2:ComparisonOperator>NullCheck</ns2:ComparisonOperator>
-        <ns2:ComparisonOperator>Like</ns2:ComparisonOperator>
-        <ns2:ComparisonOperator>EqualTo</ns2:ComparisonOperator>
-        <ns2:ComparisonOperator>GreaterThan</ns2:ComparisonOperator>
-        <ns2:ComparisonOperator>GreaterThanEqualTo</ns2:ComparisonOperator>
-        <ns2:ComparisonOperator>LessThan</ns2:ComparisonOperator>
-        <ns2:ComparisonOperator>LessThanEqualTo</ns2:ComparisonOperator>
-        <ns2:ComparisonOperator>EqualTo</ns2:ComparisonOperator>
-        <ns2:ComparisonOperator>NotEqualTo</ns2:ComparisonOperator>
-      </ns2:ComparisonOperators>
-    </ns2:Scalar_Capabilities>
-    <ns2:Id_Capabilities>
-      <ns2:EID/>
-    </ns2:Id_Capabilities>
-  </ns2:Filter_Capabilities>
-</Capabilities>
-----
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<csw:Capabilities
+    xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+    xmlns:ogc="http://www.opengis.net/ogc"
+    xmlns:gml="http://www.opengis.net/gml"
+    xmlns:ns4="http://www.w3.org/1999/xlink"
+    xmlns:ns5="http://www.w3.org/2001/SMIL20/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:ows="http://www.opengis.net/ows"
+    xmlns:dct="http://purl.org/dc/terms/"
+    xmlns:ns9="http://www.w3.org/2001/SMIL20/Language"
+    xmlns:ns10="http://www.w3.org/2001/XMLSchema-instance" version="2.0.2" ns10:schemaLocation="http://www.opengis.net/csw /ogc/csw/2.0.2/CSW-discovery.xsd">
+    <ows:ServiceIdentification>
+        <ows:Title>Catalog Service for the Web</ows:Title>
+        <ows:Abstract>DDF CSW Endpoint</ows:Abstract>
+        <ows:ServiceType>CSW</ows:ServiceType>
+        <ows:ServiceTypeVersion>2.0.2</ows:ServiceTypeVersion>
+    </ows:ServiceIdentification>
+    <ows:ServiceProvider>
+        <ows:ProviderName>DDF</ows:ProviderName>
+        <ows:ProviderSite/>
+        <ows:ServiceContact/>
+    </ows:ServiceProvider>
+    <ows:OperationsMetadata>
+        <ows:Operation name="GetCapabilities">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get ns4:href="https://localhost:8993/services/csw"/>
+                    <ows:Post ns4:href="https://localhost:8993/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="sections">
+                <ows:Value>ServiceIdentification</ows:Value>
+                <ows:Value>ServiceProvider</ows:Value>
+                <ows:Value>OperationsMetadata</ows:Value>
+                <ows:Value>Filter_Capabilities</ows:Value>
+            </ows:Parameter>
+        </ows:Operation>
+        <ows:Operation name="DescribeRecord">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get ns4:href="https://localhost:8993/services/csw"/>
+                    <ows:Post ns4:href="https://localhost:8993/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="typeName">
+                <ows:Value>csw:Record</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="OutputFormat">
+                <ows:Value>application/xml</ows:Value>
+                <ows:Value>application/atom+xml</ows:Value>
+                <ows:Value>text/xml</ows:Value>
+                <ows:Value>application/json</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="schemaLanguage">
+                <ows:Value>http://www.w3.org/XMLSchema</ows:Value>
+                <ows:Value>http://www.w3.org/XML/Schema</ows:Value>
+                <ows:Value>http://www.w3.org/2001/XMLSchema</ows:Value>
+                <ows:Value>http://www.w3.org/TR/xmlschema-1/</ows:Value>
+            </ows:Parameter>
+        </ows:Operation>
+        <ows:Operation name="GetRecords">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get ns4:href="https://localhost:8993/services/csw"/>
+                    <ows:Post ns4:href="https://localhost:8993/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="ResultType">
+                <ows:Value>hits</ows:Value>
+                <ows:Value>results</ows:Value>
+                <ows:Value>validate</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="OutputFormat">
+                <ows:Value>application/xml</ows:Value>
+                <ows:Value>application/atom+xml</ows:Value>
+                <ows:Value>text/xml</ows:Value>
+                <ows:Value>application/json</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="OutputSchema">
+                <ows:Value>urn:catalog:metacard</ows:Value>
+                <ows:Value>http://www.opengis.net/cat/csw/2.0.2</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="typeNames">
+                <ows:Value>csw:Record</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="ConstraintLanguage">
+                <ows:Value>Filter</ows:Value>
+                <ows:Value>CQL_Text</ows:Value>
+            </ows:Parameter>
+            <ows:Constraint name="FederatedCatalogs">
+                <ows:Value>Source1</ows:Value>
+                <ows:Value>Source2</ows:Value>
+            </ows:Constraint>
+        </ows:Operation>
+        <ows:Operation name="GetRecordById">
+            <ows:DCP>
+                <ows:HTTP>
+                    <ows:Get ns4:href="https://localhost:8993/services/csw"/>
+                    <ows:Post ns4:href="https://localhost:8993/services/csw">
+                        <ows:Constraint name="PostEncoding">
+                            <ows:Value>XML</ows:Value>
+                        </ows:Constraint>
+                    </ows:Post>
+                </ows:HTTP>
+            </ows:DCP>
+            <ows:Parameter name="OutputSchema">
+                <ows:Value>urn:catalog:metacard</ows:Value>
+                <ows:Value>http://www.opengis.net/cat/csw/2.0.2</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="OutputFormat">
+                <ows:Value>application/xml</ows:Value>
+                <ows:Value>application/atom+xml</ows:Value>
+                <ows:Value>text/xml</ows:Value>
+                <ows:Value>application/json</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="ResultType">
+                <ows:Value>hits</ows:Value>
+                <ows:Value>results</ows:Value>
+                <ows:Value>validate</ows:Value>
+            </ows:Parameter>
+            <ows:Parameter name="ElementSetName">
+                <ows:Value>brief</ows:Value>
+                <ows:Value>summary</ows:Value>
+                <ows:Value>full</ows:Value>
+            </ows:Parameter>
+        </ows:Operation>
+        <ows:Parameter name="service">
+            <ows:Value>CSW</ows:Value>
+        </ows:Parameter>
+        <ows:Parameter name="version">
+            <ows:Value>2.0.2</ows:Value>
+        </ows:Parameter>
+    </ows:OperationsMetadata>
+    <ogc:Filter_Capabilities>
+        <ogc:Spatial_Capabilities>
+            <ogc:GeometryOperands>
+                <ogc:GeometryOperand>gml:Point</ogc:GeometryOperand>
+                <ogc:GeometryOperand>gml:LineString</ogc:GeometryOperand>
+                <ogc:GeometryOperand>gml:Polygon</ogc:GeometryOperand>
+            </ogc:GeometryOperands>
+            <ogc:SpatialOperators>
+                <ogc:SpatialOperator name="BBOX"/>
+                <ogc:SpatialOperator name="Beyond"/>
+                <ogc:SpatialOperator name="Contains"/>
+                <ogc:SpatialOperator name="Crosses"/>
+                <ogc:SpatialOperator name="Disjoint"/>
+                <ogc:SpatialOperator name="DWithin"/>
+                <ogc:SpatialOperator name="Intersects"/>
+                <ogc:SpatialOperator name="Overlaps"/>
+                <ogc:SpatialOperator name="Touches"/>
+                <ogc:SpatialOperator name="Within"/>
+            </ogc:SpatialOperators>
+        </ogc:Spatial_Capabilities>
+        <ogc:Scalar_Capabilities>
+            <ogc:LogicalOperators/>
+            <ogc:ComparisonOperators>
+                <ogc:ComparisonOperator>Between</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>NullCheck</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>Like</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>EqualTo</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>GreaterThan</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>GreaterThanEqualTo</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>LessThan</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>LessThanEqualTo</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>EqualTo</ogc:ComparisonOperator>
+                <ogc:ComparisonOperator>NotEqualTo</ogc:ComparisonOperator>
+            </ogc:ComparisonOperators>
+        </ogc:Scalar_Capabilities>
+        <ogc:Id_Capabilities>
+            <ogc:EID/>
+        </ogc:Id_Capabilities>
+    </ogc:Filter_Capabilities>
+</csw:Capabilities>----
 
 ===== DescribeRecord Operation
 
@@ -405,6 +427,43 @@ The `HTTP POST` request GetRecords has the "typeNames" as a List of QName(s). Th
         </Constraint>
     </Query>
 </GetRecords>
+----
+
+===== GetRecords `Specific Source`
+It is possible to query a `Specific Source` by specifying a query for that source-id.  The valid source-id's will be listed in the "FederatedCatalogs" section of the GetCapabilities Response. The example below shows how to query for a specifc source.
+NOTE: The `DistributedSearch` element must be specific with a `hopCount` greater than 1 to identify the is a federated query, otherwise the source-id's will be ignored.
+
+.GetRecords XML Request
+[source,xml,linenums]
+----
+<?xml version="1.0" ?>
+<csw:GetRecords resultType="results"
+    outputFormat="application/xml"
+    outputSchema="urn:catalog:metacard"
+    startPosition="1"
+    maxRecords="10"
+    service="CSW"
+    version="2.0.2"
+    xmlns:ns2="http://www.opengis.net/ogc" xmlns:csw="http://www.opengis.net/cat/csw/2.0.2" xmlns:ns4="http://www.w3.org/1999/xlink" xmlns:ns3="http://www.opengis.net/gml" xmlns:ns9="http://www.w3.org/2001/SMIL20/Language" xmlns:ns5="http://www.opengis.net/ows" xmlns:ns6="http://purl.org/dc/elements/1.1/" xmlns:ns7="http://purl.org/dc/terms/" xmlns:ns8="http://www.w3.org/2001/SMIL20/">
+  <csw:DistributedSearch hopCount="2" />
+    <ns10:Query typeNames="csw:Record" xmlns="" xmlns:ns10="http://www.opengis.net/cat/csw/2.0.2">
+        <ns10:ElementSetName>full</ns10:ElementSetName>
+        <ns10:Constraint version="1.1.0">
+            <ns2:Filter>
+              <ns2:And>
+                <ns2:PropertyIsEqualToLike wildCard="*" singleChar="#" escapeChar="!">
+                  <ns2:PropertyName>source-id</ns2:PropertyName>
+                  <ns2:Literal>Source1</ns2:Literal>
+                </ns2:PropertyIsLike>
+                <ns2:PropertyIsLike wildCard="*" singleChar="#" escapeChar="!">
+                  <ns2:PropertyName>title</ns2:PropertyName>
+                    <ns2:Literal>*</ns2:Literal>
+                </ns2:PropertyIsLike>
+              </ns2:And>
+            </ns2:Filter>
+        </ns10:Constraint>
+    </ns10:Query>
+</csw:GetRecords>
 ----
 
 ===== GetRecords Response

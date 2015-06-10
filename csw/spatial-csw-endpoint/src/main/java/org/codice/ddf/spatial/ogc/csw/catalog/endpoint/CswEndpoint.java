@@ -90,6 +90,7 @@ import net.opengis.ows.v_1_0_0.ServiceProvider;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
@@ -640,12 +641,12 @@ public class CswEndpoint implements Csw {
                 frameworkQuery.setPageSize(request.getMaxRecords().intValue());
             }
             QueryRequest queryRequest = null;
-            boolean distributed = request.getDistributedSearch() != null && (
+            boolean isDistributed = request.getDistributedSearch() != null && (
                     request.getDistributedSearch().getHopCount().longValue() > 1);
 
-            if (distributed && filterVisitor.getSourceIds().isEmpty()) {
+            if (isDistributed && CollectionUtils.isEmpty(filterVisitor.getSourceIds())) {
                 queryRequest = new QueryRequestImpl(frameworkQuery, true);
-            } else if (distributed && !filterVisitor.getSourceIds().isEmpty()) {
+            } else if (isDistributed && !CollectionUtils.isEmpty(filterVisitor.getSourceIds())) {
                 queryRequest = new QueryRequestImpl(frameworkQuery, filterVisitor.getSourceIds());
             } else {
                 queryRequest = new QueryRequestImpl(frameworkQuery, false);
