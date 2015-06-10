@@ -54,6 +54,7 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-urlresourcereader/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/filter-proxy/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-commands/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-cachecommands/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardgroomerplugin/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/metacard-type-registry/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>

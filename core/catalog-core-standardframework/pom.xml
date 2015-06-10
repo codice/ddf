@@ -201,7 +201,7 @@
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>
                             ddf.catalog.cache.impl,
-                            ddf.catalog.cache.solr.impl,
+                            ddf.catalog.cache.solr,
                             ddf.catalog.event.retrievestatus,
                             ddf.catalog.impl,
                             ddf.catalog.data.impl,
@@ -216,6 +216,7 @@
                         </Private-Package>
                         <Export-Package>
                             ddf.catalog.cache,
+                            ddf.catalog.cache.solr.impl,
                             ddf.catalog.resourceretriever,
                             ddf.catalog.resource.data
                         </Export-Package>
