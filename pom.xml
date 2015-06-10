@@ -52,7 +52,7 @@
     <developers>
         <developer>
             <name>Keith C Wire</name>
-            <organization>Lockheed Martin</organization>
+            <organization>Connexta</organization>
         </developer>
         <developer>
             <name>Ashraf Barakat</name>
@@ -92,10 +92,6 @@
         </developer>
         <developer>
             <name>Jesse Kim</name>
-            <organization>Lockheed Martin</organization>
-        </developer>
-        <developer>
-            <name>Keith Wire</name>
             <organization>Lockheed Martin</organization>
         </developer>
         <developer>
@@ -268,7 +264,7 @@
                         <dependency>
                             <groupId>ddf.support</groupId>
                             <artifactId>support-checkstyle</artifactId>
-                            <version>2.3.1-SNAPSHOT</version>
+                            <version>2.3.1</version>
                             <optional>true</optional>
                         </dependency>
                     </dependencies>
