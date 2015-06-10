@@ -366,8 +366,8 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         metricNames.add("queryCount_Gauge");
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        OutputStream os = metricsRetriever
-                .createXlsReport(metricNames, TEST_DIR, START_TIME, endTime);
+        OutputStream os = metricsRetriever.createXlsReport(metricNames, TEST_DIR, START_TIME,
+                endTime, null);
         InputStream xls = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(xls, not(nullValue()));
 
@@ -381,6 +381,36 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         sheet = wb.getSheetAt(1);
         assertThat(sheet, not(nullValue()));
         verifyWorksheet(sheet, wb.getSheetName(1), 6, false);
+    }
+
+    @Test
+    public void testMetricsXlsReportSummary() throws Exception {
+        for (RrdMetricsRetriever.SUMMARY_INTERVALS interval : RrdMetricsRetriever.SUMMARY_INTERVALS
+                .values()) {
+            String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
+            long startTime = 900000000L;
+            long endTime = createRrdFileWithCounter(rrdFilename, startTime);
+
+            rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
+            endTime = createRrdFileWithGauge(rrdFilename, startTime);
+
+            List<String> metricNames = new ArrayList<String>();
+            metricNames.add("queryCount_Counter");
+            metricNames.add("queryCount_Gauge");
+
+            MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
+            OutputStream os = metricsRetriever
+                    .createXlsReport(metricNames, TEST_DIR, startTime, endTime,
+                            interval.toString());
+            InputStream xls = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
+            assertThat(xls, not(nullValue()));
+
+            HSSFWorkbook wb = new HSSFWorkbook(xls);
+            assertThat(wb.getNumberOfSheets(), equalTo(1));
+
+            HSSFSheet sheet = wb.getSheetAt(0);
+            assertThat(sheet, not(nullValue()));
+        }
     }
 
     @Test

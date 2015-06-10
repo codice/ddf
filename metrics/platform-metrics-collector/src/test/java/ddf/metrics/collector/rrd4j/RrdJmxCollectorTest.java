@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.nullValue;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import org.junit.After;
 import org.junit.Test;
@@ -347,7 +348,7 @@ public class RrdJmxCollectorTest {
 
         // LOGGER.debug(rrdDb.dump());
 
-        long endTime = Calendar.getInstance().getTimeInMillis() / 1000;
+        long endTime = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis() / 1000;
 
         // +1 because the fetch gets data for times inclusively, e.g.,
         // endTime=12345, so startTime=12345-4=12341,

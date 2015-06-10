@@ -13,14 +13,14 @@
  */
 package ddf.metrics.reporting.internal.rrd4j;
 
-import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,6 +49,9 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.MutableDateTime;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.rrd4j.ConsolFun;
@@ -93,12 +96,15 @@ import ddf.metrics.reporting.internal.MetricsRetriever;
  *
  */
 public class RrdMetricsRetriever implements MetricsRetriever {
+
     private static final transient Logger LOGGER = LoggerFactory
             .getLogger(RrdMetricsRetriever.class);
 
     private static final double DEFAULT_METRICS_MAX_THRESHOLD = 4000000000.0;
 
     private static final int RRD_STEP = 60;
+
+    public static final String SUMMARY_TIMESTAMP = "dd-MM-yy HHmm";
 
     /**
      * Used for formatting long timestamps into more readable calendar dates/times.
@@ -111,6 +117,10 @@ public class RrdMetricsRetriever implements MetricsRetriever {
      * value of 4.2E+09 or higher.
      */
     private double metricsMaxThreshold;
+
+    public enum SUMMARY_INTERVALS {
+        minute, hour, day, week, month;
+    }
 
     public RrdMetricsRetriever() {
         this(DEFAULT_METRICS_MAX_THRESHOLD);
@@ -440,7 +450,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         Collections.sort(metricNames);
 
         for (String metricName : metricNames) {
-            String rrdFilename = metricsDir + metricName + ".rrd";
+            String rrdFilename = getRrdFilename(metricsDir, metricName);
 
             byte[] graph = createGraph(metricName, rrdFilename, startTime, endTime);
             MetricData metricData = getMetricData(rrdFilename, startTime, endTime);
@@ -501,19 +511,23 @@ public class RrdMetricsRetriever implements MetricsRetriever {
 
     @Override
     public OutputStream createXlsReport(List<String> metricNames, String metricsDir, long startTime,
-            long endTime) throws IOException, MetricsGraphException {
+            long endTime, String summaryInterval) throws IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: createXlsReport");
 
         Workbook wb = new HSSFWorkbook();
-
         Collections.sort(metricNames);
 
-        for (int i = 0; i < metricNames.size(); i++) {
-            String metricName = metricNames.get(i);
-            String rrdFilename = metricsDir + metricName + ".rrd";
-            String displayName = i + metricName;
+        if (StringUtils.isNotEmpty(summaryInterval)) {
+            createSummary(wb, metricNames, metricsDir, startTime, endTime,
+                    SUMMARY_INTERVALS.valueOf(summaryInterval));
+        } else {
+            for (int i = 0; i < metricNames.size(); i++) {
+                String metricName = metricNames.get(i);
+                String rrdFilename = getRrdFilename(metricsDir, metricName);
+                String displayName = i + metricName;
 
-            createSheet(wb, displayName, rrdFilename, startTime, endTime);
+                createSheet(wb, displayName, rrdFilename, startTime, endTime);
+            }
         }
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -523,6 +537,123 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         LOGGER.trace("EXITING: createXlsReport");
 
         return bos;
+    }
+
+    private void createSummary(Workbook wb, List<String> metricNames, String metricsDir,
+            long startTime, long endTime, SUMMARY_INTERVALS summaryInterval)
+            throws IOException, MetricsGraphException {
+        // convert seconds to milliseconds
+        startTime *= 1000;
+        endTime *= 1000;
+        DateTime reportStart = new DateTime(startTime, DateTimeZone.UTC);
+        DateTime reportEnd = new DateTime(endTime, DateTimeZone.UTC);
+
+        Sheet sheet = wb.createSheet();
+        wb.setSheetName(0, reportStart.toString(SUMMARY_TIMESTAMP) + " to " + reportEnd
+                .toString(SUMMARY_TIMESTAMP));
+        Row headingRow = sheet.createRow(0);
+
+        for (String metricName : metricNames) {
+            MutableDateTime chunkStart = new MutableDateTime(reportStart);
+            MutableDateTime chunkEnd = new MutableDateTime(chunkStart);
+            Row row = sheet.createRow(metricNames.indexOf(metricName) + 1);
+            int columnCounter = 1;
+            Boolean isSum = null;
+
+            while (reportEnd.compareTo(chunkEnd) > 0 && columnCounter < 256) {
+                increment(chunkEnd, summaryInterval);
+                if (chunkEnd.isAfter(reportEnd)) {
+                    chunkEnd.setMillis(reportEnd);
+                }
+
+                // offset range by one millisecond so rrd will calculate granularity correctly
+                chunkEnd.addMillis(-1);
+                MetricData metricData = getMetricData(getRrdFilename(metricsDir, metricName),
+                        chunkStart.getMillis() / 1000, chunkEnd.getMillis() / 1000);
+                isSum = metricData.hasTotalCount();
+                chunkEnd.addMillis(1);
+
+                if (headingRow.getCell(columnCounter) == null) {
+                    Cell headingRowCell = headingRow.createCell(columnCounter);
+                    headingRowCell.getCellStyle().setWrapText(true);
+                    headingRowCell
+                            .setCellValue(getTimestamp(chunkStart, columnCounter, summaryInterval));
+                }
+
+                Cell sumOrAvg = row.createCell(columnCounter);
+                if (isSum) {
+                    sumOrAvg.setCellValue((double) metricData.getTotalCount());
+                } else {
+                    sumOrAvg.setCellValue(doubleAverage(metricData.getValues()));
+                }
+
+                chunkStart.setMillis(chunkEnd);
+                columnCounter++;
+            }
+
+            if (isSum != null) {
+                row.createCell(0).setCellValue(
+                        convertCamelCase(metricName) + " (" + (isSum ? "sum" : "avg") + ")");
+            }
+        }
+        for (int i = 0; i < 256; i++) {
+            sheet.autoSizeColumn(i);
+        }
+    }
+
+    private Double doubleAverage(Collection<Double> values) {
+        Double average = 0.0;
+        int count = 0;
+        for (Double value : values) {
+            average = (value + count * average) / (count + 1);
+        }
+        return average;
+    }
+
+    private String getTimestamp(MutableDateTime chunkStart, int columnCounter,
+            SUMMARY_INTERVALS summaryInterval) {
+        StringBuilder title = new StringBuilder();
+        title.append(StringUtils.capitalize(summaryInterval.toString())).append(" ")
+                .append(columnCounter).append("\n");
+        String timestamp = SUMMARY_TIMESTAMP;
+        switch (summaryInterval) {
+        case minute:
+        case hour:
+            break;
+        case day:
+        case week:
+            timestamp = "dd-MM-y";
+            break;
+        case month:
+            timestamp = "MM-y";
+            break;
+        }
+        title.append(chunkStart.toDateTime(DateTimeZone.getDefault()).toString(timestamp));
+        return title.toString();
+    }
+
+    private String getRrdFilename(String metricsDir, String metricName) {
+        return metricsDir + metricName + ".rrd";
+    }
+
+    private void increment(MutableDateTime chunkStart, SUMMARY_INTERVALS summaryInterval) {
+        switch (summaryInterval) {
+        case minute:
+            chunkStart.addMinutes(1);
+            break;
+        case hour:
+            chunkStart.addHours(1);
+            break;
+        case day:
+            chunkStart.addDays(1);
+            break;
+        case week:
+            chunkStart.addWeeks(1);
+            break;
+        case month:
+            chunkStart.addMonths(1);
+            break;
+        }
     }
 
     /**
@@ -556,8 +687,6 @@ public class RrdMetricsRetriever implements MetricsRetriever {
                 + getCalendarTime(endTime);
 
         Sheet sheet = wb.createSheet(displayableMetricName);
-        sheet.autoSizeColumn(0);
-        sheet.autoSizeColumn(1);
 
         Font headerFont = wb.createFont();
         headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
@@ -616,6 +745,9 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             cell.setCellStyle(columnHeadingsStyle);
             row.createCell(1).setCellValue(metricData.getTotalCount());
         }
+
+        sheet.autoSizeColumn(0);
+        sheet.autoSizeColumn(1);
 
         LOGGER.trace("EXITING: createSheet");
     }

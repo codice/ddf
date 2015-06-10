@@ -90,8 +90,8 @@ public class MetricsWebConsolePluginTest extends XMLTestCase {
         Document wellFormedDocument = getDocument(html);
 
         verifyWeeklyReportContent(wellFormedDocument, "3", "4 March 2013 - 10 March 2013",
-                "startDate=2013-03-04T00%3A00%3A00%2B08%3A00",
-                "endDate=2013-03-10T23%3A59%3A59%2B08%3A00");
+            "startDate=2013-03-04T00%3A00%3A00Z",
+            "endDate=2013-03-10T23%3A59%3A59Z");
     }
 
     @Test
@@ -100,8 +100,8 @@ public class MetricsWebConsolePluginTest extends XMLTestCase {
         Document wellFormedDocument = getDocument(html);
 
         verifyWeeklyReportContent(wellFormedDocument, "3", "March 4, 2013 - March 10, 2013",
-                "startDate=2013-03-04T00%3A00%3A00-07%3A00",
-                "endDate=2013-03-10T23%3A59%3A59-07%3A00");
+                "startDate=2013-03-04T00%3A00%3A00Z",
+                "endDate=2013-03-10T23%3A59%3A59Z");
     }
 
     @Test
@@ -110,8 +110,8 @@ public class MetricsWebConsolePluginTest extends XMLTestCase {
         Document wellFormedDocument = getDocument(html);
 
         verifyWeeklyReportContent(wellFormedDocument, "3", "4. März 2013 - 10. März 2013",
-                "startDate=2013-03-04T00%3A00%3A00%2B01%3A00",
-                "endDate=2013-03-10T23%3A59%3A59%2B01%3A00");
+                "startDate=2013-03-04T00%3A00%3A00Z",
+                "endDate=2013-03-10T23%3A59%3A59Z");
     }
 
     @Test
@@ -120,8 +120,8 @@ public class MetricsWebConsolePluginTest extends XMLTestCase {
         Document wellFormedDocument = getDocument(html);
 
         verifyMonthlyReportContent(wellFormedDocument, "4", "1 March 2013 - 31 March 2013",
-                "startDate=2013-03-01T00%3A00%3A00%2B08%3A00",
-                "endDate=2013-03-31T23%3A59%3A59%2B08%3A00");
+                "startDate=2013-03-01T00%3A00%3A00Z",
+                "endDate=2013-03-31T23%3A59%3A59Z");
     }
 
     @Test
@@ -130,8 +130,8 @@ public class MetricsWebConsolePluginTest extends XMLTestCase {
         Document wellFormedDocument = getDocument(html);
 
         verifyMonthlyReportContent(wellFormedDocument, "4", "1. März 2013 - 31. März 2013",
-                "startDate=2013-03-01T00%3A00%3A00%2B01%3A00",
-                "endDate=2013-03-31T23%3A59%3A59%2B01%3A00");
+                "startDate=2013-03-01T00%3A00%3A00Z",
+                "endDate=2013-03-31T23%3A59%3A59Z");
     }
 
     @Test
@@ -140,8 +140,8 @@ public class MetricsWebConsolePluginTest extends XMLTestCase {
         Document wellFormedDocument = getDocument(html);
 
         verifyMonthlyReportContent(wellFormedDocument, "4", "March 1, 2013 - March 31, 2013",
-                "startDate=2013-03-01T00%3A00%3A00-07%3A00",
-                "endDate=2013-03-31T23%3A59%3A59-07%3A00");
+                "startDate=2013-03-01T00%3A00%3A00Z",
+                "endDate=2013-03-31T23%3A59%3A59Z");
     }
 
     /**************************************************************************************************/

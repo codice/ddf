@@ -236,31 +236,27 @@ public interface MetricsRetriever {
      * contains one worksheet for each metric. Refer to the createXlsData() method for a description
      * of what each worksheet would contain.
      *
-     * @param metricName
-     *            name of the metric to retrieve data for
-     * @param metricsDir
-     *            directory containing all of the metrics' RRD files, typically
-     *            <DDF_INSTALL_DIR>/data/metrics
-     * @param startTime
-     *            start time, in seconds since Unix epoch, to retrieve metric's data
-     * @param endTime
-     *            end time, in seconds since Unix epoch, to retrieve metric's data
-     *
+     * @param metricNames      names of the metrics to retrieve data for
+     * @param metricsDir      directory containing all of the metrics' RRD files, typically
+     *                        <DDF_INSTALL_DIR>/data/metrics
+     * @param startTime       start time, in seconds since Unix epoch, to retrieve metric's data
+     * @param endTime         end time, in seconds since Unix epoch, to retrieve metric's data
+     * @param summaryInterval unit of time to group metrics by
      * @return XLS-formatted stream of all metrics' data
      *
      * @throws IOException
      * @throws MetricsGraphException
      */
     public OutputStream createXlsReport(List<String> metricNames, String metricsDir, long startTime,
-            long endTime) throws IOException, MetricsGraphException;
+            long endTime, String summaryInterval) throws IOException, MetricsGraphException;
 
     /**
      * Returns a PPT (PowerPoint) formatted stream over the specified time range that contains one
      * slide for each metric. Refer to the createPptData() method for a description of what each
      * slide would contain.
-     *
-     * @param metricName
-     *            name of the metric to retrieve data for
+     * 
+     * @param metricNames
+     *            names of the metrics to retrieve data for
      * @param metricsDir
      *            directory containing all of the metrics' RRD files, typically
      *            <DDF_INSTALL_DIR>/data/metrics
