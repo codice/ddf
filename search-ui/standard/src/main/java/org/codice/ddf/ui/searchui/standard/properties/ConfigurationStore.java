@@ -41,9 +41,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.webconsole.BrandingPlugin;
 import org.codice.proxy.http.HttpProxyService;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +65,7 @@ public class ConfigurationStore {
 
     public static final String URL = "url";
 
-    public static final String QUOTE = "\"";
+    public static final String ENDPOINT_NAME = "standard";
 
     private String format;
 
@@ -100,13 +97,9 @@ public class ConfigurationStore {
 
     private HttpProxyService httpProxy;
 
-    private BundleContext bundleContext;
-
     private int incrementer = 0;
 
     private Integer resultCount = 250;
-
-    private String bundleName;
 
     private String projection = "EPSG:3857";
 
@@ -136,12 +129,6 @@ public class ConfigurationStore {
     }
 
     public void destroy() {
-        if (!isHttpProxyServiceActive()) {
-            LOGGER.debug(
-                    "HttpProxy is not active. Imagery and terrain endpoints have already been stopped");
-            return;
-        }
-
         if (imageryEndpoints.size() > 0) {
             for (String endpoint : imageryEndpoints) {
                 try {
@@ -270,16 +257,6 @@ public class ConfigurationStore {
         setProxyForTerrain(terrainProvider);
     }
 
-    private boolean isHttpProxyServiceActive() {
-        ServiceReference httpProxyService = bundleContext
-                .getServiceReference(HttpProxyService.class);
-
-        if (httpProxyService == null || httpProxyService.getBundle().getState() != Bundle.ACTIVE) {
-            return false;
-        }
-        return true;
-    }
-
     private void setProxiesForImagery(List<String> imageryProviders) {
         if (imageryEndpoints.size() > 0) {
             for (String endpoint : imageryEndpoints) {
@@ -337,10 +314,9 @@ public class ConfigurationStore {
             String url = config.get(URL).toString();
 
             try {
-                bundleName =
-                        bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
+                String endpointName = ENDPOINT_NAME + incrementer;
                 incrementer++;
-                String endpointName = httpProxy.start(bundleName, url, timeout);
+                endpointName = httpProxy.start(endpointName, url, timeout);
                 if (imagery) {
                     imageryEndpoints.add(endpointName);
                 } else {
@@ -361,14 +337,6 @@ public class ConfigurationStore {
 
     public void setHttpProxy(HttpProxyService httpProxy) {
         this.httpProxy = httpProxy;
-    }
-
-    public BundleContext getBundleContext() {
-        return bundleContext;
-    }
-
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
     }
 
     public Integer getResultCount() {
