@@ -14,20 +14,20 @@
  **/
 package org.codice.ddf.security.handler.api;
 
+import java.security.Principal;
+
 import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.Principal;
-
 public class PKIAuthenticationToken extends BSTAuthenticationToken {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PKIAuthenticationToken.class);
-
     public static final String BST_X509_LN = "X509";
 
     public static final String PKI_TOKEN_VALUE_TYPE =
             BSTAuthenticationToken.BST_NS + BSTAuthenticationToken.TOKEN_VALUE_SEPARATOR
                     + BST_X509_LN;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PKIAuthenticationToken.class);
 
     public PKIAuthenticationToken(Principal principal, byte[] certificates) {
         this(principal, certificates, BaseAuthenticationToken.DEFAULT_REALM);
@@ -46,17 +46,19 @@ public class PKIAuthenticationToken extends BSTAuthenticationToken {
 
     public String getDn() {
         String dn = null;
-        if (principal instanceof Principal)
+        if (principal instanceof Principal) {
             dn = ((Principal) principal).getName();
-        else if (principal instanceof String)
+        } else if (principal instanceof String) {
             dn = (String) principal;
+        }
         return dn;
     }
 
     public byte[] getCertificate() {
         byte[] certs = null;
-        if (credentials instanceof byte[])
+        if (credentials instanceof byte[]) {
             certs = (byte[]) credentials;
+        }
         return certs;
     }
 

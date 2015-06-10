@@ -14,17 +14,15 @@
  **/
 package org.codice.ddf.configuration;
 
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONUtil;
-import net.minidev.json.JSONValue;
-import net.minidev.json.parser.JSONParser;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
 import org.junit.Test;
 
-public class PlatformUiConfigurationTest {
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
 
+public class PlatformUiConfigurationTest {
 
     @Test
     public void testConfig() {
@@ -51,6 +49,5 @@ public class PlatformUiConfigurationTest {
         assertEquals("background", jsonObject.get(PlatformUiConfiguration.BACKGROUND));
         assertEquals("color", jsonObject.get(PlatformUiConfiguration.COLOR));
     }
-
 
 }

@@ -14,31 +14,13 @@
  **/
 package org.codice.ddf.security.filter.authorization;
 
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
-import ddf.security.permission.ActionPermission;
-import ddf.security.permission.CollectionPermission;
-import ddf.security.permission.KeyValuePermission;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.Permission;
-import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.security.policy.context.ContextPolicy;
-import org.codice.ddf.security.policy.context.ContextPolicyManager;
-import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -52,12 +34,30 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.ddf.security.policy.context.ContextPolicyManager;
+import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.permission.ActionPermission;
+import ddf.security.permission.CollectionPermission;
+import ddf.security.permission.KeyValuePermission;
 
 public class AuthorizationFilterTest {
 
@@ -77,8 +77,8 @@ public class AuthorizationFilterTest {
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         FilterChain filterChain = new FilterChain() {
             @Override
-            public void doFilter(ServletRequest request, ServletResponse response)
-              throws IOException, ServletException {
+            public void doFilter(ServletRequest request, ServletResponse response) throws
+                    IOException, ServletException {
                 fail("Should not have called doFilter without a valid Subject");
             }
         };
@@ -109,8 +109,8 @@ public class AuthorizationFilterTest {
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         FilterChain filterChain = new FilterChain() {
             @Override
-            public void doFilter(ServletRequest request, ServletResponse response)
-              throws IOException, ServletException {
+            public void doFilter(ServletRequest request, ServletResponse response) throws
+                    IOException, ServletException {
                 fail("Should not have called doFilter without a valid Subject");
             }
         };
@@ -164,7 +164,8 @@ public class AuthorizationFilterTest {
         @Override
         public Collection<CollectionPermission> getAllowedAttributePermissions() {
             List<CollectionPermission> permissions = new ArrayList<CollectionPermission>();
-            permissions.add(new CollectionPermission(new KeyValuePermission("test", Arrays.asList("permission"))));
+            permissions.add(new CollectionPermission(
+                    new KeyValuePermission("test", Arrays.asList("permission"))));
             return permissions;
         }
 

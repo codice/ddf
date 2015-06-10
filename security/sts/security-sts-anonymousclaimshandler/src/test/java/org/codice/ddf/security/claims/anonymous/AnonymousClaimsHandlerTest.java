@@ -14,12 +14,8 @@
  **/
 package org.codice.ddf.security.claims.anonymous;
 
-import org.apache.cxf.rt.security.claims.Claim;
-import org.apache.cxf.rt.security.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.ProcessedClaim;
-import org.apache.cxf.sts.claims.ProcessedClaimCollection;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,69 +23,92 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import org.apache.cxf.rt.security.claims.Claim;
+import org.apache.cxf.rt.security.claims.ClaimCollection;
+import org.apache.cxf.sts.claims.ClaimsParameters;
+import org.apache.cxf.sts.claims.ProcessedClaim;
+import org.apache.cxf.sts.claims.ProcessedClaimCollection;
+import org.junit.Test;
 
 public class AnonymousClaimsHandlerTest {
 
     @Test
     public void testSettingClaimsMapList() throws URISyntaxException {
         AnonymousClaimsHandler claimsHandler = new AnonymousClaimsHandler();
-        claimsHandler.setAttributes(Arrays.asList("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Anonymous", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Anonymous@anon.com", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Anon"));
+        claimsHandler.setAttributes(Arrays.asList(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Anonymous",
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Anonymous@anon.com",
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Anon"));
 
         Map<URI, List<String>> claimsMap = claimsHandler.getClaimsMap();
 
-        List<String> value = claimsMap.get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
+        List<String> value = claimsMap.get(new URI(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
         assertEquals("Anonymous", value.get(0));
 
-        value = claimsMap.get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"));
+        value = claimsMap
+                .get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"));
         assertEquals("Anonymous@anon.com", value.get(0));
 
-        value = claimsMap.get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"));
+        value = claimsMap
+                .get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"));
         assertEquals("Anon", value.get(0));
 
         claimsHandler = new AnonymousClaimsHandler();
-        claimsHandler.setAttributes(Arrays.asList("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Anonymous,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Anonymous@anon.com,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Anon"));
+        claimsHandler.setAttributes(Arrays.asList(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Anonymous,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Anonymous@anon.com,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Anon"));
 
-        value = claimsMap.get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
+        value = claimsMap.get(new URI(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
         assertEquals("Anonymous", value.get(0));
 
-        value = claimsMap.get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"));
+        value = claimsMap
+                .get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"));
         assertEquals("Anonymous@anon.com", value.get(0));
 
-        value = claimsMap.get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"));
+        value = claimsMap
+                .get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"));
         assertEquals("Anon", value.get(0));
     }
 
     @Test
     public void testSettingClaimsMapString() throws URISyntaxException {
         AnonymousClaimsHandler claimsHandler = new AnonymousClaimsHandler();
-        claimsHandler.setAttributes("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Anonymous,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Anonymous@anon.com,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Anon");
+        claimsHandler.setAttributes(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Anonymous,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Anonymous@anon.com,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Anon");
 
         Map<URI, List<String>> claimsMap = claimsHandler.getClaimsMap();
 
-        List<String> value = claimsMap.get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
+        List<String> value = claimsMap.get(new URI(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
         assertEquals("Anonymous", value.get(0));
 
-        value = claimsMap.get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"));
+        value = claimsMap
+                .get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"));
         assertEquals("Anonymous@anon.com", value.get(0));
 
-        value = claimsMap.get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"));
+        value = claimsMap
+                .get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"));
         assertEquals("Anon", value.get(0));
     }
 
     @Test
     public void testRetrieveClaims() throws URISyntaxException {
         AnonymousClaimsHandler claimsHandler = new AnonymousClaimsHandler();
-        claimsHandler.setAttributes(Arrays.asList("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Anonymous", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Anonymous@anon.com|someguy@somesite.com|somedude@cool.com", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Anon"));
+        claimsHandler.setAttributes(Arrays.asList(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Anonymous",
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Anonymous@anon.com|someguy@somesite.com|somedude@cool.com",
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Anon"));
 
         ClaimCollection requestClaims = new ClaimCollection();
         Claim requestClaim = new Claim();
-        URI nameURI = new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
+        URI nameURI = new URI(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
         requestClaim.setClaimType(nameURI);
         requestClaims.add(requestClaim);
         requestClaim = new Claim();
-        URI emailURI = new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
+        URI emailURI = new URI(
+                "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
         requestClaim.setClaimType(emailURI);
         requestClaims.add(requestClaim);
         requestClaim = new Claim();
@@ -104,15 +123,16 @@ public class AnonymousClaimsHandlerTest {
 
         assertEquals(3, supportedClaims.size());
 
-        ProcessedClaimCollection claimsCollection = claimsHandler.retrieveClaimValues(requestClaims, claimsParameters);
+        ProcessedClaimCollection claimsCollection = claimsHandler
+                .retrieveClaimValues(requestClaims, claimsParameters);
 
         assertEquals(2, claimsCollection.size());
 
-        for(ProcessedClaim claim : claimsCollection) {
-            if(claim.getClaimType().equals(nameURI)) {
+        for (ProcessedClaim claim : claimsCollection) {
+            if (claim.getClaimType().equals(nameURI)) {
                 assertEquals(1, claim.getValues().size());
                 assertEquals("Anonymous", claim.getValues().get(0));
-            } else if(claim.getClaimType().equals(emailURI)) {
+            } else if (claim.getClaimType().equals(emailURI)) {
                 assertEquals(3, claim.getValues().size());
                 List<Object> values = claim.getValues();
                 assertEquals("Anonymous@anon.com", values.get(0));

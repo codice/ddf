@@ -1,4 +1,3 @@
-
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -17,19 +16,19 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
 
         <command name="notifications/list">
-            <action class="org.codice.ddf.notifications.commands.ListCommand" />
+            <action class="org.codice.ddf.notifications.commands.ListCommand"/>
         </command>
         
         <command name="notifications/send">
-            <action class="org.codice.ddf.notifications.commands.SendCommand" />
+            <action class="org.codice.ddf.notifications.commands.SendCommand"/>
         </command>
         
         <command name="notifications/delete">
-            <action class="org.codice.ddf.notifications.commands.DeleteCommand" />
+            <action class="org.codice.ddf.notifications.commands.DeleteCommand"/>
         </command>
 
         <command name="activities/send">
-            <action class="org.codice.ddf.activities.commands.SendCommand" />
+            <action class="org.codice.ddf.activities.commands.SendCommand"/>
         </command>
 
     </command-bundle>

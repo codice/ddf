@@ -14,9 +14,10 @@
  **/
 package ddf.security.pep.interceptor;
 
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.service.impl.SecurityAssertionStore;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.cxf.interceptor.security.AccessDeniedException;
 import org.apache.cxf.message.Message;
 import org.junit.Rule;
@@ -26,15 +27,16 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.service.impl.SecurityAssertionStore;
 
 @PrepareForTest({SecurityAssertionStore.class, SecurityLogger.class})
 public class TestPepInterceptorNullAssertionToken {
 
     @Rule
     public PowerMockRule rule = new PowerMockRule();
+
     @Rule
     public ExpectedException expectedExForNullMessage = ExpectedException.none();
 
@@ -47,7 +49,8 @@ public class TestPepInterceptorNullAssertionToken {
         assertNotNull(mockSecurityAssertion);
         PowerMockito.mockStatic(SecurityAssertionStore.class);
         PowerMockito.mockStatic(SecurityLogger.class);
-        when(SecurityAssertionStore.getSecurityAssertion(messageWithNullSecurityAssertion)).thenReturn(mockSecurityAssertion);
+        when(SecurityAssertionStore.getSecurityAssertion(messageWithNullSecurityAssertion))
+                .thenReturn(mockSecurityAssertion);
         // SecurityLogger is already stubbed out
         when(mockSecurityAssertion.getSecurityToken()).thenReturn(null);
         expectedExForNullMessage.expect(AccessDeniedException.class);

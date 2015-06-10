@@ -14,13 +14,6 @@
  **/
 package org.codice.ddf.platform.util;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,6 +23,13 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -57,6 +57,7 @@ import java.util.TreeMap;
  */
 public class SortedServiceList<T> implements List<T> {
     private static final Logger logger = LoggerFactory.getLogger(SortedServiceList.class);
+
     private static final String READ_ONLY_ERROR_MESSAGE = "This list is meant to be read only.";
 
     private Map<ServiceReference, T> serviceMap = Collections

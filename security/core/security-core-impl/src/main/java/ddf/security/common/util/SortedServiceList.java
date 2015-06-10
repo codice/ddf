@@ -14,13 +14,6 @@
  **/
 package ddf.security.common.util;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,6 +23,13 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
 
 /**
  * <p>
@@ -59,14 +59,15 @@ public class SortedServiceList<T> implements List<T> {
 
     private static final String READ_ONLY_ERROR_MESSAGE = "This list is meant to be read only.";
 
+    private static final XLogger logger = new XLogger(
+            LoggerFactory.getLogger(SortedServiceList.class));
+
     private Map<ServiceReference, T> serviceMap = Collections
             .synchronizedMap(new TreeMap<ServiceReference, T>(new ServiceComparator() {
                 public int compare(ServiceReference ref1, ServiceReference ref2) {
                     return ref2.compareTo(ref1);
                 }
             }));
-
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(SortedServiceList.class));
 
     /**
      * Constructor accepting OSGi bundle context. This constructor is currently invoked by the

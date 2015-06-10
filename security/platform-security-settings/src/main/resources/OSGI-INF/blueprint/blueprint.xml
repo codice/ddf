@@ -14,12 +14,13 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
-    <bean id="securitySettings" class="ddf.security.settings.impl.SecuritySettingsServiceImpl" init-method="init">
-        <argument ref="encryptionService" />
+    <bean id="securitySettings" class="ddf.security.settings.impl.SecuritySettingsServiceImpl"
+          init-method="init">
+        <argument ref="encryptionService"/>
     </bean>
 
-    <service ref="securitySettings" auto-export="interfaces" />
+    <service ref="securitySettings" auto-export="interfaces"/>
 
 </blueprint>

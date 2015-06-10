@@ -14,11 +14,11 @@
  **/
 package org.codice.ddf.configuration;
 
-import net.minidev.json.JSONObject;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+
+import net.minidev.json.JSONObject;
 
 /**
  * Configuration class for pid=ddf.platform.ui.config.
@@ -30,20 +30,33 @@ import javax.ws.rs.Produces;
 public class PlatformUiConfiguration {
 
     public static final String SYSTEM_USAGE_TITLE = "systemUsageTitle";
+
     public static final String SYSTEM_USAGE_MESSAGE = "systemUsageMessage";
+
     public static final String SYSTEM_USAGE_ONCE_PER_SESSION = "systemUsageOncePerSession";
+
     public static final String HEADER = "header";
+
     public static final String FOOTER = "footer";
+
     public static final String COLOR = "color";
+
     public static final String BACKGROUND = "background";
 
     private boolean systemUsageEnabled;
+
     private String systemUsageTitle;
+
     private String systemUsageMessage;
+
     private boolean systemUsageOncePerSession;
+
     private String header;
+
     private String footer;
+
     private String color;
+
     private String background;
 
     @GET
@@ -52,7 +65,7 @@ public class PlatformUiConfiguration {
     public String getConfig() {
         JSONObject jsonObject = new JSONObject();
 
-        if(systemUsageEnabled) {
+        if (systemUsageEnabled) {
             jsonObject.put(SYSTEM_USAGE_TITLE, systemUsageTitle);
             jsonObject.put(SYSTEM_USAGE_MESSAGE, systemUsageMessage);
             jsonObject.put(SYSTEM_USAGE_ONCE_PER_SESSION, systemUsageOncePerSession);
@@ -96,7 +109,6 @@ public class PlatformUiConfiguration {
     public void setSystemUsageOncePerSession(boolean systemUsageOncePerSession) {
         this.systemUsageOncePerSession = systemUsageOncePerSession;
     }
-
 
     public String getHeader() {
         return header;

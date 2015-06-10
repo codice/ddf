@@ -14,13 +14,13 @@
  **/
 package ddf.security.pep.interceptor;
 
-import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.permission.ActionPermission;
-import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
-import ddf.security.service.impl.SecurityAssertionStore;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -32,12 +32,13 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 
-import javax.xml.namespace.QName;
-
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.permission.ActionPermission;
+import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
+import ddf.security.service.impl.SecurityAssertionStore;
 
 @PrepareForTest({SecurityAssertionStore.class, SecurityLogger.class})
 public class TestPepInterceptorValidSubject {

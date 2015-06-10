@@ -75,11 +75,6 @@ import ddf.security.assertion.SecurityAssertion;
 public class SecurityAssertionImpl implements SecurityAssertion {
 
     /**
-     * Log4j Logger
-     */
-    private Logger LOGGER = LoggerFactory.getLogger(SecurityConstants.SECURITY_LOGGER);
-
-    /**
      * Serial Version UID
      */
     private static final long serialVersionUID = 1L;
@@ -88,6 +83,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
      * Default Hash Value
      */
     private static final int DEFAULT_HASH = 127;
+
+    /**
+     * Log4j Logger
+     */
+    private Logger LOGGER = LoggerFactory.getLogger(SecurityConstants.SECURITY_LOGGER);
 
     /**
      * Wrapped SecurityToken.
@@ -114,11 +114,6 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         init();
     }
 
-    private void readObject(ObjectInputStream objectInputStream) throws IOException, ClassNotFoundException {
-        objectInputStream.defaultReadObject();
-        init();
-    }
-
     /**
      * Default Constructor
      *
@@ -128,6 +123,12 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         init();
         this.securityToken = securityToken;
         parseToken(securityToken);
+    }
+
+    private void readObject(ObjectInputStream objectInputStream) throws IOException,
+            ClassNotFoundException {
+        objectInputStream.defaultReadObject();
+        init();
     }
 
     private void init() {
@@ -180,7 +181,8 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                             AuthenticationContextClassRef authenticationContextClassRef = new AuthenticationContextClassRef();
                             authenticationContextClassRef.setAuthnContextClassRef(classValue);
                             AuthenticationContext authenticationContext = new AuthenticationContext();
-                            authenticationContext.setAuthnContextClassRef(authenticationContextClassRef);
+                            authenticationContext
+                                    .setAuthnContextClassRef(authenticationContextClassRef);
                             authenticationStatement.setAuthnContext(authenticationContext);
                         }
                     case Attribute.DEFAULT_ELEMENT_LOCAL_NAME:
@@ -251,7 +253,8 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                     for (AuthnStatement authnStatement : authenticationStatements) {
                         AuthnContext authnContext = authnStatement.getAuthnContext();
                         if (authnContext != null) {
-                            AuthnContextClassRef authnContextClassRef = authnContext.getAuthnContextClassRef();
+                            AuthnContextClassRef authnContextClassRef = authnContext
+                                    .getAuthnContextClassRef();
                             if (authnContextClassRef != null) {
                                 authMethod = authnContextClassRef.getAuthnContextClassRef();
                             }
@@ -359,7 +362,8 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         for (AuthnStatement authStatement : getAuthnStatements()) {
             result.append("[ ");
             result.append(authStatement.getAuthnInstant() + " : ");
-            result.append(authStatement.getAuthnContext().getAuthnContextClassRef().getAuthnContextClassRef());
+            result.append(authStatement.getAuthnContext().getAuthnContextClassRef()
+                    .getAuthnContextClassRef());
             result.append("] ");
         }
         //        result.append(", AuthzDecisionStatements: ");
@@ -405,6 +409,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setDOM(Element dom) {
+
+        }
+
+        @Override
         public QName getElementQName() {
             return null;
         }
@@ -429,6 +438,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
             return null;
         }
 
+        @Override
+        public void setNoNamespaceSchemaLocation(String location) {
+
+        }
+
         public List<XMLObject> getOrderedChildren() {
             return null;
         }
@@ -439,8 +453,18 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setParent(XMLObject parent) {
+
+        }
+
+        @Override
         public String getSchemaLocation() {
             return null;
+        }
+
+        @Override
+        public void setSchemaLocation(String location) {
+
         }
 
         @Override
@@ -486,26 +510,6 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         @Override
         public XMLObject resolveIDFromRoot(String id) {
             return null;
-        }
-
-        @Override
-        public void setDOM(Element dom) {
-
-        }
-
-        @Override
-        public void setNoNamespaceSchemaLocation(String location) {
-
-        }
-
-        @Override
-        public void setParent(XMLObject parent) {
-
-        }
-
-        @Override
-        public void setSchemaLocation(String location) {
-
         }
 
         @Override
@@ -626,6 +630,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setDOM(Element dom) {
+
+        }
+
+        @Override
         public QName getElementQName() {
             return null;
         }
@@ -651,6 +660,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setNoNamespaceSchemaLocation(String location) {
+
+        }
+
+        @Override
         public List<XMLObject> getOrderedChildren() {
             return null;
         }
@@ -661,8 +675,18 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setParent(XMLObject parent) {
+
+        }
+
+        @Override
         public String getSchemaLocation() {
             return null;
+        }
+
+        @Override
+        public void setSchemaLocation(String location) {
+
         }
 
         @Override
@@ -708,26 +732,6 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         @Override
         public XMLObject resolveIDFromRoot(String id) {
             return null;
-        }
-
-        @Override
-        public void setDOM(Element dom) {
-
-        }
-
-        @Override
-        public void setNoNamespaceSchemaLocation(String location) {
-
-        }
-
-        @Override
-        public void setParent(XMLObject parent) {
-
-        }
-
-        @Override
-        public void setSchemaLocation(String location) {
-
         }
 
         @Override
@@ -818,6 +822,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setDOM(Element dom) {
+
+        }
+
+        @Override
         public QName getElementQName() {
             return null;
         }
@@ -843,6 +852,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setNoNamespaceSchemaLocation(String location) {
+
+        }
+
+        @Override
         public List<XMLObject> getOrderedChildren() {
             return null;
         }
@@ -853,8 +867,18 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setParent(XMLObject parent) {
+
+        }
+
+        @Override
         public String getSchemaLocation() {
             return null;
+        }
+
+        @Override
+        public void setSchemaLocation(String location) {
+
         }
 
         @Override
@@ -900,26 +924,6 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         @Override
         public XMLObject resolveIDFromRoot(String id) {
             return null;
-        }
-
-        @Override
-        public void setDOM(Element dom) {
-
-        }
-
-        @Override
-        public void setNoNamespaceSchemaLocation(String location) {
-
-        }
-
-        @Override
-        public void setParent(XMLObject parent) {
-
-        }
-
-        @Override
-        public void setSchemaLocation(String location) {
-
         }
 
         @Override
@@ -1013,6 +1017,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setDOM(Element dom) {
+
+        }
+
+        @Override
         public QName getElementQName() {
             return null;
         }
@@ -1038,6 +1047,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setNoNamespaceSchemaLocation(String location) {
+
+        }
+
+        @Override
         public List<XMLObject> getOrderedChildren() {
             return null;
         }
@@ -1048,8 +1062,18 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setParent(XMLObject parent) {
+
+        }
+
+        @Override
         public String getSchemaLocation() {
             return null;
+        }
+
+        @Override
+        public void setSchemaLocation(String location) {
+
         }
 
         @Override
@@ -1095,26 +1119,6 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         @Override
         public XMLObject resolveIDFromRoot(String id) {
             return null;
-        }
-
-        @Override
-        public void setDOM(Element dom) {
-
-        }
-
-        @Override
-        public void setNoNamespaceSchemaLocation(String location) {
-
-        }
-
-        @Override
-        public void setParent(XMLObject parent) {
-
-        }
-
-        @Override
-        public void setSchemaLocation(String location) {
-
         }
 
         @Override
@@ -1213,6 +1217,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setDOM(Element dom) {
+
+        }
+
+        @Override
         public QName getElementQName() {
             return null;
         }
@@ -1238,6 +1247,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setNoNamespaceSchemaLocation(String location) {
+
+        }
+
+        @Override
         public List<XMLObject> getOrderedChildren() {
             return null;
         }
@@ -1248,8 +1262,18 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setParent(XMLObject parent) {
+
+        }
+
+        @Override
         public String getSchemaLocation() {
             return null;
+        }
+
+        @Override
+        public void setSchemaLocation(String location) {
+
         }
 
         @Override
@@ -1295,26 +1319,6 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         @Override
         public XMLObject resolveIDFromRoot(String id) {
             return null;
-        }
-
-        @Override
-        public void setDOM(Element dom) {
-
-        }
-
-        @Override
-        public void setNoNamespaceSchemaLocation(String location) {
-
-        }
-
-        @Override
-        public void setParent(XMLObject parent) {
-
-        }
-
-        @Override
-        public void setSchemaLocation(String location) {
-
         }
 
         @Override
@@ -1432,6 +1436,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setDOM(Element dom) {
+
+        }
+
+        @Override
         public QName getElementQName() {
             return null;
         }
@@ -1457,6 +1466,11 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setNoNamespaceSchemaLocation(String location) {
+
+        }
+
+        @Override
         public List<XMLObject> getOrderedChildren() {
             return null;
         }
@@ -1467,8 +1481,18 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         }
 
         @Override
+        public void setParent(XMLObject parent) {
+
+        }
+
+        @Override
         public String getSchemaLocation() {
             return null;
+        }
+
+        @Override
+        public void setSchemaLocation(String location) {
+
         }
 
         @Override
@@ -1514,26 +1538,6 @@ public class SecurityAssertionImpl implements SecurityAssertion {
         @Override
         public XMLObject resolveIDFromRoot(String id) {
             return null;
-        }
-
-        @Override
-        public void setDOM(Element dom) {
-
-        }
-
-        @Override
-        public void setNoNamespaceSchemaLocation(String location) {
-
-        }
-
-        @Override
-        public void setParent(XMLObject parent) {
-
-        }
-
-        @Override
-        public void setSchemaLocation(String location) {
-
         }
 
         @Override

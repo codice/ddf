@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>security</artifactId>
         <groupId>ddf.platform.security</groupId>
@@ -87,7 +89,7 @@
                         <Import-Package>
                             *
                         </Import-Package>
-                        <Export-Package />
+                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
@@ -145,22 +147,22 @@
                 <artifactId>maven-antrun-plugin</artifactId>
             </plugin>
             <!--<plugin>-->
-                <!--<groupId>org.asciidoctor</groupId>-->
-                <!--<artifactId>asciidoctor-maven-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>output-html</id>-->
-                        <!--<phase>generate-resources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>process-asciidoc</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<sourceDirectory>src/main/doc</sourceDirectory>-->
-                            <!--<outputDirectory>target/webapp</outputDirectory>-->
-                            <!--<backend>html</backend>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+            <!--<groupId>org.asciidoctor</groupId>-->
+            <!--<artifactId>asciidoctor-maven-plugin</artifactId>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>output-html</id>-->
+            <!--<phase>generate-resources</phase>-->
+            <!--<goals>-->
+            <!--<goal>process-asciidoc</goal>-->
+            <!--</goals>-->
+            <!--<configuration>-->
+            <!--<sourceDirectory>src/main/doc</sourceDirectory>-->
+            <!--<outputDirectory>target/webapp</outputDirectory>-->
+            <!--<backend>html</backend>-->
+            <!--</configuration>-->
+            <!--</execution>-->
+            <!--</executions>-->
             <!--</plugin>-->
         </plugins>
     </build>

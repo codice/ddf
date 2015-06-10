@@ -14,10 +14,11 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Security Authorization Filter" id="org.codice.ddf.security.filter.authorization.AuthorizationFilter">
+    <OCD name="Security Authorization Filter"
+         id="org.codice.ddf.security.filter.authorization.AuthorizationFilter">
         <AD name="Use Action Permissions" id="shouldActionAuthorize" required="true" type="Boolean"
-        description="Checks authorization using action-based permissions for the service being called"
-        default="false"/>
+            description="Checks authorization using action-based permissions for the service being called"
+            default="false"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.security.filter.authorization.AuthorizationFilter">

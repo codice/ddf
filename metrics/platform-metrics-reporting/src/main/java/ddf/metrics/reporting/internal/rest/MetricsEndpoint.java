@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.metrics.reporting.internal.rest;
 
@@ -63,25 +63,24 @@ import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
 /**
  * This class provides an endpoint for a client, e.g., {@link MetricsWebConsolePlugin} to access the
  * historical metrics data collected by DDF.
- * 
+ *
  * This endpoint provides a URL to retrieve the list of metrics collected by DDF, including their
  * associated URLs to access pre-defined time ranges of each metric's historical data, e.g., for the
  * past 15 minutes, 1 hour, 4 hours, 12 hours, 24 hours, 3 days, 1 week, 1 month, and 1 year. Each
  * of these hyperlinks will return a byte array containing a PNG graph of the metric's historical
  * data for the given time range.
- * 
- * 
+ *
+ *
  */
 @Path("/")
 public class MetricsEndpoint implements ConfigurationWatcher {
+    public static final String DEFAULT_METRICS_DIR = "data/metrics/";
+
+    static final Map<String, Long> timeRanges = new HashMap<String, Long>();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsEndpoint.class);
-    
-    // Storage string for DDF site name from Configuration Watcher
-    public String siteName;
 
     private static final String METRICS_SERVICE_BASE_URL = "/internal/metrics";
-
-    public static final String DEFAULT_METRICS_DIR = "data/metrics/";
 
     private static final String RRD_FILE_EXTENSION = ".rrd";
 
@@ -116,9 +115,10 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
     private static final long ONE_YEAR_IN_SECONDS = 365 * ONE_DAY_IN_SECONDS;
 
-    private String servicesContextRoot = "/services";
+    private static final String PNG_FORMAT = "png";
 
-    static final Map<String, Long> timeRanges = new HashMap<String, Long>();
+    private static final String CSV_FORMAT = "csv";
+
     static {
         timeRanges.put("15m", FIFTEEN_MINUTES_IN_SECONDS);
         timeRanges.put("1h", ONE_HOUR_IN_SECONDS);
@@ -131,11 +131,12 @@ public class MetricsEndpoint implements ConfigurationWatcher {
         timeRanges.put("3M", THREE_MONTHS_IN_SECONDS);
         timeRanges.put("6M", SIX_MONTHS_IN_SECONDS);
         timeRanges.put("1y", ONE_YEAR_IN_SECONDS);
-    };
+    }
 
-    private static final String PNG_FORMAT = "png";
+    // Storage string for DDF site name from Configuration Watcher
+    public String siteName;
 
-    private static final String CSV_FORMAT = "csv";
+    private String servicesContextRoot = "/services";
 
     private SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
@@ -151,17 +152,17 @@ public class MetricsEndpoint implements ConfigurationWatcher {
      * filename is specified in the URL, e.g., catalogQueryCount.png, where the filename extension
      * defines the desired output format returned for the metric's data. Currently supported formats
      * are png, csv, xls, ppt, xml, and json.
-     * 
+     *
      * Note that the time range can be specified as either a start and end date (in RFC3339 format,
      * i.e., YYYY-MM-DD'T'hh:mm:ssZ), or as an offset in seconds from the current time. These 2 time
      * range mechanisms cannot be combined, e.g., you cannot specify an end date and an offset to be
      * applied from that end date.
-     * 
+     *
      * By default, the metric's name will be used for the y-axis label on the PNG graph, and the
      * metric name and time range will be used for the graph's title. Both of these can be
      * optionally specified with the yAxisLabel and title parameters. These 2 parameters do not
      * apply for the other formats.
-     * 
+     *
      * @param metricFilename
      *            name of the file containing the metric's graph, e.g., queryCount.png
      * @param metricName
@@ -183,24 +184,22 @@ public class MetricsEndpoint implements ConfigurationWatcher {
      * @param title
      *            (optional) the title to be applied to the graph
      * @param uriInfo
-     * 
+     *
      * @return Response containing the metric's data in the specified outputFormat
-     * 
+     *
      * @throws MetricsEndpointException
      */
     @GET
     @Path("/{metricName}.{outputFormat}")
-    public Response getMetricsData(@PathParam("metricName")
-    String metricName, @PathParam("outputFormat")
-    String outputFormat, @QueryParam("startDate")
-    String startDate, @QueryParam("endDate")
-    String endDate, @QueryParam("dateOffset")
-    String dateOffset, @QueryParam("yAxisLabel")
-    String yAxisLabel, @QueryParam("title")
-    String title, @Context
-    UriInfo uriInfo) throws MetricsEndpointException {
-        LOGGER.trace("ENTERING: getMetricsData  -  metricName = " + metricName
-                + ",    outputFormat = " + outputFormat);
+    public Response getMetricsData(@PathParam("metricName") String metricName,
+            @PathParam("outputFormat") String outputFormat,
+            @QueryParam("startDate") String startDate, @QueryParam("endDate") String endDate,
+            @QueryParam("dateOffset") String dateOffset,
+            @QueryParam("yAxisLabel") String yAxisLabel, @QueryParam("title") String title,
+            @Context UriInfo uriInfo) throws MetricsEndpointException {
+        LOGGER.trace(
+                "ENTERING: getMetricsData  -  metricName = " + metricName + ",    outputFormat = "
+                        + outputFormat);
         LOGGER.trace("request url: " + uriInfo.getRequestUri());
         LOGGER.trace("startDate = " + startDate + ",     endDate = " + endDate);
         LOGGER.trace("dateOffset = " + dateOffset);
@@ -208,13 +207,13 @@ public class MetricsEndpoint implements ConfigurationWatcher {
         Response response = null;
 
         // Client must specify *either* startDate and/or endDate *OR* dateOffset
-        if (!StringUtils.isBlank(dateOffset)
-                && (!StringUtils.isBlank(startDate) || !StringUtils.isBlank(endDate))) {
+        if (!StringUtils.isBlank(dateOffset) && (!StringUtils.isBlank(startDate) || !StringUtils
+                .isBlank(endDate))) {
             throw new MetricsEndpointException(
                     "Cannot specify dateOffset and startDate or endDate, must specify either dateOffset only or startDate and/or endDate",
                     Response.Status.BAD_REQUEST);
         }
-  
+
         long endTime;
         if (!StringUtils.isBlank(endDate)) {
             endTime = parseDate(endDate);
@@ -273,18 +272,21 @@ public class MetricsEndpoint implements ConfigurationWatcher {
         if (outputFormat.equalsIgnoreCase(PNG_FORMAT)) {
             LOGGER.trace("Retrieving PNG-formatted data for metric " + metricName);
             try {
-                byte[] metricsGraphBytes = metricsRetriever.createGraph(metricName, rrdFilename,
-                        startTime, endTime, yAxisLabel, title);
+                byte[] metricsGraphBytes = metricsRetriever
+                        .createGraph(metricName, rrdFilename, startTime, endTime, yAxisLabel,
+                                title);
                 ByteArrayInputStream bis = new ByteArrayInputStream(metricsGraphBytes);
                 response = Response.ok(bis, PNG_MIME_TYPE).build();
             } catch (IOException e) {
                 LOGGER.warn("Could not create graph for metric " + metricName);
-                throw new MetricsEndpointException("Cannot create metrics graph for metric "
-                        + metricName, Response.Status.BAD_REQUEST);
+                throw new MetricsEndpointException(
+                        "Cannot create metrics graph for metric " + metricName,
+                        Response.Status.BAD_REQUEST);
             } catch (MetricsGraphException e) {
                 LOGGER.warn("Could not create graph for metric " + metricName);
-                throw new MetricsEndpointException("Cannot create metrics graph for metric "
-                        + metricName, Response.Status.BAD_REQUEST);
+                throw new MetricsEndpointException(
+                        "Cannot create metrics graph for metric " + metricName,
+                        Response.Status.BAD_REQUEST);
             }
         } else if (outputFormat.equalsIgnoreCase("csv")) {
             try {
@@ -294,18 +296,20 @@ public class MetricsEndpoint implements ConfigurationWatcher {
                 response = responseBuilder.build();
             } catch (IOException e) {
                 LOGGER.warn("Could not create CSV data for metric " + metricName);
-                throw new MetricsEndpointException("Cannot create CSV data for metric "
-                        + metricName, Response.Status.BAD_REQUEST);
+                throw new MetricsEndpointException(
+                        "Cannot create CSV data for metric " + metricName,
+                        Response.Status.BAD_REQUEST);
             } catch (MetricsGraphException e) {
                 LOGGER.warn("Could not create CSV data for metric " + metricName);
-                throw new MetricsEndpointException("Cannot create CSV data for metric "
-                        + metricName, Response.Status.BAD_REQUEST);
+                throw new MetricsEndpointException(
+                        "Cannot create CSV data for metric " + metricName,
+                        Response.Status.BAD_REQUEST);
             }
         } else if (outputFormat.equalsIgnoreCase("xls")) {
             LOGGER.trace("Retrieving XLS-formatted data for metric " + metricName);
             try {
-                OutputStream os = metricsRetriever.createXlsData(metricName, rrdFilename,
-                        startTime, endTime);
+                OutputStream os = metricsRetriever
+                        .createXlsData(metricName, rrdFilename, startTime, endTime);
                 InputStream is = new ByteArrayInputStream(
                         ((ByteArrayOutputStream) os).toByteArray());
                 ResponseBuilder responseBuilder = Response.ok(is);
@@ -313,18 +317,20 @@ public class MetricsEndpoint implements ConfigurationWatcher {
                 response = responseBuilder.build();
             } catch (IOException e) {
                 LOGGER.warn("Could not create XLS data for metric " + metricName);
-                throw new MetricsEndpointException("Cannot create XLS data for metric "
-                        + metricName, Response.Status.BAD_REQUEST);
+                throw new MetricsEndpointException(
+                        "Cannot create XLS data for metric " + metricName,
+                        Response.Status.BAD_REQUEST);
             } catch (MetricsGraphException e) {
                 LOGGER.warn("Could not create XLS data for metric " + metricName);
-                throw new MetricsEndpointException("Cannot create XLS data for metric "
-                        + metricName, Response.Status.BAD_REQUEST);
+                throw new MetricsEndpointException(
+                        "Cannot create XLS data for metric " + metricName,
+                        Response.Status.BAD_REQUEST);
             }
         } else if (outputFormat.equalsIgnoreCase("ppt")) {
             LOGGER.trace("Retrieving PPT-formatted data for metric " + metricName);
             try {
-                OutputStream os = metricsRetriever.createPptData(metricName, rrdFilename,
-                        startTime, endTime);
+                OutputStream os = metricsRetriever
+                        .createPptData(metricName, rrdFilename, startTime, endTime);
                 InputStream is = new ByteArrayInputStream(
                         ((ByteArrayOutputStream) os).toByteArray());
                 ResponseBuilder responseBuilder = Response.ok(is);
@@ -332,46 +338,52 @@ public class MetricsEndpoint implements ConfigurationWatcher {
                 response = responseBuilder.build();
             } catch (IOException e) {
                 LOGGER.warn("Could not create PPT data for metric " + metricName);
-                throw new MetricsEndpointException("Cannot create PPT data for metric "
-                        + metricName, Response.Status.BAD_REQUEST);
+                throw new MetricsEndpointException(
+                        "Cannot create PPT data for metric " + metricName,
+                        Response.Status.BAD_REQUEST);
             } catch (MetricsGraphException e) {
                 LOGGER.warn("Could not create PPT data for metric " + metricName);
-                throw new MetricsEndpointException("Cannot create PPT data for metric "
-                        + metricName, Response.Status.BAD_REQUEST);
+                throw new MetricsEndpointException(
+                        "Cannot create PPT data for metric " + metricName,
+                        Response.Status.BAD_REQUEST);
             }
         } else if (outputFormat.equalsIgnoreCase("xml")) {
             LOGGER.trace("Retrieving XML-formatted data for metric " + metricName);
             try {
-                String xmlData = metricsRetriever.createXmlData(metricName, rrdFilename, startTime,
-                        endTime);
+                String xmlData = metricsRetriever
+                        .createXmlData(metricName, rrdFilename, startTime, endTime);
                 ResponseBuilder responseBuilder = Response.ok(xmlData);
                 responseBuilder.type("text/xml");
                 response = responseBuilder.build();
             } catch (IOException e) {
                 LOGGER.warn("Could not create XML data for metric " + metricName);
-                throw new MetricsEndpointException("Cannot create XML data for metric "
-                        + metricName, Response.Status.BAD_REQUEST);
+                throw new MetricsEndpointException(
+                        "Cannot create XML data for metric " + metricName,
+                        Response.Status.BAD_REQUEST);
             } catch (MetricsGraphException e) {
                 LOGGER.warn("Could not create XML data for metric " + metricName);
-                throw new MetricsEndpointException("Cannot create XML data for metric "
-                        + metricName, Response.Status.BAD_REQUEST);
+                throw new MetricsEndpointException(
+                        "Cannot create XML data for metric " + metricName,
+                        Response.Status.BAD_REQUEST);
             }
         } else if (outputFormat.equalsIgnoreCase("json")) {
             LOGGER.trace("Retrieving JSON-formatted data for metric " + metricName);
             try {
-                String jsonData = metricsRetriever.createJsonData(metricName, rrdFilename,
-                        startTime, endTime);
+                String jsonData = metricsRetriever
+                        .createJsonData(metricName, rrdFilename, startTime, endTime);
                 ResponseBuilder responseBuilder = Response.ok(jsonData);
                 responseBuilder.type("application/json");
                 response = responseBuilder.build();
             } catch (IOException e) {
                 LOGGER.warn("Could not create JSON data for metric " + metricName);
-                throw new MetricsEndpointException("Cannot create JSON data for metric "
-                        + metricName, Response.Status.BAD_REQUEST);
+                throw new MetricsEndpointException(
+                        "Cannot create JSON data for metric " + metricName,
+                        Response.Status.BAD_REQUEST);
             } catch (MetricsGraphException e) {
                 LOGGER.warn("Could not create JSON data for metric " + metricName);
-                throw new MetricsEndpointException("Cannot create JSON data for metric "
-                        + metricName, Response.Status.BAD_REQUEST);
+                throw new MetricsEndpointException(
+                        "Cannot create JSON data for metric " + metricName,
+                        Response.Status.BAD_REQUEST);
             }
         }
 
@@ -382,7 +394,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
     /**
      * Get list of available metrics and the associated URLs to their historical data.
-     * 
+     *
      * @param uriInfo
      * @return JSON-formatted response where each metric has a list of URLs (and the display text
      *         for them), where each URL links to a graph of the metric's data for a specific time
@@ -391,8 +403,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
     @GET
     @Path("/")
     @Produces({JSON_MIME_TYPE})
-    public Response getMetricsList(@Context
-    UriInfo uriInfo) {
+    public Response getMetricsList(@Context UriInfo uriInfo) {
         Response response = null;
 
         List<String> metricNames = getMetricsNames();
@@ -415,19 +426,19 @@ public class MetricsEndpoint implements ConfigurationWatcher {
      * of the form http://<host>:<port>/report.<outputFormat> The filename extension defines the
      * desired output format returned for the report's data. Currently supported formats are xls and
      * ppt.
-     * 
+     *
      * The XLS-formatted report will be one spreadsheet (workbook) with a worksheet per metric. The
      * PPT-formatted report will be one PowerPoint slide deck with a slide per metric. Each slide
      * will contain the metric's PNG graph.
-     * 
+     *
      * Note that the time range can be specified as either a start and end date (in RFC3339 format,
      * i.e., YYYY-MM-DD'T'hh:mm:ssZ), or as an offset in seconds from the current time. These 2 time
      * range mechanisms cannot be combined, e.g., you cannot specify an end date and an offset to be
      * applied from that end date.
-     * 
+     *
      * By default, the metric's name will be used for the y-axis label, and the metric name and time
      * range will be used for the graph's title for the report in PPT format.
-     * 
+     *
      * @param startDate
      *            Specifies the start of the time range of the search on the metric's data (RFC-3339
      *            - Date and Time format, i.e. YYYY-MM-DDTHH:mm:ssZ). Cannot be used with dateOffset
@@ -441,19 +452,17 @@ public class MetricsEndpoint implements ConfigurationWatcher {
      *            time field for entries. Defined in seconds. Cannot be used with startDate or
      *            endDate parameters.
      * @param uriInfo
-     * 
+     *
      * @return Response containing the report as a stream in either XLS or PPT format
-     * 
+     *
      * @throws MetricsEndpointException
      */
     @GET
     @Path("/report.{outputFormat}")
-    public Response getMetricsReport(@PathParam("outputFormat")
-    String outputFormat, @QueryParam("startDate")
-    String startDate, @QueryParam("endDate")
-    String endDate, @QueryParam("dateOffset")
-    String dateOffset, @Context
-    UriInfo uriInfo) throws MetricsEndpointException {
+    public Response getMetricsReport(@PathParam("outputFormat") String outputFormat,
+            @QueryParam("startDate") String startDate, @QueryParam("endDate") String endDate,
+            @QueryParam("dateOffset") String dateOffset, @Context UriInfo uriInfo) throws
+            MetricsEndpointException {
         LOGGER.debug("ENTERING: getMetricsReport  -  outputFormat = " + outputFormat);
         LOGGER.debug("request url: " + uriInfo.getRequestUri());
         LOGGER.debug("startDate = " + startDate + ",     endDate = " + endDate);
@@ -462,8 +471,8 @@ public class MetricsEndpoint implements ConfigurationWatcher {
         Response response = null;
 
         // Client must specify *either* startDate and/or endDate *OR* dateOffset
-        if (!StringUtils.isBlank(dateOffset)
-                && (!StringUtils.isBlank(startDate) || !StringUtils.isBlank(endDate))) {
+        if (!StringUtils.isBlank(dateOffset) && (!StringUtils.isBlank(startDate) || !StringUtils
+                .isBlank(endDate))) {
             throw new MetricsEndpointException(
                     "Cannot specify dateOffset and startDate or endDate, must specify either dateOffset only or startDate and/or endDate",
                     Response.Status.BAD_REQUEST);
@@ -512,14 +521,16 @@ public class MetricsEndpoint implements ConfigurationWatcher {
         LOGGER.debug("startDate = " + startDate + ",   endDate = " + endDate);
 
         List<String> metricNames = getMetricsNames();
-        
+
         // Generated name for metrics file (<DDF Sitename>_<Startdate>_<EndDate>.outputFormat)
-        String dispositionString = "attachment; filename=" + siteName + "_" + startDate.substring(0, 10) + "_" + endDate.substring(0, 10) + "." + outputFormat;
+        String dispositionString =
+                "attachment; filename=" + siteName + "_" + startDate.substring(0, 10) + "_"
+                        + endDate.substring(0, 10) + "." + outputFormat;
 
         try {
             if (outputFormat.equalsIgnoreCase("xls")) {
-                OutputStream os = metricsRetriever.createXlsReport(metricNames, metricsDir,
-                        startTime, endTime);
+                OutputStream os = metricsRetriever
+                        .createXlsReport(metricNames, metricsDir, startTime, endTime);
                 InputStream is = new ByteArrayInputStream(
                         ((ByteArrayOutputStream) os).toByteArray());
                 ResponseBuilder responseBuilder = Response.ok(is);
@@ -527,8 +538,8 @@ public class MetricsEndpoint implements ConfigurationWatcher {
                 responseBuilder.header("Content-Disposition", dispositionString);
                 response = responseBuilder.build();
             } else if (outputFormat.equalsIgnoreCase("ppt")) {
-                OutputStream os = metricsRetriever.createPptReport(metricNames, metricsDir,
-                        startTime, endTime);
+                OutputStream os = metricsRetriever
+                        .createPptReport(metricNames, metricsDir, startTime, endTime);
                 InputStream is = new ByteArrayInputStream(
                         ((ByteArrayOutputStream) os).toByteArray());
                 ResponseBuilder responseBuilder = Response.ok(is);
@@ -553,7 +564,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
     /**
      * Parse date in ISO8601 format into seconds since Unix epoch.
-     * 
+     *
      * @param date
      * @return
      */
@@ -566,7 +577,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
     /**
      * Generates the URLs for each time range, e.g., 15m, 1h, etc. for the specified metric.
-     * 
+     *
      * The metric's URL info will be put in the {@code metrics} Maps passed in to this method. The
      * structure of these nested Maps are:
      * {@code Map1<String1, Map2<String2, Map3<String3,String4>>>} (Numbers added to end of Map and
@@ -580,7 +591,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
      * <li>String4 = hyperlink for metric data in specific format, e.g.,
      * http://host:port/services/internal/metrics/catalogQueries.png?dateOffset=900</li>
      * </ul>
-     * 
+     *
      * @param metrics
      *            nested Maps that will be populated with the metric's URL info
      * @param metricsName
@@ -631,8 +642,9 @@ public class MetricsEndpoint implements ConfigurationWatcher {
                  * END: CXF bug
                  */
 
-                String metricsUrl = servicesContextRoot + METRICS_SERVICE_BASE_URL + "/"
-                        + metricsName + "." + format + DATE_OFFSET_QUERY + timeRangeInSeconds;
+                String metricsUrl =
+                        servicesContextRoot + METRICS_SERVICE_BASE_URL + "/" + metricsName + "."
+                                + format + DATE_OFFSET_QUERY + timeRangeInSeconds;
 
                 // key=format
                 // value=url for format with specified time range in seconds
@@ -648,7 +660,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
     /**
      * Returns the list of all of the RRD files in the metrics directory.
-     * 
+     *
      * @return
      */
     private String[] getRrdFiles() {
@@ -667,7 +679,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
     /**
      * Returns a list of all of the metrics' names based on the list of RRD files found in the
      * metrics directory.
-     * 
+     *
      * @return
      */
     private List<String> getMetricsNames() {
@@ -675,8 +687,8 @@ public class MetricsEndpoint implements ConfigurationWatcher {
         List<String> metricNames = new ArrayList<String>();
         if (rrdFiles != null) {
             for (String rrdFile : rrdFiles) {
-                String metricsName = FilenameUtils.getFullPath(rrdFile)
-                        + FilenameUtils.getBaseName(rrdFile);
+                String metricsName =
+                        FilenameUtils.getFullPath(rrdFile) + FilenameUtils.getBaseName(rrdFile);
                 metricNames.add(metricsName);
             }
         }
@@ -703,10 +715,32 @@ public class MetricsEndpoint implements ConfigurationWatcher {
         metricsRetriever = new RrdMetricsRetriever(metricsMaxThreshold);
     }
 
+    @Override
+    public void configurationUpdateCallback(Map<String, String> configuration) {
+        String methodName = "configurationUpdateCallback";
+        LOGGER.debug("ENTERING: {}", methodName);
+
+        if (configuration != null && !configuration.isEmpty()) {
+            servicesContextRoot = configuration.get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
+            LOGGER.debug("configuration: {}", configuration);
+
+            String ddfSiteName = configuration.get(ConfigurationManager.SITE_NAME);
+            if (StringUtils.isNotBlank(ddfSiteName)) {
+                LOGGER.debug("ddfSiteName = {}", ddfSiteName);
+                this.siteName = ddfSiteName;
+            }
+
+        } else {
+            LOGGER.debug("properties are NULL or empty");
+        }
+
+        LOGGER.debug("EXITING: {}", methodName);
+    }
+
     /**
      * Comparator used to sort metric time ranges by chronological order rather than the default
      * lexigraphical order.
-     * 
+     *
      */
     static class MetricsTimeRangeComparator implements Comparator {
         public int compare(Object o1, Object o2) {
@@ -718,28 +752,6 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
             return dateOffset1.compareTo(dateOffset2);
         }
-    }  	
-    
-	@Override
-	public void configurationUpdateCallback(Map<String, String> configuration) {
-	    String methodName = "configurationUpdateCallback";
-            LOGGER.debug("ENTERING: {}", methodName);
-
-            if (configuration != null && !configuration.isEmpty()) {
-                servicesContextRoot = configuration.get(ConfigurationManager.SERVICES_CONTEXT_ROOT);
-                LOGGER.debug("configuration: {}", configuration);
-
-                String ddfSiteName = configuration.get(ConfigurationManager.SITE_NAME);
-                if (StringUtils.isNotBlank(ddfSiteName)) {
-            	    LOGGER.debug("ddfSiteName = {}", ddfSiteName);
-                    this.siteName = ddfSiteName;
-                }
-
-        } else {
-        	LOGGER.debug("properties are NULL or empty");
-        }
-
-        LOGGER.debug("EXITING: {}", methodName);
     }
 
 }

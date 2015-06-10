@@ -17,11 +17,11 @@
 
     <OCD name="Persistent Store" id="org.codice.ddf.persistence.internal.PersistentStoreImpl">
         <AD description="HTTP URL of Solr 4.x Server." name="Solr URL" id="solrUrl"
-            required="true" type="String" default="https://localhost:8993/solr" />
+            required="true" type="String" default="https://localhost:8993/solr"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.persistence.internal.PersistentStoreImpl">
-        <Object ocdref="org.codice.ddf.persistence.internal.PersistentStoreImpl" />
+        <Object ocdref="org.codice.ddf.persistence.internal.PersistentStoreImpl"/>
     </Designate>
 
 </metatype:MetaData>

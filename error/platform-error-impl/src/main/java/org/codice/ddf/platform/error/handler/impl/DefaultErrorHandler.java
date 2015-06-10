@@ -14,6 +14,15 @@
  **/
 package org.codice.ddf.platform.error.handler.impl;
 
+import static org.boon.Boon.toJson;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.cxf.common.util.Base64Utility;
@@ -24,19 +33,11 @@ import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.boon.Boon.toJson;
-
 public class DefaultErrorHandler implements ErrorHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultErrorHandler.class);
-
     public static final String SERVER_ERROR_PLEASE_SEE_LOGS = "Server Error, please see logs.";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultErrorHandler.class);
 
     private String indexHtml = SERVER_ERROR_PLEASE_SEE_LOGS;
 
@@ -52,11 +53,11 @@ public class DefaultErrorHandler implements ErrorHandler {
     }
 
     @Override
-    public void handleError(int code, String message, String type, Throwable throwable, String uri, HttpServletRequest request,
-            HttpServletResponse response) {
+    public void handleError(int code, String message, String type, Throwable throwable, String uri,
+            HttpServletRequest request, HttpServletResponse response) {
         initIndexHtml();
 
-        ByteArrayISO8859Writer writer= new ByteArrayISO8859Writer(4096);
+        ByteArrayISO8859Writer writer = new ByteArrayISO8859Writer(4096);
         String stack = ExceptionUtils.getFullStackTrace(throwable);
 
         Map<String, String> jsonMap = new HashMap<>();

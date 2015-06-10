@@ -14,6 +14,15 @@
  **/
 package org.codice.ddf.security.handler.anonymous;
 
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
@@ -24,15 +33,6 @@ import org.codice.ddf.security.handler.pki.PKIHandler;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 
 /**
  * Handler that allows anonymous user access via a guest user account. The guest/guest account
@@ -67,7 +67,8 @@ public class AnonymousHandler implements AuthenticationHandler {
      * @return HandlerResult
      */
     @Override
-    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
+    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
+            FilterChain chain, boolean resolve) {
         HandlerResult result = new HandlerResult();
 
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
@@ -87,12 +88,14 @@ public class AnonymousHandler implements AuthenticationHandler {
      * @param request http request to obtain attributes from and to pass into any local filter chains required
      * @return BSTAuthenticationToken
      */
-    private BaseAuthenticationToken getAuthToken(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
+    private BaseAuthenticationToken getAuthToken(HttpServletRequest request,
+            HttpServletResponse response, FilterChain chain) {
         //check for basic auth first
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
         BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
-        HandlerResult handlerResult = basicAuthenticationHandler.getNormalizedToken(request, response, chain, false);
-        if(handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
+        HandlerResult handlerResult = basicAuthenticationHandler
+                .getNormalizedToken(request, response, chain, false);
+        if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
             return handlerResult.getToken();
         }
         //if basic fails, check for PKI
@@ -100,7 +103,7 @@ public class AnonymousHandler implements AuthenticationHandler {
         pkiHandler.setTokenFactory(tokenFactory);
         try {
             handlerResult = pkiHandler.getNormalizedToken(request, response, chain, false);
-            if(handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
+            if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
                 return handlerResult.getToken();
             }
         } catch (ServletException e) {
@@ -113,7 +116,8 @@ public class AnonymousHandler implements AuthenticationHandler {
     }
 
     @Override
-    public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException {
+    public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
+            FilterChain chain) throws ServletException {
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
         String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
         httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);

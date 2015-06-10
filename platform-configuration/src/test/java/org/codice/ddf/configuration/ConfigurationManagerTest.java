@@ -14,19 +14,19 @@
  **/
 package org.codice.ddf.configuration;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.osgi.service.cm.ConfigurationAdmin;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
+import org.junit.Before;
+import org.junit.Test;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 public class ConfigurationManagerTest {
 

@@ -14,8 +14,13 @@
  **/
 package org.codice.ddf.security.common.jaxrs;
 
-import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.NewCookie;
+
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
@@ -25,11 +30,8 @@ import org.apache.wss4j.common.saml.SamlAssertionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.NewCookie;
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
 
 /**
  * Provides methods that help with securing RESTful (jaxrs) communications.

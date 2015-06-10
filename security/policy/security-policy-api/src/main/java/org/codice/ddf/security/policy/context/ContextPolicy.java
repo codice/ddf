@@ -14,10 +14,11 @@
  **/
 package org.codice.ddf.security.policy.context;
 
-import ddf.security.permission.CollectionPermission;
+import java.util.Collection;
+
 import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
 
-import java.util.Collection;
+import ddf.security.permission.CollectionPermission;
 
 /**
  * Represents the policy for a given web context.

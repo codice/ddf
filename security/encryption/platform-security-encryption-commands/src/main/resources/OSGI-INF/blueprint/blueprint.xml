@@ -15,7 +15,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
  
-	<reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
+	<reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
 	<command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
 

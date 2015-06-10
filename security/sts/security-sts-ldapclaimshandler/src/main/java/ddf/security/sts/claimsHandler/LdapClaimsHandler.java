@@ -14,6 +14,13 @@
  **/
 package ddf.security.sts.claimsHandler;
 
+import java.net.URI;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.security.auth.x500.X500Principal;
+
 import org.apache.cxf.rt.security.claims.Claim;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsParameters;
@@ -33,12 +40,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 
-import javax.security.auth.x500.X500Principal;
-import java.net.URI;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-
 public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapClaimsHandler.class);
 
@@ -56,20 +57,20 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
         super();
     }
 
-    public void setLdapConnectionFactory(LDAPConnectionFactory connection) {
-        this.connectionFactory = connection;
-    }
-
     public LDAPConnectionFactory getLdapConnectionFactory() {
         return connectionFactory;
     }
 
-    public void setUserBaseDn(String userBaseDN) {
-        this.userBaseDn = userBaseDN;
+    public void setLdapConnectionFactory(LDAPConnectionFactory connection) {
+        this.connectionFactory = connection;
     }
 
     public String getUserBaseDn() {
         return userBaseDn;
+    }
+
+    public void setUserBaseDn(String userBaseDN) {
+        this.userBaseDn = userBaseDN;
     }
 
     public String getPropertyFileLocation() {
@@ -77,10 +78,10 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
     }
 
     public void setPropertyFileLocation(String propertyFileLocation) {
-        if (propertyFileLocation != null && !propertyFileLocation.isEmpty()
-                && !propertyFileLocation.equals(this.propertyFileLocation)) {
-            setClaimsLdapAttributeMapping(AttributeMapLoader
-                    .buildClaimsMapFile(propertyFileLocation));
+        if (propertyFileLocation != null && !propertyFileLocation.isEmpty() && !propertyFileLocation
+                .equals(this.propertyFileLocation)) {
+            setClaimsLdapAttributeMapping(
+                    AttributeMapLoader.buildClaimsMapFile(propertyFileLocation));
         }
         this.propertyFileLocation = propertyFileLocation;
     }
@@ -93,7 +94,8 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
         String user = AttributeMapLoader.getUser(principal);
         if (user == null) {
-            LOGGER.warn("Could not determine user name, possible authentication error. Returning no claims.");
+            LOGGER.warn(
+                    "Could not determine user name, possible authentication error. Returning no claims.");
             return new ProcessedClaimCollection();
         }
 
@@ -102,14 +104,15 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
         try {
 
             AndFilter filter = new AndFilter();
-            filter.and(new EqualsFilter("objectclass", this.getObjectClass())).and(
-                    new EqualsFilter(this.getUserNameAttribute(), user));
+            filter.and(new EqualsFilter("objectclass", this.getObjectClass()))
+                    .and(new EqualsFilter(this.getUserNameAttribute(), user));
 
             List<String> searchAttributeList = new ArrayList<String>();
             for (Claim claim : claims) {
-                if (getClaimsLdapAttributeMapping().keySet().contains(claim.getClaimType().toString())) {
-                    searchAttributeList.add(getClaimsLdapAttributeMapping().get(
-                            claim.getClaimType().toString()));
+                if (getClaimsLdapAttributeMapping().keySet()
+                        .contains(claim.getClaimType().toString())) {
+                    searchAttributeList.add(getClaimsLdapAttributeMapping()
+                            .get(claim.getClaimType().toString()));
                 } else {
                     LOGGER.debug("Unsupported claim: {}", claim.getClaimType());
                 }
@@ -118,19 +121,22 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
             String[] searchAttributes = null;
             searchAttributes = searchAttributeList.toArray(new String[searchAttributeList.size()]);
 
-            LOGGER.trace("Executing ldap search with base dn of {} and filter of {}", this.userBaseDn, filter.toString());
+            LOGGER.trace("Executing ldap search with base dn of {} and filter of {}",
+                    this.userBaseDn, filter.toString());
             connection = connectionFactory.getConnection();
             if (connection != null) {
                 connection.bind(bindUserDN, bindUserCredentials.toCharArray());
                 ConnectionEntryReader entryReader = connection
-                        .search((this.userBaseDn == null) ? "" : this.userBaseDn, SearchScope.WHOLE_SUBTREE, filter.toString(), searchAttributes);
+                        .search((this.userBaseDn == null) ? "" : this.userBaseDn,
+                                SearchScope.WHOLE_SUBTREE, filter.toString(), searchAttributes);
 
                 SearchResultEntry entry;
                 while (entryReader.hasNext()) {
                     entry = entryReader.readEntry();
                     for (Claim claim : claims) {
                         URI claimType = claim.getClaimType();
-                        String ldapAttribute = getClaimsLdapAttributeMapping().get(claimType.toString());
+                        String ldapAttribute = getClaimsLdapAttributeMapping()
+                                .get(claimType.toString());
                         Attribute attr = entry.getAttribute(ldapAttribute);
                         if (attr == null) {
                             LOGGER.trace("Claim '{}' is null", claim.getClaimType());
@@ -146,7 +152,8 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
                                         X500Principal x500p = new X500Principal(itemValue);
                                         itemValue = x500p.getName();
                                         int index = itemValue.indexOf('=');
-                                        itemValue = itemValue.substring(index + 1, itemValue.indexOf(',', index));
+                                        itemValue = itemValue.substring(index + 1,
+                                                itemValue.indexOf(',', index));
                                     } catch (Exception ex) {
                                         // Ignore, not X500 compliant thus use the whole
                                         // string as the value

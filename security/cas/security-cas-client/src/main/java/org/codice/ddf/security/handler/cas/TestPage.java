@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.security.handler.cas;
 
@@ -35,13 +35,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  * Proxy granting ticket callback used by the CAS server. Nothing really to do here, we just need
  * something running at the callback url so the CAS server doesn't get a HTTP 404 error. This is
  * also used as a test page.
- * 
+ *
  * @see javax.servlet.http.HttpServlet
- * 
+ *
  */
 public class TestPage extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -51,7 +51,6 @@ public class TestPage extends HttpServlet {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestPage.class);
 
     private ProxyFilter proxyFilter;
-
 
     public TestPage(ProxyFilter proxyFilter) {
         super();
@@ -63,8 +62,8 @@ public class TestPage extends HttpServlet {
      *      javax.servlet.http.HttpServletResponse)
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws
+            ServletException, IOException {
         doPost(request, response);
     }
 
@@ -73,8 +72,8 @@ public class TestPage extends HttpServlet {
      *      javax.servlet.http.HttpServletResponse)
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws
+            ServletException, IOException {
         PrintWriter out = null;
 
         try {
@@ -86,7 +85,8 @@ public class TestPage extends HttpServlet {
             createPage(request, out);
         } catch (Exception e) {
             LOGGER.error("Error creating SSO Test Page.  See log.", e);
-            out.print("<html><head><title>Error Creating Test Page</title></head><body>Error Creating Test Page</body></html>");
+            out.print(
+                    "<html><head><title>Error Creating Test Page</title></head><body>Error Creating Test Page</body></html>");
         }
     }
 

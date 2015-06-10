@@ -1,20 +1,20 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.metrics.reporting.internal.rrd4j;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Calendar;
@@ -35,7 +35,7 @@ import ddf.metrics.reporting.internal.MetricsGraphException;
 public class RrdDumper {
 
     private static final String months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
-        "Sep", "Oct", "Nov", "Dec"};
+            "Sep", "Oct", "Nov", "Dec"};
 
     private static final double METRICS_MAX_THRESHOLD = 4000000000.0;
 
@@ -80,9 +80,10 @@ public class RrdDumper {
             double adjustedValue = values[i] * rrdStep;
             adjustedValues[i] = adjustedValue;
 
-            System.out.println(getCalendarTime(timestamps[i]) + ":  " + values[i]
-                    + "   (adjusted value = " + adjustedValue + ",   floor = "
-                    + Math.floor(adjustedValue) + ",   round = " + Math.round(adjustedValue) + ")");
+            System.out.println(
+                    getCalendarTime(timestamps[i]) + ":  " + values[i] + "   (adjusted value = "
+                            + adjustedValue + ",   floor = " + Math.floor(adjustedValue)
+                            + ",   round = " + Math.round(adjustedValue) + ")");
         }
 
         System.out.println("adjustedValues.length = " + adjustedValues.length);
@@ -102,8 +103,9 @@ public class RrdDumper {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timestamp * 1000);
 
-        String calTime = months[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE)
-                + " " + calendar.get(Calendar.YEAR) + " ";
+        String calTime =
+                months[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE) + " "
+                        + calendar.get(Calendar.YEAR) + " ";
 
         calTime += addLeadingZero(calendar.get(Calendar.HOUR_OF_DAY)) + ":";
         calTime += addLeadingZero(calendar.get(Calendar.MINUTE)) + ":";
@@ -122,7 +124,7 @@ public class RrdDumper {
 
     public static void displayGraph(String metricName, String rrdFilename, long startTime,
             long endTime, String verticalAxisLabel, String title) throws IOException,
-        MetricsGraphException {
+            MetricsGraphException {
         // Create RRD DB in read-only mode for the specified RRD file
         RrdDb rrdDb = new RrdDb(rrdFilename, true);
 
@@ -159,8 +161,8 @@ public class RrdDumper {
             // the average of the totals.
             graphDef.datasource("myTotal", rrdFilename, "data", ConsolFun.TOTAL);
             graphDef.datasource("realTotal", "myTotal," + rrdStep + ",*");
-            graphDef.datasource("validTotal", "realTotal," + METRICS_MAX_THRESHOLD
-                    + ",GT,UNKN,realTotal,IF");
+            graphDef.datasource("validTotal",
+                    "realTotal," + METRICS_MAX_THRESHOLD + ",GT,UNKN,realTotal,IF");
             graphDef.line("validTotal", Color.BLUE, convertCamelCase(metricName), 2);
 
             // Add some spacing between the graph and the summary stats shown beneath the graph
@@ -187,9 +189,10 @@ public class RrdDumper {
             graphDef.gprint("myAverage", ConsolFun.MAX, "Max = %.3f%s");
         } else {
             rrdDb.close();
-            throw new MetricsGraphException("Unsupported data source type " + dataSourceType.name()
-                    + " in RRD file " + rrdFilename
-                    + ", only COUNTER and GAUGE data source types supported.");
+            throw new MetricsGraphException(
+                    "Unsupported data source type " + dataSourceType.name() + " in RRD file "
+                            + rrdFilename
+                            + ", only COUNTER and GAUGE data source types supported.");
         }
 
         rrdDb.close();

@@ -14,11 +14,11 @@
  **/
 package ddf.security.settings;
 
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
-
 import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 
 /**
  * Service that can be used to obtain settings used for security purposes (SSL/TLS/Keystores...etc)

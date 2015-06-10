@@ -44,7 +44,8 @@ public class TestHttpProxy {
         HttpProxy httpProxy = new HttpProxy(httpProxyService) {
             public Properties getProperties() {
                 Properties properties = new Properties();
-                InputStream propertiesStream = HttpProxy.class.getResourceAsStream("/etc/org.ops4j.pax.web.cfg");
+                InputStream propertiesStream = HttpProxy.class
+                        .getResourceAsStream("/etc/org.ops4j.pax.web.cfg");
                 try {
                     properties.load(propertiesStream);
                 } catch (IOException e) {
@@ -54,8 +55,8 @@ public class TestHttpProxy {
             }
         };
         httpProxy.startProxy();
-        verify(httpProxyService, times(1)).start(eq("0.0.0.0:8181"), anyString(), eq(1000),
-                eq(true));
+        verify(httpProxyService, times(1))
+                .start(eq("0.0.0.0:8181"), anyString(), eq(1000), eq(true));
 
         httpProxy.stopProxy();
         verify(httpProxyService, times(1)).stop("endpointName");
@@ -63,7 +64,8 @@ public class TestHttpProxy {
         httpProxy.setHostname("blah");
 
         httpProxy.startProxy();
-        verify(httpProxyService, times(1)).start(eq("0.0.0.0:8181"), eq("https://blah:8993"), eq(1000), eq(true));
+        verify(httpProxyService, times(1))
+                .start(eq("0.0.0.0:8181"), eq("https://blah:8993"), eq(1000), eq(true));
 
         httpProxy.startProxy();
         verify(httpProxyService, times(3)).stop("endpointName");
@@ -71,7 +73,8 @@ public class TestHttpProxy {
         httpProxy = new HttpProxy(httpProxyService) {
             public Properties getProperties() {
                 Properties properties = new Properties();
-                InputStream propertiesStream = HttpProxy.class.getResourceAsStream("/etc/org.ops4j.pax.web.cfg");
+                InputStream propertiesStream = HttpProxy.class
+                        .getResourceAsStream("/etc/org.ops4j.pax.web.cfg");
                 try {
                     properties.load(propertiesStream);
                 } catch (IOException e) {
@@ -82,7 +85,8 @@ public class TestHttpProxy {
             }
         };
         httpProxy.startProxy();
-        verify(httpProxyService, times(3)).start(eq("0.0.0.0:8181"), anyString(), eq(1000), eq(true));
+        verify(httpProxyService, times(3))
+                .start(eq("0.0.0.0:8181"), anyString(), eq(1000), eq(true));
     }
 
     @Test

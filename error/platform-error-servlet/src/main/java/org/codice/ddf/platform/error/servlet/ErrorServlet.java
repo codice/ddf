@@ -14,25 +14,31 @@
  **/
 package org.codice.ddf.platform.error.servlet;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.codice.ddf.platform.error.handler.ErrorHandler;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 public class ErrorServlet extends HttpServlet {
 
     public static final String ERROR_EXCEPTION = "javax.servlet.error.exception";
+
     public static final String ERROR_EXCEPTION_TYPE = "javax.servlet.error.exception_type";
+
     public static final String ERROR_MESSAGE = "javax.servlet.error.message";
+
     public static final String ERROR_REQUEST_URI = "javax.servlet.error.request_uri";
+
     public static final String ERROR_SERVLET_NAME = "javax.servlet.error.servlet_name";
+
     public static final String ERROR_STATUS_CODE = "javax.servlet.error.status_code";
 
     private ErrorHandler errorHandler;
@@ -47,7 +53,8 @@ public class ErrorServlet extends HttpServlet {
             if (bundle != null) {
                 BundleContext bundleContext = bundle.getBundleContext();
                 if (bundleContext != null) {
-                    ServiceReference<ErrorHandler> serviceReference = bundleContext.getServiceReference(ErrorHandler.class);
+                    ServiceReference<ErrorHandler> serviceReference = bundleContext
+                            .getServiceReference(ErrorHandler.class);
                     if (serviceReference != null) {
                         errorHandler = bundleContext.getService(serviceReference);
                     }
@@ -57,8 +64,8 @@ public class ErrorServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws
+            ServletException, IOException {
         Object codeObj = request.getAttribute(ERROR_STATUS_CODE);
         Object messageObj = request.getAttribute(ERROR_MESSAGE);
         Object typeObj = request.getAttribute(ERROR_EXCEPTION_TYPE);
@@ -80,10 +87,13 @@ public class ErrorServlet extends HttpServlet {
         setErrorHandler();
 
         if (errorHandler != null) {
-            errorHandler.handleError(Integer.valueOf(code), message, type, throwable, uri, request, response);
+            errorHandler.handleError(Integer.valueOf(code), message, type, throwable, uri, request,
+                    response);
         } else {
             org.eclipse.jetty.server.handler.ErrorHandler jettyErrorHandler = new org.eclipse.jetty.server.handler.ErrorHandler();
-            jettyErrorHandler.handle(request.getRequestURI(), (org.eclipse.jetty.server.Request) request, request, response);
+            jettyErrorHandler
+                    .handle(request.getRequestURI(), (org.eclipse.jetty.server.Request) request,
+                            request, response);
         }
     }
 }

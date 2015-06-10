@@ -12,7 +12,8 @@
  *
  **/
  -->
-<metacard xmlns="urn:catalog:metacard" xmlns:ns2="http://www.opengis.net/gml" xmlns:ns3="http://www.w3.org/1999/xlink" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns5="http://www.w3.org/2001/SMIL20/Language" ns2:id="0c447f989f354e95b015944eefa457b4">
+<metacard xmlns:ns2="http://www.opengis.net/gml" xmlns="urn:catalog:metacard"
+          ns2:id="0c447f989f354e95b015944eefa457b4">
     <type>ddf.metacard</type>
     <source>ddf-2</source>
     <string name="metadata-content-type-version">
@@ -42,7 +43,8 @@
     </string>
     <stringxml name="metadata">
         <value>
-            <REUTERS xmlns:ns6="urn:catalog:metacard" xmlns="" CGISPLIT="TRAINING-SET" LEWISSPLIT="TRAIN" NEWID="7824" OLDID="13345" TOPICS="YES">
+            <REUTERS xmlns="" CGISPLIT="TRAINING-SET"
+                     LEWISSPLIT="TRAIN" NEWID="7824" OLDID="13345" TOPICS="YES">
 <DATE>20-MAR-1987 12:47:19.55</DATE>
 <TOPICS>
                     <D>acq</D>

@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.security.ws.policy.impl;
 
@@ -31,7 +31,7 @@ import ddf.security.ws.policy.PolicyLoader;
 
 /**
  * Uses the filesystem to load a policy file.
- * 
+ *
  */
 public class FilePolicyLoader implements PolicyLoader {
 
@@ -39,7 +39,7 @@ public class FilePolicyLoader implements PolicyLoader {
 
     /**
      * Creates a new instance of the file policy loader.
-     * 
+     *
      * @param context
      *            Used to obtain the file from the file system.
      * @param policyLocation
@@ -54,7 +54,7 @@ public class FilePolicyLoader implements PolicyLoader {
 
     /**
      * Loads the policy and converts it into a Document.
-     * 
+     *
      * @param policyFileURL
      *            URL that is based in from the bundlecontext.
      * @return The policy in a Document format.
@@ -82,8 +82,8 @@ public class FilePolicyLoader implements PolicyLoader {
             }
         }
         if (doc == null) {
-            throw new IOException("Could not find policy file. No valid location given: "
-                    + policyFileURL);
+            throw new IOException(
+                    "Could not find policy file. No valid location given: " + policyFileURL);
         }
         return doc;
     }

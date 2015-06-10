@@ -14,8 +14,6 @@
  **/
 package org.codice.ddf.security.handler.api;
 
-import org.opensaml.xml.util.Base64;
-
 public class MockBSTAuthenticationToken extends BSTAuthenticationToken {
     public static final String PRINCIPAL = "principal";
 
@@ -27,9 +25,8 @@ public class MockBSTAuthenticationToken extends BSTAuthenticationToken {
         super(p, c, r);
     }
 
-//    public static BaseAuthenticationToken parse(String creds) {
-//        return new MockBSTAuthenticationToken(PRINCIPAL, CREDS, REALM);
-//    }
-
+    //    public static BaseAuthenticationToken parse(String creds) {
+    //        return new MockBSTAuthenticationToken(PRINCIPAL, CREDS, REALM);
+    //    }
 
 }

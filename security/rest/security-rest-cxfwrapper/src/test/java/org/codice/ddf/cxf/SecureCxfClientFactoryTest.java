@@ -14,9 +14,25 @@
  **/
 package org.codice.ddf.cxf;
 
-import ddf.security.Subject;
-import ddf.security.service.SecurityServiceException;
-import ddf.security.settings.SecuritySettingsService;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.MessageBodyReader;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
@@ -32,23 +48,9 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.support.DelegatingSubject;
 import org.junit.Test;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.MessageBodyReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import ddf.security.Subject;
+import ddf.security.service.SecurityServiceException;
+import ddf.security.settings.SecuritySettingsService;
 
 public class SecureCxfClientFactoryTest {
 
@@ -143,14 +145,14 @@ public class SecureCxfClientFactoryTest {
 
     private class MockWrapper<T> extends SecureCxfClientFactory<T> {
 
-        public MockWrapper(String endpointUrl, Class<T> interfaceClass)
-                throws SecurityServiceException {
+        public MockWrapper(String endpointUrl, Class<T> interfaceClass) throws
+                SecurityServiceException {
             super(endpointUrl, interfaceClass);
         }
 
         public MockWrapper(String endpointUrl, Class<T> interfaceClass, List providers,
-                Interceptor<? extends Message> interceptor, boolean disableCnCheck)
-                throws SecurityServiceException {
+                Interceptor<? extends Message> interceptor, boolean disableCnCheck) throws
+                SecurityServiceException {
             super(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck);
         }
 
@@ -177,8 +179,8 @@ public class SecureCxfClientFactoryTest {
 
         @Override
         public Object readFrom(Class type, Type genericType, Annotation[] annotations,
-                MediaType mediaType, MultivaluedMap httpHeaders, InputStream entityStream)
-                throws IOException, WebApplicationException {
+                MediaType mediaType, MultivaluedMap httpHeaders, InputStream entityStream) throws
+                IOException, WebApplicationException {
             return null;
         }
     }

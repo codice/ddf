@@ -40,7 +40,7 @@ import ddf.security.common.audit.SecurityLogger;
 /**
  * Interceptor that checks an incoming message against a defined certification
  * revocation list (CRL).
- * 
+ *
  */
 public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
 
@@ -52,7 +52,7 @@ public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
 
     /**
      * Creates a new crl interceptor.
-     * 
+     *
      */
     public CRLInterceptor() {
         super(Phase.PRE_PROTOCOL);
@@ -88,14 +88,15 @@ public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
                 throw new AccessDeniedException(errorMsg);
             }
         } else {
-            LOGGER.debug("Allowing message through. CRL checking has been disabled or there were no certificates sent by the client.");
+            LOGGER.debug(
+                    "Allowing message through. CRL checking has been disabled or there were no certificates sent by the client.");
         }
 
     }
 
     /**
      * Sets the location of the CRL.
-     * 
+     *
      * @param location
      *            Location of the DER-encoded CRL file that should be used to
      *            check certificate revocation.
@@ -122,7 +123,7 @@ public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
     /**
      * Sets the isEnabled flag for the CRL checker which determines if the
      * interceptor should check the incoming request to the specified CRL.
-     * 
+     *
      * @param isEnabled
      *            boolean value that either turns on crl checking (true) or
      *            turns off checking (false).
@@ -133,7 +134,7 @@ public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
 
     /**
      * Generates a new CRL object from the given location.
-     * 
+     *
      * @param location
      *            File location of the CRL file.
      * @return new CRL object

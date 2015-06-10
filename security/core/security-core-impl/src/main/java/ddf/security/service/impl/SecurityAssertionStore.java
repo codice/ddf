@@ -13,8 +13,11 @@
  **/
 package ddf.security.service.impl;
 
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.assertion.impl.SecurityAssertionImpl;
+import java.security.Principal;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.tokenstore.TokenStore;
@@ -26,10 +29,8 @@ import org.apache.wss4j.dom.WSSecurityEngineResult;
 import org.apache.wss4j.dom.handler.WSHandlerConstants;
 import org.apache.wss4j.dom.handler.WSHandlerResult;
 
-import java.security.Principal;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.assertion.impl.SecurityAssertionImpl;
 
 /**
  * Creates a SecurityAssertion object by extracting the token id from the message and using that id

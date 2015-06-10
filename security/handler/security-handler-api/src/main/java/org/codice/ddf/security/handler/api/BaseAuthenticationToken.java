@@ -19,9 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BaseAuthenticationToken implements AuthenticationToken {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BaseAuthenticationToken.class);
-
     public static final String DEFAULT_REALM = "karaf";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseAuthenticationToken.class);
 
     /**
      * Represents the account identity submitted during the authentication process.

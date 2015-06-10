@@ -1,20 +1,19 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.mime.mapper;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +30,7 @@ public class MockMimeTypeResolver implements MimeTypeResolver {
     private HashMap<String, List<String>> customMimeTypesToFileExtensionsMap;
 
     private String name;
-    
+
     private String schema;
 
     private int priority;
@@ -39,29 +38,27 @@ public class MockMimeTypeResolver implements MimeTypeResolver {
     public MockMimeTypeResolver(String name) {
         this(name, 10);
     }
-    
+
     public MockMimeTypeResolver(String name, int priority) {
         this.name = name;
         this.priority = priority;
-        
-        String[] customMimeTypes = new String[] {
-            "nitf=image/nitf",
-            "ntf=image/nitf"
-        };
-        
+
+        String[] customMimeTypes = new String[] {"nitf=image/nitf", "ntf=image/nitf"};
+
         setCustomMimeTypes(customMimeTypes);
     }
 
-    public MockMimeTypeResolver(String name, int priority, String[] customMimeTypes, String schema) {
+    public MockMimeTypeResolver(String name, int priority, String[] customMimeTypes,
+            String schema) {
         this.name = name;
         this.priority = priority;
         this.schema = schema;
-        
+
         setCustomMimeTypes(customMimeTypes);
     }
 
     public void setCustomMimeTypes(String[] customMimeTypes) {
-//        this.customMimeTypes = customMimeTypes.clone();
+        //        this.customMimeTypes = customMimeTypes.clone();
         this.customFileExtensionsToMimeTypesMap = new HashMap<String, String>();
         this.customMimeTypesToFileExtensionsMap = new HashMap<String, List<String>>();
 
@@ -85,7 +82,6 @@ public class MockMimeTypeResolver implements MimeTypeResolver {
         }
     }
 
-
     @Override
     public String getName() {
         return this.name;
@@ -95,25 +91,23 @@ public class MockMimeTypeResolver implements MimeTypeResolver {
     public int getPriority() {
         return priority;
     }
-    
-    
-    @Override
-    public boolean hasSchema() {
-        return StringUtils.isNotBlank(this.schema);
-    }
-    
-    @Override
-    public String getSchema() {
-        return schema;
-    }
 
     public void setPriority(int priority) {
         this.priority = priority;
     }
 
     @Override
-    public String getFileExtensionForMimeType(String contentType)
-    {
+    public boolean hasSchema() {
+        return StringUtils.isNotBlank(this.schema);
+    }
+
+    @Override
+    public String getSchema() {
+        return schema;
+    }
+
+    @Override
+    public String getFileExtensionForMimeType(String contentType) {
         String fileExtension = null;
         List<String> fileExtensions = customMimeTypesToFileExtensionsMap.get(contentType);
         if (fileExtensions != null && fileExtensions.size() > 0) {
@@ -127,8 +121,7 @@ public class MockMimeTypeResolver implements MimeTypeResolver {
     }
 
     @Override
-    public String getMimeTypeForFileExtension(String fileExtension)
-    {
+    public String getMimeTypeForFileExtension(String fileExtension) {
         String mimeType = customFileExtensionsToMimeTypesMap.get(fileExtension);
 
         return mimeType;

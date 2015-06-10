@@ -14,18 +14,18 @@
  **/
 package org.codice.ddf.security.handler.cas;
 
+import java.security.Principal;
+
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.opensaml.xml.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.Principal;
-
 public class CASAuthenticationToken extends BSTAuthenticationToken {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CASAuthenticationToken.class);
-
     public static final String CAS_ID = "CAS";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CASAuthenticationToken.class);
 
     private static final String SEP_CHAR = "|";
 
@@ -33,7 +33,8 @@ public class CASAuthenticationToken extends BSTAuthenticationToken {
         this(principal, proxyTicket, serviceUrl, BaseAuthenticationToken.DEFAULT_REALM);
     }
 
-    public CASAuthenticationToken(Principal principal, String proxyTicket, String serviceUrl, String realm) {
+    public CASAuthenticationToken(Principal principal, String proxyTicket, String serviceUrl,
+            String realm) {
         super(principal, proxyTicket + SEP_CHAR + serviceUrl, realm);
         setTokenValueType("", CAS_ID);
         setTokenId(CAS_ID);
@@ -46,10 +47,11 @@ public class CASAuthenticationToken extends BSTAuthenticationToken {
 
     public String getUser() {
         String user = null;
-        if (principal instanceof Principal)
+        if (principal instanceof Principal) {
             user = ((Principal) principal).getName();
-        else if (principal instanceof String)
+        } else if (principal instanceof String) {
             user = (String) principal;
+        }
         if (user == null) {
             LOGGER.warn("Unexpected null user.");
         }
@@ -58,14 +60,16 @@ public class CASAuthenticationToken extends BSTAuthenticationToken {
 
     public byte[] getCertificate() {
         byte[] certs = null;
-        if (credentials instanceof byte[])
+        if (credentials instanceof byte[]) {
             certs = (byte[]) credentials;
+        }
         return certs;
     }
 
     @Override
     public String getEncodedCredentials() {
-        String encodedTicket = Base64.encodeBytes(getTicketWithService().getBytes(), Base64.DONT_BREAK_LINES);
+        String encodedTicket = Base64
+                .encodeBytes(getTicketWithService().getBytes(), Base64.DONT_BREAK_LINES);
         LOGGER.trace("BST: {}", encodedTicket);
         return encodedTicket;
     }
@@ -77,10 +81,11 @@ public class CASAuthenticationToken extends BSTAuthenticationToken {
         sb.append(getUser());
         sb.append("; ticket: ");
         String ticket = getTicketWithService();
-        if ((ticket != null) && (ticket.length() > 5))
+        if ((ticket != null) && (ticket.length() > 5)) {
             sb.append(getTicketWithService().substring(0, 5));
-        else
+        } else {
             sb.append(ticket);
+        }
         sb.append("...; realm: ");
         sb.append(realm);
         return sb.toString();

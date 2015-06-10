@@ -14,6 +14,10 @@
  **/
 package ddf.compression.exi;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import org.openexi.proc.common.AlignmentType;
 import org.openexi.proc.common.EXIOptionsException;
 import org.openexi.proc.common.GrammarOptions;
@@ -23,10 +27,6 @@ import org.openexi.sax.TransmogrifierException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * Performs encoding and decoding xml compression using EXI.
@@ -51,8 +51,8 @@ public final class EXIEncoder {
      * @throws TransmogrifierException
      * @throws java.io.IOException
      */
-    public static void encode(InputStream xmlStream, OutputStream exiStream)
-            throws EXIOptionsException, TransmogrifierException, IOException {
+    public static void encode(InputStream xmlStream, OutputStream exiStream) throws
+            EXIOptionsException, TransmogrifierException, IOException {
         Transmogrifier trans = new Transmogrifier();
         trans.setAlignmentType(AlignmentType.bitPacked);
         GrammarCache grammarCache = new GrammarCache(null, GrammarOptions.DEFAULT_OPTIONS);

@@ -14,22 +14,23 @@
  **/
 package org.codice.ddf.security.sts.claims.property;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.Principal;
+
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
+
 import org.apache.cxf.rt.security.claims.Claim;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsParameters;
 import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.junit.Test;
-
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.x500.X500Principal;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.Principal;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class TestPropertyFileClaimsHandler {
 
@@ -51,7 +52,8 @@ public class TestPropertyFileClaimsHandler {
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("admin");
         when(claimsParameters.getPrincipal()).thenReturn(principal);
-        ProcessedClaimCollection processedClaimCollection = propertyFileClaimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
+        ProcessedClaimCollection processedClaimCollection = propertyFileClaimsHandler
+                .retrieveClaimValues(claimCollection, claimsParameters);
 
         assertEquals(1, processedClaimCollection.size());
         assertEquals(5, processedClaimCollection.get(0).getValues().size());

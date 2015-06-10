@@ -14,6 +14,15 @@
  **/
 package org.codice.ddf.security.validator.anonymous;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
 import org.apache.cxf.sts.token.validator.TokenValidatorResponse;
@@ -23,14 +32,6 @@ import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.xml.util.Base64;
-
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class AnonymousValidatorTest {
 
@@ -50,7 +51,8 @@ public class AnonymousValidatorTest {
                 "DDF");
 
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
-        binarySecurityTokenType.setValueType(AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE);
+        binarySecurityTokenType
+                .setValueType(AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE);
         binarySecurityTokenType.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
         binarySecurityTokenType.setId(AnonymousAuthenticationToken.BST_ANONYMOUS_LN);
         binarySecurityTokenType.setValue(anonymousAuthenticationToken.getEncodedCredentials());
@@ -58,20 +60,20 @@ public class AnonymousValidatorTest {
                 new QName(
                         "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
                         "BinarySecurityToken"), BinarySecurityTokenType.class,
-                binarySecurityTokenType
-        );
+                binarySecurityTokenType);
 
         BinarySecurityTokenType binarySecurityTokenType2 = new BinarySecurityTokenType();
-        binarySecurityTokenType.setValueType(AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE);
+        binarySecurityTokenType
+                .setValueType(AnonymousAuthenticationToken.ANONYMOUS_TOKEN_VALUE_TYPE);
         binarySecurityTokenType2.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
         binarySecurityTokenType2.setId(AnonymousAuthenticationToken.BST_ANONYMOUS_LN);
-        binarySecurityTokenType2.setValue(Base64.encodeBytes("NotAnonymous".getBytes(), Base64.DONT_BREAK_LINES));
+        binarySecurityTokenType2
+                .setValue(Base64.encodeBytes("NotAnonymous".getBytes(), Base64.DONT_BREAK_LINES));
         JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement2 = new JAXBElement<BinarySecurityTokenType>(
                 new QName(
                         "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
                         "BinarySecurityToken"), BinarySecurityTokenType.class,
-                binarySecurityTokenType2
-        );
+                binarySecurityTokenType2);
 
         receivedToken = new ReceivedToken(binarySecurityTokenElement);
         receivedBadToken = new ReceivedToken(binarySecurityTokenElement2);

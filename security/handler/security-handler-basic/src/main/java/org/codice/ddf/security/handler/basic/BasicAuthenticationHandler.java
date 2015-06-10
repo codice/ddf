@@ -14,13 +14,7 @@
  **/
 package org.codice.ddf.security.handler.basic;
 
-import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.UPAuthenticationToken;
-import org.codice.ddf.security.policy.context.ContextPolicy;
-import org.opensaml.xml.util.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -29,15 +23,20 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
-import java.io.IOException;
+
+import org.codice.ddf.security.handler.api.AuthenticationHandler;
+import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.UPAuthenticationToken;
+import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.opensaml.xml.util.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Checks for basic authentication credentials in the http request header. If they exist, they are retrieved and
  * returned in the HandlerResult.
  */
 public class BasicAuthenticationHandler implements AuthenticationHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BasicAuthenticationHandler.class);
-
     /**
      * Basic type to use when configuring context policy.
      */
@@ -46,6 +45,8 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
     public static final String AUTHENTICATION_SCHEME_BASIC = "Basic";
 
     public static final String SOURCE = "BasicHandler";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicAuthenticationHandler.class);
 
     protected String authenticationType = AUTH_TYPE;
 
@@ -61,6 +62,7 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
     public void setAuthenticationType(String authType) {
         this.authenticationType = authType;
     }
+
     /**
      * Processes the incoming request to retrieve the username/password tokens. Handles responding
      * to the client that authentication is needed if they are not present in the request.
@@ -73,7 +75,8 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
      * @return
      */
     @Override
-    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
+    public HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
+            FilterChain chain, boolean resolve) {
 
         String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
         HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
@@ -104,7 +107,8 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
     }
 
     @Override
-    public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException {
+    public HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
+            FilterChain chain) throws ServletException {
         String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
         doAuthPrompt(realm, (HttpServletResponse) servletResponse);
         HandlerResult result = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
@@ -121,7 +125,8 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
      */
     private void doAuthPrompt(String realm, HttpServletResponse response) {
         try {
-            response.setHeader(HttpHeaders.WWW_AUTHENTICATE, AUTHENTICATION_SCHEME_BASIC + " realm=\"" + realm + "\"");
+            response.setHeader(HttpHeaders.WWW_AUTHENTICATE,
+                    AUTHENTICATION_SCHEME_BASIC + " realm=\"" + realm + "\"");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentLength(0);
             response.flushBuffer();

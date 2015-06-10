@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.security.pdp.xacml.processor;
 
@@ -26,14 +26,6 @@ import java.io.Writer;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeType;
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeValueType;
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributesType;
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.DecisionType;
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.ObjectFactory;
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -44,7 +36,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.security.pdp.xacml.PdpException;
-import ddf.security.pdp.xacml.processor.BalanaPdp;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeType;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeValueType;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributesType;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.DecisionType;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.ObjectFactory;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
 
 public class BalanaPdpTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BalanaPdpTest.class);
@@ -81,9 +79,14 @@ public class BalanaPdpTest {
 
     private static final String POLICY_FILE = "query-policy.xml";
 
+    private static final String US_COUNTRY = "USA";
+
     private static String PROJECT_HOME;
 
-    private static final String US_COUNTRY = "USA";
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
+    private File tempDir;
 
     @BeforeClass
     public static void init() {
@@ -103,8 +106,9 @@ public class BalanaPdpTest {
         File destDir = folder.newFolder(TEMP_DIR_NAME);
         LOGGER.debug("Making directory: {}", destDir.getPath());
         destDir.mkdir();
-        File srcFile = new File(PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR
-                + File.separator + POLICY_FILE);
+        File srcFile = new File(
+                PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR + File.separator
+                        + POLICY_FILE);
         FileUtils.copyFileToDirectory(srcFile, destDir);
 
         RequestType xacmlRequestType = new RequestType();
@@ -265,8 +269,7 @@ public class BalanaPdpTest {
     @Test
     /**
      * No longer expect an exception thrown here since we can start with an empty directory
-     */
-    public void testBalanaPdp_policies_directory_exists_and_is_empty() throws Exception {
+     */ public void testBalanaPdp_policies_directory_exists_and_is_empty() throws Exception {
         LOGGER.debug("\n\n\n##### testBalanaPdp_policies_directory_exists_and_is_empty");
 
         // Setup
@@ -294,8 +297,9 @@ public class BalanaPdpTest {
         // Perform Test
         BalanaPdp pdp = new BalanaPdp(policyDir);
 
-        File srcFile = new File(PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR
-                + File.separator + POLICY_FILE);
+        File srcFile = new File(
+                PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR + File.separator
+                        + POLICY_FILE);
         FileUtils.copyFileToDirectory(srcFile, policyDir);
 
         // By setting the polling interval to a second
@@ -380,8 +384,9 @@ public class BalanaPdpTest {
         tempDir = folder.newFolder(TEMP_DIR_NAME);
         LOGGER.debug("Making directory: {}", tempDir.getPath());
         tempDir.mkdir();
-        File srcFile = new File(PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR
-                + File.separator + POLICY_FILE);
+        File srcFile = new File(
+                PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR + File.separator
+                        + POLICY_FILE);
         FileUtils.copyFileToDirectory(srcFile, tempDir);
     }
 
@@ -400,10 +405,5 @@ public class BalanaPdpTest {
 
         return filter;
     }
-
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
-    private File tempDir;
 
 }

@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.security.ws.policy;
 
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Overrides the default CXF policies with the one specified in the constructor.
- * 
+ *
  */
 public class AbstractOverrideInterceptor extends AbstractPhaseInterceptor<Message> {
 
@@ -37,7 +37,7 @@ public class AbstractOverrideInterceptor extends AbstractPhaseInterceptor<Messag
 
     /**
      * Creates a new instance of the OverrideInterceptor.
-     * 
+     *
      * @param phase
      *            Phase to load in.
      * @param loader
@@ -51,7 +51,7 @@ public class AbstractOverrideInterceptor extends AbstractPhaseInterceptor<Messag
     /**
      * Adds the policy retrieved from the configured policy loader to this message as the override
      * policy.
-     * 
+     *
      * @param message
      */
     @Override

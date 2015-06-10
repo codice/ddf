@@ -1,4 +1,3 @@
-
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -13,21 +12,21 @@
  **/
 -->
 <metatype:MetaData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0"
-                   xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
+                   xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0"
+                   xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0">
 
 	<OCD description="STS PKI Token Validator Configuration."
-	 	name="Security STS PKI Token Validator" id="org.codice.ddf.security.validator.pki">
+         name="Security STS PKI Token Validator" id="org.codice.ddf.security.validator.pki">
 
 	    <AD name="Realms" id="url" required="true" type="String" cardinality="100"
-	      default="karaf"
-	      description="The realms to be validated by this validator.">
+            default="karaf"
+            description="The realms to be validated by this validator.">
 	    </AD>
 
 	</OCD>
 
 	<Designate pid="org.codice.ddf.security.validator.pki">
-	    <Object ocdref="org.codice.ddf.security.validator.pki" />
+	    <Object ocdref="org.codice.ddf.security.validator.pki"/>
   	</Designate>
 
 </metatype:MetaData>

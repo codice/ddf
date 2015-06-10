@@ -31,12 +31,17 @@ import org.slf4j.LoggerFactory;
  */
 public class BSTDelegationHandler implements TokenDelegationHandler {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BSTDelegationHandler.class);
     public static final String X509_PKI_PATH = WSConstants.X509TOKEN_NS + "#X509PKIPathv1";
+
     public static final String X509_V3 = WSConstants.X509TOKEN_NS + "#X509v3";
+
     public static final String BASE64_ENCODING = WSConstants.SOAPMESSAGE_NS + "#Base64Binary";
 
-    public static final String BST_VALUE_TYPE = BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN;
+    public static final String BST_VALUE_TYPE =
+            BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN;
+
+    private static final org.slf4j.Logger LOGGER = LoggerFactory
+            .getLogger(BSTDelegationHandler.class);
 
     //private boolean checkAudienceRestriction;
 
@@ -44,8 +49,8 @@ public class BSTDelegationHandler implements TokenDelegationHandler {
         Object token = delegateTarget.getToken();
         if (token instanceof BinarySecurityTokenType) {
             BinarySecurityTokenType bstt = (BinarySecurityTokenType) token;
-            if (BST_VALUE_TYPE.equals(bstt.getValueType()) &&
-                BASE64_ENCODING.equals(bstt.getEncodingType())) {
+            if (BST_VALUE_TYPE.equals(bstt.getValueType()) && BASE64_ENCODING
+                    .equals(bstt.getEncodingType())) {
                 return true;
             }
         }

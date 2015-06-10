@@ -14,7 +14,18 @@
  **/
 package org.codice.ddf.security.validator.uname;
 
-import junit.framework.Assert;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.Collection;
+
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
@@ -33,16 +44,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.ServiceReference;
 
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.util.Collection;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import junit.framework.Assert;
 
 public class UPBSTValidatorTest {
 
@@ -52,7 +54,9 @@ public class UPBSTValidatorTest {
             return null;
         }
     };
+
     final JAASUsernameTokenValidator meanValidator = new JAASUsernameTokenValidator();
+
     JAXBElement<BinarySecurityTokenType> upbstToken;
 
     STSPropertiesMBean stsPropertiesMBean;
@@ -65,22 +69,21 @@ public class UPBSTValidatorTest {
         when(stsPropertiesMBean.getSignatureCrypto()).thenReturn(new Merlin());
         when(stsPropertiesMBean.getCallbackHandler()).thenReturn(new CallbackHandler() {
             @Override
-            public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+            public void handle(Callback[] callbacks) throws IOException,
+                    UnsupportedCallbackException {
 
             }
         });
-        UPAuthenticationToken upAuthenticationToken = new UPAuthenticationToken("good", "password", "realm");
+        UPAuthenticationToken upAuthenticationToken = new UPAuthenticationToken("good", "password",
+                "realm");
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType.setValueType(UPAuthenticationToken.UP_TOKEN_VALUE_TYPE);
         binarySecurityTokenType.setEncodingType(BSTAuthenticationToken.BASE64_ENCODING);
         binarySecurityTokenType.setId(UPAuthenticationToken.BST_USERNAME_LN);
         binarySecurityTokenType.setValue(upAuthenticationToken.getEncodedCredentials());
-        upbstToken = new JAXBElement<>(
-                new QName(
-                        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
-                        "BinarySecurityToken"), BinarySecurityTokenType.class,
-                binarySecurityTokenType
-        );
+        upbstToken = new JAXBElement<>(new QName(
+                "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                "BinarySecurityToken"), BinarySecurityTokenType.class, binarySecurityTokenType);
     }
 
     @Test

@@ -13,7 +13,8 @@
  -->
 <features name="${project.artifactId}-${project.version}">
 
-	<feature name="mime-tika-resolver" version="${project.version}" description="DDF Tika MIME Resolver.">
+	<feature name="mime-tika-resolver" version="${project.version}"
+             description="DDF Tika MIME Resolver.">
 		<bundle>mvn:ddf.mime.tika/mime-tika-resolver/${project.version}</bundle>
 	</feature>
 

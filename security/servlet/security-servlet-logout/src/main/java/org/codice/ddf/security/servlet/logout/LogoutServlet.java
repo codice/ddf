@@ -14,17 +14,18 @@
  **/
 package org.codice.ddf.security.servlet.logout;
 
+import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 
 public class LogoutServlet extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws
+            ServletException, IOException {
         response.setHeader("Cache-Control", "no-cache, no-store");
         response.setHeader("Pragma", "no-cache");
         response.setContentType("text/html");
@@ -37,8 +38,8 @@ public class LogoutServlet extends HttpServlet {
         //This is just here to avoid a blank screen
         //A user would most likely never see this as they will be redirected to some other
         //login page by a filter or just returned back to the same screen they were already viewing
-        response.getWriter().print(
-                "You have successfully logged out. Please close your browser or tab.");
+        response.getWriter()
+                .print("You have successfully logged out. Please close your browser or tab.");
 
         response.getWriter().close();
     }

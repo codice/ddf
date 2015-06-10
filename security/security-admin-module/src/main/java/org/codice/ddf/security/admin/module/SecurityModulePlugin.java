@@ -14,11 +14,11 @@
  **/
 package org.codice.ddf.security.admin.module;
 
-import org.codice.ddf.admin.application.plugin.AbstractApplicationPlugin;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.codice.ddf.admin.application.plugin.AbstractApplicationPlugin;
 
 public class SecurityModulePlugin extends AbstractApplicationPlugin {
 

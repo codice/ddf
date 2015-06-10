@@ -78,7 +78,7 @@ public class ProxyFilter implements Filter {
      * javax.servlet.ServletResponse, javax.servlet.FilterChain)
      */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-      FilterChain filterChain) throws IOException, ServletException {
+            FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         StringBuffer requestUrl = httpServletRequest.getRequestURL();
 
@@ -90,7 +90,8 @@ public class ProxyFilter implements Filter {
 
         filterProxyChain.addFilters(filters);
 
-        LOGGER.debug("Calling {}.doFilter({},{})", filterProxyChain.getClass().getName(), servletRequest, servletResponse);
+        LOGGER.debug("Calling {}.doFilter({},{})", filterProxyChain.getClass().getName(),
+                servletRequest, servletResponse);
         filterProxyChain.doFilter(servletRequest, servletResponse);
 
     }

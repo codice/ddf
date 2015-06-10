@@ -1,18 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.security.cas.filter;
+
+import java.util.Hashtable;
+
+import javax.servlet.Filter;
 
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.osgi.framework.Bundle;
@@ -22,18 +26,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.Filter;
-import java.util.Hashtable;
-
 public class CXFFilterAdder {
-    private Logger logger = LoggerFactory.getLogger(CXFFilterAdder.class);
-
-    private ServiceRegistration filterService;
-
-    private Hashtable<String, String> properties = new Hashtable<String, String>();
-
-    private Filter casProxyFilter;
-
     private static final String URL_PATTERNS_KEY = "urlPatterns";
 
     private static final String FILTER_NAME_KEY = "filter-name";
@@ -42,11 +35,23 @@ public class CXFFilterAdder {
 
     private static final String DEFAULT_URL_PATTERN = "/services/catalog/*";
 
+    private Logger logger = LoggerFactory.getLogger(CXFFilterAdder.class);
+
+    private ServiceRegistration filterService;
+
+    private Hashtable<String, String> properties = new Hashtable<String, String>();
+
+    private Filter casProxyFilter;
+
     public CXFFilterAdder(Filter proxyFilter) {
         casProxyFilter = proxyFilter;
         properties.put(FILTER_NAME_KEY, FILTER_NAME);
         properties.put(URL_PATTERNS_KEY, DEFAULT_URL_PATTERN);
         registerService();
+    }
+
+    public String getUrlPattern() {
+        return properties.get(URL_PATTERNS_KEY);
     }
 
     public void setUrlPattern(String urlPattern) {
@@ -56,16 +61,13 @@ public class CXFFilterAdder {
         registerService();
     }
 
-    public String getUrlPattern() {
-        return properties.get(URL_PATTERNS_KEY);
-    }
-
     private void registerService() {
         logger.debug("Registering Filter with CXF Context for url {}",
                 properties.get(URL_PATTERNS_KEY));
         BundleContext cxfContext = getContext();
         if (cxfContext != null) {
-            filterService = cxfContext.registerService("javax.servlet.Filter", casProxyFilter, properties);
+            filterService = cxfContext
+                    .registerService("javax.servlet.Filter", casProxyFilter, properties);
         } else {
             logger.debug("Attempting to register service with null CXF context.");
         }

@@ -1,24 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.ddf.notifications.impl;
-
-import com.hazelcast.core.MapLoader;
-import com.hazelcast.core.MapStore;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -38,13 +32,20 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.hazelcast.core.MapLoader;
+import com.hazelcast.core.MapStore;
+
 /**
  * Hazelcast persistence provider implementation of @MapLoader and @MapStore to serialize and
  * persist Java objects stored in Hazelcast cache to disk.
- * 
+ *
  */
-public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
-        MapStore<String, Object> {
+public class FileSystemPersistenceProvider
+        implements MapLoader<String, Object>, MapStore<String, Object> {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(FileSystemPersistenceProvider.class);
@@ -66,7 +67,7 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         File dir = new File(getPersistencePath());
         if (!dir.exists()) {
             if (!dir.mkdir()) {
-               LOGGER.warn("Unable to create directory: {}", dir.getAbsolutePath());
+                LOGGER.warn("Unable to create directory: {}", dir.getAbsolutePath());
             }
         }
     }
@@ -74,7 +75,7 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
     /**
      * Retrieve root directory of all persisted Hazelcast objects for this cache. The path is
      * relative to containing bundle, i.e., DDF install directory.
-     * 
+     *
      * @return the path to root directory where serialized objects will be persisted
      */
     String getPersistencePath() {
@@ -83,7 +84,7 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
 
     /**
      * Path to where persisted Hazelcast objects will be stored to disk.
-     * 
+     *
      * @return
      */
     String getMapStorePath() {

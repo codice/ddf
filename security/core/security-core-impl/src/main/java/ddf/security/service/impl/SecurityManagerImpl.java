@@ -14,12 +14,10 @@
  **/
 package ddf.security.service.impl;
 
-import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
-import ddf.security.assertion.impl.SecurityAssertionImpl;
-import ddf.security.impl.SubjectImpl;
-import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
+import java.security.Principal;
+import java.util.Collection;
+import java.util.UUID;
+
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -32,9 +30,12 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.Principal;
-import java.util.Collection;
-import java.util.UUID;
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.assertion.impl.SecurityAssertionImpl;
+import ddf.security.impl.SubjectImpl;
+import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
 
 public class SecurityManagerImpl implements SecurityManager {
 
@@ -69,7 +70,7 @@ public class SecurityManagerImpl implements SecurityManager {
             return getSubject((SecurityToken) token);
         } else {
             throw new SecurityServiceException(
-                "Incoming token object NOT supported by security manager implementation. Currently supported types are AuthenticationToken and SecurityToken");
+                    "Incoming token object NOT supported by security manager implementation. Currently supported types are AuthenticationToken and SecurityToken");
         }
     }
 
@@ -84,13 +85,13 @@ public class SecurityManagerImpl implements SecurityManager {
     private Subject getSubject(AuthenticationToken token) throws SecurityServiceException {
         if (token.getCredentials() == null) {
             throw new SecurityServiceException(
-                "CANNOT AUTHENTICATE USER: Authentication token did not contain any credentials. "
-                + "This is generally due to an error on the authentication server.");
+                    "CANNOT AUTHENTICATE USER: Authentication token did not contain any credentials. "
+                            + "This is generally due to an error on the authentication server.");
         }
         AuthenticationInfo info = internalManager.authenticate(token);
         try {
-            return new SubjectImpl(info.getPrincipals(), true, new SimpleSession(UUID
-                    .randomUUID().toString()), internalManager);
+            return new SubjectImpl(info.getPrincipals(), true,
+                    new SimpleSession(UUID.randomUUID().toString()), internalManager);
         } catch (Exception e) {
             throw new SecurityServiceException("Could not create a new subject", e);
         }
@@ -107,8 +108,8 @@ public class SecurityManagerImpl implements SecurityManager {
     private Subject getSubject(SecurityToken token) throws SecurityServiceException {
         try {
             // return the newly created subject
-            return new SubjectImpl(createPrincipalFromToken(token), true, new SimpleSession(UUID
-                .randomUUID().toString()), internalManager);
+            return new SubjectImpl(createPrincipalFromToken(token), true,
+                    new SimpleSession(UUID.randomUUID().toString()), internalManager);
         } catch (Exception e) {
             throw new SecurityServiceException("Could not create a new subject", e);
         }
@@ -123,8 +124,8 @@ public class SecurityManagerImpl implements SecurityManager {
     private SimplePrincipalCollection createPrincipalFromToken(SecurityToken token) {
         SimplePrincipalCollection principals = new SimplePrincipalCollection();
         for (Realm curRealm : realms) {
-            logger.debug("Configuring settings for realm name: {} type: {}",
-                    curRealm.getName(), curRealm.getClass().toString());
+            logger.debug("Configuring settings for realm name: {} type: {}", curRealm.getName(),
+                    curRealm.getClass().toString());
             logger.debug("Is authorizer: {}, is AuthorizingRealm: {}",
                     curRealm instanceof Authorizer, curRealm instanceof AuthorizingRealm);
             SecurityAssertion securityAssertion = null;
@@ -135,7 +136,9 @@ public class SecurityManagerImpl implements SecurityManager {
                     principals.add(principal.getName(), curRealm.getName());
                 }
             } catch (Exception e) {
-                logger.warn("Encountered error while trying to get the Principal for the SecurityToken. Security functions may not work properly.", e);
+                logger.warn(
+                        "Encountered error while trying to get the Principal for the SecurityToken. Security functions may not work properly.",
+                        e);
             }
             if (securityAssertion != null) {
                 principals.add(securityAssertion, curRealm.getName());

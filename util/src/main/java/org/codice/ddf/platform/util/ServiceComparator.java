@@ -14,9 +14,9 @@
  **/
 package org.codice.ddf.platform.util;
 
-import org.osgi.framework.ServiceReference;
-
 import java.util.Comparator;
+
+import org.osgi.framework.ServiceReference;
 
 /**
  * Comparator for OSGi {@link org.osgi.framework.ServiceReference} objects.

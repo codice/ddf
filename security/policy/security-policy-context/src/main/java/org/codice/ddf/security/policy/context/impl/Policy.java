@@ -14,13 +14,14 @@
  **/
 package org.codice.ddf.security.policy.context.impl;
 
-import ddf.security.permission.CollectionPermission;
-import org.codice.ddf.security.policy.context.ContextPolicy;
-import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.ddf.security.policy.context.attributes.ContextAttributeMapping;
+
+import ddf.security.permission.CollectionPermission;
 
 /**
  * Implementation of ContextPolicy for the Policy Manager in this package.
@@ -35,7 +36,8 @@ public class Policy implements ContextPolicy {
 
     private Collection<ContextAttributeMapping> attributeMappings;
 
-    public Policy(String contextPath, String realm, Collection<String> authenticationMethods, Collection<ContextAttributeMapping> attributeMappings) {
+    public Policy(String contextPath, String realm, Collection<String> authenticationMethods,
+            Collection<ContextAttributeMapping> attributeMappings) {
         this.contextPath = contextPath;
         this.realm = realm;
         this.authenticationMethods = authenticationMethods;

@@ -14,6 +14,8 @@
  **/
 package org.codice.ddf.persistence.commands;
 
+import java.io.PrintStream;
+
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.codice.ddf.persistence.PersistenceException;
@@ -21,8 +23,6 @@ import org.codice.ddf.persistence.PersistentStore;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.PrintStream;
 
 /**
  * Abstract store command that allows store commands to be built off this. Takes care of obtaining
@@ -58,8 +58,7 @@ public abstract class AbstractStoreCommand extends OsgiCommandSupport {
                 if (PersistentStore.PERSISTENCE_TYPES.contains(type)) {
                     storeCommand();
                 } else {
-                    console.println(
-                            "Type passed in was not correct. Must be one of "
+                    console.println("Type passed in was not correct. Must be one of "
                                     + PersistentStore.PERSISTENCE_TYPES + ".");
                 }
             } else {

@@ -14,6 +14,14 @@
  **/
 package ddf.compression.exi;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.core.HttpHeaders;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.CastUtils;
@@ -24,13 +32,6 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.HttpHeaders;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Interceptor that converts message content to exi-encoding if supporting by calling client.
@@ -58,8 +59,8 @@ public class EXIOutInterceptor extends AbstractPhaseInterceptor<Message> {
         } else {
             //server sending back response
             Message request = message.getExchange().getInMessage();
-            Map<String, List<String>> requestHeaders = CastUtils.cast((Map<?, ?>) request
-                    .get(Message.PROTOCOL_HEADERS));
+            Map<String, List<String>> requestHeaders = CastUtils
+                    .cast((Map<?, ?>) request.get(Message.PROTOCOL_HEADERS));
             if (requestHeaders != null) {
                 String acceptEncodingHeader = StringUtils
                         .join(requestHeaders.get(HttpHeaders.ACCEPT_ENCODING), ",");

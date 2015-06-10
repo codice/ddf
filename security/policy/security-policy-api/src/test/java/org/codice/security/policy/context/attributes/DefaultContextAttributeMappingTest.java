@@ -14,16 +14,18 @@
  **/
 package org.codice.security.policy.context.attributes;
 
-import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.KeyValuePermission;
-import junit.framework.Assert;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.codice.ddf.security.policy.context.attributes.DefaultContextAttributeMapping;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import junit.framework.Assert;
+
+import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.KeyValuePermission;
 
 /**
  * Test for the default ContextAttributeMapping implementation.

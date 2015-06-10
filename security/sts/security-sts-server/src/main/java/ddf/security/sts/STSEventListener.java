@@ -14,12 +14,13 @@
  **/
 package ddf.security.sts;
 
-import ddf.security.common.audit.SecurityLogger;
+import java.util.Map;
+
 import org.apache.cxf.sts.event.map.KEYS;
 import org.apache.cxf.sts.event.map.MapEvent;
 import org.apache.cxf.sts.event.map.MapEventListener;
 
-import java.util.Map;
+import ddf.security.common.audit.SecurityLogger;
 
 /**
  * STSEventListener that logs events send by the STS during operations and logs it to the DDF

@@ -14,11 +14,12 @@
  **/
 package ddf.security.sts.client.configuration.impl;
 
-import ddf.security.sts.client.configuration.STSClientConfiguration;
-import org.apache.commons.lang.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public class STSClientConfigurationImpl implements STSClientConfiguration {
 
@@ -173,11 +174,6 @@ public class STSClientConfigurationImpl implements STSClientConfiguration {
     }
 
     @Override
-    public void setClaims(List<String> claims) {
-        this.claims = new ArrayList<String>(claims);
-    }
-
-    @Override
     public void setClaims(String claimsListAsString) {
         List<String> setClaims = new ArrayList<String>();
         if (StringUtils.isNotBlank(claimsListAsString)) {
@@ -187,6 +183,11 @@ public class STSClientConfigurationImpl implements STSClientConfiguration {
             }
         }
         this.claims = setClaims;
+    }
+
+    @Override
+    public void setClaims(List<String> claims) {
+        this.claims = new ArrayList<String>(claims);
     }
 
     @Override

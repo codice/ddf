@@ -1,18 +1,36 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.solr.factory;
+
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+
+import javax.net.ssl.SSLContext;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -39,23 +57,6 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.net.ssl.SSLContext;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-
 /**
  * Factory that creates {@link org.apache.solr.client.solrj.SolrServer} instances. Currently will create a
  * {@link EmbeddedSolrServer} instance.
@@ -67,6 +68,14 @@ public final class SolrServerFactory {
 
     public static final String DEFAULT_HTTPS_ADDRESS = "https://localhost:8993/solr";
 
+    public static final String CORE_NAME = "core1";
+
+    public static final String[] DEFAULT_PROTOCOLS = new String[] {"TLSv1.1", "TLSv1.2"};
+
+    public static final String[] DEFAULT_CIPHER_SUITES = new String[] {
+            "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA"};
+
     private static final String DEFAULT_SCHEMA_XML = "schema.xml";
 
     private static final String DEFAULT_SOLRCONFIG_XML = "solrconfig.xml";
@@ -74,20 +83,6 @@ public final class SolrServerFactory {
     private static final String DEFAULT_SOLR_XML = "solr.xml";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrServerFactory.class);
-
-    public static final String CORE_NAME = "core1";
-
-    public static final String[] DEFAULT_PROTOCOLS = new String[] {
-            "TLSv1.1",
-            "TLSv1.2"
-    };
-
-    public static final String[] DEFAULT_CIPHER_SUITES = new String[] {
-            "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-            "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-            "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
-            "TLS_RSA_WITH_AES_128_CBC_SHA"
-    };
 
     /** Hiding constructor **/
     private SolrServerFactory() {
@@ -129,11 +124,11 @@ public final class SolrServerFactory {
             url = DEFAULT_HTTPS_ADDRESS;
         }
 
-        if (System.getProperty("host") != null && System.getProperty("jetty.port") != null && System
-                .getProperty("hostContext") != null) {
+        if (System.getProperty("host") != null && System.getProperty("jetty.port") != null
+                && System.getProperty("hostContext") != null) {
             url = System.getProperty("urlScheme", "http") + "://" + System.getProperty("host") +
-                    ":" + System.getProperty("jetty.port") + "/"
-                    + StringUtils.strip(System.getProperty("hostContext"), "/");
+                    ":" + System.getProperty("jetty.port") + "/" + StringUtils
+                    .strip(System.getProperty("hostContext"), "/");
             LOGGER.info("Solr system properties set.  Using system configured URL instead: {}",
                     url);
         }
@@ -161,17 +156,12 @@ public final class SolrServerFactory {
 
     private static CloseableHttpClient getHttpClient() {
         SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
-                getSslContext(),
-                getProtocols(),
-                getCipherSuites(),
+                getSslContext(), getProtocols(), getCipherSuites(),
                 SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
 
-        return HttpClients.custom()
-                .setSSLSocketFactory(sslConnectionSocketFactory)
-                .setDefaultCookieStore(new BasicCookieStore())
-                .setMaxConnTotal(128)
-                .setMaxConnPerRoute(32)
-                .build();
+        return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
+                .setDefaultCookieStore(new BasicCookieStore()).setMaxConnTotal(128)
+                .setMaxConnPerRoute(32).build();
     }
 
     private static String[] getProtocols() {
@@ -195,8 +185,8 @@ public final class SolrServerFactory {
                 System.getProperty("javax.net.ssl.keyStorePassword") == null ||
                 System.getProperty("javax.net.ssl.trustStore") == null ||
                 System.getProperty("javax.net.ssl.trustStorePassword") == null) {
-            throw new IllegalArgumentException("KeyStore and TrustStore system properties must be" +
-                    " set.");
+            throw new IllegalArgumentException(
+                    "KeyStore and TrustStore system properties must be" + " set.");
         }
 
         KeyStore trustStore = getKeyStore(System.getProperty("javax.net.ssl.trustStore"),
@@ -207,12 +197,9 @@ public final class SolrServerFactory {
         SSLContext sslContext = null;
 
         try {
-            sslContext = SSLContexts.custom()
-                    .loadKeyMaterial(keyStore,
-                            System.getProperty("javax.net.ssl.keyStorePassword").toCharArray())
-                    .loadTrustMaterial(trustStore)
-                    .useTLS()
-                    .build();
+            sslContext = SSLContexts.custom().loadKeyMaterial(keyStore,
+                    System.getProperty("javax.net.ssl.keyStorePassword").toCharArray())
+                    .loadTrustMaterial(trustStore).useTLS().build();
         } catch (UnrecoverableKeyException | NoSuchAlgorithmException | KeyStoreException |
                 KeyManagementException e) {
             LOGGER.error("Unable to create secure HttpClient", e);
@@ -258,7 +245,8 @@ public final class SolrServerFactory {
     public static EmbeddedSolrServer getEmbeddedSolrServer(String solrConfigXml, String schemaXml,
             ConfigurationFileProxy givenConfigFileProxy) {
 
-        LOGGER.debug("Retrieving embedded solr with the following properties: [{},{},{}]" , solrConfigXml, schemaXml, givenConfigFileProxy);
+        LOGGER.debug("Retrieving embedded solr with the following properties: [{},{},{}]",
+                solrConfigXml, schemaXml, givenConfigFileProxy);
 
         String solrConfigFileName = DEFAULT_SOLRCONFIG_XML;
         String schemaFileName = DEFAULT_SCHEMA_XML;
@@ -291,24 +279,24 @@ public final class SolrServerFactory {
             // codecs, posting formats, and analyzers
             SolrConfig solrConfig = new SolrConfig(solrConfigHome.getParent(), solrConfigFileName,
                     new InputSource(FileUtils.openInputStream(solrConfigFile)));
-            IndexSchema indexSchema = new IndexSchema(solrConfig, schemaFileName, new InputSource(
-                    FileUtils.openInputStream(solrSchemaFile)));
-            CoreContainer container = CoreContainer.createAndLoad(solrConfigHome.getAbsolutePath(),
-                    solrFile);
+            IndexSchema indexSchema = new IndexSchema(solrConfig, schemaFileName,
+                    new InputSource(FileUtils.openInputStream(solrSchemaFile)));
+            CoreContainer container = CoreContainer
+                    .createAndLoad(solrConfigHome.getAbsolutePath(), solrFile);
 
-            CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME, solrConfig
-                    .getResourceLoader().getInstanceDir());
+            CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME,
+                    solrConfig.getResourceLoader().getInstanceDir());
 
             File dataDir = configProxy.getDataDirectory();
             LOGGER.debug("Using data directory [{}]", dataDir);
-            SolrCore core = new SolrCore(CORE_NAME, dataDir.getAbsolutePath(), solrConfig, indexSchema,
-                    coreDescriptor);
+            SolrCore core = new SolrCore(CORE_NAME, dataDir.getAbsolutePath(), solrConfig,
+                    indexSchema, coreDescriptor);
             container.register(CORE_NAME, core, false);
 
             return new EmbeddedSolrServer(container, CORE_NAME);
-        } catch (ParserConfigurationException|IOException|SAXException e) {
-            throw new IllegalArgumentException("Unable to parse Solr configuration file: " +
-                    solrConfigFileName, e);
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            throw new IllegalArgumentException(
+                    "Unable to parse Solr configuration file: " + solrConfigFileName, e);
         } finally {
             Thread.currentThread().setContextClassLoader(tccl);
         }
@@ -319,12 +307,13 @@ public final class SolrServerFactory {
             URL url = configProxy.getResource(configFileName);
             return new File(new URI(url.toString()).getPath());
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Unable to locate Solr configuration file: " +
-                    configFileName, e);
+            throw new IllegalArgumentException(
+                    "Unable to locate Solr configuration file: " + configFileName, e);
         }
     }
 
-    private static void createSolrCore(String url, String coreName, String configFileName, HttpClient client) {
+    private static void createSolrCore(String url, String coreName, String configFileName,
+            HttpClient client) {
         HttpSolrServer solrServer;
         if (client != null) {
             solrServer = new HttpSolrServer(url, client);
@@ -339,9 +328,8 @@ public final class SolrServerFactory {
             String configFile = StringUtils.defaultIfBlank(configFileName, DEFAULT_SOLRCONFIG_XML);
 
             try {
-                CoreAdminRequest
-                        .createCore(coreName, instanceDir, solrServer, configFile,
-                                DEFAULT_SCHEMA_XML);
+                CoreAdminRequest.createCore(coreName, instanceDir, solrServer, configFile,
+                        DEFAULT_SCHEMA_XML);
             } catch (SolrServerException e) {
                 LOGGER.error("SolrServerException creating " + coreName + " core", e);
             } catch (IOException e) {

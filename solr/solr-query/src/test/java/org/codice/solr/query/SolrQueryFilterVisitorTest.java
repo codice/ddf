@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package org.codice.solr.query;
 
@@ -33,8 +33,8 @@ import org.apache.solr.core.SolrConfig;
 import org.apache.solr.core.SolrCore;
 import org.apache.solr.schema.IndexSchema;
 import org.geotools.filter.text.ecql.ECQL;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,24 +42,27 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class SolrQueryFilterVisitorTest {
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(SolrQueryFilterVisitorTest.class);
-    
+
     public static final String CORE_NAME = "core1";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SolrQueryFilterVisitorTest.class);
 
     @Test
     @Ignore
     public void test() throws Exception {
         LOGGER.info("Running test ...");
-        
+
         // setup
         String workingDir = System.getProperty("user.dir") + "/src/test/resources/";
         String solrConfDir = workingDir + "solr/conf/";
-        File solrConfigFile = new File(solrConfDir + "solrconfig.xml");  //getConfigFile(solrConfigFileName, configProxy);
+        File solrConfigFile = new File(
+                solrConfDir + "solrconfig.xml");  //getConfigFile(solrConfigFileName, configProxy);
         assertTrue(solrConfigFile.exists());
-        File solrSchemaFile = new File(solrConfDir + "schema.xml");  //getConfigFile(schemaFileName, configProxy);
+        File solrSchemaFile = new File(
+                solrConfDir + "schema.xml");  //getConfigFile(schemaFileName, configProxy);
         assertTrue(solrSchemaFile.exists());
-        File solrFile = new File(solrConfDir + "solr.xml");  //getConfigFile(DEFAULT_SOLR_XML, configProxy);
+        File solrFile = new File(
+                solrConfDir + "solr.xml");  //getConfigFile(DEFAULT_SOLR_XML, configProxy);
         assertTrue(solrFile.exists());
 
         File solrConfigHome = new File(solrConfigFile.getParent());
@@ -74,10 +77,9 @@ public class SolrQueryFilterVisitorTest {
             // codecs, posting formats, and analyzers
             solrConfig = new SolrConfig(solrConfigHome.getParent(), "solrConfig.xml",
                     new InputSource(FileUtils.openInputStream(solrConfigFile)));
-            indexSchema = new IndexSchema(solrConfig, "schema.xml", new InputSource(
-                    FileUtils.openInputStream(solrSchemaFile)));
-            container = CoreContainer.createAndLoad(solrConfigHome.getAbsolutePath(),
-                    solrFile);
+            indexSchema = new IndexSchema(solrConfig, "schema.xml",
+                    new InputSource(FileUtils.openInputStream(solrSchemaFile)));
+            container = CoreContainer.createAndLoad(solrConfigHome.getAbsolutePath(), solrFile);
         } catch (ParserConfigurationException e) {
             LOGGER.warn("Parser configuration exception loading index schema", e);
         } catch (IOException e) {
@@ -86,8 +88,8 @@ public class SolrQueryFilterVisitorTest {
             LOGGER.warn("SAX exception loading index schema", e);
         }
 
-        CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME, solrConfig
-                .getResourceLoader().getInstanceDir());
+        CoreDescriptor coreDescriptor = new CoreDescriptor(container, CORE_NAME,
+                solrConfig.getResourceLoader().getInstanceDir());
 
         File dataDir = new File(workingDir + "data");  //configProxy.getDataDirectory();
         LOGGER.debug("Using data directory [{}]", dataDir);
@@ -96,20 +98,20 @@ public class SolrQueryFilterVisitorTest {
         container.register(CORE_NAME, core, false);
 
         EmbeddedSolrServer solrServer = new EmbeddedSolrServer(container, CORE_NAME);
-        
+
         // the test
         SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(solrServer, CORE_NAME);
         Filter filter = ECQL.toFilter("Name = 'Hugh'");
         SolrQuery solrQuery = (SolrQuery) filter.accept(visitor, null);
         assertNotNull(solrQuery);
-        
+
         // Solr does not support outside parenthesis in certain queries and throws EOF exception.
         String queryPhrase = solrQuery.getQuery().trim();
         if (queryPhrase.matches("\\(\\s*\\{!.*\\)")) {
             solrQuery.setQuery(queryPhrase.replaceAll("^\\(\\s*|\\s*\\)$", ""));
         }
         LOGGER.info("solrQuery = {}", solrQuery);
-        
+
         QueryResponse solrResponse = solrServer.query(solrQuery, METHOD.POST);
         assertNotNull(solrResponse);
         long numResults = solrResponse.getResults().getNumFound();

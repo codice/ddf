@@ -31,11 +31,6 @@
 //
 package org.codice.ddf.security.session;
 
-import org.eclipse.jetty.server.session.AbstractSession;
-import org.eclipse.jetty.server.session.AbstractSessionIdManager;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,6 +42,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.eclipse.jetty.server.session.AbstractSession;
+import org.eclipse.jetty.server.session.AbstractSessionIdManager;
 
 /**
  * Custom implementation of the {@link org.eclipse.jetty.server.SessionIdManager} that shares session
@@ -158,8 +159,8 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
         synchronized (this) {
             Collection<WeakReference<HttpSession>> sessions = _sessions.get(id);
             if (sessions != null) {
-                for (Iterator<WeakReference<HttpSession>> iter = sessions.iterator(); iter
-                        .hasNext();) {
+                Iterator<WeakReference<HttpSession>> iter = sessions.iterator(); 
+                while (iter.hasNext()) {
                     WeakReference<HttpSession> ref = iter.next();
                     HttpSession s = ref.get();
                     if (s == null) {

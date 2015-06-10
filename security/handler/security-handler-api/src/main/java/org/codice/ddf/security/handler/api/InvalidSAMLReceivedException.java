@@ -15,6 +15,7 @@
 package org.codice.ddf.security.handler.api;
 
 import javax.servlet.ServletException;
+
 public class InvalidSAMLReceivedException extends ServletException {
     public InvalidSAMLReceivedException() {
         super();

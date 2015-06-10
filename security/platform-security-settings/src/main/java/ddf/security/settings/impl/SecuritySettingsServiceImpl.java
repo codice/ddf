@@ -14,19 +14,6 @@
  **/
 package ddf.security.settings.impl;
 
-import ddf.security.encryption.EncryptionService;
-import ddf.security.settings.SecuritySettingsService;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.configuration.security.FiltersType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -36,9 +23,26 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
+import org.apache.cxf.configuration.security.FiltersType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.security.encryption.EncryptionService;
+import ddf.security.settings.SecuritySettingsService;
+
 public class SecuritySettingsServiceImpl implements SecuritySettingsService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecuritySettingsServiceImpl.class);
+
+    private static final String NO_ENCRYPT_SERVICE = "Could not get encryption service to decrypt password. Sending password AS-IS (assuming cleartext).";
 
     private EncryptionService encryptionService;
 
@@ -53,8 +57,6 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
     private KeyStore keyStore;
 
     private KeyStore trustStore;
-
-    private static final String NO_ENCRYPT_SERVICE = "Could not get encryption service to decrypt password. Sending password AS-IS (assuming cleartext).";
 
     public SecuritySettingsServiceImpl(EncryptionService encryptService) {
         this.encryptionService = encryptService;
@@ -126,14 +128,13 @@ public class SecuritySettingsServiceImpl implements SecuritySettingsService {
         TLSClientParameters tlsParams = new TLSClientParameters();
         try {
             TrustManagerFactory trustFactory = TrustManagerFactory
-                    .getInstance(TrustManagerFactory
-                            .getDefaultAlgorithm());
+                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustFactory.init(trustStore);
             TrustManager[] tm = trustFactory.getTrustManagers();
             tlsParams.setTrustManagers(tm);
 
-            KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory
-                    .getDefaultAlgorithm());
+            KeyManagerFactory keyFactory = KeyManagerFactory
+                    .getInstance(KeyManagerFactory.getDefaultAlgorithm());
             keyFactory.init(keyStore, keystorePassword.toCharArray());
             KeyManager[] km = keyFactory.getKeyManagers();
             tlsParams.setKeyManagers(km);

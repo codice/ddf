@@ -14,19 +14,16 @@
  **/
 package org.codice.ddf.security.handler.api;
 
-import org.apache.wss4j.common.ext.WSSecurityException;
-import org.opensaml.xml.util.Base64;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class BSTAuthenticationTokenTest {
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.opensaml.xml.util.Base64;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+public class BSTAuthenticationTokenTest {
 
     public static final String PRINCIPAL = "somePrincipal";
 
@@ -37,6 +34,9 @@ public class BSTAuthenticationTokenTest {
     public static final String TEST_STRING = BSTAuthenticationToken.BST_PRINCIPAL + PRINCIPAL +
             BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_CREDENTIALS + CREDENTIALS +
             BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM + REALM;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     public void testParse() throws WSSecurityException {
         // test normal case
@@ -53,11 +53,10 @@ public class BSTAuthenticationTokenTest {
     public void testParsePrincipal() throws WSSecurityException {
         // Empty Prinicpal
         BaseAuthenticationToken bat = BSTAuthenticationToken
-                .parse(BSTAuthenticationToken.BST_PRINCIPAL + ""
-                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_CREDENTIALS
-                        + CREDENTIALS
-                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM
-                        + REALM, false);
+                .parse(BSTAuthenticationToken.BST_PRINCIPAL + "" + BSTAuthenticationToken.NEWLINE
+                        + BSTAuthenticationToken.BST_CREDENTIALS + CREDENTIALS
+                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM + REALM,
+                        false);
         MockBSTAuthenticationToken mockToken = new MockBSTAuthenticationToken(bat.getPrincipal(),
                 bat.getCredentials(), bat.getRealm());
         assertNotNull(mockToken);
@@ -66,10 +65,9 @@ public class BSTAuthenticationTokenTest {
         assertEquals(REALM, mockToken.getRealm());
         // Missing Principal
         expectedException.expect(WSSecurityException.class);
-        bat = BSTAuthenticationToken
-                .parse(BSTAuthenticationToken.BST_CREDENTIALS + "name"
-                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM
-                        + "realm", false);
+        bat = BSTAuthenticationToken.parse(BSTAuthenticationToken.BST_CREDENTIALS + "name"
+                + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM + "realm",
+                false);
     }
 
     @Test
@@ -80,8 +78,7 @@ public class BSTAuthenticationTokenTest {
                                 + BSTAuthenticationToken.NEWLINE +
                                 BSTAuthenticationToken.BST_CREDENTIALS + ""
                                 + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM
-                                + REALM,
-                        false);
+                                + REALM, false);
         MockBSTAuthenticationToken mockToken = new MockBSTAuthenticationToken(bat.getPrincipal(),
                 bat.getCredentials(), bat.getRealm());
         assertNotNull(mockToken);
@@ -90,10 +87,9 @@ public class BSTAuthenticationTokenTest {
         assertEquals(REALM, mockToken.getRealm());
         // Missing Credentials
         expectedException.expect(WSSecurityException.class);
-        bat = BSTAuthenticationToken
-                .parse(BSTAuthenticationToken.BST_CREDENTIALS + "name"
-                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM
-                        + "realm", false);
+        bat = BSTAuthenticationToken.parse(BSTAuthenticationToken.BST_CREDENTIALS + "name"
+                + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM + "realm",
+                false);
     }
 
     @Test
@@ -111,10 +107,9 @@ public class BSTAuthenticationTokenTest {
         assertEquals("", mockToken.getRealm());
 
         expectedException.expect(WSSecurityException.class);
-        bat = BSTAuthenticationToken
-                .parse(BSTAuthenticationToken.BST_PRINCIPAL + PRINCIPAL
-                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_CREDENTIALS
-                        + CREDENTIALS + BSTAuthenticationToken.NEWLINE, false);
+        bat = BSTAuthenticationToken.parse(BSTAuthenticationToken.BST_PRINCIPAL + PRINCIPAL
+                + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_CREDENTIALS
+                + CREDENTIALS + BSTAuthenticationToken.NEWLINE, false);
     }
 
     @Test

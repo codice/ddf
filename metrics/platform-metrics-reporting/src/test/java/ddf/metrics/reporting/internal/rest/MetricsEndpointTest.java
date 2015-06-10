@@ -1,22 +1,50 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.metrics.reporting.internal.rest;
 
-import ddf.metrics.reporting.internal.MetricsEndpointException;
-import ddf.metrics.reporting.internal.MetricsGraphException;
-import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+
 import org.apache.poi.hslf.model.Slide;
 import org.apache.poi.hslf.usermodel.SlideShow;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -39,35 +67,9 @@ import org.rrd4j.core.Sample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import ddf.metrics.reporting.internal.MetricsEndpointException;
+import ddf.metrics.reporting.internal.MetricsGraphException;
+import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
 
 public class MetricsEndpointTest extends XMLTestCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsEndpointTest.class);
@@ -77,7 +79,7 @@ public class MetricsEndpointTest extends XMLTestCase {
     private static final String ENDPOINT_ADDRESS = "http://localhost:8181/services/internal/metrics";
 
     private static final String months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
-        "Sep", "Oct", "Nov", "Dec"};
+            "Sep", "Oct", "Nov", "Dec"};
 
     private RrdDb rrdDb;
 
@@ -221,8 +223,8 @@ public class MetricsEndpointTest extends XMLTestCase {
         // Get the metrics graph from the endpoint
         MetricsEndpoint endpoint = new MetricsEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
-        Response response = endpoint.getMetricsData("uptime", "png", null, null, null, null, null,
-                uriInfo);
+        Response response = endpoint
+                .getMetricsData("uptime", "png", null, null, null, null, null, uriInfo);
 
         cleanupRrd();
 
@@ -254,9 +256,9 @@ public class MetricsEndpointTest extends XMLTestCase {
         UriInfo uriInfo = createUriInfo();
 
         RrdMetricsRetriever metricsRetriever = mock(RrdMetricsRetriever.class);
-        when(
-                metricsRetriever.createGraph(anyString(), anyString(), anyLong(), anyLong(),
-                        anyString(), anyString())).thenThrow(IOException.class);
+        when(metricsRetriever
+                        .createGraph(anyString(), anyString(), anyLong(), anyLong(), anyString(),
+                                anyString())).thenThrow(IOException.class);
 
         MetricsEndpoint endpoint = new MetricsEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
@@ -278,9 +280,9 @@ public class MetricsEndpointTest extends XMLTestCase {
         UriInfo uriInfo = createUriInfo();
 
         RrdMetricsRetriever metricsRetriever = mock(RrdMetricsRetriever.class);
-        when(
-                metricsRetriever.createGraph(anyString(), anyString(), anyLong(), anyLong(),
-                        anyString(), anyString())).thenThrow(MetricsGraphException.class);
+        when(metricsRetriever
+                        .createGraph(anyString(), anyString(), anyLong(), anyLong(), anyString(),
+                                anyString())).thenThrow(MetricsGraphException.class);
 
         MetricsEndpoint endpoint = new MetricsEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
@@ -306,8 +308,9 @@ public class MetricsEndpointTest extends XMLTestCase {
         MetricsEndpoint endpoint = new MetricsEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
-        Response response = endpoint.getMetricsData("uptime", "xml", null, null,
-                Integer.toString(dateOffset), "my label", "my title", uriInfo);
+        Response response = endpoint
+                .getMetricsData("uptime", "xml", null, null, Integer.toString(dateOffset),
+                        "my label", "my title", uriInfo);
 
         cleanupRrd();
 
@@ -338,8 +341,9 @@ public class MetricsEndpointTest extends XMLTestCase {
         MetricsEndpoint endpoint = new MetricsEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
-        Response response = endpoint.getMetricsData("uptime", "csv", null, null,
-                Integer.toString(dateOffset), "my label", "my title", uriInfo);
+        Response response = endpoint
+                .getMetricsData("uptime", "csv", null, null, Integer.toString(dateOffset),
+                        "my label", "my title", uriInfo);
 
         cleanupRrd();
 
@@ -372,8 +376,9 @@ public class MetricsEndpointTest extends XMLTestCase {
         MetricsEndpoint endpoint = new MetricsEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
-        Response response = endpoint.getMetricsData("uptime", "xls", null, null,
-                Integer.toString(dateOffset), "my label", "my title", uriInfo);
+        Response response = endpoint
+                .getMetricsData("uptime", "xls", null, null, Integer.toString(dateOffset),
+                        "my label", "my title", uriInfo);
 
         cleanupRrd();
 
@@ -425,8 +430,9 @@ public class MetricsEndpointTest extends XMLTestCase {
         MetricsEndpoint endpoint = new MetricsEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
-        Response response = endpoint.getMetricsData("uptime", "ppt", null, null,
-                Integer.toString(dateOffset), "my label", "my title", uriInfo);
+        Response response = endpoint
+                .getMetricsData("uptime", "ppt", null, null, Integer.toString(dateOffset),
+                        "my label", "my title", uriInfo);
 
         cleanupRrd();
 
@@ -450,8 +456,9 @@ public class MetricsEndpointTest extends XMLTestCase {
         MetricsEndpoint endpoint = new MetricsEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
-        Response response = endpoint.getMetricsData("uptime", "json", null, null,
-                Integer.toString(dateOffset), "my label", "my title", uriInfo);
+        Response response = endpoint
+                .getMetricsData("uptime", "json", null, null, Integer.toString(dateOffset),
+                        "my label", "my title", uriInfo);
 
         cleanupRrd();
 
@@ -473,7 +480,8 @@ public class MetricsEndpointTest extends XMLTestCase {
         // Verify each retrieved sample has a timestamp and value
         for (int i = 0; i < samples.size(); i++) {
             JSONObject sample = (JSONObject) samples.get(i);
-            LOGGER.debug("timestamp = {},   value = {}", (String) sample.get("timestamp"), sample.get("value"));
+            LOGGER.debug("timestamp = {},   value = {}", (String) sample.get("timestamp"),
+                    sample.get("value"));
             assertThat(sample.get("timestamp"), not(nullValue()));
             assertThat(sample.get("value"), not(nullValue()));
         }
@@ -491,13 +499,14 @@ public class MetricsEndpointTest extends XMLTestCase {
         MetricsEndpoint endpoint = new MetricsEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
-        Response response = endpoint.getMetricsReport("xls", null, null,
-                Integer.toString(dateOffset), uriInfo);
+        Response response = endpoint
+                .getMetricsReport("xls", null, null, Integer.toString(dateOffset), uriInfo);
 
         cleanupRrd();
 
         MultivaluedMap<String, Object> headers = response.getHeaders();
-        assertTrue(headers.getFirst("Content-Disposition").toString().contains("attachment; filename="));
+        assertTrue(headers.getFirst("Content-Disposition").toString()
+                .contains("attachment; filename="));
 
         InputStream is = (InputStream) response.getEntity();
         assertThat(is, not(nullValue()));
@@ -520,13 +529,14 @@ public class MetricsEndpointTest extends XMLTestCase {
         MetricsEndpoint endpoint = new MetricsEndpoint();
         endpoint.setMetricsDir(TEST_DIR);
 
-        Response response = endpoint.getMetricsReport("ppt", null, null,
-                Integer.toString(dateOffset), uriInfo);
+        Response response = endpoint
+                .getMetricsReport("ppt", null, null, Integer.toString(dateOffset), uriInfo);
 
         cleanupRrd();
 
         MultivaluedMap<String, Object> headers = response.getHeaders();
-        assertTrue(headers.getFirst("Content-Disposition").toString().contains("attachment; filename="));
+        assertTrue(headers.getFirst("Content-Disposition").toString()
+                .contains("attachment; filename="));
 
         InputStream is = (InputStream) response.getEntity();
         assertThat(is, not(nullValue()));
@@ -671,8 +681,8 @@ public class MetricsEndpointTest extends XMLTestCase {
         RrdMetricsRetriever metricsRetriever = mock(RrdMetricsRetriever.class);
         when(metricsRetriever.createJsonData(anyString(), anyString(), anyLong(), anyLong()))
                 .thenThrow(exceptionClass);
-        when(metricsRetriever.createCsvData(anyString(), anyLong(), anyLong())).thenThrow(
-                exceptionClass);
+        when(metricsRetriever.createCsvData(anyString(), anyLong(), anyLong()))
+                .thenThrow(exceptionClass);
         when(metricsRetriever.createXlsData(anyString(), anyString(), anyLong(), anyLong()))
                 .thenThrow(exceptionClass);
         when(metricsRetriever.createXmlData(anyString(), anyString(), anyLong(), anyLong()))
@@ -684,8 +694,9 @@ public class MetricsEndpointTest extends XMLTestCase {
         endpoint.setMetricsRetriever(metricsRetriever);
 
         try {
-            Response response = endpoint.getMetricsData("uptime", format, null, null, "900",
-                    "my label", "my title", uriInfo);
+            Response response = endpoint
+                    .getMetricsData("uptime", format, null, null, "900", "my label", "my title",
+                            uriInfo);
             fail();
         } catch (MetricsEndpointException e) {
         }
@@ -714,8 +725,9 @@ public class MetricsEndpointTest extends XMLTestCase {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timestamp * 1000);
 
-        String calTime = months[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE)
-                + " " + calendar.get(Calendar.YEAR) + " ";
+        String calTime =
+                months[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE) + " "
+                        + calendar.get(Calendar.YEAR) + " ";
 
         calTime += addLeadingZero(calendar.get(Calendar.HOUR_OF_DAY)) + ":";
         calTime += addLeadingZero(calendar.get(Calendar.MINUTE)) + ":";

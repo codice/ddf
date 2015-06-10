@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.platform.scheduler;
 
@@ -32,28 +32,22 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Schedules a Command task
- * 
+ *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class ScheduledCommandTask implements ScheduledTask {
 
-    private Class<? extends Job> classObject;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledCommandTask.class);
 
     private static int ONE_DAY = 60 * 60 * 24;
+
+    private Class<? extends Job> classObject;
 
     private int intervalInSeconds = ONE_DAY;
 
     private String command;
-
-    public void setCommand(String command) {
-        this.command = command;
-    }
-
-    public void setIntervalInSeconds(int intervalInSeconds) {
-        this.intervalInSeconds = intervalInSeconds;
-    }
 
     private Scheduler scheduler;
 
@@ -61,10 +55,8 @@ public class ScheduledCommandTask implements ScheduledTask {
 
     private TriggerKey triggerKey;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledCommandTask.class);
-
     /**
-     * 
+     *
      * @param scheduler
      * @param classObject
      */
@@ -72,6 +64,14 @@ public class ScheduledCommandTask implements ScheduledTask {
 
         this.scheduler = scheduler;
         this.classObject = classObject;
+    }
+
+    public void setCommand(String command) {
+        this.command = command;
+    }
+
+    public void setIntervalInSeconds(int intervalInSeconds) {
+        this.intervalInSeconds = intervalInSeconds;
     }
 
     @Override
@@ -147,11 +147,7 @@ public class ScheduledCommandTask implements ScheduledTask {
     }
 
     private Trigger createTrigger() {
-        return newTrigger()
-                .withIdentity(triggerKey)
-                .startNow()
-                .withSchedule(
-                        simpleSchedule().withIntervalInSeconds(intervalInSeconds).repeatForever())
-                .build();
+        return newTrigger().withIdentity(triggerKey).startNow().withSchedule(
+                simpleSchedule().withIntervalInSeconds(intervalInSeconds).repeatForever()).build();
     }
 }

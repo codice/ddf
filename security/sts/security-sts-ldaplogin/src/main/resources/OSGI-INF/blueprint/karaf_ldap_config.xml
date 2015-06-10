@@ -11,38 +11,40 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
         >
 
     <type-converters>
-        <bean class="org.apache.karaf.jaas.modules.properties.PropertiesConverter" />
+        <bean class="org.apache.karaf.jaas.modules.properties.PropertiesConverter"/>
     </type-converters>
 
-    <ext:property-placeholder />
+    <ext:property-placeholder/>
 
     <bean id="LdapConfig" class="ddf.ldap.ldaplogin.LdapLoginConfig" init-method="configure">
-        <cm:managed-properties persistent-id="ddf.security.sts.ldap" update-strategy="component-managed"
-            update-method="update" />
+        <cm:managed-properties persistent-id="ddf.security.sts.ldap"
+                               update-strategy="component-managed"
+                               update-method="update"/>
         <!-- Default properties -->
-        <property name="ldapBindUserDn" value="cn=admin" />
-        <property name="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)" />
-        <property name="ldapUrl" value="ldaps://localhost:1636" />
-        <property name="userBaseDn" value="ou=users,dc=example,dc=com" />
-        <property name="groupBaseDn" value="ou=groups,dc=example,dc=com" />
-        <property name="keyAlias" value="localhost" />
-        <property name="startTls" value="false" />
+        <property name="ldapBindUserDn" value="cn=admin"/>
+        <property name="ldapBindUserPass" value="ENC(c+GitDfYAMTDRESXSDDsMw==)"/>
+        <property name="ldapUrl" value="ldaps://localhost:1636"/>
+        <property name="userBaseDn" value="ou=users,dc=example,dc=com"/>
+        <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
+        <property name="keyAlias" value="localhost"/>
+        <property name="startTls" value="false"/>
     </bean>
 
-    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService" />
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <bean id="keystoreManager" class="ddf.ldap.ldaplogin.KeystoreManager">
-        <cm:managed-properties persistent-id="ddf.security.sts.ldap" update-strategy="container-managed" />
-        <argument ref="encryptionService" />
-        <property name="keyAlias" value="localhost" />
+        <cm:managed-properties persistent-id="ddf.security.sts.ldap"
+                               update-strategy="container-managed"/>
+        <argument ref="encryptionService"/>
+        <property name="keyAlias" value="localhost"/>
     </bean>
 
-    <service ref="keystoreManager" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
+    <service ref="keystoreManager" interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
 </blueprint>

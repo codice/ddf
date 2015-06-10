@@ -108,8 +108,9 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     logger.debug("Is user authenticated: {}", user.isAuthenticated());
 
                     logger.debug("Checking for permission");
-                    SecurityLogger.logInfo("Is user [" + user.getPrincipal() + "] authenticated: "
-                            + user.isAuthenticated());
+                    SecurityLogger.logInfo(
+                            "Is user [" + user.getPrincipal() + "] authenticated: " + user
+                                    .isAuthenticated());
 
                     if (StringUtils.isEmpty(actionURI)) {
                         logger.info("Denying access : unable to determine action for {}",
@@ -125,8 +126,8 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     isPermitted = user.isPermitted(action);
 
                     logger.debug("Result of permission: {}", isPermitted);
-                    SecurityLogger.logInfo("Is user [" + user.getPrincipal() + "] permitted: "
-                            + isPermitted);
+                    SecurityLogger.logInfo(
+                            "Is user [" + user.getPrincipal() + "] permitted: " + isPermitted);
                     // store the subject so the DDF framework can use it later
                     message.put(SecurityConstants.SAML_ASSERTION, user);
                     logger.debug("Added assertion information to message at key {}",
@@ -142,17 +143,20 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
                     if (action != null) {
                         logger.info("Denying access to {} for service {}", user.getPrincipal(),
                                 action.getAction());
-                        SecurityLogger.logWarn("Denying access to [" + user.getPrincipal()
-                                + "] for service " + action.getAction());
+                        SecurityLogger.logWarn(
+                                "Denying access to [" + user.getPrincipal() + "] for service "
+                                        + action.getAction());
                     }
                     throw new AccessDeniedException("Unauthorized");
                 }
             } else {
-                logger.warn("Unable to retrieve the security assertion associated with the web service call.");
+                logger.warn(
+                        "Unable to retrieve the security assertion associated with the web service call.");
                 throw new AccessDeniedException("Unauthorized");
             }
         } else {
-            logger.warn("Unable to retrieve the current message associated with the web service call.");
+            logger.warn(
+                    "Unable to retrieve the current message associated with the web service call.");
             throw new AccessDeniedException("Unauthorized");
         }
     }
@@ -165,7 +169,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
      * </ul>
      * Adapted from {@link org.apache.cxf.ws.addressing.impl.MAPAggregatorImpl} and
      * {@link org.apache.cxf.ws.addressing.impl.InternalContextUtils}
-     * 
+     *
      * @param message
      * @return
      */
@@ -186,12 +190,12 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
             }
             // support for older usages
             if (attr == null) {
-                attr = msgInfo.getExtensionAttributes().get(
-                        new QName(JAXWSAConstants.NS_WSA, Names.WSAW_ACTION_NAME));
+                attr = msgInfo.getExtensionAttributes()
+                        .get(new QName(JAXWSAConstants.NS_WSA, Names.WSAW_ACTION_NAME));
             }
             if (attr == null) {
-                attr = msgInfo.getExtensionAttributes().get(
-                        new QName(Names.WSA_NAMESPACE_WSDL_NAME_OLD, Names.WSAW_ACTION_NAME));
+                attr = msgInfo.getExtensionAttributes()
+                        .get(new QName(Names.WSA_NAMESPACE_WSDL_NAME_OLD, Names.WSAW_ACTION_NAME));
             }
             if (attr instanceof QName) {
                 actionURI = ((QName) attr).getLocalPart();
@@ -205,8 +209,8 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
          * the operation soap:soapAction property.
          */
         if (StringUtils.isEmpty(actionURI)) {
-            BindingOperationInfo bindingOpInfo = message.getExchange().get(
-                    BindingOperationInfo.class);
+            BindingOperationInfo bindingOpInfo = message.getExchange()
+                    .get(BindingOperationInfo.class);
             SoapOperationInfo soi = bindingOpInfo.getExtensor(SoapOperationInfo.class);
             if (soi == null && bindingOpInfo.isUnwrapped()) {
                 soi = bindingOpInfo.getWrappedOperation().getExtensor(SoapOperationInfo.class);
@@ -262,12 +266,12 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
             transformer.transform(new DOMSource(unformattedXml), xmlOutput);
             formattedXml = xmlOutput.getWriter().toString();
         } catch (TransformerConfigurationException e) {
-            String message = "Unable to transform xml:\n" + unformattedXml
-                    + "\nUsing unformatted xml.";
+            String message =
+                    "Unable to transform xml:\n" + unformattedXml + "\nUsing unformatted xml.";
             logger.error(message, e);
         } catch (TransformerException e) {
-            String message = "Unable to transform xml:\n" + unformattedXml
-                    + "\nUsing unformatted xml.";
+            String message =
+                    "Unable to transform xml:\n" + unformattedXml + "\nUsing unformatted xml.";
             logger.error(message, e);
         }
 

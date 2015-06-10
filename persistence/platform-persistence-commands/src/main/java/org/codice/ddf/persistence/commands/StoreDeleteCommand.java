@@ -14,13 +14,14 @@
  **/
 package org.codice.ddf.persistence.commands;
 
-import jline.console.ConsoleReader;
-import org.apache.felix.gogo.commands.Command;
-import org.codice.ddf.persistence.PersistenceException;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.felix.gogo.commands.Command;
+import org.codice.ddf.persistence.PersistenceException;
+
+import jline.console.ConsoleReader;
 
 @Command(scope = "store", name = "delete",
         description = "Deletes entries from the persistence store.")

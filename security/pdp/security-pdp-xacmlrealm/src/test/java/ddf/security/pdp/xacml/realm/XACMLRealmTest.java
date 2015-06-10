@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.security.pdp.xacml.realm;
 
@@ -26,8 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
-
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Authorizer;
@@ -40,6 +38,7 @@ import ddf.security.pdp.xacml.PdpException;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 import ddf.security.service.impl.AbstractAuthorizingRealm;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
 
 public class XACMLRealmTest {
     private static final String USER_NAME = "Test User";
@@ -99,16 +98,17 @@ public class XACMLRealmTest {
 
     @Test
     public void testActionGoodCountry() {
-        RequestType request = testRealm.createActionXACMLRequest(USER_NAME,
-                generateSubjectInfo(TEST_COUNTRY), QUERY_ACTION);
+        RequestType request = testRealm
+                .createActionXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY),
+                        QUERY_ACTION);
 
         assertTrue(testRealm.isPermitted(request));
     }
 
     @Test
     public void testActionBadCountry() {
-        RequestType request = testRealm.createActionXACMLRequest(USER_NAME,
-                generateSubjectInfo("CAN"), QUERY_ACTION);
+        RequestType request = testRealm
+                .createActionXACMLRequest(USER_NAME, generateSubjectInfo("CAN"), QUERY_ACTION);
 
         assertFalse(testRealm.isPermitted(request));
     }
@@ -117,8 +117,8 @@ public class XACMLRealmTest {
     public void testActionGoodSiteName() {
         SimpleAuthorizationInfo blankUserInfo = new SimpleAuthorizationInfo(new HashSet<String>());
         blankUserInfo.setObjectPermissions(new HashSet<Permission>());
-        RequestType request = testRealm.createActionXACMLRequest(USER_NAME, blankUserInfo,
-                SITE_NAME_ACTION);
+        RequestType request = testRealm
+                .createActionXACMLRequest(USER_NAME, blankUserInfo, SITE_NAME_ACTION);
 
         assertTrue(testRealm.isPermitted(request));
     }
@@ -126,8 +126,8 @@ public class XACMLRealmTest {
     @Test
     public void testActionBadAction() {
 
-        RequestType request = testRealm.createActionXACMLRequest(USER_NAME,
-                generateSubjectInfo(TEST_COUNTRY), "bad");
+        RequestType request = testRealm
+                .createActionXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY), "bad");
 
         assertFalse(testRealm.isPermitted(request));
     }
@@ -141,8 +141,9 @@ public class XACMLRealmTest {
         KeyValueCollectionPermission resourcePermissions = new KeyValueCollectionPermission(
                 security);
 
-        RequestType request = testRealm.createRedactXACMLRequest(USER_NAME,
-                generateSubjectInfo(TEST_COUNTRY), resourcePermissions);
+        RequestType request = testRealm
+                .createRedactXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY),
+                        resourcePermissions);
 
         assertTrue(testRealm.isPermitted(request));
 
@@ -156,8 +157,9 @@ public class XACMLRealmTest {
 
         KeyValueCollectionPermission resourcePermissions = new KeyValueCollectionPermission(
                 security);
-        RequestType request = testRealm.createRedactXACMLRequest(USER_NAME,
-                generateSubjectInfo(TEST_COUNTRY), resourcePermissions);
+        RequestType request = testRealm
+                .createRedactXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY),
+                        resourcePermissions);
 
         assertTrue(testRealm.isPermitted(request));
 
@@ -171,8 +173,9 @@ public class XACMLRealmTest {
 
         KeyValueCollectionPermission resourcePermissions = new KeyValueCollectionPermission(
                 security);
-        RequestType request = testRealm.createRedactXACMLRequest(USER_NAME,
-                generateSubjectInfo(TEST_COUNTRY), resourcePermissions);
+        RequestType request = testRealm
+                .createRedactXACMLRequest(USER_NAME, generateSubjectInfo(TEST_COUNTRY),
+                        resourcePermissions);
 
         assertFalse(testRealm.isPermitted(request));
 

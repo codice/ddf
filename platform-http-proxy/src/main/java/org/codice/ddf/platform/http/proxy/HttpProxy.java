@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
 
 public class HttpProxy {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxy.class);
-
     public static final String KARAF_HOME = "karaf.home";
 
     public static final String PAX_CONFIG = "org.ops4j.pax.web.cfg";
@@ -45,6 +43,8 @@ public class HttpProxy {
     public static final String SECURE_ENABLED_PROPERTY = "org.osgi.service.http.secure.enabled";
 
     public static final String HTTP_ENABLED_PROPERTY = "org.osgi.service.http.enabled";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxy.class);
 
     private final HttpProxyService httpProxyService;
 
@@ -67,8 +67,7 @@ public class HttpProxy {
         Properties properties = getProperties();
         stopProxy();
 
-        boolean isSecureEnabled = Boolean
-                .valueOf(properties.getProperty(SECURE_ENABLED_PROPERTY));
+        boolean isSecureEnabled = Boolean.valueOf(properties.getProperty(SECURE_ENABLED_PROPERTY));
         boolean isHttpEnabled = Boolean.valueOf(properties.getProperty(HTTP_ENABLED_PROPERTY));
         if (isSecureEnabled && !isHttpEnabled) {
             String httpPort = properties.getProperty(PORT_PROPERTY);

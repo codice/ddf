@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.security.service.impl;
 
@@ -25,7 +25,6 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -42,7 +41,7 @@ public class SecurityManagerImplTest {
 
     /**
      * Test for failure when a non-token is sent in.
-     * 
+     *
      * @throws SecurityServiceException
      */
     @Test
@@ -54,7 +53,7 @@ public class SecurityManagerImplTest {
 
     /**
      * Test to check for failure when no realms are added.
-     * 
+     *
      * @throws SecurityServiceException
      */
     @Test
@@ -73,7 +72,7 @@ public class SecurityManagerImplTest {
     /**
      * Creates mock objects and uses those to pass through the system when an authentication token
      * is used.
-     * 
+     *
      * @throws SecurityServiceException
      */
     @Test
@@ -102,7 +101,7 @@ public class SecurityManagerImplTest {
 
     /**
      * Creates mock objects and uses those to pass through the system when a security token is used.
-     * 
+     *
      * @throws SecurityServiceException
      */
     @Test

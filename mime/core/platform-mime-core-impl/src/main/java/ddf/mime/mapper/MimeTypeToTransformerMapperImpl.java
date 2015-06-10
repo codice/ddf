@@ -1,20 +1,27 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.mime.mapper;
 
-import ddf.mime.MimeTypeToTransformerMapper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+
 import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -24,24 +31,20 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import ddf.mime.MimeTypeToTransformerMapper;
 
 /**
  * {@link MimeTypeToTransformerMapper} Implementation that finds mimeType matches among transformer
  * services
- * 
+ *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMapper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MimeTypeToTransformerMapperImpl.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(MimeTypeToTransformerMapperImpl.class);
 
     public MimeTypeToTransformerMapperImpl() {
 
@@ -77,10 +80,10 @@ public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMap
             refs = bundleContext.getServiceReferences(clazz.getName(), null);
         } catch (InvalidSyntaxException e) {
             LOGGER.warn("Invalid filter syntax ", e);
-            throw new IllegalArgumentException("Invalid syntax supplied: "
-                    + userMimeType.toString());
+            throw new IllegalArgumentException(
+                    "Invalid syntax supplied: " + userMimeType.toString());
         }
-        
+
         // If no InputTransformers found, return empty list
         if (refs == null) {
             LOGGER.debug("No {} services found - return empty list", clazz.getName());
@@ -119,10 +122,9 @@ public class MimeTypeToTransformerMapperImpl implements MimeTypeToTransformerMap
 
                 MimeType mimeTypeEntry = constructMimeType(mimeTypeRawEntry);
 
-                if (mimeTypeEntry != null
-                        && StringUtils.equals(mimeTypeEntry.getBaseType(),
-                                userMimeType.getBaseType())
-                        && (userIdValue == null || StringUtils.equals(userIdValue, serviceId))) {
+                if (mimeTypeEntry != null && StringUtils
+                        .equals(mimeTypeEntry.getBaseType(), userMimeType.getBaseType()) && (
+                        userIdValue == null || StringUtils.equals(userIdValue, serviceId))) {
 
                     try {
                         T service = clazz.cast(bundleContext.getService(ref));

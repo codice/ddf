@@ -24,7 +24,7 @@
     </OCD>
 
     <Designate pid="org.codice.ddf.platform.http.proxy.HttpProxy">
-        <Object ocdref="org.codice.ddf.platform.http.proxy.HttpProxy" />
+        <Object ocdref="org.codice.ddf.platform.http.proxy.HttpProxy"/>
     </Designate>
 
 </metatype:MetaData>

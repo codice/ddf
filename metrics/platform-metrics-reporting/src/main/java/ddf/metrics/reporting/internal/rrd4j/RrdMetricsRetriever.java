@@ -1,21 +1,20 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.metrics.reporting.internal.rrd4j;
 
-import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -71,7 +70,7 @@ import ddf.metrics.reporting.internal.MetricsRetriever;
 /**
  * Retrieves metrics historical data from an RRD file and formats that data in a variety of formats
  * over a specified time range.
- * 
+ *
  * The supported formats include:
  * <ul>
  * <li>a PNG graph of the data (returned to the client as a byte array)</li>
@@ -81,17 +80,17 @@ import ddf.metrics.reporting.internal.MetricsRetriever;
  * <li>as XML (no schema provided)</li>
  * <li>a JSON-formatted string</li>
  * </ul>
- * 
+ *
  * Aggregate reports, which include the data for all metrics, over a specified time range are also
  * supported in XLS (Excel) and PPT (PowerPoint) format. For example, if there are 10 metrics that
  * are having data collected, then an aggregate report in XLS would be a spreadsheet with a separate
  * worksheet for each of the 10 metrics. Similarly, this aggregate report in PPT format would
  * consist of a slide per metric, where each slide contains the metric's graph and total count (if
  * applicable).
- * 
+ *
  * @author rodgersh
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class RrdMetricsRetriever implements MetricsRetriever {
     private static final transient Logger LOGGER = LoggerFactory
@@ -102,16 +101,16 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     private static final int RRD_STEP = 60;
 
     /**
+     * Used for formatting long timestamps into more readable calendar dates/times.
+     */
+    private static final String months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+            "Sep", "Oct", "Nov", "Dec"};
+
+    /**
      * Max threshold for a metric's sample value. Used to filter out spike data that typically has a
      * value of 4.2E+09 or higher.
      */
     private double metricsMaxThreshold;
-
-    /**
-     * Used for formatting long timestamps into more readable calendar dates/times.
-     */
-    private static final String months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
-        "Sep", "Oct", "Nov", "Dec"};
 
     public RrdMetricsRetriever() {
         this(DEFAULT_METRICS_MAX_THRESHOLD);
@@ -122,9 +121,55 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         this.metricsMaxThreshold = metricsMaxThreshold;
     }
 
+    /**
+     * Formats timestamp (in seconds since Unix epoch) into human-readable format of MMM DD YYYY
+     * hh:mm:ss.
+     *
+     * Example: Apr 10 2013 09:14:43
+     *
+     * @param timestamp
+     *            time in seconds since Unix epoch of Jan 1, 1970 12:00:00
+     *
+     * @return formatted date/time string of the form MMM DD YYYY hh:mm:ss
+     */
+    static String getCalendarTime(long timestamp) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timestamp * 1000);
+
+        String calTime =
+                months[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE) + " "
+                        + calendar.get(Calendar.YEAR) + " ";
+
+        calTime += addLeadingZero(calendar.get(Calendar.HOUR_OF_DAY)) + ":";
+        calTime += addLeadingZero(calendar.get(Calendar.MINUTE)) + ":";
+        calTime += addLeadingZero(calendar.get(Calendar.SECOND));
+
+        return calTime;
+    }
+
+    static String addLeadingZero(int value) {
+        if (value < 10) {
+            return "0" + String.valueOf(value);
+        }
+
+        return String.valueOf(value);
+    }
+
+    /**
+     * Convert string, if it is in camelCase, to individual words with each word starting with a
+     * capital letter
+     */
+    public static String convertCamelCase(String input) {
+        String[] parts = StringUtils.splitByCharacterTypeCamelCase(input);
+        String convertedStr = StringUtils.join(parts, " ");
+        convertedStr = WordUtils.capitalizeFully(convertedStr).trim();
+
+        return convertedStr;
+    }
+
     @Override
-    public byte[] createGraph(String metricName, String rrdFilename, long startTime, long endTime)
-        throws IOException, MetricsGraphException {
+    public byte[] createGraph(String metricName, String rrdFilename, long startTime,
+            long endTime) throws IOException, MetricsGraphException {
         // Create default label and title for graph
         String displayableMetricName = convertCamelCase(metricName);
         String verticalAxisLabel = displayableMetricName;
@@ -170,7 +215,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         // generated graph by default will show data per rrdStep interval)
         if (dataSourceType == DsType.COUNTER || dataSourceType == DsType.DERIVE) {
             if (LOGGER.isTraceEnabled()) {
-                dumpData(ConsolFun.TOTAL, "TOTAL", rrdDb, dataSourceType.name(), startTime, endTime);
+                dumpData(ConsolFun.TOTAL, "TOTAL", rrdDb, dataSourceType.name(), startTime,
+                        endTime);
             }
 
             // If we ever needed to adjust the metric's data collected by RRD by the archive step
@@ -198,8 +244,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             // If real total exceeds the threshold value used to constrain/filter spike data out,
             // then set total to UNKNOWN, which means this sample will not be graphed. This prevents
             // spike data that is typically 4.2E+09 (graphed as 4.3G) from corrupting the RRD graph.
-            graphDef.datasource("constrainedTotal", "realTotal," + metricsMaxThreshold
-                    + ",GT,UNKN,realTotal,IF");
+            graphDef.datasource("constrainedTotal",
+                    "realTotal," + metricsMaxThreshold + ",GT,UNKN,realTotal,IF");
             graphDef.line("constrainedTotal", Color.BLUE, convertCamelCase(metricName), 2);
 
             // Add some spacing between the graph and the summary stats shown beneath the graph
@@ -231,9 +277,10 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             graphDef.gprint("myAverage", ConsolFun.MAX, "Max = %.3f%s");
         } else {
             rrdDb.close();
-            throw new MetricsGraphException("Unsupported data source type " + dataSourceType.name()
-                    + " in RRD file " + rrdFilename
-                    + ", only DERIVE, COUNTER and GAUGE data source types supported.");
+            throw new MetricsGraphException(
+                    "Unsupported data source type " + dataSourceType.name() + " in RRD file "
+                            + rrdFilename
+                            + ", only DERIVE, COUNTER and GAUGE data source types supported.");
         }
 
         rrdDb.close();
@@ -247,8 +294,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     }
 
     @Override
-    public String createCsvData(String rrdFilename, long startTime, long endTime)
-        throws IOException, MetricsGraphException {
+    public String createCsvData(String rrdFilename, long startTime, long endTime) throws
+            IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: createCsvData");
 
         MetricData metricData = getMetricData(rrdFilename, startTime, endTime);
@@ -273,8 +320,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     }
 
     @Override
-    public String createXmlData(String metricName, String rrdFilename, long startTime, long endTime)
-        throws IOException, MetricsGraphException {
+    public String createXmlData(String metricName, String rrdFilename, long startTime,
+            long endTime) throws IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: createXmlData");
 
         MetricData metricData = getMetricData(rrdFilename, startTime, endTime);
@@ -321,8 +368,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
 
             if (metricData.hasTotalCount()) {
                 Element totalCountElement = doc.createElement("totalCount");
-                totalCountElement.appendChild(doc.createTextNode(Long.toString(metricData
-                        .getTotalCount())));
+                totalCountElement
+                        .appendChild(doc.createTextNode(Long.toString(metricData.getTotalCount())));
                 dataElement.appendChild(totalCountElement);
             }
 
@@ -384,8 +431,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     }
 
     @Override
-    public OutputStream createPptReport(List<String> metricNames, String metricsDir,
-            long startTime, long endTime) throws IOException, MetricsGraphException {
+    public OutputStream createPptReport(List<String> metricNames, String metricsDir, long startTime,
+            long endTime) throws IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: createPptReport");
 
         SlideShow ppt = new SlideShow();
@@ -410,8 +457,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     }
 
     @Override
-    public String createJsonData(String metricName, String rrdFilename, long startTime, long endTime)
-        throws IOException, MetricsGraphException {
+    public String createJsonData(String metricName, String rrdFilename, long startTime,
+            long endTime) throws IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: createJsonData");
 
         JSONObject obj = new JSONObject();
@@ -453,8 +500,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     }
 
     @Override
-    public OutputStream createXlsReport(List<String> metricNames, String metricsDir,
-            long startTime, long endTime) throws IOException, MetricsGraphException {
+    public OutputStream createXlsReport(List<String> metricNames, String metricsDir, long startTime,
+            long endTime) throws IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: createXlsReport");
 
         Workbook wb = new HSSFWorkbook();
@@ -482,7 +529,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
      * Creates an Excel worksheet containing the metric's data (timestamps and values) for the
      * specified time range. This worksheet is titled with the trhe metric's name and added to the
      * specified Workbook.
-     * 
+     *
      * @param wb
      *            the workbook to add this worksheet to
      * @param metricName
@@ -493,7 +540,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
      *            start time, in seconds since Unix epoch, to fetch metric's data
      * @param endTime
      *            end time, in seconds since Unix epoch, to fetch metric's data
-     * 
+     *
      * @throws IOException
      * @throws MetricsGraphException
      */
@@ -575,22 +622,22 @@ public class RrdMetricsRetriever implements MetricsRetriever {
 
     /**
      * Retrieves the RRD stored data for the specified metric over the specified time range.
-     * 
+     *
      * @param rrdFilename
      *            the name of the RRD file containing the metric's data
      * @param startTime
      *            start time, in seconds since Unix epoch, to fetch metric's data
      * @param endTime
      *            end time, in seconds since Unix epoch, to fetch metric's data
-     * 
+     *
      * @return domain object containing the metric's sampled data, which consists of the timestamps
      *         and their associated values, and the total count of the sampled data
-     * 
+     *
      * @throws IOException
      * @throws MetricsGraphException
      */
-    private MetricData getMetricData(String rrdFilename, long startTime, long endTime)
-        throws IOException, MetricsGraphException {
+    private MetricData getMetricData(String rrdFilename, long startTime, long endTime) throws
+            IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: getMetricData");
 
         // Create RRD DB in read-only mode for the specified RRD file
@@ -674,7 +721,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
      * capitalized words to the slide's title. The metric's data is used to determine the total
      * count across all of the metric's data, which is displayed at the bottom of the slide, under
      * the graph.
-     * 
+     *
      * @param ppt
      *            the PowerPoint slide deck to add this slide to
      * @param title
@@ -683,12 +730,12 @@ public class RrdMetricsRetriever implements MetricsRetriever {
      *            the metric's graph to be added to this slide
      * @param metricData
      *            the metric's data
-     * 
+     *
      * @throws IOException
      * @throws MetricsGraphException
      */
-    private void createSlide(SlideShow ppt, String title, byte[] graph, MetricData metricData)
-        throws IOException, MetricsGraphException {
+    private void createSlide(SlideShow ppt, String title, byte[] graph,
+            MetricData metricData) throws IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: createSlide");
 
         if (LOGGER.isDebugEnabled()) {
@@ -739,51 +786,6 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         LOGGER.trace("EXITING: createSlide");
     }
 
-    /**
-     * Formats timestamp (in seconds since Unix epoch) into human-readable format of MMM DD YYYY
-     * hh:mm:ss.
-     * 
-     * Example: Apr 10 2013 09:14:43
-     * 
-     * @param timestamp
-     *            time in seconds since Unix epoch of Jan 1, 1970 12:00:00
-     * 
-     * @return formatted date/time string of the form MMM DD YYYY hh:mm:ss
-     */
-    static String getCalendarTime(long timestamp) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timestamp * 1000);
-
-        String calTime = months[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE)
-                + " " + calendar.get(Calendar.YEAR) + " ";
-
-        calTime += addLeadingZero(calendar.get(Calendar.HOUR_OF_DAY)) + ":";
-        calTime += addLeadingZero(calendar.get(Calendar.MINUTE)) + ":";
-        calTime += addLeadingZero(calendar.get(Calendar.SECOND));
-
-        return calTime;
-    }
-
-    static String addLeadingZero(int value) {
-        if (value < 10) {
-            return "0" + String.valueOf(value);
-        }
-
-        return String.valueOf(value);
-    }
-
-    /**
-     * Convert string, if it is in camelCase, to individual words with each word starting with a
-     * capital letter
-     */
-    public static String convertCamelCase(String input) {
-        String[] parts = StringUtils.splitByCharacterTypeCamelCase(input);
-        String convertedStr = StringUtils.join(parts, " ");
-        convertedStr = WordUtils.capitalizeFully(convertedStr).trim();
-
-        return convertedStr;
-    }
-
     public void setMetricsMaxThreshold(double metricsMaxThreshold) {
         LOGGER.trace("Setting metricsMaxThreshold = {}", metricsMaxThreshold);
         this.metricsMaxThreshold = metricsMaxThreshold;
@@ -809,10 +811,10 @@ public class RrdMetricsRetriever implements MetricsRetriever {
                 double adjustedValue = values[i] * rrdStep;
                 adjustedValues[i] = adjustedValue;
 
-                LOGGER.trace(getCalendarTime(timestamps[i]) + ":  " + values[i]
-                        + "   (adjusted value = " + adjustedValue + ",   floor = "
-                        + Math.floor(adjustedValue) + ",   round = " + Math.round(adjustedValue)
-                        + ")");
+                LOGGER.trace(
+                        getCalendarTime(timestamps[i]) + ":  " + values[i] + "   (adjusted value = "
+                                + adjustedValue + ",   floor = " + Math.floor(adjustedValue)
+                                + ",   round = " + Math.round(adjustedValue) + ")");
             }
 
             LOGGER.trace("adjustedValues.length = {}", adjustedValues.length);

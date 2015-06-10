@@ -30,7 +30,8 @@ public interface PersistentStore {
     public static final String PREFERENCES_TYPE = "preferences";
 
     public static final Set<String> PERSISTENCE_TYPES = new HashSet<String>(
-            Arrays.asList(METACARD_TYPE, SAVED_QUERY_TYPE, NOTIFICATION_TYPE, ACTIVITY_TYPE, WORKSPACE_TYPE, PREFERENCES_TYPE));
+            Arrays.asList(METACARD_TYPE, SAVED_QUERY_TYPE, NOTIFICATION_TYPE, ACTIVITY_TYPE,
+                    WORKSPACE_TYPE, PREFERENCES_TYPE));
 
     /**
      * Adds item of specified type with the specified properties.

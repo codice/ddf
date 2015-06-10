@@ -14,16 +14,17 @@
  **/
 package org.codice.ddf.security.policy.context.attributes;
 
-import ddf.security.common.audit.SecurityLogger;
-import ddf.security.permission.CollectionPermission;
-import ddf.security.permission.KeyValuePermission;
-import ddf.security.permission.MatchOneCollectionPermission;
-import org.apache.shiro.authz.Permission;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+import org.apache.shiro.authz.Permission;
+
+import ddf.security.common.audit.SecurityLogger;
+import ddf.security.permission.CollectionPermission;
+import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.MatchOneCollectionPermission;
 
 /**
  * Default implementation of ContextAttributeMapping
@@ -64,7 +65,8 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
     @Override
     public CollectionPermission getAttributePermission() {
         if (accessPermissionCollection == null) {
-            accessPermissionCollection = new AccessPermissionCollection(new ArrayList<Permission>());
+            accessPermissionCollection = new AccessPermissionCollection(
+                    new ArrayList<Permission>());
             accessPermissionCollection.addAll(getKeyValuePermissions());
         }
         return accessPermissionCollection;
@@ -108,8 +110,9 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
         @Override
         public boolean implies(Permission p) {
             if (permissionList.isEmpty()) {
-                SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
-                  + p.toString() + PERMISSION_END_MSG);
+                SecurityLogger.logDebug(
+                        PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p
+                                .toString() + PERMISSION_END_MSG);
                 return false;
             }
 
@@ -130,7 +133,7 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
                                 // create new
                                 // single valued key value permissions
                                 KeyValuePermission kvp = new KeyValuePermission(
-                                  ((KeyValuePermission) ourPerm).getKey());
+                                        ((KeyValuePermission) ourPerm).getKey());
                                 kvp.addValue(value);
                                 if (perm.implies(kvp)) {
                                     return true;
@@ -157,13 +160,15 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
                 // Shiro permissions are always a "match all" condition so we need to flip the implies
                 // to make it match one
                 if (p.implies(permission)) {
-                    SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG
-                      + p.toString() + PERMISSION_END_MSG);
+                    SecurityLogger.logDebug(
+                            PERMISSION_START_MSG + toString() + PERMISSION_IMPLIES_MSG + p
+                                    .toString() + PERMISSION_END_MSG);
                     return true;
                 }
             }
-            SecurityLogger.logDebug(PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG
-              + p.toString() + PERMISSION_END_MSG);
+            SecurityLogger.logDebug(
+                    PERMISSION_START_MSG + toString() + PERMISSION_NOT_IMPLIES_MSG + p.toString()
+                            + PERMISSION_END_MSG);
             return false;
         }
     }

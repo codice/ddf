@@ -14,6 +14,7 @@
  **/
 package org.codice.ddf.security.handler.api;
 
+import java.security.Principal;
 
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.slf4j.Logger;
@@ -22,11 +23,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-import java.security.Principal;
-
 public class SAMLAuthenticationToken extends BaseAuthenticationToken {
     private static final Logger LOGGER = LoggerFactory.getLogger(SAMLAuthenticationToken.class);
+
     boolean reference = true;
+
     /**
      * Constructor that only allows SecurityToken objects to be used as the credentials.
      *
@@ -80,9 +81,11 @@ public class SAMLAuthenticationToken extends BaseAuthenticationToken {
         String creds = "";
         Element element = getSAMLTokenAsElement();
         if (element != null) {
-            DOMImplementationLS lsImpl = (DOMImplementationLS)element.getOwnerDocument().getImplementation().getFeature("LS", "3.0");
+            DOMImplementationLS lsImpl = (DOMImplementationLS) element.getOwnerDocument()
+                    .getImplementation().getFeature("LS", "3.0");
             LSSerializer serializer = lsImpl.createLSSerializer();
-            serializer.getDomConfig().setParameter("xml-declaration", false); //by default its true, so set it to false to get String without xml-declaration
+            serializer.getDomConfig().setParameter("xml-declaration",
+                    false); //by default its true, so set it to false to get String without xml-declaration
             creds = serializer.writeToString(element);
             LOGGER.trace("XML representation of SAML token: {}", creds);
         }

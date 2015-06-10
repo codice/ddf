@@ -13,11 +13,12 @@
  **/
 -->
 <metatype:MetaData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0"
-                   xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
+                   xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0"
+                   xsi:schemaLocation="http://www.osgi.org/xmlns/metatype/v1.2.0 http://www.osgi.org/xmlns/metatype/v1.2.0">
 
     <OCD description="STS property file role claims handler."
-         name="Security STS Property File Claims Handler" id="org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler">
+         name="Security STS Property File Claims Handler"
+         id="org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler">
 
         <AD name="Role Claim Type:" id="roleClaimType" required="true" type="String"
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
@@ -32,7 +33,7 @@
     </OCD>
 
     <Designate pid="org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler">
-        <Object ocdref="org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler" />
+        <Object ocdref="org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"/>
     </Designate>
 
 </metatype:MetaData>

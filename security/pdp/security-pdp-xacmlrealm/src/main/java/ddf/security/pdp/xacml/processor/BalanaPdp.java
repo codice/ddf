@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.security.pdp.xacml.processor;
 
@@ -35,14 +35,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXSource;
 
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.ObjectFactory;
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
-import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
-
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.balana.Balana;
 import org.wso2.balana.PDP;
 import org.wso2.balana.PDPConfig;
 import org.wso2.balana.finder.AttributeFinder;
@@ -59,6 +54,9 @@ import org.xml.sax.helpers.XMLFilterImpl;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import ddf.security.pdp.xacml.PdpException;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.ObjectFactory;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
+import oasis.names.tc.xacml._3_0.core.schema.wd_17.ResponseType;
 
 /**
  * Balana implementation of a XACML Policy Decision Point (PDP). This class acts as a proxy to the
@@ -71,21 +69,21 @@ public class BalanaPdp {
 
     private static final String XACML_PREFIX = "xacml";
 
+    private static final long DEFAULT_POLLING_INTERVAL_IN_SECONDS = 60;
+
+    private static final String NULL_DIRECTORY_EXCEPTION_MSG = "Cannot read from null XACML Policy Directory";
+
     private static JAXBContext jaxbContext;
 
     private PDP pdp;
-
-    private static final long DEFAULT_POLLING_INTERVAL_IN_SECONDS = 60;
 
     private long pollingInterval = DEFAULT_POLLING_INTERVAL_IN_SECONDS;
 
     private Set<String> xacmlPolicyDirectories;
 
-    private static final String NULL_DIRECTORY_EXCEPTION_MSG = "Cannot read from null XACML Policy Directory";
-
     /**
      * Creates the proxy to the real Balana PDP.
-     * 
+     *
      * @param relativeXacmlPoliciesDirectoryPath
      *            Relative directory path to the root of the DDF installation.
      * @throws PdpException
@@ -108,7 +106,7 @@ public class BalanaPdp {
 
     /**
      * Creates the proxy to the real Balana PDP.
-     * 
+     *
      * @param relativeXacmlPoliciesDirectoryPath
      *            Relative directory path to the root of the DDF installation.
      * @throws PdpException
@@ -128,7 +126,8 @@ public class BalanaPdp {
             // functionality should be re-evaluated
             FileUtils.forceMkdir(xacmlPoliciesDirectory);
         } catch (IOException e) {
-            LOGGER.error("Unable to create directory: {}", xacmlPoliciesDirectory.getAbsolutePath());
+            LOGGER.error("Unable to create directory: {}",
+                    xacmlPoliciesDirectory.getAbsolutePath());
         }
         checkXacmlPoliciesDirectory(xacmlPoliciesDirectory);
 
@@ -145,7 +144,7 @@ public class BalanaPdp {
 
     /**
      * Evaluates the XACML request and returns a XACML response.
-     * 
+     *
      * @param xacmlRequestType
      *            XACML request
      * @return XACML response
@@ -167,7 +166,7 @@ public class BalanaPdp {
 
     /**
      * Creates a JAXB context for the XACML request and response types.
-     * 
+     *
      * @throws PdpException
      */
     private void createJaxbContext() throws PdpException {
@@ -190,7 +189,7 @@ public class BalanaPdp {
 
     /**
      * Creates the Balana PDP configuration.
-     * 
+     *
      * @param xacmlPolicyDirectories
      *            he directory containing the XACML policies.
      * @return PDPConfig
@@ -212,7 +211,7 @@ public class BalanaPdp {
 
     /**
      * Creates a policy finder to find XACML polices.
-     * 
+     *
      * @param xacmlPolicyDirectories
      *            The directory containing the XACML policies.
      * @return PolicyFinder
@@ -233,7 +232,7 @@ public class BalanaPdp {
 
     /**
      * Performs basic checks on the XACML policy directory.
-     * 
+     *
      * @param xacmlPoliciesDirectory
      *            The directory containing the XACML policy.
      * @throws PdpException
@@ -261,7 +260,7 @@ public class BalanaPdp {
 
     /**
      * Calls the real Balana PDP to evaluate the XACML request.
-     * 
+     *
      * @param xacmlRequest
      *            The XACML request as a string.
      * @return The XACML response as a string.
@@ -276,7 +275,7 @@ public class BalanaPdp {
      * Adds namespaces and namespace prefixes to the XACML response returned by the Balana PDP. The
      * Balana PDP returns a response with no namespaces, so we need to add them to unmarshal the
      * response.
-     * 
+     *
      * @param xacmlResponse
      *            The XACML response as a string.
      * @return DOM representation of the XACML response with namespaces and namespace prefixes.
@@ -295,8 +294,8 @@ public class BalanaPdp {
                 }
 
                 @Override
-                public void endElement(String uri, String localName, String qName)
-                    throws SAXException {
+                public void endElement(String uri, String localName, String qName) throws
+                        SAXException {
                     super.endElement(XACML30_NAMESPACE, localName, XACML_PREFIX + ":" + qName);
                 }
             };
@@ -311,8 +310,9 @@ public class BalanaPdp {
 
         try {
             Transformer transformer = transformerFactory.newTransformer();
-            transformer.transform(new SAXSource(xmlReader, new InputSource(new StringReader(
-                    xacmlResponse))), domResult);
+            transformer.transform(
+                    new SAXSource(xmlReader, new InputSource(new StringReader(xacmlResponse))),
+                    domResult);
         } catch (TransformerException e) {
             String message = "Unable to transform XACML response:\n" + xacmlResponse;
             LOGGER.error(message);
@@ -324,7 +324,7 @@ public class BalanaPdp {
 
     /**
      * Marshalls the XACML request to a string.
-     * 
+     *
      * @param xacmlRequestType
      *            The XACML request to marshal.
      * @return A string representation of the XACML request.
@@ -357,7 +357,7 @@ public class BalanaPdp {
 
     /**
      * Unmarshalls the XACML response.
-     * 
+     *
      * @param xacmlResponse
      *            The XACML response with all namespaces and namespace prefixes added.
      * @return The XACML response.
@@ -369,8 +369,8 @@ public class BalanaPdp {
         try {
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-            xacmlResponseTypeElement = unmarshaller.unmarshal(xacmlResponse.getNode(),
-                    ResponseType.class);
+            xacmlResponseTypeElement = unmarshaller
+                    .unmarshal(xacmlResponse.getNode(), ResponseType.class);
         } catch (JAXBException e) {
             String message = "Unable to unmarshal XACML response.";
             LOGGER.error(message);
@@ -387,7 +387,7 @@ public class BalanaPdp {
     /**
      * Sets the pollingInterval. The PDP configuration is reset as a result to adjust to the new
      * interval
-     * 
+     *
      * @param pollingInterval
      *            - in seconds
      */

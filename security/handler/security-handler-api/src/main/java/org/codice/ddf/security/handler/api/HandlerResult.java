@@ -20,17 +20,6 @@ package org.codice.ddf.security.handler.api;
  * missing tokens, or no action taken), as well as the actual tokens retrieved from the header.
  */
 public class HandlerResult {
-    public enum Status {
-        // completed - auth tokens retrieved ready to move on
-        COMPLETED,
-
-        // no tokens found, no attempt made to obtain any
-        NO_ACTION,
-
-        // performing action to obtain auth tokens, stop processing
-        REDIRECTED
-    }
-
     private Status status;
 
     private String source;
@@ -55,12 +44,12 @@ public class HandlerResult {
         this.status = status;
     }
 
-    public void setToken(BaseAuthenticationToken token) {
-        this.token = token;
-    }
-
     public BaseAuthenticationToken getToken() {
         return this.token;
+    }
+
+    public void setToken(BaseAuthenticationToken token) {
+        this.token = token;
     }
 
     public String getSource() {
@@ -81,5 +70,16 @@ public class HandlerResult {
         sb.append("; Token: ");
         sb.append(token.toString());
         return sb.toString();
+    }
+
+    public enum Status {
+        // completed - auth tokens retrieved ready to move on
+        COMPLETED,
+
+        // no tokens found, no attempt made to obtain any
+        NO_ACTION,
+
+        // performing action to obtain auth tokens, stop processing
+        REDIRECTED
     }
 }

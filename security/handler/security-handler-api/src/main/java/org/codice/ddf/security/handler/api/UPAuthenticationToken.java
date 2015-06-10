@@ -19,13 +19,13 @@ import org.slf4j.LoggerFactory;
 
 public class UPAuthenticationToken extends BSTAuthenticationToken {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UPAuthenticationToken.class);
-
     public static final String BST_USERNAME_LN = "Username";
 
     public static final String UP_TOKEN_VALUE_TYPE =
             BSTAuthenticationToken.BST_NS + BSTAuthenticationToken.TOKEN_VALUE_SEPARATOR
                     + BST_USERNAME_LN;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UPAuthenticationToken.class);
 
     public UPAuthenticationToken(String username, String password) {
         this(username, password, BaseAuthenticationToken.DEFAULT_REALM);
@@ -39,15 +39,17 @@ public class UPAuthenticationToken extends BSTAuthenticationToken {
 
     public String getUsername() {
         String username = null;
-        if (principal instanceof String)
+        if (principal instanceof String) {
             username = (String) principal;
+        }
         return username;
     }
 
     public String getPassword() {
         String pw = null;
-        if (credentials instanceof String)
+        if (credentials instanceof String) {
             pw = (String) credentials;
+        }
         return pw;
     }
 

@@ -19,7 +19,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -33,7 +32,7 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 /**
  * Utility class that attempts several different methods for loading in properties files from the
  * classpath or file system.
- * 
+ *
  */
 public final class PropertiesLoader {
     private static Logger LOGGER = LoggerFactory.getLogger(PropertiesLoader.class);
@@ -57,7 +56,7 @@ public final class PropertiesLoader {
 
     /**
      * Load properties from a file with no classloader specified.
-     * 
+     *
      * @param propertiesFile
      * @return Properties
      */
@@ -68,7 +67,7 @@ public final class PropertiesLoader {
     /**
      * Will attempt to load properties from a file using the given classloader. If that fails,
      * several other methods will be tried until the properties file is located.
-     * 
+     *
      * @param propertiesFile
      * @param classLoader
      * @return Properties
@@ -78,18 +77,23 @@ public final class PropertiesLoader {
         Properties properties = new Properties();
         if (propertiesFile != null) {
             try {
-                LOGGER.debug("Attempting to load properties from {} with Spring PropertiesLoaderUtils.", propertiesFile);
+                LOGGER.debug(
+                        "Attempting to load properties from {} with Spring PropertiesLoaderUtils.",
+                        propertiesFile);
                 properties = PropertiesLoaderUtils.loadAllProperties(propertiesFile);
             } catch (IOException e) {
                 error = true;
-                LOGGER.error("Unable to load properties using default Spring properties loader.", e);
+                LOGGER.error("Unable to load properties using default Spring properties loader.",
+                        e);
             }
             if (error || properties.isEmpty()) {
                 if (classLoader != null) {
                     try {
-                        LOGGER.debug("Attempting to load properties from {} with Spring PropertiesLoaderUtils with class loader.", propertiesFile);
-                        properties = PropertiesLoaderUtils.loadAllProperties(propertiesFile,
-                                classLoader);
+                        LOGGER.debug(
+                                "Attempting to load properties from {} with Spring PropertiesLoaderUtils with class loader.",
+                                propertiesFile);
+                        properties = PropertiesLoaderUtils
+                                .loadAllProperties(propertiesFile, classLoader);
                         error = false;
                     } catch (IOException e) {
                         error = true;
@@ -99,7 +103,9 @@ public final class PropertiesLoader {
                     }
                 } else {
                     try {
-                        LOGGER.debug("Attempting to load properties from {} with Spring PropertiesLoaderUtils with class loader.", propertiesFile);
+                        LOGGER.debug(
+                                "Attempting to load properties from {} with Spring PropertiesLoaderUtils with class loader.",
+                                propertiesFile);
                         properties = PropertiesLoaderUtils.loadAllProperties(propertiesFile,
                                 PropertiesLoader.class.getClassLoader());
                         error = false;
@@ -140,10 +146,12 @@ public final class PropertiesLoader {
                     properties.load(reader);
                 } catch (FileNotFoundException e) {
                     error = true;
-                    LOGGER.error("Could not find properties file: {}", propFile.getAbsolutePath(), e);
+                    LOGGER.error("Could not find properties file: {}", propFile.getAbsolutePath(),
+                            e);
                 } catch (IOException e) {
                     error = true;
-                    LOGGER.error("Error reading properties file: {}", propFile.getAbsolutePath(), e);
+                    LOGGER.error("Error reading properties file: {}", propFile.getAbsolutePath(),
+                            e);
                 } finally {
                     IOUtils.closeQuietly(reader);
                 }

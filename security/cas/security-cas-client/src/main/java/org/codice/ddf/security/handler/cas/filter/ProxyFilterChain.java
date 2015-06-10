@@ -14,8 +14,10 @@
  **/
 package org.codice.ddf.security.handler.cas.filter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -23,10 +25,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Proxy filter chain used to call of the required CAS filters in a specific order.
@@ -83,8 +84,8 @@ public class ProxyFilterChain implements FilterChain {
      * @see javax.servlet.FilterChain#doFilter(javax.servlet.ServletRequest,
      * javax.servlet.ServletResponse)
      */
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
-            throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws
+            IOException, ServletException {
         if (iterator == null) {
             iterator = filters.iterator();
         }

@@ -15,6 +15,9 @@
 
 package org.codice.ddf.persistence.events;
 
+import java.util.List;
+import java.util.Map;
+
 import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
@@ -23,9 +26,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
 
 public class ActivityListener implements EventHandler {
 

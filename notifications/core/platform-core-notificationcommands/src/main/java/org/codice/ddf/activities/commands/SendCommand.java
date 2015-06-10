@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
 
 @Command(scope = "activities", name = "send", description = "Send activities.")
 public class SendCommand extends OsgiCommandSupport {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SendCommand.class);
-
     public static final String SERVICE_PID = "org.osgi.service.event.EventAdmin";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SendCommand.class);
 
     private static final int UNKNOWN_PROGRESS = -1;
 
@@ -56,28 +56,24 @@ public class SendCommand extends OsgiCommandSupport {
         String sessionId = "mockSessionId";
         Map<String, String> operations = new HashMap<String, String>();
         operations.put("cancel", "true");
-        ActivityEvent eventProperties = new ActivityEvent(id,
-                sessionId,
-                new Date(),
-                "Activity category",
-                "Activity title",
-                "Activity message",
-                UNKNOWN_PROGRESS, operations, userId, ActivityStatus.RUNNING, 100L);
+        ActivityEvent eventProperties = new ActivityEvent(id, sessionId, new Date(),
+                "Activity category", "Activity title", "Activity message", UNKNOWN_PROGRESS,
+                operations, userId, ActivityStatus.RUNNING, 100L);
         Event event = new Event(ActivityEvent.EVENT_TOPIC, eventProperties);
 
         // Get OSGi Event Admin service
         EventAdmin eventAdmin = null;
         @SuppressWarnings("rawtypes")
 
-        ServiceReference[] serviceReferences = bundleContext.getServiceReferences(SERVICE_PID,
-                null);
+        ServiceReference[] serviceReferences = bundleContext
+                .getServiceReferences(SERVICE_PID, null);
 
         if (serviceReferences == null || serviceReferences.length != 1) {
             LOGGER.debug("Found no service references for " + SERVICE_PID);
         } else {
 
-            LOGGER.debug("Found " + serviceReferences.length + " service references for "
-                    + SERVICE_PID);
+            LOGGER.debug(
+                    "Found " + serviceReferences.length + " service references for " + SERVICE_PID);
 
             eventAdmin = (EventAdmin) bundleContext.getService(serviceReferences[0]);
             if (eventAdmin != null) {

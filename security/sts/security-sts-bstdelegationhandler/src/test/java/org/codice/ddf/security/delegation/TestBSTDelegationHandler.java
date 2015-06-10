@@ -14,6 +14,10 @@
  **/
 package org.codice.ddf.security.delegation;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.token.delegation.TokenDelegationParameters;
 import org.apache.cxf.sts.token.delegation.TokenDelegationResponse;
@@ -23,16 +27,13 @@ import org.apache.wss4j.dom.WSConstants;
 import org.codice.ddf.security.handler.api.BSTAuthenticationToken;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 public class TestBSTDelegationHandler {
     @Test
     public void testCanHandle() {
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
-        binarySecurityTokenType.setValueType(BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN);
+        binarySecurityTokenType
+                .setValueType(BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN);
         ReceivedToken receivedToken = mock(ReceivedToken.class);
         when(receivedToken.getToken()).thenReturn(binarySecurityTokenType);
         BSTDelegationHandler bstDelegationHandler = new BSTDelegationHandler();
@@ -44,7 +45,8 @@ public class TestBSTDelegationHandler {
     public void testCanNotHandle() {
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#WrongType");
-        binarySecurityTokenType.setValueType(BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN);
+        binarySecurityTokenType
+                .setValueType(BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN);
         ReceivedToken receivedToken = mock(ReceivedToken.class);
         when(receivedToken.getToken()).thenReturn(binarySecurityTokenType);
         BSTDelegationHandler bstDelegationHandler = new BSTDelegationHandler();
@@ -56,13 +58,15 @@ public class TestBSTDelegationHandler {
     public void testDelegationAllowed() {
         BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
         binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
-        binarySecurityTokenType.setValueType(BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN);
+        binarySecurityTokenType
+                .setValueType(BSTAuthenticationToken.BST_NS + "#" + BSTAuthenticationToken.BST_LN);
         ReceivedToken receivedToken = mock(ReceivedToken.class);
         when(receivedToken.getToken()).thenReturn(binarySecurityTokenType);
         TokenDelegationParameters tokenDelegationParameters = mock(TokenDelegationParameters.class);
         when(tokenDelegationParameters.getToken()).thenReturn(receivedToken);
         BSTDelegationHandler bstDelegationHandler = new BSTDelegationHandler();
-        TokenDelegationResponse response = bstDelegationHandler.isDelegationAllowed(tokenDelegationParameters);
+        TokenDelegationResponse response = bstDelegationHandler
+                .isDelegationAllowed(tokenDelegationParameters);
         assertEquals(true, response.isDelegationAllowed());
     }
 
@@ -74,7 +78,8 @@ public class TestBSTDelegationHandler {
         TokenDelegationParameters tokenDelegationParameters = mock(TokenDelegationParameters.class);
         when(tokenDelegationParameters.getToken()).thenReturn(receivedToken);
         BSTDelegationHandler bstDelegationHandler = new BSTDelegationHandler();
-        TokenDelegationResponse response = bstDelegationHandler.isDelegationAllowed(tokenDelegationParameters);
+        TokenDelegationResponse response = bstDelegationHandler
+                .isDelegationAllowed(tokenDelegationParameters);
         assertEquals(false, response.isDelegationAllowed());
     }
 }

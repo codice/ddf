@@ -14,12 +14,7 @@
  **/
 package org.codice.ddf.security.handler.anonymous.configuration;
 
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
-import org.apache.commons.lang.StringUtils;
-import org.apache.felix.webconsole.BrandingPlugin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.ByteArrayInputStream;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -29,7 +24,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.ByteArrayInputStream;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.felix.webconsole.BrandingPlugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
 
 /**
  * Stores external configuration properties.
@@ -42,6 +44,8 @@ public class Configuration {
 
     private static Configuration uniqueInstance;
 
+    private static MimeType mimeType = null;
+
     private String header = "";
 
     private String footer = "";
@@ -52,9 +56,19 @@ public class Configuration {
 
     private BrandingPlugin branding;
 
-    private static MimeType mimeType = null;
-
     private Configuration() {
+    }
+
+    /**
+     * @return a unique instance of {@link Configuration}
+     */
+    public static synchronized Configuration getInstance() {
+
+        if (uniqueInstance == null) {
+            uniqueInstance = new Configuration();
+        }
+
+        return uniqueInstance;
     }
 
     @GET
@@ -69,21 +83,10 @@ public class Configuration {
         configObj.put("branding", getProductName());
 
         String configString = JSONValue.toJSONString(configObj);
-        response = Response.ok(new ByteArrayInputStream(configString.getBytes()), mimeType.toString()).build();
+        response = Response
+                .ok(new ByteArrayInputStream(configString.getBytes()), mimeType.toString()).build();
 
         return response;
-    }
-
-    /**
-     * @return a unique instance of {@link Configuration}
-     */
-    public static synchronized Configuration getInstance() {
-
-        if (uniqueInstance == null) {
-            uniqueInstance = new Configuration();
-        }
-
-        return uniqueInstance;
     }
 
     public String getHeader() {

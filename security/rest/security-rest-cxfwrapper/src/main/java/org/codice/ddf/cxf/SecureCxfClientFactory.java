@@ -14,9 +14,17 @@
  **/
 package org.codice.ddf.cxf;
 
-import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
-import ddf.security.settings.SecuritySettingsService;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -41,16 +49,8 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.List;
+import ddf.security.service.SecurityServiceException;
+import ddf.security.settings.SecuritySettingsService;
 
 public class SecureCxfClientFactory<T> {
 
@@ -65,8 +65,8 @@ public class SecureCxfClientFactory<T> {
     /**
      * @see #SecureCxfClientFactory(String, Class, java.util.List, Interceptor, boolean)
      */
-    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass)
-            throws SecurityServiceException {
+    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass) throws
+            SecurityServiceException {
         this(endpointUrl, interfaceClass, null, null, false);
     }
 
@@ -83,8 +83,8 @@ public class SecureCxfClientFactory<T> {
      * @param disableCnCheck disable ssl check for common name / host name match
      */
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, List<?> providers,
-            Interceptor<? extends Message> interceptor, boolean disableCnCheck)
-            throws SecurityServiceException {
+            Interceptor<? extends Message> interceptor, boolean disableCnCheck) throws
+            SecurityServiceException {
         if (StringUtils.isEmpty(endpointUrl) || interfaceClass == null) {
             throw new IllegalArgumentException(
                     "Called without a valid URL, will not be able to connect.");
@@ -154,8 +154,8 @@ public class SecureCxfClientFactory<T> {
      * This method should be called for each new request in order to ensure
      * that the security token is up-to-date each time.
      */
-    public T getClientForBasicAuth(String username, String password)
-            throws SecurityServiceException {
+    public T getClientForBasicAuth(String username, String password) throws
+            SecurityServiceException {
         String asciiString = clientFactory.getAddress();
         if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
             throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
@@ -169,8 +169,8 @@ public class SecureCxfClientFactory<T> {
      *
      * @see #getClientForBasicAuth(String, String)
      */
-    public WebClient getWebClientForBasicAuth(String username, String password)
-            throws SecurityServiceException {
+    public WebClient getWebClientForBasicAuth(String username, String password) throws
+            SecurityServiceException {
         return WebClient.fromClient(WebClient.client(getClientForBasicAuth(username, password)));
     }
 
@@ -296,8 +296,8 @@ public class SecureCxfClientFactory<T> {
      * Add TLS and Basic Auth credentials to the underlying {@link org.apache.cxf.transport.http.HTTPConduit}
      * This includes two-way ssl assuming that the platform keystores are configured correctly
      */
-    private void initSecurity(ClientConfiguration clientConfig, String username, String password)
-            throws SecurityServiceException {
+    private void initSecurity(ClientConfiguration clientConfig, String username,
+            String password) throws SecurityServiceException {
         HTTPConduit httpConduit = clientConfig.getHttpConduit();
         if (httpConduit == null) {
             throw new SecurityServiceException(

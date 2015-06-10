@@ -14,6 +14,21 @@
  **/
 package org.codice.ddf.security.validator.username;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
 import org.apache.cxf.common.jaxb.JAXBContextCache;
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
@@ -30,30 +45,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.ServiceReference;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 public class TestUsernameTokenValidator {
 
     final JAASUsernameTokenValidator niceValidator = mock(JAASUsernameTokenValidator.class);
+
     final JAASUsernameTokenValidator meanValidator = new JAASUsernameTokenValidator();
 
     @Before
     public void setup() {
         try {
             Credential credential = mock(Credential.class);
-            when(niceValidator.validate(any(Credential.class), any(RequestData.class))).thenReturn(credential);
+            when(niceValidator.validate(any(Credential.class), any(RequestData.class)))
+                    .thenReturn(credential);
         } catch (WSSecurityException ignore) {
             //do nothing
         }
@@ -99,14 +102,16 @@ public class TestUsernameTokenValidator {
         JAXBElement<?> token = null;
         if (unmarshaller != null) {
             try {
-                token = (JAXBElement<?>) unmarshaller.unmarshal(this.getClass().getResourceAsStream("/user.xml"));
+                token = (JAXBElement<?>) unmarshaller
+                        .unmarshal(this.getClass().getResourceAsStream("/user.xml"));
             } catch (JAXBException e) {
                 fail(e.getMessage());
             }
         }
         when(receivedToken.getToken()).thenReturn(token.getValue());
 
-        TokenValidatorResponse tokenValidatorResponse = usernameTokenValidator.validateToken(tokenValidatorParameters);
+        TokenValidatorResponse tokenValidatorResponse = usernameTokenValidator
+                .validateToken(tokenValidatorParameters);
         assertEquals(ReceivedToken.STATE.INVALID, tokenValidatorResponse.getToken().getState());
     }
 
@@ -150,14 +155,16 @@ public class TestUsernameTokenValidator {
         JAXBElement<?> token = null;
         if (unmarshaller != null) {
             try {
-                token = (JAXBElement<?>) unmarshaller.unmarshal(this.getClass().getResourceAsStream("/user.xml"));
+                token = (JAXBElement<?>) unmarshaller
+                        .unmarshal(this.getClass().getResourceAsStream("/user.xml"));
             } catch (JAXBException e) {
                 fail(e.getMessage());
             }
         }
         when(receivedToken.getToken()).thenReturn(token.getValue());
 
-        TokenValidatorResponse tokenValidatorResponse = usernameTokenValidator.validateToken(tokenValidatorParameters);
+        TokenValidatorResponse tokenValidatorResponse = usernameTokenValidator
+                .validateToken(tokenValidatorParameters);
         assertEquals(ReceivedToken.STATE.VALID, tokenValidatorResponse.getToken().getState());
     }
 }

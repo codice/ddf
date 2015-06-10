@@ -1,18 +1,23 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.security.sts;
+
+import java.security.Principal;
+
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.x500.X500Principal;
 
 import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.request.TokenRequirements;
@@ -22,13 +27,9 @@ import org.apache.wss4j.common.principal.UsernameTokenPrincipal;
 import org.apache.wss4j.common.saml.bean.AuthenticationStatementBean;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
 
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.x500.X500Principal;
-import java.security.Principal;
-
 /**
  * This class will always return the unspecified string to the SAML Token Provider
- * 
+ *
  */
 public class AuthNStatementProvider implements AuthenticationStatementProvider {
 
@@ -62,7 +63,8 @@ public class AuthNStatementProvider implements AuthenticationStatementProvider {
         if (receivedToken != null) {
             Principal principal = receivedToken.getPrincipal();
             if (principal instanceof UsernameTokenPrincipal) {
-                authBean.setAuthenticationMethod(SAML2Constants.AUTH_CONTEXT_CLASS_REF_PASSWORD_PROTECTED_TRANSPORT);
+                authBean.setAuthenticationMethod(
+                        SAML2Constants.AUTH_CONTEXT_CLASS_REF_PASSWORD_PROTECTED_TRANSPORT);
             } else if (principal instanceof X500Principal) {
                 authBean.setAuthenticationMethod(SAML2Constants.AUTH_CONTEXT_CLASS_REF_X509);
             } else if (principal instanceof KerberosPrincipal) {

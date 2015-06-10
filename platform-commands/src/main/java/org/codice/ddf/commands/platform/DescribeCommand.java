@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.felix.gogo.commands.Command;
-
 import org.codice.ddf.configuration.ConfigurationWatcher;
 
 @Command(scope = PlatformCommands.NAMESPACE, name = "describe", description = "Provides a description of the platform")

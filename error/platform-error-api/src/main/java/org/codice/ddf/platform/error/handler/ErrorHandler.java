@@ -18,5 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public interface ErrorHandler {
-    public void handleError(int code, String message, String type, Throwable throwable, String uri, HttpServletRequest request, HttpServletResponse response);
+    public void handleError(int code, String message, String type, Throwable throwable, String uri,
+            HttpServletRequest request, HttpServletResponse response);
 }

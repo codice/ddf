@@ -14,8 +14,21 @@
  **/
 package org.codice.ddf.security.common.jaxrs;
 
-import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.UUID;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -26,21 +39,30 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.UUID;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
 
 public class RestSecurityTest {
+
+    public static Document readXml(InputStream is) throws SAXException, IOException,
+            ParserConfigurationException {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+        dbf.setValidating(false);
+        dbf.setIgnoringComments(false);
+        dbf.setIgnoringElementContentWhitespace(true);
+        dbf.setNamespaceAware(true);
+        // dbf.setCoalescing(true);
+        // dbf.setExpandEntityReferences(true);
+
+        DocumentBuilder db = null;
+        db = dbf.newDocumentBuilder();
+        db.setEntityResolver(new DOMUtils.NullResolver());
+
+        // db.setErrorHandler( new MyErrorHandler());
+
+        return db.parse(is);
+    }
 
     @Test
     public void testSetSubjectOnClient() throws Exception {
@@ -69,30 +91,10 @@ public class RestSecurityTest {
      *
      * @param name the name of the classpath resource
      */
-    private Document readDocument(String name)
-            throws SAXException, IOException, ParserConfigurationException {
+    private Document readDocument(String name) throws SAXException, IOException,
+            ParserConfigurationException {
         InputStream inStream = getClass().getResourceAsStream(name);
         return readXml(inStream);
-    }
-
-    public static Document readXml(InputStream is) throws SAXException, IOException,
-            ParserConfigurationException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-        dbf.setValidating(false);
-        dbf.setIgnoringComments(false);
-        dbf.setIgnoringElementContentWhitespace(true);
-        dbf.setNamespaceAware(true);
-        // dbf.setCoalescing(true);
-        // dbf.setExpandEntityReferences(true);
-
-        DocumentBuilder db = null;
-        db = dbf.newDocumentBuilder();
-        db.setEntityResolver(new DOMUtils.NullResolver());
-
-        // db.setErrorHandler( new MyErrorHandler());
-
-        return db.parse(is);
     }
 
 }

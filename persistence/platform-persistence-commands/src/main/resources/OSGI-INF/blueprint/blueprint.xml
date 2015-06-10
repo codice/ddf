@@ -14,10 +14,10 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="store/list">
-            <action class="org.codice.ddf.persistence.commands.StoreListCommand" />
+            <action class="org.codice.ddf.persistence.commands.StoreListCommand"/>
         </command>
         <command name="store/delete">
-            <action class="org.codice.ddf.persistence.commands.StoreDeleteCommand" />
+            <action class="org.codice.ddf.persistence.commands.StoreDeleteCommand"/>
         </command>
     </command-bundle>
 

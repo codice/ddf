@@ -14,6 +14,8 @@
  **/
 package org.codice.ddf.security.validator.anonymous;
 
+import java.util.List;
+
 import org.apache.cxf.sts.request.ReceivedToken;
 import org.apache.cxf.sts.token.validator.TokenValidator;
 import org.apache.cxf.sts.token.validator.TokenValidatorParameters;
@@ -25,8 +27,6 @@ import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class AnonymousValidator implements TokenValidator {
 
@@ -41,8 +41,7 @@ public class AnonymousValidator implements TokenValidator {
                 .equals(((BinarySecurityTokenType) token).getValueType())) {
             String credential = ((BinarySecurityTokenType) token).getValue();
             try {
-                BaseAuthenticationToken base = AnonymousAuthenticationToken
-                        .parse(credential, true);
+                BaseAuthenticationToken base = AnonymousAuthenticationToken.parse(credential, true);
                 return new AnonymousAuthenticationToken(base.getRealm());
             } catch (WSSecurityException e) {
                 LOGGER.warn("Unable to parse {} from encodedToken.",

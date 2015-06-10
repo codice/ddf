@@ -14,20 +14,6 @@
  **/
 package org.codice.ddf.security.handler.anonymous;
 
-import org.apache.wss4j.common.ext.WSSecurityException;
-import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
-import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
-import org.junit.Test;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -35,6 +21,21 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.wss4j.common.ext.WSSecurityException;
+import org.codice.ddf.security.handler.api.AnonymousAuthenticationToken;
+import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
+import org.junit.Test;
 
 public class AnonymousHandlerTest {
 

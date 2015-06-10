@@ -45,8 +45,8 @@ public interface AuthenticationHandler {
      * @param resolve  flag with true implying that credentials should be obtained, false implying return if no credentials are found.
      * @return result containing a status and the credentials to be placed into the http request
      */
-    HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) throws ServletException;
-
+    HandlerResult getNormalizedToken(ServletRequest request, ServletResponse response,
+            FilterChain chain, boolean resolve) throws ServletException;
 
     /**
      * Called when downstream authentication fails. Should attempt to re-acquire credentials if appropriate. Returns
@@ -55,6 +55,7 @@ public interface AuthenticationHandler {
      * @param servletRequest htt http response to return http responses or redirects
      * @return result containing a status indicating if further action is necessary
      */
-    HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws ServletException;
+    HandlerResult handleError(ServletRequest servletRequest, ServletResponse servletResponse,
+            FilterChain chain) throws ServletException;
 
 }

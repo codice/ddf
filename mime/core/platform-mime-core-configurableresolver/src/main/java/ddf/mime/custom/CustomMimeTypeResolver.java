@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
+ *
  **/
 package ddf.mime.custom;
 
@@ -29,15 +29,15 @@ import ddf.mime.MimeTypeResolver;
  * DDF custom mime type resolution packaged as a {@link MimeTypeResolver} OSGi service that can map
  * a list of custom file extensions to their corresponding custom mime types, and vice versa.
  * Currently used to add image/nitf mime type support.
- * 
+ *
  * @since 2.1.0
- * 
+ *
  */
 public class CustomMimeTypeResolver implements MimeTypeResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomMimeTypeResolver.class);
 
     private String name;
-    
+
     // Only applicable for text/xml mime types, e.g., XML Metacard, CSW
     private String schema;
 
@@ -52,6 +52,14 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
     public CustomMimeTypeResolver() {
         this.customFileExtensionsToMimeTypesMap = new HashMap<String, String>();
         this.customMimeTypesToFileExtensionsMap = new HashMap<String, List<String>>();
+    }
+
+    public static <K, V> HashMap<V, K> reverse(Map<K, V> map) {
+        HashMap<V, K> rev = new HashMap<V, K>();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            rev.put(entry.getValue(), entry.getKey());
+        }
+        return rev;
     }
 
     public void init() {
@@ -70,20 +78,20 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
     public void setName(String name) {
         this.name = name;
     }
-    
-    public void setSchema(String schema) {
-        LOGGER.debug("Setting schema = {}", schema);
-        this.schema = schema;
-    }
-    
+
     @Override
     public boolean hasSchema() {
         return StringUtils.isNotBlank(this.schema);
     }
-    
+
     @Override
     public String getSchema() {
         return schema;
+    }
+
+    public void setSchema(String schema) {
+        LOGGER.debug("Setting schema = {}", schema);
+        this.schema = schema;
     }
 
     @Override
@@ -129,7 +137,8 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
             customMimeTypesToFileExtensionsMap.put(mimeType, fileExtensions);
         }
 
-        LOGGER.debug("customFileExtensionsToMimeTypesMap = {} ", customFileExtensionsToMimeTypesMap);
+        LOGGER.debug("customFileExtensionsToMimeTypesMap = {} ",
+                customFileExtensionsToMimeTypesMap);
         LOGGER.debug("customMimeTypesToFileExtensionsMap = {}", customMimeTypesToFileExtensionsMap);
 
         LOGGER.trace("EXITING: setCustomMimeTypes");
@@ -163,8 +172,8 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
         if (StringUtils.isNotEmpty(mimeType)) {
             List<String> fileExtensions = customMimeTypesToFileExtensionsMap.get(mimeType);
             if (fileExtensions != null && fileExtensions.size() > 0) {
-                LOGGER.debug("{} file extensions found for mime type = {} ",
-                        fileExtensions.size(), mimeType);
+                LOGGER.debug("{} file extensions found for mime type = {} ", fileExtensions.size(),
+                        mimeType);
 
                 fileExtension = fileExtensions.get(0);
 
@@ -186,8 +195,7 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
     }
 
     @Override
-    public String getMimeTypeForFileExtension(String fileExtension)
-    {
+    public String getMimeTypeForFileExtension(String fileExtension) {
         LOGGER.trace("ENTERING: getMimeTypeForFileExtension");
         LOGGER.debug("fileExtension = {}", fileExtension);
 
@@ -201,14 +209,6 @@ public class CustomMimeTypeResolver implements MimeTypeResolver {
         LOGGER.trace("EXITING: getMimeTypeForFileExtension");
 
         return mimeType;
-    }
-
-    public static <K, V> HashMap<V, K> reverse(Map<K, V> map) {
-        HashMap<V, K> rev = new HashMap<V, K>();
-        for (Map.Entry<K, V> entry : map.entrySet()) {
-            rev.put(entry.getValue(), entry.getKey());
-        }
-        return rev;
     }
 
 }

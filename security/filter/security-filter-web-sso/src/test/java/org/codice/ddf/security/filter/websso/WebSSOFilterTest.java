@@ -14,22 +14,6 @@
  **/
 package org.codice.ddf.security.filter.websso;
 
-import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.HandlerResult.Status;
-import org.codice.ddf.security.policy.context.ContextPolicy;
-import org.codice.ddf.security.policy.context.ContextPolicyManager;
-import org.junit.Test;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Arrays;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -40,6 +24,22 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.util.Arrays;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.codice.ddf.security.handler.api.AuthenticationHandler;
+import org.codice.ddf.security.handler.api.HandlerResult;
+import org.codice.ddf.security.handler.api.HandlerResult.Status;
+import org.codice.ddf.security.policy.context.ContextPolicy;
+import org.codice.ddf.security.policy.context.ContextPolicyManager;
+import org.junit.Test;
 
 public class WebSSOFilterTest {
 
@@ -65,12 +65,10 @@ public class WebSSOFilterTest {
         HandlerResult completedResult = mock(HandlerResult.class);
         when(completedResult.getStatus()).thenReturn(Status.COMPLETED);
         when(completedResult.getToken()).thenReturn(null);
-        when(
-          handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
-            any(FilterChain.class), eq(true))).thenReturn(completedResult);
-        when(
-          handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
-            any(FilterChain.class), eq(false))).thenReturn(noActionResult);
+        when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
+                        any(FilterChain.class), eq(true))).thenReturn(completedResult);
+        when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
+                        any(FilterChain.class), eq(false))).thenReturn(noActionResult);
 
         filter.setHandlerList(Arrays.asList(handler1));
         filter.setContextPolicyManager(policyManager);
@@ -85,7 +83,9 @@ public class WebSSOFilterTest {
         verify(request, times(1)).setAttribute(ContextPolicy.ACTIVE_REALM, "TestRealm");
         verify(request, times(1)).setAttribute(ContextPolicy.NO_AUTH_POLICY, true);
         verify(filterChain).doFilter(request, response);
-        verify(handler1, never()).getNormalizedToken(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class), anyBoolean());
+        verify(handler1, never())
+                .getNormalizedToken(any(HttpServletRequest.class), any(HttpServletResponse.class),
+                        any(FilterChain.class), anyBoolean());
     }
 
     @Test
@@ -105,12 +105,10 @@ public class WebSSOFilterTest {
         HandlerResult completedResult = mock(HandlerResult.class);
         when(completedResult.getStatus()).thenReturn(Status.COMPLETED);
         when(completedResult.getToken()).thenReturn(null);
-        when(
-          handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
-            any(FilterChain.class), eq(true))).thenReturn(completedResult);
-        when(
-          handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
-            any(FilterChain.class), eq(false))).thenReturn(noActionResult);
+        when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
+                        any(FilterChain.class), eq(true))).thenReturn(completedResult);
+        when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
+                        any(FilterChain.class), eq(false))).thenReturn(noActionResult);
 
         filter.setHandlerList(Arrays.asList(handler1));
 
@@ -121,10 +119,13 @@ public class WebSSOFilterTest {
 
         filter.doFilter(request, response, filterChain);
 
-        verify(handler1, times(2)).getNormalizedToken(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class), anyBoolean());
+        verify(handler1, times(2))
+                .getNormalizedToken(any(HttpServletRequest.class), any(HttpServletResponse.class),
+                        any(FilterChain.class), anyBoolean());
         // the next filter should NOT be called
         verify(filterChain, never()).doFilter(request, response);
-        verify(request, never()).setAttribute(eq(DDF_AUTHENTICATION_TOKEN), any(HandlerResult.class));
+        verify(request, never())
+                .setAttribute(eq(DDF_AUTHENTICATION_TOKEN), any(HandlerResult.class));
     }
 
     @Test
@@ -144,12 +145,10 @@ public class WebSSOFilterTest {
         HandlerResult redirectedResult = mock(HandlerResult.class);
         when(redirectedResult.getStatus()).thenReturn(Status.REDIRECTED);
         when(redirectedResult.getToken()).thenReturn(null);
-        when(
-          handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
-            any(FilterChain.class), eq(false))).thenReturn(noActionResult);
-        when(
-          handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
-            any(FilterChain.class), eq(true))).thenReturn(redirectedResult);
+        when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
+                        any(FilterChain.class), eq(false))).thenReturn(noActionResult);
+        when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
+                        any(FilterChain.class), eq(true))).thenReturn(redirectedResult);
 
         filter.setHandlerList(Arrays.asList(handler1));
 
@@ -162,7 +161,8 @@ public class WebSSOFilterTest {
 
         // the next filter should NOT be called
         verify(filterChain, never()).doFilter(request, response);
-        verify(request, never()).setAttribute(eq(DDF_AUTHENTICATION_TOKEN), any(HandlerResult.class));
+        verify(request, never())
+                .setAttribute(eq(DDF_AUTHENTICATION_TOKEN), any(HandlerResult.class));
     }
 
     @Test
