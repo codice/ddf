@@ -1,45 +1,21 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 
 package org.codice.ddf.ui.searchui.standard.properties;
 
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
-
-import org.apache.commons.collections.Factory;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.felix.webconsole.BrandingPlugin;
-import org.codice.proxy.http.HttpProxyService;
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import us.bpsm.edn.EdnIOException;
-import us.bpsm.edn.EdnSyntaxException;
-import us.bpsm.edn.parser.Parser;
-import us.bpsm.edn.parser.Parsers;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import static org.boon.Boon.toJson;
+import static us.bpsm.edn.parser.Parsers.defaultConfiguration;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -51,8 +27,32 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import static org.boon.Boon.toJson;
-import static us.bpsm.edn.parser.Parsers.defaultConfiguration;
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.collections.Factory;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.felix.webconsole.BrandingPlugin;
+import org.codice.proxy.http.HttpProxyService;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.BinaryContentImpl;
+import us.bpsm.edn.EdnIOException;
+import us.bpsm.edn.EdnSyntaxException;
+import us.bpsm.edn.parser.Parser;
+import us.bpsm.edn.parser.Parsers;
 
 /**
  * Stores external configuration properties.
@@ -95,17 +95,17 @@ public class ConfigurationStore {
     private BrandingPlugin branding;
 
     private static MimeType JSON_MIME_TYPE;
-    
+
     private Integer timeout = 15000;
-    
+
     private HttpProxyService httpProxy;
 
     private BundleContext bundleContext;
-    
-    private int incrementer=0;
+
+    private int incrementer = 0;
 
     private Integer resultCount = 250;
-    
+
     private String bundleName;
 
     private String projection = "EPSG:3857";
@@ -136,8 +136,14 @@ public class ConfigurationStore {
     }
 
     public void destroy() {
+        if (!isHttpProxyServiceActive()) {
+            LOGGER.debug(
+                    "HttpProxy is not active. Imagery and terrain endpoints have already been stopped");
+            return;
+        }
+
         if (imageryEndpoints.size() > 0) {
-            for(String endpoint : imageryEndpoints) {
+            for (String endpoint : imageryEndpoints) {
                 try {
                     httpProxy.stop(endpoint);
                 } catch (Exception e) {
@@ -176,8 +182,8 @@ public class ConfigurationStore {
         config.put("helpUrl", helpUrl);
 
         String configJson = toJson(config);
-        BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configJson.getBytes()),
-                JSON_MIME_TYPE);
+        BinaryContent content = new BinaryContentImpl(
+                new ByteArrayInputStream(configJson.getBytes()), JSON_MIME_TYPE);
         response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
 
         return response;
@@ -216,7 +222,7 @@ public class ConfigurationStore {
     public void setFormat(String format) {
         this.format = format;
     }
-    
+
     public Integer getTimeout() {
         return timeout;
     }
@@ -264,9 +270,19 @@ public class ConfigurationStore {
         setProxyForTerrain(terrainProvider);
     }
 
+    private boolean isHttpProxyServiceActive() {
+        ServiceReference httpProxyService = bundleContext
+                .getServiceReference(HttpProxyService.class);
+
+        if (httpProxyService == null || httpProxyService.getBundle().getState() != Bundle.ACTIVE) {
+            return false;
+        }
+        return true;
+    }
+
     private void setProxiesForImagery(List<String> imageryProviders) {
         if (imageryEndpoints.size() > 0) {
-            for(String endpoint : imageryEndpoints) {
+            for (String endpoint : imageryEndpoints) {
                 try {
                     httpProxy.stop(endpoint);
                 } catch (Exception e) {
@@ -276,7 +292,7 @@ public class ConfigurationStore {
         }
         proxiedImageryProviders.clear();
 
-        for(String provider : imageryProviders) {
+        for (String provider : imageryProviders) {
             Map<String, Object> proxiedProvider = getProxiedProvider(provider, true);
             if (proxiedProvider != null) {
                 proxiedImageryProviders.add(proxiedProvider);
@@ -312,7 +328,7 @@ public class ConfigurationStore {
                         value.getClass().getName(), provider);
                 return null;
             }
-        } catch (EdnSyntaxException|EdnIOException e) {
+        } catch (EdnSyntaxException | EdnIOException e) {
             LOGGER.warn("Unable to parse provider configuration: " + provider, e);
             return null;
         }
@@ -321,7 +337,8 @@ public class ConfigurationStore {
             String url = config.get(URL).toString();
 
             try {
-                bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
+                bundleName =
+                        bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
                 incrementer++;
                 String endpointName = httpProxy.start(bundleName, url, timeout);
                 if (imagery) {
@@ -338,21 +355,21 @@ public class ConfigurationStore {
         return config;
     }
 
-	public HttpProxyService getHttpProxy() {
-		return httpProxy;
-	}
+    public HttpProxyService getHttpProxy() {
+        return httpProxy;
+    }
 
-	public void setHttpProxy(HttpProxyService httpProxy) {
-		this.httpProxy = httpProxy;
-	}
+    public void setHttpProxy(HttpProxyService httpProxy) {
+        this.httpProxy = httpProxy;
+    }
 
-	public BundleContext getBundleContext() {
-		return bundleContext;
-	}
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
 
-	public void setBundleContext(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
-	}
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
 
     public Integer getResultCount() {
         return resultCount;
@@ -424,7 +441,7 @@ public class ConfigurationStore {
 
     public void setTypeNameMapping(String string) {
         if (string != null) {
-            this.setTypeNameMapping(new String[]{string});
+            this.setTypeNameMapping(new String[] {string});
         }
     }
 
