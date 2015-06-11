@@ -99,7 +99,7 @@ public class SchematronValidationService implements MetacardValidator {
     private final String bundleBaseDir;
 
     /** This class' logger */
-    Logger LOGGER = LoggerFactory.getLogger(SchematronValidationService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SchematronValidationService.class);
 
     /** The original Schematron .sch file */
     private String schematronSchemaFilename;

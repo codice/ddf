@@ -11,11 +11,10 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
+
 @XmlJavaTypeAdapters({
         @XmlJavaTypeAdapter(value = MetacardTypeAdapter.class, type = MetacardType.class),
-
         @XmlJavaTypeAdapter(value = AttributeAdapter.class, type = Attribute.class),
-
         @XmlJavaTypeAdapter(value = BooleanAdapter.class, type = BooleanElement.class),
         @XmlJavaTypeAdapter(value = Base64BinaryAdapter.class, type = Base64BinaryElement.class),
         @XmlJavaTypeAdapter(value = DateTimeAdapter.class, type = DateTimeElement.class),
@@ -28,8 +27,9 @@
         @XmlJavaTypeAdapter(value = ShortAdapter.class, type = ShortElement.class),
         @XmlJavaTypeAdapter(value = StringAdapter.class, type = StringElement.class),
         @XmlJavaTypeAdapter(value = StringxmlAdapter.class, type = StringxmlElement.class)
+})
 
-}) package ddf.catalog.transformer.xml.adapter;
+package ddf.catalog.transformer.xml.adapter;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapters;

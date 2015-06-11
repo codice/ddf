@@ -13,7 +13,8 @@
  */
 package ddf.catalog.transformer.input.tika;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

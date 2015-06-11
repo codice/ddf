@@ -36,7 +36,7 @@ public class Masker {
 
     private String mask;
 
-    private boolean mask_set = false;
+    private boolean maskSet = false;
 
     /**
      * Creates an empty list of Maskable services that this Masker will internally maintain.
@@ -55,7 +55,7 @@ public class Masker {
         synchronized (this) {
 
             this.mask = id;
-            this.mask_set = true;
+            this.maskSet = true;
 
             for (Maskable masked : maskees) {
                 masked.maskId(id);
@@ -77,7 +77,7 @@ public class Masker {
      */
     public void bind(Maskable masked) {
         synchronized (this) {
-            if (mask_set) {
+            if (maskSet) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(
                             "Updating id for " + masked.getClass().getName() + " from " + masked

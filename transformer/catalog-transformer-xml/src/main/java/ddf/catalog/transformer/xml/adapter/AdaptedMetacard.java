@@ -174,8 +174,9 @@ public class AdaptedMetacard implements Metacard {
             @XmlElement(name = "object", namespace = METACARD_URI, type = ObjectElement.class),
             @XmlElement(name = "short", namespace = METACARD_URI, type = ShortElement.class),
             @XmlElement(name = "string", namespace = METACARD_URI, type = StringElement.class),
-            @XmlElement(name = "stringxml", namespace = METACARD_URI, type = StringxmlElement.class)})
-    protected List<Attribute> getAttributes() {
+            @XmlElement(name = "stringxml", namespace = METACARD_URI, type = StringxmlElement.class)
+            })
+            protected List<Attribute> getAttributes() {
         return attributes;
     }
 

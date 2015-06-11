@@ -258,7 +258,7 @@ public class OpenSearchQuery implements Query {
     private void addCaretsToStringBuilder(StringBuilder stringBuilder, int endIndex,
             int startIndex) {
         for (int insertCaretIndex = startIndex + 1;
-             insertCaretIndex <= endIndex; insertCaretIndex++) {
+                insertCaretIndex <= endIndex; insertCaretIndex++) {
             stringBuilder.replace(insertCaretIndex, insertCaretIndex + 1, CARET);
         }
     }

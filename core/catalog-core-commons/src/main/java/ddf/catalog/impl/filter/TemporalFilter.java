@@ -23,8 +23,8 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-public class TemporalFilter // implements Filter
-{
+public class TemporalFilter {
+
     private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(TemporalFilter.class));
 
