@@ -859,10 +859,9 @@ They are passed in the AuthorizationInfo of the Subject along with the Permissio
 |ddf.security.pdp.realm.SimpleAuthZRealm    
 |This realm performs the authorization decision without delegating to an external service. It uses the incoming permissions to create a decision.
 
-=== Securing REST
-
-
 |===
+
+=== Securing REST
 
 [ditaa,security_architecture,png]
 ....
