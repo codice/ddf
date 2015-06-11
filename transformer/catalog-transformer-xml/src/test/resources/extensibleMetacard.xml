@@ -10,7 +10,9 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/ -->
-<ns3:metacard xmlns:ns1="http://www.opengis.net/gml" xmlns:ns2="http://www.w3.org/1999/xlink" xmlns:ns3="urn:catalog:metacard" xmlns:ns4="http://www.w3.org/2001/SMIL20/" xmlns:ns6="http://www.w3.org/2001/SMIL20/Language" ns1:id="1234567890987654321">
+<ns3:metacard xmlns:ns1="http://www.opengis.net/gml"
+              xmlns:ns3="urn:catalog:metacard"
+              ns1:id="1234567890987654321">
     <ns3:type>extensible.metacard</ns3:type>
     <ns3:source>foobar</ns3:source>
     <ns3:string name="title">

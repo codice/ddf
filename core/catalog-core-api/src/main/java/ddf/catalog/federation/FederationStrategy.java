@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.federation;
 
 import java.util.List;
@@ -30,7 +29,7 @@ import ddf.catalog.source.Source;
  * For example, implementations can choose to block until all {@link SourceResponse}s return then do
  * a mass sort, or to return the results back to the client as soon as they are received back from a
  * {@link FederatedSource}.
- * 
+ *
  * @author ddf.isgs@lmco.com
  */
 public interface FederationStrategy {
@@ -38,7 +37,7 @@ public interface FederationStrategy {
     /**
      * Federate the given query to the {@link List} of {@link Source}s, returning a
      * {@link QueryResponse} back to the user that will include the matching {@link Result}s.
-     * 
+     *
      * @param sources
      *            the {@link List} of {@link Source}s to be queried. Cannot be {@code null} or
      *            empty.
@@ -47,6 +46,6 @@ public interface FederationStrategy {
      * @return {@link QueryResponse} which contains the list of {@link Result}s.
      */
     public QueryResponse federate(List<Source> sources, QueryRequest query)
-        throws FederationException;
+            throws FederationException;
 
 }

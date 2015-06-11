@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.util;
 
 import java.io.ByteArrayInputStream;
@@ -33,9 +32,9 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 public final class XSLTUtil {
-    private static final DocumentBuilderFactory DBF = DocumentBuilderFactory.newInstance(
-            org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(),
-            org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getClassLoader());
+    private static final DocumentBuilderFactory DBF = DocumentBuilderFactory
+            .newInstance(org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(),
+                    org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getClassLoader());
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XSLTUtil.class);
 
@@ -46,7 +45,7 @@ public final class XSLTUtil {
 
     /**
      * Performs an xsl transformation against an XML document
-     * 
+     *
      * @param template
      *            The compiled XSL template to be run
      * @param xmlDoc
@@ -73,7 +72,8 @@ public final class XSLTUtil {
                 resultOutput = new StreamResult(baos);
                 if (parameters != null && !parameters.isEmpty()) {
                     for (Map.Entry<String, Object> entry : parameters.entrySet()) {
-                        LOGGER.debug("Adding parameter key: {} value: {}", entry.getKey(), entry.getValue());
+                        LOGGER.debug("Adding parameter key: {} value: {}", entry.getKey(),
+                                entry.getValue());
                         String key = entry.getKey();
                         Object value = entry.getValue();
                         if (key != null && !key.isEmpty() && value != null) {
@@ -84,7 +84,8 @@ public final class XSLTUtil {
                         }
                     }
                 } else {
-                    LOGGER.warn("All properties were null.  Using \"last-resort\" defaults: U, USA, MTS");
+                    LOGGER.warn(
+                            "All properties were null.  Using \"last-resort\" defaults: U, USA, MTS");
                 }
 
                 transformer.transform(source, resultOutput);

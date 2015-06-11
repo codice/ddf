@@ -1,18 +1,60 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.source.opensearch;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.TransformerException;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.codehaus.stax2.XMLInputFactory2;
+import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.geotools.filter.FilterTransformer;
+import org.jdom2.Element;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.io.FileBackedOutputStream;
 import com.rometools.rome.feed.synd.SyndCategory;
@@ -21,6 +63,7 @@ import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
+
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -48,47 +91,6 @@ import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.settings.SecuritySettingsService;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.client.Client;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.codehaus.stax2.XMLInputFactory2;
-import org.codice.ddf.security.common.jaxrs.RestSecurity;
-import org.geotools.filter.FilterTransformer;
-import org.jdom2.Element;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.TransformerException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Federated site that talks via OpenSearch to the DDF platform. Communication is usually performed
@@ -97,11 +99,39 @@ import java.util.Set;
  */
 public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
+    public static final String NAME = "name";
+
+    public static final String BYTES_TO_SKIP = "BytesToSkip";
+
+    public static final String BYTES_SKIPPED = "BytesSkipped";
+
     static final String BAD_URL_MESSAGE = "Bad url given for remote source";
 
     static final String COULD_NOT_RETRIEVE_RESOURCE_MESSAGE = "Could not retrieve resource";
 
-    public static final String NAME = "name";
+    static final String HEADER_ACCEPT_RANGES = "Accept-Ranges";
+
+    static final String BYTES = "bytes";
+
+    private static final String ORGANIZATION = "DDF";
+
+    private static final String TITLE = "OpenSearch DDF Federated Source";
+
+    private static final String DESCRIPTION = "Queries DDF using the synchronous federated OpenSearch query";
+
+    private static final long AVAILABLE_TIMEOUT_CHECK = 60000; // 60 seconds, in milliseconds
+
+    private static final String URL_SRC_PARAMETER = "src";
+
+    private static final String LOCAL_SEARCH_PARAMETER = "local";
+
+    private static final String HEADER_RANGE = "Range";
+
+    private static final String BYTES_EQUAL = "bytes=";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
+
+    protected OpenSearchConnection openSearchConnection;
 
     private boolean isInitialized = false;
 
@@ -118,37 +148,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     private String endpointUrl;
 
-    private static final String ORGANIZATION = "DDF";
-
-    private static final String TITLE = "OpenSearch DDF Federated Source";
-
-    private static final String DESCRIPTION = "Queries DDF using the synchronous federated OpenSearch query";
-
-    private static final long AVAILABLE_TIMEOUT_CHECK = 60000; // 60 seconds, in milliseconds
-
-    private static final String URL_SRC_PARAMETER = "src";
-
-    private static final String LOCAL_SEARCH_PARAMETER = "local";
-
-    static final String HEADER_ACCEPT_RANGES = "Accept-Ranges";
-
-    private static final String HEADER_RANGE = "Range";
-
-    public static final String BYTES_TO_SKIP = "BytesToSkip";
-
-    public static final String BYTES_SKIPPED = "BytesSkipped";
-
-    static final String BYTES = "bytes";
-
-    private static final String BYTES_EQUAL = "bytes=";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
-
     private FilterAdapter filterAdapter;
 
     private String configurationPid;
-
-    protected OpenSearchConnection openSearchConnection;
 
     private SecuritySettingsService securitySettingsService;
 
@@ -575,6 +577,16 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     }
 
     /**
+     * Get the URL of the endpoint.
+     *
+     * @return
+     */
+    public String getEndpointUrl() {
+        LOGGER.trace("getEndpointUrl:  endpointUrl = {}", endpointUrl);
+        return endpointUrl;
+    }
+
+    /**
      * Set URL of the endpoint.
      *
      * @param endpointUrl
@@ -586,16 +598,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         if (isInitialized) {
             configureClient();
         }
-    }
-
-    /**
-     * Get the URL of the endpoint.
-     *
-     * @return
-     */
-    public String getEndpointUrl() {
-        LOGGER.trace("getEndpointUrl:  endpointUrl = {}", endpointUrl);
-        return endpointUrl;
     }
 
     @Override
@@ -644,8 +646,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
                     String namespaceUri = xmlStreamReader.getNamespaceURI();
                     InputTransformer transformerReference = lookupTransformerReference(
                             namespaceUri);
-                    if (transformerReference != null)
+                    if (transformerReference != null) {
                         return transformerReference;
+                    }
                 }
             }
         } catch (XMLStreamException | InvalidSyntaxException e) {
@@ -679,6 +682,16 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     }
 
     /**
+     * Get the boolean flag that indicates only local queries are being executed by this OpenSearch
+     * Source.
+     *
+     * @return true indicates only local queries, false indicates enterprise query
+     */
+    public boolean getLocalQueryOnly() {
+        return localQueryOnly;
+    }
+
+    /**
      * Sets the boolean flag that indicates all queries executed should be to its local source only,
      * i.e., no federated or enterprise queries.
      *
@@ -691,13 +704,13 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     }
 
     /**
-     * Get the boolean flag that indicates only local queries are being executed by this OpenSearch
-     * Source.
+     * Get the boolean flag that determines if point-radius and polygon geometries should be
+     * converting to bounding boxes before sending.
      *
-     * @return true indicates only local queries, false indicates enterprise query
+     * @return
      */
-    public boolean getLocalQueryOnly() {
-        return localQueryOnly;
+    public boolean getShouldConvertToBBox() {
+        return shouldConvertToBBox;
     }
 
     /**
@@ -708,16 +721,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
      */
     public void setShouldConvertToBBox(boolean shouldConvertToBBox) {
         this.shouldConvertToBBox = shouldConvertToBBox;
-    }
-
-    /**
-     * Get the boolean flag that determines if point-radius and polygon geometries should be
-     * converting to bounding boxes before sending.
-     *
-     * @return
-     */
-    public boolean getShouldConvertToBBox() {
-        return shouldConvertToBBox;
     }
 
     @Override
@@ -859,6 +862,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         return parameters;
     }
 
+    public void setParameters(String parameters) {
+        this.parameters = Arrays.asList(parameters.split(","));
+    }
+
     public void setParameters(List<String> parameters) {
         // workaround for KARAF-1701
         if (parameters.size() == 1 && parameters.get(0).contains(",")) {
@@ -866,10 +873,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         } else {
             this.parameters = parameters;
         }
-    }
-
-    public void setParameters(String parameters) {
-        this.parameters = Arrays.asList(parameters.split(","));
     }
 
     public String getUsername() {
@@ -889,6 +892,15 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     }
 
     /**
+     * Gets the receive timeout that is being used for current messages.
+     *
+     * @return the timeout in milliseconds.
+     */
+    public long getReceiveTimeout() {
+        return this.receiveTimeout;
+    }
+
+    /**
      * Sets the receive timeout for messages sent from this provider.
      *
      * @param receiveTimeout timeout in milliseconds. 0 sets it to NOT timeout.
@@ -896,15 +908,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     public void setReceiveTimeout(long receiveTimeout) {
         LOGGER.debug("Setting timeout to {}", receiveTimeout);
         this.receiveTimeout = receiveTimeout;
-    }
-
-    /**
-     * Gets the receive timeout that is being used for current messages.
-     *
-     * @return the timeout in milliseconds.
-     */
-    public long getReceiveTimeout() {
-        return this.receiveTimeout;
     }
 
     public void setSecuritySettings(SecuritySettingsService settingsService) {

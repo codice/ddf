@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 
 package ddf.catalog.pubsub.internal;
 
@@ -60,11 +59,7 @@ import ddf.catalog.pubsub.predicate.Predicate;
 import ddf.catalog.pubsub.predicate.TemporalPredicate;
 
 public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SubscriptionFilterVisitor.class);
-
     public static final double EQUATORIAL_RADIUS_IN_METERS = 6378137.0;
-
-    private static final String QUOTE = "\"";
 
     public static final String LUCENE_ESCAPE_CHAR = "\\";
 
@@ -72,9 +67,85 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
 
     public static final String LUCENE_SINGLE_CHAR = "?";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubscriptionFilterVisitor.class);
+
+    private static final String QUOTE = "\"";
+
     // private static final String FUZZY_FUNCTION_NAME = "fuzzy";
 
     public SubscriptionFilterVisitor() {
+    }
+
+    /**
+     * A helper method to combine multiple predicates by a logical AND
+     */
+    public static Predicate and(final Predicate left, final Predicate right) {
+        notNull(left, "left");
+        notNull(right, "right");
+
+        return new Predicate() {
+            public boolean matches(Event properties) {
+                return left.matches(properties) && right.matches(properties);
+            }
+
+            @Override
+            public String toString() {
+                return "(" + left + ") AND (" + right + ")";
+            }
+        };
+    }
+
+    /**
+     * A helper method to combine multiple predicates by a logical OR
+     */
+    public static Predicate or(final Predicate left, final Predicate right) {
+        notNull(left, "left");
+        notNull(right, "right");
+
+        return new Predicate() {
+            public boolean matches(Event properties) {
+                return left.matches(properties) || right.matches(properties);
+            }
+
+            @Override
+            public String toString() {
+                return "(" + left + ") OR (" + right + ")";
+            }
+        };
+    }
+
+    /**
+     * A helper method to combine multiple predicates by a logical NOT
+     */
+    public static Predicate not(final Predicate predicate) {
+        notNull(predicate, "predicate");
+
+        return new Predicate() {
+            public boolean matches(Event properties) {
+                return !predicate.matches(properties);
+            }
+
+            @Override
+            public String toString() {
+                return "(NOT (" + predicate + ")";
+            }
+        };
+    }
+
+    /**
+     * Asserts whether the value is <b>not</b> <tt>null</tt>
+     *
+     * @param value
+     *            the value to test
+     * @param name
+     *            the key that resolved the value
+     * @throws IllegalArgumentException
+     *             is thrown if assertion fails
+     */
+    public static void notNull(Object value, String name) {
+        if (value == null) {
+            throw new IllegalArgumentException(name + " must be specified");
+        }
     }
 
     @Override
@@ -100,8 +171,9 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         List<Filter> childList = filter.getChildren();
         if (childList != null) {
             for (Filter child : childList) {
-                if (child == null)
+                if (child == null) {
                     continue;
+                }
 
                 predList.add((Predicate) child.accept(this, data));
             }
@@ -130,8 +202,9 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         List<Filter> childList = filter.getChildren();
         if (childList != null) {
             for (Filter child : childList) {
-                if (child == null)
+                if (child == null) {
                     continue;
+                }
 
                 predList.add((Predicate) child.accept(this, data));
             }
@@ -165,7 +238,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
                     // Case 2
                     // First ContentTypePredicate has no type but has a version. Second
                     // ContentTypePredicate has no version, but it has a type.
-                    else if (currentType == null && currentVersion != null && incomingType != null) {
+                    else if (currentType == null && currentVersion != null
+                            && incomingType != null) {
                         currentContentTypePred.setType(incomingType);
                     }
                 }
@@ -174,7 +248,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
                     LOGGER.debug("first return predicate");
                     returnPredicate = currentContentTypePred;
                 } else {
-                    LOGGER.debug("ANDing the predicates. Pred1: {} Pred2: {}", returnPredicate, currentContentTypePred);
+                    LOGGER.debug("ANDing the predicates. Pred1: {} Pred2: {}", returnPredicate,
+                            currentContentTypePred);
                     returnPredicate = and(returnPredicate, currentContentTypePred);
                 }
 
@@ -204,8 +279,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         LOGGER.debug("Must have received point/radius query criteria.");
 
         double radius = filter.getDistance();
-        com.vividsolutions.jts.geom.Geometry jtsGeometry = getJtsGeometery((LiteralExpressionImpl) filter
-                .getExpression2());
+        com.vividsolutions.jts.geom.Geometry jtsGeometry = getJtsGeometery(
+                (LiteralExpressionImpl) filter.getExpression2());
 
         double radiusInDegrees = (radius * 180.0) / (Math.PI * EQUATORIAL_RADIUS_IN_METERS);
         LOGGER.debug("radius in meters : {}", radius);
@@ -226,8 +301,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         LOGGER.debug("ENTERING: Within filter");
         LOGGER.debug("Must have received CONTAINS query criteria: {}", filter.getExpression2());
 
-        com.vividsolutions.jts.geom.Geometry jtsGeometry = getJtsGeometery((LiteralExpressionImpl) filter
-                .getExpression2());
+        com.vividsolutions.jts.geom.Geometry jtsGeometry = getJtsGeometery(
+                (LiteralExpressionImpl) filter.getExpression2());
 
         Predicate predicate = new GeospatialPredicate(jtsGeometry, SpatialOperator.CONTAINS.name(),
                 0.0);
@@ -245,8 +320,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         LOGGER.debug("ENTERING: Intersects filter");
         LOGGER.debug("Must have received OVERLAPS query criteria.");
 
-        com.vividsolutions.jts.geom.Geometry jtsGeometry = getJtsGeometery((LiteralExpressionImpl) filter
-                .getExpression2());
+        com.vividsolutions.jts.geom.Geometry jtsGeometry = getJtsGeometery(
+                (LiteralExpressionImpl) filter.getExpression2());
 
         Predicate predicate = new GeospatialPredicate(jtsGeometry, SpatialOperator.OVERLAPS.name(),
                 0.0);
@@ -463,78 +538,6 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         return null;
     }
 
-    /**
-     * A helper method to combine multiple predicates by a logical AND
-     */
-    public static Predicate and(final Predicate left, final Predicate right) {
-        notNull(left, "left");
-        notNull(right, "right");
-
-        return new Predicate() {
-            public boolean matches(Event properties) {
-                return left.matches(properties) && right.matches(properties);
-            }
-
-            @Override
-            public String toString() {
-                return "(" + left + ") AND (" + right + ")";
-            }
-        };
-    }
-
-    /**
-     * A helper method to combine multiple predicates by a logical OR
-     */
-    public static Predicate or(final Predicate left, final Predicate right) {
-        notNull(left, "left");
-        notNull(right, "right");
-
-        return new Predicate() {
-            public boolean matches(Event properties) {
-                return left.matches(properties) || right.matches(properties);
-            }
-
-            @Override
-            public String toString() {
-                return "(" + left + ") OR (" + right + ")";
-            }
-        };
-    }
-
-    /**
-     * A helper method to combine multiple predicates by a logical NOT
-     */
-    public static Predicate not(final Predicate predicate) {
-        notNull(predicate, "predicate");
-
-        return new Predicate() {
-            public boolean matches(Event properties) {
-                return !predicate.matches(properties);
-            }
-
-            @Override
-            public String toString() {
-                return "(NOT (" + predicate + ")";
-            }
-        };
-    }
-
-    /**
-     * Asserts whether the value is <b>not</b> <tt>null</tt>
-     * 
-     * @param value
-     *            the value to test
-     * @param name
-     *            the key that resolved the value
-     * @throws IllegalArgumentException
-     *             is thrown if assertion fails
-     */
-    public static void notNull(Object value, String name) {
-        if (value == null) {
-            throw new IllegalArgumentException(name + " must be specified");
-        }
-    }
-
     // translate filter contextual criteria to lucene syntax
     private String sterilize(String searchPhrase, String wildcard, String escape, String single) {
 
@@ -542,16 +545,17 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         String returnSearchPhrase = searchPhrase.trim();
 
         if (!escape.equals(LUCENE_ESCAPE_CHAR)) {
-            returnSearchPhrase = returnSearchPhrase.replaceAll("(?<!" + "\\Q" + escape + "\\E)"
-                    + "\\Q" + escape + "\\E", Matcher.quoteReplacement(LUCENE_ESCAPE_CHAR));
+            returnSearchPhrase = returnSearchPhrase
+                    .replaceAll("(?<!" + "\\Q" + escape + "\\E)" + "\\Q" + escape + "\\E",
+                            Matcher.quoteReplacement(LUCENE_ESCAPE_CHAR));
         }
         if (!wildcard.equals(LUCENE_WILDCARD_CHAR)) {
             // it is required to change the wildcard character of the
             // filter into the wildcard character of the Catalog Provider
 
             // one problem exists here is that this assumes that backslash is the escape character.
-            returnSearchPhrase = returnSearchPhrase.replaceAll("(?<!\\\\)" + "\\Q" + wildcard
-                    + "\\E", LUCENE_WILDCARD_CHAR);
+            returnSearchPhrase = returnSearchPhrase
+                    .replaceAll("(?<!\\\\)" + "\\Q" + wildcard + "\\E", LUCENE_WILDCARD_CHAR);
         }
 
         String[] splitTokens = returnSearchPhrase.split(" ");
@@ -564,7 +568,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
         return returnSearchPhrase;
     }
 
-    private com.vividsolutions.jts.geom.Geometry getJtsGeometery(LiteralExpressionImpl geoExpression) {
+    private com.vividsolutions.jts.geom.Geometry getJtsGeometery(
+            LiteralExpressionImpl geoExpression) {
         com.vividsolutions.jts.geom.Geometry jtsGeometry;
 
         if (geoExpression.getValue() instanceof GeometryImpl) {

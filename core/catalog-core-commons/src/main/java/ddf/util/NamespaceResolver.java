@@ -1,21 +1,19 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.xml.namespace.NamespaceContext;
@@ -32,15 +30,16 @@ import org.slf4j.ext.XLogger;
  * for namespace URIs to prefixes, and one for namespace prefixes to URIs. If there are multiple
  * entries found for a single URI or prefix, the last one loaded from the OSGi Service Registry will
  * be the one used.
- * 
+ *
  * @author Hugh Rodgers
  */
 public class NamespaceResolver implements NamespaceContext {
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(NamespaceResolver.class));
-
-    private BundleContext bundleContext;
+    private static final XLogger logger = new XLogger(
+            LoggerFactory.getLogger(NamespaceResolver.class));
 
     protected ArrayList<NamespaceContext> namespaceContexts;
+
+    private BundleContext bundleContext;
 
     /**
      * DDF namespace resolver loads all registered NamespaceMap interfaces and builds two HashMaps:
@@ -57,9 +56,9 @@ public class NamespaceResolver implements NamespaceContext {
     /**
      * Retrieve the namespace URI for the given namespace prefix. Prefix is retrieved from the list
      * of namespace URIs and prefixes mapped from NamespaceMap entries in the OSGi Service Registry.
-     * 
+     *
      * @parameter prefix the namespace prefix to look up the URI for
-     * 
+     *
      * @return the namespace URI for the given namespace prefix
      */
     public String getNamespaceURI(String prefix) {
@@ -72,8 +71,9 @@ public class NamespaceResolver implements NamespaceContext {
 
         for (NamespaceContext nc : namespaceContexts) {
             namespaceUri = nc.getNamespaceURI(prefix);
-            if (namespaceUri != null)
+            if (namespaceUri != null) {
                 break;
+            }
         }
 
         logger.trace("EXITING: " + methodName + "    (namespaceUri = " + namespaceUri + ")");
@@ -84,9 +84,9 @@ public class NamespaceResolver implements NamespaceContext {
     /**
      * Retrieve the namespace prefix for the given namespace URI. URI is retrieved from the list of
      * namespace URIs and prefixes mapped from NamespaceMap entries in the OSGi Service Registry.
-     * 
+     *
      * @parameter namespace the namespace URI to look up the prefix for
-     * 
+     *
      * @return the namespace prefix for the given namespace URI
      */
     public String getPrefix(String namespace) {
@@ -99,8 +99,9 @@ public class NamespaceResolver implements NamespaceContext {
 
         for (NamespaceContext nc : namespaceContexts) {
             prefix = nc.getPrefix(namespace);
-            if (prefix != null)
+            if (prefix != null) {
                 break;
+            }
         }
 
         logger.trace("EXITING: " + methodName + "    (prefix = " + prefix + ")");

@@ -1,18 +1,25 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.security.filter.plugin;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -24,13 +31,6 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SecurityConstants;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.permission.KeyValueCollectionPermission;
-import org.apache.shiro.subject.Subject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This {@link PostQueryPlugin} performs redaction and filtering on {@link QueryResponse} objects as
@@ -58,8 +58,8 @@ public class FilterPlugin implements PostQueryPlugin {
      *             intended to prevent other plugins from processing as well.
      */
     @Override
-    public QueryResponse process(QueryResponse input) throws PluginExecutionException,
-            StopProcessingException {
+    public QueryResponse process(QueryResponse input)
+            throws PluginExecutionException, StopProcessingException {
         if (input.getRequest() == null || input.getRequest().getProperties() == null) {
             throw new StopProcessingException(
                     "Unable to filter contents of current message, no user Subject available.");
@@ -83,7 +83,7 @@ public class FilterPlugin implements PostQueryPlugin {
             metacard = result.getMetacard();
             Attribute attr = metacard.getAttribute(Metacard.SECURITY);
             Map<String, List<String>> map = null;
-            if(null != attr) {
+            if (null != attr) {
                 map = (Map<String, List<String>>) attr.getValue();
             }
             securityPermission.clear();

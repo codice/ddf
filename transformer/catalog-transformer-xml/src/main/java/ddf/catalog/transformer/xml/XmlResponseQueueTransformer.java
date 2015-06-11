@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.transformer.xml;
 
 import java.io.ByteArrayInputStream;
@@ -38,14 +37,15 @@ import ddf.catalog.transformer.xml.adapter.AdaptedSourceResponse;
 /**
  * Transforms a {@link SourceResponse} object into Metacard Element XML text, which is GML 3.1.1.
  * compliant XML.
- * 
+ *
  */
-public class XmlResponseQueueTransformer extends AbstractXmlTransformer implements
-        QueryResponseTransformer {
+public class XmlResponseQueueTransformer extends AbstractXmlTransformer
+        implements QueryResponseTransformer {
+
+    public static final MimeType MIME_TYPE = new MimeType();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XmlResponseQueueTransformer.class);
 
-    public static final MimeType MIME_TYPE = new MimeType();
     static {
         try {
             MIME_TYPE.setPrimaryType("text");
@@ -58,7 +58,7 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer implemen
 
     @Override
     public BinaryContent transform(SourceResponse response, Map<String, Serializable> args)
-        throws CatalogTransformerException {
+            throws CatalogTransformerException {
 
         if (response == null) {
             LOGGER.debug("Attempted to transform null response");
@@ -68,8 +68,8 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer implemen
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
 
         try {
-            Thread.currentThread().setContextClassLoader(
-                    XmlMetacardTransformer.class.getClassLoader());
+            Thread.currentThread()
+                    .setContextClassLoader(XmlMetacardTransformer.class.getClassLoader());
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
 

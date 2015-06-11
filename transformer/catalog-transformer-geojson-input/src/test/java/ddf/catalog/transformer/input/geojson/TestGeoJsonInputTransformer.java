@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.transformer.input.geojson;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -43,10 +42,6 @@ import ddf.catalog.data.metacardtype.MetacardTypeRegistryImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestGeoJsonInputTransformer {
-    private static final String SAMPLE_ID = "myId";
-
-    private static final String DEFAULT_URI = "http://example.com";
-
     public static final String DEFAULT_TITLE = "myTitle";
 
     public static final String DEFAULT_VERSION = "myVersion";
@@ -55,11 +50,157 @@ public class TestGeoJsonInputTransformer {
 
     public static final byte[] DEFAULT_BYTES = {8};
 
+    private static final String SAMPLE_ID = "myId";
+
+    private static final String DEFAULT_URI = "http://example.com";
+
     private static final BundleContext context = mock(BundleContext.class);
+
+    private static final MetacardTypeRegistry mtr = MetacardTypeRegistryImpl.getInstance();
 
     private static List<QualifiedMetacardType> qmtList = new ArrayList<QualifiedMetacardType>();
 
-    private static final MetacardTypeRegistry mtr = MetacardTypeRegistryImpl.getInstance();
+    // @formatter:off
+    private static final String noTypeJsonText() {
+        return "{" +
+                "    \"properties\":{" +
+                "        \"title\":{" +
+                "            \"value\":\"myTitle\"" +
+                "        }," +
+                "    }," +
+                "    \"geometry\":{" +
+                "        \"type\":\"GeometryCollection\"," +
+                "        \"coordinates\":[" +
+                "            {" +
+                "                \"type\":\"Point\"," +
+                "                \"coordinates\":[" +
+                "                    4.0," +
+                "                    6.0" +
+                "                ]" +
+                "            }," +
+                "            {" +
+                "                \"type\":\"LineString\"," +
+                "                \"coordinates\":[" +
+                "                    [" +
+                "                        4.0," +
+                "                        6.0" +
+                "                    ]," +
+                "                    [" +
+                "                        7.0," +
+                "                        10.0" +
+                "                    ]" +
+                "                ]" +
+                "            }" +
+                "        ]" +
+                "    }" +
+                "}";
+    }
+
+    private static final String sampleFeatureCollectionJsonText() {
+        return "{" +
+                "    \"type\":\"FeatureCollection\"," +
+                "    \"geometry\":{" +
+                "        \"type\":\"Polygon\"," +
+                "        \"coordinates\":[" +
+                "            [" +
+                "                [" +
+                "                    30.0," +
+                "                    10.0" +
+                "                ]," +
+                "                [" +
+                "                    10.0," +
+                "                    20.0" +
+                "                ]," +
+                "                [" +
+                "                    20.0," +
+                "                    40.0" +
+                "                ]," +
+                "                [" +
+                "                    40.0," +
+                "                    40.0" +
+                "                ]," +
+                "                [" +
+                "                    30.0," +
+                "                    10.0" +
+                "                ]" +
+                "            ]" +
+                "        ]" +
+                "    }" +
+                "}";
+    }
+
+    private static final String samplePointJsonText() {
+        return "{" +
+                "    \"properties\":{" +
+                "        \"title\":\"myTitle\"," +
+                "        \"thumbnail\":\"CA==\"," +
+                "        \"resource-uri\":\"http:\\/\\/example.com\"," +
+                "        \"created\":\"2012-09-01T00:09:19.368+0000\"," +
+                "        \"metadata-content-type-version\":\"myVersion\"," +
+                "        \"metadata-content-type\":\"myType\"," +
+                "        \"metadata\":\"<xml><\\/xml>\"," +
+                "        \"modified\":\"2012-09-01T00:09:19.368+0000\"" +
+                "    }," +
+                "    \"type\":\"Feature\"," +
+                "    \"geometry\":{" +
+                "        \"type\":\"Point\"," +
+                "        \"coordinates\":[" +
+                "                30.0," +
+                "                10.0" +
+                "        ]" +
+                "    }" +
+                "}";
+    }
+
+    private static final String sampleLineStringJsonText() {
+        return "{" +
+                "    \"properties\":{" +
+                "        \"title\":\"myTitle\"," +
+                "        \"thumbnail\":\"CA==\"," +
+                "        \"resource-uri\":\"http:\\/\\/example.com\"," +
+                "        \"created\":\"2012-09-01T00:09:19.368+0000\"," +
+                "        \"metadata-content-type-version\":\"myVersion\"," +
+                "        \"metadata-content-type\":\"myType\"," +
+                "        \"metadata\":\"<xml><\\/xml>\"," +
+                "        \"modified\":\"2012-09-01T00:09:19.368+0000\"" +
+                "    }," +
+                "    \"type\":\"Feature\"," +
+                "    \"geometry\":{" +
+                "        \"type\":\"LineString\"," +
+                "        \"coordinates\":[" +
+                "            [" +
+                "                30.0," +
+                "                10.0" +
+                "            ]," +
+                "            [" +
+                "                10.0," +
+                "                30.0" +
+                "            ]," +
+                "            [" +
+                "                40.0," +
+                "                40.0" +
+                "            ]" +
+                "        ]" +
+                "    }" +
+                "}";
+    }
+
+    private static final String noGeoJsonText() {
+        return "{" +
+                "    \"properties\":{" +
+                "        \"title\":\"myTitle\"," +
+                "        \"thumbnail\":\"CA==\"," +
+                "        \"resource-uri\":\"http:\\/\\/example.com\"," +
+                "        \"created\":\"2012-09-01T00:09:19.368+0000\"," +
+                "        \"metadata-content-type-version\":\"myVersion\"," +
+                "        \"metadata-content-type\":\"myType\"," +
+                "        \"metadata\":\"<xml><\\/xml>\"," +
+                "        \"modified\":\"2012-09-01T00:09:19.368+0000\"" +
+                "    }," +
+                "    \"type\":\"Feature\"," +
+                "    \"geometry\":null" +
+                "}";
+    }
 
     @Test(expected = CatalogTransformerException.class)
     public void testNullInput() throws IOException, CatalogTransformerException {
@@ -73,27 +214,27 @@ public class TestGeoJsonInputTransformer {
 
     @Test(expected = CatalogTransformerException.class)
     public void testFeatureCollectionType() throws IOException, CatalogTransformerException {
-        new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(
-                sampleFeatureCollectionJsonText().getBytes()));
+        new GeoJsonInputTransformer(mtr)
+                .transform(new ByteArrayInputStream(sampleFeatureCollectionJsonText().getBytes()));
     }
 
     @Test(expected = CatalogTransformerException.class)
     public void testNoType() throws IOException, CatalogTransformerException {
-        new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(noTypeJsonText()
-                .getBytes()));
+        new GeoJsonInputTransformer(mtr)
+                .transform(new ByteArrayInputStream(noTypeJsonText().getBytes()));
     }
 
     @Test(expected = CatalogTransformerException.class)
     public void testNoProperties() throws IOException, CatalogTransformerException {
-        new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(
-                "{ \"type\": \"FeatureCollection\"}".getBytes()));
+        new GeoJsonInputTransformer(mtr).transform(
+                new ByteArrayInputStream("{ \"type\": \"FeatureCollection\"}".getBytes()));
     }
 
     @Test()
     public void testNoGeo() throws IOException, CatalogTransformerException {
 
-        Metacard metacard = new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(
-                noGeoJsonText().getBytes()));
+        Metacard metacard = new GeoJsonInputTransformer(mtr)
+                .transform(new ByteArrayInputStream(noGeoJsonText().getBytes()));
 
         verifyBasics(metacard);
 
@@ -102,8 +243,8 @@ public class TestGeoJsonInputTransformer {
     @Test()
     public void testPointGeo() throws IOException, CatalogTransformerException, ParseException {
 
-        Metacard metacard = new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(
-                samplePointJsonText().getBytes()));
+        Metacard metacard = new GeoJsonInputTransformer(mtr)
+                .transform(new ByteArrayInputStream(samplePointJsonText().getBytes()));
 
         verifyBasics(metacard);
 
@@ -118,7 +259,8 @@ public class TestGeoJsonInputTransformer {
     }
 
     @Test
-    public void testLineStringGeo() throws IOException, CatalogTransformerException, ParseException {
+    public void testLineStringGeo()
+            throws IOException, CatalogTransformerException, ParseException {
 
         GeoJsonInputTransformer transformer = new GeoJsonInputTransformer(mtr);
 
@@ -147,8 +289,8 @@ public class TestGeoJsonInputTransformer {
     @Test
     public void testSetId() throws IOException, CatalogTransformerException {
 
-        Metacard metacard = new GeoJsonInputTransformer(mtr).transform(new ByteArrayInputStream(
-                samplePointJsonText().getBytes()), SAMPLE_ID);
+        Metacard metacard = new GeoJsonInputTransformer(mtr)
+                .transform(new ByteArrayInputStream(samplePointJsonText().getBytes()), SAMPLE_ID);
 
         verifyBasics(metacard);
 
@@ -162,154 +304,11 @@ public class TestGeoJsonInputTransformer {
         assertEquals(DEFAULT_TYPE, metacard.getContentTypeName());
         assertEquals(DEFAULT_VERSION, metacard.getContentTypeVersion());
         assertEquals("<xml></xml>", metacard.getMetadata());
-		SimpleDateFormat dateFormat = new SimpleDateFormat(GeoJsonInputTransformer.ISO_8601_DATE_FORMAT);
-		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        assertEquals("2012-09-01T00:09:19.368+0000",
-				dateFormat.format(metacard.getCreatedDate()));
-        assertEquals("2012-09-01T00:09:19.368+0000",
-				dateFormat.format(metacard.getModifiedDate()));
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                GeoJsonInputTransformer.ISO_8601_DATE_FORMAT);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        assertEquals("2012-09-01T00:09:19.368+0000", dateFormat.format(metacard.getCreatedDate()));
+        assertEquals("2012-09-01T00:09:19.368+0000", dateFormat.format(metacard.getModifiedDate()));
         assertArrayEquals(DEFAULT_BYTES, metacard.getThumbnail());
     }
-
-    // @formatter:off
-	private static final String noTypeJsonText() {
-		return "{" + 
-				"    \"properties\":{" + 
-				"        \"title\":{" + 
-				"            \"value\":\"myTitle\"" + 
-				"        }," + 
-				"    }," + 
-				"    \"geometry\":{" + 
-				"        \"type\":\"GeometryCollection\"," + 
-				"        \"coordinates\":[" + 
-				"            {" + 
-				"                \"type\":\"Point\"," + 
-				"                \"coordinates\":[" + 
-				"                    4.0," + 
-				"                    6.0" + 
-				"                ]" + 
-				"            }," + 
-				"            {" + 
-				"                \"type\":\"LineString\"," + 
-				"                \"coordinates\":[" + 
-				"                    [" + 
-				"                        4.0," + 
-				"                        6.0" + 
-				"                    ]," + 
-				"                    [" + 
-				"                        7.0," + 
-				"                        10.0" + 
-				"                    ]" + 
-				"                ]" + 
-				"            }" + 
-				"        ]" + 
-				"    }" + 
-				"}";
-	}
-
-	private static final String sampleFeatureCollectionJsonText() {
-		return "{" + 
-				"    \"type\":\"FeatureCollection\"," + 
-				"    \"geometry\":{" + 
-				"        \"type\":\"Polygon\"," + 
-				"        \"coordinates\":[" + 
-				"            [" + 
-				"                [" + 
-				"                    30.0," + 
-				"                    10.0" + 
-				"                ]," + 
-				"                [" + 
-				"                    10.0," + 
-				"                    20.0" + 
-				"                ]," + 
-				"                [" + 
-				"                    20.0," + 
-				"                    40.0" + 
-				"                ]," + 
-				"                [" + 
-				"                    40.0," + 
-				"                    40.0" + 
-				"                ]," + 
-				"                [" + 
-				"                    30.0," + 
-				"                    10.0" + 
-				"                ]" + 
-				"            ]" + 
-				"        ]" + 
-				"    }" + 
-				"}";
-	}
-
-	private static final String samplePointJsonText() {
-		return "{" + 
-				"    \"properties\":{" + 
-				"        \"title\":\"myTitle\"," + 
-				"        \"thumbnail\":\"CA==\"," + 
-				"        \"resource-uri\":\"http:\\/\\/example.com\"," + 
-				"        \"created\":\"2012-09-01T00:09:19.368+0000\"," + 
-				"        \"metadata-content-type-version\":\"myVersion\"," + 
-				"        \"metadata-content-type\":\"myType\"," + 
-				"        \"metadata\":\"<xml><\\/xml>\"," + 
-				"        \"modified\":\"2012-09-01T00:09:19.368+0000\"" + 
-				"    }," + 
-				"    \"type\":\"Feature\"," + 
-				"    \"geometry\":{" + 
-				"        \"type\":\"Point\"," + 
-				"        \"coordinates\":[" + 
-				"                30.0," + 
-				"                10.0" + 
-				"        ]" + 
-				"    }" + 
-				"}";
-	}
-
-	private static final String sampleLineStringJsonText() {
-		return "{" + 
-				"    \"properties\":{" + 
-				"        \"title\":\"myTitle\"," + 
-				"        \"thumbnail\":\"CA==\"," + 
-				"        \"resource-uri\":\"http:\\/\\/example.com\"," + 
-				"        \"created\":\"2012-09-01T00:09:19.368+0000\"," + 
-				"        \"metadata-content-type-version\":\"myVersion\"," + 
-				"        \"metadata-content-type\":\"myType\"," + 
-				"        \"metadata\":\"<xml><\\/xml>\"," + 
-				"        \"modified\":\"2012-09-01T00:09:19.368+0000\"" + 
-				"    }," + 
-				"    \"type\":\"Feature\"," + 
-				"    \"geometry\":{" + 
-				"        \"type\":\"LineString\"," + 
-				"        \"coordinates\":[" + 
-				"            [" + 
-				"                30.0," + 
-				"                10.0" + 
-				"            ]," + 
-				"            [" + 
-				"                10.0," + 
-				"                30.0" + 
-				"            ]," + 
-				"            [" + 
-				"                40.0," + 
-				"                40.0" + 
-				"            ]" + 
-				"        ]" + 
-				"    }" + 
-				"}";
-	}
-
-	private static final String noGeoJsonText(){
-		return "{" + 
-				"    \"properties\":{" + 
-				"        \"title\":\"myTitle\"," + 
-				"        \"thumbnail\":\"CA==\"," + 
-				"        \"resource-uri\":\"http:\\/\\/example.com\"," + 
-				"        \"created\":\"2012-09-01T00:09:19.368+0000\"," + 
-				"        \"metadata-content-type-version\":\"myVersion\"," + 
-				"        \"metadata-content-type\":\"myType\"," + 
-				"        \"metadata\":\"<xml><\\/xml>\"," + 
-				"        \"modified\":\"2012-09-01T00:09:19.368+0000\"" + 
-				"    }," + 
-				"    \"type\":\"Feature\"," + 
-				"    \"geometry\":null" + 
-				"}";
-	}
 }

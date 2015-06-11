@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.filter;
 
 import java.util.List;
@@ -34,10 +33,10 @@ import ddf.catalog.data.Metacard;
  * <p>
  * This method of creating {@link Filter} instances is strongly recommended.
  * </p>
- * 
+ *
  * @author Michael Menousek, Lockheed Martin
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public interface FilterBuilder {
 
@@ -56,7 +55,7 @@ public interface FilterBuilder {
      * XPath {@link Filter}s will match on all {@link Metacard} {@link Attribute}s that have a
      * format of {@link AttributeFormat#XML} and match the XPath selector.
      * </p>
-     * 
+     *
      * @param attributeName
      *            must not include "/" or "@"
      * @return {@link XPathBuilder} to continue building an XPath {@link Filter}
@@ -77,7 +76,7 @@ public interface FilterBuilder {
      * XPath {@link Filter}s will match on all {@link Metacard} {@link Attribute}s that have a
      * format of {@link AttributeFormat#XML} and match the XPath selector.
      * </p>
-     * 
+     *
      * @param xPathSelector
      *            must include "/" or "@"
      * @return {@link XPathBuilder} to continue building an XPath {@link Filter}
@@ -86,7 +85,7 @@ public interface FilterBuilder {
 
     /**
      * Create a new {@link Filter} that requires that all the provided {@link Filter}s be satisfied.
-     * 
+     *
      * @param filters
      *            one or more {@link Filter}s
      * @return {@link And} {@link Filter}
@@ -95,7 +94,7 @@ public interface FilterBuilder {
 
     /**
      * Create a new {@link Filter} that requires that all the provided {@link Filter}s be satisfied.
-     * 
+     *
      * @param filters
      *            {@link List} of {@link Filter}s
      * @return {@link And} {@link Filter}
@@ -105,7 +104,7 @@ public interface FilterBuilder {
     /**
      * Create a new {@link Filter} that requires at least one of the provided {@link Filter}s be
      * satisfied.
-     * 
+     *
      * @param filters
      *            {@link List} of {@link Filter}s
      * @return {@link And} {@link Filter}
@@ -115,7 +114,7 @@ public interface FilterBuilder {
     /**
      * Create a new {@link Filter} that requires at least one of the provided {@link Filter}s be
      * satisfied.
-     * 
+     *
      * @param filters
      *            one or more {@link Filter}s
      * @return {@link And} {@link Filter}
@@ -125,7 +124,7 @@ public interface FilterBuilder {
     /**
      * Create a Filter that matches on {@link Metacard}s that do <em>not</em> match the provided
      * {@link Filter}
-     * 
+     *
      * @param filter
      *            the filter that should not be matched
      * @return {@link Not} {@link Filter}

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.operation.impl;
 
 import java.io.Serializable;
@@ -32,16 +31,16 @@ public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements So
 
     protected long hits;
 
+    protected Set<SourceProcessingDetails> sourceProcessingDetails = null;
+
     ResponseImpl<QueryRequest> queryResponse;
 
     private List<Result> results;
 
-    protected Set<SourceProcessingDetails> sourceProcessingDetails = null;
-
     /**
      * Instantiates a new SourceResponseImpl with the original query request and results from the
      * query being executed.
-     * 
+     *
      * @param request
      *            the original request
      * @param results
@@ -53,7 +52,7 @@ public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements So
 
     /**
      * Instantiates a new SourceResponseImpl. Use when the total amount of hits is known.
-     * 
+     *
      * @param request
      *            the original request
      * @param results
@@ -67,7 +66,7 @@ public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements So
 
     /**
      * Instantiates a new SourceResponseImpl with properties.
-     * 
+     *
      * @param request
      *            the original request
      * @param properties
@@ -83,7 +82,7 @@ public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements So
     /**
      * Instantiates a new SourceResponseImpl with properties and when the total number of hits is
      * known.
-     * 
+     *
      * @param request
      *            the original request
      * @param properties
@@ -122,7 +121,7 @@ public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements So
 
     /**
      * Sets the hits.
-     * 
+     *
      * @param hits
      *            the new hits
      */
@@ -152,7 +151,7 @@ public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements So
 
     /**
      * Sets the warnings associated with the {@link Source}.
-     * 
+     *
      * @param warnings
      *            the new warnings associated with the {@link Source}.
      */

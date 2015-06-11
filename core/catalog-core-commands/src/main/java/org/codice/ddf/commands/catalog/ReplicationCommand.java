@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog;
 
 import java.util.ArrayList;
@@ -53,12 +52,15 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * Custom Karaf command to replicate records from a Federated Source into the Catalog.
- * 
+ *
  */
 @Command(scope = CatalogCommands.NAMESPACE, name = "replicate", description = "Replicates Metacards from a Federated Source into the Catalog.")
 public class ReplicationCommand extends DuplicateCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReplicationCommand.class);
+
+    @Argument(name = "Source Id", description = "The ID of the Source to replicate the data from.", index = 0, multiValued = false, required = false)
+    String sourceId;
 
     private long start;
 
@@ -68,9 +70,6 @@ public class ReplicationCommand extends DuplicateCommands {
     private AtomicInteger queryIndex = new AtomicInteger(1);
 
     private AtomicInteger ingestCount = new AtomicInteger(0);
-
-    @Argument(name = "Source Id", description = "The ID of the Source to replicate the data from.", index = 0, multiValued = false, required = false)
-    String sourceId;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -95,7 +94,7 @@ public class ReplicationCommand extends DuplicateCommands {
             console.println("Batch Size must be between 1 and 1000.");
             return null;
         }
-        
+
         start = System.currentTimeMillis();
 
         final Filter filter = (cqlFilter != null) ?
@@ -111,17 +110,17 @@ public class ReplicationCommand extends DuplicateCommands {
         try {
             response = framework.query(queryRequest);
         } catch (Exception e) {
-            printErrorMessage("Error occurred while querying the Federated Source.\n" + e.getMessage());
+            printErrorMessage(
+                    "Error occurred while querying the Federated Source.\n" + e.getMessage());
             return null;
         }
-
 
         final long totalPossible = response.getHits();
         if (totalPossible == 0) {
             console.println("No records were found to replicate.");
             return null;
         }
-        
+
         console.println("Starting replication for " + totalPossible + " Records");
 
         if (multithreaded > 1 && totalPossible > batchSize) {
@@ -139,8 +138,7 @@ public class ReplicationCommand extends DuplicateCommands {
                     @Override
                     public void run() {
                         int count = queryAndIngest(framework, catalog, startIndex, filter);
-                        printProgressAndFlush(start, totalPossible,
-                                ingestCount.addAndGet(count));
+                        printProgressAndFlush(start, totalPossible, ingestCount.addAndGet(count));
                     }
                 });
             } while (queryIndex.addAndGet(batchSize) <= totalPossible);
@@ -162,10 +160,10 @@ public class ReplicationCommand extends DuplicateCommands {
 
         console.println();
         long end = System.currentTimeMillis();
-        String completed = String.format(
-                " %d record(s) replicated; %d record(s) failed; completed in %3.3f seconds.",
-                ingestCount.get(), failedCount.get(), (end - start)
-                        / MILLISECONDS_PER_SECOND);
+        String completed = String
+                .format(" %d record(s) replicated; %d record(s) failed; completed in %3.3f seconds.",
+                        ingestCount.get(), failedCount.get(),
+                        (end - start) / MILLISECONDS_PER_SECOND);
         LOGGER.info("Replication Complete: {}", completed);
         console.println(completed);
 
@@ -189,13 +187,16 @@ public class ReplicationCommand extends DuplicateCommands {
             LOGGER.debug("Querying with startIndex: {}", startIndex);
             response = framework.query(queryRequest);
         } catch (UnsupportedQueryException e) {
-            printErrorMessage(String.format("Received error from %s: %s%n", sourceId, e.getMessage()));
+            printErrorMessage(
+                    String.format("Received error from %s: %s%n", sourceId, e.getMessage()));
             return null;
         } catch (SourceUnavailableException e) {
-            printErrorMessage(String.format("Received error from %s: %s%n", sourceId, e.getMessage()));
+            printErrorMessage(
+                    String.format("Received error from %s: %s%n", sourceId, e.getMessage()));
             return null;
         } catch (FederationException e) {
-            printErrorMessage(String.format("Received error from %s: %s%n", sourceId, e.getMessage()));
+            printErrorMessage(
+                    String.format("Received error from %s: %s%n", sourceId, e.getMessage()));
             return null;
         }
         if (response.getProcessingDetails() != null && !response.getProcessingDetails().isEmpty()) {
@@ -210,6 +211,5 @@ public class ReplicationCommand extends DuplicateCommands {
         }
         return metacards;
     }
-
 
 }

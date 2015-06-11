@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog;
 
 import java.io.IOException;
@@ -46,12 +45,10 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * Command used to remove all or a subset of records (in bulk) from the Catalog.
- * 
+ *
  */
 @Command(scope = CatalogCommands.NAMESPACE, name = "removeall", description = "Attempts to delete all records from the catalog.")
 public class RemoveAllCommand extends CatalogCommands {
-
-    private static final int DEFAULT_BATCH_SIZE = 100;
 
     static final int PAGE_SIZE_LOWER_LIMIT = 1;
 
@@ -64,15 +61,21 @@ public class RemoveAllCommand extends CatalogCommands {
     static final String WARNING_MESSAGE_FORMAT = "WARNING: This will permanently remove all %1$s"
             + "records from the Catalog. Do you want to proceed? (yes/no): ";
 
-    @Argument(name = "Batch size", description = "Number of Metacards to delete at a time until completion. Change this argument based on system memory and Catalog limits. "
-            + "Must be a positive integer.", index = 0, multiValued = false, required = false)
+    private static final int DEFAULT_BATCH_SIZE = 100;
+
+    @Argument(name = "Batch size", description =
+            "Number of Metacards to delete at a time until completion. Change this argument based on system memory and Catalog limits. "
+                    + "Must be a positive integer.", index = 0, multiValued = false, required = false)
     int batchSize = DEFAULT_BATCH_SIZE;
 
-    @Option(name = "-e", required = false, aliases = {"--expired"}, multiValued = false, description = "Remove only expired records from the Catalog. "
-            + "Expired records are based on the Metacard EXPIRATION field.")
+    @Option(name = "-e", required = false, aliases = {
+            "--expired"}, multiValued = false, description =
+            "Remove only expired records from the Catalog. "
+                    + "Expired records are based on the Metacard EXPIRATION field.")
     boolean expired = false;
 
-    @Option(name = "-f", required = false, aliases = {"--force"}, multiValued = false, description = "Force the removal without a confirmation message.")
+    @Option(name = "-f", required = false, aliases = {
+            "--force"}, multiValued = false, description = "Force the removal without a confirmation message.")
     boolean force = false;
 
     @Override
@@ -158,8 +161,8 @@ public class RemoveAllCommand extends CatalogCommands {
 
         console.println();
 
-        console.printf(" %d file(s) removed in %3.3f seconds%n", totalAmountDeleted, (end - start)
-                / MILLISECONDS_PER_SECOND);
+        console.printf(" %d file(s) removed in %3.3f seconds%n", totalAmountDeleted,
+                (end - start) / MILLISECONDS_PER_SECOND);
 
         return null;
 
@@ -179,11 +182,9 @@ public class RemoveAllCommand extends CatalogCommands {
         while (iterator.hasNext()) {
 
             ProcessingDetails next = iterator.next();
-            if (next != null
-                    && next.getException() != null
-                    && next.getException().getMessage() != null
-                    && next.getException().getMessage()
-                            .contains(UnsupportedQueryException.class.getSimpleName())) {
+            if (next != null && next.getException() != null
+                    && next.getException().getMessage() != null && next.getException().getMessage()
+                    .contains(UnsupportedQueryException.class.getSimpleName())) {
                 return true;
             }
 
@@ -197,7 +198,7 @@ public class RemoveAllCommand extends CatalogCommands {
             StringBuffer buffer = new StringBuffer();
             System.err.println(String.format(WARNING_MESSAGE_FORMAT, (expired ? "expired " : "")));
             System.err.flush();
-            for (;;) {
+            for (; ; ) {
                 int byteOfData = session.getKeyboard().read();
 
                 if (byteOfData < 0) {
@@ -229,7 +230,8 @@ public class RemoveAllCommand extends CatalogCommands {
         return Long.toString(hits);
     }
 
-    private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, boolean isRequestForTotal) throws InterruptedException {
+    private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
+            throws InterruptedException {
 
         Filter filter = filterBuilder.attribute(Metacard.ID).is().like().text(WILDCARD);
 
@@ -249,7 +251,8 @@ public class RemoveAllCommand extends CatalogCommands {
         return new QueryRequestImpl(query, properties);
     }
 
-    private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, boolean isRequestForTotal) throws InterruptedException {
+    private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
+            throws InterruptedException {
 
         Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(WILDCARD);
 

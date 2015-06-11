@@ -1,18 +1,29 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.backup;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -22,17 +33,6 @@ import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The CatalogBackupPlugin backups up metacards to the file system. It is a
@@ -60,14 +60,11 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     private boolean enableBackupPlugin = true;
 
-    private enum OPERATION {
-        CREATE,
-        DELETE
-    };
-
     public CatalogBackupPlugin() {
         subDirLevels = 0;
     }
+
+    ;
 
     /**
      * Backs up created metacards to the file system backup.
@@ -98,8 +95,9 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
             }
 
             if (errors.size() > 0) {
-                throw new PluginExecutionException(getExceptionMessage(
-                        CreateResponse.class.getSimpleName(), null, errors, OPERATION.CREATE));
+                throw new PluginExecutionException(
+                        getExceptionMessage(CreateResponse.class.getSimpleName(), null, errors,
+                                OPERATION.CREATE));
             }
         }
         return input;
@@ -188,8 +186,9 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
             }
 
             if (errors.size() > 0) {
-                throw new PluginExecutionException(getExceptionMessage(
-                        DeleteResponse.class.getSimpleName(), null, errors, OPERATION.DELETE));
+                throw new PluginExecutionException(
+                        getExceptionMessage(DeleteResponse.class.getSimpleName(), null, errors,
+                                OPERATION.DELETE));
             }
         }
         return input;
@@ -295,8 +294,8 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
      */
     private void removeTempExtension(File source) throws IOException {
         LOGGER.debug("Removing {} file extension.", TEMP_FILE_EXTENSION);
-        File destination = new File(StringUtils.removeEnd(source.getAbsolutePath(),
-                TEMP_FILE_EXTENSION));
+        File destination = new File(
+                StringUtils.removeEnd(source.getAbsolutePath(), TEMP_FILE_EXTENSION));
         FileUtils.moveFile(source, destination);
         LOGGER.debug("Moved {} to {}.", source.getAbsolutePath(), destination.getAbsolutePath());
     }
@@ -337,6 +336,11 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
             LOGGER.debug("No specific error message details for operation {}", operation);
         }
         return builder.toString();
+    }
+
+    private enum OPERATION {
+        CREATE,
+        DELETE
     }
 
 }

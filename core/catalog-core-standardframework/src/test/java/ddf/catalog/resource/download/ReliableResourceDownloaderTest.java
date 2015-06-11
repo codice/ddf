@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.resource.download;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -63,6 +62,12 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 
 public class ReliableResourceDownloaderTest {
+    private static final String DOWNLOAD_ID = "123";
+
+    public static String productCacheDirectory;
+
+    private static String productInputFilename;
+
     private Resource mockResource;
 
     private ResourceResponse mockResponse;
@@ -71,18 +76,11 @@ public class ReliableResourceDownloaderTest {
 
     private InputStream mockStream = mock(InputStream.class);
 
-    private static String productInputFilename;
-
-    public static String productCacheDirectory;
-
-    private static final String DOWNLOAD_ID = "123";
-
     private ReliableResourceDownloaderConfig downloaderConfig;
 
     private DownloadsStatusEventPublisher mockPublisher = mock(DownloadsStatusEventPublisher.class);
 
     private Metacard mockMetacard;
-
 
     @BeforeClass
     public static void oneTimeSetup() throws IOException {
@@ -176,7 +174,7 @@ public class ReliableResourceDownloaderTest {
         IOUtils.closeQuietly(baos);
 
         downloader.setCountingOutputStream(mockCountingFbos);
-        
+
         downloader.run();
 
         verify(mockPublisher, times(1)).postRetrievalStatus(any(ResourceResponse.class),
@@ -219,8 +217,8 @@ public class ReliableResourceDownloaderTest {
         return mockResponse;
     }
 
-    private ResourceRetriever getMockRetriever() throws ResourceNotFoundException,
-        ResourceNotSupportedException, IOException {
+    private ResourceRetriever getMockRetriever()
+            throws ResourceNotFoundException, ResourceNotSupportedException, IOException {
         ResourceRetriever retriever = mock(ResourceRetriever.class);
         when(retriever.retrieveResource(anyLong())).thenReturn(mockResponse);
         return retriever;

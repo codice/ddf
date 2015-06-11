@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.filter.proxy.adapter;
 
 import java.util.ArrayList;
@@ -91,8 +90,6 @@ import ddf.measure.Distance.LinearUnit;
 
 public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, ExpressionVisitor {
 
-    private static final FilterFactory FF = new FilterFactoryImpl();
-
     public static final String CQL_FEET = "feet";
 
     public static final String CQL_METERS = "meters";
@@ -103,8 +100,10 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
     public static final String CQL_KILOMETERS = "kilometers";
 
+    private static final FilterFactory FF = new FilterFactoryImpl();
+
     public <T> T adapt(Filter filter, FilterDelegate<T> filterDelegate)
-        throws UnsupportedQueryException {
+            throws UnsupportedQueryException {
         if (filter == null) {
             throw new IllegalArgumentException("Cannot adapt a null Filter.");
         }
@@ -132,16 +131,16 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
     public Object visit(Function expression, Object delegate) {
         if (expression == null) {
-            throw new UnsupportedOperationException(Function.class.getSimpleName()
-                    + " must not be null.");
+            throw new UnsupportedOperationException(
+                    Function.class.getSimpleName() + " must not be null.");
         }
         return expression;
     }
 
     public Object visit(Literal expression, Object delegate) {
         if (expression.getValue() == null) {
-            throw new UnsupportedOperationException(Literal.class.getSimpleName()
-                    + " value must not be null.");
+            throw new UnsupportedOperationException(
+                    Literal.class.getSimpleName() + " value must not be null.");
         }
         return expression.getValue();
     }
@@ -174,8 +173,8 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
 
     public Object visit(Id filter, Object delegate) {
-        throw new UnsupportedOperationException(Id.class.getSimpleName()
-                + " filter not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                Id.class.getSimpleName() + " filter not supported by Filter Adapter.");
     }
 
     @SuppressWarnings("unchecked")
@@ -227,9 +226,9 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         Object lower;
         Object upper;
 
-        if (filter.getExpression() instanceof PropertyName
-                && filter.getLowerBoundary() instanceof Literal
-                && filter.getUpperBoundary() instanceof Literal) {
+        if (filter.getExpression() instanceof PropertyName && filter
+                .getLowerBoundary() instanceof Literal && filter
+                .getUpperBoundary() instanceof Literal) {
             propertyName = (String) filter.getExpression().accept(this, delegate);
             lower = filter.getLowerBoundary().accept(this, delegate);
             upper = filter.getUpperBoundary().accept(this, delegate);
@@ -239,29 +238,35 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         }
 
         if (lower instanceof String && upper instanceof String) {
-            return ((FilterDelegate<?>) delegate).propertyIsBetween(propertyName, (String) lower,
-                    (String) upper);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsBetween(propertyName, (String) lower, (String) upper);
         } else if (lower instanceof Date && upper instanceof Date) {
-            return ((FilterDelegate<?>) delegate).propertyIsBetween(propertyName, (Date) lower,
-                    (Date) upper);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsBetween(propertyName, (Date) lower, (Date) upper);
         } else if (lower instanceof Instant && upper instanceof Instant) {
-            return ((FilterDelegate<?>) delegate).propertyIsBetween(propertyName, ((Instant) lower)
-                    .getPosition().getDate(), ((Instant) upper).getPosition().getDate());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsBetween(propertyName, ((Instant) lower).getPosition().getDate(),
+                            ((Instant) upper).getPosition().getDate());
         } else if (lower instanceof Integer && upper instanceof Integer) {
-            return ((FilterDelegate<?>) delegate).propertyIsBetween(propertyName,
-                    ((Integer) lower).intValue(), ((Integer) upper).intValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsBetween(propertyName, ((Integer) lower).intValue(),
+                            ((Integer) upper).intValue());
         } else if (lower instanceof Short && upper instanceof Short) {
-            return ((FilterDelegate<?>) delegate).propertyIsBetween(propertyName,
-                    ((Short) lower).shortValue(), ((Short) upper).shortValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsBetween(propertyName, ((Short) lower).shortValue(),
+                            ((Short) upper).shortValue());
         } else if (lower instanceof Long && upper instanceof Long) {
-            return ((FilterDelegate<?>) delegate).propertyIsBetween(propertyName,
-                    ((Long) lower).longValue(), ((Long) upper).longValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsBetween(propertyName, ((Long) lower).longValue(),
+                            ((Long) upper).longValue());
         } else if (lower instanceof Float && upper instanceof Float) {
-            return ((FilterDelegate<?>) delegate).propertyIsBetween(propertyName,
-                    ((Float) lower).floatValue(), ((Float) upper).floatValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsBetween(propertyName, ((Float) lower).floatValue(),
+                            ((Float) upper).floatValue());
         } else if (lower instanceof Double && upper instanceof Double) {
-            return ((FilterDelegate<?>) delegate).propertyIsBetween(propertyName,
-                    ((Double) lower).doubleValue(), ((Double) upper).doubleValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsBetween(propertyName, ((Double) lower).doubleValue(),
+                            ((Double) upper).doubleValue());
         } else {
             return ((FilterDelegate<?>) delegate).propertyIsBetween(propertyName, lower, upper);
         }
@@ -273,39 +278,40 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         Object literal = filterValues.literal;
 
         if (literal instanceof String) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
-                    (String) literal, filter.isMatchingCase());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsEqualTo((String) propertyName, (String) literal,
+                            filter.isMatchingCase());
         } else if (literal instanceof Date) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
-                    (Date) literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsEqualTo((String) propertyName, (Date) literal);
         } else if (literal instanceof Instant) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo(propertyName,
-                    ((Instant) literal).getPosition().getDate());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsEqualTo(propertyName, ((Instant) literal).getPosition().getDate());
         } else if (literal instanceof Period) {
             return ((FilterDelegate<?>) delegate).propertyIsEqualTo(propertyName,
-                    ((Period) literal).getBeginning().getPosition().getDate(), ((Period) literal)
-                            .getEnding().getPosition().getDate());
+                    ((Period) literal).getBeginning().getPosition().getDate(),
+                    ((Period) literal).getEnding().getPosition().getDate());
         } else if (literal instanceof Integer) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
-                    ((Integer) literal).intValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsEqualTo((String) propertyName, ((Integer) literal).intValue());
         } else if (literal instanceof Short) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
-                    ((Short) literal).shortValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsEqualTo((String) propertyName, ((Short) literal).shortValue());
         } else if (literal instanceof Long) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
-                    ((Long) literal).longValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsEqualTo((String) propertyName, ((Long) literal).longValue());
         } else if (literal instanceof Float) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
-                    ((Float) literal).floatValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsEqualTo((String) propertyName, ((Float) literal).floatValue());
         } else if (literal instanceof Double) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
-                    ((Double) literal).doubleValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsEqualTo((String) propertyName, ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
-                    ((Boolean) literal).booleanValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsEqualTo((String) propertyName, ((Boolean) literal).booleanValue());
         } else if (literal instanceof byte[]) {
-            return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName,
-                    (byte[]) literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsEqualTo((String) propertyName, (byte[]) literal);
         } else {
             return ((FilterDelegate<?>) delegate).propertyIsEqualTo((String) propertyName, literal);
         }
@@ -318,42 +324,43 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         Object literal = filterValues.literal;
 
         if (literal instanceof String) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
-                    (String) literal, filter.isMatchingCase());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsNotEqualTo((String) propertyName, (String) literal,
+                            filter.isMatchingCase());
         } else if (literal instanceof Date) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
-                    (Date) literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsNotEqualTo((String) propertyName, (Date) literal);
         } else if (literal instanceof Instant) {
             return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo(propertyName,
                     ((Instant) literal).getPosition().getDate());
         } else if (literal instanceof Period) {
             return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo(propertyName,
-                    ((Period) literal).getBeginning().getPosition().getDate(), ((Period) literal)
-                            .getEnding().getPosition().getDate());
+                    ((Period) literal).getBeginning().getPosition().getDate(),
+                    ((Period) literal).getEnding().getPosition().getDate());
         } else if (literal instanceof Integer) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
-                    ((Integer) literal).intValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsNotEqualTo((String) propertyName, ((Integer) literal).intValue());
         } else if (literal instanceof Short) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
-                    ((Short) literal).shortValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsNotEqualTo((String) propertyName, ((Short) literal).shortValue());
         } else if (literal instanceof Long) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
-                    ((Long) literal).longValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsNotEqualTo((String) propertyName, ((Long) literal).longValue());
         } else if (literal instanceof Float) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
-                    ((Float) literal).floatValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsNotEqualTo((String) propertyName, ((Float) literal).floatValue());
         } else if (literal instanceof Double) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
-                    ((Double) literal).doubleValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsNotEqualTo((String) propertyName, ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
             return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
                     ((Boolean) literal).booleanValue());
         } else if (literal instanceof byte[]) {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
-                    (byte[]) literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsNotEqualTo((String) propertyName, (byte[]) literal);
         } else {
-            return ((FilterDelegate<?>) delegate).propertyIsNotEqualTo((String) propertyName,
-                    literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsNotEqualTo((String) propertyName, literal);
         }
 
     }
@@ -371,32 +378,32 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         }
 
         if (literal instanceof String) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName,
-                    (String) literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThan(propertyName, (String) literal);
         } else if (literal instanceof Date) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName,
-                    (Date) literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThan(propertyName, (Date) literal);
         } else if (literal instanceof Integer) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName,
-                    ((Integer) literal).intValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThan(propertyName, ((Integer) literal).intValue());
         } else if (literal instanceof Short) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName,
-                    ((Short) literal).shortValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThan(propertyName, ((Short) literal).shortValue());
         } else if (literal instanceof Long) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName,
-                    ((Long) literal).longValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThan(propertyName, ((Long) literal).longValue());
         } else if (literal instanceof Float) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName,
-                    ((Float) literal).floatValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThan(propertyName, ((Float) literal).floatValue());
         } else if (literal instanceof Double) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName,
-                    ((Double) literal).doubleValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThan(propertyName, ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName,
-                    ((Boolean) literal).booleanValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThan(propertyName, ((Boolean) literal).booleanValue());
         } else if (literal instanceof byte[]) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName,
-                    (byte[]) literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThan(propertyName, (byte[]) literal);
         } else {
             return ((FilterDelegate<?>) delegate).propertyIsGreaterThan(propertyName, literal);
         }
@@ -415,35 +422,35 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         }
 
         if (literal instanceof String) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
-                    (String) literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThanOrEqualTo(propertyName, (String) literal);
         } else if (literal instanceof Date) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
-                    (Date) literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThanOrEqualTo(propertyName, (Date) literal);
         } else if (literal instanceof Integer) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
-                    ((Integer) literal).intValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThanOrEqualTo(propertyName, ((Integer) literal).intValue());
         } else if (literal instanceof Short) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
-                    ((Short) literal).shortValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThanOrEqualTo(propertyName, ((Short) literal).shortValue());
         } else if (literal instanceof Long) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
-                    ((Long) literal).longValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThanOrEqualTo(propertyName, ((Long) literal).longValue());
         } else if (literal instanceof Float) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
-                    ((Float) literal).floatValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThanOrEqualTo(propertyName, ((Float) literal).floatValue());
         } else if (literal instanceof Double) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
-                    ((Double) literal).doubleValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThanOrEqualTo(propertyName, ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
             return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
                     ((Boolean) literal).booleanValue());
         } else if (literal instanceof byte[]) {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
-                    (byte[]) literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThanOrEqualTo(propertyName, (byte[]) literal);
         } else {
-            return ((FilterDelegate<?>) delegate).propertyIsGreaterThanOrEqualTo(propertyName,
-                    literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsGreaterThanOrEqualTo(propertyName, literal);
         }
     }
 
@@ -465,23 +472,23 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         } else if (literal instanceof Date) {
             return ((FilterDelegate<?>) delegate).propertyIsLessThan(propertyName, (Date) literal);
         } else if (literal instanceof Integer) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThan(propertyName,
-                    ((Integer) literal).intValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThan(propertyName, ((Integer) literal).intValue());
         } else if (literal instanceof Short) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThan(propertyName,
-                    ((Short) literal).shortValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThan(propertyName, ((Short) literal).shortValue());
         } else if (literal instanceof Long) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThan(propertyName,
-                    ((Long) literal).longValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThan(propertyName, ((Long) literal).longValue());
         } else if (literal instanceof Float) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThan(propertyName,
-                    ((Float) literal).floatValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThan(propertyName, ((Float) literal).floatValue());
         } else if (literal instanceof Double) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThan(propertyName,
-                    ((Double) literal).doubleValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThan(propertyName, ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThan(propertyName,
-                    ((Boolean) literal).booleanValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThan(propertyName, ((Boolean) literal).booleanValue());
         } else if (literal instanceof byte[]) {
             return ((FilterDelegate<?>) delegate)
                     .propertyIsLessThan(propertyName, (byte[]) literal);
@@ -498,38 +505,38 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         // Are property name and literal reversed?
         if (filter.getExpression1() instanceof Literal) {
             // convert literal <= property to property >= literal
-            Filter greaterThanOrEqual = FF.greaterOrEqual(FF.property(propertyName),
-                    FF.literal(literal));
+            Filter greaterThanOrEqual = FF
+                    .greaterOrEqual(FF.property(propertyName), FF.literal(literal));
             return greaterThanOrEqual.accept(this, delegate);
         }
 
         if (literal instanceof String) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThanOrEqualTo(propertyName,
-                    (String) literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThanOrEqualTo(propertyName, (String) literal);
         } else if (literal instanceof Date) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThanOrEqualTo(propertyName,
-                    (Date) literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThanOrEqualTo(propertyName, (Date) literal);
         } else if (literal instanceof Integer) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThanOrEqualTo(propertyName,
-                    ((Integer) literal).intValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThanOrEqualTo(propertyName, ((Integer) literal).intValue());
         } else if (literal instanceof Short) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThanOrEqualTo(propertyName,
-                    ((Short) literal).shortValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThanOrEqualTo(propertyName, ((Short) literal).shortValue());
         } else if (literal instanceof Long) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThanOrEqualTo(propertyName,
-                    ((Long) literal).longValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThanOrEqualTo(propertyName, ((Long) literal).longValue());
         } else if (literal instanceof Float) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThanOrEqualTo(propertyName,
-                    ((Float) literal).floatValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThanOrEqualTo(propertyName, ((Float) literal).floatValue());
         } else if (literal instanceof Double) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThanOrEqualTo(propertyName,
-                    ((Double) literal).doubleValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThanOrEqualTo(propertyName, ((Double) literal).doubleValue());
         } else if (literal instanceof Boolean) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThanOrEqualTo(propertyName,
-                    ((Boolean) literal).booleanValue());
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThanOrEqualTo(propertyName, ((Boolean) literal).booleanValue());
         } else if (literal instanceof byte[]) {
-            return ((FilterDelegate<?>) delegate).propertyIsLessThanOrEqualTo(propertyName,
-                    (byte[]) literal);
+            return ((FilterDelegate<?>) delegate)
+                    .propertyIsLessThanOrEqualTo(propertyName, (byte[]) literal);
         } else {
             return ((FilterDelegate<?>) delegate)
                     .propertyIsLessThanOrEqualTo(propertyName, literal);
@@ -551,8 +558,8 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
             throw new UnsupportedOperationException(
                     "Wildcard, single, and escape characters must be a single character for PropertyIsLike.");
         }
-        if (wildcard.equals(singleChar) || wildcard.equals(escapeChar)
-                || singleChar.equals(escapeChar)) {
+        if (wildcard.equals(singleChar) || wildcard.equals(escapeChar) || singleChar
+                .equals(escapeChar)) {
             throw new UnsupportedOperationException(
                     "Wildcard, single, and escape characters must be different for PropertyIsLike.");
         }
@@ -573,7 +580,8 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
                     "Only support PropertyName expression for PropertyIsLike filter.");
         }
 
-        boolean isXpathSearch = (propertyName.indexOf('/') != -1 || propertyName.indexOf('@') != -1);
+        boolean isXpathSearch = (propertyName.indexOf('/') != -1
+                || propertyName.indexOf('@') != -1);
 
         if (!isFuzzy && !isXpathSearch) {
             return ((FilterDelegate<?>) delegate).propertyIsLike(propertyName, pattern, matchCase);
@@ -603,9 +611,9 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
                 if (i + 1 < pattern.length()) {
                     i++;
                     String next = Character.toString(pattern.charAt(i));
-                    if (next.equals(FilterDelegate.WILDCARD_CHAR)
-                            || next.equals(FilterDelegate.SINGLE_CHAR)
-                            || next.equals(FilterDelegate.ESCAPE_CHAR)) {
+                    if (next.equals(FilterDelegate.WILDCARD_CHAR) || next
+                            .equals(FilterDelegate.SINGLE_CHAR) || next
+                            .equals(FilterDelegate.ESCAPE_CHAR)) {
                         // target normalized character needs to be escaped
                         sb.append(FilterDelegate.ESCAPE_CHAR);
                         sb.append(next);
@@ -638,13 +646,13 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
     @Override
     public Object visit(PropertyIsNil arg0, Object arg1) {
-        throw new UnsupportedOperationException(PropertyIsNil.NAME
-                + " filter is not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                PropertyIsNil.NAME + " filter is not supported by Filter Adapter.");
     }
 
     public Object visit(BBOX filter, Object delegate) {
-        throw new UnsupportedOperationException(BBOX.NAME
-                + " filter is not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                BBOX.NAME + " filter is not supported by Filter Adapter.");
     }
 
     public Object visit(Beyond filter, Object delegate) {
@@ -722,8 +730,8 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     private double normalizeDistance(double distance, String distanceUnits) {
         if (UomOgcMapping.FOOT.name().equals(distanceUnits) || CQL_FEET.equals(distanceUnits)) {
             return new Distance(distance, LinearUnit.FOOT_U_S).getAs(LinearUnit.METER);
-        } else if (UomOgcMapping.METRE.name().equals(distanceUnits) || CQL_METERS.equals(
-                distanceUnits)) {
+        } else if (UomOgcMapping.METRE.name().equals(distanceUnits) || CQL_METERS
+                .equals(distanceUnits)) {
             return distance;
         } else if (CQL_STATUTE_MILES.equals(distanceUnits)) {
             return new Distance(distance, LinearUnit.MILE).getAs(LinearUnit.METER);
@@ -732,8 +740,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         } else if (CQL_KILOMETERS.equals(distanceUnits)) {
             return new Distance(distance, LinearUnit.KILOMETER).getAs(LinearUnit.METER);
         } else {
-            throw new UnsupportedOperationException(
-                    "Unknown units used in spatial filter");
+            throw new UnsupportedOperationException("Unknown units used in spatial filter");
         }
     }
 
@@ -768,11 +775,11 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         if (literal instanceof Date) {
             return ((FilterDelegate<?>) delegate).after(propertyName, (Date) literal);
         } else if (literal instanceof Instant) {
-            return ((FilterDelegate<?>) delegate).after(propertyName, ((Instant) literal)
-                    .getPosition().getDate());
+            return ((FilterDelegate<?>) delegate)
+                    .after(propertyName, ((Instant) literal).getPosition().getDate());
         } else if (literal instanceof Period) {
-            return ((FilterDelegate<?>) delegate).after(propertyName, ((Period) literal)
-                    .getEnding().getPosition().getDate());
+            return ((FilterDelegate<?>) delegate)
+                    .after(propertyName, ((Period) literal).getEnding().getPosition().getDate());
         } else {
             throw new UnsupportedOperationException(
                     "Unsupported implementation of date/time for After filter.");
@@ -787,11 +794,11 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         if (literal instanceof Date) {
             return ((FilterDelegate<?>) delegate).before(propertyName, (Date) literal);
         } else if (literal instanceof Instant) {
-            return ((FilterDelegate<?>) delegate).before(propertyName, ((Instant) literal)
-                    .getPosition().getDate());
+            return ((FilterDelegate<?>) delegate)
+                    .before(propertyName, ((Instant) literal).getPosition().getDate());
         } else if (literal instanceof Period) {
-            return ((FilterDelegate<?>) delegate).before(propertyName, ((Period) literal)
-                    .getBeginning().getPosition().getDate());
+            return ((FilterDelegate<?>) delegate).before(propertyName,
+                    ((Period) literal).getBeginning().getPosition().getDate());
         } else {
             throw new UnsupportedOperationException(
                     "Unsupported implementation of date/time for Before filter.");
@@ -815,8 +822,8 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
             // instead of using an implementation to get the milliseconds
             DefaultPeriodDuration duration = (DefaultPeriodDuration) filterValues.literal;
 
-            return ((FilterDelegate<?>) delegate).relative(filterValues.propertyName,
-                    duration.getTimeInMillis());
+            return ((FilterDelegate<?>) delegate)
+                    .relative(filterValues.propertyName, duration.getTimeInMillis());
         } else {
             throw new UnsupportedOperationException(
                     "Unsupported implementation of Period or PeriodDuration for During filter.");
@@ -825,58 +832,58 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
 
     public Object visit(AnyInteracts anyInteracts, Object delegate) {
-        throw new UnsupportedOperationException(AnyInteracts.NAME
-                + " filter not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                AnyInteracts.NAME + " filter not supported by Filter Adapter.");
     }
 
     public Object visit(Begins begins, Object delegate) {
-        throw new UnsupportedOperationException(Begins.NAME
-                + "filter not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                Begins.NAME + "filter not supported by Filter Adapter.");
     }
 
     public Object visit(BegunBy begunBy, Object delegate) {
-        throw new UnsupportedOperationException(BegunBy.NAME
-                + " filter not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                BegunBy.NAME + " filter not supported by Filter Adapter.");
     }
 
     public Object visit(EndedBy endedBy, Object delegate) {
-        throw new UnsupportedOperationException(EndedBy.NAME
-                + " filter not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                EndedBy.NAME + " filter not supported by Filter Adapter.");
     }
 
     public Object visit(Ends ends, Object delegate) {
-        throw new UnsupportedOperationException(Ends.NAME
-                + " filter not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                Ends.NAME + " filter not supported by Filter Adapter.");
     }
 
     public Object visit(Meets meets, Object delegate) {
-        throw new UnsupportedOperationException(Meets.NAME
-                + " filter not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                Meets.NAME + " filter not supported by Filter Adapter.");
     }
 
     public Object visit(MetBy metBy, Object delegate) {
-        throw new UnsupportedOperationException(MetBy.NAME
-                + " filter not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                MetBy.NAME + " filter not supported by Filter Adapter.");
     }
 
     public Object visit(OverlappedBy overlappedBy, Object delegate) {
-        throw new UnsupportedOperationException(OverlappedBy.NAME
-                + " filter not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                OverlappedBy.NAME + " filter not supported by Filter Adapter.");
     }
 
     public Object visit(TContains contains, Object delegate) {
-        throw new UnsupportedOperationException(TContains.NAME
-                + " filter not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                TContains.NAME + " filter not supported by Filter Adapter.");
     }
 
     public Object visit(TEquals equals, Object delegate) {
-        throw new UnsupportedOperationException(TEquals.NAME
-                + " filter not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                TEquals.NAME + " filter not supported by Filter Adapter.");
     }
 
     public Object visit(TOverlaps contains, Object delegate) {
-        throw new UnsupportedOperationException(TOverlaps.NAME
-                + " filter not supported by Filter Adapter.");
+        throw new UnsupportedOperationException(
+                TOverlaps.NAME + " filter not supported by Filter Adapter.");
     }
 
     private ExpressionValues getExpressions(BinarySpatialOperator filter, Object delegate) {

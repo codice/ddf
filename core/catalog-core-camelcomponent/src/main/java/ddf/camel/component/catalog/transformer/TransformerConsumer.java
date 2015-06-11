@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.camel.component.catalog.transformer;
 
 import java.io.Serializable;
@@ -34,10 +33,10 @@ import ddf.mime.MimeTypeToTransformerMapper;
 /**
  * Consumer for the custom Camel CatalogComponent. This {@link org.apache.camel.Consumer} would map
  * to a Camel <from> route node with a URI like <code>catalog:queryresponsetransformer</code>
- * 
+ *
  * @author William Miller, Lockheed Martin
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class TransformerConsumer extends DefaultConsumer {
     private static final transient Logger LOGGER = LoggerFactory
@@ -53,7 +52,7 @@ public class TransformerConsumer extends DefaultConsumer {
      * Constructs the consumer for the custom Camel CatalogComponent. This {@link Consumer} would
      * map to a Camel <from> route node with a URI like
      * <code>catalog:queryresponsetransformer</code>
-     * 
+     *
      * @param endpoint
      *            the Camel endpoint that created this consumer
      * @param processor
@@ -64,8 +63,8 @@ public class TransformerConsumer extends DefaultConsumer {
         this.transformerClass = transformerClass;
         this.endpoint = endpoint;
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("INSIDE TransformerConsumer constructor for "
-                    + endpoint.getTransformerId());
+            LOGGER.debug(
+                    "INSIDE TransformerConsumer constructor for " + endpoint.getTransformerId());
         }
     }
 
@@ -86,8 +85,8 @@ public class TransformerConsumer extends DefaultConsumer {
             props.put(MimeTypeToTransformerMapper.MIME_TYPE_KEY, endpoint.getMimeType());
         }
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Registering as QueryResponseTransformer with id="
-                    + endpoint.getTransformerId());
+            LOGGER.debug("Registering as QueryResponseTransformer with id=" + endpoint
+                    .getTransformerId());
         }
 
         // Register this Catalog Consumer as an QueryResponseTransformer in the OSGi registry.

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.services.xsltlistener;
 
 import java.io.ByteArrayInputStream;
@@ -23,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -43,7 +43,8 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 
-public class XsltMetacardTransformer extends AbstractXsltTransformer implements MetacardTransformer {
+public class XsltMetacardTransformer extends AbstractXsltTransformer
+        implements MetacardTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XsltMetacardTransformer.class);
 
@@ -62,7 +63,7 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
 
     @Override
     public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
-        throws CatalogTransformerException
+            throws CatalogTransformerException
 
     {
         LOGGER.debug("Entering metacard xslt transform.");
@@ -95,7 +96,8 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
 
         if (refs != null) {
             List<String> serviceList = new ArrayList<String>();
-            LOGGER.debug("Found other Metacard transformers, adding them to a service reference list.");
+            LOGGER.debug(
+                    "Found other Metacard transformers, adding them to a service reference list.");
             for (ServiceReference ref : refs) {
                 if (ref != null) {
                     String title = null;
@@ -105,8 +107,8 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
                         title = "View as " + shortName.toUpperCase();
                     }
 
-                    String url = "/services/catalog/" + metacard.getId() + "?transform="
-                            + shortName;
+                    String url =
+                            "/services/catalog/" + metacard.getId() + "?transform=" + shortName;
 
                     // define the services
                     serviceList.add(title);
@@ -133,13 +135,14 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
         try {
             transformer = templates.newTransformer();
         } catch (TransformerConfigurationException tce) {
-            throw new CatalogTransformerException("Could not perform Xslt transform: "
-                    + tce.getException(), tce.getCause());
+            throw new CatalogTransformerException(
+                    "Could not perform Xslt transform: " + tce.getException(), tce.getCause());
         }
 
         if (!mergedMap.isEmpty()) {
             for (Map.Entry<String, Object> entry : mergedMap.entrySet()) {
-                LOGGER.debug("Adding parameter to transform {}:{}", entry.getKey(), entry.getValue());
+                LOGGER.debug("Adding parameter to transform {}:{}", entry.getKey(),
+                        entry.getValue());
                 transformer.setParameter(entry.getKey(), entry.getValue());
             }
         }
@@ -151,8 +154,8 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
             LOGGER.debug("Transform complete.");
             resultContent = new XsltTransformedContent(bytes, mimeType);
         } catch (TransformerException te) {
-            throw new CatalogTransformerException("Could not perform Xslt transform: "
-                    + te.getMessage(), te.getCause());
+            throw new CatalogTransformerException(
+                    "Could not perform Xslt transform: " + te.getMessage(), te.getCause());
         } finally {
             // TODO: if we ever start to reuse transformers, we should add this
             // code back in
@@ -163,21 +166,21 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer implements 
     }
 
     /**
-     * Sets the dataItemStatus value that is passed to the translation and put in the dataItemStatus
-     * element.
-     * 
-     * @param dataItemStatus
-     */
-    public void setDataItemStatus(String dataItemStatus) {
-        localMap.put("dataItemStatus", dataItemStatus);
-    }
-
-    /**
      * Gets the dataItemStatus value.
-     * 
+     *
      * @return String representation of the dataItemStatus value (defaults to "Unknown")
      */
     public String getDataItemStatus() {
         return localMap.get("dataItemStatus").toString();
+    }
+
+    /**
+     * Sets the dataItemStatus value that is passed to the translation and put in the dataItemStatus
+     * element.
+     *
+     * @param dataItemStatus
+     */
+    public void setDataItemStatus(String dataItemStatus) {
+        localMap.put("dataItemStatus", dataItemStatus);
     }
 }

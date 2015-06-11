@@ -1,24 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.cache.impl;
-
-import com.hazelcast.core.MapLoader;
-import com.hazelcast.core.MapStore;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -39,13 +32,22 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.hazelcast.core.MapLoader;
+import com.hazelcast.core.MapStore;
+
 /**
  * Hazelcast persistence provider implementation of @MapLoader and @MapStore to serialize
  * and persist Java objects stored in Hazelcast cache to disk.
  */
-public class FileSystemPersistenceProvider implements MapLoader<String, Object>, MapStore<String, Object> {
+public class FileSystemPersistenceProvider
+        implements MapLoader<String, Object>, MapStore<String, Object> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemPersistenceProvider.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(FileSystemPersistenceProvider.class);
 
     private static final String SER = ".ser";
 
@@ -123,7 +125,7 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         if (file.exists()) {
             boolean success = file.delete();
             if (!success) {
-               LOGGER.error("Could not delete file {}", file.getAbsolutePath());
+                LOGGER.error("Could not delete file {}", file.getAbsolutePath());
             }
         }
     }
@@ -145,7 +147,9 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
 
     Object loadFromPersistence(String key) {
         File file = getMapStoreFile(key);
-        if (!file.exists()) return null;
+        if (!file.exists()) {
+            return null;
+        }
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(getMapStorePath() + key + SER);
@@ -192,8 +196,9 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
         LOGGER.debug("Entering loadAllKeys");
 
         File[] files = new File(getMapStorePath()).listFiles(getFilenameFilter());
-        if (files == null)
+        if (files == null) {
             return keys;
+        }
 
         for (File file : files) {
             keys.add(file.getName().replaceFirst(SER_REGEX, ""));
@@ -206,7 +211,7 @@ public class FileSystemPersistenceProvider implements MapLoader<String, Object>,
 
     public void clear() {
         File[] files = new File(getMapStorePath()).listFiles(getFilenameFilter());
-        if(null != files) {
+        if (null != files) {
             for (File file : files) {
                 boolean success = file.delete();
                 if (!success) {

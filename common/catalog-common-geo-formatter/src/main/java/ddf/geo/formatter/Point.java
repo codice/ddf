@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.geo.formatter;
 
 import java.util.ArrayList;
@@ -27,9 +26,9 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class Point extends CompositeGeometry {
 
-    protected Geometry geometry;
-
     public static final String TYPE = "Point";
+
+    protected Geometry geometry;
 
     public Point(Geometry geometry) {
         if (geometry == null) {
@@ -42,17 +41,17 @@ public class Point extends CompositeGeometry {
         this.geometry = geometry;
     }
 
-    protected boolean isNotType(Geometry geo) {
-        return !this.getClass().getSimpleName().equals(geo.getGeometryType());
-    }
-
     /**
-     * 
+     *
      * @param coordinates
      *            [x,y] coordinate list
      */
     public static CompositeGeometry toCompositeGeometry(List coordinates) {
         return new Point(geometryFactory.createPoint(getCoordinate(coordinates)));
+    }
+
+    protected boolean isNotType(Geometry geo) {
+        return !this.getClass().getSimpleName().equals(geo.getGeometryType());
     }
 
     @Override
@@ -88,8 +87,8 @@ public class Point extends CompositeGeometry {
     @Override
     public List<Position> toGeoRssPositions() {
 
-        return Arrays.asList((Position) new org.apache.abdera.ext.geo.Point(convert(geometry
-                .getCoordinate())));
+        return Arrays.asList((Position) new org.apache.abdera.ext.geo.Point(
+                convert(geometry.getCoordinate())));
     }
 
     protected org.apache.abdera.ext.geo.Coordinate convert(Coordinate jtsCoordinate) {

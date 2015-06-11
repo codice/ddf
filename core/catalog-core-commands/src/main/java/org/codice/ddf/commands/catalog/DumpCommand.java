@@ -1,47 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.commands.catalog;
-
-import ddf.catalog.Constants;
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.MetacardTransformer;
-import org.apache.commons.io.FileUtils;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.geotools.filter.text.cql2.CQL;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.format.PeriodFormatterBuilder;
-import org.opengis.filter.Filter;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -60,20 +30,47 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.geotools.filter.text.cql2.CQL;
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
+import org.opengis.filter.Filter;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.Constants;
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.MetacardTransformer;
+
 @Command(scope = CatalogCommands.NAMESPACE, name = "dump", description = "Exports Metacards from the current Catalog. Does not remove them.\n\tDate filters are ANDed together, and are exclusive for range.\n\tISO8601 format includes YYYY-MM-dd, YYYY-MM-ddTHH, YYYY-MM-ddTHH:mm, YYYY-MM-ddTHH:mm:ss, YYY-MM-ddTHH:mm:ss.sss, THH:mm:sss. See documentation for full syntax and examples.")
 public class DumpCommand extends CatalogCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DumpCommand.class);
 
-    private final PeriodFormatter timeFormatter = new PeriodFormatterBuilder()
-            .printZeroRarelyLast()
-            .appendDays().appendSuffix(" day", " days").appendSeparator(" ")
-            .appendHours().appendSuffix(" hour", " hours").appendSeparator(" ")
-            .appendMinutes().appendSuffix(" minute", " minutes").appendSeparator(" ")
-            .appendSeconds().appendSuffix(" second", " seconds")
-            .toFormatter();
-
     private static List<MetacardTransformer> transformers = null;
+
+    private final PeriodFormatter timeFormatter = new PeriodFormatterBuilder().printZeroRarelyLast()
+            .appendDays().appendSuffix(" day", " days").appendSeparator(" ").appendHours()
+            .appendSuffix(" hour", " hours").appendSeparator(" ").appendMinutes()
+            .appendSuffix(" minute", " minutes").appendSeparator(" ").appendSeconds()
+            .appendSuffix(" second", " seconds").toFormatter();
 
     @Argument(name = "Dump directory path", description = "Directory to export Metacards into. Paths are absolute and must be in quotes.  Files in directory will be overwritten if they already exist.", index = 0, multiValued = false, required = true)
     String dirPath = null;
@@ -108,8 +105,7 @@ public class DumpCommand extends CatalogCommands {
     String modifiedBefore = null;
 
     @Option(name = "--cql", required = false, aliases = {}, multiValued = false, description =
-            "Search using CQL Filter expressions.\n"
-                    + "CQL Examples:\n"
+            "Search using CQL Filter expressions.\n" + "CQL Examples:\n"
                     + "\tTextual:   search --cql \"title like 'some text'\"\n"
                     + "\tTemporal:  search --cql \"modified before 2012-09-01T12:30:00Z\"\n"
                     + "\tSpatial:   search --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
@@ -202,7 +198,7 @@ public class DumpCommand extends CatalogCommands {
         if (cqlFilter != null) {
             filter = CQL.toFilter(cqlFilter);
         }
-        
+
         QueryImpl query = new QueryImpl(filter);
         query.setRequestsTotalResultsCount(false);
         query.setPageSize(pageSize);
@@ -216,11 +212,10 @@ public class DumpCommand extends CatalogCommands {
 
         SourceResponse response = catalog.query(new QueryRequestImpl(query, props));
 
-        BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(
-                multithreaded);
+        BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(multithreaded);
         RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
-        final ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
-                multithreaded, 0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
+        final ExecutorService executorService = new ThreadPoolExecutor(multithreaded, multithreaded,
+                0L, TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
 
         while (response.getResults().size() > 0) {
             response = catalog.query(new QueryRequestImpl(query, props));
@@ -228,7 +223,8 @@ public class DumpCommand extends CatalogCommands {
             if (multithreaded > 1) {
                 final List<Result> results = new ArrayList<Result>(response.getResults());
                 executorService.submit(new Runnable() {
-                    @Override public void run() {
+                    @Override
+                    public void run() {
                         for (final Result result : results) {
                             Metacard metacard = result.getMetacard();
                             try {
@@ -276,18 +272,20 @@ public class DumpCommand extends CatalogCommands {
         return null;
     }
 
-    private void exportMetacard(File dumpLocation, Metacard metacard) throws IOException,
-            CatalogTransformerException {
+    private void exportMetacard(File dumpLocation, Metacard metacard)
+            throws IOException, CatalogTransformerException {
 
         if (DEFAULT_TRANSFORMER_ID.matches(transformerId)) {
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(getOutputFile(dumpLocation, metacard)))) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(
+                    new FileOutputStream(getOutputFile(dumpLocation, metacard)))) {
                 oos.writeObject(new MetacardImpl(metacard));
                 oos.flush();
             }
         } else {
 
             BinaryContent binaryContent;
-            try (FileOutputStream fos = new FileOutputStream(getOutputFile(dumpLocation, metacard))) {
+            try (FileOutputStream fos = new FileOutputStream(
+                    getOutputFile(dumpLocation, metacard))) {
                 if (metacard != null) {
                     for (MetacardTransformer transformer : transformers) {
                         binaryContent = transformer.transform(metacard, null);
@@ -312,7 +310,7 @@ public class DumpCommand extends CatalogCommands {
 
         if (dirLevel > 0 && id.length() >= dirLevel * 2) {
             for (int i = 0; i < dirLevel; i++) {
-                parent = new File(parent, id.substring(i*2, i*2+2));
+                parent = new File(parent, id.substring(i * 2, i * 2 + 2));
             }
             FileUtils.forceMkdir(parent);
         }
@@ -330,8 +328,8 @@ public class DumpCommand extends CatalogCommands {
         BundleContext bundleContext = getBundleContext();
         ServiceReference[] refs = null;
         try {
-            refs = bundleContext.getAllServiceReferences(MetacardTransformer.class.getName(), "(|"
-                    + "(" + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
+            refs = bundleContext.getAllServiceReferences(MetacardTransformer.class.getName(),
+                    "(|" + "(" + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
 
         } catch (InvalidSyntaxException e) {
             console.printf("Fail to get MetacardTransformer references. ", e);

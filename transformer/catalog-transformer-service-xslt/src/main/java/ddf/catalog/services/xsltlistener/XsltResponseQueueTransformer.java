@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.services.xsltlistener;
 
 import java.io.ByteArrayInputStream;
@@ -54,8 +53,8 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.util.XPathHelper;
 
-public class XsltResponseQueueTransformer extends AbstractXsltTransformer implements
-        QueryResponseTransformer {
+public class XsltResponseQueueTransformer extends AbstractXsltTransformer
+        implements QueryResponseTransformer {
 
     private static final String GRAND_TOTAL = "grandTotal";
 
@@ -63,7 +62,8 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer implem
     // "http://ddf/xslt-response-queue-transformer";
     private static final String XML_RESULTS_NAMESPACE = null;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(XsltResponseQueueTransformer.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(XsltResponseQueueTransformer.class);
 
     public XsltResponseQueueTransformer() {
     }
@@ -88,8 +88,8 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer implem
 
             Document doc = builder.newDocument();
 
-            Node resultsElement = doc.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                    "results", null));
+            Node resultsElement = doc
+                    .appendChild(createElement(doc, XML_RESULTS_NAMESPACE, "results", null));
 
             // TODO use streaming XSLT, not DOM
             List<Result> results = upstreamResponse.getResults();
@@ -102,28 +102,33 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer implem
                     Element metacardElement = createElement(doc, XML_RESULTS_NAMESPACE, "metacard",
                             null);
                     if (metacard.getId() != null) {
-                        metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE, "id",
-                                metacard.getId()));
+                        metacardElement.appendChild(
+                                createElement(doc, XML_RESULTS_NAMESPACE, "id", metacard.getId()));
                     }
                     if (metacard.getMetacardType().toString() != null) {
-                        metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                                "type", metacard.getMetacardType().getName()));
+                        metacardElement.appendChild(
+                                createElement(doc, XML_RESULTS_NAMESPACE, "type",
+                                        metacard.getMetacardType().getName()));
                     }
                     if (metacard.getTitle() != null) {
-                        metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                                "title", metacard.getTitle()));
+                        metacardElement.appendChild(
+                                createElement(doc, XML_RESULTS_NAMESPACE, "title",
+                                        metacard.getTitle()));
                     }
                     if (result.getRelevanceScore() != null) {
-                        metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                                "score", result.getRelevanceScore().toString()));
+                        metacardElement.appendChild(
+                                createElement(doc, XML_RESULTS_NAMESPACE, "score",
+                                        result.getRelevanceScore().toString()));
                     }
                     if (result.getDistanceInMeters() != null) {
-                        metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                                "distance", result.getDistanceInMeters().toString()));
+                        metacardElement.appendChild(
+                                createElement(doc, XML_RESULTS_NAMESPACE, "distance",
+                                        result.getDistanceInMeters().toString()));
                     }
                     if (metacard.getSourceId() != null) {
-                        metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                                "site", metacard.getSourceId()));
+                        metacardElement.appendChild(
+                                createElement(doc, XML_RESULTS_NAMESPACE, "site",
+                                        metacard.getSourceId()));
                     }
                     if (metacard.getContentTypeName() != null) {
                         String contentType = metacard.getContentTypeName();
@@ -135,52 +140,60 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer implem
                     }
                     if (metacard.getResourceURI() != null) {
                         try {
-                            metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                                    "product", metacard.getResourceURI().toString()));
+                            metacardElement.appendChild(
+                                    createElement(doc, XML_RESULTS_NAMESPACE, "product",
+                                            metacard.getResourceURI().toString()));
                         } catch (DOMException e) {
                             LOGGER.warn(" Unable to create resource uri element", e);
                         }
                     }
                     if (metacard.getThumbnail() != null) {
-                        metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                                "thumbnail", Base64.encodeBase64String(metacard.getThumbnail())));
+                        metacardElement.appendChild(
+                                createElement(doc, XML_RESULTS_NAMESPACE, "thumbnail",
+                                        Base64.encodeBase64String(metacard.getThumbnail())));
                         try {
-                            String mimeType = URLConnection
-                                    .guessContentTypeFromStream(new ByteArrayInputStream(metacard
-                                            .getThumbnail()));
-                            metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                                    "t_mimetype", mimeType));
+                            String mimeType = URLConnection.guessContentTypeFromStream(
+                                    new ByteArrayInputStream(metacard.getThumbnail()));
+                            metacardElement.appendChild(
+                                    createElement(doc, XML_RESULTS_NAMESPACE, "t_mimetype",
+                                            mimeType));
                         } catch (IOException e) {
                             // TODO Auto-generated catch block
-                            metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                                    "t_mimetype", "image/png"));
+                            metacardElement.appendChild(
+                                    createElement(doc, XML_RESULTS_NAMESPACE, "t_mimetype",
+                                            "image/png"));
                         }
                     }
                     DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
                     if (metacard.getCreatedDate() != null) {
-                        metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                                "created", fmt.print(metacard.getCreatedDate().getTime())));
+                        metacardElement.appendChild(
+                                createElement(doc, XML_RESULTS_NAMESPACE, "created",
+                                        fmt.print(metacard.getCreatedDate().getTime())));
                     }
                     // looking at the date last modified
                     if (metacard.getModifiedDate() != null) {
-                        metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                                "updated", fmt.print(metacard.getModifiedDate().getTime())));
+                        metacardElement.appendChild(
+                                createElement(doc, XML_RESULTS_NAMESPACE, "updated",
+                                        fmt.print(metacard.getModifiedDate().getTime())));
                     }
                     if (metacard.getEffectiveDate() != null) {
-                        metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                                "effective", fmt.print(metacard.getEffectiveDate().getTime())));
+                        metacardElement.appendChild(
+                                createElement(doc, XML_RESULTS_NAMESPACE, "effective",
+                                        fmt.print(metacard.getEffectiveDate().getTime())));
                     }
                     if (metacard.getLocation() != null) {
-                        metacardElement.appendChild(createElement(doc, XML_RESULTS_NAMESPACE,
-                                "location", metacard.getLocation()));
+                        metacardElement.appendChild(
+                                createElement(doc, XML_RESULTS_NAMESPACE, "location",
+                                        metacard.getLocation()));
                     }
                     Element documentElement = doc
                             .createElementNS(XML_RESULTS_NAMESPACE, "document");
                     metacardElement.appendChild(documentElement);
                     resultsElement.appendChild(metacardElement);
 
-                    Node importedNode = doc.importNode(new XPathHelper(thisMetacard).getDocument()
-                            .getFirstChild(), true);
+                    Node importedNode = doc
+                            .importNode(new XPathHelper(thisMetacard).getDocument().getFirstChild(),
+                                    true);
                     documentElement.appendChild(importedNode);
                 } else {
                     LOGGER.debug("Null content/document returned to XSLT ResponseQueueTransformer");
@@ -192,8 +205,8 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer implem
                 DOMImplementationLS domImplementation = (DOMImplementationLS) doc
                         .getImplementation();
                 LSSerializer lsSerializer = domImplementation.createLSSerializer();
-                LOGGER.debug("Generated XML input for transform: "
-                        + lsSerializer.writeToString(doc));
+                LOGGER.debug(
+                        "Generated XML input for transform: " + lsSerializer.writeToString(doc));
             }
 
             LOGGER.debug("Starting responsequeue xslt transform.");
@@ -215,15 +228,16 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer implem
             try {
                 transformer = templates.newTransformer();
             } catch (TransformerConfigurationException tce) {
-                throw new CatalogTransformerException("Could not perform Xslt transform: "
-                        + tce.getException(), tce.getCause());
+                throw new CatalogTransformerException(
+                        "Could not perform Xslt transform: " + tce.getException(), tce.getCause());
             }
 
             if (mergedMap != null && !mergedMap.isEmpty()) {
                 for (Map.Entry<String, Object> entry : mergedMap.entrySet()) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Adding parameter to transform {" + entry.getKey() + ":"
-                                + entry.getValue() + "}");
+                        LOGGER.debug(
+                                "Adding parameter to transform {" + entry.getKey() + ":" + entry
+                                        .getValue() + "}");
                     }
                     transformer.setParameter(entry.getKey(), entry.getValue());
                 }
@@ -237,8 +251,8 @@ public class XsltResponseQueueTransformer extends AbstractXsltTransformer implem
             } catch (TransformerException te) {
                 LOGGER.error("Could not perform Xslt transform: " + te.getException(),
                         te.getCause());
-                throw new CatalogTransformerException("Could not perform Xslt transform: "
-                        + te.getException(), te.getCause());
+                throw new CatalogTransformerException(
+                        "Could not perform Xslt transform: " + te.getException(), te.getCause());
             } finally {
                 // transformer.reset();
                 // don't need to do that unless we are putting it back into a

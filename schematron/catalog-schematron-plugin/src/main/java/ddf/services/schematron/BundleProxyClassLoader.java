@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 
 package ddf.services.schematron;
 
@@ -26,18 +25,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Used to proxy the classloader of other bundles so that external processors such as a Saxon Engine
  * can have access to resources outside the scope of the current bundle.
- * 
+ *
  * @author abarakat
- * 
+ *
  */
 public class BundleProxyClassLoader extends ClassLoader {
-    private Bundle bundle;
-
-    private ClassLoader parent;
-
     private static final String CLASS_NAME = BundleProxyClassLoader.class.getName();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BundleProxyClassLoader.class);
+
+    private Bundle bundle;
+
+    private ClassLoader parent;
 
     public BundleProxyClassLoader(Bundle bundle) {
         String methodName = "constructor";

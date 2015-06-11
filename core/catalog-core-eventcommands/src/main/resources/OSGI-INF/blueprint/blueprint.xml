@@ -1,4 +1,3 @@
-
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -17,11 +16,11 @@
 	<command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
 
 		<command name="subscriptions/list">
-			<action class="ddf.catalog.pubsub.command.ListCommand" />
+			<action class="ddf.catalog.pubsub.command.ListCommand"/>
 		</command>
 		
 		<command name="subscriptions/delete">
-			<action class="ddf.catalog.pubsub.command.DeleteCommand" />
+			<action class="ddf.catalog.pubsub.command.DeleteCommand"/>
 		</command>
 
 		

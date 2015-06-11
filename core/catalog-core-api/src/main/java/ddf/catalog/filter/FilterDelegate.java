@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.filter;
 
 import java.util.Date;
@@ -31,12 +30,12 @@ import org.opengis.filter.expression.Expression;
  * Alternatively, other types could be supported by implementing the {@link FilterVisitor} directly.
  * <p>
  * A reference implementation is provided with the DDF Core in the Filter Proxy bundle.
- * 
+ *
  * @author ddf.isgs@lmco.com
- * 
+ *
  * @param <T>
  *            Generic type that the FilterDelegate will return as a final result
- * 
+ *
  * @see FilterAdapter
  */
 public abstract class FilterDelegate<T> {
@@ -58,9 +57,10 @@ public abstract class FilterDelegate<T> {
     public static final String ESCAPE_CHAR = "\\";
 
     // Logical operators
+
     /**
      * Logical "and" operation on a list of operands.
-     * 
+     *
      * @param operands
      *            list of operands to "and"
      * @return result of "and" operation on operands
@@ -71,7 +71,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Logical "or" operation on a list of operands.
-     * 
+     *
      * @param operands
      *            list of T to "or"
      * @return result of "or" operation on operands
@@ -82,7 +82,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Returns a sorted list of the nearest neighbors to a property for a given WKT.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param wkt
@@ -96,7 +96,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Logical "not" operation on an operand.
-     * 
+     *
      * @param operand
      *            operand to negate
      * @return result of "not" operation on operand
@@ -107,7 +107,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Include filter is equivalent to no filtering or logically {@code true}.
-     * 
+     *
      * @return returns the equivalent of true
      */
     public T include() {
@@ -116,7 +116,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Include filter is equivalent to filter all or logically {@code false}.
-     * 
+     *
      * @return returns the equivalent of false
      */
     public T exclude() {
@@ -126,9 +126,10 @@ public abstract class FilterDelegate<T> {
     // Comparison operators
 
     // PropertyIsEqualTo
+
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
@@ -136,7 +137,7 @@ public abstract class FilterDelegate<T> {
      * @param isCaseSensitive
      *            case-sensitivity boolean
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
@@ -146,13 +147,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, Date literal) {
@@ -162,7 +163,7 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param startDate
@@ -170,7 +171,7 @@ public abstract class FilterDelegate<T> {
      * @param endDate
      *            ending date of literal to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, Date startDate, Date endDate) {
@@ -180,13 +181,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, int literal) {
@@ -196,13 +197,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, short literal) {
@@ -212,13 +213,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, long literal) {
@@ -228,13 +229,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, float literal) {
@@ -244,13 +245,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, double literal) {
@@ -260,13 +261,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, boolean literal) {
@@ -276,13 +277,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsEqualTo(String, Object)
      */
     public T propertyIsEqualTo(String propertyName, byte[] literal) {
@@ -294,7 +295,7 @@ public abstract class FilterDelegate<T> {
      * Compares the value associated with a property is equal to the value of a literal.
      * <p>
      * {@code propertyName == literal}
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
@@ -307,9 +308,10 @@ public abstract class FilterDelegate<T> {
     }
 
     // PropertyIsNotEqualTo
+
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
@@ -317,7 +319,7 @@ public abstract class FilterDelegate<T> {
      * @param isCaseSensitive
      *            case-sensitivity boolean
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
@@ -327,13 +329,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, Date literal) {
@@ -343,7 +345,7 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param startDate
@@ -351,7 +353,7 @@ public abstract class FilterDelegate<T> {
      * @param endDate
      *            ending date of literal to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, Date startDate, Date endDate) {
@@ -361,13 +363,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, int literal) {
@@ -377,13 +379,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, short literal) {
@@ -393,13 +395,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, long literal) {
@@ -409,13 +411,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, float literal) {
@@ -425,13 +427,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, double literal) {
@@ -441,13 +443,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, boolean literal) {
@@ -457,13 +459,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsNotEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of not equals operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsNotEqualTo(String, Object)
      */
     public T propertyIsNotEqualTo(String propertyName, byte[] literal) {
@@ -473,10 +475,10 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Compares the value associated with a property is not equal to the value of a literal.
-     * 
+     *
      * <p>
      * {@code propertyName != literal}
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
@@ -492,13 +494,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, String literal) {
@@ -508,13 +510,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, Date literal) {
@@ -524,13 +526,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, int literal) {
@@ -540,13 +542,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, short literal) {
@@ -556,13 +558,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, long literal) {
@@ -572,13 +574,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, float literal) {
@@ -588,13 +590,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThan(String, Object)
      */
     public T propertyIsGreaterThan(String propertyName, double literal) {
@@ -606,7 +608,7 @@ public abstract class FilterDelegate<T> {
      * Compares the value associated with a property is greater than the value of a literal.
      * <p>
      * {@code propertyName > literal}
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
@@ -622,13 +624,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, String literal) {
@@ -638,13 +640,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, Date literal) {
@@ -654,13 +656,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, int literal) {
@@ -670,13 +672,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, short literal) {
@@ -686,13 +688,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, long literal) {
@@ -702,13 +704,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, float literal) {
@@ -718,13 +720,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)} .
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of greater than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsGreaterThanOrEqualTo(String, Object)
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, double literal) {
@@ -737,7 +739,7 @@ public abstract class FilterDelegate<T> {
      * literal.
      * <p>
      * {@code propertyName >= literal}
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
@@ -753,13 +755,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, String literal) {
@@ -769,13 +771,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, Date literal) {
@@ -785,13 +787,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, int literal) {
@@ -801,13 +803,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, short literal) {
@@ -817,13 +819,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, long literal) {
@@ -833,13 +835,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, float literal) {
@@ -849,13 +851,13 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThan(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than operation between {@code propertyName} and {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThan(String, Object)
      */
     public T propertyIsLessThan(String propertyName, double literal) {
@@ -867,7 +869,7 @@ public abstract class FilterDelegate<T> {
      * Compares the value associated with a property is less than the value of a literal.
      * <p>
      * {@code propertyName < literal}
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
@@ -883,14 +885,14 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
      *         {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, String literal) {
@@ -900,14 +902,14 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
      *         {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, Date literal) {
@@ -917,14 +919,14 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
      *         {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, int literal) {
@@ -934,14 +936,14 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
      *         {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, short literal) {
@@ -951,14 +953,14 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
      *         {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, long literal) {
@@ -968,14 +970,14 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
      *         {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, float literal) {
@@ -985,14 +987,14 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
      *            value to compare
      * @return result of less than or equal to operation between {@code propertyName} and
      *         {@code literal}
-     * 
+     *
      * @see FilterDelegate#propertyIsLessThanOrEqualTo(String, Object)
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, double literal) {
@@ -1005,7 +1007,7 @@ public abstract class FilterDelegate<T> {
      * literal.
      * <p>
      * {@code propertyName <= literal}
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
@@ -1022,7 +1024,7 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param lowerBoundary
@@ -1030,7 +1032,7 @@ public abstract class FilterDelegate<T> {
      * @param upperBoundary
      *            upper boundary to compare
      * @return result of between operation
-     * 
+     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, String lowerBoundary, String upperBoundary) {
@@ -1040,7 +1042,7 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param lowerBoundary
@@ -1048,7 +1050,7 @@ public abstract class FilterDelegate<T> {
      * @param upperBoundary
      *            upper boundary to compare
      * @return result of between operation
-     * 
+     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, Date lowerBoundary, Date upperBoundary) {
@@ -1058,7 +1060,7 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param lowerBoundary
@@ -1066,7 +1068,7 @@ public abstract class FilterDelegate<T> {
      * @param upperBoundary
      *            upper boundary to compare
      * @return result of between operation
-     * 
+     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, int lowerBoundary, int upperBoundary) {
@@ -1076,7 +1078,7 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param lowerBoundary
@@ -1084,7 +1086,7 @@ public abstract class FilterDelegate<T> {
      * @param upperBoundary
      *            upper boundary to compare
      * @return result of between operation
-     * 
+     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, short lowerBoundary, short upperBoundary) {
@@ -1094,7 +1096,7 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param lowerBoundary
@@ -1102,7 +1104,7 @@ public abstract class FilterDelegate<T> {
      * @param upperBoundary
      *            upper boundary to compare
      * @return result of between operation
-     * 
+     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, long lowerBoundary, long upperBoundary) {
@@ -1112,7 +1114,7 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param lowerBoundary
@@ -1120,7 +1122,7 @@ public abstract class FilterDelegate<T> {
      * @param upperBoundary
      *            upper boundary to compare
      * @return result of between operation
-     * 
+     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, float lowerBoundary, float upperBoundary) {
@@ -1130,7 +1132,7 @@ public abstract class FilterDelegate<T> {
 
     /***
      * See {@link FilterDelegate#propertyIsBetween(String, Object, Object)}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param lowerBoundary
@@ -1138,7 +1140,7 @@ public abstract class FilterDelegate<T> {
      * @param upperBoundary
      *            upper boundary to compare
      * @return result of between operation
-     * 
+     *
      * @see FilterDelegate#propertyIsBetween(String, Object, Object)
      */
     public T propertyIsBetween(String propertyName, double lowerBoundary, double upperBoundary) {
@@ -1151,7 +1153,7 @@ public abstract class FilterDelegate<T> {
      * an exclusive comparison.
      * <p>
      * {@code lower < propertyName < upper}
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param lowerBoundary
@@ -1169,7 +1171,7 @@ public abstract class FilterDelegate<T> {
      * Compares the value associated with a property is equal to {@code null}.
      * <p>
      * {@code propertyName == null}
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @return result of null check
@@ -1185,7 +1187,7 @@ public abstract class FilterDelegate<T> {
      * Regular expression special characters are defined as {@link FilterDelegate#WILDCARD_CHAR
      * WILDCARD_CHAR}, {@link FilterDelegate#SINGLE_CHAR SINGLE_CHAR}, and
      * {@link FilterDelegate#ESCAPE_CHAR ESCAPE_CHAR}.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param pattern
@@ -1202,7 +1204,7 @@ public abstract class FilterDelegate<T> {
     /**
      * Compares the value associated with a property to the value of a literal with a fuzzy operator
      * which expands the literal to match misspellings.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param literal
@@ -1215,9 +1217,10 @@ public abstract class FilterDelegate<T> {
     }
 
     // XPath operators
+
     /**
      * Determines if a node expressed by XPath exists.
-     * 
+     *
      * @param xpath
      *            XPath expression
      * @return result of XPath node existence
@@ -1229,7 +1232,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Compares the node expressed by XPath to a regular expression pattern.
-     * 
+     *
      * @param xpath
      *            XPath expression
      * @param pattern
@@ -1237,7 +1240,7 @@ public abstract class FilterDelegate<T> {
      * @param isCaseSensitive
      *            case-sensitivity boolean
      * @return result of regular expression operation on XPath node
-     * 
+     *
      * @see FilterDelegate#propertyIsLike(String, String, boolean)
      */
     public T xpathIsLike(String xpath, String pattern, boolean isCaseSensitive) {
@@ -1248,7 +1251,7 @@ public abstract class FilterDelegate<T> {
     /**
      * Compares the node expressed by XPath to the value of a literal with a fuzzy operator which
      * expands the literal to match misspellings.
-     * 
+     *
      * @param xpath
      *            XPath expression
      * @param literal
@@ -1261,9 +1264,10 @@ public abstract class FilterDelegate<T> {
     }
 
     // Spatial operators
+
     /**
      * Compares the geometry associated with a property is beyond a distance from a WKT geometry.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param wkt
@@ -1279,7 +1283,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Compares the geometry associated with a property is contained by a WKT geometry.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param wkt
@@ -1293,7 +1297,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Compares the geometry associated with a property crosses a WKT geometry.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param wkt
@@ -1307,7 +1311,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Compares the geometry associated with a property is disjoint from a WKT geometry.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param wkt
@@ -1321,7 +1325,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Compares the geometry associated with a property is within a distance from a WKT geometry.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param wkt
@@ -1337,7 +1341,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Compares the geometry associated with a property intersects a WKT geometry.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param wkt
@@ -1351,7 +1355,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Compares the geometry associated with a property overlaps a WKT geometry.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param wkt
@@ -1365,7 +1369,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Compares the geometry associated with a property touches a WKT geometry.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param wkt
@@ -1379,7 +1383,7 @@ public abstract class FilterDelegate<T> {
 
     /**
      * Compares the geometry associated with a property is within a WKT geometry.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param wkt
@@ -1392,12 +1396,13 @@ public abstract class FilterDelegate<T> {
     }
 
     // Temporal operators
+
     /**
      * Compares the value associated with a property is after a given {@code Date}. This is an
      * exclusive comparison.
      * <p>
      * {@code property > date}
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param date
@@ -1414,7 +1419,7 @@ public abstract class FilterDelegate<T> {
      * exclusive comparison.
      * <p>
      * {@code property < date}
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param date
@@ -1431,7 +1436,7 @@ public abstract class FilterDelegate<T> {
      * exclusive comparison.
      * <p>
      * {@code startDate < property < endDate}
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param startDate
@@ -1448,7 +1453,7 @@ public abstract class FilterDelegate<T> {
     /**
      * Compares the value associated with a property is relatively within a duration of milliseconds
      * in the past from the current time of evaluation.
-     * 
+     *
      * @param propertyName
      *            name of property to compare
      * @param duration

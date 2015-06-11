@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.source;
 
 import java.util.Set;
@@ -33,12 +32,12 @@ public interface Source extends Describable {
     /**
      * This method states whether this source is available, typically connecting and performing some
      * sort of simple query or ping to the native catalog.
-     * 
+     *
      * <b>This is expected to be an expensive operation, possibly involving network I/O.</b>
      * Typically only {@link CatalogFramework} implementations will call this and only periodically.
-     * 
+     *
      * @return true - if the site is available (up), false - if the site is unavailable (down)
-     * 
+     *
      * @see SourcePoller
      */
     public boolean isAvailable();
@@ -50,7 +49,7 @@ public interface Source extends Describable {
      * return a boolean as to whether the {@link Source} is available at this very moment and also
      * to use the {@link SourceMonitor} object to update the caller of this method if this Source's
      * availability changes later in the future.
-     * 
+     *
      * @param callback
      *            - used to notify the caller of this method when the {@link Source} object wants to
      *            update its availability.
@@ -71,7 +70,7 @@ public interface Source extends Describable {
      * Gets the {@link ContentType}s that are currently stored by the {@link Source}. Notice the
      * return object is a {@link Set}, meaning it returns all unique content types found in the
      * Source without duplications.
-     * 
+     *
      * @return a {@link Set} of {@link ContentType}s currently available from this {@link Source}.
      */
     public Set<ContentType> getContentTypes();

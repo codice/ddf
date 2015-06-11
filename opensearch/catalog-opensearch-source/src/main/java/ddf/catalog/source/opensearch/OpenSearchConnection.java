@@ -1,23 +1,21 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.source.opensearch;
 
-import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.operation.Query;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.security.settings.SecuritySettingsService;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.Client;
@@ -30,8 +28,10 @@ import org.codice.ddf.endpoints.rest.RESTService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.operation.Query;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.settings.SecuritySettingsService;
 
 /**
  * This class wraps the CXF JAXRS code to make it easier to use and also easier to test. Most of
@@ -195,7 +195,7 @@ public class OpenSearchConnection {
             RestUrl restUrl = newRestUrl(url);
 
             if (restUrl != null) {
-                if(StringUtils.isNotEmpty(metacardId)) {
+                if (StringUtils.isNotEmpty(metacardId)) {
                     restUrl.setId(metacardId);
                 }
                 restUrl.setRetrieveResource(retrieveResource);
@@ -222,8 +222,8 @@ public class OpenSearchConnection {
 
         HTTPConduit httpConduit = clientConfiguration.getHttpConduit();
 
-        if(StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
-            if(httpConduit.getAuthorization() != null) {
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
+            if (httpConduit.getAuthorization() != null) {
                 httpConduit.getAuthorization().setUserName(username);
                 httpConduit.getAuthorization().setPassword(password);
             }

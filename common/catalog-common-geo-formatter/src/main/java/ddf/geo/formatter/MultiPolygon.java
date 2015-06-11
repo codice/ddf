@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.geo.formatter;
 
 import java.util.ArrayList;
@@ -54,8 +53,8 @@ public class MultiPolygon extends Polygon {
             List<List> listOfPolygons = new ArrayList<List>();
 
             for (int i = 0; i < geometry.getNumGeometries(); i++) {
-                List polygon = buildJsonPolygon((com.vividsolutions.jts.geom.Polygon) geometry
-                        .getGeometryN(i));
+                List polygon = buildJsonPolygon(
+                        (com.vividsolutions.jts.geom.Polygon) geometry.getGeometryN(i));
                 listOfPolygons.add(polygon);
             }
 
@@ -74,7 +73,7 @@ public class MultiPolygon extends Polygon {
 
         List<Position> positions = new ArrayList<Position>();
 
-        if(null != geometry) {
+        if (null != geometry) {
             for (int i = 0; i < geometry.getNumGeometries(); i++) {
                 CompositeGeometry compositeGeo = CompositeGeometry
                         .getCompositeGeometry(geometry.getGeometryN(i));

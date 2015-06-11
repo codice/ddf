@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.impl;
 
 import static org.junit.Assert.assertEquals;
@@ -81,7 +80,7 @@ public class CatalogFrameworkQueryTest {
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
         CachedSource source = mock(CachedSource.class);
-        when(source.isAvailable()).thenReturn(Boolean.TRUE);        
+        when(source.isAvailable()).thenReturn(Boolean.TRUE);
         when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(source);
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
         framework = new CatalogFrameworkImpl(Collections.singletonList((CatalogProvider) provider),
@@ -90,8 +89,7 @@ public class CatalogFrameworkQueryTest {
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
                 new ArrayList<ResourceReader>(), new MockFederationStrategy(),
-                mock(QueryResponsePostProcessor.class), null,
-                mockPoller, null, null, null);
+                mock(QueryResponsePostProcessor.class), null, mockPoller, null, null, null);
         framework.bind(provider);
     }
 
@@ -136,8 +134,9 @@ public class CatalogFrameworkQueryTest {
 
         FilterFactory filterFactory = new FilterFactoryImpl();
         Instant afterInstant = new DefaultInstant(new DefaultPosition(afterCal.getTime()));
-        QueryImpl query = new QueryImpl(filterFactory.after(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(afterInstant)));
+        QueryImpl query = new QueryImpl(filterFactory
+                .after(filterFactory.property(Metacard.EXPIRATION),
+                        filterFactory.literal(afterInstant)));
         QueryRequest queryReq = new QueryRequestImpl(query, false);
 
         try {
@@ -157,8 +156,8 @@ public class CatalogFrameworkQueryTest {
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("After filter should return 1 result", 1, response.getHits());
-            assertEquals("After filter should return metacard[" + mcId2 + "]", mcId2, response
-                    .getResults().get(0).getMetacard().getId());
+            assertEquals("After filter should return metacard[" + mcId2 + "]", mcId2,
+                    response.getResults().get(0).getMetacard().getId());
         } catch (UnsupportedQueryException e) {
             fail();
         } catch (FederationException e) {
@@ -221,8 +220,9 @@ public class CatalogFrameworkQueryTest {
 
         FilterFactory filterFactory = new FilterFactoryImpl();
         Instant beforeInstant = new DefaultInstant(new DefaultPosition(beforeCal.getTime()));
-        QueryImpl query = new QueryImpl(filterFactory.before(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(beforeInstant)));
+        QueryImpl query = new QueryImpl(filterFactory
+                .before(filterFactory.property(Metacard.EXPIRATION),
+                        filterFactory.literal(beforeInstant)));
         QueryRequest queryReq = new QueryRequestImpl(query, false);
 
         try {
@@ -242,8 +242,8 @@ public class CatalogFrameworkQueryTest {
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("Before filter should return 1 result", 1, response.getHits());
-            assertEquals("Before filter should return metacard[" + mcId1 + "]", mcId1, response
-                    .getResults().get(0).getMetacard().getId());
+            assertEquals("Before filter should return metacard[" + mcId1 + "]", mcId1,
+                    response.getResults().get(0).getMetacard().getId());
         } catch (UnsupportedQueryException e) {
             LOGGER.error("Failure", e);
             fail();
@@ -315,11 +315,12 @@ public class CatalogFrameworkQueryTest {
         }
 
         FilterFactory filterFactory = new FilterFactoryImpl();
-        Period beginsPeriod = new DefaultPeriod(new DefaultInstant(new DefaultPosition(
-                beginsStart.getTime())), new DefaultInstant(
-                new DefaultPosition(beginsEnd.getTime())));
-        QueryImpl query = new QueryImpl(filterFactory.begins(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(beginsPeriod)));
+        Period beginsPeriod = new DefaultPeriod(
+                new DefaultInstant(new DefaultPosition(beginsStart.getTime())),
+                new DefaultInstant(new DefaultPosition(beginsEnd.getTime())));
+        QueryImpl query = new QueryImpl(filterFactory
+                .begins(filterFactory.property(Metacard.EXPIRATION),
+                        filterFactory.literal(beginsPeriod)));
         QueryRequest queryReq = new QueryRequestImpl(query, false);
 
         try {
@@ -334,16 +335,16 @@ public class CatalogFrameworkQueryTest {
         }
 
         beginsPeriod = new DefaultPeriod(
-                new DefaultInstant(new DefaultPosition(card1Exp.getTime())), new DefaultInstant(
-                        new DefaultPosition(beginsEnd.getTime())));
+                new DefaultInstant(new DefaultPosition(card1Exp.getTime())),
+                new DefaultInstant(new DefaultPosition(beginsEnd.getTime())));
         query = new QueryImpl(filterFactory.begins(filterFactory.property(Metacard.EXPIRATION),
                 filterFactory.literal(beginsPeriod)));
         queryReq = new QueryRequestImpl(query, false);
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("Begins filter should return 1 result", 1, response.getHits());
-            assertEquals("Begins filter should return metacard[" + mcId1 + "]", mcId1, response
-                    .getResults().get(0).getMetacard().getId());
+            assertEquals("Begins filter should return metacard[" + mcId1 + "]", mcId1,
+                    response.getResults().get(0).getMetacard().getId());
         } catch (UnsupportedQueryException e) {
             LOGGER.error("Failure", e);
             fail();
@@ -353,16 +354,16 @@ public class CatalogFrameworkQueryTest {
         }
 
         beginsPeriod = new DefaultPeriod(
-                new DefaultInstant(new DefaultPosition(card2Exp.getTime())), new DefaultInstant(
-                        new DefaultPosition(beginsEnd.getTime())));
+                new DefaultInstant(new DefaultPosition(card2Exp.getTime())),
+                new DefaultInstant(new DefaultPosition(beginsEnd.getTime())));
         query = new QueryImpl(filterFactory.begins(filterFactory.property(Metacard.EXPIRATION),
                 filterFactory.literal(beginsPeriod)));
         queryReq = new QueryRequestImpl(query, false);
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("Begins filter should return 1 result", 1, response.getHits());
-            assertEquals("Begins filter should return metacard[" + mcId2 + "]", mcId2, response
-                    .getResults().get(0).getMetacard().getId());
+            assertEquals("Begins filter should return metacard[" + mcId2 + "]", mcId2,
+                    response.getResults().get(0).getMetacard().getId());
         } catch (UnsupportedQueryException e) {
             LOGGER.error("Failure", e);
             fail();
@@ -419,18 +420,19 @@ public class CatalogFrameworkQueryTest {
         }
 
         FilterFactory filterFactory = new FilterFactoryImpl();
-        Period duringPeriod = new DefaultPeriod(new DefaultInstant(new DefaultPosition(
-                duringStart.getTime())), new DefaultInstant(new DefaultPosition(
-                duringEnd1.getTime())));
-        QueryImpl query = new QueryImpl(filterFactory.during(
-                filterFactory.property(Metacard.EXPIRATION), filterFactory.literal(duringPeriod)));
+        Period duringPeriod = new DefaultPeriod(
+                new DefaultInstant(new DefaultPosition(duringStart.getTime())),
+                new DefaultInstant(new DefaultPosition(duringEnd1.getTime())));
+        QueryImpl query = new QueryImpl(filterFactory
+                .during(filterFactory.property(Metacard.EXPIRATION),
+                        filterFactory.literal(duringPeriod)));
         QueryRequest queryReq = new QueryRequestImpl(query, false);
 
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("Expecting return 1 result.", 1, response.getHits());
-            assertEquals("During filter should return metacard[" + mcId1 + "]", mcId1, response
-                    .getResults().get(0).getMetacard().getId());
+            assertEquals("During filter should return metacard[" + mcId1 + "]", mcId1,
+                    response.getResults().get(0).getMetacard().getId());
 
         } catch (UnsupportedQueryException e) {
             LOGGER.error("Failure", e);
@@ -441,16 +443,16 @@ public class CatalogFrameworkQueryTest {
         }
 
         duringPeriod = new DefaultPeriod(
-                new DefaultInstant(new DefaultPosition(card1Exp.getTime())), new DefaultInstant(
-                        new DefaultPosition(duringEnd2.getTime())));
+                new DefaultInstant(new DefaultPosition(card1Exp.getTime())),
+                new DefaultInstant(new DefaultPosition(duringEnd2.getTime())));
         query = new QueryImpl(filterFactory.during(filterFactory.property(Metacard.EXPIRATION),
                 filterFactory.literal(duringPeriod)));
         queryReq = new QueryRequestImpl(query, false);
         try {
             QueryResponse response = framework.query(queryReq);
             assertEquals("During filter should return 1 result", 1, response.getHits());
-            assertEquals("During filter should return metacard[" + mcId2 + "]", mcId2, response
-                    .getResults().get(0).getMetacard().getId());
+            assertEquals("During filter should return metacard[" + mcId2 + "]", mcId2,
+                    response.getResults().get(0).getMetacard().getId());
         } catch (UnsupportedQueryException e) {
             LOGGER.error("Failure", e);
             fail();
@@ -459,9 +461,9 @@ public class CatalogFrameworkQueryTest {
             fail();
         }
 
-        duringPeriod = new DefaultPeriod(new DefaultInstant(new DefaultPosition(
-                duringStart.getTime())), new DefaultInstant(new DefaultPosition(
-                duringEnd2.getTime())));
+        duringPeriod = new DefaultPeriod(
+                new DefaultInstant(new DefaultPosition(duringStart.getTime())),
+                new DefaultInstant(new DefaultPosition(duringEnd2.getTime())));
         query = new QueryImpl(filterFactory.during(filterFactory.property(Metacard.EXPIRATION),
                 filterFactory.literal(duringPeriod)));
         queryReq = new QueryRequestImpl(query, false);

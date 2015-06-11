@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 
 package ddf.catalog.pubsub.predicate;
 
@@ -33,17 +32,17 @@ import ddf.catalog.pubsub.criteria.geospatial.GeospatialEvaluator;
 import ddf.catalog.pubsub.internal.PubSubConstants;
 
 public class GeospatialPredicate implements Predicate {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeospatialPredicate.class);
+
     private Geometry geoCriteria;
 
     private String geoOperation;
 
     private double distance;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeospatialPredicate.class);
-
     /**
      * Instantiates a new geospatial predicate.
-     * 
+     *
      * @param wkt
      *            A string of well known text.
      * @param geoOperation
@@ -68,6 +67,20 @@ public class GeospatialPredicate implements Predicate {
         this.geoCriteria = geo;
     }
 
+    public static boolean isGeospatial(Map geoCriteria, String geoOperation) {
+        Iterator it = geoCriteria.values().iterator();
+        boolean hasCriteria = false;
+
+        while (it.hasNext()) {
+            Object item = it.next();
+            if (item != null && !item.toString().equals("")) {
+                hasCriteria = true;
+            }
+        }
+
+        return hasCriteria && !geoCriteria.isEmpty();
+    }
+
     public boolean matches(Event properties) {
         Metacard entry = (Metacard) properties.getProperty(PubSubConstants.HEADER_ENTRY_KEY);
 
@@ -85,9 +98,10 @@ public class GeospatialPredicate implements Predicate {
             // source is deleting the catalog entry and did not send any location data with the
             // delete event), then
             // cannot apply any geospatial filtering - just send the event on to the subscriber
-            if (PubSubConstants.DELETE.equals(operation)
-                    && PubSubConstants.METADATA_DELETED.equals(metadata)) {
-                LOGGER.debug("Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
+            if (PubSubConstants.DELETE.equals(operation) && PubSubConstants.METADATA_DELETED
+                    .equals(metadata)) {
+                LOGGER.debug(
+                        "Detected a DELETE operation where metadata is just the word 'deleted', so send event on to subscriber");
                 return true;
             }
 
@@ -102,20 +116,6 @@ public class GeospatialPredicate implements Predicate {
             LOGGER.warn("Error parsing WKT string.  Unable to compare geos.  Returning false.");
             return false;
         }
-    }
-
-    public static boolean isGeospatial(Map geoCriteria, String geoOperation) {
-        Iterator it = geoCriteria.values().iterator();
-        boolean hasCriteria = false;
-
-        while (it.hasNext()) {
-            Object item = it.next();
-            if (item != null && !item.toString().equals("")) {
-                hasCriteria = true;
-            }
-        }
-
-        return hasCriteria && !geoCriteria.isEmpty();
     }
 
     public Geometry getGeoCriteria() {

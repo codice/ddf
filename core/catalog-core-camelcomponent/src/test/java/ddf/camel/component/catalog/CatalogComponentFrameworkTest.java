@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.camel.component.catalog;
 
 import static org.mockito.Matchers.any;
@@ -62,18 +61,18 @@ import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
  * Tests the custom Camel CatalogComponent FrameworkProducer. The FrameworkProducer would map to a
  * Camel <to> route node with a URI like <code>catalog:framework</code>. The message sent to this
  * component should have header named "operation" with a value of "CREATE", "UPDATE" or "DELETE".
- * 
+ *
  * For the CREATE and UPDATE operation, the message body can contain a {@link java.util.List} of
  * Metacards or a single Metacard object.
- * 
+ *
  * For the DELETE operation, the message body can contain a {@link java.util.List} of {@link String}
  * or a single {@link String} object. The {@link String} objects represent the IDs of Metacards that
  * you would want to delete.
- * 
+ *
  * The exchange's "in" message will be set with the affected Metacards. In the case of a CREATE, it
  * will be updated with the created Metacards. In the case of the UPDATE, it will be updated with
  * the updated Metacards and with the DELETE it will contain the deleted Metacards.
- * 
+ *
  * <table border="1">
  * <tr>
  * <th>USE CASE</th>
@@ -104,7 +103,7 @@ import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
  * <td>exchange.getIn().getBody() updated with {@link java.util.List} of Metacards deleted</td>
  * </tr>
  * </table>
- * 
+ *
  * @author Sam Patel, Lockheed Martin
  * @author ddf.isgs@lmco.com
  */
@@ -178,8 +177,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: CREATE
      * Body contains:  List<Metacard>
-     */
-    public void testCreateWithListOfMetacards() throws Exception {
+     */ public void testCreateWithListOfMetacards() throws Exception {
         resetMocks();
 
         // Setup expectations to verify
@@ -213,8 +211,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: CREATE
      * Body contains:  null
-     */
-    public void testCreateWithNull() throws Exception {
+     */ public void testCreateWithNull() throws Exception {
         resetMocks();
 
         boolean threwException = false;
@@ -234,8 +231,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: CREATE
      * Body contains:  String
-     */
-    public void testCreateWithInvalidType() throws Exception {
+     */ public void testCreateWithInvalidType() throws Exception {
         resetMocks();
 
         boolean threwException = false;
@@ -256,8 +252,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: CREATE
      * Body contains:  List<Metacard> with no members
-     */
-    public void testCreateWithEmptyListOfMetacards() throws Exception {
+     */ public void testCreateWithEmptyListOfMetacards() throws Exception {
         resetMocks();
 
         final List<Metacard> metacards = new ArrayList<Metacard>();
@@ -278,8 +273,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: CREATE
      * Body contains:  List<Metacard> with null member
-     */
-    public void testCreateWithNullInListOfMetacards() throws Exception {
+     */ public void testCreateWithNullInListOfMetacards() throws Exception {
         resetMocks();
 
         final List<Metacard> metacards = new ArrayList<Metacard>();
@@ -302,8 +296,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: CREATE
      * Body contains:  List<String>
-     */
-    public void testCreateWithInvalidListType() throws Exception {
+     */ public void testCreateWithInvalidListType() throws Exception {
         resetMocks();
 
         final List<String> metacards = new ArrayList<String>();
@@ -326,8 +319,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: CREATE
      * Body contains:  Metacard
-     */
-    public void testCreateWithSingleMetacard() throws Exception {
+     */ public void testCreateWithSingleMetacard() throws Exception {
         resetMocks();
 
         // Setup expectations to verify
@@ -360,8 +352,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: CREATE
      * Body contains:  Metacard
-     */
-    public void testCreateWithDifferentCaseOperation() throws Exception {
+     */ public void testCreateWithDifferentCaseOperation() throws Exception {
         resetMocks();
 
         // Setup expectations to verify
@@ -394,8 +385,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: CREATE
      * Body contains:  Metacard
-     */
-    public void testCreateWithWrongTypeOperation() throws Exception {
+     */ public void testCreateWithWrongTypeOperation() throws Exception {
         resetMocks();
 
         // Setup expectations to verify
@@ -412,8 +402,8 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
         when(catalogFramework.create(any(CreateRequest.class))).thenReturn(createResponse);
 
         // Exercise the route with a CREATE operation
-        template.sendBodyAndHeader("direct:sampleInput", metacard1, "Operation", new Boolean(
-                "CREATE"));
+        template.sendBodyAndHeader("direct:sampleInput", metacard1, "Operation",
+                new Boolean("CREATE"));
 
         // Verify that the number of metacards in the exchange after the records
         // is identical to the input
@@ -429,8 +419,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: CREATE
      * Body contains:  Metacard
-     */
-    public void testCreateWithInvalidOperation() throws Exception {
+     */ public void testCreateWithInvalidOperation() throws Exception {
         resetMocks();
 
         // Setup expectations to verify
@@ -463,8 +452,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: CREATE
      * Body contains:  Metacard
-     */
-    public void testCreateWithIngestException() throws Exception {
+     */ public void testCreateWithIngestException() throws Exception {
         resetMocks();
 
         // Setup expectations to verify
@@ -497,8 +485,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: UPDATE
      * Body contains:  List<Metacard>
-     */
-    public void testUpdateWithListOfMetacards() throws Exception {
+     */ public void testUpdateWithListOfMetacards() throws Exception {
         resetMocks();
 
         // Setup expectations to verify
@@ -540,8 +527,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: UPDATE
      * Body contains:  List<Metacard> with no members
-     */
-    public void testUpdateWithEmptyListOfMetacards() throws Exception {
+     */ public void testUpdateWithEmptyListOfMetacards() throws Exception {
         resetMocks();
 
         final List<Metacard> metacards = new ArrayList<Metacard>();
@@ -562,8 +548,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: UPDATE
      * Body contains:  List<String>
-     */
-    public void testUpdateWithInvalidListType() throws Exception {
+     */ public void testUpdateWithInvalidListType() throws Exception {
         resetMocks();
 
         final List<String> metacards = new ArrayList<String>();
@@ -585,8 +570,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: UPDATE
      * Body contains:  List<Metacard> with null member
-     */
-    public void testUpdateWithNullInListOfMetacards() throws Exception {
+     */ public void testUpdateWithNullInListOfMetacards() throws Exception {
         resetMocks();
 
         final List<Metacard> metacards = new ArrayList<Metacard>();
@@ -609,8 +593,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: UPDATE
      * Body contains:  Metacard
-     */
-    public void testUpdateWithSingleMetacard() throws Exception {
+     */ public void testUpdateWithSingleMetacard() throws Exception {
         resetMocks();
 
         // Setup expectations to verify
@@ -652,8 +635,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: UPDATE
      * Body contains:  Metacard
-     */
-    public void testUpdateWithIngestException() throws Exception {
+     */ public void testUpdateWithIngestException() throws Exception {
         resetMocks();
 
         // Setup expectations to verify
@@ -695,8 +677,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: UPDATE
      * Body contains:  String
-     */
-    public void testUpdateWithInvalidType() throws Exception {
+     */ public void testUpdateWithInvalidType() throws Exception {
         resetMocks();
 
         boolean threwException = false;
@@ -717,8 +698,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: UPDATE
      * Body contains:  null
-     */
-    public void testUpdateWithNull() throws Exception {
+     */ public void testUpdateWithNull() throws Exception {
         resetMocks();
 
         boolean threwException = false;
@@ -738,8 +718,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: DELETE
      * Body contains: 12345678900987654321abcdeffedcba
-     */
-    public void testDeleteWithSingleId() throws Exception {
+     */ public void testDeleteWithSingleId() throws Exception {
         resetMocks();
 
         // Setup expectations to verify
@@ -777,8 +756,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: DELETE
      * Body contains: 12345678900987654321abcdeffedcba
-     */
-    public void testDeleteWithIngestException() throws Exception {
+     */ public void testDeleteWithIngestException() throws Exception {
         resetMocks();
 
         // Setup expectations to verify
@@ -816,8 +794,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: DELETE
      * Body contains: null
-     */
-    public void testDeleteWithNull() throws Exception {
+     */ public void testDeleteWithNull() throws Exception {
         resetMocks();
 
         boolean threwException = false;
@@ -837,8 +814,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: DELETE
      * Body contains: Integer
-     */
-    public void testDeleteWithInvalidType() throws Exception {
+     */ public void testDeleteWithInvalidType() throws Exception {
         resetMocks();
 
         class InvalidObject {
@@ -865,8 +841,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: DELETE
      * Body contains: List<String>
-     */
-    public void testDeleteWithListOfIds() throws Exception {
+     */ public void testDeleteWithListOfIds() throws Exception {
         resetMocks();
 
         // Setup expectations to verify
@@ -906,8 +881,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: DELETE
      * Body contains: List<String> with no members
-     */
-    public void testDeleteWithEmptyListOfIds() throws Exception {
+     */ public void testDeleteWithEmptyListOfIds() throws Exception {
         resetMocks();
 
         final List<String> metacardIdList = new ArrayList<String>();
@@ -928,8 +902,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: DELETE
      * Body contains: List<Integer>
-     */
-    public void testDeleteWithInvalidListType() throws Exception {
+     */ public void testDeleteWithInvalidListType() throws Exception {
         resetMocks();
 
         final List<Integer> metacards = new ArrayList<Integer>();
@@ -953,8 +926,7 @@ public class CatalogComponentFrameworkTest extends CamelTestSupport {
     /**
      * Operation: DELETE
      * Body contains: List<String> with null member
-     */
-    public void testDeleteWithNullInListOfIds() throws Exception {
+     */ public void testDeleteWithNullInListOfIds() throws Exception {
         resetMocks();
 
         final List<String> metacardIdList = new ArrayList<String>();

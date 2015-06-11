@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog.facade;
 
 import java.util.Set;
@@ -35,24 +34,24 @@ import ddf.catalog.util.Describable;
 /**
  * A Catalog facade which unifies at least the {@link CatalogFramework} and the
  * {@link CatalogProvider} interfaces.
- * 
+ *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public abstract class CatalogFacade implements Describable {
 
-    public abstract CreateResponse create(CreateRequest createRequest) throws IngestException,
-        SourceUnavailableException;
+    public abstract CreateResponse create(CreateRequest createRequest)
+            throws IngestException, SourceUnavailableException;
 
-    public abstract UpdateResponse update(UpdateRequest updateRequest) throws IngestException,
-        SourceUnavailableException;
+    public abstract UpdateResponse update(UpdateRequest updateRequest)
+            throws IngestException, SourceUnavailableException;
 
-    public abstract DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException,
-        SourceUnavailableException;
+    public abstract DeleteResponse delete(DeleteRequest deleteRequest)
+            throws IngestException, SourceUnavailableException;
 
-    public abstract SourceResponse query(QueryRequest query) throws UnsupportedQueryException,
-        SourceUnavailableException, FederationException;
+    public abstract SourceResponse query(QueryRequest query)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException;
 
     public abstract Set<String> getSourceIds();
 }

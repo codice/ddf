@@ -1,28 +1,26 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.filter.delegate;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 
 import java.text.ParseException;
 import java.util.Arrays;
@@ -39,7 +37,6 @@ import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.geotools.temporal.object.DefaultPosition;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -84,8 +81,8 @@ public class CopyFilterDelegateTest {
 
     private static final Instant EPOCH_INSTANT = new DefaultInstant(new DefaultPosition(EPOCH));
 
-    private static final Instant EPOCH_PLUS_DAY_INSTANT = new DefaultInstant(new DefaultPosition(
-            EPOCH_PLUS_DAY));
+    private static final Instant EPOCH_PLUS_DAY_INSTANT = new DefaultInstant(
+            new DefaultPosition(EPOCH_PLUS_DAY));
 
     private static final Period EPOCH_DAY_PERIOD = new DefaultPeriod(EPOCH_INSTANT,
             EPOCH_PLUS_DAY_INSTANT);
@@ -289,8 +286,8 @@ public class CopyFilterDelegateTest {
 
     @Test
     public void testPropertyIsGreaterThan_String() throws Exception {
-        assertFilterException(FF
-                .greater(TEST_PROPERTY, FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
+        assertFilterException(
+                FF.greater(TEST_PROPERTY, FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
     }
 
     @Test
@@ -330,8 +327,8 @@ public class CopyFilterDelegateTest {
 
     @Test
     public void testPropertyIsGreaterThanOrEqualTo_String() throws Exception {
-        assertFilterException(FF.greaterOrEqual(TEST_PROPERTY,
-                FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
+        assertFilterException(
+                FF.greaterOrEqual(TEST_PROPERTY, FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
     }
 
     @Test
@@ -411,8 +408,8 @@ public class CopyFilterDelegateTest {
 
     @Test
     public void testPropertyIsLesserThanOrEqualTo_String() throws Exception {
-        assertFilterException(FF.lessOrEqual(TEST_PROPERTY,
-                FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
+        assertFilterException(
+                FF.lessOrEqual(TEST_PROPERTY, FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
     }
 
     @Test
@@ -457,14 +454,14 @@ public class CopyFilterDelegateTest {
 
     @Test
     public void testPropertyIsBetween_Dates() throws Exception {
-        assertFilterException(FF.between(TEST_PROPERTY, FF.literal(EPOCH),
-                FF.literal(EPOCH_PLUS_DAY)));
+        assertFilterException(
+                FF.between(TEST_PROPERTY, FF.literal(EPOCH), FF.literal(EPOCH_PLUS_DAY)));
     }
 
     @Test
     public void testPropertyIsBetween_Ints() throws Exception {
-        assertFilterEquals(FF.between(TEST_PROPERTY, FF.literal(new Integer(1)),
-                FF.literal(new Integer(5))));
+        assertFilterEquals(
+                FF.between(TEST_PROPERTY, FF.literal(new Integer(1)), FF.literal(new Integer(5))));
     }
 
     @Test
@@ -475,14 +472,14 @@ public class CopyFilterDelegateTest {
 
     @Test
     public void testPropertyIsBetween_Longs() throws Exception {
-        assertFilterEquals(FF.between(TEST_PROPERTY, FF.literal(new Long(1)),
-                FF.literal(new Long(5))));
+        assertFilterEquals(
+                FF.between(TEST_PROPERTY, FF.literal(new Long(1)), FF.literal(new Long(5))));
     }
 
     @Test
     public void testPropertyIsBetween_Floats() throws Exception {
-        assertFilterEquals(FF.between(TEST_PROPERTY, FF.literal(new Float(1.0)),
-                FF.literal(new Float(5.0))));
+        assertFilterEquals(
+                FF.between(TEST_PROPERTY, FF.literal(new Float(1.0)), FF.literal(new Float(5.0))));
     }
 
     @Test
@@ -534,9 +531,9 @@ public class CopyFilterDelegateTest {
 
     @Test
     public void testXpathIsFuzzy() {
-        assertFilterEquals(FF.like(
-                new FuzzyFunction(Arrays.asList((Expression) (FF.property("//ns:title"))), FF
-                        .literal("")), "foo*?"));
+        assertFilterEquals(
+                FF.like(new FuzzyFunction(Arrays.asList((Expression) (FF.property("//ns:title"))),
+                                FF.literal("")), "foo*?"));
     }
 
     @Test

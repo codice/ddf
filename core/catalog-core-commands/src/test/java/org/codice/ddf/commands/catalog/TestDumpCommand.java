@@ -1,22 +1,24 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertThat;
+
+import java.io.File;
+
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Framework;
 import org.fusesource.jansi.Ansi;
@@ -24,24 +26,22 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 
 /**
  * Tests the {@link DumpCommand} output.
- * 
+ *
  */
 public class TestDumpCommand extends AbstractCommandTest {
-
-    @Rule
-    public TemporaryFolder testFolder = new TemporaryFolder();
 
     static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi().reset().toString();
 
     static final String RED_CONSOLE_COLOR = Ansi.ansi().fg(Ansi.Color.RED).toString();
+
+    @Rule
+    public TemporaryFolder testFolder = new TemporaryFolder();
 
     /**
      * Check for bad output directory.
@@ -122,7 +122,8 @@ public class TestDumpCommand extends AbstractCommandTest {
         consoleOutput.interceptSystemOut();
 
         // given
-        final CatalogFramework catalogFramework = givenCatalogFramework(getResultList("id1", "id2"));
+        final CatalogFramework catalogFramework = givenCatalogFramework(
+                getResultList("id1", "id2"));
         DumpCommand command = new DumpCommand() {
             @Override
             protected CatalogFacade getCatalog() throws InterruptedException {

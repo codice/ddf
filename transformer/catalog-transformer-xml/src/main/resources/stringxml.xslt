@@ -1,6 +1,6 @@
 <!-- Stylesheet is used to remove the namespaces on Metacard XML attributes. -->
-<xsl:stylesheet version="1.0"
- xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                version="1.0">
  <xsl:output omit-xml-declaration="yes" indent="yes"/>
  <xsl:strip-space elements="*"/>
 
@@ -17,7 +17,7 @@
    <xsl:for-each select="namespace::*">
      <xsl:variable name="vPrefix" select="name()"/>
      <xsl:if test=
-      "$vtheElem/descendant::*
+                     "$vtheElem/descendant::*
               [namespace-uri()=current()
              and
               substring-before(name(),':') = $vPrefix

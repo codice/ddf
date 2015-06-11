@@ -1,30 +1,30 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.resource.download;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Future;
 
-import ddf.catalog.operation.ResourceResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteSource;
 import com.google.common.io.CountingOutputStream;
 import com.google.common.io.FileBackedOutputStream;
+
+import ddf.catalog.operation.ResourceResponse;
 
 /**
  * The @InputStream used by the client to read from the @FileBackedOutputStream being written to as
@@ -33,6 +33,10 @@ import com.google.common.io.FileBackedOutputStream;
 public class ReliableResourceInputStream extends InputStream {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReliableResourceInputStream.class);
+
+    String downloadIdentifier;
+
+    ResourceResponse resourceResponse;
 
     private Future<ReliableResourceStatus> downloadFuture;
 
@@ -53,10 +57,6 @@ public class ReliableResourceInputStream extends InputStream {
 
     // Indicates if this InputStream is closed or not
     private boolean streamClosed = false;
-
-    String downloadIdentifier;
-
-    ResourceResponse resourceResponse;
 
     /**
      * @param fbos          the @FileBackedOutputStream this object will read from
@@ -122,7 +122,7 @@ public class ReliableResourceInputStream extends InputStream {
     public boolean isClosed() {
         return streamClosed;
     }
-    
+
     @Override
     public int read() throws IOException {
         LOGGER.trace("ENTERING: read()");
@@ -131,7 +131,9 @@ public class ReliableResourceInputStream extends InputStream {
             if (countingFbos.getCount() > fbosBytesRead) {
                 long skipped = is.skip(fbosBytesRead);
                 if (skipped != fbosBytesRead) {
-                    throw new IOException("Tried to skip " + fbosBytesRead + " bytes but actually skipped " + skipped + " bytes");
+                    throw new IOException(
+                            "Tried to skip " + fbosBytesRead + " bytes but actually skipped "
+                                    + skipped + " bytes");
                 }
                 byteRead = is.read();
                 fbosBytesRead++;
@@ -171,13 +173,12 @@ public class ReliableResourceInputStream extends InputStream {
             LOGGER.trace(
                     "numBytesRead <= 0 but client hasn't read all of the data from FBOS - block and read");
             while (downloadState.getDownloadState()
-                    == DownloadManagerState.DownloadState.IN_PROGRESS
-                    || (fbosCount >= fbosBytesRead
+                    == DownloadManagerState.DownloadState.IN_PROGRESS || (fbosCount >= fbosBytesRead
                     && downloadState.getDownloadState() != DownloadManagerState.DownloadState.FAILED
                     && downloadState.getDownloadState()
-                    != DownloadManagerState.DownloadState.CANCELED && downloadState
-                    .getDownloadState() != null)) {
-                                
+                    != DownloadManagerState.DownloadState.CANCELED
+                    && downloadState.getDownloadState() != null)) {
+
                 numBytesRead = readFromFbosInputStream(b, off, len);
 
                 if (numBytesRead > 0) {
@@ -224,9 +225,10 @@ public class ReliableResourceInputStream extends InputStream {
     }
 
     private boolean isFbosCompletelyRead(int numBytesRead, long fbosCount) {
-        return (numBytesRead == -1 && fbosCount == fbosBytesRead && (downloadState
-                .getDownloadState() == DownloadManagerState.DownloadState.COMPLETED || downloadState
-                .getDownloadState() == DownloadManagerState.DownloadState.FAILED));
+        return (numBytesRead == -1 && fbosCount == fbosBytesRead && (
+                downloadState.getDownloadState() == DownloadManagerState.DownloadState.COMPLETED
+                        || downloadState.getDownloadState()
+                        == DownloadManagerState.DownloadState.FAILED));
     }
 
     private int readFromFbosInputStream(byte[] b, int off, int len) throws IOException {
@@ -234,7 +236,9 @@ public class ReliableResourceInputStream extends InputStream {
         try (InputStream is = fbosByteSource.openStream()) {
             long skipped = is.skip(fbosBytesRead);
             if (skipped != fbosBytesRead) {
-               throw new IOException("Tried to skip " + fbosBytesRead + " bytes but actually skipped " + skipped + " bytes");
+                throw new IOException(
+                        "Tried to skip " + fbosBytesRead + " bytes but actually skipped " + skipped
+                                + " bytes");
             }
             numBytesRead = is.read(b, off, len);
             LOGGER.trace("numBytesRead = {}", numBytesRead);

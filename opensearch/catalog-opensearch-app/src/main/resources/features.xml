@@ -13,11 +13,13 @@
  -->
 <features name="${project.artifactId}-${project.version}">
 
-	<feature name="catalog-opensearch-endpoint" version="${project.version}" description="OpenSearch Query Endpoint with Atom Transformer.">
+	<feature name="catalog-opensearch-endpoint" version="${project.version}"
+             description="OpenSearch Query Endpoint with Atom Transformer.">
 		<bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-endpoint/${project.version}</bundle>
 	</feature>
 
-	<feature name="catalog-opensearch-source" version="${project.version}" description="OpenSearch Federated Source queries a Federated Source using OpenSearch.">
+	<feature name="catalog-opensearch-source" version="${project.version}"
+             description="OpenSearch Federated Source queries a Federated Source using OpenSearch.">
 		<bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-source/${project.version}</bundle>
 	</feature>
 

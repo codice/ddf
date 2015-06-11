@@ -1,20 +1,21 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.data.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,14 +23,12 @@ import java.io.IOException;
 import org.junit.Test;
 
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.BasicTypes;
 
 public class AttributeDescriptorImplTest {
 
     @Test
-    public void testSerialization() throws FileNotFoundException, IOException,
-        ClassNotFoundException {
+    public void testSerialization()
+            throws FileNotFoundException, IOException, ClassNotFoundException {
         AttributeDescriptorImpl adImpl = new AttributeDescriptorImpl("name", true, true, true,
                 false, BasicTypes.BINARY_TYPE);
 
@@ -43,8 +42,8 @@ public class AttributeDescriptorImplTest {
 
         assertEquals(adImpl.getName(), readAdImpl.getName());
 
-        assertEquals(adImpl.getType().getAttributeFormat(), readAdImpl.getType()
-                .getAttributeFormat());
+        assertEquals(adImpl.getType().getAttributeFormat(),
+                readAdImpl.getType().getAttributeFormat());
 
         assertEquals(adImpl.getType().getBinding(), readAdImpl.getType().getBinding());
 
@@ -71,7 +70,8 @@ public class AttributeDescriptorImplTest {
 
         ad[3] = new AttributeDescriptorImpl("mane", true, true, true, true, BasicTypes.BINARY_TYPE);
 
-        ad[4] = new AttributeDescriptorImpl("name", false, true, true, true, BasicTypes.BINARY_TYPE);
+        ad[4] = new AttributeDescriptorImpl("name", false, true, true, true,
+                BasicTypes.BINARY_TYPE);
 
         assertEquals(ad[0], ad[1]);
 

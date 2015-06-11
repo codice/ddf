@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.data;
 
 import java.io.ByteArrayInputStream;
@@ -25,19 +24,19 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * This class is a common implementation of the {@link BinaryContent} interface.
- * 
+ *
  * @deprecated As of release 2.3.0, replaced by
  *             ddf.catalog.data.impl.BinaryContentImpl
- * 
+ *
  */
 @Deprecated
 public class BinaryContentImpl implements BinaryContent {
 
+    static final long UNKNOWN_SIZE = -1;
+
     private InputStream inputStream;
 
     private MimeType mimeType;
-
-    static final long UNKNOWN_SIZE = -1;
 
     private long size = UNKNOWN_SIZE;
 
@@ -45,7 +44,7 @@ public class BinaryContentImpl implements BinaryContent {
 
     /**
      * Instantiates a new product resource.
-     * 
+     *
      * @param inputStream
      *            the input stream
      * @param mimeType
@@ -58,7 +57,7 @@ public class BinaryContentImpl implements BinaryContent {
 
     /**
      * Instantiates a new product resource.
-     * 
+     *
      * @param inputStream
      *            the input stream
      */
@@ -93,7 +92,7 @@ public class BinaryContentImpl implements BinaryContent {
 
     /**
      * String representation of this {@code BinaryContentImpl}.
-     * 
+     *
      * @return the String representation of this {@code BinaryContentImpl}
      */
     @Override
@@ -108,7 +107,7 @@ public class BinaryContentImpl implements BinaryContent {
 
     /**
      * Sets the size in bytes of the binary content. If the size is unknown, then a -1 is returned.
-     * 
+     *
      * @param size
      */
     public void setSize(long size) {

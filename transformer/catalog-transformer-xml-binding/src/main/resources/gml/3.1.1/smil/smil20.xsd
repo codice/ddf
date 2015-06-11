@@ -27,42 +27,45 @@ Public URI: http://www.w3.org/2001/SMIL20/smil20.xsd
 Author: Aaron Michael Cohen (Intel)
 Revision: 2001/07/31
 -->
-<schema targetNamespace="http://www.w3.org/2001/SMIL20/" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:smil20="http://www.w3.org/2001/SMIL20/" xmlns:smil20lang="http://www.w3.org/2001/SMIL20/Language" elementFormDefault="qualified">
-	<import namespace="http://www.w3.org/2001/SMIL20/Language" schemaLocation="smil20-language.xsd"/>
-	<!-- ============================================================= 
-	struct.xsd
-	============================================================== -->
-	<import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml-mod.xsd"/>
+<schema xmlns:smil20="http://www.w3.org/2001/SMIL20/" xmlns:smil20lang="http://www.w3.org/2001/SMIL20/Language"
+        targetNamespace="http://www.w3.org/2001/SMIL20/"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<import namespace="http://www.w3.org/2001/SMIL20/Language"
+            schemaLocation="smil20-language.xsd"/>
+    <!-- =============================================================
+    struct.xsd
+    ============================================================== -->
+    <import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml-mod.xsd"/>
 	<attributeGroup name="structureModuleAttrs">
 		<attribute name="id" type="ID" use="optional"/>
 		<attribute name="class" type="string" use="optional"/>
 		<attribute ref="xml:lang" use="optional"/>
 	</attributeGroup>
-	<!-- ============================================================= 
-	content.xsd
-	============================================================== -->
-	<attributeGroup name="skipContentAttrs">
+    <!-- =============================================================
+    content.xsd
+    ============================================================== -->
+    <attributeGroup name="skipContentAttrs">
 		<attribute name="skip-content" type="boolean" use="optional" default="true"/>
 	</attributeGroup>
-	<!-- ============================================================= 
-	media.xsd
-	============================================================== -->
-	<attributeGroup name="alternateContentAttrs">
+    <!-- =============================================================
+    media.xsd
+    ============================================================== -->
+    <attributeGroup name="alternateContentAttrs">
 		<attribute name="alt" type="string" use="optional"/>
 		<attribute name="longdesc" type="anyURI" use="optional"/>
 	</attributeGroup>
-	<!-- ============================================================= 
-	utility.xsd
-	============================================================== -->
-	<simpleType name="nonNegativeDecimalType">
+    <!-- =============================================================
+    utility.xsd
+    ============================================================== -->
+    <simpleType name="nonNegativeDecimalType">
 		<restriction base="decimal">
 			<minInclusive value="0.0"/>
 		</restriction>
 	</simpleType>
-	<!-- ============================================================= 
-	animate.xsd
-	============================================================== -->
-	<element name="animate" type="smil20lang:animateType" substitutionGroup="smil20lang:animate"/>
+    <!-- =============================================================
+    animate.xsd
+    ============================================================== -->
+    <element name="animate" type="smil20lang:animateType" substitutionGroup="smil20lang:animate"/>
 	<complexType name="animatePrototype">
 		<attributeGroup ref="smil20:animNamedTargetAttrs"/>
 		<attributeGroup ref="smil20:animAddAccumAttrs"/>
@@ -121,13 +124,15 @@ Revision: 2001/07/31
 			</simpleType>
 		</attribute>
 	</attributeGroup>
-	<element name="animateMotion" type="smil20lang:animateMotionType" substitutionGroup="smil20lang:animateMotion"/>
+	<element name="animateMotion" type="smil20lang:animateMotionType"
+             substitutionGroup="smil20lang:animateMotion"/>
 	<complexType name="animateMotionPrototype">
 		<attributeGroup ref="smil20:animAddAccumAttrs"/>
 		<attributeGroup ref="smil20:animValuesAttrs"/>
 		<attribute name="origin" type="string" use="optional"/>
 	</complexType>
-	<element name="animateColor" type="smil20lang:animateColorType" substitutionGroup="smil20lang:animateColor"/>
+	<element name="animateColor" type="smil20lang:animateColorType"
+             substitutionGroup="smil20lang:animateColor"/>
 	<complexType name="animateColorPrototype">
 		<attributeGroup ref="smil20:animNamedTargetAttrs"/>
 		<attributeGroup ref="smil20:animAddAccumAttrs"/>
@@ -138,10 +143,10 @@ Revision: 2001/07/31
 		<attributeGroup ref="smil20:animNamedTargetAttrs"/>
 		<attributeGroup ref="smil20:animSetValuesAttrs"/>
 	</complexType>
-	<!-- ============================================================= 
-	timing.xsd
-	============================================================== -->
-	<attributeGroup name="syncBehaviorAttrs">
+    <!-- =============================================================
+    timing.xsd
+    ============================================================== -->
+    <attributeGroup name="syncBehaviorAttrs">
 		<attribute name="syncBehavior" type="smil20:syncBehaviorType" default="default"/>
 		<attribute name="syncTolerance" type="string" use="optional"/>
 	</attributeGroup>
@@ -154,7 +159,8 @@ Revision: 2001/07/31
 		</restriction>
 	</simpleType>
 	<attributeGroup name="syncBehaviorDefaultAttrs">
-		<attribute name="syncBehaviorDefault" type="smil20:syncBehaviorDefaultType" default="inherit"/>
+		<attribute name="syncBehaviorDefault" type="smil20:syncBehaviorDefaultType"
+                   default="inherit"/>
 		<attribute name="syncToleranceDefault" type="string" default="inherit"/>
 	</attributeGroup>
 	<simpleType name="syncBehaviorDefaultType">

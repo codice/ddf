@@ -17,34 +17,34 @@
 
 	<OCD name="Catalog HTML Query Reponse Transformer" id="query.response.transformer.properties">
 		<AD
-			description="Specifies the header text to be rendered on the generated Query Page"
-			name="Header" id="header" required="true" type="String" 
-			default="" 
-		/>
+                description="Specifies the header text to be rendered on the generated Query Page"
+                name="Header" id="header" required="true" type="String"
+                default=""
+                />
 		<AD
-			description="Specifies the footer text to be rendered on the generated Query Page"
-			name="Footer" id="footer" required="true" type="String" 
-			default="" 
-		/>
+                description="Specifies the footer text to be rendered on the generated Query Page"
+                name="Footer" id="footer" required="true" type="String"
+                default=""
+                />
 		<AD
-			description="Specifies the path to the Template"
-			name="Template" id="template" required="true" type="String" 
-			default="/templates/searchpage.ftl" 
-		/>
+                description="Specifies the path to the Template"
+                name="Template" id="template" required="true" type="String"
+                default="/templates/searchpage.ftl"
+                />
 		<AD
-			description="Specifies the Text Color of the Header and Footer"
-			name="Text Color" id="color" required="true" type="String" 
-			default="yellow" 
-		/>
+                description="Specifies the Text Color of the Header and Footer"
+                name="Text Color" id="color" required="true" type="String"
+                default="yellow"
+                />
 		<AD
-			description="Specifies the Background Color of the Header and Footer"
-			name="Background Color" id="background" required="true" type="String" 
-			default="green" 
-		/>
+                description="Specifies the Background Color of the Header and Footer"
+                name="Background Color" id="background" required="true" type="String"
+                default="green"
+                />
 	</OCD>
 
-	<Designate 	pid="query.response.transformer.properties">
-		<Object ocdref="query.response.transformer.properties" />
+	<Designate pid="query.response.transformer.properties">
+		<Object ocdref="query.response.transformer.properties"/>
 	</Designate>
 
 </metatype:MetaData>

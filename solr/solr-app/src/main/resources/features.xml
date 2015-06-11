@@ -11,7 +11,7 @@
  *
  **/
  -->
- 
+
 <!--
      NOTE: This features XML file uses the Karaf "install" attribute to specify whether a feature
      is automatically installed when an app's KAR file is hot deployed.
@@ -25,12 +25,14 @@
 --> 
 <features name="${project.artifactId}-${project.version}">
 
-    <feature name="catalog-solr-embedded-provider" install="manual" version="${project.version}" description="Catalog Provider with locally Embedded Solr Server, implemented using Solr ${solr.version}.">
+    <feature name="catalog-solr-embedded-provider" install="manual" version="${project.version}"
+             description="Catalog Provider with locally Embedded Solr Server, implemented using Solr ${solr.version}.">
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:ddf.catalog.solr.embedded/catalog-solr-embedded-provider/${project.version}</bundle>
     </feature>
     
-    <feature name="catalog-solr-external-provider" install="manual" version="${project.version}" description="Catalog Provider to interface with an external Solr ${solr.version} Server">
+    <feature name="catalog-solr-external-provider" install="manual" version="${project.version}"
+             description="Catalog Provider to interface with an external Solr ${solr.version} Server">
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
         <bundle>mvn:ddf.catalog.solr.external/catalog-solr-external-provider/${project.version}</bundle>
 
@@ -42,7 +44,8 @@
         <configfile finalname="/data/solr/catalog/conf/synonyms.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${ddf.platform.app.version}/txt/synonyms</configfile>
     </feature>
 	
-	<feature name="solr-app" install="auto" version="${project.version}" description="The Solr Catalog Provider (SCP) is an implementation of the CatalogProvider interface using Apache Solr ${solr.version} as a data store.\nThe SCP supports extensible metacards, fast/simple contextual searching, indexes xml attributes/CDATA sections/XML text elements, contains full XPath support, works with an embedded local Solr Server, and also works with a standalone Solr Server.::DDF Solr Catalog">
+	<feature name="solr-app" install="auto" version="${project.version}"
+             description="The Solr Catalog Provider (SCP) is an implementation of the CatalogProvider interface using Apache Solr ${solr.version} as a data store.\nThe SCP supports extensible metacards, fast/simple contextual searching, indexes xml attributes/CDATA sections/XML text elements, contains full XPath support, works with an embedded local Solr Server, and also works with a standalone Solr Server.::DDF Solr Catalog">
 		<feature>platform-app</feature>
 		<feature>catalog-app</feature>
 		<feature>catalog-solr-external-provider</feature>

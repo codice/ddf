@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.event;
 
 import org.opengis.filter.Filter;
@@ -31,7 +30,7 @@ import ddf.catalog.source.RemoteSource;
  * <li>a method of creating, updating, and deleting subscriptions.
  * <li>a method of broadcasting events when {@link Metacard}s are created, updated, or deleted.
  * </ul>
- * 
+ *
  * @author ddf.isgs@lmco.com
  */
 public interface EventProcessor {
@@ -69,7 +68,7 @@ public interface EventProcessor {
 
     /**
      * Create a {@link Subscription} with an automatically-generated id.
-     * 
+     *
      * @see #createSubscription(Subscription, String)
      * @param subscription
      *            the {@link Subscription} to register
@@ -89,7 +88,7 @@ public interface EventProcessor {
      * Durability must be implemented by the client bundle (typically an endpoint - refer to
      * {@link DurableSubscription} for an example).
      * </p>
-     * 
+     *
      * <p>
      * <b>Note:</b>
      * <em>A {@link Subscription} can also be registered using the whiteboard model:</em> <br/>
@@ -99,10 +98,10 @@ public interface EventProcessor {
      * that was originally registered. {@link Subscription}s registered in this manner do not get a
      * subscription id and cannot be unsubscribed via the {@link EventProcessor}
      * </p>
-     * 
+     *
      * Implementations of this method <em>must</em> call the
      * {@link PreSubscriptionPlugin#process(Subscription)} method for each
-     * 
+     *
      * @param subscription
      *            the {@link Subscription} to register
      * @param subscriptionId
@@ -114,11 +113,11 @@ public interface EventProcessor {
      *             if a subscription with this ID already exists
      */
     public void createSubscription(Subscription subscription, String subscriptionId)
-        throws InvalidSubscriptionException, SubscriptionExistsException;
+            throws InvalidSubscriptionException, SubscriptionExistsException;
 
     /**
      * Updates the subscription associated with the given id.
-     * 
+     *
      * @param subscription
      *            the subscription to update
      * @param subcriptionId
@@ -127,11 +126,11 @@ public interface EventProcessor {
      *             if the subscription was not found
      */
     public void updateSubscription(Subscription subscription, String subcriptionId)
-        throws SubscriptionNotFoundException;
+            throws SubscriptionNotFoundException;
 
     /**
      * Deletes the subscription associated with the given id.
-     * 
+     *
      * @param user
      *            deleting the subscription
      * @param subscriptionId
@@ -144,7 +143,7 @@ public interface EventProcessor {
     /**
      * Notify this {@code EventProcessor} that a {@link Metacard} (or equivalent) has been created
      * in a {@link RemoteSource}.
-     * 
+     *
      * <p>
      * <b>Implementations of this method must:</b>
      * <ol>
@@ -154,10 +153,10 @@ public interface EventProcessor {
      * matching {@link Subscription}s with the new {@link Metacard} created.
      * </ol>
      * </p>
-     * 
+     *
      * @param newMetacard
      *            the newly created {@link Metacard}
-     * 
+     *
      * @see RemoteSource
      * @see FederatedSource
      * @see ConnectedSource
@@ -167,7 +166,7 @@ public interface EventProcessor {
     /**
      * Notify this {@code EventProcessor} that a {@link Metacard} (or equivalent) has been updated
      * in a {@link RemoteSource}.
-     * 
+     *
      * <p>
      * <b>Implementations of this method must:</b>
      * <ol>
@@ -181,13 +180,13 @@ public interface EventProcessor {
      * {@link Metacard}.
      * </ol>
      * </p>
-     * 
+     *
      * @param newMetacard
      *            the new version of the {@link Metacard}
      * @param oldMetacard
      *            the previous version of the {@link Metacard} (optional, pass {@code null} if not
      *            relevant)
-     * 
+     *
      * @see FederatedSource
      * @see RemoteSource
      * @see ConnectedSource
@@ -197,7 +196,7 @@ public interface EventProcessor {
     /**
      * Notify this {@link EventProcessor} that a {@link Metacard} (or equivalent) has been deleted
      * in a {@link RemoteSource}.
-     * 
+     *
      * <p>
      * <b>Implementations of this method must:</b>
      * <li>If possible (that is, the {@link Metacard} is fully populated) call all active matching
@@ -206,10 +205,10 @@ public interface EventProcessor {
      * <li>If impossible (this is, the {@link Metacard} only has {@link Metacard#getId()}, call all
      * active {@link Subscription}s. </ol>
      * </p>
-     * 
+     *
      * @param oldMetacard
      *            the deleted {@link Metacard}
-     * 
+     *
      * @see RemoteSource
      * @see FederatedSource
      * @see ConnectedSource

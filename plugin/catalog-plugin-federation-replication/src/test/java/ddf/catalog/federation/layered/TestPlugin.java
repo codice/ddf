@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.federation.layered;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -66,14 +65,14 @@ import ddf.catalog.transform.MetacardTransformer;
 
 public class TestPlugin {
 
-    private static MockRestEndpoint endpoint;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(TestPlugin.class);
 
     // I changed the port so that it would not conflict in testing with other services
     private static final String ENDPOINT_ADDRESS = "http://localhost:8282/services/catalog";
 
     private static final String WADL_ADDRESS = ENDPOINT_ADDRESS + "?_wadl";
+
+    private static MockRestEndpoint endpoint;
 
     private static Server server;
 
@@ -164,8 +163,8 @@ public class TestPlugin {
 
     @Test
     @Ignore
-    public void testUpdateNullRequest() throws PluginExecutionException, IngestException,
-        SourceUnavailableException {
+    public void testUpdateNullRequest()
+            throws PluginExecutionException, IngestException, SourceUnavailableException {
         // given
         UpdateResponse updateResponse = new UpdateResponseImpl(null, null, Arrays.asList(metacard),
                 Arrays.asList(metacard));
@@ -174,16 +173,16 @@ public class TestPlugin {
         UpdateResponse response = plugin.process(updateResponse);
 
         // then
-        verify(endpoint, never()).updateDocument(isA(String.class), isA(HttpHeaders.class),
-                isA(InputStream.class));
+        verify(endpoint, never())
+                .updateDocument(isA(String.class), isA(HttpHeaders.class), isA(InputStream.class));
 
         assertThat(response, sameInstance(updateResponse));
     }
 
     @Test
     @Ignore
-    public void testUpdate() throws PluginExecutionException, IngestException,
-        SourceUnavailableException {
+    public void testUpdate()
+            throws PluginExecutionException, IngestException, SourceUnavailableException {
         // given
         UpdateResponse updateResponse = new UpdateResponseImpl(
                 new UpdateRequestImpl("23", metacard), null, Arrays.asList(metacard),
@@ -193,16 +192,16 @@ public class TestPlugin {
         UpdateResponse response = plugin.process(updateResponse);
 
         // then
-        verify(endpoint).updateDocument(argThat(is("23")), isA(HttpHeaders.class),
-                isA(InputStream.class));
+        verify(endpoint)
+                .updateDocument(argThat(is("23")), isA(HttpHeaders.class), isA(InputStream.class));
 
         assertThat(response, sameInstance(updateResponse));
     }
 
     @Test
     @Ignore
-    public void testCreateNullParent() throws PluginExecutionException, IngestException,
-        SourceUnavailableException {
+    public void testCreateNullParent()
+            throws PluginExecutionException, IngestException, SourceUnavailableException {
         // given
         CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard),
                 null, Arrays.asList(metacard));
@@ -211,14 +210,14 @@ public class TestPlugin {
         plugin.process(createResponse);
 
         // then
-        verify(endpoint, never()).addDocument(isA(HttpHeaders.class), isA(UriInfo.class),
-                isA(InputStream.class));
+        verify(endpoint, never())
+                .addDocument(isA(HttpHeaders.class), isA(UriInfo.class), isA(InputStream.class));
     }
 
     @Test
     @Ignore
-    public void testCreateNullTransformer() throws PluginExecutionException, IngestException,
-        SourceUnavailableException {
+    public void testCreateNullTransformer()
+            throws PluginExecutionException, IngestException, SourceUnavailableException {
         // given
         plugin = new RestReplicatorPlugin(null);
         CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard),
@@ -228,16 +227,17 @@ public class TestPlugin {
         plugin.process(createResponse);
 
         // then
-        verify(endpoint, never()).addDocument(isA(HttpHeaders.class), isA(UriInfo.class),
-                isA(InputStream.class));
+        verify(endpoint, never())
+                .addDocument(isA(HttpHeaders.class), isA(UriInfo.class), isA(InputStream.class));
     }
 
     @Test(expected = PluginExecutionException.class)
-    public void testCreateBadTransform() throws PluginExecutionException,
-        CatalogTransformerException, IOException, IngestException, SourceUnavailableException {
+    public void testCreateBadTransform()
+            throws PluginExecutionException, CatalogTransformerException, IOException,
+            IngestException, SourceUnavailableException {
         // given
-        when(transformer.transform(isA(Metacard.class), isNull(Map.class))).thenThrow(
-                CatalogTransformerException.class);
+        when(transformer.transform(isA(Metacard.class), isNull(Map.class)))
+                .thenThrow(CatalogTransformerException.class);
         CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard),
                 null, Arrays.asList(metacard));
 
@@ -248,8 +248,9 @@ public class TestPlugin {
 
     @Test
     @Ignore
-    public void testCreate() throws PluginExecutionException, CatalogTransformerException,
-        IOException, IngestException, SourceUnavailableException {
+    public void testCreate()
+            throws PluginExecutionException, CatalogTransformerException, IOException,
+            IngestException, SourceUnavailableException {
         // given
         CreateResponse createResponse = new CreateResponseImpl(new CreateRequestImpl(metacard),
                 null, Arrays.asList(metacard));
@@ -258,16 +259,17 @@ public class TestPlugin {
         CreateResponse response = plugin.process(createResponse);
 
         // then
-        verify(endpoint).addDocument(isA(HttpHeaders.class), isA(UriInfo.class),
-                isA(InputStream.class));
+        verify(endpoint)
+                .addDocument(isA(HttpHeaders.class), isA(UriInfo.class), isA(InputStream.class));
 
         assertThat(response, sameInstance(createResponse));
     }
 
     @Test
     @Ignore
-    public void testDelete() throws PluginExecutionException, CatalogTransformerException,
-        IOException, IngestException, SourceUnavailableException {
+    public void testDelete()
+            throws PluginExecutionException, CatalogTransformerException, IOException,
+            IngestException, SourceUnavailableException {
         // given
         when(metacard.getId()).thenReturn("23");
 

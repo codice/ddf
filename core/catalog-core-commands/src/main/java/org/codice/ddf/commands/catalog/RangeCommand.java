@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog;
 
 import java.text.ParseException;
@@ -84,16 +83,16 @@ public class RangeCommand extends CatalogCommands {
             try {
                 endDate = formatter.parse(parameter2);
             } catch (ParseException e) {
-                throw new InterruptedException("Could not parse second parameter [" + parameter2
-                        + "]");
+                throw new InterruptedException(
+                        "Could not parse second parameter [" + parameter2 + "]");
             }
             filter = builder.attribute(attributeName).before().date(endDate);
         } else if (!WILDCARD.equals(parameter1) && WILDCARD.equals(parameter2)) {
             try {
                 startDate = formatter.parse(parameter1);
             } catch (ParseException e) {
-                throw new InterruptedException("Could not parse first parameter [" + parameter1
-                        + "]");
+                throw new InterruptedException(
+                        "Could not parse first parameter [" + parameter1 + "]");
             }
             filter = builder.attribute(attributeName).during().dates(startDate, endDate);
         } else {

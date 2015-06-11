@@ -13,7 +13,8 @@
  -->
 <features name="${project.artifactId}-${project.version}">
 	
-	<feature name="catalog-schematron-plugin" version="${project.version}" description="Schematron pre-ingest validation plugin.">
+	<feature name="catalog-schematron-plugin" version="${project.version}"
+             description="Schematron pre-ingest validation plugin.">
 		<bundle>mvn:ddf.catalog.schematron/catalog-schematron-plugin/${project.version}</bundle>
 	</feature>
 

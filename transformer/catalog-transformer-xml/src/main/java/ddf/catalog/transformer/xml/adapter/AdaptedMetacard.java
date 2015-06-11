@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.transformer.xml.adapter;
 
 import java.net.URI;
@@ -54,7 +53,7 @@ import ddf.catalog.transformer.xml.binding.StringElement;
 import ddf.catalog.transformer.xml.binding.StringxmlElement;
 
 /**
- * 
+ *
  * @see http://stackoverflow.com/a/11967459
  */
 @XmlRootElement(name = "metacard", namespace = "urn:catalog:metacard")
@@ -65,8 +64,8 @@ public class AdaptedMetacard implements Metacard {
     private static final String METACARD_URI = "urn:catalog:metacard";
 
     /**
-	 * 
-	 */
+     *
+     */
     private static final long serialVersionUID = 7675587921316158761L;
 
     private Metacard delegate = null;
@@ -87,8 +86,9 @@ public class AdaptedMetacard implements Metacard {
             this.metacardType = BasicTypes.BASIC_METACARD;
         } else {
             this.sourceId = metacard.getSourceId();
-            this.metacardType = metacard.getMetacardType() != null ? metacard.getMetacardType()
-                    : BasicTypes.BASIC_METACARD;
+            this.metacardType = metacard.getMetacardType() != null ?
+                    metacard.getMetacardType() :
+                    BasicTypes.BASIC_METACARD;
             for (AttributeDescriptor descriptor : metacardType.getAttributeDescriptors()) {
                 if (descriptor != null) {
                     this.setAttribute(metacard.getAttribute(descriptor.getName()));
@@ -116,28 +116,6 @@ public class AdaptedMetacard implements Metacard {
         return delegate.getId();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ddf.catalog.data.MetacardImpl#setSourceId(java.lang.String)
-     */
-    @Override
-    @XmlElement(name = "source", namespace = METACARD_URI)
-    public String getSourceId() {
-        return this.sourceId;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see ddf.catalog.data.MetacardImpl#setType(ddf.catalog.data.MetacardType)
-     */
-    @Override
-    @XmlElement(name = "type", namespace = METACARD_URI, required = true)
-    public MetacardType getMetacardType() {
-        return this.metacardType;
-    }
-
     /**
      * @param id
      *            the id to set
@@ -146,12 +124,34 @@ public class AdaptedMetacard implements Metacard {
         setAttribute(new AttributeImpl(Metacard.ID, id));
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see ddf.catalog.data.MetacardImpl#setSourceId(java.lang.String)
+     */
+    @Override
+    @XmlElement(name = "source", namespace = METACARD_URI)
+    public String getSourceId() {
+        return this.sourceId;
+    }
+
     /**
      * @param sourceId
      *            the sourceId to set
      */
     public void setSourceId(String sourceId) {
         this.sourceId = sourceId;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see ddf.catalog.data.MetacardImpl#setType(ddf.catalog.data.MetacardType)
+     */
+    @Override
+    @XmlElement(name = "type", namespace = METACARD_URI, required = true)
+    public MetacardType getMetacardType() {
+        return this.metacardType;
     }
 
     /**
@@ -163,18 +163,18 @@ public class AdaptedMetacard implements Metacard {
     }
 
     @XmlElements({
-        @XmlElement(name = "boolean", namespace = METACARD_URI, type = BooleanElement.class),
-        @XmlElement(name = "base64Binary", namespace = METACARD_URI, type = Base64BinaryElement.class),
-        @XmlElement(name = "dateTime", namespace = METACARD_URI, type = DateTimeElement.class),
-        @XmlElement(name = "double", namespace = METACARD_URI, type = DoubleElement.class),
-        @XmlElement(name = "float", namespace = METACARD_URI, type = FloatElement.class),
-        @XmlElement(name = "geometry", namespace = METACARD_URI, type = GeometryElement.class),
-        @XmlElement(name = "int", namespace = METACARD_URI, type = IntElement.class),
-        @XmlElement(name = "long", namespace = METACARD_URI, type = LongElement.class),
-        @XmlElement(name = "object", namespace = METACARD_URI, type = ObjectElement.class),
-        @XmlElement(name = "short", namespace = METACARD_URI, type = ShortElement.class),
-        @XmlElement(name = "string", namespace = METACARD_URI, type = StringElement.class),
-        @XmlElement(name = "stringxml", namespace = METACARD_URI, type = StringxmlElement.class)})
+            @XmlElement(name = "boolean", namespace = METACARD_URI, type = BooleanElement.class),
+            @XmlElement(name = "base64Binary", namespace = METACARD_URI, type = Base64BinaryElement.class),
+            @XmlElement(name = "dateTime", namespace = METACARD_URI, type = DateTimeElement.class),
+            @XmlElement(name = "double", namespace = METACARD_URI, type = DoubleElement.class),
+            @XmlElement(name = "float", namespace = METACARD_URI, type = FloatElement.class),
+            @XmlElement(name = "geometry", namespace = METACARD_URI, type = GeometryElement.class),
+            @XmlElement(name = "int", namespace = METACARD_URI, type = IntElement.class),
+            @XmlElement(name = "long", namespace = METACARD_URI, type = LongElement.class),
+            @XmlElement(name = "object", namespace = METACARD_URI, type = ObjectElement.class),
+            @XmlElement(name = "short", namespace = METACARD_URI, type = ShortElement.class),
+            @XmlElement(name = "string", namespace = METACARD_URI, type = StringElement.class),
+            @XmlElement(name = "stringxml", namespace = METACARD_URI, type = StringxmlElement.class)})
     protected List<Attribute> getAttributes() {
         return attributes;
     }

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.federation;
 
 import java.util.Map;
@@ -22,7 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import ddf.catalog.federation.AbstractFederationStrategy;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryResponseImpl;
 import ddf.catalog.operation.SourceResponse;
@@ -34,8 +32,8 @@ import ddf.catalog.source.Source;
  * received. This means that the first results received by this strategy are the
  * first results sent back to the client. </br><b>WARNING - This class does not
  * support the timeout parameter from the {@code Query}<b/>
- * 
- * 
+ *
+ *
  * @deprecated - FifoFederationStrategy has been moved to
  *             catalog-core-federationstrategy, a separate bundle containing
  *             federation strategy implementations.
@@ -48,7 +46,7 @@ public class FifoFederationStrategy extends AbstractFederationStrategy {
 
     /**
      * Instantiates a {@code FifoFederationStrategy} with the provided {@link ExecutorService}.
-     * 
+     *
      * @param queryExecutorService
      *            the {@link ExecutorService} for queries
      */
@@ -66,7 +64,7 @@ public class FifoFederationStrategy extends AbstractFederationStrategy {
 
     /**
      * Gets the time remaining before the timeout on a query
-     * 
+     *
      * @param deadline
      *            - the deadline for the timeout to occur
      * @return the time remaining prior to the timeout
@@ -116,13 +114,13 @@ public class FifoFederationStrategy extends AbstractFederationStrategy {
         }
 
         private class SourceQueryThread implements Runnable {
-            private int lastKnownGrandTotal = 0;
-
-            private long sentTotal = 0;
-
             Future<SourceResponse> curFuture = null;
 
             QueryResponseImpl returnResults = null;
+
+            private int lastKnownGrandTotal = 0;
+
+            private long sentTotal = 0;
 
             public SourceQueryThread(Future<SourceResponse> curFuture,
                     QueryResponseImpl returnResults) {
@@ -140,8 +138,8 @@ public class FifoFederationStrategy extends AbstractFederationStrategy {
                 }
                 if (queryResponse != null) {
                     // boolean hasTotals = false;
-                    int pageSize = query.getPageSize() > 0 ? query.getPageSize()
-                            : Integer.MAX_VALUE;
+                    int pageSize =
+                            query.getPageSize() > 0 ? query.getPageSize() : Integer.MAX_VALUE;
 
                     // long deadline = System.currentTimeMillis() + query.getTimeoutMillis();
                     // boolean noTimeout = ( query.getTimeoutMillis() < 1 );
@@ -158,8 +156,9 @@ public class FifoFederationStrategy extends AbstractFederationStrategy {
                 }
 
                 addToGrandTotal(lastKnownGrandTotal);
-                logger.debug("adding grand total from this site to grand total from all sites: "
-                        + total.get());
+                logger.debug(
+                        "adding grand total from this site to grand total from all sites: " + total
+                                .get());
                 if (updateSites(-1) == 0) {
                     // all done, send the Terminator.
                     logger.debug("sending terminator for fifo federation strategy.");

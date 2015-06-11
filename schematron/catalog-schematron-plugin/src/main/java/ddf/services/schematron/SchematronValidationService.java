@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 
 package ddf.services.schematron;
 
@@ -75,6 +74,33 @@ import net.sf.saxon.trans.DynamicLoader;
  *
  */
 public class SchematronValidationService implements MetacardValidator {
+    private static final int DEFAULT_PRIORITY = 100;
+
+    private static final String CLASS_NAME = SchematronValidationService.class.getName();
+
+    /** ISO Schematron XSLT to expand inclusions in provided Schematron schema file */
+    private static final String ISO_SCHEMATRON_INCLUSION_EXPAND_XSL_FILENAME = "iso-schematron/iso_dsdl_include.xsl";
+
+    /** ISO Schematron XSLT to expand abstractions in provided Schematron schema file */
+    private static final String ISO_SCHEMATRON_ABSTRACT_EXPAND_XSL_FILENAME = "iso-schematron/iso_abstract_expand.xsl";
+
+    /**
+     * SVRL extension to ISO Schematron skeleton, allowing an XML-formatted report output from
+     * Schematron validation
+     */
+    private static final String ISO_SVRL_XSL_FILENAME = "iso-schematron/iso_svrl_for_xslt2.xsl";
+
+    /**
+     * Base directory in the bundle that all paths to resources will be relative to,
+     * e.g., "xyz" could be the bundle base directory and path to CVE files would be appended
+     * to this bundle base directory. A value of null indicates that "/" is the default
+     * base directory for the bundle.
+     */
+    private final String bundleBaseDir;
+
+    /** This class' logger */
+    Logger LOGGER = LoggerFactory.getLogger(SchematronValidationService.class);
+
     /** The original Schematron .sch file */
     private String schematronSchemaFilename;
 
@@ -104,33 +130,6 @@ public class SchematronValidationService implements MetacardValidator {
 
     /** Report generated during transformation/validation of input XML against precompiled .sch file */
     private SchematronReport report;
-
-    /** This class' logger */
-    Logger LOGGER = LoggerFactory.getLogger(SchematronValidationService.class);
-
-    private static final int DEFAULT_PRIORITY = 100;
-
-    private static final String CLASS_NAME = SchematronValidationService.class.getName();
-
-    /** ISO Schematron XSLT to expand inclusions in provided Schematron schema file */
-    private static final String ISO_SCHEMATRON_INCLUSION_EXPAND_XSL_FILENAME = "iso-schematron/iso_dsdl_include.xsl";
-
-    /** ISO Schematron XSLT to expand abstractions in provided Schematron schema file */
-    private static final String ISO_SCHEMATRON_ABSTRACT_EXPAND_XSL_FILENAME = "iso-schematron/iso_abstract_expand.xsl";
-
-    /**
-     * SVRL extension to ISO Schematron skeleton, allowing an XML-formatted report output from
-     * Schematron validation
-     */
-    private static final String ISO_SVRL_XSL_FILENAME = "iso-schematron/iso_svrl_for_xslt2.xsl";
-
-    /**
-     * Base directory in the bundle that all paths to resources will be relative to,
-     * e.g., "xyz" could be the bundle base directory and path to CVE files would be appended
-     * to this bundle base directory. A value of null indicates that "/" is the default
-     * base directory for the bundle.
-     */
-    private final String bundleBaseDir;
 
     /**
      * @param bundle
@@ -363,9 +362,9 @@ public class SchematronValidationService implements MetacardValidator {
         // Initialize container for warnings we may receive during transformation of input
         warnings = new Vector<String>();
 
-        TransformerFactory transformerFactory = TransformerFactory.newInstance(
-                net.sf.saxon.TransformerFactoryImpl.class.getName(),
-                SchematronValidationService.class.getClassLoader());
+        TransformerFactory transformerFactory = TransformerFactory
+                .newInstance(net.sf.saxon.TransformerFactoryImpl.class.getName(),
+                        SchematronValidationService.class.getClassLoader());
 
         Transformer transformer = transformerFactory.newTransformer(preprocessorSource);
 
@@ -476,6 +475,17 @@ public class SchematronValidationService implements MetacardValidator {
     }
 
     /**
+     * Retrieve suppress warnings flag.
+     *
+     * @return true indicates Schematron warnings are being suppressed
+     */
+    public boolean getSuppressWarnings() {
+        LOGGER.debug("ENTERING: getSuppressWarnings");
+
+        return this.suppressWarnings;
+    }
+
+    /**
      * Suppress Schematron warnings, such that only errors mark a request as invalid. This method is
      * called whenever the Save button is selected for a Schematron ruleset bundle on the OSGi
      * container's web console Configuration admin page.
@@ -494,14 +504,12 @@ public class SchematronValidationService implements MetacardValidator {
     }
 
     /**
-     * Retrieve suppress warnings flag.
+     * Retrieve the priority of this validation service.
      *
-     * @return true indicates Schematron warnings are being suppressed
+     * @return priority of this service
      */
-    public boolean getSuppressWarnings() {
-        LOGGER.debug("ENTERING: getSuppressWarnings");
-
-        return this.suppressWarnings;
+    public int getPriority() {
+        return this.priority;
     }
 
     /**
@@ -526,68 +534,6 @@ public class SchematronValidationService implements MetacardValidator {
         }
 
         LOGGER.debug("EXITING: {}.{}", CLASS_NAME, methodName);
-    }
-
-    /**
-     * Retrieve the priority of this validation service.
-     *
-     * @return priority of this service
-     */
-    public int getPriority() {
-        return this.priority;
-    }
-
-    /**
-     * The Listener class which catches Saxon configuration errors.
-     *
-     * DDF-855: These warnings and errors are logged so that they are 
-     * not displayed on the console.
-     */
-    private class SaxonErrorListener implements ErrorListener {
-
-        private String schematronSchemaFilename;
-
-        public SaxonErrorListener(String schematronSchemaFilename) {
-            this.schematronSchemaFilename = schematronSchemaFilename;
-        }
-
-        @Override
-        public void warning(TransformerException e) throws TransformerException {
-            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(),
-                    this.schematronSchemaFilename);
-            LOGGER.debug("Saxon exception", e);
-        }
-
-        @Override
-        public void error(TransformerException e) throws TransformerException {
-            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(),
-                    this.schematronSchemaFilename);
-            LOGGER.debug("Saxon exception", e);
-        }
-
-        @Override
-        public void fatalError(TransformerException e) throws TransformerException {
-            LOGGER.error("Transformer error: (Schematron file = {}):",
-                    this.schematronSchemaFilename, e);
-        }
-    }
-
-    /**
-     * The Listener class which catches xsl:messages during the transformation/stages of the
-     * Schematron schema.
-     */
-    private class Listener implements ErrorListener {
-        public void warning(TransformerException e) throws TransformerException {
-            warnings.add(e.getMessage());
-        }
-
-        public void error(TransformerException e) throws TransformerException {
-            throw e;
-        }
-
-        public void fatalError(TransformerException e) throws TransformerException {
-            throw e;
-        }
     }
 
     @Override
@@ -659,6 +605,59 @@ public class SchematronValidationService implements MetacardValidator {
         } else {
             throw new SchematronValidationException(
                     "The Metacard.METADATA attribute must not be null to run shematron validation against the Metacard");
+        }
+    }
+
+    /**
+     * The Listener class which catches Saxon configuration errors.
+     *
+     * DDF-855: These warnings and errors are logged so that they are
+     * not displayed on the console.
+     */
+    private class SaxonErrorListener implements ErrorListener {
+
+        private String schematronSchemaFilename;
+
+        public SaxonErrorListener(String schematronSchemaFilename) {
+            this.schematronSchemaFilename = schematronSchemaFilename;
+        }
+
+        @Override
+        public void warning(TransformerException e) throws TransformerException {
+            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(),
+                    this.schematronSchemaFilename);
+            LOGGER.debug("Saxon exception", e);
+        }
+
+        @Override
+        public void error(TransformerException e) throws TransformerException {
+            LOGGER.warn("Transformer warning: '{}' on file: {}", e.getMessage(),
+                    this.schematronSchemaFilename);
+            LOGGER.debug("Saxon exception", e);
+        }
+
+        @Override
+        public void fatalError(TransformerException e) throws TransformerException {
+            LOGGER.error("Transformer error: (Schematron file = {}):",
+                    this.schematronSchemaFilename, e);
+        }
+    }
+
+    /**
+     * The Listener class which catches xsl:messages during the transformation/stages of the
+     * Schematron schema.
+     */
+    private class Listener implements ErrorListener {
+        public void warning(TransformerException e) throws TransformerException {
+            warnings.add(e.getMessage());
+        }
+
+        public void error(TransformerException e) throws TransformerException {
+            throw e;
+        }
+
+        public void fatalError(TransformerException e) throws TransformerException {
+            throw e;
         }
     }
 

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.services.xsltlistener;
 
 import java.io.File;
@@ -25,14 +24,15 @@ import org.ops4j.pax.swissbox.extender.BundleObserver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 
-public class XsltBundleObserver<T extends AbstractXsltTransformer> implements
-        BundleObserver<String> {
+public class XsltBundleObserver<T extends AbstractXsltTransformer>
+        implements BundleObserver<String> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(XsltBundleObserver.class);
+
     private Class<T> transformerClass;
 
     private String publishedInterface;
@@ -40,8 +40,6 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer> implements
     private Map<Bundle, List<ServiceRegistration>> serviceRegistrationMap;
 
     private BundleContext bundleContext;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(XsltBundleObserver.class);
 
     public XsltBundleObserver(BundleContext bundleContext, Class<T> transformerClass,
             String publishedInterface) {
@@ -64,8 +62,9 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer> implements
 
             // setup the properties for the service
             properties.put(Constants.SERVICE_SHORTNAME, format);
-            properties.put(Constants.SERVICE_TITLE, "View as "
-                    + (format.length() > 4 ? capitalize(format) : format.toUpperCase()) + "...");
+            properties.put(Constants.SERVICE_TITLE,
+                    "View as " + (format.length() > 4 ? capitalize(format) : format.toUpperCase())
+                            + "...");
             properties
                     .put(Constants.SERVICE_DESCRIPTION, "Transforms query results into " + format);
 
@@ -83,8 +82,8 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer> implements
             }
 
             // register the service
-            ServiceRegistration sr = bundleContext.registerService(publishedInterface, xmt,
-                    properties);
+            ServiceRegistration sr = bundleContext
+                    .registerService(publishedInterface, xmt, properties);
 
             // store the service registration object
             if (serviceRegistrationMap.containsKey(bundle)) {
@@ -106,7 +105,8 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer> implements
     public void removingEntries(Bundle bundle, List<String> resources) {
         List<ServiceRegistration> srList = serviceRegistrationMap.get(bundle);
         for (ServiceRegistration sr : srList) {
-            LOGGER.debug("{} bundle uninstalled and unregistered.", sr.getReference().getBundle().getSymbolicName());
+            LOGGER.debug("{} bundle uninstalled and unregistered.",
+                    sr.getReference().getBundle().getSymbolicName());
             sr.unregister();
         }
 
@@ -115,8 +115,9 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer> implements
     }
 
     private String capitalize(String format) {
-        if (format.length() == 0)
+        if (format.length() == 0) {
             return format;
+        }
         return new StringBuilder(format.substring(0, 1).toUpperCase()).append(format.substring(1))
                 .toString();
     }

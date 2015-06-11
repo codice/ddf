@@ -1,41 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.source.solr;
-
-import com.spatial4j.core.distance.DistanceUtils;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
-import com.vividsolutions.jts.io.WKTWriter;
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.filter.FilterDelegate;
-import ddf.measure.Distance;
-import ddf.measure.Distance.LinearUnit;
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.joda.time.DateTime;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -51,10 +27,41 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.joda.time.DateTime;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.spatial4j.core.distance.DistanceUtils;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.io.WKTWriter;
+
+import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.filter.FilterDelegate;
+import ddf.measure.Distance;
+import ddf.measure.Distance.LinearUnit;
+
 /**
  * Translates filter-proxy calls into Solr query syntax.
  */
 public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
+
+    public static final String XPATH_QUERY_PARSER_PREFIX = "{!xpath}";
+
+    public static final String XPATH_FILTER_QUERY = "xpath";
+
+    public static final String XPATH_FILTER_QUERY_INDEX = XPATH_FILTER_QUERY + "_index";
 
     private static final String SCORE_DISTANCE = "{! score=distance}";
 
@@ -72,8 +79,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private static final String SPATIAL_INDEX = "_geo_index";
 
-    private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT = metersToDegrees(new Distance(
-            1000, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER));
+    private static final double NEAREST_NEIGHBOR_DISTANCE_LIMIT = metersToDegrees(
+            new Distance(1000, LinearUnit.NAUTICAL_MILE).getAs(LinearUnit.METER));
 
     // Using quantization of 12 to reduce error below 1%
     private static final int QUADRANT_SEGMENTS = 12;
@@ -95,12 +102,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     private static final String QUOTE = "\"";
 
     private static final String FILTER_QUERY_PARAM_NAME = "fq";
-
-    public static final String XPATH_QUERY_PARSER_PREFIX = "{!xpath}";
-
-    public static final String XPATH_FILTER_QUERY = "xpath";
-
-    public static final String XPATH_FILTER_QUERY_INDEX = XPATH_FILTER_QUERY + "_index";
 
     private static final String SOLR_WILDCARD_CHAR = "*";
 
@@ -125,7 +126,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     private static final double DEFAULT_ERROR_IN_DEGREES = metersToDegrees(DEFAULT_ERROR_IN_METERS);
 
     private static TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
-    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     static {
         Map<String, String> tempMap = new HashMap<>();
@@ -134,6 +134,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         FIELD_MAP = Collections.unmodifiableMap(tempMap);
     }
 
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
     private DynamicSchemaResolver resolver;
 
     private SortBy sortBy;
@@ -141,6 +143,12 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     public SolrFilterDelegate(DynamicSchemaResolver resolver) {
         this.resolver = resolver;
         dateFormat.setTimeZone(utcTimeZone);
+    }
+
+    private static double metersToDegrees(double distance) {
+        return DistanceUtils.dist2Degrees(
+                (new Distance(distance, LinearUnit.METER).getAs(LinearUnit.KILOMETER)),
+                DistanceUtils.EARTH_MEAN_RADIUS_KM);
     }
 
     @Override
@@ -170,14 +178,14 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                 for (String param : params) {
                     if (StringUtils.startsWith(param, XPATH_QUERY_PARSER_PREFIX)) {
                         if (StringUtils.contains(param, XPATH_FILTER_QUERY_INDEX)) {
-                            xpathIndexes.add(StringUtils.substringAfter(
-                                    StringUtils.substringBeforeLast(param, "\""),
-                                    XPATH_FILTER_QUERY_INDEX + ":\""));
-                        } else if (StringUtils.startsWith(param, XPATH_QUERY_PARSER_PREFIX
-                                + XPATH_FILTER_QUERY)) {
-                            xpathFilters.add(StringUtils.substringAfter(
-                                    StringUtils.substringBeforeLast(param, "\""),
-                                    XPATH_FILTER_QUERY + ":\""));
+                            xpathIndexes.add(StringUtils
+                                    .substringAfter(StringUtils.substringBeforeLast(param, "\""),
+                                            XPATH_FILTER_QUERY_INDEX + ":\""));
+                        } else if (StringUtils.startsWith(param,
+                                XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY)) {
+                            xpathFilters.add(StringUtils
+                                    .substringAfter(StringUtils.substringBeforeLast(param, "\""),
+                                            XPATH_FILTER_QUERY + ":\""));
                         }
                     }
                     Collections.addAll(queryParams, param);
@@ -187,8 +195,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
         if (xpathFilters.size() > 1) {
             // More than one XPath found, need to combine
-            String filter = XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"("
-                    + StringUtils.join(xpathFilters, operator.toLowerCase()) + ")\"";
+            String filter = XPATH_QUERY_PARSER_PREFIX + XPATH_FILTER_QUERY + ":\"(" + StringUtils
+                    .join(xpathFilters, operator.toLowerCase()) + ")\"";
 
             List<String> indexes = new ArrayList<>();
             for (String xpath : xpathIndexes) {
@@ -237,8 +245,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         }
 
         String searchPhrase = escapeSpecialCharacters(pattern);
-        if (!searchPhrase.contains(SOLR_WILDCARD_CHAR)
-                && !searchPhrase.contains(SOLR_SINGLE_WILDCARD_CHAR)) {
+        if (!searchPhrase.contains(SOLR_WILDCARD_CHAR) && !searchPhrase
+                .contains(SOLR_SINGLE_WILDCARD_CHAR)) {
             // Not an exact phrase
             searchPhrase = QUOTE + searchPhrase + QUOTE;
         } else {
@@ -259,8 +267,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
         String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.STRING,
                 true);
-        return new SolrQuery(mappedPropertyName + ":" + QUOTE + escapeSpecialCharacters(literal)
-                + QUOTE);
+        return new SolrQuery(
+                mappedPropertyName + ":" + QUOTE + escapeSpecialCharacters(literal) + QUOTE);
     }
 
     @Override
@@ -268,8 +276,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         String mappedPropertyName = getMappedPropertyName(propertyName, AttributeFormat.DATE, true);
 
         SolrQuery query = new SolrQuery();
-        query.setQuery(" " + mappedPropertyName + ":" + QUOTE + dateFormat.format(exactDate)
-                + QUOTE);
+        query.setQuery(
+                " " + mappedPropertyName + ":" + QUOTE + dateFormat.format(exactDate) + QUOTE);
 
         return query;
     }
@@ -288,12 +296,12 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     public SolrQuery propertyIsEqualTo(String propertyName, long literal) {
         return getEqualToQuery(propertyName, AttributeFormat.LONG, literal);
     }
-    
+
     @Override
     public SolrQuery propertyIsEqualTo(String propertyName, float literal) {
         return getEqualToQuery(propertyName, AttributeFormat.FLOAT, literal);
     }
-    
+
     @Override
     public SolrQuery propertyIsEqualTo(String propertyName, double literal) {
         return getEqualToQuery(propertyName, AttributeFormat.FLOAT, literal);
@@ -500,7 +508,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             }
 
             SolrQuery query = null;
-            if(null != pnt) {
+            if (null != pnt) {
                 String nearestNeighborQuery = geoPointToCircleQuery(propertyName,
                         NEAREST_NEIGHBOR_DISTANCE_LIMIT, pnt);
 
@@ -556,12 +564,6 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
             LOGGER.info("Failed to read WKT: {}", wkt, e);
         }
         return geo;
-    }
-
-    private static double metersToDegrees(double distance) {
-        return DistanceUtils.dist2Degrees(
-                (new Distance(distance, LinearUnit.METER).getAs(LinearUnit.KILOMETER)),
-                DistanceUtils.EARTH_MEAN_RADIUS_KM);
     }
 
     @Override
@@ -654,8 +656,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private SolrQuery getSolrQueryWithSort(String givenSpatialString) {
 
-        if (sortBy != null && sortBy.getPropertyName() != null
-                && Result.DISTANCE.equals(sortBy.getPropertyName().getPropertyName())) {
+        if (sortBy != null && sortBy.getPropertyName() != null && Result.DISTANCE
+                .equals(sortBy.getPropertyName().getPropertyName())) {
 
             String spatialQueryWithDistance = SCORE_DISTANCE + givenSpatialString;
 
@@ -678,8 +680,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         }
     }
 
-    private SolrQuery getEqualToQuery(String propertyName, AttributeFormat format,
-            Number literal) {
+    private SolrQuery getEqualToQuery(String propertyName, AttributeFormat format, Number literal) {
         String mappedPropertyName = getMappedPropertyName(propertyName, format, true);
 
         SolrQuery query = new SolrQuery();
@@ -771,8 +772,9 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     @Override
     public SolrQuery propertyIsNull(String propertyName) {
         List<String> possibleFields = resolver.getAnonymousField(propertyName);
-        if(possibleFields.isEmpty()){
-            throw new UnsupportedOperationException("Anonymous Field Property does not exist. " + propertyName);
+        if (possibleFields.isEmpty()) {
+            throw new UnsupportedOperationException(
+                    "Anonymous Field Property does not exist. " + propertyName);
         }
         List<String> solrExpressions = new ArrayList<>();
         for (String possibleField : possibleFields) {
@@ -784,8 +786,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private SolrQuery logicalOperator(List<SolrQuery> operands, String operator) {
         if (operands == null || operands.size() < 1) {
-            throw new UnsupportedOperationException("[" + operator
-                    + "] operation must contain 1 or more filters.");
+            throw new UnsupportedOperationException(
+                    "[" + operator + "] operation must contain 1 or more filters.");
         }
 
         // Due to a bug in how solr parses queries, a sorted spatial operand (combined with any

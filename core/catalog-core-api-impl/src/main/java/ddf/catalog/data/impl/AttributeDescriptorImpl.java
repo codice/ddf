@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.data.impl;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -22,23 +21,23 @@ import ddf.catalog.data.AttributeType;
 
 /**
  * Simple implementation of {@link AttributeDescriptor}
- * 
+ *
  * <p>
  * This class does not have a custom serialization implementation (like some other API classes such
  * as {@link AttributeImpl}) because its physical representation is the same as its logical
  * representation, which according to Joshua Bloch in <u>Effective Java</u>, Second Edition makes it
  * a good candidate for the default Java serialization implementation.
  * </p>
- * 
+ *
  * <p>
  * For what constitutes a compatible change in serialization, see <a href=
  * "http://docs.oracle.com/javase/6/docs/platform/serialization/spec/version.html#6678" >Sun's
  * Guidelines</a>.
  * </p>
- * 
- * 
+ *
+ *
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class AttributeDescriptorImpl implements AttributeDescriptor {
 
@@ -67,7 +66,7 @@ public class AttributeDescriptorImpl implements AttributeDescriptor {
 
     /**
      * Constructor
-     * 
+     *
      * @param name
      *            - the name of this {@link AttributeDescriptor}
      * @param indexed

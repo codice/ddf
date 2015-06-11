@@ -1,18 +1,20 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.catalog.security.logging;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
@@ -26,8 +28,6 @@ import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 
 /**
  * Logs the current operation being performed to the security logger.
@@ -35,10 +35,6 @@ import org.apache.shiro.subject.Subject;
 public class SecurityLoggingPlugin implements PreQueryPlugin, PreIngestPlugin, PreResourcePlugin {
 
     private static final String NO_USER = "UNKNOWN";
-
-    private enum CatalogOperationType {
-        INGEST, UPDATE, DELETE, QUERY, RESOURCE_REQUEST
-    }
 
     @Override
     public CreateRequest process(CreateRequest input)
@@ -83,6 +79,11 @@ public class SecurityLoggingPlugin implements PreQueryPlugin, PreIngestPlugin, P
         } catch (Exception e) {
             user = NO_USER;
         }
-        SecurityLogger.logInfo("User [" + user + "] performing " + operationType + " operation on catalog.");
+        SecurityLogger.logInfo(
+                "User [" + user + "] performing " + operationType + " operation on catalog.");
+    }
+
+    private enum CatalogOperationType {
+        INGEST, UPDATE, DELETE, QUERY, RESOURCE_REQUEST
     }
 }

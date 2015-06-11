@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.util;
 
 import java.io.IOException;
@@ -33,26 +32,24 @@ import org.slf4j.LoggerFactory;
  * displayed in the DDF System Settings configuration (but appear in other OSGi
  * bundle configurations such as CXF). These read-only settings are included in
  * the list of configuration settings pushed to registered listeners.
- * 
+ *
  * Registered listeners implement the DdfConfigurationWatcher interface and have
  * these DDF configuration settings pushed to them when they come online (aka
  * bind) and when one or more of the settings are changed in the Admin Console.
- * 
+ *
  * @deprecated since 2.3.0. New implementations should use ConfigurationManager
  *             in platform application.
  * @see org.codice.ddf.configuration.ConfigurationManager
- * 
+ *
  */
 @Deprecated
 public class DdfConfigurationManager implements org.codice.ddf.configuration.ConfigurationWatcher {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DdfConfigurationManager.class);
-
-    // Constants for the DDF system settings appearing in the Admin Console
-
     /**
      * Service PID to use to look up System Settings Configuration.
      */
     public static final String PID = "ddf.catalog.config";
+
+    // Constants for the DDF system settings appearing in the Admin Console
 
     /**
      * The directory where DDF is installed
@@ -124,7 +121,7 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
     /**
      * The first preference for the type of federated source to create when the
      * CAB registry client attempts to create a source.
-     * 
+     *
      * @deprecated
      */
     public static final String FIRST_FEDERATED_SOURCE_PREFERENCE = "firstSourcePreference";
@@ -132,7 +129,7 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
     /**
      * The second preference for the type of federated source to create when the
      * CAB registry client attempts to create a source.
-     * 
+     *
      * @deprecated
      */
     public static final String SECOND_FEDERATED_SOURCE_PREFERENCE = "secondSourcePreference";
@@ -140,10 +137,12 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
     /**
      * The third preference for the type of federated source to create when the
      * CAB registry client attempts to create a source.
-     * 
+     *
      * @deprecated
      */
     public static final String THIRD_FEDERATED_SOURCE_PREFERENCE = "thirdSourcePreference";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DdfConfigurationManager.class);
 
     // Constants for the read-only DDF system settings
     private static final String DDF_HOME_ENVIRONMENT_VARIABLE = "DDF_HOME";
@@ -186,7 +185,7 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
     /**
      * Constructs the list of DDF system Settings (read-only and configurable
      * settings) to be pushed to registered DdfConfigurationWatchers.
-     * 
+     *
      * @param services
      *            the list of watchers of changes to the DDF System Settings
      * @param configurationAdmin
@@ -220,7 +219,7 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
      * Invoked when the DDF system settings are changed in the Admin Console,
      * this method then pushes those DDF system settings to each of the
      * registered DdfConfigurationWatchers.
-     * 
+     *
      * @param configuration
      *            list of DDF system settings, not including the read-only
      *            settings
@@ -247,7 +246,7 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
      * Invoked when a DdfConfigurationWatcher first comes online, e.g., when a
      * federated source is configured, this method pushes the DDF system
      * settings to the newly registered (bound) DdfConfigurationWatcher.
-     * 
+     *
      * @param service
      * @param properties
      */
@@ -278,17 +277,18 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
 
     /**
      * Retrieves the value of an OSGi bundle's configuration property
-     * 
+     *
      * @param servicePid
      *            PID for an OSGi bundle
      * @param propertyName
      *            name of the bundle's configuration property to get a value for
-     * 
+     *
      * @return the value of the specified bundle's configuration property
      */
     public String getConfigurationValue(String servicePid, String propertyName) {
         String methodName = "getConfigurationValue";
-        LOGGER.info("ENTERING: {}   servicePid = {},  propertyName = {}", methodName, servicePid, propertyName);
+        LOGGER.info("ENTERING: {}   servicePid = {},  propertyName = {}", methodName, servicePid,
+                propertyName);
 
         String value = "";
 
@@ -303,7 +303,8 @@ public class DdfConfigurationManager implements org.codice.ddf.configuration.Con
                     if (properties != null && properties.get(propertyName) != null) {
                         value = (String) properties.get(propertyName);
                     } else {
-                        LOGGER.debug("properties for servicePid = {} were NULL or empty", servicePid);
+                        LOGGER.debug("properties for servicePid = {} were NULL or empty",
+                                servicePid);
                     }
                 } else {
                     LOGGER.debug("configuration for servicePid = {} was NULL", servicePid);

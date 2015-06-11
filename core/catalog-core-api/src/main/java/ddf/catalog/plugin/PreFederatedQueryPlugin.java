@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.plugin;
 
 import ddf.catalog.operation.Query;
@@ -22,14 +21,14 @@ import ddf.catalog.source.Source;
  * A PreFederatedQueryPlugin is used to execute functionality before a federated query has been
  * executed. For example if a query needed to be altered, a PreFederatedQueryPlugin could be
  * implemented to alter the query prior to execution.
- * 
+ *
  * @author rodgersh
  */
 public interface PreFederatedQueryPlugin {
 
     /**
      * Processes a {@link QueryRequest} prior to execution of the Federated {@link Query}.
-     * 
+     *
      * @param source
      *            the {@link Source} the query will be sent to
      * @param input
@@ -43,7 +42,7 @@ public interface PreFederatedQueryPlugin {
      *             thrown to halt processing when a critical issue occurs during processing. This is
      *             intended to prevent other plugins from processing as well.
      */
-    public QueryRequest process(Source source, QueryRequest input) throws PluginExecutionException,
-        StopProcessingException;
+    public QueryRequest process(Source source, QueryRequest input)
+            throws PluginExecutionException, StopProcessingException;
 
 }

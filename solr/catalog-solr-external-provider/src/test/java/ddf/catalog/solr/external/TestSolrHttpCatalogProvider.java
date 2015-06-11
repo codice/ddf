@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.solr.external;
 
 import static org.hamcrest.Matchers.containsString;
@@ -43,13 +42,12 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
 
-
 /**
  * Unit tests for {@link SolrHttpCatalogProvider}
- * 
+ *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class TestSolrHttpCatalogProvider {
 
@@ -89,14 +87,14 @@ public class TestSolrHttpCatalogProvider {
 
     /**
      * Tests what happens when a {@link SolrException} is thrown when Solr is pinged
-     * 
+     *
      * @throws IngestException
      * @throws SolrServerException
      * @throws IOException
      */
     @Test
-    public void testUnconfiguredCreateSolrException() throws IngestException, SolrServerException,
-        IOException {
+    public void testUnconfiguredCreateSolrException()
+            throws IngestException, SolrServerException, IOException {
         // given
         SolrServer givenServer = mock(SolrServer.class);
         when(givenServer.ping()).thenThrow(SolrException.class);
@@ -173,8 +171,8 @@ public class TestSolrHttpCatalogProvider {
     }
 
     @Test()
-    public void testUpdateConfigurationUrlPropertyNull() throws IngestException,
-        SolrServerException, IOException {
+    public void testUpdateConfigurationUrlPropertyNull()
+            throws IngestException, SolrServerException, IOException {
         // given
         SolrServer givenServer = givenSolrServer(true);
         SolrHttpCatalogProvider provider = new SolrHttpCatalogProvider(null, givenServer, null);
@@ -192,7 +190,7 @@ public class TestSolrHttpCatalogProvider {
 
     /**
      * Tests if the ConfigurationStore is set properly
-     * 
+     *
      * @throws IngestException
      */
     @Test()
@@ -208,14 +206,14 @@ public class TestSolrHttpCatalogProvider {
 
     /**
      * If the first connection was a failure, do a ping and attempt to connect to the new address.
-     * 
+     *
      * @throws IngestException
      * @throws SolrServerException
      * @throws IOException
      */
     @Test()
-    public void testReAttemptSolrConnectionOnFail() throws IngestException, SolrServerException,
-        IOException {
+    public void testReAttemptSolrConnectionOnFail()
+            throws IngestException, SolrServerException, IOException {
 
         // given
         String badAddress = "http://localhost:8183/solr";

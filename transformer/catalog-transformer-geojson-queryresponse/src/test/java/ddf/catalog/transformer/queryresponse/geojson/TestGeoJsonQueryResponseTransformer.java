@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.transformer.queryresponse.geojson;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -30,10 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,14 +42,18 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 
 /**
  * Tests the {@link GeoJsonQueryResponseTransformer}
- * 
+ *
  */
 public class TestGeoJsonQueryResponseTransformer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestGeoJsonQueryResponseTransformer.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(TestGeoJsonQueryResponseTransformer.class);
 
     private static final JSONParser parser = new JSONParser();
 
@@ -124,8 +123,8 @@ public class TestGeoJsonQueryResponseTransformer {
 
     private JSONObject transform(SourceResponse sourceResponse, final int resultCount,
             final int hitCount) throws CatalogTransformerException, IOException, ParseException {
-        BinaryContent content = new GeoJsonQueryResponseTransformer().transform(sourceResponse,
-                null);
+        BinaryContent content = new GeoJsonQueryResponseTransformer()
+                .transform(sourceResponse, null);
 
         assertEquals(content.getMimeTypeValue(),
                 GeoJsonQueryResponseTransformer.DEFAULT_MIME_TYPE.getBaseType());
@@ -193,14 +192,13 @@ public class TestGeoJsonQueryResponseTransformer {
         assertThat(toString(properties.get(Metacard.TITLE)), is(DEFAULT_TITLE));
         assertThat(toString(properties.get(Metacard.CONTENT_TYPE)), is(DEFAULT_TYPE));
         assertThat(toString(properties.get(Metacard.CONTENT_TYPE_VERSION)), is(DEFAULT_VERSION));
-        SimpleDateFormat dateFormat = new SimpleDateFormat(GeoJsonMetacardTransformer.ISO_8601_DATE_FORMAT);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                GeoJsonMetacardTransformer.ISO_8601_DATE_FORMAT);
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        assertThat(toString(properties.get(Metacard.CREATED)),
-                is(dateFormat.format(now)));
+        assertThat(toString(properties.get(Metacard.CREATED)), is(dateFormat.format(now)));
         assertThat(toString(properties.get(Metacard.EXPIRATION)), nullValue());
         assertThat(toString(properties.get(Metacard.EFFECTIVE)), nullValue());
-        assertThat(toString(properties.get(Metacard.MODIFIED)),
-                is(dateFormat.format(now)));
+        assertThat(toString(properties.get(Metacard.MODIFIED)), is(dateFormat.format(now)));
         assertThat(toString(properties.get(Metacard.THUMBNAIL)), is("CA=="));
         assertThat(toString(properties.get(Metacard.METADATA)), is(DEFAULT_XML));
         assertThat(toString(properties.get(Metacard.RESOURCE_URI)), is(DEFAULT_URI));

@@ -1,36 +1,36 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.security.filter.plugin.test;
 
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.MetacardTypeImpl;
-import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.operation.Query;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.security.filter.plugin.FilterPlugin;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
-import ddf.security.permission.KeyValueCollectionPermission;
-import junit.framework.Assert;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.apache.shiro.authz.Permission;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
@@ -48,16 +48,24 @@ import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.Principal;
-import java.util.*;
+import junit.framework.Assert;
 
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.plugin.PluginExecutionException;
+import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.security.filter.plugin.FilterPlugin;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.permission.KeyValueCollectionPermission;
 
 /**
  */
@@ -75,10 +83,11 @@ public class FilterPluginTest {
         Map<String, Serializable> properties = new HashMap<String, Serializable>();
 
         AuthorizingRealm realm = mock(AuthorizingRealm.class);
-        
+
         when(realm.getName()).thenReturn("mockRealm");
-        when(realm.isPermitted(any(PrincipalCollection.class), any(Permission.class))).then(makeDecision());
-         
+        when(realm.isPermitted(any(PrincipalCollection.class), any(Permission.class)))
+                .then(makeDecision());
+
         Collection<org.apache.shiro.realm.Realm> realms = new ArrayList<org.apache.shiro.realm.Realm>();
         realms.add(realm);
 
@@ -110,22 +119,23 @@ public class FilterPluginTest {
         incomingResponse.addResult(result4, false);
         incomingResponse.addResult(result5, true);
     }
-    
+
     public Answer<Boolean> makeDecision() {
-        
+
         Map<String, List<String>> testRoleMap = new HashMap<String, List<String>>();
         List<String> testRoles = new ArrayList<String>();
         testRoles.add("A");
         testRoles.add("B");
         testRoleMap.put("Roles", testRoles);
-        
-        final KeyValueCollectionPermission testUserPermission = new KeyValueCollectionPermission(testRoleMap);
-        
+
+        final KeyValueCollectionPermission testUserPermission = new KeyValueCollectionPermission(
+                testRoleMap);
+
         return new Answer<Boolean>() {
             @Override
             public Boolean answer(InvocationOnMock invocation) {
                 Object[] args = invocation.getArguments();
-                Permission incomingPermission = (Permission)args[1];
+                Permission incomingPermission = (Permission) args[1];
                 return testUserPermission.implies(incomingPermission);
             }
         };
@@ -143,21 +153,20 @@ public class FilterPluginTest {
             logger.error("Stopped processing the redaction plugin", e);
         }
     }
-    
-    @Test(expected=StopProcessingException.class)
-    public void testNoSubject() throws Exception{
+
+    @Test(expected = StopProcessingException.class)
+    public void testNoSubject() throws Exception {
         QueryResponseImpl response = new QueryResponseImpl(getSampleRequest());
         plugin.process(response);
         fail("Plugin should have thrown exception when no subject was sent in.");
     }
-    
-    @Test(expected=StopProcessingException.class)
-    public void testNoRequestSubject() throws Exception{
+
+    @Test(expected = StopProcessingException.class)
+    public void testNoRequestSubject() throws Exception {
         QueryResponseImpl response = new QueryResponseImpl(null);
         plugin.process(response);
         fail("Plugin should have thrown exception when no subject was sent in.");
     }
-
 
     public void verifyFilterResponse(QueryResponse response) {
         logger.info("Filtered with " + response.getResults().size() + " out of 5 original.");
@@ -224,7 +233,7 @@ public class FilterPluginTest {
         metacard.setSecurity(security);
         return metacard;
     }
-    
+
     public Metacard getNoRolesMetacard() {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setResourceSize("100");
@@ -262,8 +271,44 @@ public class FilterPluginTest {
         return metacard;
     }
 
+    private QueryRequestImpl getSampleRequest() {
+        return new QueryRequestImpl(new Query() {
+            @Override
+            public int getStartIndex() {
+                return 0;
+            }
 
+            @Override
+            public int getPageSize() {
+                return 10;
+            }
 
+            @Override
+            public SortBy getSortBy() {
+                return null;
+            }
+
+            @Override
+            public boolean requestsTotalResultsCount() {
+                return false;
+            }
+
+            @Override
+            public long getTimeoutMillis() {
+                return 0;
+            }
+
+            @Override
+            public boolean evaluate(Object o) {
+                return true;
+            }
+
+            @Override
+            public Object accept(FilterVisitor filterVisitor, Object o) {
+                return null;
+            }
+        });
+    }
 
     private class MockSubject extends DelegatingSubject implements Subject {
 
@@ -275,44 +320,5 @@ public class FilterPluginTest {
         public boolean isAnonymous() {
             return false;
         }
-    }
-      
-    private QueryRequestImpl getSampleRequest() {
-        return new QueryRequestImpl(new Query() {
-            @Override
-            public int getStartIndex() {
-                return 0;
-            }
-    
-            @Override
-            public int getPageSize() {
-                return 10;
-            }
-    
-            @Override
-            public SortBy getSortBy() {
-                return null;
-            }
-    
-            @Override
-            public boolean requestsTotalResultsCount() {
-                return false;
-            }
-    
-            @Override
-            public long getTimeoutMillis() {
-                return 0;
-            }
-    
-            @Override
-            public boolean evaluate(Object o) {
-                return true;
-            }
-    
-            @Override
-            public Object accept(FilterVisitor filterVisitor, Object o) {
-                return null;
-            }
-        });
     }
 }

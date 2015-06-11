@@ -1,33 +1,31 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 
 package org.codice.ddf.opensearch.query;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.security.auth.Subject;
 
 import org.codice.ddf.endpoints.ASTNode;
 import org.codice.ddf.endpoints.KeywordFilterGenerator;
 import org.codice.ddf.endpoints.KeywordTextParser;
 import org.codice.ddf.opensearch.query.filter.BBoxSpatialFilter;
 import org.codice.ddf.opensearch.query.filter.PolygonSpatialFilter;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.federation.FederationStrategy;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.impl.filter.SpatialDistanceFilter;
-import ddf.catalog.impl.filter.SpatialFilter;
-import ddf.catalog.impl.filter.TemporalFilter;
-import ddf.catalog.operation.Query;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultInstant;
@@ -51,14 +49,25 @@ import org.parboiled.support.ParsingResult;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import javax.security.auth.Subject;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.federation.FederationStrategy;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.impl.filter.SpatialDistanceFilter;
+import ddf.catalog.impl.filter.SpatialFilter;
+import ddf.catalog.impl.filter.TemporalFilter;
+import ddf.catalog.operation.Query;
 
 public class OpenSearchQuery implements Query {
     public static final String CARET = "^";
+
+    // TODO remove this and only use filterbuilder
+    public static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
+
+    private static final XLogger logger = new XLogger(
+            LoggerFactory.getLogger(OpenSearchQuery.class));
+
+    private final FilterBuilder filterBuilder;
 
     private Subject user;
 
@@ -74,19 +83,12 @@ public class OpenSearchQuery implements Query {
 
     private SortBy sortBy;
 
-    // TODO remove this and only use filterbuilder
-    public static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
-
     private List<Filter> filters;
-
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(OpenSearchQuery.class));
-
-    private final FilterBuilder filterBuilder;
 
     /**
      * Creates an Implementation of a DDF Query interface. This object is passed from the endpoint
      * to DDF and will be used by sites to perform queries on their respective systems.
-     * 
+     *
      * @param user
      *            Credentials of the user performing the query
      * @param startIndex
@@ -163,8 +165,8 @@ public class OpenSearchQuery implements Query {
         if (result.matched && !result.hasErrors()) {
             filter = generateContextualFilter(selectors, keywordFilterGenerator, result);
         } else if (result.hasErrors()) {
-            throw new ParsingException("Unable to parse keyword search phrase. "
-                    + generateParsingError(result));
+            throw new ParsingException(
+                    "Unable to parse keyword search phrase. " + generateParsingError(result));
         }
 
         if (filter != null) {
@@ -175,8 +177,8 @@ public class OpenSearchQuery implements Query {
     }
 
     private String generateParsingError(ParsingResult<ASTNode> result) {
-        StringBuilder parsingErrorBuilder = new StringBuilder("Parsing error"
-                + ((result.parseErrors.size() > 1) ? "s" : "") + ": \n");
+        StringBuilder parsingErrorBuilder = new StringBuilder(
+                "Parsing error" + ((result.parseErrors.size() > 1) ? "s" : "") + ": \n");
         InputBuffer inputBuffer = result.inputBuffer;
         String parsedLine = inputBuffer.extract(0, Integer.MAX_VALUE);
 
@@ -213,9 +215,10 @@ public class OpenSearchQuery implements Query {
         if (invalidInputLineBuilder != null) {
             // if the first and last occurrence of CARET aren't the same, there are more than one in
             // the string
-            parsingErrorBuilder.append("\nInvalid character"
-                    + ((invalidInputLineBuilder.indexOf(CARET) != invalidInputLineBuilder
-                            .lastIndexOf(CARET)) ? "s" : "") + " found in: \n");
+            parsingErrorBuilder
+                    .append("\nInvalid character" + ((invalidInputLineBuilder.indexOf(CARET)
+                            != invalidInputLineBuilder.lastIndexOf(CARET)) ? "s" : "")
+                            + " found in: \n");
             parsingErrorBuilder.append("\n\t");
             parsingErrorBuilder.append(parsedLine);
             parsingErrorBuilder.append("\n\t");
@@ -226,7 +229,7 @@ public class OpenSearchQuery implements Query {
 
     private Filter generateContextualFilter(String selectors,
             KeywordFilterGenerator keywordFilterGenerator, ParsingResult<ASTNode> result)
-        throws ParsingException {
+            throws ParsingException {
         Filter filter = null;
 
         try {
@@ -234,8 +237,8 @@ public class OpenSearchQuery implements Query {
                 // generate a filter for each selector
                 for (String selector : selectors.split(",")) {
                     if (filter == null) {
-                        filter = keywordFilterGenerator.getFilterFromASTNode(result.resultValue,
-                                selector);
+                        filter = keywordFilterGenerator
+                                .getFilterFromASTNode(result.resultValue, selector);
                     } else {
                         filter = filterBuilder.anyOf(filter, keywordFilterGenerator
                                 .getFilterFromASTNode(result.resultValue, selector));
@@ -252,8 +255,10 @@ public class OpenSearchQuery implements Query {
         return filter;
     }
 
-    private void addCaretsToStringBuilder(StringBuilder stringBuilder, int endIndex, int startIndex) {
-        for (int insertCaretIndex = startIndex + 1; insertCaretIndex <= endIndex; insertCaretIndex++) {
+    private void addCaretsToStringBuilder(StringBuilder stringBuilder, int endIndex,
+            int startIndex) {
+        for (int insertCaretIndex = startIndex + 1;
+             insertCaretIndex <= endIndex; insertCaretIndex++) {
             stringBuilder.replace(insertCaretIndex, insertCaretIndex + 1, CARET);
         }
     }
@@ -274,8 +279,8 @@ public class OpenSearchQuery implements Query {
 
         // If either start date OR end date is specified and non-empty, then
         // a temporal filter can be created
-        if ((dateStart != null && !dateStart.trim().isEmpty())
-                || (dateEnd != null && !dateEnd.trim().isEmpty())) {
+        if ((dateStart != null && !dateStart.trim().isEmpty()) || (dateEnd != null && !dateEnd
+                .trim().isEmpty())) {
             temporalFilter = new TemporalFilter(dateStart, dateEnd);
         } else if (dateOffset != null && !dateOffset.trim().isEmpty()) {
             temporalFilter = new TemporalFilter(Long.parseLong(dateOffset));
@@ -292,8 +297,8 @@ public class OpenSearchQuery implements Query {
 
         if (temporalFilter != null) {
             // t1.start < timeType instance < t1.end
-            Instant startInstant = new DefaultInstant(new DefaultPosition(
-                    temporalFilter.getStartDate()));
+            Instant startInstant = new DefaultInstant(
+                    new DefaultPosition(temporalFilter.getStartDate()));
             Instant endInstant = new DefaultInstant(
                     new DefaultPosition(temporalFilter.getEndDate()));
             Period period = new DefaultPeriod(startInstant, endInstant);
@@ -328,8 +333,9 @@ public class OpenSearchQuery implements Query {
         Geometry geometry = distanceFilter.getGeometry();
 
         if (geometry != null) {
-            Filter filter = FILTER_FACTORY.dwithin(Metacard.ANY_GEO, geometry,
-                    Double.parseDouble(radius), UomOgcMapping.METRE.name());
+            Filter filter = FILTER_FACTORY
+                    .dwithin(Metacard.ANY_GEO, geometry, Double.parseDouble(radius),
+                            UomOgcMapping.METRE.name());
             logger.debug("Adding spatial filter");
             filters.add(filter);
         }
@@ -364,12 +370,12 @@ public class OpenSearchQuery implements Query {
             for (String version : typeVersions) {
                 Filter versionFilter = null;
                 if (version.contains("*")) {
-                    versionFilter = FILTER_FACTORY.like(
-                            FILTER_FACTORY.property(Metacard.CONTENT_TYPE_VERSION), version);
+                    versionFilter = FILTER_FACTORY
+                            .like(FILTER_FACTORY.property(Metacard.CONTENT_TYPE_VERSION), version);
                 } else {
-                    versionFilter = FILTER_FACTORY.equals(
-                            FILTER_FACTORY.property(Metacard.CONTENT_TYPE_VERSION),
-                            FILTER_FACTORY.literal(version));
+                    versionFilter = FILTER_FACTORY
+                            .equals(FILTER_FACTORY.property(Metacard.CONTENT_TYPE_VERSION),
+                                    FILTER_FACTORY.literal(version));
                 }
                 typeVersionPairsFilters.add(FILTER_FACTORY.and(typeFilter, versionFilter));
             }

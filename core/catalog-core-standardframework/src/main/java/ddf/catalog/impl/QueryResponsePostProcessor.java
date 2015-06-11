@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.impl;
 
 import java.net.URL;
@@ -34,8 +33,7 @@ import ddf.catalog.operation.QueryResponse;
  * {@link ActionProvider} whose ID is "catalog.data.metacard.resource".
  */
 public class QueryResponsePostProcessor {
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(QueryResponsePostProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryResponsePostProcessor.class);
 
     private ActionProvider resourceActionProvider;
 
@@ -48,7 +46,7 @@ public class QueryResponsePostProcessor {
      * <p>
      * This implementation converts the resource URIs found in the {@link QueryResponse}
      * {@link Metacard}s using the {@link ActionProvider} injected in the constructor.
-     * 
+     *
      * @param response
      *            {@link QueryResponse} to process. Cannot be <code>null</code>.
      */

@@ -13,7 +13,8 @@
  -->
 <features name="${project.artifactId}-${project.version}">
 
-	<feature name="catalog-plugin-federationreplication" version="${project.version}" description="">
+	<feature name="catalog-plugin-federationreplication" version="${project.version}"
+             description="">
 		<bundle>mvn:ddf.catalog.plugin/plugin-federation-replication/${project.version}</bundle>
 	</feature>
 

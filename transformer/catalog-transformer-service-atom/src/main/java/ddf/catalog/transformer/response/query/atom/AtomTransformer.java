@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.transformer.response.query.atom;
 
 import java.io.ByteArrayInputStream;
@@ -69,11 +68,17 @@ import ddf.geo.formatter.CompositeGeometry;
  * feed. <br>
  * Atom specification referenced and used for this implementation was found at
  * http://tools.ietf.org/html/rfc4287
- * 
+ *
  */
 public class AtomTransformer implements QueryResponseTransformer, ConfigurationWatcher {
 
-    private static final String FEDERATION_EXTENSION_NAMESPACE = "http://a9.com/-/opensearch/extensions/federation/1.0/";
+    /**
+     * This variable is a workaround. If org.apache.abdera.model.Link ever includes a "REL_PREVIEW" member variable, take this
+     * variable out and replace it in any function calls with: "Link.REL_PREVIEW"
+     */
+    public static final String REL_PREVIEW = "preview";
+
+    public static final MimeType MIME_TYPE = new MimeType();
 
     static final String DEFAULT_FEED_TITLE = "Query Response";
 
@@ -85,6 +90,8 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
 
     static final String DEFAULT_SOURCE_ID = "unknown";
 
+    private static final String FEDERATION_EXTENSION_NAMESPACE = "http://a9.com/-/opensearch/extensions/federation/1.0/";
+
     private static final String COULD_NOT_CREATE_XML_CONTENT_MESSAGE = "Could not create xml content. Running default behavior.";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AtomTransformer.class);
@@ -93,13 +100,9 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
 
     private static final String MIME_TYPE_OCTET_STREAM = "application/octet-stream";
 
-    /**
-     * This variable is a workaround. If org.apache.abdera.model.Link ever includes a "REL_PREVIEW" member variable, take this
-     * variable out and replace it in any function calls with: "Link.REL_PREVIEW"
-     */
-    public static final String REL_PREVIEW = "preview";
+    // expensive creation, meant to be done once
+    private static final Abdera ABDERA = new Abdera();
 
-    public static final MimeType MIME_TYPE = new MimeType();
     static {
         try {
             MIME_TYPE.setPrimaryType("application");
@@ -126,9 +129,6 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
 
     private WKTReader reader = new WKTReader();
 
-    // expensive creation, meant to be done once
-    private static final Abdera ABDERA = new Abdera();
-
     public void setViewMetacardActionProvider(ActionProvider viewMetacardActionProvider) {
         this.viewMetacardActionProvider = viewMetacardActionProvider;
     }
@@ -150,8 +150,8 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
             Map<String, Serializable> arguments) throws CatalogTransformerException {
 
         if (sourceResponse == null) {
-            throw new CatalogTransformerException("Cannot transform null "
-                    + SourceResponse.class.getName());
+            throw new CatalogTransformerException(
+                    "Cannot transform null " + SourceResponse.class.getName());
         }
 
         Date currentDate = new Date();
@@ -229,16 +229,16 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
              * change it to the number of search results on current page.
              */
             if (sourceResponse.getRequest().getQuery().getPageSize() > -1) {
-                itemsPerPage.setText(Integer.toString(sourceResponse.getRequest().getQuery()
-                        .getPageSize()));
+                itemsPerPage.setText(
+                        Integer.toString(sourceResponse.getRequest().getQuery().getPageSize()));
             } else {
                 if (sourceResponse.getResults() != null) {
                     itemsPerPage.setText(Integer.toString(sourceResponse.getResults().size()));
                 }
             }
 
-            startIndex.setText(Integer.toString(sourceResponse.getRequest().getQuery()
-                    .getStartIndex()));
+            startIndex.setText(
+                    Integer.toString(sourceResponse.getRequest().getQuery().getStartIndex()));
         }
 
         for (Result result : sourceResponse.getResults()) {
@@ -257,8 +257,8 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
                 sourceName = result.getMetacard().getSourceId();
             }
 
-            Element source = entry.addExtension(new QName(FEDERATION_EXTENSION_NAMESPACE,
-                    "resultSource", "fs"));
+            Element source = entry
+                    .addExtension(new QName(FEDERATION_EXTENSION_NAMESPACE, "resultSource", "fs"));
 
             /*
              * According to the os-federation.xsd, the resultSource element text has a max length of
@@ -272,9 +272,9 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
                     sourceName);
 
             if (result.getRelevanceScore() != null) {
-                Element relevance = entry.addExtension(new QName(
-                        "http://a9.com/-/opensearch/extensions/relevance/1.0/", "score",
-                        "relevance"));
+                Element relevance = entry.addExtension(
+                        new QName("http://a9.com/-/opensearch/extensions/relevance/1.0/", "score",
+                                "relevance"));
                 relevance.setText(result.getRelevanceScore().toString());
             }
 
@@ -413,22 +413,25 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
                 Action action = actionProvider.getAction(metacard);
 
                 if (action != null && action.getUrl() != null) {
-                    if (actionProvider.equals(resourceActionProvider) && metacard.getResourceURI() != null) {
+                    if (actionProvider.equals(resourceActionProvider)
+                            && metacard.getResourceURI() != null) {
 
-                        Link viewLink = addLinkHelper(action, entry, linkType, MIME_TYPE_OCTET_STREAM);
+                        Link viewLink = addLinkHelper(action, entry, linkType,
+                                MIME_TYPE_OCTET_STREAM);
                         try {
                             Long length = Long.parseLong(metacard.getResourceSize(), 10);
                             viewLink.setLength(length);
                         } catch (NumberFormatException e) {
-                            LOGGER.info("Could not cast {} as Long type.", metacard.getResourceSize());
+                            LOGGER.info("Could not cast {} as Long type.",
+                                    metacard.getResourceSize());
                         }
 
+                    } else if (actionProvider.equals(thumbnailActionProvider)
+                            && metacard.getThumbnail() != null) {
 
-                    } else if (actionProvider.equals(thumbnailActionProvider) && metacard.getThumbnail() != null) {
-
-                       addLinkHelper(action, entry, linkType, MIME_TYPE_JPEG);
-                    }
-                    else if (!actionProvider.equals(resourceActionProvider) && !actionProvider.equals(thumbnailActionProvider)) {
+                        addLinkHelper(action, entry, linkType, MIME_TYPE_JPEG);
+                    } else if (!actionProvider.equals(resourceActionProvider) && !actionProvider
+                            .equals(thumbnailActionProvider)) {
 
                         addLinkHelper(action, entry, linkType, MIME_TYPE_OCTET_STREAM);
                     }
@@ -456,10 +459,8 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
 
         for (AttributeDescriptor ad : metacard.getMetacardType().getAttributeDescriptors()) {
 
-            if (ad != null
-                    && ad.getType() != null
-                    && BasicTypes.GEO_TYPE.getAttributeFormat().equals(
-                            ad.getType().getAttributeFormat())) {
+            if (ad != null && ad.getType() != null && BasicTypes.GEO_TYPE.getAttributeFormat()
+                    .equals(ad.getType().getAttributeFormat())) {
 
                 Attribute geoAttribute = metacard.getAttribute(ad.getName());
 
@@ -480,11 +481,14 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
                             if (null != formatter) {
                                 georssPositions.addAll(formatter.toGeoRssPositions());
                             } else {
-                                LOGGER.info("When cycling through geometries, could not get composite geometry [{}]", geo);
+                                LOGGER.info(
+                                        "When cycling through geometries, could not get composite geometry [{}]",
+                                        geo);
                             }
 
                         } catch (ParseException e) {
-                            LOGGER.info("When cycling through geometries, could not parse [{}]", geo, e);
+                            LOGGER.info("When cycling through geometries, could not parse [{}]",
+                                    geo, e);
                         }
 
                     }

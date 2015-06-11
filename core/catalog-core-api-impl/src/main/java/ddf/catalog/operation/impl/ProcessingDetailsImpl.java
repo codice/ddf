@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.operation.impl;
 
 import java.util.ArrayList;
@@ -20,7 +19,8 @@ import java.util.List;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.SourceProcessingDetails;
 
-public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl implements ProcessingDetails {
+public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl
+        implements ProcessingDetails {
 
     protected String sourceId = null;
 
@@ -33,7 +33,7 @@ public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl implement
     /**
      * Instantiates a new ProcessingDetailsImpl with a {@link String} sourceID and an $
      * {@link Exception}
-     * 
+     *
      * @param sourceId
      *            the sourceId
      * @param exception
@@ -46,7 +46,7 @@ public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl implement
     /**
      * Instantiates a new ProcessingDetailsImpl with a sourceID, an ${@link Exception}, and a
      * warning
-     * 
+     *
      * @param sourceId
      *            the sourceId
      * @param exception
@@ -61,7 +61,7 @@ public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl implement
     /**
      * Instantiates a new ProcessingDetailsImpl with a sourceID, an ${@link Exception} and a $
      * {@link List} of warnings
-     * 
+     *
      * @param sourceId
      *            the the sourceId
      * @param exception
@@ -77,7 +77,7 @@ public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl implement
 
     /**
      * Instantiates a new ProcessingDetailsImpl with ${@link SourceProcessingDetails} and a warning
-     * 
+     *
      * @param details
      *            the source processing details
      * @param warning
@@ -86,6 +86,12 @@ public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl implement
     public ProcessingDetailsImpl(SourceProcessingDetails details, String sourceId) {
         super(details.getWarnings());
         this.sourceId = sourceId;
+    }
+
+    private static List<String> toWarningList(String warning) {
+        List<String> warnings = new ArrayList<String>();
+        warnings.add(warning);
+        return warnings;
     }
 
     @Override
@@ -109,12 +115,6 @@ public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl implement
 
     public void setSourceId(String sourceId) {
         this.sourceId = sourceId;
-    }
-
-    private static List<String> toWarningList(String warning) {
-        List<String> warnings = new ArrayList<String>();
-        warnings.add(warning);
-        return warnings;
     }
 
 }

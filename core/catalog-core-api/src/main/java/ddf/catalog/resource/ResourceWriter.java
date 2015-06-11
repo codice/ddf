@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.resource;
 
 import java.io.IOException;
@@ -19,9 +18,9 @@ import java.net.URI;
 import java.util.Map;
 
 /**
- * 
+ *
  * The ResourceWriter is used to store a {@link Resource}.
- * 
+ *
  * @author michael.menousek@lmco.com
  */
 
@@ -29,7 +28,7 @@ public interface ResourceWriter {
 
     /**
      * Stores the {@link Resource} with optional arguments
-     * 
+     *
      * @param resource
      *            the {@link Resource} to store
      * @param arguments
@@ -41,11 +40,11 @@ public interface ResourceWriter {
      *         {@link Resource}
      */
     public URI storeResource(Resource resource, Map<String, Object> arguments)
-        throws ResourceNotSupportedException, IOException;
+            throws ResourceNotSupportedException, IOException;
 
     /**
      * Stores the {@link Resource} using the supplied id and optional arguments
-     * 
+     *
      * @param resource
      *            the {@link Resource} to store
      * @param id
@@ -59,11 +58,11 @@ public interface ResourceWriter {
      *         {@link Resource}
      */
     public URI storeResource(Resource resource, String id, Map<String, Object> arguments)
-        throws ResourceNotSupportedException, IOException;
+            throws ResourceNotSupportedException, IOException;
 
     /**
      * Deletes the {@link Resource}.
-     * 
+     *
      * @param uri
      *            the {@link URI} to obtain the {@link Resource}
      * @param arguments
@@ -74,5 +73,5 @@ public interface ResourceWriter {
      *         {@link Resource} file
      */
     public void deleteResource(URI uri, Map<String, Object> arguments)
-        throws ResourceNotFoundException, IOException;
+            throws ResourceNotFoundException, IOException;
 }

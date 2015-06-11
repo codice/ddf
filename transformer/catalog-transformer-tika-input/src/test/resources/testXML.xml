@@ -11,7 +11,8 @@
  *
  **/
  -->
-<oaidc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oaidc="http://www.openarchives.org/OAI/2.0/oai_dc/">
+<oaidc:dc xmlns:dc="http://purl.org/dc/elements/1.1/"
+          xmlns:oaidc="http://www.openarchives.org/OAI/2.0/oai_dc/">
 
 	<dc:title>Test Document</dc:title>
 

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:catalog:metacard"
-	xmlns:gml="http://www.opengis.net/gml" xmlns:ddf="urn:catalog:metacard"
-	elementFormDefault="qualified" attributeFormDefault="unqualified"
-	version="1.0.0">
+<schema xmlns:gml="http://www.opengis.net/gml" xmlns:ddf="urn:catalog:metacard"
+        xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:catalog:metacard"
+        elementFormDefault="qualified" attributeFormDefault="unqualified"
+        version="1.0.0">
 
 	<!-- bring in other schemas -->
-	<import schemaLocation="gml/3.1.1/base/gml.xsd" namespace="http://www.opengis.net/gml"/>
-	
-	<!-- substitutionGroup="gml:_Feature" -->
-	<element name="metacard">
+    <import schemaLocation="gml/3.1.1/base/gml.xsd" namespace="http://www.opengis.net/gml"/>
+
+    <!-- substitutionGroup="gml:_Feature" -->
+    <element name="metacard">
 		<complexType>
 			<complexContent>
 				<annotation>
@@ -23,28 +23,28 @@
 						<element name="type" type="string"/>
 						<element name="source" type="string" minOccurs="0"/>
 						<choice maxOccurs="unbounded">
-							<element ref="ddf:boolean" />
-							<element ref="ddf:base64Binary" />
-							<element ref="ddf:dateTime" />
-							<element ref="ddf:double" />
-							<element ref="ddf:float" />
-							<element ref="ddf:geometry" />
-							<element ref="ddf:int" />
-							<element ref="ddf:long" />
-							<element ref="ddf:object" />
-							<element ref="ddf:short" />
-							<element ref="ddf:string" />
-							<element ref="ddf:stringxml" />
+							<element ref="ddf:boolean"/>
+							<element ref="ddf:base64Binary"/>
+							<element ref="ddf:dateTime"/>
+							<element ref="ddf:double"/>
+							<element ref="ddf:float"/>
+							<element ref="ddf:geometry"/>
+							<element ref="ddf:int"/>
+							<element ref="ddf:long"/>
+							<element ref="ddf:object"/>
+							<element ref="ddf:short"/>
+							<element ref="ddf:string"/>
+							<element ref="ddf:stringxml"/>
 						</choice>
 					</sequence>
 				</extension>
 			</complexContent>
 		</complexType>
 	</element>
-	<!-- ******* Attribute types ****** -->
+    <!-- ******* Attribute types ****** -->
 
-	<complexType name="AbstractAttributeType">
-		<attribute name="name" use="required" type="string" />
+    <complexType name="AbstractAttributeType">
+		<attribute name="name" use="required" type="string"/>
 	</complexType>
 
 	<element name="boolean">
@@ -52,7 +52,7 @@
 			<complexContent>
 				<extension base="ddf:AbstractAttributeType">
 					<sequence maxOccurs="unbounded">
-						<element name="value" type="boolean" />
+						<element name="value" type="boolean"/>
 					</sequence>
 				</extension>
 			</complexContent>
@@ -64,7 +64,7 @@
 			<complexContent>
 				<extension base="ddf:AbstractAttributeType">
 					<sequence maxOccurs="unbounded">
-						<element name="value" type="base64Binary" />
+						<element name="value" type="base64Binary"/>
 					</sequence>
 				</extension>
 			</complexContent>
@@ -76,7 +76,7 @@
 			<complexContent>
 				<extension base="ddf:AbstractAttributeType">
 					<sequence maxOccurs="unbounded">
-						<element name="value" type="base64Binary" />
+						<element name="value" type="base64Binary"/>
 					</sequence>
 				</extension>
 			</complexContent>
@@ -88,7 +88,7 @@
 			<complexContent>
 				<extension base="ddf:AbstractAttributeType">
 					<sequence maxOccurs="unbounded">
-						<element name="value" type="string" />
+						<element name="value" type="string"/>
 					</sequence>
 				</extension>
 			</complexContent>
@@ -100,7 +100,7 @@
 			<complexContent>
 				<extension base="ddf:AbstractAttributeType">
 					<sequence maxOccurs="unbounded">
-						<element name="value" type="double" />
+						<element name="value" type="double"/>
 					</sequence>
 				</extension>
 			</complexContent>
@@ -112,7 +112,7 @@
 			<complexContent>
 				<extension base="ddf:AbstractAttributeType">
 					<sequence maxOccurs="unbounded">
-						<element name="value" type="float" />
+						<element name="value" type="float"/>
 					</sequence>
 				</extension>
 			</complexContent>
@@ -124,7 +124,7 @@
 			<complexContent>
 				<extension base="ddf:AbstractAttributeType">
 					<sequence maxOccurs="unbounded">
-						<element name="value" type="int" />
+						<element name="value" type="int"/>
 					</sequence>
 				</extension>
 			</complexContent>
@@ -136,7 +136,7 @@
 			<complexContent>
 				<extension base="ddf:AbstractAttributeType">
 					<sequence maxOccurs="unbounded">
-						<element name="value" type="long" />
+						<element name="value" type="long"/>
 					</sequence>
 				</extension>
 			</complexContent>
@@ -148,7 +148,7 @@
 			<complexContent>
 				<extension base="ddf:AbstractAttributeType">
 					<sequence maxOccurs="unbounded">
-						<element name="value" type="short" />
+						<element name="value" type="short"/>
 					</sequence>
 				</extension>
 			</complexContent>
@@ -160,7 +160,7 @@
 			<complexContent>
 				<extension base="ddf:AbstractAttributeType">
 					<sequence maxOccurs="unbounded">
-						<element name="value" type="dateTime" />
+						<element name="value" type="dateTime"/>
 					</sequence>
 				</extension>
 			</complexContent>
@@ -175,7 +175,7 @@
 						<element name="value">
 							<complexType>
 								<sequence>
-									<element ref="gml:_Geometry" />
+									<element ref="gml:_Geometry"/>
 								</sequence>
 							</complexType>
 						</element>
@@ -193,7 +193,7 @@
 						<element name="value">
 							<complexType>
 								<sequence>
-									<any processContents="skip" />
+									<any processContents="skip"/>
 								</sequence>
 							</complexType>
 						</element>
@@ -203,17 +203,17 @@
 		</complexType>
 	</element>
 
-	<!-- <element name="stringxml" substitutionGroup="ddf:value"> -->
-	<!-- <complexType> -->
-	<!-- <sequence maxOccurs="1" minOccurs="1"> -->
-	<!-- <any processContents="lax" /> -->
-	<!-- </sequence> -->
-	<!-- </complexType> -->
-	<!-- </element> -->
+    <!-- <element name="stringxml" substitutionGroup="ddf:value"> -->
+    <!-- <complexType> -->
+    <!-- <sequence maxOccurs="1" minOccurs="1"> -->
+    <!-- <any processContents="lax" /> -->
+    <!-- </sequence> -->
+    <!-- </complexType> -->
+    <!-- </element> -->
 
-	<!-- ******* MetacardFeature Type and Element ****** -->
+    <!-- ******* MetacardFeature Type and Element ****** -->
 
-	<complexType name="AbstractMetacardFeatureType" abstract="true">
+    <complexType name="AbstractMetacardFeatureType" abstract="true">
 		<annotation>
 			<documentation>A "MetacardFeature" is a representation of a Metacard
 				as a GML Simple Feature.
@@ -221,7 +221,7 @@
 		</annotation>
 		<complexContent>
 			<restriction base="gml:AbstractFeatureType">
-				<attribute ref="gml:id" use="required" />
+				<attribute ref="gml:id" use="required"/>
 			</restriction>
 		</complexContent>
 	</complexType>

@@ -1,34 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.source.solr;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
-import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.catalog.source.IngestException;
-import org.apache.solr.client.solrj.SolrServer;
-import org.codice.solr.factory.ConfigurationFileProxy;
-import org.codice.solr.factory.ConfigurationStore;
-import org.codice.solr.factory.SolrServerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -39,7 +23,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.apache.solr.client.solrj.SolrServer;
+import org.codice.solr.factory.ConfigurationFileProxy;
+import org.codice.solr.factory.ConfigurationStore;
+import org.codice.solr.factory.SolrServerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.source.IngestException;
+
 public class ReuterSolrImport implements Runnable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReuterSolrImport.class);
+
+    private static final String UNABLE_TO_READ_DIR_EXCEPTION_MSG = "unable to read directory";
 
     private SolrServer solrServer;
 
@@ -47,19 +52,15 @@ public class ReuterSolrImport implements Runnable {
 
     private File[] arrayOfFile;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReuterSolrImport.class);
-
-    private static final String UNABLE_TO_READ_DIR_EXCEPTION_MSG = "unable to read directory";
-
     public ReuterSolrImport(File[] arrayOfFile) {
 
         this.arrayOfFile = arrayOfFile;
 
         try {
 
-            this.solrServer = SolrServerFactory.getEmbeddedSolrServer("solrconfigSoft.xml",
-                    "schema.xml",
-                    new ConfigurationFileProxy(ConfigurationStore.getInstance()));
+            this.solrServer = SolrServerFactory
+                    .getEmbeddedSolrServer("solrconfigSoft.xml", "schema.xml",
+                            new ConfigurationFileProxy(ConfigurationStore.getInstance()));
 
             this.solrProvider = new SolrCatalogProvider(this.solrServer,
                     new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
@@ -172,8 +173,9 @@ public class ReuterSolrImport implements Runnable {
 
     }
 
-    public static File[] readDirectory(File paramFile) throws XPathExpressionException,
-        IOException, ParserConfigurationException, SAXException, ParseException {
+    public static File[] readDirectory(File paramFile)
+            throws XPathExpressionException, IOException, ParserConfigurationException,
+            SAXException, ParseException {
         File[] allFiles = paramFile.listFiles(new FileFilter() {
             public boolean accept(File paramFile) {
                 return paramFile.getName().contains(".dat");

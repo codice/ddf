@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.camel.component.catalog.transformer;
 
 import java.io.IOException;
@@ -32,11 +31,11 @@ import ddf.mime.MimeTypeToTransformerMapper;
 /**
  * Producer for the custom Camel CatalogComponent. This {@link org.apache.camel.Producer} would map
  * to a Camel <to> route node with a URI like <code>catalog:inputtransformer</code>
- * 
+ *
  * @author Hugh Rodgers, Lockheed Martin
  * @author William Miller, Lockheed Martin
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public abstract class TransformerProducer extends DefaultProducer {
     private static final transient Logger LOGGER = LoggerFactory
@@ -47,7 +46,7 @@ public abstract class TransformerProducer extends DefaultProducer {
     /**
      * Constructs the {@link Producer} for the custom Camel CatalogComponent. This producer would
      * map to a Camel <to> route node with a URI like <code>catalog:inputtransformer</code>
-     * 
+     *
      * @param endpoint
      *            the Camel endpoint that created this consumer
      */
@@ -64,8 +63,8 @@ public abstract class TransformerProducer extends DefaultProducer {
      * 
      * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
      */
-    public void process(Exchange exchange) throws CatalogTransformerException,
-        MimeTypeParseException, IOException {
+    public void process(Exchange exchange)
+            throws CatalogTransformerException, MimeTypeParseException, IOException {
 
         LOGGER.debug("ENTERING: process");
 
@@ -121,6 +120,6 @@ public abstract class TransformerProducer extends DefaultProducer {
 
     protected abstract Object transform(Message in, Object metacard, String mimeType,
             String transformerId, MimeTypeToTransformerMapper mapper)
-        throws MimeTypeParseException, IOException, CatalogTransformerException;
+            throws MimeTypeParseException, IOException, CatalogTransformerException;
 
 }

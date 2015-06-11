@@ -1,19 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.event.retrievestatus;
-
 
 import java.util.Date;
 import java.util.HashMap;
@@ -45,37 +43,41 @@ import ddf.security.SubjectUtils;
 public class DownloadsStatusEventPublisher {
 
     public static final String APPLICATION_NAME = "Downloads";
-    
+
     // Property keys
     public static final String DETAIL = "detail";
+
     public static final String STATUS = "status";
+
     public static final String BYTES = "bytes";
 
-    public static enum ProductRetrievalStatus {
-        STARTED, IN_PROGRESS, RETRYING, CANCELLED, FAILED, COMPLETE;
-    }
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(DownloadsStatusEventPublisher.class);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DownloadsStatusEventPublisher.class);
+    private static final int ONE_HUNDRED_PERCENT = 100;
+
+    private static final int UNKNOWN_PROGRESS = -1;
 
     private EventAdmin eventAdmin;
+
     private List<ActionProvider> actionProviders;
 
     private boolean notificationEnabled = true;
+
     private boolean activityEnabled = true;
-    private static final int ONE_HUNDRED_PERCENT = 100;
-    private static final int UNKNOWN_PROGRESS = -1;
 
     /**
      * Used to publish product retrieval status updates via the OSGi Event Service
      */
-    public DownloadsStatusEventPublisher(EventAdmin eventAdmin, List<ActionProvider> actionProviders) {
+    public DownloadsStatusEventPublisher(EventAdmin eventAdmin,
+            List<ActionProvider> actionProviders) {
         this.eventAdmin = eventAdmin;
         this.actionProviders = actionProviders;
     }
-    
+
     /**
      * Send notification and activity with current retrieval status.
-     * 
+     *
      * @param resourceResponse the response from the product retrieval containing the actual @Resource
      * @param status the status of the product retrieval, e.g., IN_PROGRESS, STARTED, etc.
      * @param metacard the @Metacard associated with the product being downloaded
@@ -86,12 +88,13 @@ public class DownloadsStatusEventPublisher {
     public void postRetrievalStatus(final ResourceResponse resourceResponse,
             ProductRetrievalStatus status, Metacard metacard, String detail, Long bytes,
             String downloadIdentifier) {
-        postRetrievalStatus(resourceResponse, status, metacard, detail, bytes, downloadIdentifier, true, true);
+        postRetrievalStatus(resourceResponse, status, metacard, detail, bytes, downloadIdentifier,
+                true, true);
     }
-    
+
     /**
      * Based on the input parameters send notification and/or activity with current retrieval status.
-     * 
+     *
      * @param resourceResponse the response from the product retrieval containing the actual @Resource
      * @param status the status of the product retrieval, e.g., IN_PROGRESS, STARTED, etc.
      * @param metacard the @Metacard associated with the product being downloaded
@@ -114,9 +117,9 @@ public class DownloadsStatusEventPublisher {
         if (bytes == null) {
             bytes = 0L;
         }
-        
+
         Long sysTimeMillis = System.currentTimeMillis();
-        
+
         // Add user information to the request properties.
         org.apache.shiro.subject.Subject shiroSubject = null;
         try {
@@ -126,33 +129,29 @@ public class DownloadsStatusEventPublisher {
         }
         String user = SubjectUtils.getName(shiroSubject, "");
 
-        if (notificationEnabled && sendNotification
-                && (status != ProductRetrievalStatus.IN_PROGRESS)
-                && (status != ProductRetrievalStatus.STARTED)) {
+        if (notificationEnabled && sendNotification && (status
+                != ProductRetrievalStatus.IN_PROGRESS) && (status
+                != ProductRetrievalStatus.STARTED)) {
             String id = UUID.randomUUID().toString().replaceAll("-", "");
-            Notification notification = new Notification(id, 
+            Notification notification = new Notification(id,
                     //get sessionId from resource request
-                    getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY),
-                    APPLICATION_NAME,
+                    getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY), APPLICATION_NAME,
                     resourceResponse.getResource().getName(),
-                    generateMessage(status, resourceResponse.getResource().getName(),
-                            bytes, sysTimeMillis, detail),
-                    sysTimeMillis, user);
+                    generateMessage(status, resourceResponse.getResource().getName(), bytes,
+                            sysTimeMillis, detail), sysTimeMillis, user);
 
             notification.put(STATUS, status.name().toLowerCase());
             notification.put(BYTES, String.valueOf(bytes));
 
-            Event event = new Event(Notification.NOTIFICATION_TOPIC_DOWNLOADS,
-                    notification);
+            Event event = new Event(Notification.NOTIFICATION_TOPIC_DOWNLOADS, notification);
 
             eventAdmin.postEvent(event);
-        }
-        else {
+        } else {
             LOGGER.debug("Notifications have been disabled so this message will NOT be posted.");
         }
 
         if (activityEnabled && sendActivity) {
-            
+
             // get Action
             Action downloadAction = null;
             if (null != actionProviders && !actionProviders.isEmpty()) {
@@ -204,17 +203,14 @@ public class DownloadsStatusEventPublisher {
                 break;
             }
 
-            ActivityEvent eventProperties = new ActivityEvent(downloadIdentifier, 
-                    getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY), 
-                    new Date(), 
-                    "Product Retrieval", 
-                    resourceResponse.getResource().getName(), 
-                    generateMessage(status, resourceResponse.getResource().getName(), bytes, sysTimeMillis, detail), 
-                    progress, operations, user, type, bytes);
+            ActivityEvent eventProperties = new ActivityEvent(downloadIdentifier,
+                    getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY), new Date(),
+                    "Product Retrieval", resourceResponse.getResource().getName(),
+                    generateMessage(status, resourceResponse.getResource().getName(), bytes,
+                            sysTimeMillis, detail), progress, operations, user, type, bytes);
             Event event = new Event(ActivityEvent.EVENT_TOPIC, eventProperties);
             eventAdmin.postEvent(event);
-        }
-        else {
+        } else {
             LOGGER.debug("Activities have been disabled so this message will NOT be posted.");
         }
 
@@ -232,8 +228,8 @@ public class DownloadsStatusEventPublisher {
         return response;
     }
 
-    private String generateMessage(ProductRetrievalStatus status, String title, 
-            Long bytes, Long sysTimeMillis, String detail) {
+    private String generateMessage(ProductRetrievalStatus status, String title, Long bytes,
+            Long sysTimeMillis, String detail) {
         StringBuilder response = new StringBuilder("Resource retrieval");
 
         // There may not be any detail to report, if not, send it along
@@ -245,25 +241,25 @@ public class DownloadsStatusEventPublisher {
         case STARTED:
             response.append(" started");
             break;
-            
+
         case COMPLETE:
             response.append(" completed, ");
             response.append(bytes.toString());
             response.append(" bytes retrieved");
-            
+
             break;
-            
+
         case RETRYING:
             response.append(" retrying");
             response.append(" after ");
             response.append(bytes.toString());
-            response.append(" bytes");          
+            response.append(" bytes");
             break;
-            
+
         case CANCELLED:
             response.append(" cancelled");
             break;
-            
+
         case FAILED:
             response.append(" failed");
             break;
@@ -285,8 +281,12 @@ public class DownloadsStatusEventPublisher {
     public void setNotificationEnabled(boolean enabled) {
         this.notificationEnabled = enabled;
     }
-    
+
     public void setActivityEnabled(boolean enabled) {
         this.activityEnabled = enabled;
+    }
+
+    public static enum ProductRetrievalStatus {
+        STARTED, IN_PROGRESS, RETRYING, CANCELLED, FAILED, COMPLETE;
     }
 }

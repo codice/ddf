@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.validation;
 
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.List;
 /**
  * Thrown to indicate that a validation operation could not be completed. Provides information in
  * the form of a summary message, a list of error messages, and a list of warnings.
- * 
+ *
  * @author Michael Menousek, Lockheed Martin
  * @author Shaun Morris, Lockheed Martin
  * @author Ashraf Barakat, Lockheed Martin
@@ -52,7 +51,9 @@ public abstract class ValidationException extends Exception {
      * @param cause
      *            the cause of why the validation operation failed
      */
-    public ValidationException(Throwable cause) { super(cause); }
+    public ValidationException(Throwable cause) {
+        super(cause);
+    }
 
     /**
      * Constructs a {@code ValidationException} with a specified summary message and cause
@@ -63,8 +64,9 @@ public abstract class ValidationException extends Exception {
      * @param cause
      *            the cause of why the validation operation failed
      */
-    public ValidationException(String summaryMessage, Throwable cause) { super(summaryMessage, cause); }
-
+    public ValidationException(String summaryMessage, Throwable cause) {
+        super(summaryMessage, cause);
+    }
 
     /**
      * @return a list of all error messages that have caused validation to fail. The error message

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.federation;
 
 import java.io.Serializable;
@@ -44,7 +43,7 @@ import ddf.catalog.source.Source;
  * This class serves as a base implementation of the {@link FederationStrategy}
  * interface. Other classes can extend this class to create specific attributes
  * to sort by.
- * 
+ *
  * @deprecated As of release 2.3.0, replaced by
  *             ddf.catalog.federation.base.AbstractFederationStrategy
  */
@@ -56,11 +55,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
     // XLogger(LoggerFactory.getLogger(AbstractFederationStrategy.class));
     private static final String CLASS_NAME = AbstractFederationStrategy.class.getName();
 
-    private ExecutorService queryExecutorService;
-
     private static final int DEFAULT_MAX_START_INDEX = 50000;
-
-    private int maxStartIndex;
 
     /**
      * The {@link List} of pre-federated query plugins to execute on the query request before the
@@ -74,9 +69,13 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
      */
     protected List<PostFederatedQueryPlugin> postQuery;
 
+    private ExecutorService queryExecutorService;
+
+    private int maxStartIndex;
+
     /**
      * Instantiates an {@code AbstractFederationStrategy} with the provided {@link ExecutorService}.
-     * 
+     *
      * @param queryExecutorService
      *            the {@link ExecutorService} for queries
      * @deprecated - only to provide support for deprecated FifoFederationStrategy and
@@ -89,7 +88,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
 
     /**
      * Instantiates an {@code AbstractFederationStrategy} with the provided {@link ExecutorService}.
-     * 
+     *
      * @param queryExecutorService
      *            the {@link ExecutorService} for queries
      */
@@ -103,7 +102,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
 
     /**
      * Creates the monitor for federated queries.
-     * 
+     *
      * @param queryExecutorService
      * @param futures
      * @param returnResults
@@ -158,18 +157,18 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
                                 modifiedQueryRequest = service
                                         .process(source, modifiedQueryRequest);
                             } catch (PluginExecutionException e) {
-                                logger.warn(
-                                        "Error executing PreFederatedQueryPlugin: "
-                                                + e.getMessage(), e);
+                                logger.warn("Error executing PreFederatedQueryPlugin: " + e
+                                                .getMessage(), e);
                             }
                         }
                     } catch (StopProcessingException e) {
                         logger.warn("Plugin stopped processing: ", e);
                     }
 
-                    futures.put(source, queryExecutorService.submit(new CallableSourceResponse(
-                            source, modifiedQueryRequest.getQuery(), modifiedQueryRequest
-                                    .getProperties())));
+                    futures.put(source, queryExecutorService
+                            .submit(new CallableSourceResponse(source,
+                                    modifiedQueryRequest.getQuery(),
+                                    modifiedQueryRequest.getProperties())));
                 } else {
                     logger.warn("Duplicate source found with name " + source.getId()
                             + ". Ignoring second one.");
@@ -184,12 +183,13 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
         // OffsetResultHandler does.
         if (offset > 1 && sources.size() > 1) {
             offsetResults = new QueryResponseImpl(queryRequest, null);
-            queryExecutorService.submit(new OffsetResultHandler(queryResponseQueue, offsetResults,
-                    pageSize, offset));
+            queryExecutorService
+                    .submit(new OffsetResultHandler(queryResponseQueue, offsetResults, pageSize,
+                            offset));
         }
 
-        queryExecutorService.submit(createMonitor(queryExecutorService, futures,
-                queryResponseQueue, modifiedQueryRequest.getQuery()));
+        queryExecutorService.submit(createMonitor(queryExecutorService, futures, queryResponseQueue,
+                modifiedQueryRequest.getQuery()));
 
         QueryResponse queryResponse = null;
         if (offset > 1 && sources.size() > 1) {
@@ -200,13 +200,14 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
             logger.debug("returning returnResults: {}", queryResponse);
         }
 
-        if(null != queryResponse) {
+        if (null != queryResponse) {
             try {
                 for (PostFederatedQueryPlugin service : postQuery) {
                     try {
                         queryResponse = service.process(queryResponse);
                     } catch (PluginExecutionException e) {
-                        logger.warn("Error executing PostFederatedQueryPlugin: " + e.getMessage(), e);
+                        logger.warn("Error executing PostFederatedQueryPlugin: " + e.getMessage(),
+                                e);
                     }
                 }
             } catch (StopProcessingException e) {
@@ -245,7 +246,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
             /**
              * Federated sources always query from offset of 1. When all query results are received
              * from all federated sources and merged together - then the offset is applied.
-             * 
+             *
              */
             query = new QueryImpl(originalQuery, modifiedOffset, modifiedPageSize,
                     originalQuery.getSortBy(), originalQuery.requestsTotalResultsCount(),
@@ -262,6 +263,25 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
      */
     private int computeModifiedPageSize(int offset, int pageSize) {
         return offset + pageSize - 1;
+    }
+
+    /**
+     * To be set via Spring/Blueprint
+     *
+     * @param maxStartIndex
+     *            the new default max start index value
+     */
+    public void setMaxStartIndex(int maxStartIndex) {
+        logger.debug("Current max start index: " + this.maxStartIndex);
+        this.maxStartIndex = DEFAULT_MAX_START_INDEX;
+
+        if (maxStartIndex > 0) {
+            this.maxStartIndex = maxStartIndex;
+            logger.debug("New max start index: " + this.maxStartIndex);
+        } else {
+            logger.debug(
+                    "Invalid max start index input. Reset to default value: " + this.maxStartIndex);
+        }
     }
 
     private static class CallableSourceResponse implements Callable<SourceResponse> {
@@ -282,7 +302,9 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
         @Override
         public SourceResponse call() throws Exception {
             return source.query(new QueryRequestImpl(query, properties));
-        };
+        }
+
+        ;
     }
 
     private static class OffsetResultHandler implements Runnable {
@@ -322,25 +344,6 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
             logger.debug("Closing Queue and setting the total count");
             offsetResultQueue.setHits(originalResults.getHits());
             offsetResultQueue.closeResultQueue();
-        }
-    }
-
-    /**
-     * To be set via Spring/Blueprint
-     * 
-     * @param maxStartIndex
-     *            the new default max start index value
-     */
-    public void setMaxStartIndex(int maxStartIndex) {
-        logger.debug("Current max start index: " + this.maxStartIndex);
-        this.maxStartIndex = DEFAULT_MAX_START_INDEX;
-
-        if (maxStartIndex > 0) {
-            this.maxStartIndex = maxStartIndex;
-            logger.debug("New max start index: " + this.maxStartIndex);
-        } else {
-            logger.debug("Invalid max start index input. Reset to default value: "
-                    + this.maxStartIndex);
         }
     }
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml" xmlns:gml="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.1.1">
+<schema xmlns:gml="http://www.opengis.net/gml" targetNamespace="http://www.opengis.net/gml"
+        xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="3.1.1">
 	<annotation>
 		<appinfo source="urn:opengis:specification:gml:schema-xsd:temporal:3.1.1"/>
 		<documentation xml:lang="en">The temporal schema for GML 3.1 provides constructs for handling time-varying spatial data. 
@@ -7,55 +8,60 @@
     Copyright (c) 2002-2005 OGC, All Rights Reserved.
 	For conditions, see OGC Software Notice http://www.opengeospatial.org/about/?page=ipr</documentation>
 	</annotation>
-	<!-- ================================================================== -->
-	<include schemaLocation="gmlBase.xsd"/>
-	<!-- ================================================================== -->
-	<!-- ==== Time Object ===== -->
-	<!-- ================================================================== -->
-	<element name="_TimeObject" type="gml:AbstractTimeObjectType" abstract="true" substitutionGroup="gml:_GML">
+    <!-- ================================================================== -->
+    <include schemaLocation="gmlBase.xsd"/>
+    <!-- ================================================================== -->
+    <!-- ==== Time Object ===== -->
+    <!-- ================================================================== -->
+    <element name="_TimeObject" type="gml:AbstractTimeObjectType" abstract="true"
+             substitutionGroup="gml:_GML">
 		<annotation>
 			<documentation xml:lang="en">This abstract element acts as the head of the substitution group for temporal primitives and complexes.</documentation>
 		</annotation>
 	</element>
-	<!-- ===================================== -->
-	<complexType name="AbstractTimeObjectType" abstract="true">
+    <!-- ===================================== -->
+    <complexType name="AbstractTimeObjectType" abstract="true">
 		<annotation>
-			<documentation xml:lang="en">The abstract supertype for temporal objects.</documentation>
+			<documentation
+                    xml:lang="en">The abstract supertype for temporal objects.</documentation>
 		</annotation>
 		<complexContent>
 			<extension base="gml:AbstractGMLType"/>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<!-- ==== Time Primitive ===== -->
-	<!-- ================================================================== -->
-	<element name="_TimePrimitive" type="gml:AbstractTimePrimitiveType" abstract="true" substitutionGroup="gml:_TimeObject">
+    <!-- ================================================================== -->
+    <!-- ==== Time Primitive ===== -->
+    <!-- ================================================================== -->
+    <element name="_TimePrimitive" type="gml:AbstractTimePrimitiveType" abstract="true"
+             substitutionGroup="gml:_TimeObject">
 		<annotation>
 			<documentation xml:lang="en">This abstract element acts as the head of the substitution group for temporal primitives.</documentation>
 		</annotation>
 	</element>
-	<!-- ===================================== -->
-	<complexType name="AbstractTimePrimitiveType" abstract="true">
+    <!-- ===================================== -->
+    <complexType name="AbstractTimePrimitiveType" abstract="true">
 		<annotation>
-			<documentation xml:lang="en">The abstract supertype for temporal primitives.</documentation>
+			<documentation
+                    xml:lang="en">The abstract supertype for temporal primitives.</documentation>
 		</annotation>
 		<complexContent>
 			<extension base="gml:AbstractTimeObjectType">
 				<sequence>
-					<element name="relatedTime" type="gml:RelatedTimeType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="relatedTime" type="gml:RelatedTimeType" minOccurs="0"
+                             maxOccurs="unbounded"/>
 				</sequence>
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<complexType name="TimePrimitivePropertyType">
+    <!-- ================================================================== -->
+    <complexType name="TimePrimitivePropertyType">
 		<sequence minOccurs="0">
 			<element ref="gml:_TimePrimitive"/>
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- ================================================================== -->
-	<complexType name="RelatedTimeType">
+    <!-- ================================================================== -->
+    <complexType name="RelatedTimeType">
 		<complexContent>
 			<extension base="gml:TimePrimitivePropertyType">
 				<attribute name="relativePosition">
@@ -80,10 +86,11 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<!-- ==== Time Complex ===== -->
-	<!-- ================================================================== -->
-	<element name="_TimeComplex" type="gml:AbstractTimeComplexType" abstract="true" substitutionGroup="gml:_TimeObject">
+    <!-- ================================================================== -->
+    <!-- ==== Time Complex ===== -->
+    <!-- ================================================================== -->
+    <element name="_TimeComplex" type="gml:AbstractTimeComplexType" abstract="true"
+             substitutionGroup="gml:_TimeObject">
 		<annotation>
 			<documentation xml:lang="en">This abstract element acts as the head of the substitution group for temporal complexes. 
 			Temporal complex is an aggregation of temporal primitives as its components, 
@@ -91,25 +98,27 @@
 			N.B. Temporal geometric complex is not defined in this schema.</documentation>
 		</annotation>
 	</element>
-	<!-- ================================================================== -->
-	<complexType name="AbstractTimeComplexType" abstract="true">
+    <!-- ================================================================== -->
+    <complexType name="AbstractTimeComplexType" abstract="true">
 		<annotation>
-			<documentation xml:lang="en">The abstract supertype for temporal complexes.</documentation>
+			<documentation
+                    xml:lang="en">The abstract supertype for temporal complexes.</documentation>
 		</annotation>
 		<complexContent>
 			<extension base="gml:AbstractTimeObjectType"/>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<!-- ==== Time Geometric Primitive ===== -->
-	<!-- ================================================================== -->
-	<element name="_TimeGeometricPrimitive" type="gml:AbstractTimeGeometricPrimitiveType" abstract="true" substitutionGroup="gml:_TimePrimitive">
+    <!-- ================================================================== -->
+    <!-- ==== Time Geometric Primitive ===== -->
+    <!-- ================================================================== -->
+    <element name="_TimeGeometricPrimitive" type="gml:AbstractTimeGeometricPrimitiveType"
+             abstract="true" substitutionGroup="gml:_TimePrimitive">
 		<annotation>
 			<documentation xml:lang="en">This abstract element acts as the head of the substitution group for temporal geometric primitives.</documentation>
 		</annotation>
 	</element>
-	<!-- ===================================== -->
-	<complexType name="AbstractTimeGeometricPrimitiveType" abstract="true">
+    <!-- ===================================== -->
+    <complexType name="AbstractTimeGeometricPrimitiveType" abstract="true">
 		<annotation>
 			<documentation xml:lang="en">The abstract supertype for temporal geometric primitives.
        A temporal geometry must be associated with a temporal reference system via URI. 
@@ -123,19 +132,20 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<complexType name="TimeGeometricPrimitivePropertyType">
+    <!-- ================================================================== -->
+    <complexType name="TimeGeometricPrimitivePropertyType">
 		<sequence minOccurs="0">
 			<element ref="gml:_TimeGeometricPrimitive"/>
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- ================================================================== -->
-	<!-- ==== Time Instant ===== -->
-	<!-- ================================================================== -->
-	<element name="TimeInstant" type="gml:TimeInstantType" substitutionGroup="gml:_TimeGeometricPrimitive"/>
-	<!-- ===================================== -->
-	<complexType name="TimeInstantType">
+    <!-- ================================================================== -->
+    <!-- ==== Time Instant ===== -->
+    <!-- ================================================================== -->
+    <element name="TimeInstant" type="gml:TimeInstantType"
+             substitutionGroup="gml:_TimeGeometricPrimitive"/>
+    <!-- ===================================== -->
+    <complexType name="TimeInstantType">
 		<annotation>
 			<documentation>Omit back-pointers begunBy, endedBy.</documentation>
 		</annotation>
@@ -147,19 +157,20 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<complexType name="TimeInstantPropertyType">
+    <!-- ================================================================== -->
+    <complexType name="TimeInstantPropertyType">
 		<sequence minOccurs="0">
 			<element ref="gml:TimeInstant"/>
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- ================================================================== -->
-	<!-- ==== Time Period ===== -->
-	<!-- ================================================================== -->
-	<element name="TimePeriod" type="gml:TimePeriodType" substitutionGroup="gml:_TimeGeometricPrimitive"/>
-	<!-- ===================================== -->
-	<complexType name="TimePeriodType">
+    <!-- ================================================================== -->
+    <!-- ==== Time Period ===== -->
+    <!-- ================================================================== -->
+    <element name="TimePeriod" type="gml:TimePeriodType"
+             substitutionGroup="gml:_TimeGeometricPrimitive"/>
+    <!-- ===================================== -->
+    <complexType name="TimePeriodType">
 		<complexContent>
 			<extension base="gml:AbstractTimeGeometricPrimitiveType">
 				<sequence>
@@ -176,17 +187,17 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<complexType name="TimePeriodPropertyType">
+    <!-- ================================================================== -->
+    <complexType name="TimePeriodPropertyType">
 		<sequence minOccurs="0">
 			<element ref="gml:TimePeriod"/>
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- ================================================================== -->
-	<!-- ==== duration & interval ===== -->
-	<!-- ================================================================== -->
-	<group name="timeLength">
+    <!-- ================================================================== -->
+    <!-- ==== duration & interval ===== -->
+    <!-- ================================================================== -->
+    <group name="timeLength">
 		<annotation>
 			<documentation>This model group is provided as an alternative to the abstract susbstitutionGroup head _timeLength.
 		ISO 19136 comment 411</documentation>
@@ -196,8 +207,8 @@
 			<element ref="gml:timeInterval"/>
 		</choice>
 	</group>
-	<!-- ================================================================== -->
-	<element name="duration" type="duration">
+    <!-- ================================================================== -->
+    <element name="duration" type="duration">
 		<annotation>
 			<documentation xml:lang="en">This element is an instance of the primitive xsd:duration simple type to 
       enable use of the ISO 8601 syntax for temporal length (e.g. P5DT4H30M). 
@@ -205,15 +216,15 @@
       rule 2.2.4 in XML Schema, Part 1.</documentation>
 		</annotation>
 	</element>
-	<!-- ================================================================== -->
-	<element name="timeInterval" type="gml:TimeIntervalLengthType">
+    <!-- ================================================================== -->
+    <element name="timeInterval" type="gml:TimeIntervalLengthType">
 		<annotation>
 			<documentation>This element is a valid subtype of TimeDurationType 
 			according to section 3.14.6, rule 2.2.4 in XML Schema, Part 1.</documentation>
 		</annotation>
 	</element>
-	<!-- ===================================== -->
-	<complexType name="TimeIntervalLengthType" final="#all">
+    <!-- ===================================== -->
+    <complexType name="TimeIntervalLengthType" final="#all">
 		<annotation>
 			<documentation xml:lang="en">This type extends the built-in xsd:decimal simple type to allow floating-point 
       values for temporal length. According to  the ISO 11404 model you have to use 
@@ -230,10 +241,11 @@
 			</extension>
 		</simpleContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<simpleType name="TimeUnitType">
+    <!-- ================================================================== -->
+    <simpleType name="TimeUnitType">
 		<annotation>
-			<documentation xml:lang="en">Standard units for measuring time intervals (see ISO 31-1).</documentation>
+			<documentation
+                    xml:lang="en">Standard units for measuring time intervals (see ISO 31-1).</documentation>
 		</annotation>
 		<union>
 			<simpleType>
@@ -252,16 +264,16 @@
 			</simpleType>
 		</union>
 	</simpleType>
-	<!-- ================================================================== -->
-	<!-- ==== Time Position ===== -->
-	<!-- ================================================================== -->
-	<element name="timePosition" type="gml:TimePositionType">
+    <!-- ================================================================== -->
+    <!-- ==== Time Position ===== -->
+    <!-- ================================================================== -->
+    <element name="timePosition" type="gml:TimePositionType">
 		<annotation>
 			<documentation>Direct representation of a temporal position</documentation>
 		</annotation>
 	</element>
-	<!-- ================================================================== -->
-	<complexType name="TimePositionType" final="#all">
+    <!-- ================================================================== -->
+    <complexType name="TimePositionType" final="#all">
 		<annotation>
 			<documentation xml:lang="en">Direct representation of a temporal position. 
       Indeterminate time values are also allowed, as described in ISO 19108. The indeterminatePosition 
@@ -274,12 +286,13 @@
 			<extension base="gml:TimePositionUnion">
 				<attribute name="frame" type="anyURI" use="optional" default="#ISO-8601"/>
 				<attribute name="calendarEraName" type="string" use="optional"/>
-				<attribute name="indeterminatePosition" type="gml:TimeIndeterminateValueType" use="optional"/>
+				<attribute name="indeterminatePosition" type="gml:TimeIndeterminateValueType"
+                           use="optional"/>
 			</extension>
 		</simpleContent>
 	</complexType>
-	<!-- ================================================================== -->
-	<simpleType name="TimePositionUnion">
+    <!-- ================================================================== -->
+    <simpleType name="TimePositionUnion">
 		<annotation>
 			<documentation xml:lang="en">The ISO 19108:2002 hierarchy of subtypes for temporal position are collapsed 
       by defining a union of XML Schema simple types for indicating temporal position relative 
@@ -297,8 +310,8 @@
 		</annotation>
 		<union memberTypes="gml:CalDate time dateTime anyURI decimal"/>
 	</simpleType>
-	<!-- ================================================================== -->
-	<simpleType name="CalDate">
+    <!-- ================================================================== -->
+    <simpleType name="CalDate">
 		<annotation>
 			<documentation xml:lang="en">Calendar dates may be indicated with varying degrees of precision, 
       using year, year-month, date. 
@@ -309,8 +322,8 @@
 		</annotation>
 		<union memberTypes="date gYearMonth gYear"/>
 	</simpleType>
-	<!-- ================================================================== -->
-	<simpleType name="TimeIndeterminateValueType">
+    <!-- ================================================================== -->
+    <simpleType name="TimeIndeterminateValueType">
 		<annotation>
 			<documentation xml:lang="en">This enumerated data type specifies values for indeterminate positions.</documentation>
 		</annotation>
@@ -321,9 +334,9 @@
 			<enumeration value="unknown"/>
 		</restriction>
 	</simpleType>
-	<!-- ================================================================== -->
-	<!-- ==== Convenience properties ==== -->
-	<!-- ================================================================== -->
-	<element name="validTime" type="gml:TimePrimitivePropertyType"/>
-	<!-- ===================================== -->
+    <!-- ================================================================== -->
+    <!-- ==== Convenience properties ==== -->
+    <!-- ================================================================== -->
+    <element name="validTime" type="gml:TimePrimitivePropertyType"/>
+    <!-- ===================================== -->
 </schema>

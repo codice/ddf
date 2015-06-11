@@ -1,4 +1,3 @@
-
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -27,7 +26,8 @@
     <ns1:Media>
       <ns1:mimeType>application/msword</ns1:mimeType>
       <ns1:extent
-        ns1:qualifier="http://metadata.abc.com/mdr/ns/UnitOfMeasure/0.1/ComputerStorage.owl#byte" ns1:value="112640"/>
+              ns1:qualifier="http://metadata.abc.com/mdr/ns/UnitOfMeasure/0.1/ComputerStorage.owl#byte"
+              ns1:value="112640"/>
       <ns1:medium>digital</ns1:medium>
     </ns1:Media>
   </ns1:format>
@@ -37,12 +37,15 @@
       <ns1:keyword ns1:value="Management"/>
       <ns1:keyword ns1:value="amps enterprise service"/>
       <ns1:keyword ns1:value="amps ia spiral 1"/>
-      <ns1:category ns1:code="Application" ns1:label="application" ns1:qualifier="http://abc.com.xy/afca/vocabulary#"/>
+      <ns1:category ns1:code="Application" ns1:label="application"
+                    ns1:qualifier="http://abc.com.xy/afca/vocabulary#"/>
       <ns1:category ns1:code="Classification"
-        ns1:label="classification" ns1:qualifier="http://abc.com.xy/afca/vocabulary#"/>
-      <ns1:category ns1:code="Development" ns1:label="Development" ns1:qualifier="http://www.abc.com/schemas/afi#"/>
-      <ns1:category ns1:code="translator" ns1:label="translator" ns1:qualifier="http://www.abc.com/schemas/dtic#"/>
+                    ns1:label="classification" ns1:qualifier="http://abc.com.xy/afca/vocabulary#"/>
+      <ns1:category ns1:code="Development" ns1:label="Development"
+                    ns1:qualifier="http://www.abc.com/schemas/afi#"/>
+      <ns1:category ns1:code="translator" ns1:label="translator"
+                    ns1:qualifier="http://www.abc.com/schemas/dtic#"/>
     </ns1:Subject>
   </ns1:subjectCoverage>
-    <ns1:security ns2:classification="U" ns2:ownerProducer="USA" />
+    <ns1:security ns2:classification="U" ns2:ownerProducer="USA"/>
 </ns1:Resource>

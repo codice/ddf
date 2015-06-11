@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog;
 
 import static org.hamcrest.Matchers.startsWith;
@@ -48,10 +47,10 @@ import ddf.catalog.operation.QueryResponse;
 
 /**
  * Tests the {@link RemoveAllCommand} output.
- * 
+ *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class TestRemoveAllCommand {
 
@@ -61,7 +60,7 @@ public class TestRemoveAllCommand {
 
     /**
      * If it is possible to give bad batch size, this test checks the proper outcome.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -96,7 +95,7 @@ public class TestRemoveAllCommand {
 
     /**
      * Checks the forced (-f) generic case.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -175,8 +174,8 @@ public class TestRemoveAllCommand {
 
         BundleContext context = mock(BundleContext.class);
 
-        when(context.getServiceReference(eq(CatalogFramework.class.getName()))).thenReturn(
-                mock(ServiceReference.class));
+        when(context.getServiceReference(eq(CatalogFramework.class.getName())))
+                .thenReturn(mock(ServiceReference.class));
 
         when(context.getService(isA(ServiceReference.class))).thenReturn(framework);
 

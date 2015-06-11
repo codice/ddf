@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.impl.filter;
 
 import java.util.List;
@@ -29,14 +28,14 @@ import org.slf4j.LoggerFactory;
 /**
  * Used as a customized function in a {@link Filter}. This {@link Function} will wrap a property
  * name to signify that it must be searched in a "fuzzy" manner
- * 
+ *
  * @author Ashraf Barakat
  * @deprecated
  */
 public class FuzzyFunction extends FunctionExpressionImpl {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FuzzyFunction.class);
-
     public static final String FUNCTION_NAME = "fuzzy";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FuzzyFunction.class);
 
     public static FunctionName NAME = new FunctionNameImpl(FUNCTION_NAME, Expression.class,
             FunctionNameImpl.parameter("expression", Expression.class));

@@ -1,18 +1,19 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.security.audit;
+
+import org.apache.shiro.subject.Subject;
 
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -23,7 +24,6 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SecurityConstants;
 import ddf.security.SubjectUtils;
 import ddf.security.common.audit.SecurityLogger;
-import org.apache.shiro.subject.Subject;
 
 /**
  * Security-based plugin that Audits Resource Retrieval requests.
@@ -52,12 +52,10 @@ public class RetrieveResourceAuditPlugin implements PreResourcePlugin, PostResou
             Object subjectObj = input.getPropertyValue(SecurityConstants.SECURITY_SUBJECT);
             if (subjectObj instanceof Subject) {
                 String username = SubjectUtils.getName((Subject) subjectObj);
-                String msg =
-                        "User [" + username + "] successfully retrieved resource [" + input
-                                .getRequest()
-                                .getAttributeValue()
-                                + "] by [" + input.getRequest().getAttributeName()
-                                + "] with file name [" + input.getResource().getName() + "].";
+                String msg = "User [" + username + "] successfully retrieved resource [" + input
+                        .getRequest().getAttributeValue() + "] by [" + input.getRequest()
+                        .getAttributeName() + "] with file name [" + input.getResource().getName()
+                        + "].";
                 SecurityLogger.logInfo(msg);
             }
         }

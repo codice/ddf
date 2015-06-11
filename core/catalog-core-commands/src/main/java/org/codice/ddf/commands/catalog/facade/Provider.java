@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog.facade;
 
 import java.util.Collections;
@@ -65,26 +64,26 @@ public class Provider extends CatalogFacade {
     }
 
     @Override
-    public CreateResponse create(CreateRequest createRequest) throws IngestException,
-        SourceUnavailableException {
+    public CreateResponse create(CreateRequest createRequest)
+            throws IngestException, SourceUnavailableException {
         return this.provider.create(createRequest);
     }
 
     @Override
-    public UpdateResponse update(UpdateRequest updateRequest) throws IngestException,
-        SourceUnavailableException {
+    public UpdateResponse update(UpdateRequest updateRequest)
+            throws IngestException, SourceUnavailableException {
         return this.provider.update(updateRequest);
     }
 
     @Override
-    public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException,
-        SourceUnavailableException {
+    public DeleteResponse delete(DeleteRequest deleteRequest)
+            throws IngestException, SourceUnavailableException {
         return this.provider.delete(deleteRequest);
     }
 
     @Override
-    public SourceResponse query(QueryRequest query) throws UnsupportedQueryException,
-        SourceUnavailableException, FederationException {
+    public SourceResponse query(QueryRequest query)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
         return this.provider.query(query);
     }
 

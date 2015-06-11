@@ -1,47 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.source.solr;
 
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeType;
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardCreationException;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.MetacardTypeImpl;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrException;
-import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.util.SimpleOrderedMap;
-import org.codehaus.stax2.XMLInputFactory2;
-import org.codice.solr.factory.ConfigurationStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -58,14 +29,46 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrException;
+import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.util.SimpleOrderedMap;
+import org.codehaus.stax2.XMLInputFactory2;
+import org.codice.solr.factory.ConfigurationStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
+import ddf.catalog.data.AttributeType.AttributeFormat;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardCreationException;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+
 /**
  * This class tries to resolve all user given field names to their corresponding dynamic Solr index
  * field name. This class takes most of its logic directly from the configured Solr schema.xml. For
  * instance, the suffixes enumerated in this class are directly copied from the schema.xml.
- * 
+ *
  * @since 0.2.0
  */
 public class DynamicSchemaResolver {
+
+    public static final String LUX_XML_FIELD_NAME = "lux_xml";
 
     protected static final char FIRST_CHAR_OF_SUFFIX = '_';
 
@@ -75,14 +78,33 @@ public class DynamicSchemaResolver {
 
     protected static final String COULD_NOT_SERIALIZE_OBJECT_MESSAGE = "Could not serialize object";
 
+    protected static final XMLInputFactory xmlInputFactory;
+
     private static final String SOLR_CLOUD_VERSION_FIELD = "_version_";
 
-    private static final List<String> PRIVATE_SOLR_FIELDS = Arrays.asList(SOLR_CLOUD_VERSION_FIELD,
-            SchemaFields.METACARD_TYPE_FIELD_NAME, SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
+    private static final List<String> PRIVATE_SOLR_FIELDS = Arrays
+            .asList(SOLR_CLOUD_VERSION_FIELD, SchemaFields.METACARD_TYPE_FIELD_NAME,
+                    SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSchemaResolver.class);
 
-    public static final String LUX_XML_FIELD_NAME = "lux_xml";
+    static {
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread()
+                    .setContextClassLoader(DynamicSchemaResolver.class.getClassLoader());
+
+            xmlInputFactory = XMLInputFactory2.newInstance();
+            xmlInputFactory
+                    .setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
+            xmlInputFactory
+                    .setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+            xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+            xmlInputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
+        } finally {
+            Thread.currentThread().setContextClassLoader(tccl);
+        }
+    }
 
     protected Set<String> fieldsCache = new HashSet<>();
 
@@ -91,26 +113,6 @@ public class DynamicSchemaResolver {
     protected Map<String, MetacardType> metacardTypesCache = new HashMap<>();
 
     protected Map<String, byte[]> metacardTypeNameToSerialCache = new HashMap<>();
-
-    protected static final XMLInputFactory xmlInputFactory;
-
-    static {
-        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(
-                    DynamicSchemaResolver.class.getClassLoader());
-
-            xmlInputFactory = XMLInputFactory2.newInstance();
-            xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES,
-                    Boolean.FALSE);
-            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
-                    Boolean.FALSE);
-            xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
-            xmlInputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-        } finally {
-            Thread.currentThread().setContextClassLoader(tccl);
-        }
-    }
 
     public DynamicSchemaResolver() {
         this.schemaFields = new SchemaFields();
@@ -124,7 +126,7 @@ public class DynamicSchemaResolver {
     /**
      * Adds the fields that are already in the server to the cache. This method should be called
      * once the SolrServer is up to ensure the cache is synchronized with the server.
-     * 
+     *
      * @param server
      *            the SolrServer we are working with
      */
@@ -161,7 +163,7 @@ public class DynamicSchemaResolver {
      * Adds the fields of the Metacard into the {@link SolrInputDocument}
      */
     public void addFields(Metacard metacard, SolrInputDocument solrInputDocument)
-        throws MetacardCreationException {
+            throws MetacardCreationException {
         MetacardType schema = metacard.getMetacardType();
 
         // TODO: register these metacard types when a new one is seen
@@ -179,9 +181,9 @@ public class DynamicSchemaResolver {
                         solrInputDocument.addField(formatIndexName, attributeValue);
 
                         // text
-                        String specialStringIndexName = ad.getName()
-                                + getFieldSuffix(AttributeFormat.STRING)
-                                + getSpecialIndexSuffix(AttributeFormat.STRING);
+                        String specialStringIndexName =
+                                ad.getName() + getFieldSuffix(AttributeFormat.STRING)
+                                        + getSpecialIndexSuffix(AttributeFormat.STRING);
                         String parsedText = parseTextFrom(attributeValue.toString());
                         solrInputDocument.addField(specialStringIndexName, parsedText);
 
@@ -239,7 +241,7 @@ public class DynamicSchemaResolver {
 
     /**
      * Returns the best approximation as to what {@link AttributeFormat} this Solr Field is.
-     * 
+     *
      * @param solrFieldName
      *            name of the Solr field
      * @return the {@link AttributeFormat} associated with the Solr field
@@ -293,10 +295,10 @@ public class DynamicSchemaResolver {
 
     /**
      * PRE-CONDITION is that fieldname cannot be null.
-     * 
+     *
      * The convention is that we add a suffix starting with an underscore, so if we find the last
      * underscore, then we can return the original field name.
-     * 
+     *
      * @param solrFieldName Solr index field name
      * @return the original field name
      */
@@ -315,7 +317,7 @@ public class DynamicSchemaResolver {
 
     /**
      * Attempts to resolve the name of a field without being given an {@link AttributeFormat}
-     * 
+     *
      * @param field
      *            user given field name
      * @return a list of possible Solr field names that match the given field. If none are found,
@@ -337,7 +339,7 @@ public class DynamicSchemaResolver {
 
     /**
      * Attempts to find the fieldName for the given propertyName value.
-     * 
+     *
      * @param propertyName
      *            property name provided by user
      * @param format
@@ -350,8 +352,10 @@ public class DynamicSchemaResolver {
     public String getField(String propertyName, AttributeFormat format,
             boolean isSearchedAsExactValue) {
 
-        String fieldName = propertyName + schemaFields.getFieldSuffix(format)
-                + (isSearchedAsExactValue ? "" : getSpecialIndexSuffix(format));
+        String fieldName = propertyName + schemaFields.getFieldSuffix(format) + (
+                isSearchedAsExactValue ?
+                        "" :
+                        getSpecialIndexSuffix(format));
 
         if (fieldsCache.contains(fieldName)) {
             return fieldName;
@@ -368,7 +372,9 @@ public class DynamicSchemaResolver {
             break;
         }
 
-        LOGGER.info("Could not find exact schema field name for [{}], attempting to search with [{}]", propertyName, fieldName);
+        LOGGER.info(
+                "Could not find exact schema field name for [{}], attempting to search with [{}]",
+                propertyName, fieldName);
 
         return fieldName;
     }
@@ -504,14 +510,16 @@ public class DynamicSchemaResolver {
             return propertyName + SchemaFields.SHORT_SUFFIX;
         }
 
-        LOGGER.info("Did not find any numerical schema fields for property [{}]. Replacing with property [{}]", propertyName, propertyName + SchemaFields.INTEGER_SUFFIX);
+        LOGGER.info(
+                "Did not find any numerical schema fields for property [{}]. Replacing with property [{}]",
+                propertyName, propertyName + SchemaFields.INTEGER_SUFFIX);
         return propertyName + SchemaFields.INTEGER_SUFFIX;
     }
 
     /**
      * Given xml as a string, this method will parse out element text and CDATA text. It separates
      * each by one space character.
-     * 
+     *
      * @param xmlData
      *            XML as a {@code String}
      * @return parsed CDATA and element text
@@ -526,8 +534,7 @@ public class DynamicSchemaResolver {
         try {
             // xml parser does not handle leading whitespace
             sr = new StringReader(xmlData);
-            xmlStreamReader = xmlInputFactory
-                    .createXMLStreamReader(sr);
+            xmlStreamReader = xmlInputFactory.createXMLStreamReader(sr);
 
             while (xmlStreamReader.hasNext()) {
                 int event = xmlStreamReader.next();
@@ -572,20 +579,24 @@ public class DynamicSchemaResolver {
 
         return builder.toString();
     }
-    
-    private Set<AttributeDescriptor> convertAttributeDescriptors(Set<AttributeDescriptor> attributeDescriptors) {
-        Set<AttributeDescriptor> newAttributeDescriptors = new HashSet<>(attributeDescriptors.size());
-        
-        for(AttributeDescriptor attributeDescriptor : attributeDescriptors) {
+
+    private Set<AttributeDescriptor> convertAttributeDescriptors(
+            Set<AttributeDescriptor> attributeDescriptors) {
+        Set<AttributeDescriptor> newAttributeDescriptors = new HashSet<>(
+                attributeDescriptors.size());
+
+        for (AttributeDescriptor attributeDescriptor : attributeDescriptors) {
             String name = attributeDescriptor.getName();
             boolean isIndexed = attributeDescriptor.isIndexed();
             boolean isStored = attributeDescriptor.isStored();
             boolean isTokenized = attributeDescriptor.isTokenized();
             boolean isMultiValued = attributeDescriptor.isMultiValued();
             AttributeType<?> attributeType = attributeDescriptor.getType();
-            newAttributeDescriptors.add(new AttributeDescriptorImpl(name, isIndexed, isStored, isTokenized, isMultiValued, attributeType));
+            newAttributeDescriptors
+                    .add(new AttributeDescriptorImpl(name, isIndexed, isStored, isTokenized,
+                            isMultiValued, attributeType));
         }
-        
+
         return newAttributeDescriptors;
     }
 }

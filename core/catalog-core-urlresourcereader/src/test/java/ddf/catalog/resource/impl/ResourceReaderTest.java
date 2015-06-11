@@ -1,42 +1,27 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.resource.impl;
 
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.mime.MimeTypeMapper;
-import ddf.mime.MimeTypeResolver;
-import ddf.mime.custom.CustomMimeTypeResolver;
-import ddf.mime.mapper.MimeTypeMapperImpl;
-import ddf.mime.tika.TikaMimeTypeResolver;
-import junit.framework.Assert;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.tika.metadata.HttpHeaders;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.MethodRule;
-import org.junit.rules.TestWatchman;
-import org.junit.runners.model.FrameworkMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -51,19 +36,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.tika.metadata.HttpHeaders;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.MethodRule;
+import org.junit.rules.TestWatchman;
+import org.junit.runners.model.FrameworkMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import junit.framework.Assert;
+
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.mime.MimeTypeMapper;
+import ddf.mime.MimeTypeResolver;
+import ddf.mime.custom.CustomMimeTypeResolver;
+import ddf.mime.mapper.MimeTypeMapperImpl;
+import ddf.mime.tika.TikaMimeTypeResolver;
 
 public class ResourceReaderTest {
-
-
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceReaderTest.class);
 
@@ -105,24 +104,6 @@ public class ResourceReaderTest {
 
     private static final String BYTES_TO_SKIP = "BytesToSkip";
 
-    private MimeTypeMapper mimeTypeMapper;
-
-    private CustomMimeTypeResolver customResolver;
-
-    private WebClient mockWebClient = mock(WebClient.class);
-
-    private class TestURLResourceReader extends URLResourceReader {
-
-        public TestURLResourceReader(MimeTypeMapper mimeTypeMapper) {
-            super(mimeTypeMapper);
-        }
-
-        @Override
-        protected WebClient getWebClient(String uri) {
-            return mockWebClient;
-        }
-    }
-
     @Rule
     public MethodRule watchman = new TestWatchman() {
         public void starting(FrameworkMethod method) {
@@ -131,10 +112,24 @@ public class ResourceReaderTest {
         }
 
         public void finished(FrameworkMethod method) {
-            LOGGER.debug("***************************  END: {}  **************************\n"
-                    + method.getName());
+            LOGGER.debug(
+                    "***************************  END: {}  **************************\n" + method
+                            .getName());
         }
     };
+
+    private MimeTypeMapper mimeTypeMapper;
+
+    private CustomMimeTypeResolver customResolver;
+
+    private WebClient mockWebClient = mock(WebClient.class);
+
+    private static InputStream getBinaryData() {
+
+        byte[] sampleBytes = {65, 66, 67, 68, 69};
+
+        return new ByteArrayInputStream(sampleBytes);
+    }
 
     @Before
     public void setUp() {
@@ -216,8 +211,8 @@ public class ResourceReaderTest {
     public void testReadFileWithCustomExtension() {
         // Add custom file extension to mime type mapping to custom mime type
         // resolver
-        this.customResolver.setCustomMimeTypes(new String[] {CUSTOM_FILE_EXTENSION + "="
-                + CUSTOM_MIME_TYPE});
+        this.customResolver
+                .setCustomMimeTypes(new String[] {CUSTOM_FILE_EXTENSION + "=" + CUSTOM_MIME_TYPE});
 
         String filePath = ABSOLUTE_PATH + TEST_PATH + "CustomExtension.xyz";
         verifyFile(filePath, "CustomExtension.xyz", CUSTOM_MIME_TYPE);
@@ -233,8 +228,8 @@ public class ResourceReaderTest {
     public void testJpegWithCustomExtension() {
         // Add custom file extension to mime type mapping to custom mime type
         // resolver
-        this.customResolver.setCustomMimeTypes(new String[] {CUSTOM_FILE_EXTENSION + "="
-                + CUSTOM_MIME_TYPE});
+        this.customResolver
+                .setCustomMimeTypes(new String[] {CUSTOM_FILE_EXTENSION + "=" + CUSTOM_MIME_TYPE});
 
         String filePath = ABSOLUTE_PATH + TEST_PATH + "JpegWithCustomExtension.xyz";
         verifyFile(filePath, "JpegWithCustomExtension.xyz", CUSTOM_MIME_TYPE);
@@ -295,8 +290,8 @@ public class ResourceReaderTest {
     }
 
     @Test
-    public void testHTTPReturnsFileNameWithoutPath() throws URISyntaxException, IOException,
-        ResourceNotFoundException {
+    public void testHTTPReturnsFileNameWithoutPath()
+            throws URISyntaxException, IOException, ResourceNotFoundException {
         URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + JPEG_FILE_NAME_1);
 
         verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE);
@@ -307,8 +302,8 @@ public class ResourceReaderTest {
     }
 
     @Test
-    public void testNameInContentDisposition() throws URISyntaxException, IOException,
-            ResourceNotFoundException {
+    public void testNameInContentDisposition()
+            throws URISyntaxException, IOException, ResourceNotFoundException {
         URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
         Response mockResponse = mock(Response.class);
         when(mockWebClient.get()).thenReturn(mockResponse);
@@ -328,8 +323,8 @@ public class ResourceReaderTest {
     }
 
     @Test
-    public void testRetrievingPartialContent() throws URISyntaxException, IOException,
-            ResourceNotFoundException {
+    public void testRetrievingPartialContent()
+            throws URISyntaxException, IOException, ResourceNotFoundException {
         URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
 
         Response mockResponse = mock(Response.class);
@@ -352,8 +347,8 @@ public class ResourceReaderTest {
     }
 
     @Test
-    public void testUnquotedNameInContentDisposition() throws URISyntaxException, IOException,
-        ResourceNotFoundException {
+    public void testUnquotedNameInContentDisposition()
+            throws URISyntaxException, IOException, ResourceNotFoundException {
         URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
 
         Response mockResponse = mock(Response.class);
@@ -370,8 +365,8 @@ public class ResourceReaderTest {
     }
 
     @Test
-    public void testUnquotedNameEndingSemicolonInContentDisposition() throws URISyntaxException,
-        IOException, ResourceNotFoundException {
+    public void testUnquotedNameEndingSemicolonInContentDisposition()
+            throws URISyntaxException, IOException, ResourceNotFoundException {
         URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
         Response mockResponse = mock(Response.class);
         when(mockWebClient.get()).thenReturn(mockResponse);
@@ -433,7 +428,7 @@ public class ResourceReaderTest {
     }
 
     private void verifyFileFromURLResourceReader(URI uri, String filename, String expectedMimeType)
-        throws URISyntaxException, IOException, ResourceNotFoundException {
+            throws URISyntaxException, IOException, ResourceNotFoundException {
         Response mockResponse = mock(Response.class);
         when(mockWebClient.get()).thenReturn(mockResponse);
         MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
@@ -485,11 +480,16 @@ public class ResourceReaderTest {
         return resourceResponse;
     }
 
-    private static InputStream getBinaryData() {
+    private class TestURLResourceReader extends URLResourceReader {
 
-        byte[] sampleBytes = {65, 66, 67, 68, 69};
+        public TestURLResourceReader(MimeTypeMapper mimeTypeMapper) {
+            super(mimeTypeMapper);
+        }
 
-        return new ByteArrayInputStream(sampleBytes);
+        @Override
+        protected WebClient getWebClient(String uri) {
+            return mockWebClient;
+        }
     }
 
 }

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.operation.impl;
 
 import java.io.Serializable;
@@ -36,7 +35,7 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
 
     /**
      * Instantiates a new DeleteRequestImpl with a single {@link String} id to be deleted.
-     * 
+     *
      * @param id
      *            - the id to be used for the delete operation
      */
@@ -46,7 +45,7 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
 
     /**
      * Instantiates a new DeleteRequestImpl with an array of {@link String} id to be deleted.
-     * 
+     *
      * @param id1
      *            - the id to be used for the delete operation
      */
@@ -57,7 +56,7 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
     /**
      * Instantiates a new DeleteRequestImpl to be deleted with an array of {@link String} ids and a
      * {@link Map} of properties
-     * 
+     *
      * @param ids
      *            - {@link String} list of ids
      * @param properties
@@ -69,7 +68,7 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
 
     /**
      * Instantiates a new DeleteRequestImpl with an single {@link URI}
-     * 
+     *
      * @param uri
      *            - the {@link URI} to be used for the delete operation
      */
@@ -79,7 +78,7 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
 
     /**
      * Instantiates a new DeleteRequestImpl with a {@link URI} array
-     * 
+     *
      * @param uris
      *            - the list of {@link URI} to be used for the delete operation
      */
@@ -90,7 +89,7 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
     /**
      * Instantiates a new DeleteRequestImpl with a {@link URI} array with a {@link Map} of
      * properties
-     * 
+     *
      * @param uris
      *            - the list of {@link URI} to be deleted
      * @param properties
@@ -103,7 +102,7 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
     /**
      * Instantiates a new DeleteRequestImpl with a {@link List} of {@link Serializable} values. This
      * allows for custom delete operations aside from String id or URI.
-     * 
+     *
      * @param values
      *            - the values to be used in the delete operation
      * @param attributeName

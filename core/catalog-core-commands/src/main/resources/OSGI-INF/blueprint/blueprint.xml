@@ -1,4 +1,3 @@
-
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -17,55 +16,55 @@
 	<command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
 
 		<command name="catalog/ingest">
-			<action class="org.codice.ddf.commands.catalog.IngestCommand" />
+			<action class="org.codice.ddf.commands.catalog.IngestCommand"/>
 		</command>
 
 		<command name="catalog/inspect">
-			<action class="org.codice.ddf.commands.catalog.InspectCommand" />
+			<action class="org.codice.ddf.commands.catalog.InspectCommand"/>
 		</command>
 
 		<command name="catalog/latest">
-			<action class="org.codice.ddf.commands.catalog.LatestCommand" />
+			<action class="org.codice.ddf.commands.catalog.LatestCommand"/>
 		</command>
 
 		<command name="catalog/remove">
-			<action class="org.codice.ddf.commands.catalog.RemoveCommand" />
+			<action class="org.codice.ddf.commands.catalog.RemoveCommand"/>
 		</command>
 
 		<command name="catalog/removeall">
-			<action class="org.codice.ddf.commands.catalog.RemoveAllCommand" />
+			<action class="org.codice.ddf.commands.catalog.RemoveAllCommand"/>
 		</command>
 
 		<command name="catalog/search">
-			<action class="org.codice.ddf.commands.catalog.SearchCommand" />
+			<action class="org.codice.ddf.commands.catalog.SearchCommand"/>
 		</command>
 
 		<command name="catalog/spatial">
-			<action class="org.codice.ddf.commands.catalog.SpatialCommand" />
+			<action class="org.codice.ddf.commands.catalog.SpatialCommand"/>
 		</command>
 
 		<command name="catalog/envlist">
-			<action class="org.codice.ddf.commands.catalog.EnvListCommand" />
+			<action class="org.codice.ddf.commands.catalog.EnvListCommand"/>
 		</command>
 
 		<command name="catalog/describe">
-			<action class="org.codice.ddf.commands.catalog.DescribeCommand" />
+			<action class="org.codice.ddf.commands.catalog.DescribeCommand"/>
 		</command>
 		
 		<command name="catalog/dump">
-			<action class="org.codice.ddf.commands.catalog.DumpCommand" />
+			<action class="org.codice.ddf.commands.catalog.DumpCommand"/>
 		</command>
 
 		<command name="catalog/range">
-			<action class="org.codice.ddf.commands.catalog.RangeCommand" />
+			<action class="org.codice.ddf.commands.catalog.RangeCommand"/>
 		</command>
 		
 		<command name="catalog/replicate">
-			<action class="org.codice.ddf.commands.catalog.ReplicationCommand" />
+			<action class="org.codice.ddf.commands.catalog.ReplicationCommand"/>
 		</command>
 		
 		<command name="catalog/migrate">
-			<action class="org.codice.ddf.commands.catalog.MigrateCommand" />
+			<action class="org.codice.ddf.commands.catalog.MigrateCommand"/>
 		</command>
 	</command-bundle>
 

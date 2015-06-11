@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml" elementFormDefault="qualified" version="3.1.1" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml">
+<schema xmlns:gml="http://www.opengis.net/gml" targetNamespace="http://www.opengis.net/gml" elementFormDefault="qualified"
+        version="3.1.1" xmlns="http://www.w3.org/2001/XMLSchema">
 	<annotation>
 		<appinfo source="urn:opengis:specification:gml:schema-xsd:dictionary:3.1.1"/>
 		<documentation>
@@ -8,15 +9,15 @@
     Copyright (c) 2005 OGC, All Rights Reserved.
 	For conditions, see OGC Software Notice http://www.opengeospatial.org/about/?page=ipr</documentation>
 	</annotation>
-	<!-- ========================================================
+    <!-- ========================================================
        includes and imports
-	======================================================== -->
-	<include schemaLocation="gmlBase.xsd"/>
-	<!-- ===================================================== -->
-	<!-- ===================================================== -->
-	<!-- === Dictionary and Definition components === -->
-	<!-- ===================================================== -->
-	<group name="StandardDefinitionProperties">
+    ======================================================== -->
+    <include schemaLocation="gmlBase.xsd"/>
+    <!-- ===================================================== -->
+    <!-- ===================================================== -->
+    <!-- === Dictionary and Definition components === -->
+    <!-- ===================================================== -->
+    <group name="StandardDefinitionProperties">
 		<annotation>
 			<documentation>This content model group makes it easier to construct types that 
       derive from DefinitionType and its descendents "by restriction".  
@@ -29,10 +30,10 @@
 			<element ref="gml:name" maxOccurs="unbounded"/>
 		</sequence>
 	</group>
-	<!-- ===================================================== -->
-	<element name="Definition" type="gml:DefinitionType" substitutionGroup="gml:_GML"/>
-	<!-- ===================================================== -->
-	<complexType name="DefinitionType">
+    <!-- ===================================================== -->
+    <element name="Definition" type="gml:DefinitionType" substitutionGroup="gml:_GML"/>
+    <!-- ===================================================== -->
+    <complexType name="DefinitionType">
 		<annotation>
 			<documentation>A definition, which can be included in or referenced by a dictionary. In this extended type, the inherited "description" optional element can hold the definition whenever only text is needed. The inherited "name" elements can provide one or more brief terms for which this is the definition. The inherited "metaDataProperty" elements can be used to reference or include more information about this definition.  
 The gml:id attribute is required - it must be possible to reference this definition using this handle.  </documentation>
@@ -48,11 +49,12 @@ The gml:id attribute is required - it must be possible to reference this definit
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- ===================================================== -->
-	<element name="Dictionary" type="gml:DictionaryType" substitutionGroup="gml:Definition"/>
-	<element name="DefinitionCollection" type="gml:DictionaryType" substitutionGroup="gml:Definition"/>
-	<!-- ===================================================== -->
-	<complexType name="DictionaryType">
+    <!-- ===================================================== -->
+    <element name="Dictionary" type="gml:DictionaryType" substitutionGroup="gml:Definition"/>
+	<element name="DefinitionCollection" type="gml:DictionaryType"
+             substitutionGroup="gml:Definition"/>
+    <!-- ===================================================== -->
+    <complexType name="DictionaryType">
 		<annotation>
 			<documentation>A non-abstract bag that is specialized for use as a dictionary which contains a set of definitions. These definitions are referenced from other places, in the same and different XML documents. In this restricted type, the inherited optional "description" element can be used for a description of this dictionary. The inherited optional "name" element can be used for the name(s) of this dictionary. The inherited "metaDataProperty" elements can be used to reference or contain more information about this dictionary. The inherited required gml:id attribute allows the dictionary to be referenced using this handle. </documentation>
 		</annotation>
@@ -75,11 +77,12 @@ The gml:id attribute is required - it must be possible to reference this definit
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ===================================================== -->
-	<element name="dictionaryEntry" type="gml:DictionaryEntryType"/>
-	<element name="definitionMember" type="gml:DictionaryEntryType" substitutionGroup="gml:dictionaryEntry"/>
-	<!-- ===================================================== -->
-	<complexType name="DictionaryEntryType">
+    <!-- ===================================================== -->
+    <element name="dictionaryEntry" type="gml:DictionaryEntryType"/>
+	<element name="definitionMember" type="gml:DictionaryEntryType"
+             substitutionGroup="gml:dictionaryEntry"/>
+    <!-- ===================================================== -->
+    <complexType name="DictionaryEntryType">
 		<annotation>
 			<documentation>An entry in a dictionary of definitions. An instance of this type contains or refers to a definition object.  
 
@@ -98,10 +101,10 @@ The number of definitions contained in this dictionaryEntry is restricted to one
 			</annotation>
 		</attributeGroup>
 	</complexType>
-	<!-- ===================================================== -->
-	<element name="indirectEntry" type="gml:IndirectEntryType"/>
-	<!-- ===================================================== -->
-	<complexType name="IndirectEntryType">
+    <!-- ===================================================== -->
+    <element name="indirectEntry" type="gml:IndirectEntryType"/>
+    <!-- ===================================================== -->
+    <complexType name="IndirectEntryType">
 		<annotation>
 			<documentation>An entry in a dictionary of definitions that contains a GML object which references a remote definition object. This entry is expected to be convenient in allowing multiple elements in one XML document to contain short (abbreviated XPointer) references, which are resolved to an external definition provided in a Dictionary element in the same XML document. Specialized descendents of this dictionaryEntry might be restricted in an application schema to allow only including specified types of definitions as valid entries in a dictionary. </documentation>
 		</annotation>
@@ -109,10 +112,11 @@ The number of definitions contained in this dictionaryEntry is restricted to one
 			<element ref="gml:DefinitionProxy"/>
 		</sequence>
 	</complexType>
-	<!-- ===================================================== -->
-	<element name="DefinitionProxy" type="gml:DefinitionProxyType" substitutionGroup="gml:Definition"/>
-	<!-- ===================================================== -->
-	<complexType name="DefinitionProxyType">
+    <!-- ===================================================== -->
+    <element name="DefinitionProxy" type="gml:DefinitionProxyType"
+             substitutionGroup="gml:Definition"/>
+    <!-- ===================================================== -->
+    <complexType name="DefinitionProxyType">
 		<annotation>
 			<documentation>A proxy entry in a dictionary of definitions. An element of this type contains a reference to a remote definition object. This entry is expected to be convenient in allowing multiple elements in one XML document to contain short (abbreviated XPointer) references, which are resolved to an external definition provided in a Dictionary element in the same XML document. </documentation>
 		</annotation>
@@ -128,7 +132,7 @@ The number of definitions contained in this dictionaryEntry is restricted to one
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ===================================================== -->
-	<element name="definitionRef" type="gml:ReferenceType"/>
-	<!-- =========================================================== -->
+    <!-- ===================================================== -->
+    <element name="definitionRef" type="gml:ReferenceType"/>
+    <!-- =========================================================== -->
 </schema>

@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.opengis.net/gml" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml" elementFormDefault="qualified" version="3.1.1">
+<schema xmlns:gml="http://www.opengis.net/gml"
+		targetNamespace="http://www.opengis.net/gml" xmlns="http://www.w3.org/2001/XMLSchema"
+		elementFormDefault="qualified" version="3.1.1">
 	<annotation>
-		<appinfo source="urn:opengis:specification:gml:schema-xsd:coverage:3.1.1">coverage.xsd</appinfo>
+		<appinfo
+                source="urn:opengis:specification:gml:schema-xsd:coverage:3.1.1">coverage.xsd</appinfo>
 		<documentation xml:lang="en">GML Coverage schema. 
         Copyright (c) 2005 OGC, All Rights Reserved.
 	For conditions, see OGC Software Notice http://www.opengeospatial.org/about/?page=ipr</documentation>
 	</annotation>
-	<!-- ==============================================================
+    <!-- ==============================================================
        includes and imports
-	============================================================== -->
-	<include schemaLocation="feature.xsd"/>
+    ============================================================== -->
+    <include schemaLocation="feature.xsd"/>
 	<include schemaLocation="valueObjects.xsd"/>
 	<include schemaLocation="grids.xsd"/>
 	<include schemaLocation="geometryAggregates.xsd"/>
-	<!-- ==============================================================
+    <!-- ==============================================================
        global types and elements
-	============================================================== -->
-	<!-- ================= Abstract coverage definition ================== -->
-	<!-- =========================================================== -->
-	<!-- =========================================================== -->
-	<element name="_Coverage" type="gml:AbstractCoverageType" abstract="true" substitutionGroup="gml:_Feature"/>
-	<!-- =========================================================== -->
-	<complexType name="AbstractCoverageType" abstract="true">
+    ============================================================== -->
+    <!-- ================= Abstract coverage definition ================== -->
+    <!-- =========================================================== -->
+    <!-- =========================================================== -->
+    <element name="_Coverage" type="gml:AbstractCoverageType" abstract="true"
+             substitutionGroup="gml:_Feature"/>
+    <!-- =========================================================== -->
+    <complexType name="AbstractCoverageType" abstract="true">
 		<annotation>
 			<documentation>Abstract element which acts as the head of a substitution group for coverages. Note that a coverage is a GML feature.</documentation>
 		</annotation>
@@ -35,10 +39,11 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="_ContinuousCoverage" type="gml:AbstractContinuousCoverageType" abstract="true" substitutionGroup="gml:_Coverage"/>
-	<!-- =========================================================== -->
-	<complexType name="AbstractContinuousCoverageType" abstract="true">
+    <!-- =========================================================== -->
+    <element name="_ContinuousCoverage" type="gml:AbstractContinuousCoverageType" abstract="true"
+             substitutionGroup="gml:_Coverage"/>
+    <!-- =========================================================== -->
+    <complexType name="AbstractContinuousCoverageType" abstract="true">
 		<annotation>
 			<documentation>A continuous coverage as defined in ISO 19123 is a coverage that can return different values for the same feature attribute at different direct positions within a single spatiotemporal object in its spatiotemporal domain</documentation>
 		</annotation>
@@ -50,10 +55,11 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="_DiscreteCoverage" type="gml:AbstractDiscreteCoverageType" abstract="true" substitutionGroup="gml:_Coverage"/>
-	<!-- =========================================================== -->
-	<complexType name="AbstractDiscreteCoverageType" abstract="true">
+    <!-- =========================================================== -->
+    <element name="_DiscreteCoverage" type="gml:AbstractDiscreteCoverageType" abstract="true"
+             substitutionGroup="gml:_Coverage"/>
+    <!-- =========================================================== -->
+    <complexType name="AbstractDiscreteCoverageType" abstract="true">
 		<annotation>
 			<documentation>A discrete coverage consists of a domain set, range set and optionally a coverage function. The domain set consists of either geometry or temporal objects, finite in number. The range set is comprised of a finite number of attribute values each of which is associated to every direct position within any single spatiotemporal object in the domain. In other words, the range values are constant on each spatiotemporal object in the domain. This coverage function maps each element from the coverage domain to an element in its range. This definition conforms to ISO 19123.</documentation>
 		</annotation>
@@ -65,10 +71,10 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="domainSet" type="gml:DomainSetType"/>
-	<!-- =========================================================== -->
-	<complexType name="DomainSetType">
+    <!-- =========================================================== -->
+    <element name="domainSet" type="gml:DomainSetType"/>
+    <!-- =========================================================== -->
+    <complexType name="DomainSetType">
 		<annotation>
 			<documentation>The spatiotemporal domain of a coverage.  
   Typically 
@@ -86,10 +92,10 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="rangeSet" type="gml:RangeSetType"/>
-	<!-- =========================================================== -->
-	<complexType name="RangeSetType">
+    <!-- =========================================================== -->
+    <element name="rangeSet" type="gml:RangeSetType"/>
+    <!-- =========================================================== -->
+    <complexType name="RangeSetType">
 		<choice>
 			<element ref="gml:ValueArray" maxOccurs="unbounded">
 				<annotation>
@@ -113,10 +119,10 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</element>
 		</choice>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="coverageFunction" type="gml:CoverageFunctionType"/>
-	<!-- =========================================================== -->
-	<complexType name="CoverageFunctionType">
+    <!-- =========================================================== -->
+    <element name="coverageFunction" type="gml:CoverageFunctionType"/>
+    <!-- =========================================================== -->
+    <complexType name="CoverageFunctionType">
 		<annotation>
 			<documentation>The function or rule which defines the map from members of the domainSet to the range.  
       More functions will be added to this list</documentation>
@@ -126,12 +132,12 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			<element ref="gml:GridFunction"/>
 		</choice>
 	</complexType>
-	<!-- =========================================================== -->
-	<!-- ============== Components for encoding the rangeSet ============= -->
-	<!-- =========================================================== -->
-	<element name="DataBlock" type="gml:DataBlockType"/>
-	<!-- =========================================================== -->
-	<complexType name="DataBlockType">
+    <!-- =========================================================== -->
+    <!-- ============== Components for encoding the rangeSet ============= -->
+    <!-- =========================================================== -->
+    <element name="DataBlock" type="gml:DataBlockType"/>
+    <!-- =========================================================== -->
+    <complexType name="DataBlockType">
 		<sequence>
 			<element ref="gml:rangeParameters"/>
 			<choice>
@@ -140,14 +146,14 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</choice>
 		</sequence>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="tupleList" type="gml:CoordinatesType"/>
-	<!-- =========================================================== -->
-	<element name="doubleOrNullTupleList" type="gml:doubleOrNullList"/>
-	<!-- =========================================================== -->
-	<element name="File" type="gml:FileType"/>
-	<!-- =========================================================== -->
-	<complexType name="FileType">
+    <!-- =========================================================== -->
+    <element name="tupleList" type="gml:CoordinatesType"/>
+    <!-- =========================================================== -->
+    <element name="doubleOrNullTupleList" type="gml:doubleOrNullList"/>
+    <!-- =========================================================== -->
+    <element name="File" type="gml:FileType"/>
+    <!-- =========================================================== -->
+    <complexType name="FileType">
 		<sequence>
 			<element ref="gml:rangeParameters"/>
 			<element name="fileName" type="anyURI"/>
@@ -156,8 +162,8 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			<element name="compression" type="anyURI" minOccurs="0"/>
 		</sequence>
 	</complexType>
-	<!-- =========================================================== -->
-	<simpleType name="FileValueModelType">
+    <!-- =========================================================== -->
+    <simpleType name="FileValueModelType">
 		<annotation>
 			<documentation>List of codes that identifies the file structure model for records stored in files.</documentation>
 		</annotation>
@@ -165,10 +171,10 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			<enumeration value="Record Interleaved"/>
 		</restriction>
 	</simpleType>
-	<!-- =========================================================== -->
-	<element name="rangeParameters" type="gml:RangeParametersType"/>
-	<!-- =========================================================== -->
-	<complexType name="RangeParametersType">
+    <!-- =========================================================== -->
+    <element name="rangeParameters" type="gml:RangeParametersType"/>
+    <!-- =========================================================== -->
+    <complexType name="RangeParametersType">
 		<annotation>
 			<documentation>Metadata about the rangeSet.  Definition of record structure.   
       This is required if the rangeSet is encoded in a DataBlock.  
@@ -179,18 +185,18 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 		</sequence>
 		<attributeGroup ref="gml:AssociationAttributeGroup"/>
 	</complexType>
-	<!-- =========================================================== -->
-	<!-- ============= Components for coverageFunctions ================ -->
-	<!-- =========================================================== -->
-	<element name="MappingRule" type="gml:StringOrRefType">
+    <!-- =========================================================== -->
+    <!-- ============= Components for coverageFunctions ================ -->
+    <!-- =========================================================== -->
+    <element name="MappingRule" type="gml:StringOrRefType">
 		<annotation>
 			<documentation>Description of a rule for associating members from the domainSet with members of the rangeSet.</documentation>
 		</annotation>
 	</element>
-	<!-- =========================================================== -->
-	<element name="GridFunction" type="gml:GridFunctionType"/>
-	<!-- =========================================================== -->
-	<complexType name="GridFunctionType">
+    <!-- =========================================================== -->
+    <element name="GridFunction" type="gml:GridFunctionType"/>
+    <!-- =========================================================== -->
+    <complexType name="GridFunctionType">
 		<annotation>
 			<documentation>Defines how values in the domain are mapped to the range set. The start point and the sequencing rule are specified here.</documentation>
 		</annotation>
@@ -207,10 +213,10 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</element>
 		</sequence>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="IndexMap" type="gml:IndexMapType" substitutionGroup="gml:GridFunction"/>
-	<!-- =========================================================== -->
-	<complexType name="IndexMapType">
+    <!-- =========================================================== -->
+    <element name="IndexMap" type="gml:IndexMapType" substitutionGroup="gml:GridFunction"/>
+    <!-- =========================================================== -->
+    <complexType name="IndexMapType">
 		<annotation>
 			<documentation>Exends GridFunctionType with a lookUpTable.  This contains a list of indexes of members within the rangeSet corresponding with the members of the domainSet.  The domainSet is traversed in list order if it is enumerated explicitly, or in the order specified by a SequenceRule if the domain is an implicit set.    The length of the lookUpTable corresponds with the length of the subset of the domainSet for which the coverage is defined.</documentation>
 		</annotation>
@@ -222,16 +228,16 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<complexType name="SequenceRuleType">
+    <!-- =========================================================== -->
+    <complexType name="SequenceRuleType">
 		<simpleContent>
 			<extension base="gml:SequenceRuleNames">
 				<attribute name="order" type="gml:IncrementOrder" use="optional"/>
 			</extension>
 		</simpleContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<simpleType name="SequenceRuleNames">
+    <!-- =========================================================== -->
+    <simpleType name="SequenceRuleNames">
 		<annotation>
 			<documentation>List of codes (adopted from ISO 19123 Annex C) that identifies the rule for traversing a grid to correspond with the sequence of members of the rangeSet.</documentation>
 		</annotation>
@@ -244,8 +250,8 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			<enumeration value="Hilbert"/>
 		</restriction>
 	</simpleType>
-	<!-- =========================================================== -->
-	<simpleType name="IncrementOrder">
+    <!-- =========================================================== -->
+    <simpleType name="IncrementOrder">
 		<annotation>
 			<documentation>The enumeration value here indicates the incrementation order  to be used on the first 2 axes, i.e. "+x-y" means that the points on the first axis are to be traversed from lowest to highest and  the points on the second axis are to be traversed from highest to lowest. The points on all other axes (if any) beyond the first 2 are assumed to increment from lowest to highest.</documentation>
 		</annotation>
@@ -256,12 +262,13 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			<enumeration value="-x-y"/>
 		</restriction>
 	</simpleType>
-	<!-- =========================================================== -->
-	<!-- == Specialised Coverage types - typed by the structure of the domain set == -->
-	<!-- =========================================================== -->
-	<element name="MultiPointCoverage" type="gml:MultiPointCoverageType" substitutionGroup="gml:_DiscreteCoverage"/>
-	<!-- =========================================================== -->
-	<complexType name="MultiPointCoverageType">
+    <!-- =========================================================== -->
+    <!-- == Specialised Coverage types - typed by the structure of the domain set == -->
+    <!-- =========================================================== -->
+    <element name="MultiPointCoverage" type="gml:MultiPointCoverageType"
+             substitutionGroup="gml:_DiscreteCoverage"/>
+    <!-- =========================================================== -->
+    <complexType name="MultiPointCoverageType">
 		<annotation>
 			<documentation>A discrete coverage type whose domain is defined by a collection of point</documentation>
 		</annotation>
@@ -277,10 +284,11 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="multiPointDomain" type="gml:MultiPointDomainType" substitutionGroup="gml:domainSet"/>
-	<!-- =========================================================== -->
-	<complexType name="MultiPointDomainType">
+    <!-- =========================================================== -->
+    <element name="multiPointDomain" type="gml:MultiPointDomainType"
+             substitutionGroup="gml:domainSet"/>
+    <!-- =========================================================== -->
+    <complexType name="MultiPointDomainType">
 		<complexContent>
 			<restriction base="gml:DomainSetType">
 				<sequence minOccurs="0">
@@ -290,10 +298,11 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="MultiCurveCoverage" type="gml:MultiCurveCoverageType" substitutionGroup="gml:_DiscreteCoverage"/>
-	<!-- =========================================================== -->
-	<complexType name="MultiCurveCoverageType">
+    <!-- =========================================================== -->
+    <element name="MultiCurveCoverage" type="gml:MultiCurveCoverageType"
+             substitutionGroup="gml:_DiscreteCoverage"/>
+    <!-- =========================================================== -->
+    <complexType name="MultiCurveCoverageType">
 		<annotation>
 			<documentation>A discrete coverage type whose domain is defined by a collection of curves.</documentation>
 		</annotation>
@@ -309,10 +318,11 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="multiCurveDomain" type="gml:MultiCurveDomainType" substitutionGroup="gml:domainSet"/>
-	<!-- =========================================================== -->
-	<complexType name="MultiCurveDomainType">
+    <!-- =========================================================== -->
+    <element name="multiCurveDomain" type="gml:MultiCurveDomainType"
+             substitutionGroup="gml:domainSet"/>
+    <!-- =========================================================== -->
+    <complexType name="MultiCurveDomainType">
 		<complexContent>
 			<restriction base="gml:DomainSetType">
 				<sequence minOccurs="0">
@@ -322,10 +332,11 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="MultiSurfaceCoverage" type="gml:MultiSurfaceCoverageType" substitutionGroup="gml:_DiscreteCoverage"/>
-	<!-- =========================================================== -->
-	<complexType name="MultiSurfaceCoverageType">
+    <!-- =========================================================== -->
+    <element name="MultiSurfaceCoverage" type="gml:MultiSurfaceCoverageType"
+             substitutionGroup="gml:_DiscreteCoverage"/>
+    <!-- =========================================================== -->
+    <complexType name="MultiSurfaceCoverageType">
 		<annotation>
 			<documentation>A discrete coverage type whose domain is defined by a collection of surface patches (includes polygons, triangles, rectangles, etc).</documentation>
 		</annotation>
@@ -341,10 +352,11 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="multiSurfaceDomain" type="gml:MultiSurfaceDomainType" substitutionGroup="gml:domainSet"/>
-	<!-- =========================================================== -->
-	<complexType name="MultiSurfaceDomainType">
+    <!-- =========================================================== -->
+    <element name="multiSurfaceDomain" type="gml:MultiSurfaceDomainType"
+             substitutionGroup="gml:domainSet"/>
+    <!-- =========================================================== -->
+    <complexType name="MultiSurfaceDomainType">
 		<complexContent>
 			<restriction base="gml:DomainSetType">
 				<sequence minOccurs="0">
@@ -354,10 +366,11 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="MultiSolidCoverage" type="gml:MultiSolidCoverageType" substitutionGroup="gml:_DiscreteCoverage"/>
-	<!-- =========================================================== -->
-	<complexType name="MultiSolidCoverageType">
+    <!-- =========================================================== -->
+    <element name="MultiSolidCoverage" type="gml:MultiSolidCoverageType"
+             substitutionGroup="gml:_DiscreteCoverage"/>
+    <!-- =========================================================== -->
+    <complexType name="MultiSolidCoverageType">
 		<annotation>
 			<documentation>A discrete coverage type whose domain is defined by a collection of Solids.</documentation>
 		</annotation>
@@ -373,10 +386,11 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="multiSolidDomain" type="gml:MultiSolidDomainType" substitutionGroup="gml:domainSet"/>
-	<!-- =========================================================== -->
-	<complexType name="MultiSolidDomainType">
+    <!-- =========================================================== -->
+    <element name="multiSolidDomain" type="gml:MultiSolidDomainType"
+             substitutionGroup="gml:domainSet"/>
+    <!-- =========================================================== -->
+    <complexType name="MultiSolidDomainType">
 		<complexContent>
 			<restriction base="gml:DomainSetType">
 				<sequence minOccurs="0">
@@ -386,10 +400,11 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="GridCoverage" type="gml:GridCoverageType" substitutionGroup="gml:_DiscreteCoverage"/>
-	<!-- =========================================================== -->
-	<complexType name="GridCoverageType">
+    <!-- =========================================================== -->
+    <element name="GridCoverage" type="gml:GridCoverageType"
+             substitutionGroup="gml:_DiscreteCoverage"/>
+    <!-- =========================================================== -->
+    <complexType name="GridCoverageType">
 		<complexContent>
 			<restriction base="gml:AbstractDiscreteCoverageType">
 				<sequence>
@@ -402,10 +417,10 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="gridDomain" type="gml:GridDomainType" substitutionGroup="gml:domainSet"/>
-	<!-- =========================================================== -->
-	<complexType name="GridDomainType">
+    <!-- =========================================================== -->
+    <element name="gridDomain" type="gml:GridDomainType" substitutionGroup="gml:domainSet"/>
+    <!-- =========================================================== -->
+    <complexType name="GridDomainType">
 		<complexContent>
 			<restriction base="gml:DomainSetType">
 				<sequence minOccurs="0">
@@ -415,10 +430,11 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="RectifiedGridCoverage" type="gml:RectifiedGridCoverageType" substitutionGroup="gml:_DiscreteCoverage"/>
-	<!-- =========================================================== -->
-	<complexType name="RectifiedGridCoverageType">
+    <!-- =========================================================== -->
+    <element name="RectifiedGridCoverage" type="gml:RectifiedGridCoverageType"
+             substitutionGroup="gml:_DiscreteCoverage"/>
+    <!-- =========================================================== -->
+    <complexType name="RectifiedGridCoverageType">
 		<complexContent>
 			<restriction base="gml:AbstractDiscreteCoverageType">
 				<sequence>
@@ -431,10 +447,11 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="rectifiedGridDomain" type="gml:RectifiedGridDomainType" substitutionGroup="gml:domainSet"/>
-	<!-- =========================================================== -->
-	<complexType name="RectifiedGridDomainType">
+    <!-- =========================================================== -->
+    <element name="rectifiedGridDomain" type="gml:RectifiedGridDomainType"
+             substitutionGroup="gml:domainSet"/>
+    <!-- =========================================================== -->
+    <complexType name="RectifiedGridDomainType">
 		<complexContent>
 			<restriction base="gml:DomainSetType">
 				<sequence minOccurs="0">
@@ -444,5 +461,5 @@ N.B. Temporal geometric complexes and temporal grids are not yet implemented in 
 			</restriction>
 		</complexContent>
 	</complexType>
-	<!-- =========================================================== -->
+    <!-- =========================================================== -->
 </schema>

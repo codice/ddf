@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog;
 
 import java.io.PrintStream;
@@ -19,7 +18,6 @@ import java.io.PrintStream;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.util.SpatialOperations;
 
@@ -50,7 +48,8 @@ public class SpatialCommand extends CatalogCommands {
     @Argument(name = "Radius", description = "Radius for a Point-Radius search {RADIUS}", index = 3, multiValued = false, required = false)
     String radius = "10000";
 
-    @Option(name = "items-returned", required = false, aliases = {"-n"}, multiValued = false, description = "Number of the items returned.")
+    @Option(name = "items-returned", required = false, aliases = {
+            "-n"}, multiValued = false, description = "Number of the items returned.")
     int numberOfItems = DEFAULT_NUMBER_OF_ITEMS;
 
     @Override
@@ -75,7 +74,7 @@ public class SpatialCommand extends CatalogCommands {
     }
 
     protected void doRadiusQuery(PrintStream console, CatalogFacade catalogFacade) // throws
-                                                                                   // CatalogException
+    // CatalogException
     {
         // SpatialDistanceCriterion criterion = new SpatialDistanceCriterion() {
         //
@@ -97,7 +96,7 @@ public class SpatialCommand extends CatalogCommands {
     }
 
     protected void doNNQuery(PrintStream console, CatalogFacade catalogFacade) // throws
-                                                                               // CatalogException
+    // CatalogException
     {
         // SpatialNearestNeighborCriterion criterion = new SpatialNearestNeighborCriterion() {
 
@@ -115,7 +114,7 @@ public class SpatialCommand extends CatalogCommands {
     }
 
     private void doOperationsQuery(PrintStream console, CatalogFacade catalogFacade) // throws
-                                                                                     // CatalogException
+    // CatalogException
     {
         // SpatialOperationCriterion criterion = new SpatialOperationCriterion() {
         //

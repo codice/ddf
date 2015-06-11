@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.metrics.source;
 
 import java.util.ArrayList;
@@ -51,25 +50,23 @@ import ddf.metrics.collector.rrd4j.RrdJmxCollector;
  * This class manages the metrics for individual {@link CatalogProvider} and {@link FederatedSource}
  * {@link Source}s. These metrics currently include the count of queries, results per query, and
  * exceptions per {@link Source}.
- * 
+ *
  * The metrics and their associated {@link JmxCollector}s are created when the {@link Source} is
  * created and deleted when the {@link Source} is deleted. (The associated RRD file remains
  * available indefinitely and accessible from the Metrics tab in the Web Admin console unless an
  * administrator manually deletes it).
- * 
+ *
  * If a {@link Source} is renamed, i.e., its ID changed, then the {@link Source}'s existing metrics'
  * MBeans and {@link JmxCollector}s are deleted and new metrics created using the new {@link Source}
  * 's ID. However, the RRD file for the {@link Source}'s previous source ID remains available and
  * accessible from the Metrics tab in the Web Admin console unless an administrator manually deletes
  * it.
- * 
+ *
  * @author rodgersh
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederatedQueryPlugin {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricsImpl.class);
 
     /**
      * Package name for the JMX MBean where metrics for {@link Source}s are stored.
@@ -102,6 +99,8 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
     public static final String MEAN_MBEAN_ATTRIBUTE_NAME = "Mean";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricsImpl.class);
+
     private static final String ALPHA_NUMERIC_REGEX = "[^a-zA-Z0-9]";
 
     private final MetricRegistry metricsRegistry = new MetricRegistry();
@@ -109,10 +108,10 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     private final JmxReporter reporter = JmxReporter.forRegistry(metricsRegistry)
             .inDomain(MBEAN_PACKAGE_NAME).build();
 
-    // The types of Yammer Metrics supported
-    private enum MetricType {
-        HISTOGRAM, METER
-    };
+    // Map of sourceId to Source's metric data
+    protected Map<String, SourceMetric> metrics = new HashMap<String, SourceMetric>();
+
+    ;
 
     // Injected list of CatalogProviders and FederatedSources
     // that is kept updated by container, e.g., with latest sourceIds
@@ -123,9 +122,6 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     // Map of Source to sourceId - used to detect if sourceId has been changed since last metric
     // update
     private Map<Source, String> sourceToSourceIdMap = new HashMap<Source, String>();
-
-    // Map of sourceId to Source's metric data
-    protected Map<String, SourceMetric> metrics = new HashMap<String, SourceMetric>();
 
     private ExecutorService executorPool;
 
@@ -159,8 +155,8 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
     // PreFederatedQuery
     @Override
-    public QueryRequest process(Source source, QueryRequest input) throws PluginExecutionException,
-        StopProcessingException {
+    public QueryRequest process(Source source, QueryRequest input)
+            throws PluginExecutionException, StopProcessingException {
 
         LOGGER.trace("ENTERING: process (for PreFederatedQueryPlugin)");
 
@@ -174,12 +170,12 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
     // PostFederatedQuery
     @Override
-    public QueryResponse process(QueryResponse input) throws PluginExecutionException,
-        StopProcessingException {
+    public QueryResponse process(QueryResponse input)
+            throws PluginExecutionException, StopProcessingException {
 
         LOGGER.trace("ENTERING: process (for PostFederatedQueryPlugin)");
 
-        if(null != input) {
+        if (null != input) {
             Set<ProcessingDetails> processingDetails = input.getProcessingDetails();
             List<Result> results = input.getResults();
 
@@ -244,8 +240,8 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
             LOGGER.debug("CASE 1: Metric already exists for " + mapKey);
             if (sourceMetric.isHistogram()) {
                 Histogram metric = (Histogram) sourceMetric.getMetric();
-                LOGGER.debug("Updating histogram metric " + name + " by amount of "
-                        + incrementAmount);
+                LOGGER.debug(
+                        "Updating histogram metric " + name + " by amount of " + incrementAmount);
                 metric.update(incrementAmount);
             } else {
                 Meter metric = (Meter) sourceMetric.getMetric();
@@ -304,7 +300,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     /**
      * Creates metrics for new CatalogProvider or FederatedSource when they are initially created.
      * Metrics creation includes the JMX MBeans and associated JmxCollector.
-     * 
+     *
      * @param source
      * @param props
      */
@@ -332,7 +328,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     /**
      * Deletes metrics for existing CatalogProvider or FederatedSource when they are deleted.
      * Metrics deletion includes the JMX MBeans and associated JmxCollector.
-     * 
+     *
      * @param source
      * @param props
      */
@@ -390,8 +386,8 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
         // as the local catalog provider).
         if (!metrics.containsKey(key)) {
             if (type == MetricType.HISTOGRAM) {
-                Histogram histogram = metricsRegistry.histogram(MetricRegistry.name(sourceId,
-                        mbeanName));
+                Histogram histogram = metricsRegistry
+                        .histogram(MetricRegistry.name(sourceId, mbeanName));
                 RrdJmxCollector collector = createGaugeMetricsCollector(sourceId, mbeanName);
                 metrics.put(key, new SourceMetric(histogram, sourceId, collector, true));
             } else if (type == MetricType.METER) {
@@ -409,7 +405,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
     /**
      * Creates the Counter JMX Collector for an associated metric's JMX MBean.
-     * 
+     *
      * @param sourceId
      * @param collectorName
      * @return the JmxCollector created
@@ -421,7 +417,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
     /**
      * Creates the Gauge JMX Collector for an associated metric's JMX MBean.
-     * 
+     *
      * @param sourceId
      * @param collectorName
      * @return the JmxCollector created
@@ -433,7 +429,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
     /**
      * Creates the JMX Collector for an associated metric's JMX MBean.
-     * 
+     *
      * @param sourceId
      * @param collectorName
      * @param mbeanAttributeName
@@ -451,8 +447,9 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
         String rrdPath = getRrdFilename(sourceId, collectorName);
 
-        RrdJmxCollector collector = new RrdJmxCollector(MBEAN_PACKAGE_NAME + ":name=" + sourceId
-                + "." + collectorName, mbeanAttributeName, rrdPath, dataSourceType);
+        RrdJmxCollector collector = new RrdJmxCollector(
+                MBEAN_PACKAGE_NAME + ":name=" + sourceId + "." + collectorName, mbeanAttributeName,
+                rrdPath, dataSourceType);
         collector.init();
 
         LOGGER.trace("EXITING: createMetricsCollector - sourceId = {}", sourceId);
@@ -488,7 +485,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
     /**
      * Delete the metric's MBean for the specified Source.
-     * 
+     *
      * @param sourceId
      * @param mbeanName
      */
@@ -506,7 +503,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
     /**
      * Delete the JmxCollector for the specified Source and MBean.
-     * 
+     *
      * @param sourceId
      * @param metricName
      */
@@ -518,11 +515,16 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
         metrics.remove(mapKey);
     }
 
+    // The types of Yammer Metrics supported
+    private enum MetricType {
+        HISTOGRAM, METER
+    }
+
     /**
      * Inner class POJO to maintain details of each metric for each Source.
-     * 
+     *
      * @author rodgersh
-     * 
+     *
      */
     public static class SourceMetric {
 

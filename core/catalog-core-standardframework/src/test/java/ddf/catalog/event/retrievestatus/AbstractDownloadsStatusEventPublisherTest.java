@@ -1,21 +1,19 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.event.retrievestatus;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -61,10 +59,19 @@ import ddf.catalog.resource.Resource;
  * properly called after a download event is triggered. Given the different
  * types of events, implementations of this test should set up the publisher to
  * match their specific event type.
- * 
- * 
+ *
+ *
  */
 public abstract class AbstractDownloadsStatusEventPublisherTest {
+
+    protected static final Logger LOGGER = org.slf4j.LoggerFactory
+            .getLogger(AbstractDownloadsStatusEventPublisherTest.class);
+
+    private static final String USER_ID = "testSubjectUser";
+
+    private static final String DEFAULT_USER_ID = "";
+
+    private static final String SESSION_ID = "123456";
 
     protected static EventAdmin eventAdmin;
 
@@ -82,18 +89,9 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
 
     protected static DownloadsStatusEventPublisher publisher;
 
-    protected Event curEvent;
-
-    private static final String USER_ID = "testSubjectUser";
-    
-    private static final String DEFAULT_USER_ID = "";
-
-    private static final String SESSION_ID = "123456";
-
-    protected static final Logger LOGGER = org.slf4j.LoggerFactory
-            .getLogger(AbstractDownloadsStatusEventPublisherTest.class);
-
     protected static String downloadIdentifier;
+
+    protected Event curEvent;
 
     @BeforeClass
     public static void oneTimeSetup() {
@@ -108,12 +106,12 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
         when(resourceRequest.getProperties()).thenReturn(properties);
         when(resourceRequest.containsPropertyName(Notification.NOTIFICATION_KEY_USER_ID))
                 .thenReturn(true);
-        when(resourceRequest.getPropertyValue(Notification.NOTIFICATION_KEY_USER_ID)).thenReturn(
-                properties.get(Notification.NOTIFICATION_KEY_USER_ID));
+        when(resourceRequest.getPropertyValue(Notification.NOTIFICATION_KEY_USER_ID))
+                .thenReturn(properties.get(Notification.NOTIFICATION_KEY_USER_ID));
         when(resourceRequest.containsPropertyName(Notification.NOTIFICATION_KEY_SESSION_ID))
-            .thenReturn(true);
-        when(resourceRequest.getPropertyValue(Notification.NOTIFICATION_KEY_SESSION_ID)).thenReturn(
-            properties.get(Notification.NOTIFICATION_KEY_SESSION_ID));
+                .thenReturn(true);
+        when(resourceRequest.getPropertyValue(Notification.NOTIFICATION_KEY_SESSION_ID))
+                .thenReturn(properties.get(Notification.NOTIFICATION_KEY_SESSION_ID));
         when(resourceResponse.getResource()).thenReturn(resource);
         when(resourceResponse.getRequest()).thenReturn(resourceRequest);
     }
@@ -166,7 +164,7 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
 
     /**
      * Tests that the retrieval status is properly sent to the event admin.
-     * 
+     *
      * @param correctUser
      *            user to check for in the event property
      */
@@ -239,7 +237,7 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
         verify(eventAdmin, times(2)).postEvent(any(Event.class));
         assertEquals(DEFAULT_USER_ID, curEvent.getProperty(ActivityEvent.USER_ID_KEY));
         assertEquals(DEFAULT_USER_ID, curEvent.getProperty(Notification.NOTIFICATION_KEY_USER_ID));
-        
+
         // Also verifying the method with default values to always send both notification and activity
         // is working.
         publisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.CANCELLED, metacard,
@@ -273,7 +271,7 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
     /**
      * Tests that the event admin is properly called when a status is sent with
      * no name property.
-     * 
+     *
      * @param correctUser
      *            user to check for in the event property
      */

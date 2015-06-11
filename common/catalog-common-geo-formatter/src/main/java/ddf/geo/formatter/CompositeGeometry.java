@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.geo.formatter;
 
 import java.util.List;
@@ -25,10 +24,10 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * Abstract class that represents the geometric portion of GeoJSON.
- * 
+ *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public abstract class CompositeGeometry {
 
@@ -45,29 +44,8 @@ public abstract class CompositeGeometry {
     protected static final GeometryFactory geometryFactory = new GeometryFactory();
 
     /**
-     * Creates a Map that mimics the GeoJSON structure.
-     * 
-     * @throws UnsupportedOperationException
-     *             when the object cannot write into the map
-     */
-    public abstract Map toJsonMap() throws UnsupportedOperationException;
-
-    /**
-     * @return well-known text of underlying equivalent Geometric object
-     */
-    public abstract String toWkt();
-
-    public abstract List<Position> toGeoRssPositions();
-
-    /**
-     * 
-     * @return equivalent geometric object
-     */
-    public abstract Geometry getGeometry();
-
-    /**
      * Deciphers the {@link CompositeGeometry} object to return based on {@link Geometry}
-     * 
+     *
      * @param geometry
      * @return {@link CompositeGeometry}
      */
@@ -100,7 +78,7 @@ public abstract class CompositeGeometry {
     }
 
     /**
-     * 
+     *
      * @param type
      *            case-sensitive String of the geometric type, must match the exact spelling in the
      *            GeoJSON standard (geojson.org)
@@ -150,7 +128,7 @@ public abstract class CompositeGeometry {
     }
 
     /**
-     * 
+     *
      * @param primitiveCoordinates
      *            requires x and y coordinate information as a {@link List}, x coordinate is the
      *            first item in the list
@@ -170,7 +148,7 @@ public abstract class CompositeGeometry {
     /**
      * This method is to retrieve numerical information when it is not known how that number will be
      * provided beforehand.
-     * 
+     *
      * @param object
      * @return double
      */
@@ -187,7 +165,7 @@ public abstract class CompositeGeometry {
     }
 
     /**
-     * 
+     *
      * @param primitiveCoordinatesList
      *            a List of [x,y] coordinates. The [x,y] coordinates is a list of two objects where
      *            x coordinate is first and the y coordinate is second in the list
@@ -207,5 +185,26 @@ public abstract class CompositeGeometry {
         }
 
     }
+
+    /**
+     * Creates a Map that mimics the GeoJSON structure.
+     *
+     * @throws UnsupportedOperationException
+     *             when the object cannot write into the map
+     */
+    public abstract Map toJsonMap() throws UnsupportedOperationException;
+
+    /**
+     * @return well-known text of underlying equivalent Geometric object
+     */
+    public abstract String toWkt();
+
+    public abstract List<Position> toGeoRssPositions();
+
+    /**
+     *
+     * @return equivalent geometric object
+     */
+    public abstract Geometry getGeometry();
 
 }

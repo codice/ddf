@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package templates;
 
 import static org.junit.Assert.assertFalse;
@@ -74,10 +73,9 @@ public class SearchPageTest {
 
     private static final long PAGE_SIZE = 5;
 
-    private static final String URL = SCHEME_SPECIFIC_PART
-            + "/services/catalog/query?format=querypage&count="
-            + PAGE_SIZE
-            + "&start=1&q=mace&temporalCriteria=absoluteTime&dtend=&dtend=&dtoffset=&offsetTime=&offsetTimeUnits=minutes&radius=14000&lat=45.2&lon=31.2&latitude=45.2&longitude=31.2&radiusValue=14&radiusUnits=kilometers&bbox=&west=&south=&east=&north=&type=Resource&typeList=Resource&src=ddf&federationSources=ddf";
+    private static final String URL =
+            SCHEME_SPECIFIC_PART + "/services/catalog/query?format=querypage&count=" + PAGE_SIZE
+                    + "&start=1&q=mace&temporalCriteria=absoluteTime&dtend=&dtend=&dtoffset=&offsetTime=&offsetTimeUnits=minutes&radius=14000&lat=45.2&lon=31.2&latitude=45.2&longitude=31.2&radiusValue=14&radiusUnits=kilometers&bbox=&west=&south=&east=&north=&type=Resource&typeList=Resource&src=ddf&federationSources=ddf";
 
     private static final String HTML_ACTION = "/someAction/html";
 
@@ -139,129 +137,6 @@ public class SearchPageTest {
         LOGGER.info(generatedHtml);
     }
 
-    @Test
-    public void testHeader() {
-        assertTrue(generatedHtml.contains("<div class=\"banner\">" + HEADER + "</div>"));
-    }
-
-    @Test
-    public void testFooter() {
-        assertTrue(generatedHtml.contains("<div class=\"navbar-fixed-bottom banner\">" + FOOTER
-                + "</div>"));
-    }
-
-    @Test
-    public void testSites() {
-        // contains each site once and only once
-        assertTrue(containsExactlyOnce(generatedHtml, "<option title=\"" + LOCAL_ID + "\">"
-                + LOCAL_ID + "</option>"));
-        assertTrue(containsExactlyOnce(generatedHtml, "<option title=\"" + FED_SOURCE_1_ID + "\">"
-                + FED_SOURCE_1_ID + "</option>"));
-        assertTrue(containsExactlyOnce(generatedHtml,
-                "<option disabled=\"disabled\" class=\"disabled_option\" title=\""
-                        + FED_SOURCE_2_ID + "\">" + FED_SOURCE_2_ID + "</option>"));
-    }
-
-    @Test
-    public void testContentTypes() {
-        assertTrue(containsExactlyOnce(generatedHtml, "<option>" + CONTENT_TYPE_1 + "</option>"));
-        assertTrue(containsExactlyOnce(generatedHtml, "<option>" + CONTENT_TYPE_2 + "</option>"));
-        assertTrue(containsExactlyOnce(generatedHtml, "<option>" + CONTENT_TYPE_3 + "</option>"));
-    }
-
-    @Test
-    public void testHitCount() {
-        assertTrue(generatedHtml
-                .contains("<div class=\"resultsCount pull-left span6\" ><p class=\"lead\">Total Results: "
-                        + NumberFormat.getIntegerInstance().format(HIT_COUNT) + " </p></div>"));
-    }
-
-    @Test
-    public void testMetacardActionProvider() {
-        int count = 0;
-        for (Metacard metacard : getMetacards()) {
-            if (count < PAGE_SIZE) {
-                assertTrue(generatedHtml.contains("<a class=\"metacard-modal\" href=\""
-                        + generateActionUrl(HTML_ACTION, metacard) + "\">" + metacard.getTitle()
-                        + "</a>"));
-            } else {
-                assertFalse(generatedHtml.contains("<a href=\""
-                        + generateActionUrl(HTML_ACTION, metacard) + "\">" + metacard.getTitle()
-                        + "</a>"));
-            }
-            count++;
-        }
-    }
-
-    @Test
-    public void testResourceActionProvider() {
-        int count = 0;
-        for (Metacard metacard : getMetacards()) {
-            if (null == metacard.getResourceURI() || count >= PAGE_SIZE && hasResource(metacard)) {
-                assertFalse(generatedHtml.contains("<a href=\""
-                        + generateActionUrl(RESOURCE_ACTION, metacard) + "\">"));
-                assertFalse(generatedHtml
-                        .contains("<div style=\"visibility: hidden;\" class=\"resourceSize\">"
-                                + RESOURCE_SIZE + count + "</div>"));
-            } else {
-                assertTrue(generatedHtml.contains("<a href=\""
-                        + generateActionUrl(RESOURCE_ACTION, metacard) + "\" target=\"_blank\">"));
-                assertTrue(generatedHtml
-                        .contains("<div style=\"visibility: hidden;\" class=\"resourceSize\">"
-                                + RESOURCE_SIZE + count + "</div>"));
-            }
-            count++;
-        }
-    }
-
-    @Test
-    public void testDates() {
-        String timeAsString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zzz").format(runTimeDate);
-
-        int lastIndexCreated = -1;
-        int lastIndexEffective = -1;
-        int count = 0;
-        for (Iterator<Metacard> itr = getMetacards().iterator(); itr.hasNext() && count < PAGE_SIZE; itr
-                .next()) {
-            count++;
-            lastIndexCreated = generatedHtml.indexOf("Effective: " + timeAsString + "<br>",
-                    lastIndexCreated + 1);
-            lastIndexEffective = generatedHtml.indexOf("Received: " + timeAsString + "</td>",
-                    lastIndexEffective + 1);
-
-            assertTrue(lastIndexCreated != -1);
-            assertTrue(lastIndexEffective != -1);
-        }
-    }
-
-    @Test
-    public void testPageCount() {
-        boolean hasPages = (PAGE_SIZE < HIT_COUNT);
-
-        if (hasPages) {
-            assertTrue(generatedHtml.contains("<div class=\"pagination pull-right span6\">"));
-            assertTrue(generatedHtml.contains("<li class=\"disabled\"><a href=\"" + URL
-                    + "\">Prev</a></li>"));
-            assertTrue(generatedHtml.contains("<li class=\"active\"><a href=\"" + URL
-                    + "\">1</a></li>"));
-            assertTrue(generatedHtml.contains(">Next</a></li>"));
-
-            int pages = (int) Math.ceil(((double) HIT_COUNT) / ((double) PAGE_SIZE));
-
-            for (int i = 2; i <= pages && i <= 4; i++) {
-                assertTrue(generatedHtml.contains(">" + i + "</a></li>"));
-            }
-
-        } else {
-            assertFalse(generatedHtml.contains("<div class=\"pagination pull-right span6\">"));
-        }
-    }
-
-    private boolean containsExactlyOnce(String string, String fragment) {
-        return string.contains(fragment)
-                && (string.indexOf(fragment) == string.lastIndexOf(fragment));
-    }
-
     private static Message createRequest() {
         Message message = mock(Message.class);
         SourceResponse sourceResponse = mock(SourceResponse.class);
@@ -321,7 +196,7 @@ public class SearchPageTest {
                 when(metacard.getEffectiveDate()).thenReturn(runTimeDate);
                 when(metacard.getCreatedDate()).thenReturn(runTimeDate);
                 if (hasResource(i)) { // just give even numbered metacards resources, any uri is
-                                      // fine
+                    // fine
                     try {
                         URI uri = generateActionUrl(RESOURCE_ACTION, metacard).toURI();
                         when(metacard.getResourceURI()).thenReturn(uri);
@@ -347,7 +222,7 @@ public class SearchPageTest {
         when(c.getName()).thenReturn(CONTENT_TYPE_3);
         ContentType d = mock(ContentType.class);
         when(d.getName()).thenReturn(CONTENT_TYPE_3); // duplicate should be
-                                                      // filtered
+        // filtered
 
         contentTypes.add(a);
         contentTypes.add(b);
@@ -400,12 +275,12 @@ public class SearchPageTest {
         when(exchange.getProperty("beansWrapper")).thenReturn(beansWrapper);
         when(exchange.getProperty("sourceInfoReqEnterprise")).thenReturn(sourceInfoRequest);
         when(exchange.getProperty("htmlActionProviderList")).thenReturn(htmlActionProviderList);
-        when(exchange.getProperty("metacardActionProviderList")).thenReturn(
-                metacardActionProviderList);
-        when(exchange.getProperty("thumbnailActionProviderList")).thenReturn(
-                thumbnailActionProviderList);
-        when(exchange.getProperty("resourceActionProviderList")).thenReturn(
-                resourceActionProviderList);
+        when(exchange.getProperty("metacardActionProviderList"))
+                .thenReturn(metacardActionProviderList);
+        when(exchange.getProperty("thumbnailActionProviderList"))
+                .thenReturn(thumbnailActionProviderList);
+        when(exchange.getProperty("resourceActionProviderList"))
+                .thenReturn(resourceActionProviderList);
 
         return exchange;
     }
@@ -437,5 +312,129 @@ public class SearchPageTest {
             LOGGER.error("URI Syntax error", e);
             return null;
         }
+    }
+
+    @Test
+    public void testHeader() {
+        assertTrue(generatedHtml.contains("<div class=\"banner\">" + HEADER + "</div>"));
+    }
+
+    @Test
+    public void testFooter() {
+        assertTrue(generatedHtml
+                .contains("<div class=\"navbar-fixed-bottom banner\">" + FOOTER + "</div>"));
+    }
+
+    @Test
+    public void testSites() {
+        // contains each site once and only once
+        assertTrue(containsExactlyOnce(generatedHtml,
+                "<option title=\"" + LOCAL_ID + "\">" + LOCAL_ID + "</option>"));
+        assertTrue(containsExactlyOnce(generatedHtml,
+                "<option title=\"" + FED_SOURCE_1_ID + "\">" + FED_SOURCE_1_ID + "</option>"));
+        assertTrue(containsExactlyOnce(generatedHtml,
+                "<option disabled=\"disabled\" class=\"disabled_option\" title=\"" + FED_SOURCE_2_ID
+                        + "\">" + FED_SOURCE_2_ID + "</option>"));
+    }
+
+    @Test
+    public void testContentTypes() {
+        assertTrue(containsExactlyOnce(generatedHtml, "<option>" + CONTENT_TYPE_1 + "</option>"));
+        assertTrue(containsExactlyOnce(generatedHtml, "<option>" + CONTENT_TYPE_2 + "</option>"));
+        assertTrue(containsExactlyOnce(generatedHtml, "<option>" + CONTENT_TYPE_3 + "</option>"));
+    }
+
+    @Test
+    public void testHitCount() {
+        assertTrue(generatedHtml.contains(
+                "<div class=\"resultsCount pull-left span6\" ><p class=\"lead\">Total Results: "
+                        + NumberFormat.getIntegerInstance().format(HIT_COUNT) + " </p></div>"));
+    }
+
+    @Test
+    public void testMetacardActionProvider() {
+        int count = 0;
+        for (Metacard metacard : getMetacards()) {
+            if (count < PAGE_SIZE) {
+                assertTrue(generatedHtml.contains(
+                        "<a class=\"metacard-modal\" href=\"" + generateActionUrl(HTML_ACTION,
+                                metacard) + "\">" + metacard.getTitle() + "</a>"));
+            } else {
+                assertFalse(generatedHtml.contains(
+                        "<a href=\"" + generateActionUrl(HTML_ACTION, metacard) + "\">" + metacard
+                                .getTitle() + "</a>"));
+            }
+            count++;
+        }
+    }
+
+    @Test
+    public void testResourceActionProvider() {
+        int count = 0;
+        for (Metacard metacard : getMetacards()) {
+            if (null == metacard.getResourceURI() || count >= PAGE_SIZE && hasResource(metacard)) {
+                assertFalse(generatedHtml.contains(
+                        "<a href=\"" + generateActionUrl(RESOURCE_ACTION, metacard) + "\">"));
+                assertFalse(generatedHtml.contains(
+                        "<div style=\"visibility: hidden;\" class=\"resourceSize\">" + RESOURCE_SIZE
+                                + count + "</div>"));
+            } else {
+                assertTrue(generatedHtml.contains(
+                        "<a href=\"" + generateActionUrl(RESOURCE_ACTION, metacard)
+                                + "\" target=\"_blank\">"));
+                assertTrue(generatedHtml.contains(
+                        "<div style=\"visibility: hidden;\" class=\"resourceSize\">" + RESOURCE_SIZE
+                                + count + "</div>"));
+            }
+            count++;
+        }
+    }
+
+    @Test
+    public void testDates() {
+        String timeAsString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss zzz").format(runTimeDate);
+
+        int lastIndexCreated = -1;
+        int lastIndexEffective = -1;
+        int count = 0;
+        for (Iterator<Metacard> itr = getMetacards().iterator();
+             itr.hasNext() && count < PAGE_SIZE; itr.next()) {
+            count++;
+            lastIndexCreated = generatedHtml
+                    .indexOf("Effective: " + timeAsString + "<br>", lastIndexCreated + 1);
+            lastIndexEffective = generatedHtml
+                    .indexOf("Received: " + timeAsString + "</td>", lastIndexEffective + 1);
+
+            assertTrue(lastIndexCreated != -1);
+            assertTrue(lastIndexEffective != -1);
+        }
+    }
+
+    @Test
+    public void testPageCount() {
+        boolean hasPages = (PAGE_SIZE < HIT_COUNT);
+
+        if (hasPages) {
+            assertTrue(generatedHtml.contains("<div class=\"pagination pull-right span6\">"));
+            assertTrue(generatedHtml
+                    .contains("<li class=\"disabled\"><a href=\"" + URL + "\">Prev</a></li>"));
+            assertTrue(generatedHtml
+                    .contains("<li class=\"active\"><a href=\"" + URL + "\">1</a></li>"));
+            assertTrue(generatedHtml.contains(">Next</a></li>"));
+
+            int pages = (int) Math.ceil(((double) HIT_COUNT) / ((double) PAGE_SIZE));
+
+            for (int i = 2; i <= pages && i <= 4; i++) {
+                assertTrue(generatedHtml.contains(">" + i + "</a></li>"));
+            }
+
+        } else {
+            assertFalse(generatedHtml.contains("<div class=\"pagination pull-right span6\">"));
+        }
+    }
+
+    private boolean containsExactlyOnce(String string, String fragment) {
+        return string.contains(fragment) && (string.indexOf(fragment) == string
+                .lastIndexOf(fragment));
     }
 }

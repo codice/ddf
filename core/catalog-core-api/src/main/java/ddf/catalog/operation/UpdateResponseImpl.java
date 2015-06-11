@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.operation;
 
 import java.io.Serializable;
@@ -27,10 +26,10 @@ import ddf.catalog.data.Metacard;
 /**
  * The UpdateResponseImpl represents a default implementation of an
  * {@link UpdateRequest}
- * 
+ *
  * @deprecated As of release 2.3.0, replaced by
  *             ddf.catalog.operation.impl.UpdateResponseImpl
- * 
+ *
  */
 @Deprecated
 public class UpdateResponseImpl extends ResponseImpl<UpdateRequest> implements UpdateResponse {
@@ -41,7 +40,7 @@ public class UpdateResponseImpl extends ResponseImpl<UpdateRequest> implements U
 
     /**
      * Instantiates a new UpdateResponseImpl.
-     * 
+     *
      * @param request
      *            the original request
      * @param properties
@@ -57,7 +56,7 @@ public class UpdateResponseImpl extends ResponseImpl<UpdateRequest> implements U
 
     /**
      * Instantiates a new UpdateResponseImpl with old and new {@link Metacard}(s).
-     * 
+     *
      * @param request
      *            the original request
      * @param properties
@@ -79,8 +78,8 @@ public class UpdateResponseImpl extends ResponseImpl<UpdateRequest> implements U
             if (size == oldSize) {
                 this.updatedMetacards = new ArrayList<Update>(size);
                 for (int i = 0; i < size; i++) {
-                    this.updatedMetacards.add(new UpdateImpl(updatedMetacards.get(i), oldMetacards
-                            .get(i)));
+                    this.updatedMetacards
+                            .add(new UpdateImpl(updatedMetacards.get(i), oldMetacards.get(i)));
                 }
             } else {
                 throw new IllegalArgumentException(

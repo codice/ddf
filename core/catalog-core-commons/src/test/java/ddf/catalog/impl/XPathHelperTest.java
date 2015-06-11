@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.impl;
 
 import static org.junit.Assert.assertEquals;
@@ -49,11 +48,13 @@ public class XPathHelperTest {
 
     // private static final String XPATH_EXPRESSION =
     // "/*[local-name()='Resource' and namespace-uri()='http://metadata.abc.com/mdr/ns/ns1/2.0/']/*"
-    private static final String XPATH_EXPRESSION = "/*[local-name()='Resource'"
-            + "[local-name() != 'identifier' and " + "local-name() != 'language' and "
-            + "local-name() != 'dates' and " + "local-name() != 'rights' and "
-            + "local-name() != 'format' and " + "local-name() != 'subjectCoverage' and "
-            + "local-name() != 'temporalCoverage' and " + "local-name() != 'geospatialCoverage' ]";
+    private static final String XPATH_EXPRESSION =
+            "/*[local-name()='Resource'" + "[local-name() != 'identifier' and "
+                    + "local-name() != 'language' and " + "local-name() != 'dates' and "
+                    + "local-name() != 'rights' and " + "local-name() != 'format' and "
+                    + "local-name() != 'subjectCoverage' and "
+                    + "local-name() != 'temporalCoverage' and "
+                    + "local-name() != 'geospatialCoverage' ]";
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -78,8 +79,9 @@ public class XPathHelperTest {
             Document document = getDocument(INPUT_FILE);
 
             XPathHelper xHelper = new XPathHelper(document);
-            NodeList nodeList = (NodeList) xHelper.evaluate(XPATH_EXPRESSION,
-                    XPathConstants.NODESET, new MockNamespaceResolver());
+            NodeList nodeList = (NodeList) xHelper
+                    .evaluate(XPATH_EXPRESSION, XPathConstants.NODESET,
+                            new MockNamespaceResolver());
             LOGGER.debug("testXPathHelper_WithDocument() - nodeList length = {}",
                     nodeList.getLength());
             assertEquals(6, nodeList.getLength());
@@ -94,8 +96,9 @@ public class XPathHelperTest {
             String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
 
             XPathHelper xHelper = new XPathHelper(xmlString);
-            NodeList nodeList = (NodeList) xHelper.evaluate(XPATH_EXPRESSION,
-                    XPathConstants.NODESET, new MockNamespaceResolver());
+            NodeList nodeList = (NodeList) xHelper
+                    .evaluate(XPATH_EXPRESSION, XPathConstants.NODESET,
+                            new MockNamespaceResolver());
             LOGGER.debug("testXPathHelper_WithXmlFile() - nodeList length = {}",
                     nodeList.getLength());
             assertEquals(6, nodeList.getLength());
@@ -110,8 +113,8 @@ public class XPathHelperTest {
             String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
 
             XPathHelper xHelper = new XPathHelper(xmlString);
-            NodeList nodeList = (NodeList) xHelper.evaluate("//fileTitle", XPathConstants.NODESET,
-                    new MockNamespaceResolver());
+            NodeList nodeList = (NodeList) xHelper
+                    .evaluate("//fileTitle", XPathConstants.NODESET, new MockNamespaceResolver());
             LOGGER.debug("testXPathHelper_WithNoNamespaceTextPath() - nodeList length = {}",
                     nodeList.getLength());
             assertEquals(0, nodeList.getLength());
@@ -127,8 +130,9 @@ public class XPathHelperTest {
             String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
 
             XPathHelper xHelper = new XPathHelper(xmlString);
-            NodeList nodeList = (NodeList) xHelper.evaluate("//abc:fileTitle",
-                    XPathConstants.NODESET, new MockNamespaceResolver());
+            NodeList nodeList = (NodeList) xHelper
+                    .evaluate("//abc:fileTitle", XPathConstants.NODESET,
+                            new MockNamespaceResolver());
             LOGGER.debug("testXPathHelper_WithNamespaceTextPath() - nodeList length = {}",
                     nodeList.getLength());
             assertEquals(1, nodeList.getLength());
@@ -143,8 +147,8 @@ public class XPathHelperTest {
             String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
 
             XPathHelper xHelper = new XPathHelper(xmlString);
-            NodeList nodeList = (NodeList) xHelper.evaluate("//xyz:fileTitle",
-                    XPathConstants.NODESET);
+            NodeList nodeList = (NodeList) xHelper
+                    .evaluate("//xyz:fileTitle", XPathConstants.NODESET);
             LOGGER.debug("testXPathHelper_WithAnyNamespaceTextPath() - nodeList length = {}",
                     nodeList.getLength());
             fail("Expected an XPathExpressionException");
@@ -156,8 +160,8 @@ public class XPathHelperTest {
     @Test
     public void testXPathHelper_NoTitle() throws Exception {
         try {
-            String xmlString = getFileContentsAsString(TEST_DATA_PATH
-                    + "IngestMetadata_NoTitle.xml");
+            String xmlString = getFileContentsAsString(
+                    TEST_DATA_PATH + "IngestMetadata_NoTitle.xml");
 
             XPathHelper xHelper = new XPathHelper(xmlString);
             String title = (String) xHelper.evaluate("//ns1:title", new MockNamespaceResolver());

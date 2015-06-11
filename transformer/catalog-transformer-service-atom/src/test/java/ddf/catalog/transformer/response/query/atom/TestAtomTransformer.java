@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.transformer.response.query.atom;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
@@ -92,12 +91,6 @@ public class TestAtomTransformer {
 
     private static final DateTime SAMPLE_DATE_TIME = new DateTime(2000, 1, 1, 1, 0, 0, 0);
 
-    private static SimpleDateFormat ATOM_DATE_FORMAT = null;
-    static {
-        ATOM_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        ATOM_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
-
     private static final String SAMPLE_SOURCE_ID = "local";
 
     private static final String DEFAULT_TEST_VERSION = "2.1.0";
@@ -117,6 +110,14 @@ public class TestAtomTransformer {
     static DocumentBuilder parser = null; // thread-unsafe
 
     static Validator validator = null; // thread-unsafe
+
+    private static SimpleDateFormat ATOM_DATE_FORMAT = null;
+
+    static {
+        ATOM_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        ATOM_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
+
     static {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);
@@ -128,13 +129,14 @@ public class TestAtomTransformer {
         }
 
     }
+
     static {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Source[] schemas = {new StreamSource(new File(SCHEMA_DIRECTORY + "atom.xsd")),
-            new StreamSource(new File(SCHEMA_DIRECTORY + "xml.xsd")),
-            // for sample metacard xml (from mock metacard transformer)
-            new StreamSource(new File(SCHEMA_DIRECTORY + "sample.xsd")),
-            new StreamSource(new File(SCHEMA_DIRECTORY + "os-federation.xsd"))};
+                new StreamSource(new File(SCHEMA_DIRECTORY + "xml.xsd")),
+                // for sample metacard xml (from mock metacard transformer)
+                new StreamSource(new File(SCHEMA_DIRECTORY + "sample.xsd")),
+                new StreamSource(new File(SCHEMA_DIRECTORY + "os-federation.xsd"))};
         try {
             Schema schema = schemaFactory.newSchema(schemas);
             validator = schema.newValidator();
@@ -162,7 +164,7 @@ public class TestAtomTransformer {
 
     /**
      * Tests actions when given <code>null</code> input
-     * 
+     *
      * @throws CatalogTransformerException
      */
     @Test(expected = CatalogTransformerException.class)
@@ -173,15 +175,15 @@ public class TestAtomTransformer {
 
     /**
      * Tests what happens when no system configuration can be found.
-     * 
+     *
      * @throws IOException
      * @throws CatalogTransformerException
      * @throws XpathException
      * @throws SAXException
      */
     @Test
-    public void testNoDdfConfiguration() throws IOException, CatalogTransformerException,
-        XpathException, SAXException {
+    public void testNoDdfConfiguration()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
         // given
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
 
@@ -198,8 +200,8 @@ public class TestAtomTransformer {
         byte[] bytes = binaryContent.getByteArray();
 
         /* used to visualize */
-        IOUtils.write(bytes, new FileOutputStream(new File(TARGET_FOLDER + getMethodName()
-                + ATOM_EXTENSION)));
+        IOUtils.write(bytes,
+                new FileOutputStream(new File(TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
 
         String output = new String(bytes);
 
@@ -213,8 +215,8 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testNoSiteName() throws IOException, CatalogTransformerException, XpathException,
-        SAXException {
+    public void testNoSiteName()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
         // given
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
 
@@ -249,8 +251,8 @@ public class TestAtomTransformer {
         byte[] bytes = binaryContent.getByteArray();
 
         /* used to visualize */
-        IOUtils.write(bytes, new FileOutputStream(new File(TARGET_FOLDER + getMethodName()
-                + ATOM_EXTENSION)));
+        IOUtils.write(bytes,
+                new FileOutputStream(new File(TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
 
         String output = new String(bytes);
 
@@ -263,8 +265,8 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testNoMetacardTransformer() throws IOException, CatalogTransformerException,
-        XpathException, SAXException {
+    public void testNoMetacardTransformer()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
         // given
         AtomTransformer transformer = getConfiguredAtomTransformer(null,
                 getDefaultSystemConfiguration());
@@ -290,13 +292,13 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testThrowMetacardTransformerCatalogTransformerException() throws IOException,
-        CatalogTransformerException, XpathException, SAXException {
+    public void testThrowMetacardTransformerCatalogTransformerException()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
 
         // given
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
-        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class))).thenThrow(
-                CatalogTransformerException.class);
+        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
+                .thenThrow(CatalogTransformerException.class);
 
         AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer,
                 getDefaultSystemConfiguration());
@@ -312,8 +314,8 @@ public class TestAtomTransformer {
         byte[] bytes = binaryContent.getByteArray();
 
         /* used to visualize */
-        IOUtils.write(bytes, new FileOutputStream(new File(TARGET_FOLDER + getMethodName()
-                + ATOM_EXTENSION)));
+        IOUtils.write(bytes,
+                new FileOutputStream(new File(TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
 
         String output = new String(bytes);
 
@@ -326,13 +328,13 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testThrowMetacardTransformerRuntimeException() throws IOException,
-        CatalogTransformerException, XpathException, SAXException {
+    public void testThrowMetacardTransformerRuntimeException()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
 
         // given
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
-        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class))).thenThrow(
-                RuntimeException.class);
+        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
+                .thenThrow(RuntimeException.class);
 
         AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer,
                 getDefaultSystemConfiguration());
@@ -358,15 +360,15 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testMetacardTransformerBytesNull() throws IOException, CatalogTransformerException,
-        XpathException, SAXException {
+    public void testMetacardTransformerBytesNull()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
 
         // given
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
         BinaryContent metacardTransformation = mock(BinaryContent.class);
         when(metacardTransformation.getByteArray()).thenReturn(null);
-        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class))).thenReturn(
-                metacardTransformation);
+        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
+                .thenReturn(metacardTransformation);
 
         AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer,
                 getDefaultSystemConfiguration());
@@ -392,15 +394,15 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testMetacardTransformerBytesZero() throws IOException, CatalogTransformerException,
-        XpathException, SAXException {
+    public void testMetacardTransformerBytesZero()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
 
         // given
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
         BinaryContent metacardTransformation = mock(BinaryContent.class);
         when(metacardTransformation.getByteArray()).thenReturn(new byte[0]);
-        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class))).thenReturn(
-                metacardTransformation);
+        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
+                .thenReturn(metacardTransformation);
 
         AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer,
                 getDefaultSystemConfiguration());
@@ -426,15 +428,15 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testMetacardTransformerThrowsIoException() throws IOException,
-        CatalogTransformerException, XpathException, SAXException {
+    public void testMetacardTransformerThrowsIoException()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
 
         // given
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
         BinaryContent metacardTransformation = mock(BinaryContent.class);
         when(metacardTransformation.getByteArray()).thenThrow(IOException.class);
-        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class))).thenReturn(
-                metacardTransformation);
+        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
+                .thenReturn(metacardTransformation);
 
         AtomTransformer transformer = getConfiguredAtomTransformer(metacardTransformer,
                 getDefaultSystemConfiguration());
@@ -460,8 +462,8 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testNoBinaryContentXml() throws IOException, CatalogTransformerException,
-        XpathException, SAXException {
+    public void testNoBinaryContentXml()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
         // given
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
         when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
@@ -491,8 +493,8 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testTotalResultsNegative() throws IOException, CatalogTransformerException,
-        XpathException, SAXException {
+    public void testTotalResultsNegative()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
         // given
         AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
@@ -538,8 +540,8 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testItemsPerPageNegativeInteger() throws IOException, CatalogTransformerException,
-        XpathException, SAXException {
+    public void testItemsPerPageNegativeInteger()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
         // given
         AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
@@ -585,8 +587,8 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testNoCreatedDate() throws IOException, CatalogTransformerException,
-        XpathException, SAXException {
+    public void testNoCreatedDate()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
         // given
         AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
@@ -629,8 +631,8 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testNoModifiedDate() throws IOException, CatalogTransformerException,
-        XpathException, SAXException {
+    public void testNoModifiedDate()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
         // given
         AtomTransformer transformer = new AtomTransformer();
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
@@ -677,63 +679,63 @@ public class TestAtomTransformer {
      * defined by http://tools.ietf.org/html/rfc4287#section-4.1.2 <br/>
      * "The following child elements are defined by this specification (note that the presence of
      * some of these elements is required):
-     * 
+     *
      * <li/>atom:entry elements MUST contain one or more atom:author elements, unless the atom:entry
      * contains an atom:source element that contains an atom:author element or, in an Atom Feed
      * Document, the atom:feed element contains an atom:author element itself.
-     * 
+     *
      * <li/>atom:entry elements MAY contain any number of atom:category elements.
-     * 
+     *
      * <li/>atom:entry elements MUST NOT contain more than one atom:content element.
-     * 
+     *
      * <li/>atom:entry elements MAY contain any number of atom:contributor elements.
-     * 
+     *
      * <li/>atom:entry elements MUST contain exactly one atom:id element.
-     * 
+     *
      * <li/>atom:entry elements that contain no child atom:content element MUST contain at least one
      * atom:link element with a rel attribute value of "alternate".
-     * 
+     *
      * <li/>atom:entry elements MUST NOT contain more than one atom:link element with a rel
      * attribute value of "alternate" that has the same combination of type and hreflang attribute
      * values.
-     * 
+     *
      * <li/>atom:entry elements MAY contain additional atom:link elements beyond those described
      * above.
-     * 
+     *
      * <li/>atom:entry elements MUST NOT contain more than one atom:published element.
-     * 
+     *
      * <li/>atom:entry elements MUST NOT contain more than one atom:rights element.
-     * 
+     *
      * <li/>atom:entry elements MUST NOT contain more than one atom:source element.
-     * 
+     *
      * <li/>atom:entry elements MUST contain an atom:summary element in either of the following
      * cases:
-     * 
+     *
      * <ul>
      * the atom:entry contains an atom:content that has a "src" attribute (and is thus empty).
      * </ul>
-     * 
+     *
      * <ul>
      * the atom:entry contains content that is encoded in Base64; i.e., the "type" attribute of
      * atom:content is a MIME media type [MIMEREG], but is not an XML media type [RFC3023], does not
      * begin with "text/", and does not end with "/xml" or "+xml".
      * </ul>
-     * 
+     *
      * <li/>atom:entry elements MUST NOT contain more than one atom:summary element.
-     * 
+     *
      * <li/>atom:entry elements MUST contain exactly one atom:title element.
-     * 
+     *
      * <li/>atom:entry elements MUST contain exactly one atom:updated element."
-     * 
-     * 
+     *
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      * @throws SAXException
      * @throws XpathException
      */
     @Test
-    public void testMetacardIsNull() throws IOException, CatalogTransformerException,
-        XpathException, SAXException {
+    public void testMetacardIsNull()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
 
         // given
         AtomTransformer transformer = new AtomTransformer();
@@ -766,8 +768,8 @@ public class TestAtomTransformer {
         byte[] bytes = binaryContent.getByteArray();
 
         /* used to visualize */
-        IOUtils.write(bytes, new FileOutputStream(new File(TARGET_FOLDER + getMethodName()
-                + ATOM_EXTENSION)));
+        IOUtils.write(bytes,
+                new FileOutputStream(new File(TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
 
         String output = new String(bytes);
 
@@ -787,8 +789,8 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testNoEntries() throws IOException, CatalogTransformerException, XpathException,
-        SAXException {
+    public void testNoEntries()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
 
         // given
         AtomTransformer transformer = new AtomTransformer();
@@ -811,8 +813,8 @@ public class TestAtomTransformer {
         byte[] bytes = binaryContent.getByteArray();
 
         /* used to visualize */
-        IOUtils.write(bytes, new FileOutputStream(new File(TARGET_FOLDER + getMethodName()
-                + ATOM_EXTENSION)));
+        IOUtils.write(bytes,
+                new FileOutputStream(new File(TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
 
         String output = new String(bytes);
 
@@ -833,63 +835,63 @@ public class TestAtomTransformer {
      * defined by http://tools.ietf.org/html/rfc4287#section-4.1.2 <br/>
      * "The following child elements are defined by this specification (note that the presence of
      * some of these elements is required):
-     * 
+     *
      * <li/>atom:entry elements MUST contain one or more atom:author elements, unless the atom:entry
      * contains an atom:source element that contains an atom:author element or, in an Atom Feed
      * Document, the atom:feed element contains an atom:author element itself.
-     * 
+     *
      * <li/>atom:entry elements MAY contain any number of atom:category elements.
-     * 
+     *
      * <li/>atom:entry elements MUST NOT contain more than one atom:content element.
-     * 
+     *
      * <li/>atom:entry elements MAY contain any number of atom:contributor elements.
-     * 
+     *
      * <li/>atom:entry elements MUST contain exactly one atom:id element.
-     * 
+     *
      * <li/>atom:entry elements that contain no child atom:content element MUST contain at least one
      * atom:link element with a rel attribute value of "alternate".
-     * 
+     *
      * <li/>atom:entry elements MUST NOT contain more than one atom:link element with a rel
      * attribute value of "alternate" that has the same combination of type and hreflang attribute
      * values.
-     * 
+     *
      * <li/>atom:entry elements MAY contain additional atom:link elements beyond those described
      * above.
-     * 
+     *
      * <li/>atom:entry elements MUST NOT contain more than one atom:published element.
-     * 
+     *
      * <li/>atom:entry elements MUST NOT contain more than one atom:rights element.
-     * 
+     *
      * <li/>atom:entry elements MUST NOT contain more than one atom:source element.
-     * 
+     *
      * <li/>atom:entry elements MUST contain an atom:summary element in either of the following
      * cases:
-     * 
+     *
      * <ul>
      * the atom:entry contains an atom:content that has a "src" attribute (and is thus empty).
      * </ul>
-     * 
+     *
      * <ul>
      * the atom:entry contains content that is encoded in Base64; i.e., the "type" attribute of
      * atom:content is a MIME media type [MIMEREG], but is not an XML media type [RFC3023], does not
      * begin with "text/", and does not end with "/xml" or "+xml".
      * </ul>
-     * 
+     *
      * <li/>atom:entry elements MUST NOT contain more than one atom:summary element.
-     * 
+     *
      * <li/>atom:entry elements MUST contain exactly one atom:title element.
-     * 
+     *
      * <li/>atom:entry elements MUST contain exactly one atom:updated element."
-     * 
-     * 
+     *
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      * @throws SAXException
      * @throws XpathException
      */
     @Test
-    public void testEntryElementsComplyToAtomSpecification() throws IOException,
-        CatalogTransformerException, XpathException, SAXException {
+    public void testEntryElementsComplyToAtomSpecification()
+            throws IOException, CatalogTransformerException, XpathException, SAXException {
 
         // given
         AtomTransformer transformer = new AtomTransformer();
@@ -924,8 +926,8 @@ public class TestAtomTransformer {
         byte[] bytes = binaryContent.getByteArray();
 
         /* used to visualize */
-        IOUtils.write(bytes, new FileOutputStream(new File(TARGET_FOLDER + getMethodName()
-                + ATOM_EXTENSION)));
+        IOUtils.write(bytes,
+                new FileOutputStream(new File(TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
 
         String output = new String(bytes);
 
@@ -934,8 +936,8 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testNoResourceActionProvider() throws CatalogTransformerException, IOException,
-        XpathException, SAXException {
+    public void testNoResourceActionProvider()
+            throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
@@ -984,8 +986,8 @@ public class TestAtomTransformer {
         byte[] bytes = binaryContent.getByteArray();
 
         /* used to visualize */
-        IOUtils.write(bytes, new FileOutputStream(new File(TARGET_FOLDER + getMethodName()
-                + ATOM_EXTENSION)));
+        IOUtils.write(bytes,
+                new FileOutputStream(new File(TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
 
         String output = new String(bytes);
 
@@ -1027,8 +1029,8 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testSimple() throws CatalogTransformerException, IOException, XpathException,
-        SAXException {
+    public void testSimple()
+            throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
@@ -1087,8 +1089,8 @@ public class TestAtomTransformer {
         byte[] bytes = binaryContent.getByteArray();
 
         /* used to visualize */
-        IOUtils.write(bytes, new FileOutputStream(new File(TARGET_FOLDER + getMethodName()
-                + ATOM_EXTENSION)));
+        IOUtils.write(bytes,
+                new FileOutputStream(new File(TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
 
         String output = new String(bytes);
 
@@ -1131,15 +1133,15 @@ public class TestAtomTransformer {
 
     /**
      * Smoke test for polygon
-     * 
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      * @throws XpathException
      * @throws SAXException
      */
     @Test
-    public void testGeo() throws CatalogTransformerException, IOException, XpathException,
-        SAXException {
+    public void testGeo()
+            throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         AtomTransformer atomTransformer = new AtomTransformer();
 
@@ -1163,15 +1165,15 @@ public class TestAtomTransformer {
     }
 
     /**
-     * 
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      * @throws XpathException
      * @throws SAXException
      */
     @Test
-    public void testNoGeo() throws CatalogTransformerException, IOException, XpathException,
-        SAXException {
+    public void testNoGeo()
+            throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         AtomTransformer atomTransformer = new AtomTransformer();
 
@@ -1194,8 +1196,8 @@ public class TestAtomTransformer {
     }
 
     @Test
-    public void testBadGeo() throws CatalogTransformerException, IOException, XpathException,
-        SAXException {
+    public void testBadGeo()
+            throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         AtomTransformer atomTransformer = new AtomTransformer();
 
@@ -1210,8 +1212,8 @@ public class TestAtomTransformer {
         String output = new String(bytes);
 
         /* used to visualize */
-        IOUtils.write(bytes, new FileOutputStream(new File(TARGET_FOLDER + getMethodName()
-                + ATOM_EXTENSION)));
+        IOUtils.write(bytes,
+                new FileOutputStream(new File(TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
 
         assertFeedCompliant(output);
         assertEntryCompliant(output);
@@ -1242,18 +1244,18 @@ public class TestAtomTransformer {
         return transformer;
     }
 
-    protected void assertBasicFeedInfo(String output, String totalResults) throws SAXException,
-        IOException, XpathException {
+    protected void assertBasicFeedInfo(String output, String totalResults)
+            throws SAXException, IOException, XpathException {
         assertXpathEvaluatesTo(AtomTransformer.DEFAULT_FEED_TITLE, "/atom:feed/atom:title", output);
         assertXpathExists("/atom:feed/atom:updated", output);
 
         // check if the urn prefix has been added
-        assertXpathEvaluatesTo(TRUE, "starts-with(/atom:feed/atom:id,'" + AtomTransformer.URN_UUID
-                + "')", output);
+        assertXpathEvaluatesTo(TRUE,
+                "starts-with(/atom:feed/atom:id,'" + AtomTransformer.URN_UUID + "')", output);
 
         // check the valid length of a uuid
-        assertXpathEvaluatesTo("36", "string-length( substring( /atom:feed/atom:id, "
-                + (AtomTransformer.URN_UUID.length() + 1) + " ) )", output);
+        assertXpathEvaluatesTo("36", "string-length( substring( /atom:feed/atom:id, " + (
+                AtomTransformer.URN_UUID.length() + 1) + " ) )", output);
 
         assertXpathEvaluatesTo(Link.REL_SELF, "/atom:feed/atom:link/@rel", output);
         assertXpathExists("/atom:feed/atom:link/@href", output);
@@ -1267,8 +1269,8 @@ public class TestAtomTransformer {
         assertXpathEvaluatesTo("2", "/atom:feed/os:startIndex", output);
     }
 
-    protected SourceResponse basicSetup(AtomTransformer transformer) throws IOException,
-        CatalogTransformerException {
+    protected SourceResponse basicSetup(AtomTransformer transformer)
+            throws IOException, CatalogTransformerException {
         MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
         transformer.setMetacardTransformer(metacardTransformer);
 
@@ -1292,49 +1294,49 @@ public class TestAtomTransformer {
     /**
      * The following rules must be followed in order to be compliant with the Atom specification as
      * defined by http://tools.ietf.org/html/rfc4287#section-4.1.1
-     * 
+     *
      * "The following child elements are defined by this specification (note that the presence of
      * some of these elements is required):
-     * 
+     *
      * <li/>atom:feed elements MUST contain one or more atom:author elements, unless all of the
      * atom:feed element's child atom:entry elements contain at least one atom:author element.
-     * 
+     *
      * <li/>atom:feed elements MAY contain any number of atom:category elements.
-     * 
+     *
      * <li/>atom:feed elements MAY contain any number of atom:contributor elements.
-     * 
+     *
      * <li/>atom:feed elements MUST NOT contain more than one atom:generator element.
-     * 
+     *
      * <li/>atom:feed elements MUST NOT contain more than one atom:icon element.
-     * 
+     *
      * <li/>atom:feed elements MUST NOT contain more than one atom:logo element.
-     * 
+     *
      * <li/>atom:feed elements MUST contain exactly one atom:id element.
-     * 
+     *
      * <li/>atom:feed elements SHOULD contain one atom:link element with a rel attribute value of
      * "self". This is the preferred URI for retrieving Atom Feed Documents representing this Atom
      * feed.
-     * 
+     *
      * <li/>atom:feed elements MUST NOT contain more than one atom:link element with a rel attribute
      * value of "alternate" that has the same combination of type and hreflang attribute values.
-     * 
+     *
      * <li/>atom:feed elements MAY contain additional atom:link elements beyond those described
      * above.
-     * 
+     *
      * <li/>atom:feed elements MUST NOT contain more than one atom:rights element.
-     * 
+     *
      * <li/>atom:feed elements MUST NOT contain more than one atom:subtitle element.
-     * 
+     *
      * <li/>atom:feed elements MUST contain exactly one atom:title element.
-     * 
+     *
      * <li/>atom:feed elements MUST contain exactly one atom:updated element."
-     * 
+     *
      * @throws IOException
      * @throws SAXException
      * @throws XpathException
      */
-    protected void assertFeedCompliant(String output) throws IOException, SAXException,
-        XpathException {
+    protected void assertFeedCompliant(String output)
+            throws IOException, SAXException, XpathException {
         assertXpathExists("/atom:feed[atom:author or not(atom:entry[not(atom:author)])] ", output);
         assertXpathEvaluatesTo(TRUE, "count(/atom:feed/atom:generator) <= 1", output);
         assertXpathEvaluatesTo(TRUE, "count(/atom:feed/atom:icon) <= 1", output);
@@ -1352,11 +1354,10 @@ public class TestAtomTransformer {
         assertXpathEvaluatesTo(TRUE, "count(/atom:feed/atom:updated) = 1", output);
     }
 
-    protected void assertEntryCompliant(String output) throws SAXException, IOException,
-        XpathException {
+    protected void assertEntryCompliant(String output)
+            throws SAXException, IOException, XpathException {
 
-        assertXpathEvaluatesTo(
-                TRUE,
+        assertXpathEvaluatesTo(TRUE,
                 "count(/atom:feed/atom:entry[atom:author] | //atom:entry[atom:source] | /atom:feed[atom:author]) > 0",
                 output);
         assertXpathNotExists("/atom:feed/atom:entry[count(atom:content) > 1] ", output);
@@ -1410,16 +1411,15 @@ public class TestAtomTransformer {
         return response;
     }
 
-    protected MetacardTransformer getXmlMetacardTransformerStub() throws IOException,
-        CatalogTransformerException {
+    protected MetacardTransformer getXmlMetacardTransformerStub()
+            throws IOException, CatalogTransformerException {
         MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
         BinaryContent metacardTransformation = mock(BinaryContent.class);
-        when(metacardTransformation.getByteArray())
-                .thenReturn(
-                        "<sample:note xmlns:sample=\"http://www.lockheedmartin.com/schema/sample\"><to>me</to><from>you</from></sample:note>"
-                                .getBytes());
-        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class))).thenReturn(
-                metacardTransformation);
+        when(metacardTransformation.getByteArray()).thenReturn(
+                "<sample:note xmlns:sample=\"http://www.lockheedmartin.com/schema/sample\"><to>me</to><from>you</from></sample:note>"
+                        .getBytes());
+        when(metacardTransformer.transform(isA(Metacard.class), isNull(Map.class)))
+                .thenReturn(metacardTransformation);
         return metacardTransformer;
     }
 

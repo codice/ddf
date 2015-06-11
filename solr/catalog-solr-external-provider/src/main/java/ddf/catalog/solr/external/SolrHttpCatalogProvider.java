@@ -1,18 +1,28 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.solr.external;
+
+import java.io.IOException;
+import java.util.Properties;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrServer;
+import org.codice.solr.factory.ConfigurationStore;
+import org.codice.solr.factory.SolrServerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.ContentType;
 import ddf.catalog.filter.FilterAdapter;
@@ -32,16 +42,6 @@ import ddf.catalog.source.solr.DynamicSchemaResolver;
 import ddf.catalog.source.solr.SolrCatalogProvider;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
 import ddf.catalog.util.impl.MaskableImpl;
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
-import org.codice.solr.factory.ConfigurationStore;
-import org.codice.solr.factory.SolrServerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * Catalog Provider that interfaces with a Standalone external (HTTP) Solr Server
@@ -55,20 +55,6 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
     private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
 
     private static final String SOLR_CATALOG_CORE_NAME = "catalog";
-
-    private String url = SolrServerFactory.DEFAULT_HTTPS_ADDRESS;
-
-    private CatalogProvider provider = new UnconfiguredCatalogProvider();
-
-    private SolrServer server;
-
-    private FilterAdapter filterAdapter;
-
-    private boolean firstUse;
-
-    private SolrFilterDelegateFactory solrFilterDelegateFactory;
-
-    private DynamicSchemaResolver resolver;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrHttpCatalogProvider.class);
 
@@ -85,6 +71,20 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
         }
 
     }
+
+    private String url = SolrServerFactory.DEFAULT_HTTPS_ADDRESS;
+
+    private CatalogProvider provider = new UnconfiguredCatalogProvider();
+
+    private SolrServer server;
+
+    private FilterAdapter filterAdapter;
+
+    private boolean firstUse;
+
+    private SolrFilterDelegateFactory solrFilterDelegateFactory;
+
+    private DynamicSchemaResolver resolver;
 
     /**
      * Simple constructor
@@ -107,13 +107,11 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
         this(filterAdapter, server, solrFilterDelegateFactory, null);
     }
 
-    public SolrHttpCatalogProvider(FilterAdapter filterAdapter, SolrFilterDelegateFactory
-            solrFilterDelegateFactory) {
+    public SolrHttpCatalogProvider(FilterAdapter filterAdapter,
+            SolrFilterDelegateFactory solrFilterDelegateFactory) {
         this(filterAdapter, null, solrFilterDelegateFactory, null);
         server = SolrServerFactory
-                .getHttpSolrServer(url,
-                        SOLR_CATALOG_CORE_NAME,
-                        SOLR_CATALOG_CONFIG_FILE);
+                .getHttpSolrServer(url, SOLR_CATALOG_CORE_NAME, SOLR_CATALOG_CONFIG_FILE);
     }
 
     @Override
@@ -208,6 +206,10 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
         }
     }
 
+    public String getUrl() {
+        return url;
+    }
+
     /**
      * This method exists only as a workaround to a Aries Blueprint bug. If Blueprint is upgraded or
      * fixed, this method should be removed and a different update(Map properties) method should be
@@ -217,10 +219,6 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
      */
     public void setUrl(String url) {
         updateServer(url);
-    }
-
-    public String getUrl() {
-        return url;
     }
 
     /**
@@ -242,8 +240,8 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
                     LOGGER.info("Shutdown complete.");
                 }
 
-                server = SolrServerFactory.getHttpSolrServer(url, SOLR_CATALOG_CORE_NAME,
-                        SOLR_CATALOG_CONFIG_FILE);
+                server = SolrServerFactory
+                        .getHttpSolrServer(url, SOLR_CATALOG_CORE_NAME, SOLR_CATALOG_CONFIG_FILE);
 
                 firstUse = true;
             }

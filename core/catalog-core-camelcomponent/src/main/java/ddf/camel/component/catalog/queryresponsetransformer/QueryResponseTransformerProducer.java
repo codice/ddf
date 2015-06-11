@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.camel.component.catalog.queryresponsetransformer;
 
 import java.io.Serializable;
@@ -37,10 +36,10 @@ import ddf.mime.MimeTypeToTransformerMapper;
 /**
  * Producer for the custom Camel CatalogComponent. This {@link org.apache.camel.Producer} would map
  * to a Camel <to> route node with a URI like <code>catalog:queryresponsetransformer</code>
- * 
+ *
  * @author William Miller, Lockheed Martin
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class QueryResponseTransformerProducer extends TransformerProducer {
     private static final transient Logger LOGGER = LoggerFactory
@@ -49,7 +48,7 @@ public class QueryResponseTransformerProducer extends TransformerProducer {
     /**
      * Constructs the {@link Producer} for the custom Camel CatalogComponent. This producer would
      * map to a Camel <to> route node with a URI like <code>catalog:queryresponsetransformer</code>
-     * 
+     *
      * @param endpoint
      *            the Camel endpoint that created this consumer
      */
@@ -58,20 +57,20 @@ public class QueryResponseTransformerProducer extends TransformerProducer {
     }
 
     protected Object transform(Message in, Object obj, String mimeType, String transformerId,
-            MimeTypeToTransformerMapper mapper) throws MimeTypeParseException,
-        CatalogTransformerException {
+            MimeTypeToTransformerMapper mapper)
+            throws MimeTypeParseException, CatalogTransformerException {
         // Look up the QueryResponseTransformer for the request's mime type.
         // If a transformer is found, then transform the request's payload into a BinaryContent
         // Otherwise, throw an exception.
         MimeType derivedMimeType = new MimeType(mimeType);
 
         if (transformerId != null) {
-            derivedMimeType = new MimeType(mimeType + ";" + MimeTypeToTransformerMapper.ID_KEY
-                    + "=" + transformerId);
+            derivedMimeType = new MimeType(
+                    mimeType + ";" + MimeTypeToTransformerMapper.ID_KEY + "=" + transformerId);
         }
 
-        List<QueryResponseTransformer> matches = mapper.findMatches(QueryResponseTransformer.class,
-                derivedMimeType);
+        List<QueryResponseTransformer> matches = mapper
+                .findMatches(QueryResponseTransformer.class, derivedMimeType);
         Object binaryContent = null;
 
         if (matches != null && matches.size() == 1) {
@@ -90,8 +89,8 @@ public class QueryResponseTransformerProducer extends TransformerProducer {
             }
         } else {
             LOGGER.debug("Did not find an QueryResponseTransformer for [" + transformerId + "]");
-            throw new CatalogTransformerException("Did not find an QueryResponseTransformer for ["
-                    + transformerId + "]");
+            throw new CatalogTransformerException(
+                    "Did not find an QueryResponseTransformer for [" + transformerId + "]");
         }
         return binaryContent;
     }

@@ -1,25 +1,31 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 
 package org.codice.ddf.opensearch.query;
+
+import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.codice.ddf.endpoints.ASTNode;
 import org.codice.ddf.endpoints.KeywordFilterGenerator;
 import org.codice.ddf.endpoints.KeywordTextParser;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -40,14 +46,8 @@ import org.parboiled.support.ParsingResult;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 
 public class TestKeywordTextParser {
     // private static final Logger LOGGER = Logger.getLogger(TestKeywordTextParser.class);
@@ -106,9 +106,11 @@ public class TestKeywordTextParser {
         inputs.add("A \"B\" OR C");
         inputs.add("A \"test\" OR C");
         inputs.add("A B OR \"C\"");
-        inputs.add("$%'^&_+` ''''veryInterest*ingKeyword!@#$%^&_+-=`~1234567890[]{}\\|?/><,.:; OR %^&_+-=*`~123");
+        inputs.add(
+                "$%'^&_+` ''''veryInterest*ingKeyword!@#$%^&_+-=`~1234567890[]{}\\|?/><,.:; OR %^&_+-=*`~123");
         inputs.add("test TeSt1 OR another3test");
-        inputs.add("A B C D E A N D N O T O R F G H I \"J 1 2 3 4 5 6\" 2 * 7 8 9 # $ % ^ ! } [ ` ; ' <");
+        inputs.add(
+                "A B C D E A N D N O T O R F G H I \"J 1 2 3 4 5 6\" 2 * 7 8 9 # $ % ^ ! } [ ` ; ' <");
         inputs.add("(\"A14356377856nyin8o789l;;l453 234l56;23$$#%#$@^#@&&!\" B) OR C");
         inputs.add("(A AND B) OR C");
         inputs.add("(A AND B) NOT ((C OR D) AND (B NOT A)) OR E");
@@ -140,8 +142,9 @@ public class TestKeywordTextParser {
 
             ParsingResult<?> result = new ReportingParseRunner(parser.InputPhrase()).run(input);
             LOGGER.debug("input = " + input + "\t\t=====>result matched = " + result.matched);
-            assertEquals("Failed on input [" + input + "]. Parse Error [" + getErrorOutput(result)
-                    + "]", 0, result.parseErrors.size());
+            assertEquals(
+                    "Failed on input [" + input + "]. Parse Error [" + getErrorOutput(result) + "]",
+                    0, result.parseErrors.size());
             assertEquals("Failed to parse [" + input + "] properly.", input,
                     ParseTreeUtils.getNodeText(result.parseTreeRoot, result.inputBuffer));
 
@@ -171,8 +174,8 @@ public class TestKeywordTextParser {
         inputs.add("(A AND B) NOT (\"C\" AND \"B)) OR E");
         inputs.add("(A AND B) NOT (\"A \"C\"\" AND (B)) OR E");
         inputs.add("(\"A)()()(((()))()((()))))()(((((()))((\" B) OR C"); // this could be made valid
-                                                                         // if an escape character
-                                                                         // were introduced
+        // if an escape character
+        // were introduced
         inputs.add("() (stuff) OR C");
         inputs.add("(((((((((((stuff))))))))))) OR C)"); // one missing leading parenthesis
         inputs.add("((((((((((((stuff)))))))))) OR C)"); // one missing trailing parenthesis
@@ -213,8 +216,9 @@ public class TestKeywordTextParser {
 
             ParsingResult<?> result = new ReportingParseRunner(parser.InputPhrase()).run(input);
 
-            assertEquals("Failed on input [" + input + "]. Parse Error [" + getErrorOutput(result)
-                    + "]", 0, result.parseErrors.size());
+            assertEquals(
+                    "Failed on input [" + input + "]. Parse Error [" + getErrorOutput(result) + "]",
+                    0, result.parseErrors.size());
             assertEquals("Failed to parse [" + input + "] properly.", input,
                     ParseTreeUtils.getNodeText(result.parseTreeRoot, result.inputBuffer));
 
@@ -255,7 +259,7 @@ public class TestKeywordTextParser {
 
     /**
      * Use this method when you want the tree to be printed to System.out for debugging purposes
-     * 
+     *
      * @param result
      */
     protected void visualize(ParsingResult<?> result) {
@@ -264,9 +268,9 @@ public class TestKeywordTextParser {
 
         System.out.println(output);
 
-        System.out.println("PARSE ERROR: "
-                + (!result.parseErrors.isEmpty() ? ErrorUtils.printParseError(result.parseErrors
-                        .get(0)) : "NOTHING"));
+        System.out.println("PARSE ERROR: " + (!result.parseErrors.isEmpty() ?
+                ErrorUtils.printParseError(result.parseErrors.get(0)) :
+                "NOTHING"));
 
     }
 

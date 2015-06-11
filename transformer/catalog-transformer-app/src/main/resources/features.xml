@@ -13,26 +13,29 @@
  -->
 <features name="${project.artifactId}-${project.version}">
 
-    <feature name="catalog-transformer-html" install="auto" version="${project.version}" description="DDF HTML Transformer translates query results into HTML.">
+    <feature name="catalog-transformer-html" install="auto" version="${project.version}"
+             description="DDF HTML Transformer translates query results into HTML.">
         <bundle>mvn:ddf.catalog.transformer/service-html-transformer/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-tika" install="manual" version="${project.version}" description="DDF default Input Transformer.">
+    <feature name="catalog-transformer-tika" install="manual" version="${project.version}"
+             description="DDF default Input Transformer.">
         <bundle>mvn:ddf.catalog.transformer/tika-input-transformer/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-transformer-json" install="auto" version="${project.version}" description="DDF GeoJSON Transformer translates metacards into GeoJSON.">
+    <feature name="catalog-transformer-json" install="auto" version="${project.version}"
+             description="DDF GeoJSON Transformer translates metacards into GeoJSON.">
         <feature>catalog-transformer-geoformatter</feature>
         <bundle>mvn:ddf.catalog.transformer/geojson-metacard-transformer/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-queryresponse-transformer/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-input-transformer/${project.version}</bundle>
     </feature>
-<!--     
-    <feature name="catalog-transformer-ui" install="auto" version="${project.version}" description="HTML Query Response Transformer.">
-        <feature>camel-freemarker</feature>
-        <bundle>mvn:ddf.catalog.transformer/catalog-responsequeuetransformer-html/${project.version}</bundle>
-    </feature>
--->    
+    <!--
+        <feature name="catalog-transformer-ui" install="auto" version="${project.version}" description="HTML Query Response Transformer.">
+            <feature>camel-freemarker</feature>
+            <bundle>mvn:ddf.catalog.transformer/catalog-responsequeuetransformer-html/${project.version}</bundle>
+        </feature>
+    -->
     <feature name="abdera" install="auto" version="${project.version}" description="Apache Abdera">
         <bundle>mvn:commons-codec/commons-codec/1.4</bundle>
         <!-- This bundle <bundle>mvn:org.apache.ws.commons.axiom/axiom-impl/1.2.10</bundle>
@@ -50,7 +53,8 @@
         <bundle>mvn:org.codice.thirdparty/commons-httpclient/3.1.0_1</bundle>
     </feature>
     
-    <feature name="catalog-transformer-atom" install="auto" version="${project.version}" description="Atom Query Response Transformer.">
+    <feature name="catalog-transformer-atom" install="auto" version="${project.version}"
+             description="Atom Query Response Transformer.">
         <feature>catalog-transformer-geoformatter</feature>
         <bundle>mvn:ddf.catalog.transformer/service-atom-transformer/${project.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-extensions-opensearch/${abdera.version}</bundle>
@@ -59,7 +63,7 @@
     </feature>
     
     <feature name="catalog-transformer-geoformatter" install="auto" version="${project.version}"
-        description="DDF Geo library to help with conversion of geometry objects into various formats such GeoJson, GeoRSS, etc.">
+             description="DDF Geo library to help with conversion of geometry objects into various formats such GeoJson, GeoRSS, etc.">
         <feature>abdera</feature>
         <bundle>mvn:ddf.catalog.common/geo-formatter/${ddf.esb.app.version}</bundle>
         <bundle>mvn:org.apache.abdera/abdera-extensions-geo/${abdera.version}</bundle>
@@ -68,12 +72,12 @@
     </feature>
     
     <feature name="catalog-transformer-xml" install="auto" version="${project.version}"
-        description="XML MetacardTransformer and InputTransformer">
+             description="XML MetacardTransformer and InputTransformer">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}</bundle>
     </feature>
    
     <feature name="catalog-transformers-app" install="auto" version="${project.version}"
-        description="DDF Transformers application default installations">
+             description="DDF Transformers application default installations">
         <feature>catalog-transformer-html</feature>
         <feature>catalog-transformer-json</feature>
         <!-- <feature>catalog-transformer-ui</feature> -->

@@ -18,15 +18,15 @@
     <reference id="pubsubprovider" interface="ddf.catalog.event.EventProcessor"/>
     			
     <bean id="subscriptionTracker" class="ddf.catalog.pubsub.tracker.SubscriptionTracker"
-    			init-method="startUp"  destroy-method="cleanUp">
+          init-method="startUp" destroy-method="cleanUp">
     	<property name="provider" ref="pubsubprovider"/>
     </bean>
     
-    <reference-list interface="ddf.catalog.event.Subscription" availability="optional" >
-    	<reference-listener 
-    		ref="subscriptionTracker"
-    		bind-method="addingService" 
-    		unbind-method="removedService"    />
+    <reference-list interface="ddf.catalog.event.Subscription" availability="optional">
+    	<reference-listener
+                ref="subscriptionTracker"
+                bind-method="addingService"
+                unbind-method="removedService"/>
     </reference-list>
     
 </blueprint>

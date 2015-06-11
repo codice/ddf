@@ -1,47 +1,47 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 
 package ddf.catalog.data.metacardtype;
-
-import ddf.catalog.data.MetacardTypeRegistry;
-import ddf.catalog.data.MetacardTypeUnregistrationException;
-import ddf.catalog.data.QualifiedMetacardType;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.QualifiedMetacardTypeImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.data.MetacardTypeRegistry;
+import ddf.catalog.data.MetacardTypeUnregistrationException;
+import ddf.catalog.data.QualifiedMetacardType;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.QualifiedMetacardTypeImpl;
+
 /**
  * Default implementation of the MetacardTypeRegistry.
- * 
+ *
  * <p>
  * <b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  * </p>
- * 
+ *
  */
 public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
 
-    private Set<QualifiedMetacardType> registeredMetacardTypes;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardTypeRegistryImpl.class);
+
+    private Set<QualifiedMetacardType> registeredMetacardTypes;
 
     private MetacardTypeRegistryImpl() {
         this.registeredMetacardTypes = new CopyOnWriteArraySet<QualifiedMetacardType>();
@@ -54,7 +54,7 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
 
     @Override
     public void register(QualifiedMetacardType qualifiedMetacardType)
-        throws IllegalArgumentException {
+            throws IllegalArgumentException {
         validateInput(qualifiedMetacardType);
 
         registeredMetacardTypes.add(qualifiedMetacardType);
@@ -62,7 +62,7 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
 
     @Override
     public QualifiedMetacardType lookup(String namespace, String metacardTypeName)
-        throws IllegalArgumentException {
+            throws IllegalArgumentException {
 
         validateInput(namespace, metacardTypeName);
 
@@ -73,7 +73,8 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
                 return qmt;
             }
         }
-        LOGGER.debug("No registered MetacardType with namespace: {} and name: {}", namespace, metacardTypeName);
+        LOGGER.debug("No registered MetacardType with namespace: {} and name: {}", namespace,
+                metacardTypeName);
         return null;
     }
 
@@ -84,7 +85,7 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
 
     @Override
     public void unregister(QualifiedMetacardType qualifiedMetacardType)
-        throws IllegalArgumentException, MetacardTypeUnregistrationException {
+            throws IllegalArgumentException, MetacardTypeUnregistrationException {
 
         validateInput(qualifiedMetacardType);
 
@@ -99,8 +100,8 @@ public final class MetacardTypeRegistryImpl implements MetacardTypeRegistry {
 
     @Override
     public Set<QualifiedMetacardType> getRegisteredTypes() {
-        return Collections.unmodifiableSet(new HashSet<QualifiedMetacardType>(
-                registeredMetacardTypes));
+        return Collections
+                .unmodifiableSet(new HashSet<QualifiedMetacardType>(registeredMetacardTypes));
     }
 
     private void validateInput(QualifiedMetacardType qmt) {

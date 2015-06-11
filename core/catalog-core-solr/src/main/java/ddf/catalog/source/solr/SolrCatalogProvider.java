@@ -1,18 +1,47 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.source.solr;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest.METHOD;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.PivotField;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.SolrPingResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.SolrException;
+import org.codice.solr.factory.ConfigurationStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.ContentType;
@@ -40,39 +69,10 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.MaskableImpl;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest.METHOD;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.PivotField;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.response.SolrPingResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.SolrException;
-import org.codice.solr.factory.ConfigurationStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * {@link CatalogProvider} implementation using Apache Solr 4+
- * 
+ *
  */
 public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider {
 
@@ -88,12 +88,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     private static final double HASHMAP_DEFAULT_LOAD_FACTOR = 0.75;
 
-    private DynamicSchemaResolver resolver;
-
-    private SolrServer server;
-
-    private SolrMetacardClient client;
-
     private static Properties describableProperties = new Properties();
 
     static {
@@ -105,9 +99,15 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         }
     }
 
+    private DynamicSchemaResolver resolver;
+
+    private SolrServer server;
+
+    private SolrMetacardClient client;
+
     /**
      * Constructor that creates a new instance and allows for a custom {@link DynamicSchemaResolver}
-     * 
+     *
      * @param server    Solr server
      * @param adapter   injected implementation of FilterAdapter
      * @param resolver  Solr schema resolver
@@ -118,18 +118,20 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
             throw new IllegalArgumentException("SolrServer cannot be null.");
         }
 
-        LOGGER.debug("Constructing {} with server [{}]", SolrCatalogProvider.class.getName(), server);
+        LOGGER.debug("Constructing {} with server [{}]", SolrCatalogProvider.class.getName(),
+                server);
 
         this.server = server;
         this.resolver = resolver;
 
         resolver.addFieldsFromServer(server);
-        client = new ProviderSolrMetacardClient(server, adapter, solrFilterDelegateFactory, resolver);
+        client = new ProviderSolrMetacardClient(server, adapter, solrFilterDelegateFactory,
+                resolver);
     }
 
     /**
      * Convenience constructor that creates a new ddf.catalog.source.solr.DynamicSchemaResolver
-     * 
+     *
      * @param server    Solr server
      * @param adapter   injected implementation of FilterAdapter
      */
@@ -143,10 +145,10 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
         Set<ContentType> finalSet = new HashSet<>();
 
-        String contentTypeField = resolver.getField(Metacard.CONTENT_TYPE, AttributeFormat.STRING,
-                true);
-        String contentTypeVersionField = resolver.getField(Metacard.CONTENT_TYPE_VERSION,
-                AttributeFormat.STRING, true);
+        String contentTypeField = resolver
+                .getField(Metacard.CONTENT_TYPE, AttributeFormat.STRING, true);
+        String contentTypeVersionField = resolver
+                .getField(Metacard.CONTENT_TYPE_VERSION, AttributeFormat.STRING, true);
 
         /*
          * If we didn't find the field, it most likely means it does not exist. If it does not
@@ -170,7 +172,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                 // empty.
                 // however, the content type names can still be obtained via the facet fields.
                 if (CollectionUtils.isEmpty(entry.getValue())) {
-                    LOGGER.debug("No content type versions found associated with any available content types.");
+                    LOGGER.debug(
+                            "No content type versions found associated with any available content types.");
 
                     if (CollectionUtils.isNotEmpty(facetFields)) {
                         // Only one facet field was added. That facet field may contain multiple
@@ -193,15 +196,19 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                             // if there are no sub-pivots, that means that there are no content type
                             // versions
                             // associated with this content type name
-                            LOGGER.debug("Content type does not have associated contentTypeVersion: {}", contentTypeName);
-                            ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName, null);
+                            LOGGER.debug(
+                                    "Content type does not have associated contentTypeVersion: {}",
+                                    contentTypeName);
+                            ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName,
+                                    null);
 
                             finalSet.add(contentType);
 
                         } else {
                             for (PivotField innerPf : pf.getPivot()) {
 
-                                LOGGER.debug("contentTypeVersion:{}. For contentTypeName: {}", innerPf.getValue(), contentTypeName);
+                                LOGGER.debug("contentTypeVersion:{}. For contentTypeName: {}",
+                                        innerPf.getValue(), contentTypeName);
 
                                 ContentTypeImpl contentType = new ContentTypeImpl(contentTypeName,
                                         innerPf.getValue().toString());
@@ -287,8 +294,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         }
 
         for (Metacard metacard : metacards) {
-            boolean isSourceIdSet = (metacard.getSourceId() != null && !"".equals(metacard
-                    .getSourceId()));
+            boolean isSourceIdSet = (metacard.getSourceId() != null && !""
+                    .equals(metacard.getSourceId()));
             /*
              * If an ID is not provided, then one is generated so that documents are unique. Solr
              * will not accept documents unless the id is unique.
@@ -395,11 +402,11 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
          * matter. If we use a List and the metacards are out of order, we might not match the new
          * metacards properly with the old metacards.
          */
-        int initialHashMapCapacity = (int) (idResults.getResults().size() / HASHMAP_DEFAULT_LOAD_FACTOR) + 1;
+        int initialHashMapCapacity =
+                (int) (idResults.getResults().size() / HASHMAP_DEFAULT_LOAD_FACTOR) + 1;
 
         // map of old metacards to be populated
-        Map<Serializable, Metacard> idToMetacardMap = new HashMap<>(
-                initialHashMapCapacity);
+        Map<Serializable, Metacard> idToMetacardMap = new HashMap<>(initialHashMapCapacity);
 
         /* 1c. Populate list of old metacards */
         for (SolrDocument doc : idResults.getResults()) {
@@ -414,8 +421,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
                 idToMetacardMap.put(old.getAttribute(attributeName).getValue(), old);
             } else {
                 throw new IngestException(
-                        "The attribute value given ["
-                                + old.getAttribute(attributeName).getValue()
+                        "The attribute value given [" + old.getAttribute(attributeName).getValue()
                                 + "] matched multiple records. Attribute values must at most match only one unique Metacard.");
             }
         }
@@ -490,7 +496,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
         for (SolrDocument doc : docs) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("SOLR DOC: {}", doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
+                LOGGER.debug("SOLR DOC: {}",
+                        doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
             }
 
             try {
@@ -577,8 +584,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
 
     private class ProviderSolrMetacardClient extends SolrMetacardClient {
 
-        public ProviderSolrMetacardClient(SolrServer solrServer,
-                FilterAdapter catalogFilterAdapter,
+        public ProviderSolrMetacardClient(SolrServer solrServer, FilterAdapter catalogFilterAdapter,
                 SolrFilterDelegateFactory solrFilterDelegateFactory,
                 DynamicSchemaResolver dynamicSchemaResolver) {
             super(solrServer, catalogFilterAdapter, solrFilterDelegateFactory,
@@ -586,8 +592,7 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         }
 
         @Override
-        public MetacardImpl createMetacard(SolrDocument doc)
-                throws MetacardCreationException {
+        public MetacardImpl createMetacard(SolrDocument doc) throws MetacardCreationException {
             MetacardImpl metacard = super.createMetacard(doc);
 
             metacard.setSourceId(getId());

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.geo.formatter;
 
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public class GeometryCollection extends MultiPolygon {
 
             for (int i = 0; i < geometry.getNumGeometries(); i++) {
                 CompositeGeometry compositeGeo = getCompositeGeometry(geometry.getGeometryN(i));
-                if(null != compositeGeo) {
+                if (null != compositeGeo) {
                     listOfGeometries.add(compositeGeo.toJsonMap());
                 }
             }
@@ -74,12 +73,12 @@ public class GeometryCollection extends MultiPolygon {
 
         List<Position> positions = new ArrayList<Position>();
 
-        if(null != geometry) {
+        if (null != geometry) {
             for (int i = 0; i < geometry.getNumGeometries(); i++) {
                 CompositeGeometry compositeGeo = CompositeGeometry
                         .getCompositeGeometry(geometry.getGeometryN(i));
 
-                if(null != compositeGeo) {
+                if (null != compositeGeo) {
                     positions.addAll(compositeGeo.toGeoRssPositions());
                 }
             }

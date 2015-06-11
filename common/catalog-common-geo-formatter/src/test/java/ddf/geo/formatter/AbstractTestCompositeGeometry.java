@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.geo.formatter;
 
 import java.io.IOException;
@@ -32,13 +31,11 @@ import org.junit.BeforeClass;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
-import ddf.geo.formatter.CompositeGeometry;
-
 public abstract class AbstractTestCompositeGeometry {
 
-    protected WKTReader reader = new WKTReader();
-
     protected static final Abdera abdera = new Abdera();
+
+    protected WKTReader reader = new WKTReader();
 
     @BeforeClass
     public static void setupTestClass() {
@@ -52,7 +49,7 @@ public abstract class AbstractTestCompositeGeometry {
 
     /**
      * Creates an Atom Entry with GeoRSS encoded in GML.
-     * 
+     *
      * @param composite
      * @return Atom entry as text
      * @throws ParseException

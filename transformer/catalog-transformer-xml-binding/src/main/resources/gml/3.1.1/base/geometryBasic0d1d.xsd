@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by David Burggraf (Galdos Systems Inc) -->
-<schema targetNamespace="http://www.opengis.net/gml" elementFormDefault="qualified" version="3.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gml="http://www.opengis.net/gml" xmlns:sch="http://www.ascc.net/xml/schematron"
-        xmlns="http://www.w3.org/2001/XMLSchema">
+<schema xmlns:gml="http://www.opengis.net/gml" xmlns:sch="http://www.ascc.net/xml/schematron" targetNamespace="http://www.opengis.net/gml"
+		elementFormDefault="qualified"
+		version="3.1.1"
+		xmlns="http://www.w3.org/2001/XMLSchema">
 	<annotation>
 		<appinfo source="urn:opengis:specification:gml:schema-xsd:geometryBasic0d1d:v3.1.1">geometryBasic0d1d.xsd</appinfo>
 		<appinfo source="urn:opengis:specification:gml:schema-xsd:geometryBasic0d1d:v3.1.1">
@@ -11,7 +13,8 @@
 					<sch:report test="not(@srsDimension) or @srsName">The presence of a dimension attribute implies the presence of the srsName attribute.</sch:report>
 					<sch:report test="not(@axisLabels) or @srsName">The presence of an axisLabels attribute implies the presence of the srsName attribute.</sch:report>
 					<sch:report test="not(@uomLabels) or @srsName">The presence of an uomLabels attribute implies the presence of the srsName attribute.</sch:report>
-					<sch:report test="(not(@uomLabels) and not(@axisLabels)) or (@uomLabels and @axisLabels)">The presence of an uomLabels attribute implies the presence of the axisLabels attribute and vice versa.</sch:report>
+					<sch:report
+                            test="(not(@uomLabels) and not(@axisLabels)) or (@uomLabels and @axisLabels)">The presence of an uomLabels attribute implies the presence of the axisLabels attribute and vice versa.</sch:report>
 				</sch:rule>
 			</sch:pattern>
 			<sch:pattern name="Check Dimension">
@@ -23,16 +26,17 @@
 		<documentation>Copyright (c) 2001-2005 OGC, All Rights Reserved.
 	For conditions, see OGC Software Notice http://www.opengeospatial.org/about/?page=ipr</documentation>
 	</annotation>
-	<!-- ============================================================== -->
-	<include schemaLocation="measures.xsd">
+    <!-- ============================================================== -->
+    <include schemaLocation="measures.xsd">
 		<annotation>
 			<documentation>This includes not only measures.xsd, but also units.xsd, gmlBase.xsd and basicTypes.xsd.</documentation>
 		</annotation>
 	</include>
-	<!-- ============================================================== -->
-	<!-- ===========  abstract supertype for geometry objects =================== -->
-	<!-- ============================================================== -->
-	<element name="_Geometry" type="gml:AbstractGeometryType" abstract="true" substitutionGroup="gml:_GML">
+    <!-- ============================================================== -->
+    <!-- ===========  abstract supertype for geometry objects =================== -->
+    <!-- ============================================================== -->
+    <element name="_Geometry" type="gml:AbstractGeometryType" abstract="true"
+             substitutionGroup="gml:_GML">
 		<annotation>
 			<documentation>The "_Geometry" element is the abstract head of the substituition group for all geometry elements of GML 3. This 
 			includes pre-defined and user-defined geometry elements. Any geometry element must be a direct or indirect extension/restriction 
@@ -46,8 +50,8 @@
 			</appinfo>
 		</annotation>
 	</element>
-	<!-- ============================================================== -->
-	<complexType name="GeometryPropertyType">
+    <!-- ============================================================== -->
+    <complexType name="GeometryPropertyType">
 		<annotation>
 			<documentation>A geometric property can either be any geometry element encapsulated in an element of this type or an XLink reference 
 			to a remote geometry element (where remote includes geometry elements located elsewhere in the same document). Note that either 
@@ -68,8 +72,8 @@
 			</annotation>
 		</attributeGroup>
 	</complexType>
-	<!-- ============================================================== -->
-	<complexType name="GeometryArrayPropertyType">
+    <!-- ============================================================== -->
+    <complexType name="GeometryArrayPropertyType">
 		<annotation>
 			<documentation>A container for an array of geometry elements. The elements are always contained in the array property, 
 			referencing geometry elements or arrays of geometry elements is not supported.</documentation>
@@ -78,8 +82,8 @@
 			<element ref="gml:_Geometry" minOccurs="0" maxOccurs="unbounded"/>
 		</sequence>
 	</complexType>
-	<!-- ============================================================== -->
-	<complexType name="AbstractGeometryType" abstract="true">
+    <!-- ============================================================== -->
+    <complexType name="AbstractGeometryType" abstract="true">
 		<annotation>
 			<documentation>All geometry elements are derived directly or indirectly from this abstract supertype. A geometry element may 
 			have an identifying attribute ("gml:id"), a name (attribute "name") and a description (attribute "description"). It may be associated 
@@ -100,8 +104,8 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ============================================================== -->
-	<attributeGroup name="SRSReferenceGroup">
+    <!-- ============================================================== -->
+    <attributeGroup name="SRSReferenceGroup">
 		<annotation>
 			<documentation>Optional reference to the CRS used by this geometry, with optional additional information to simplify use when 
 			a more complete definition of the CRS is not needed.</documentation>
@@ -123,8 +127,8 @@
 		</attribute>
 		<attributeGroup ref="gml:SRSInformationGroup"/>
 	</attributeGroup>
-	<!-- =================================================== -->
-	<attributeGroup name="SRSInformationGroup">
+    <!-- =================================================== -->
+    <attributeGroup name="SRSInformationGroup">
 		<annotation>
 			<documentation>Optional additional and redundant information for a CRS to simplify use when a more complete definition of the 
 			CRS is not needed. This information shall be the same as included in the more complete definition of the CRS, referenced by the 
@@ -147,15 +151,16 @@
 			</annotation>
 		</attribute>
 	</attributeGroup>
-	<!-- ============================================================== -->
-	<element name="_GeometricPrimitive" type="gml:AbstractGeometricPrimitiveType" abstract="true" substitutionGroup="gml:_Geometry">
+    <!-- ============================================================== -->
+    <element name="_GeometricPrimitive" type="gml:AbstractGeometricPrimitiveType" abstract="true"
+             substitutionGroup="gml:_Geometry">
 		<annotation>
 			<documentation>The "_GeometricPrimitive" element is the abstract head of the substituition group for all (pre- and user-defined) 
 			geometric primitives.</documentation>
 		</annotation>
 	</element>
-	<!-- ============================================================== -->
-	<complexType name="AbstractGeometricPrimitiveType" abstract="true">
+    <!-- ============================================================== -->
+    <complexType name="AbstractGeometricPrimitiveType" abstract="true">
 		<annotation>
 			<documentation>This is the abstract root type of the geometric primitives. A geometric primitive is a geometric object that is not 
 			decomposed further into other primitives in the system. All primitives are oriented in the direction implied by the sequence of their 
@@ -165,8 +170,8 @@
 			<extension base="gml:AbstractGeometryType"/>
 		</complexContent>
 	</complexType>
-	<!-- ============================================================== -->
-	<complexType name="GeometricPrimitivePropertyType">
+    <!-- ============================================================== -->
+    <complexType name="GeometricPrimitivePropertyType">
 		<annotation>
 			<documentation>A property that has a geometric primitive as its value domain can either be an appropriate geometry element 
 			encapsulated in an element of this type or an XLink reference to a remote geometry element (where remote includes geometry 
@@ -187,12 +192,12 @@
 			</annotation>
 		</attributeGroup>
 	</complexType>
-	<!-- =========================================================== -->
-	<!-- primitive geometry objects (0-dimensional) -->
-	<!-- ============================================================== -->
-	<element name="Point" type="gml:PointType" substitutionGroup="gml:_GeometricPrimitive"/>
-	<!-- ============================================================== -->
-	<complexType name="PointType">
+    <!-- =========================================================== -->
+    <!-- primitive geometry objects (0-dimensional) -->
+    <!-- ============================================================== -->
+    <element name="Point" type="gml:PointType" substitutionGroup="gml:_GeometricPrimitive"/>
+    <!-- ============================================================== -->
+    <complexType name="PointType">
 		<annotation>
 			<documentation>A Point is defined by a single coordinate tuple.</documentation>
 		</annotation>
@@ -223,8 +228,8 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ============================================================== -->
-	<element name="pointProperty" type="gml:PointPropertyType">
+    <!-- ============================================================== -->
+    <element name="pointProperty" type="gml:PointPropertyType">
 		<annotation>
 			<appinfo>
 				<sch:pattern name="Check either href or content not both">
@@ -238,14 +243,14 @@
 			is substitutable for Point.</documentation>
 		</annotation>
 	</element>
-	<!-- ============================================================== -->
-	<element name="pointRep" type="gml:PointPropertyType">
+    <!-- ============================================================== -->
+    <element name="pointRep" type="gml:PointPropertyType">
 		<annotation>
 			<documentation>Deprecated with GML version 3.1.0. Use "pointProperty" instead. Included for backwards compatibility with GML 3.0.0.</documentation>
 		</annotation>
 	</element>
-	<!-- ============================================================== -->
-	<complexType name="PointPropertyType">
+    <!-- ============================================================== -->
+    <complexType name="PointPropertyType">
 		<annotation>
 			<documentation>A property that has a point as its value domain can either be an appropriate geometry element encapsulated in an 
 			element of this type or an XLink reference to a remote geometry element (where remote includes geometry elements located 
@@ -265,10 +270,10 @@
 			</annotation>
 		</attributeGroup>
 	</complexType>
-	<!-- ============================================================== -->
-	<element name="pointArrayProperty" type="gml:PointArrayPropertyType"/>
-	<!-- =========================================================== -->
-	<complexType name="PointArrayPropertyType">
+    <!-- ============================================================== -->
+    <element name="pointArrayProperty" type="gml:PointArrayPropertyType"/>
+    <!-- =========================================================== -->
+    <complexType name="PointArrayPropertyType">
 		<annotation>
 			<documentation>A container for an array of points. The elements are always contained in the array property, referencing geometry 
 			elements or arrays of geometry elements is not supported.</documentation>
@@ -277,16 +282,17 @@
 			<element ref="gml:Point" minOccurs="0" maxOccurs="unbounded"/>
 		</sequence>
 	</complexType>
-	<!-- =========================================================== -->
-	<!-- primitive geometry objects (1-dimensional) -->
-	<!-- ============================================================== -->
-	<element name="_Curve" type="gml:AbstractCurveType" abstract="true" substitutionGroup="gml:_GeometricPrimitive">
+    <!-- =========================================================== -->
+    <!-- primitive geometry objects (1-dimensional) -->
+    <!-- ============================================================== -->
+    <element name="_Curve" type="gml:AbstractCurveType" abstract="true"
+             substitutionGroup="gml:_GeometricPrimitive">
 		<annotation>
 			<documentation>The "_Curve" element is the abstract head of the substituition group for all (continuous) curve elements.</documentation>
 		</annotation>
 	</element>
-	<!-- ============================================================== -->
-	<complexType name="AbstractCurveType" abstract="true">
+    <!-- ============================================================== -->
+    <complexType name="AbstractCurveType" abstract="true">
 		<annotation>
 			<documentation>An abstraction of a curve to support the different levels of complexity. The curve can always be viewed as a geometric 
 			primitive, i.e. is continuous.</documentation>
@@ -295,8 +301,8 @@
 			<extension base="gml:AbstractGeometricPrimitiveType"/>
 		</complexContent>
 	</complexType>
-	<!-- ============================================================== -->
-	<element name="curveProperty" type="gml:CurvePropertyType">
+    <!-- ============================================================== -->
+    <element name="curveProperty" type="gml:CurvePropertyType">
 		<annotation>
 			<appinfo>
 				<sch:pattern name="Check either href or content not both">
@@ -310,8 +316,8 @@
 			substitutable for _Curve.</documentation>
 		</annotation>
 	</element>
-	<!-- ============================================================== -->
-	<complexType name="CurvePropertyType">
+    <!-- ============================================================== -->
+    <complexType name="CurvePropertyType">
 		<annotation>
 			<documentation>A property that has a curve as its value domain can either be an appropriate geometry element encapsulated in an 
 			element of this type or an XLink reference to a remote geometry element (where remote includes geometry elements located elsewhere 
@@ -331,10 +337,10 @@
 			</annotation>
 		</attributeGroup>
 	</complexType>
-	<!-- ============================================================== -->
-	<element name="curveArrayProperty" type="gml:CurveArrayPropertyType"/>
-	<!-- =========================================================== -->
-	<complexType name="CurveArrayPropertyType">
+    <!-- ============================================================== -->
+    <element name="curveArrayProperty" type="gml:CurveArrayPropertyType"/>
+    <!-- =========================================================== -->
+    <complexType name="CurveArrayPropertyType">
 		<annotation>
 			<documentation>A container for an array of curves. The elements are always contained in the array property, referencing geometry elements 
 			or arrays of geometry elements is not supported.</documentation>
@@ -343,10 +349,10 @@
 			<element ref="gml:_Curve" minOccurs="0" maxOccurs="unbounded"/>
 		</sequence>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="LineString" type="gml:LineStringType" substitutionGroup="gml:_Curve"/>
-	<!-- =========================================================== -->
-	<complexType name="LineStringType">
+    <!-- =========================================================== -->
+    <element name="LineString" type="gml:LineStringType" substitutionGroup="gml:_Curve"/>
+    <!-- =========================================================== -->
+    <complexType name="LineStringType">
 		<annotation>
 			<documentation>A LineString is a special curve that consists of a single segment with linear interpolation. It is defined by two or more coordinate 
 			tuples, with linear interpolation between them. It is backwards compatible with the LineString of GML 2, GM_LineString of ISO 19107 is 
@@ -391,10 +397,10 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<!-- ============================================================== -->
-	<!-- positions -->
-	<!-- =========================================================== -->
-	<element name="pos" type="gml:DirectPositionType">
+    <!-- ============================================================== -->
+    <!-- positions -->
+    <!-- =========================================================== -->
+    <element name="pos" type="gml:DirectPositionType">
 		<annotation>
 			<appinfo>
 				<sch:pattern name="Check SRS tags">
@@ -405,8 +411,8 @@
 			</appinfo>
 		</annotation>
 	</element>
-	<!-- ============================================================== -->
-	<complexType name="DirectPositionType">
+    <!-- ============================================================== -->
+    <complexType name="DirectPositionType">
 		<annotation>
 			<documentation>DirectPosition instances hold the coordinates for a position within some coordinate reference system (CRS). Since 
 			DirectPositions, as data types, will often be included in larger objects (such as geometry elements) that have references to CRS, the 
@@ -419,8 +425,8 @@
 			</extension>
 		</simpleContent>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="posList" type="gml:DirectPositionListType">
+    <!-- =========================================================== -->
+    <element name="posList" type="gml:DirectPositionListType">
 		<annotation>
 			<appinfo>
 				<sch:pattern name="Check SRS tags">
@@ -438,8 +444,8 @@
 			</appinfo>
 		</annotation>
 	</element>
-	<!-- ============================================================== -->
-	<complexType name="DirectPositionListType">
+    <!-- ============================================================== -->
+    <complexType name="DirectPositionListType">
 		<annotation>
 			<documentation>DirectPositionList instances hold the coordinates for a sequence of direct positions within the same coordinate 
 			reference system (CRS).</documentation>
@@ -456,8 +462,8 @@
 			</extension>
 		</simpleContent>
 	</complexType>
-	<!-- ============================================================== -->
-	<element name="vector" type="gml:VectorType">
+    <!-- ============================================================== -->
+    <element name="vector" type="gml:VectorType">
 		<annotation>
 			<appinfo>
 				<sch:pattern name="Check SRS tags">
@@ -468,8 +474,8 @@
 			</appinfo>
 		</annotation>
 	</element>
-	<!-- ============================================================== -->
-	<complexType name="VectorType">
+    <!-- ============================================================== -->
+    <complexType name="VectorType">
 		<annotation>
 			<documentation>Vector instances hold the compoents for a (usually spatial) vector within some coordinate reference system (CRS). 
 			Since Vectors will often be included in larger objects that have references to CRS, the "srsName" attribute may be missing. 
@@ -483,8 +489,8 @@
 			</extension>
 		</simpleContent>
 	</complexType>
-	<!-- ============================================================== -->
-	<group name="geometricPositionGroup">
+    <!-- ============================================================== -->
+    <group name="geometricPositionGroup">
 		<annotation>
 			<documentation>A geometric position represented either by a DirectPosition or a Point.</documentation>
 		</annotation>
@@ -493,8 +499,8 @@
 			<element ref="gml:pointProperty"/>
 		</choice>
 	</group>
-	<!-- ============================================================== -->
-	<group name="geometricPositionListGroup">
+    <!-- ============================================================== -->
+    <group name="geometricPositionListGroup">
 		<annotation>
 			<documentation>A list of geometric positions represented either by a DirectPosition or a Point.</documentation>
 		</annotation>
@@ -503,18 +509,18 @@
 			<group ref="gml:geometricPositionGroup" maxOccurs="unbounded"/>
 		</choice>
 	</group>
-	<!-- ============================================================== -->
-	<element name="coordinates" type="gml:CoordinatesType">
+    <!-- ============================================================== -->
+    <element name="coordinates" type="gml:CoordinatesType">
 		<annotation>
 			<documentation>Deprecated with GML version 3.1.0.</documentation>
 		</annotation>
 	</element>
-	<!-- =========================================================== -->
-	<!-- Envelope -->
-	<!-- =========================================================== -->
-	<element name="Envelope" type="gml:EnvelopeType"/>
-	<!-- =========================================================== -->
-	<complexType name="EnvelopeType">
+    <!-- =========================================================== -->
+    <!-- Envelope -->
+    <!-- =========================================================== -->
+    <element name="Envelope" type="gml:EnvelopeType"/>
+    <!-- =========================================================== -->
+    <complexType name="EnvelopeType">
 		<annotation>
 			<documentation>Envelope defines an extent using a pair of positions defining opposite corners in arbitrary dimensions. The first direct 
 			position is the "lower corner" (a coordinate position consisting of all the minimal ordinates for each dimension for all points within the envelope), 
@@ -546,11 +552,11 @@
 		</choice>
 		<attributeGroup ref="gml:SRSReferenceGroup"/>
 	</complexType>
-	<!-- =========================================================== -->
-	<!-- =========================================================== -->
-	<!-- =========================================================== -->
-	<!--  	 	The following types and elements are deprecated and should not be used ! 	 	-->
-	<element name="coord" type="gml:CoordType">
+    <!-- =========================================================== -->
+    <!-- =========================================================== -->
+    <!-- =========================================================== -->
+    <!--  	 	The following types and elements are deprecated and should not be used ! 	 	-->
+    <element name="coord" type="gml:CoordType">
 		<annotation>
 			<documentation>Deprecated with GML 3.0 and included for backwards compatibility with GML 2. Use the "pos" element instead.</documentation>
 		</annotation>
@@ -566,15 +572,15 @@
 			<element name="Z" type="decimal" minOccurs="0"/>
 		</sequence>
 	</complexType>
-	<!-- =========================================================== -->
-	<element name="lineStringProperty" type="gml:LineStringPropertyType">
+    <!-- =========================================================== -->
+    <element name="lineStringProperty" type="gml:LineStringPropertyType">
 		<annotation>
 			<documentation>Deprecated with GML 3.0 and included only for backwards compatibility with GML 2.0. Use "curveProperty" instead. This 
 			property element either references a line string via the XLink-attributes or contains the line string element.</documentation>
 		</annotation>
 	</element>
-	<!-- =========================================================== -->
-	<complexType name="LineStringPropertyType">
+    <!-- =========================================================== -->
+    <complexType name="LineStringPropertyType">
 		<annotation>
 			<documentation>This type is deprecated with GML 3 and shall not be used. It is included for backwards compatibility with GML 2. Use 
 			CurvePropertyType instead. A property that has a line string as its value domain can either be an appropriate geometry element encapsulated 
@@ -595,5 +601,5 @@
 			</annotation>
 		</attributeGroup>
 	</complexType>
-	<!-- =========================================================== -->
+    <!-- =========================================================== -->
 </schema>

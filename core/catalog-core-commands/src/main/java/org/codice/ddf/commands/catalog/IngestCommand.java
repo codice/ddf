@@ -1,43 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog;
-
-import ddf.catalog.Constants;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.operation.CreateRequest;
-import ddf.catalog.operation.CreateResponse;
-import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.catalog.source.IngestException;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.InputTransformer;
-import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.codice.ddf.platform.util.Exceptions;
-import org.joda.time.Period;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.format.PeriodFormatterBuilder;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -60,21 +34,59 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.codice.ddf.platform.util.Exceptions;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.Constants;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.InputTransformer;
+
 /**
  * Custom Karaf command for ingesting records into the Catalog.
- * 
+ *
  */
 @Command(scope = CatalogCommands.NAMESPACE, name = "ingest", description = "Ingests Metacards into the Catalog.")
 public class IngestCommand extends CatalogCommands {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IngestCommand.class);
 
-    private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
+    private static final Logger INGEST_LOGGER = LoggerFactory
+            .getLogger(Constants.INGEST_LOGGER_NAME);
 
     private static final int DEFAULT_BATCH_SIZE = 1000;
 
-    @Argument(name = "File path or Directory path", description = "File path to a record or a directory of files to be ingested. Paths are absolute and must be in quotes."
-            + " This command can only detect roughly 2 billion records in one folder. Individual operating system limits might also apply.", index = 0, multiValued = false, required = true)
+    private final PeriodFormatter timeFormatter = new PeriodFormatterBuilder().printZeroRarelyLast()
+            .appendDays().appendSuffix(" day", " days").appendSeparator(" ").appendHours()
+            .appendSuffix(" hour", " hours").appendSeparator(" ").appendMinutes()
+            .appendSuffix(" minute", " minutes").appendSeparator(" ").appendSeconds()
+            .appendSuffix(" second", " seconds").toFormatter();
+
+    private final AtomicInteger ingestCount = new AtomicInteger();
+
+    private final AtomicInteger fileCount = new AtomicInteger(Integer.MAX_VALUE);
+
+    @Argument(name = "File path or Directory path", description =
+            "File path to a record or a directory of files to be ingested. Paths are absolute and must be in quotes."
+                    + " This command can only detect roughly 2 billion records in one folder. Individual operating system limits might also apply.", index = 0, multiValued = false, required = true)
     String filePath = null;
 
     // DDF-535: Remove this argument in ddf-3.0
@@ -82,30 +94,23 @@ public class IngestCommand extends CatalogCommands {
     int deprecatedBatchSize = DEFAULT_BATCH_SIZE;
 
     // DDF-535: remove "Transformer" alias in ddf-3.0
-    @Option(name = "--transformer", required = false, aliases = {"-t", "Transformer"}, multiValued = false, description = "The metacard transformer ID to use to transform data files into metacards. The default metacard transformer is the Java serialization transformer.")
+    @Option(name = "--transformer", required = false, aliases = {"-t",
+            "Transformer"}, multiValued = false, description = "The metacard transformer ID to use to transform data files into metacards. The default metacard transformer is the Java serialization transformer.")
     String transformerId = DEFAULT_TRANSFORMER_ID;
 
     // DDF-535: Remove "Multithreaded" alias in ddf-3.0
-    @Option(name = "--multithreaded", required = false, aliases = {"-m", "Multithreaded"}, multiValued = false, description = "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
+    @Option(name = "--multithreaded", required = false, aliases = {"-m",
+            "Multithreaded"}, multiValued = false, description = "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
     int multithreaded = 8;
 
     // DDF-535: remove "-d" and "Ingest Failure Directory" aliases in ddf-3.0
-    @Option(name = "--failedDir", required = false, aliases = {"-d", "-f", "Ingest Failure Directory"}, multiValued = false, description = "The directory to put files that failed to ingest.  Using this option will force a batch size of 1.")
+    @Option(name = "--failedDir", required = false, aliases = {"-d", "-f",
+            "Ingest Failure Directory"}, multiValued = false, description = "The directory to put files that failed to ingest.  Using this option will force a batch size of 1.")
     String failedDir = null;
 
-    @Option(name = "--batchsize", required = false, aliases = {"-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
+    @Option(name = "--batchsize", required = false, aliases = {
+            "-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
     int batchSize = DEFAULT_BATCH_SIZE;
-
-    private final PeriodFormatter timeFormatter = new PeriodFormatterBuilder()
-            .printZeroRarelyLast()
-            .appendDays().appendSuffix(" day", " days").appendSeparator(" ")
-            .appendHours().appendSuffix(" hour", " hours").appendSeparator(" ")
-            .appendMinutes().appendSuffix(" minute", " minutes").appendSeparator(" ")
-            .appendSeconds().appendSuffix(" second", " seconds")
-            .toFormatter();
-
-    private final AtomicInteger ingestCount = new AtomicInteger();
-    private final AtomicInteger fileCount = new AtomicInteger(Integer.MAX_VALUE);
 
     File failedIngestDirectory = null;
 
@@ -123,12 +128,14 @@ public class IngestCommand extends CatalogCommands {
 
         if (deprecatedBatchSize != DEFAULT_BATCH_SIZE) {
             // user specified the old style batch size, so use that
-            printErrorMessage("Batch size positional argument is DEPRECATED, please use --batchsize option instead.");
+            printErrorMessage(
+                    "Batch size positional argument is DEPRECATED, please use --batchsize option instead.");
             batchSize = deprecatedBatchSize;
         }
 
         if (batchSize <= 0) {
-            printErrorMessage("A batch size of [" + batchSize + "] was supplied. Batch size must be greater than 0.");
+            printErrorMessage("A batch size of [" + batchSize
+                    + "] was supplied. Batch size must be greater than 0.");
             return null;
         }
 
@@ -143,27 +150,26 @@ public class IngestCommand extends CatalogCommands {
              * a warning stating that a batch size of 1 will be used.
              */
             if (batchSize != DEFAULT_BATCH_SIZE) {
-                console.println("WARNING: An ingest failure directory was supplied in addition to a batch size of "
-                        + batchSize
-                        + ". When using an ingest failure directory, the batch size must be 1. Setting batch size to 1.");
+                console.println(
+                        "WARNING: An ingest failure directory was supplied in addition to a batch size of "
+                                + batchSize
+                                + ". When using an ingest failure directory, the batch size must be 1. Setting batch size to 1.");
             }
 
             batchSize = 1;
         }
 
-        BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(
-                multithreaded);
-        RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor
-                .CallerRunsPolicy();
-        ExecutorService executorService = new ThreadPoolExecutor(multithreaded,
-                multithreaded, 0L, TimeUnit.MILLISECONDS, blockingQueue,
-                rejectedExecutionHandler);
+        BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<Runnable>(multithreaded);
+        RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
+        ExecutorService executorService = new ThreadPoolExecutor(multithreaded, multithreaded, 0L,
+                TimeUnit.MILLISECONDS, blockingQueue, rejectedExecutionHandler);
 
         if (inputFile.isDirectory()) {
             final long start = System.currentTimeMillis();
 
             executorService.submit(new Runnable() {
-                @Override public void run() {
+                @Override
+                public void run() {
                     fileCount.getAndSet(getFileCount(inputFile));
                 }
             });
@@ -222,11 +228,11 @@ public class IngestCommand extends CatalogCommands {
                     moveToFailedIngestDirectory(inputFile);
                 }
             }
-            
+
             if (result != null) {
                 metacards.add(result);
             }
-            
+
             if (metacards.size() > 0) {
                 CreateResponse createResponse = null;
                 try {
@@ -315,11 +321,12 @@ public class IngestCommand extends CatalogCommands {
 
     private void logIngestException(IngestException exception, File inputFile) {
         LOGGER.debug("Failed to ingest file [{}].", inputFile.getAbsolutePath(), exception);
-        INGEST_LOGGER.warn("Failed to ingest file [{}]:  \n{}", inputFile.getAbsolutePath(), Exceptions.getFullMessage(exception));
+        INGEST_LOGGER.warn("Failed to ingest file [{}]:  \n{}", inputFile.getAbsolutePath(),
+                Exceptions.getFullMessage(exception));
     }
 
     private CreateResponse createMetacards(CatalogFacade catalog, List<Metacard> listOfMetaCards)
-        throws IngestException, SourceUnavailableException {
+            throws IngestException, SourceUnavailableException {
         CreateRequest createRequest = new CreateRequestImpl(listOfMetaCards);
         return catalog.create(createRequest);
     }
@@ -371,18 +378,18 @@ public class IngestCommand extends CatalogCommands {
         return result;
     }
 
-    private Metacard generateMetacard(InputStream message) throws IOException  {
+    private Metacard generateMetacard(InputStream message) throws IOException {
 
         BundleContext bundleContext = getBundleContext();
 
         ServiceReference[] refs = null;
 
         try {
-            refs = bundleContext.getServiceReferences(InputTransformer.class.getName(), "(|" + "("
-                    + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
+            refs = bundleContext.getServiceReferences(InputTransformer.class.getName(),
+                    "(|" + "(" + Constants.SERVICE_ID + "=" + transformerId + ")" + ")");
         } catch (InvalidSyntaxException e) {
-            throw new IllegalArgumentException("Invalid transformer transformerId: "
-                    + transformerId, e);
+            throw new IllegalArgumentException(
+                    "Invalid transformer transformerId: " + transformerId, e);
         }
         if (refs == null || refs.length == 0) {
             throw new IllegalArgumentException("Transformer " + transformerId + " not found");
@@ -396,8 +403,8 @@ public class IngestCommand extends CatalogCommands {
                 }
 
             } catch (CatalogTransformerException e) {
-                throw new IllegalArgumentException("Transformation Failed for transformer: "
-                        + transformerId, e);
+                throw new IllegalArgumentException(
+                        "Transformation Failed for transformer: " + transformerId, e);
             }
         }
 
@@ -409,7 +416,8 @@ public class IngestCommand extends CatalogCommands {
         }
 
         if (!failedIngestDirectory.canWrite()) {
-            printErrorMessage("Directory [" + failedIngestDirectory.getAbsolutePath() + "] is not writable.");
+            printErrorMessage(
+                    "Directory [" + failedIngestDirectory.getAbsolutePath() + "] is not writable.");
             return false;
         } else {
             return true;
@@ -418,12 +426,14 @@ public class IngestCommand extends CatalogCommands {
 
     private void makeFailedIngestDirectory() {
         if (!failedIngestDirectory.mkdirs()) {
-            printErrorMessage("Unable to create directory [" + failedIngestDirectory.getAbsolutePath() + "].");
+            printErrorMessage(
+                    "Unable to create directory [" + failedIngestDirectory.getAbsolutePath()
+                            + "].");
         }
     }
 
-    private boolean processBatch(CatalogFacade catalog, ArrayList<Metacard> metacards) throws
-            SourceUnavailableException {
+    private boolean processBatch(CatalogFacade catalog, ArrayList<Metacard> metacards)
+            throws SourceUnavailableException {
         CreateResponse createResponse = null;
         boolean success = false;
 
@@ -435,14 +445,13 @@ public class IngestCommand extends CatalogCommands {
             success = false;
             printErrorMessage("Error executing command: " + e.getMessage());
             if (INGEST_LOGGER.isWarnEnabled()) {
-                INGEST_LOGGER.warn("Error ingesting metacard batch {}",
-                        buildIngestLog(metacards), e);
+                INGEST_LOGGER
+                        .warn("Error ingesting metacard batch {}", buildIngestLog(metacards), e);
             }
         } catch (SourceUnavailableException e) {
             if (INGEST_LOGGER.isWarnEnabled()) {
                 INGEST_LOGGER.warn("Error on process batch, local provider not available. {}"
-                                + " metacards failed to ingest. {}",
-                        metacards.size(),
+                                + " metacards failed to ingest. {}", metacards.size(),
                         buildIngestLog(metacards), e);
             }
         }
@@ -476,11 +485,12 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private void moveToFailedIngestDirectory(File source) {
-        File destination = new File(failedIngestDirectory.getAbsolutePath() + File.separator + source.getName());
+        File destination = new File(
+                failedIngestDirectory.getAbsolutePath() + File.separator + source.getName());
 
         if (!source.renameTo(destination)) {
-            printErrorMessage("Unable to move source file [" + source.getAbsolutePath()
-                    + "] to [" + failedIngestDirectory + "].");
+            printErrorMessage("Unable to move source file [" + source.getAbsolutePath() + "] to ["
+                    + failedIngestDirectory + "].");
         }
     }
 
@@ -501,8 +511,7 @@ public class IngestCommand extends CatalogCommands {
         }
 
         @Override
-        public FileVisitResult visitFile(Path path, BasicFileAttributes attrs)
-                throws IOException {
+        public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
 
             final File file = path.toFile();
 
@@ -545,8 +554,7 @@ public class IngestCommand extends CatalogCommands {
                         }
 
                         if (createResponse != null) {
-                            ingestCount.getAndAdd(
-                                    createResponse.getCreatedMetacards().size());
+                            ingestCount.getAndAdd(createResponse.getCreatedMetacards().size());
                         }
 
                         printProgressAndFlush(start, fileCount.get(), ingestCount.get());

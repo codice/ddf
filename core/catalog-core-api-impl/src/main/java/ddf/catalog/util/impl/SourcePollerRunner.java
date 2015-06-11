@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.util.impl;
 
 import java.util.List;
@@ -32,19 +31,20 @@ import ddf.catalog.source.Source;
  * The poller to check the availability of all configured sources. This class is instantiated by the
  * CatalogFramework's blueprint and is scheduled by the {@link SourcePoller} to execute at a fixed
  * rate, i.e., the polling interval.
- * 
+ *
  * This class maintains a list of all of the sources to be polled for their availability. Sources
  * are added to this list when they come online and when they are deleted. A cached map is
  * maintained of all the sources and their last availability states.
- * 
+ *
  */
 public class SourcePollerRunner implements Runnable {
+
+    private static final XLogger logger = new XLogger(
+            LoggerFactory.getLogger(SourcePollerRunner.class));
 
     private List<Source> sources;
 
     private Map<Source, CachedSource> cachedSources = new ConcurrentHashMap<Source, CachedSource>();
-
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(SourcePollerRunner.class));
 
     private ExecutorService pool;
 
@@ -83,7 +83,7 @@ public class SourcePollerRunner implements Runnable {
     /**
      * Checks if the specified source is available, updating the internally maintained map of
      * sources and their status. Lock ensures only one status thread is running per source.
-     * 
+     *
      * @param source
      *            the source to check if it is available
      */
@@ -99,28 +99,24 @@ public class SourcePollerRunner implements Runnable {
 
                 final CachedSource cachedSource = cachedSources.get(source);
                 if (cachedSource != null) {
-                    Lock sourceStatusThreadLock = sourceStatusThreadLocks
-                            .get(source);
+                    Lock sourceStatusThreadLock = sourceStatusThreadLocks.get(source);
 
                     if (sourceStatusThreadLock.tryLock()) {
-                        logger.debug(
-                                "Acquired lock for Source [{}] with id [{}]",
-                                source, source.getId());
+                        logger.debug("Acquired lock for Source [{}] with id [{}]", source,
+                                source.getId());
 
                         try {
                             cachedSource.checkStatus();
                         } finally {
                             // release the lock acquired initially
                             sourceStatusThreadLock.unlock();
-                            logger.debug(
-                                    "Released lock for Source [{}] with id [{}]",
-                                    source, source.getId());
+                            logger.debug("Released lock for Source [{}] with id [{}]", source,
+                                    source.getId());
                         }
                     } else {
-                        logger.debug(
-                                "Unable to get lock for Source [{}] with id [{}]." +
-                                "  A status thread is already running.",
-                                source, source.getId());
+                        logger.debug("Unable to get lock for Source [{}] with id [{}]."
+                                        + "  A status thread is already running.", source,
+                                source.getId());
                     }
                 }
             }
@@ -131,7 +127,7 @@ public class SourcePollerRunner implements Runnable {
     /**
      * Adds the {@link Source} instance to the list and sets its current status to UNCHECKED,
      * indicating it will checked at the next polling interval.
-     * 
+     *
      * @param source
      *            the source to add to the list
      */
@@ -151,7 +147,7 @@ public class SourcePollerRunner implements Runnable {
     /**
      * Removes the {@link Source} instance from the list of references so that its availability is
      * no longer polled.
-     * 
+     *
      * @param source
      *            the source to remove from the list
      */
@@ -168,18 +164,18 @@ public class SourcePollerRunner implements Runnable {
      * Retrieves a {@link CachedSource} which contains cached values from the 
      * specified {@link Source}. Returns a {@link Source} with values from the 
      * last polling interval. If the {@link Source} is not known, null is returned.
-     * 
+     *
      * @param source
      *            the source to get the {@link CachedSource} for
-     * 
+     *
      * @return a {@link CachedSource} which contains cached values
      */
     public CachedSource getCachedSource(Source source) {
         return cachedSources.get(source);
     }
-    
+
     /**
-     * 
+     *
      * Calls the @link ExecutorService to shutdown immediately
      */
     public void shutdown() {

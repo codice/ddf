@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.source.opensearch;
 
 import java.io.UnsupportedEncodingException;
@@ -40,7 +39,7 @@ import ddf.security.assertion.SecurityAssertion;
 
 /**
  * Utility helper class that performs much of the translation logic used in CddaOpenSearchSite.
- * 
+ *
  */
 public final class OpenSearchSiteUtil {
 
@@ -118,13 +117,14 @@ public final class OpenSearchSiteUtil {
 
     /**
      * Populates general site information.
-     * 
+     *
      * @param client
      *            Initial StringBuilder url that is not filled in.
      * @param query
      * @param subject
      */
-    public static void populateSearchOptions(WebClient client, Query query, Subject subject, List<String> parameters) {
+    public static void populateSearchOptions(WebClient client, Query query, Subject subject,
+            List<String> parameters) {
         String maxTotalSize = null;
         String maxPerPage = null;
         String routeTo = "";
@@ -149,8 +149,8 @@ public final class OpenSearchSiteUtil {
 
             sortStr = translateToOpenSearchSort(query.getSortBy());
 
-            if (subject != null && subject.getPrincipals() != null
-                    && !subject.getPrincipals().isEmpty()) {
+            if (subject != null && subject.getPrincipals() != null && !subject.getPrincipals()
+                    .isEmpty()) {
                 List principals = subject.getPrincipals().asList();
                 for (Object principal : principals) {
                     if (principal instanceof SecurityAssertion) {
@@ -197,7 +197,8 @@ public final class OpenSearchSiteUtil {
         } else if (Result.TEMPORAL.equals(sortByField.getPropertyName())) {
             openSearchSortStr = SORT_TEMPORAL + SORT_DELIMITER + orderType;
         } else {
-            logger.warn("Couldn't determine sort policy, not adding sorting in request to federated site.");
+            logger.warn(
+                    "Couldn't determine sort policy, not adding sorting in request to federated site.");
         }
 
         return openSearchSortStr;
@@ -207,12 +208,12 @@ public final class OpenSearchSiteUtil {
      * Fills in the OpenSearch query URL with contextual information (Note: Section 2.2 - Query: The
      * OpenSearch specification does not define a syntax for its primary query parameter,
      * searchTerms, but it is generally used to support simple keyword queries.)
-     * 
+     *
      * @param client
      * @param searchPhrase
      */
-    public static void populateContextual(WebClient client,
-            final String searchPhrase, List<String> parameters) {
+    public static void populateContextual(WebClient client, final String searchPhrase,
+            List<String> parameters) {
         String queryStr = searchPhrase;
         if (queryStr != null) {
             try {
@@ -228,23 +229,26 @@ public final class OpenSearchSiteUtil {
     /**
      * Fills in the opensearch query URL with temporal information (Start, End, and Name). Currently
      * name is empty due to incompatibility with endpoints.
-     * 
+     *
      * @param client
      *            OpenSearch URL to populate
      * @param temporal
      *            TemporalCriteria that contains temporal data
      */
-    public static void populateTemporal(WebClient client, TemporalFilter temporal, List<String> parameters) {
+    public static void populateTemporal(WebClient client, TemporalFilter temporal,
+            List<String> parameters) {
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         String start = "";
         String end = "";
         String name = "";
         if (temporal != null) {
-            long startLng = (temporal.getStartDate() != null) ? temporal.getStartDate().getTime()
-                    : 0;
+            long startLng = (temporal.getStartDate() != null) ?
+                    temporal.getStartDate().getTime() :
+                    0;
             start = fmt.print(startLng);
-            long endLng = (temporal.getEndDate() != null) ? temporal.getEndDate().getTime()
-                    : System.currentTimeMillis();
+            long endLng = (temporal.getEndDate() != null) ?
+                    temporal.getEndDate().getTime() :
+                    System.currentTimeMillis();
             end = fmt.print(endLng);
         }
         checkAndReplace(client, start, TIME_START, parameters);
@@ -254,15 +258,14 @@ public final class OpenSearchSiteUtil {
 
     /**
      * Fills in the OpenSearch query URL with geospatial information (poly, lat, lon, and radius).
-     * 
+     *
      * @param client
      *            OpenSearch URL to populate
      * @param spatial
      *            SpatialCriteria that contains the spatial data
      */
-    public static void populateGeospatial(WebClient client,
-            SpatialDistanceFilter spatial, boolean shouldConvertToBBox, List<String> parameters)
-        throws UnsupportedQueryException {
+    public static void populateGeospatial(WebClient client, SpatialDistanceFilter spatial,
+            boolean shouldConvertToBBox, List<String> parameters) throws UnsupportedQueryException {
         String lat = "";
         String lon = "";
         String radiusStr = "";
@@ -305,7 +308,7 @@ public final class OpenSearchSiteUtil {
 
     /**
      * Fills in the OpenSearch query URL with geospatial information (poly, lat, lon, and radius).
-     * 
+     *
      * @param client
      *            OpenSearch URL to populate
      * @param spatial
@@ -353,7 +356,7 @@ public final class OpenSearchSiteUtil {
 
     /**
      * Parses a WKT polygon string and returns a string array containing the lon and lat.
-     * 
+     *
      * @param wkt
      *            WKT String in the form of POLYGON((Lon Lat, Lon Lat...))
      * @return Lon on even # and Lat on odd #
@@ -365,7 +368,7 @@ public final class OpenSearchSiteUtil {
 
     /**
      * Parses a WKT Point string and returns a string array containing the lon and lat.
-     * 
+     *
      * @param wkt
      *            WKT String in the form of POINT( Lon Lat)
      * @return Lon at position 0, Lat at position 1
@@ -377,7 +380,7 @@ public final class OpenSearchSiteUtil {
 
     /**
      * Checks the input and replaces the items inside of the url.
-     * 
+     *
      * @param client
      *            The URL to do the replacement on. <b>NOTE:</b> replacement is done directly on
      *            this object.
@@ -386,18 +389,18 @@ public final class OpenSearchSiteUtil {
      * @param definition
      *            Area inside of the URL to be replaced by.
      */
-    private static void checkAndReplace(WebClient client, String inputStr,
-            String definition, List<String> parameters) {
-        if(hasParameter(definition, parameters)) {
-            if(StringUtils.isNotEmpty(inputStr)) {
+    private static void checkAndReplace(WebClient client, String inputStr, String definition,
+            List<String> parameters) {
+        if (hasParameter(definition, parameters)) {
+            if (StringUtils.isNotEmpty(inputStr)) {
                 client.replaceQueryParam(definition, inputStr);
             }
         }
     }
 
     private static boolean hasParameter(String parameter, List<String> parameters) {
-        for(String param : parameters) {
-            if(param != null && param.equalsIgnoreCase(parameter)) {
+        for (String param : parameters) {
+            if (param != null && param.equalsIgnoreCase(parameter)) {
                 return true;
             }
         }
@@ -406,7 +409,7 @@ public final class OpenSearchSiteUtil {
 
     /**
      * Takes in a point radius search and converts it to a (rough approximation) bounding box.
-     * 
+     *
      * @param lon
      *            latitude in decimal degrees (WGS-84)
      * @param lat
@@ -447,10 +450,10 @@ public final class OpenSearchSiteUtil {
 
     /**
      * Takes in an array of coordinates and converts it to a (rough approximation) bounding box.
-     * 
+     *
      * Note: Searches being performed where the polygon goes through the international date line may
      * return a bad bounding box.
-     * 
+     *
      * @param polyAry
      *            array of coordinates (lon,lat,lon,lat,lon,lat..etc)
      * @return Array of bounding box coordinates in the following order: West South East North. Also

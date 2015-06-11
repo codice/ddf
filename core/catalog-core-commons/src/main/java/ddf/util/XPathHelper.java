@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.util;
 
 import java.io.IOException;
@@ -50,13 +49,10 @@ import org.xml.sax.SAXException;
 
 /**
  * @author Ashraf Barakat, rodgersh
- * 
+ *
  */
 public class XPathHelper {
     private static final String UTF_8 = "UTF-8";
-
-    /** The XML document being worked on by this XPathHelper utility class. */
-    private Document document;
 
     /** The Logger for this class. */
     private static final Logger LOGGER = LoggerFactory.getLogger(XPathHelper.class);
@@ -65,12 +61,16 @@ public class XPathHelper {
 
     private final TransformerFactory tf;
 
+    /** The XML document being worked on by this XPathHelper utility class. */
+    private Document document;
+
     public XPathHelper() {
-        dbf = DocumentBuilderFactory.newInstance(
-                org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(), this.getClass()
-                        .getClassLoader());
-        tf = TransformerFactory.newInstance(org.apache.xalan.processor.TransformerFactoryImpl.class
-                .getName(), this.getClass().getClassLoader());
+        dbf = DocumentBuilderFactory
+                .newInstance(org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(),
+                        this.getClass().getClassLoader());
+        tf = TransformerFactory
+                .newInstance(org.apache.xalan.processor.TransformerFactoryImpl.class.getName(),
+                        this.getClass().getClassLoader());
     }
 
     /**
@@ -138,72 +138,9 @@ public class XPathHelper {
     }
 
     /**
-     * Convenience method for evaluating xpath expressions that uses as default for its
-     * {@link NamespaceContext}, the {@link NamespaceResolver} class
-     * 
-     * @param xpathExpressionKey
-     * @return a String of the matched xpath evaluation
-     * @throws XPathExpressionException
-     */
-    public String evaluate(String xpathExpressionKey) throws XPathExpressionException {
-        return (String) this.evaluate(xpathExpressionKey, XPathConstants.STRING,
-                XPathCache.getNamespaceResolver());
-    }
-
-    /**
-     * @param xpathExpressionKey
-     * @param nsContext
-     * @return
-     * @throws XPathExpressionException
-     */
-    public String evaluate(String xpathExpressionKey, NamespaceContext nsContext)
-        throws XPathExpressionException // , NullPointerException
-    {
-        return (String) this.evaluate(xpathExpressionKey, XPathConstants.STRING, nsContext);
-    }
-
-    /**
-     * Convenience method for evaluating xpaths that uses as default for its
-     * {@link NamespaceContext}, the {@link NamespaceResolver} class. Allows you to also change the
-     * how the type is returned.
-     * 
-     * @param xpathExpression
-     * @param returnType
-     * @throws XPathExpressionException
-     */
-    public Object evaluate(String xpathExpressionKey, QName returnType)
-        throws XPathExpressionException {
-        return this.evaluate(xpathExpressionKey, returnType, XPathCache.getNamespaceResolver());
-    }
-
-    /**
-     * @param xpathExpression
-     * @param returnType
-     * @param nsContext
-     * @return
-     * @throws XPathExpressionException
-     */
-    public synchronized Object evaluate(String xpathExpressionKey, QName returnType,
-            NamespaceContext nsContext) throws XPathExpressionException {
-        XPathCache.getXPath().setNamespaceContext(nsContext);
-
-        XPathExpression compiledExpression = XPathCache.getCompiledExpression(xpathExpressionKey);
-
-        Thread thread = Thread.currentThread();
-        ClassLoader loader = thread.getContextClassLoader();
-        thread.setContextClassLoader(this.getClass().getClassLoader());
-
-        try {
-            return compiledExpression.evaluate(document, returnType);
-        } finally {
-            thread.setContextClassLoader(loader);
-        }
-    }
-
-    /**
      * Prints a given node as a String. This is a convenience method that uses the default character
      * encoding.
-     * 
+     *
      * @param n
      *            - the node to print as a String
      * @return the Node as a String, null if an exception is thrown or null is passed in.
@@ -214,7 +151,7 @@ public class XPathHelper {
 
     /**
      * Prints a given node as a String
-     * 
+     *
      * @param n
      *            - the node to print as a String
      * @param encoding
@@ -255,6 +192,81 @@ public class XPathHelper {
     }
 
     /**
+     * Convert an XML Node to a string representation.
+     *
+     * @param node
+     *            the XML node to be converted
+     *
+     * @return the string representation of the XML node
+     */
+    public static String xmlToString(Node node) {
+        return print(node);
+    }
+
+    /**
+     * Convenience method for evaluating xpath expressions that uses as default for its
+     * {@link NamespaceContext}, the {@link NamespaceResolver} class
+     *
+     * @param xpathExpressionKey
+     * @return a String of the matched xpath evaluation
+     * @throws XPathExpressionException
+     */
+    public String evaluate(String xpathExpressionKey) throws XPathExpressionException {
+        return (String) this.evaluate(xpathExpressionKey, XPathConstants.STRING,
+                XPathCache.getNamespaceResolver());
+    }
+
+    /**
+     * @param xpathExpressionKey
+     * @param nsContext
+     * @return
+     * @throws XPathExpressionException
+     */
+    public String evaluate(String xpathExpressionKey, NamespaceContext nsContext)
+            throws XPathExpressionException // , NullPointerException
+    {
+        return (String) this.evaluate(xpathExpressionKey, XPathConstants.STRING, nsContext);
+    }
+
+    /**
+     * Convenience method for evaluating xpaths that uses as default for its
+     * {@link NamespaceContext}, the {@link NamespaceResolver} class. Allows you to also change the
+     * how the type is returned.
+     *
+     * @param xpathExpression
+     * @param returnType
+     * @throws XPathExpressionException
+     */
+    public Object evaluate(String xpathExpressionKey, QName returnType)
+            throws XPathExpressionException {
+        return this.evaluate(xpathExpressionKey, returnType, XPathCache.getNamespaceResolver());
+    }
+
+    /**
+     * @param xpathExpression
+     * @param returnType
+     * @param nsContext
+     * @return
+     * @throws XPathExpressionException
+     */
+    public synchronized Object evaluate(String xpathExpressionKey, QName returnType,
+            NamespaceContext nsContext) throws XPathExpressionException {
+        XPathCache.getXPath().setNamespaceContext(nsContext);
+
+        XPathExpression compiledExpression = XPathCache.getCompiledExpression(xpathExpressionKey);
+
+        Thread thread = Thread.currentThread();
+        ClassLoader loader = thread.getContextClassLoader();
+        thread.setContextClassLoader(this.getClass().getClassLoader());
+
+        try {
+            return compiledExpression.evaluate(document, returnType);
+        } finally {
+            thread.setContextClassLoader(loader);
+        }
+    }
+
+    /**
      * @param xmlDeclaration
      * @param indent
      * @return
@@ -283,23 +295,11 @@ public class XPathHelper {
 
     /**
      * Retrieve the XML document being worked on by this XPathHelper utility class.
-     * 
+     *
      * @return the XML document
      */
     public Document getDocument() {
         return document;
-    }
-
-    /**
-     * Convert an XML Node to a string representation.
-     * 
-     * @param node
-     *            the XML node to be converted
-     * 
-     * @return the string representation of the XML node
-     */
-    public static String xmlToString(Node node) {
-        return print(node);
     }
 
 }

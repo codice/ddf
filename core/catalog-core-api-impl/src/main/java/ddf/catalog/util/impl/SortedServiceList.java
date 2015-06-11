@@ -1,27 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.util.impl;
-
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.plugin.PreIngestPlugin;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,20 +23,30 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
+
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.plugin.PreIngestPlugin;
+
 /**
  * <p>
  * This utility object sorts Services by their service rankings first and then breaks ties with
  * service ids. Its initial intent is to be used with {@link CatalogFramework} plugins, but can be
  * used with any service.
  * <p>
- * 
+ *
  * <p>
  * It is an implementation of {@link List} but is backed by a sorted {@link TreeMap} of
  * <ServiceReference, T> where the {@link ServiceReference} objects are what is used to maintain the
  * list order but the objects passed by this {@link List} to clients are the actual service objects
  * and not the service references.
  * </p>
- * 
+ *
  * <p>
  * For instance if this was a SortedServiceList<PreIngestPlugin> object, then in the internal
  * TreeMap the {@link ServiceReference} objects would be maintained as keys but
@@ -54,17 +54,18 @@ import java.util.TreeMap;
  * populated {@link SortedServiceList} list such as <code>list.get(0)</code> would return the first
  * {@link PreIngestPlugin} object.
  * </p>
- * 
+ *
  * @param <T>
  */
 public class SortedServiceList<T> implements List<T> {
 
     private static final String READ_ONLY_ERROR_MESSAGE = "This list is meant to be read only.";
 
+    private static final XLogger logger = new XLogger(
+            LoggerFactory.getLogger(SortedServiceList.class));
+
     private Map<ServiceReference, T> serviceMap = Collections
             .synchronizedMap(new TreeMap<ServiceReference, T>(new ServiceComparator()));
-
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(SortedServiceList.class));
 
     /**
      * Constructor accepting OSGi bundle context. This constructor is currently invoked by the
@@ -88,7 +89,7 @@ public class SortedServiceList<T> implements List<T> {
      * Adds the newly bound OSGi service and its service reference to the internally maintained and
      * sorted serviceMap. This method is invoked when a plugin is bound (created/installed). This
      * includes preingest, postingest, prequery, postquery, preresource, postresource plugins.
-     * 
+     *
      * @param ref
      *            the OSGi service reference
      */
@@ -113,7 +114,7 @@ public class SortedServiceList<T> implements List<T> {
      * Removes the newly bound OSGi service and its service reference to the internally maintained
      * and sorted serviceMap. This method is invoked when a plugin is unbound (removed/uninstalled).
      * This includes preingest, postingest, prequery, postquery, preresource, postresource plugins.
-     * 
+     *
      * @param ref
      *            the OSGi service reference
      */

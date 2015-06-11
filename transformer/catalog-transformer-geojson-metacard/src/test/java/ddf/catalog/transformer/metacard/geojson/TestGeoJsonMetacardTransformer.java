@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.transformer.metacard.geojson;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -53,13 +52,9 @@ import ddf.geo.formatter.Polygon;
 
 /**
  * Tests the {@link GeoJsonMetacardTransformer}
- * 
+ *
  */
 public class TestGeoJsonMetacardTransformer {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestGeoJsonMetacardTransformer.class);
-
-    private static final JSONParser parser = new JSONParser();
 
     public static final String DEFAULT_TITLE = "myTitle";
 
@@ -71,6 +66,11 @@ public class TestGeoJsonMetacardTransformer {
 
     public static final String DEFAULT_SOURCE_ID = "ddfChild";
 
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(TestGeoJsonMetacardTransformer.class);
+
+    private static final JSONParser parser = new JSONParser();
+
     private static final String SOURCE_ID_PROPERTY = "source-id";
 
     @Test(expected = CatalogTransformerException.class)
@@ -80,7 +80,7 @@ public class TestGeoJsonMetacardTransformer {
 
     /**
      * Tests that proper JSON output is received when no {@link Metacard#GEOGRAPHY} is found.
-     * 
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      * @throws ParseException
@@ -114,7 +114,7 @@ public class TestGeoJsonMetacardTransformer {
 
     /**
      * Tests that improper WKT throws an exception
-     * 
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      * @throws ParseException
@@ -138,7 +138,7 @@ public class TestGeoJsonMetacardTransformer {
 
     /**
      * Tests that a POINT Geography can be returned in JSON
-     * 
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      * @throws ParseException
@@ -179,14 +179,14 @@ public class TestGeoJsonMetacardTransformer {
 
     /**
      * Tests that a LineString Geography can be returned in JSON
-     * 
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      * @throws ParseException
      */
     @Test
-    public void testwithLineStringGeo() throws CatalogTransformerException, IOException,
-        ParseException {
+    public void testwithLineStringGeo()
+            throws CatalogTransformerException, IOException, ParseException {
 
         Date now = new Date();
 
@@ -229,8 +229,8 @@ public class TestGeoJsonMetacardTransformer {
     }
 
     @Test
-    public void testwithMultiPointGeo() throws CatalogTransformerException, IOException,
-        ParseException {
+    public void testwithMultiPointGeo()
+            throws CatalogTransformerException, IOException, ParseException {
 
         Date now = new Date();
 
@@ -272,14 +272,15 @@ public class TestGeoJsonMetacardTransformer {
     }
 
     @Test
-    public void testwithMultiLineStringGeo() throws CatalogTransformerException, IOException,
-        ParseException {
+    public void testwithMultiLineStringGeo()
+            throws CatalogTransformerException, IOException, ParseException {
 
         Date now = new Date();
 
         MetacardImpl metacard = new MetacardImpl();
 
-        metacard.setLocation("MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
+        metacard.setLocation(
+                "MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
         setupBasicMetacard(now, metacard);
 
         GeoJsonMetacardTransformer transformer = new GeoJsonMetacardTransformer();
@@ -296,7 +297,8 @@ public class TestGeoJsonMetacardTransformer {
         JSONObject obj2 = (JSONObject) object;
 
         Map geometryMap = (Map) obj2.get("geometry");
-        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY).toString(), is(MultiLineString.TYPE));
+        assertThat(geometryMap.get(CompositeGeometry.TYPE_KEY).toString(),
+                is(MultiLineString.TYPE));
         List<List<List<Double>>> coordsList = (List<List<List<Double>>>) geometryMap
                 .get(CompositeGeometry.COORDINATES_KEY);
         assertThat(coordsList.size(), is(2));
@@ -323,8 +325,8 @@ public class TestGeoJsonMetacardTransformer {
     }
 
     @Test
-    public void testwithPolygonGeoNoHole() throws CatalogTransformerException, IOException,
-        ParseException {
+    public void testwithPolygonGeoNoHole()
+            throws CatalogTransformerException, IOException, ParseException {
 
         Date now = new Date();
 
@@ -361,14 +363,15 @@ public class TestGeoJsonMetacardTransformer {
     }
 
     @Test
-    public void testwithPolygonGeoWithHole() throws CatalogTransformerException, IOException,
-        ParseException {
+    public void testwithPolygonGeoWithHole()
+            throws CatalogTransformerException, IOException, ParseException {
 
         Date now = new Date();
 
         MetacardImpl metacard = new MetacardImpl();
 
-        metacard.setLocation("POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10),(20 30, 35 35, 30 20, 20 30))");
+        metacard.setLocation(
+                "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10),(20 30, 35 35, 30 20, 20 30))");
 
         setupBasicMetacard(now, metacard);
 
@@ -414,14 +417,15 @@ public class TestGeoJsonMetacardTransformer {
     }
 
     @Test
-    public void testWithMultiPolygonGeo() throws CatalogTransformerException, IOException,
-        ParseException {
+    public void testWithMultiPolygonGeo()
+            throws CatalogTransformerException, IOException, ParseException {
 
         Date now = new Date();
 
         MetacardImpl metacard = new MetacardImpl();
 
-        metacard.setLocation("MULTIPOLYGON (((30 10, 10 20, 20 40, 40 40, 30 10)),((15 5, 40 10, 10 20, 5 10, 15 5)))");
+        metacard.setLocation(
+                "MULTIPOLYGON (((30 10, 10 20, 20 40, 40 40, 30 10)),((15 5, 40 10, 10 20, 5 10, 15 5)))");
 
         setupBasicMetacard(now, metacard);
 
@@ -459,8 +463,8 @@ public class TestGeoJsonMetacardTransformer {
     }
 
     @Test
-    public void testWithGeometryCollection() throws CatalogTransformerException, IOException,
-        ParseException {
+    public void testWithGeometryCollection()
+            throws CatalogTransformerException, IOException, ParseException {
 
         Date now = new Date();
 
@@ -558,18 +562,17 @@ public class TestGeoJsonMetacardTransformer {
         assertThat(obj2.get("properties"), notNullValue());
         Map properties = ((Map) obj2.get("properties"));
         assertThat(properties.size(), is(10)); // no extra
-                                               // properties
+        // properties
         assertThat(toString(properties.get(Metacard.TITLE)), is(DEFAULT_TITLE));
         assertThat(toString(properties.get(Metacard.CONTENT_TYPE)), is(DEFAULT_TYPE));
         assertThat(toString(properties.get(Metacard.CONTENT_TYPE_VERSION)), is(DEFAULT_VERSION));
-        SimpleDateFormat dateFormat = new SimpleDateFormat(GeoJsonMetacardTransformer.ISO_8601_DATE_FORMAT);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                GeoJsonMetacardTransformer.ISO_8601_DATE_FORMAT);
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        assertThat(toString(properties.get(Metacard.CREATED)),
-                is(dateFormat.format(now)));
+        assertThat(toString(properties.get(Metacard.CREATED)), is(dateFormat.format(now)));
         assertThat(toString(properties.get(Metacard.EXPIRATION)), nullValue());
         assertThat(toString(properties.get(Metacard.EFFECTIVE)), nullValue());
-        assertThat(toString(properties.get(Metacard.MODIFIED)),
-                is(dateFormat.format(now)));
+        assertThat(toString(properties.get(Metacard.MODIFIED)), is(dateFormat.format(now)));
         assertThat(toString(properties.get(Metacard.THUMBNAIL)), is("CA=="));
         assertThat(toString(properties.get(Metacard.METADATA)), is("<xml></xml>"));
         assertThat(toString(properties.get(Metacard.RESOURCE_URI)), is("http://example.com"));

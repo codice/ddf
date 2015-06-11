@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.util.impl;
 
 import java.util.Comparator;
@@ -27,7 +26,7 @@ import ddf.catalog.data.Result;
 
 /**
  * Comparator for the temporal attribute of 2 {@link Result} objects.
- * 
+ *
  */
 public class TemporalResultComparator implements Comparator<Result> {
 
@@ -40,7 +39,7 @@ public class TemporalResultComparator implements Comparator<Result> {
     /**
      * Constructs the comparator with the specified sort order, either temporal ascending or
      * temporal descending.
-     * 
+     *
      * @param sortOrder
      *            the temporal sort order, if null is passed in, then the default SortOrder applies,
      *            which is SortOrder.DESCENDING.
@@ -54,7 +53,7 @@ public class TemporalResultComparator implements Comparator<Result> {
     /**
      * Constructs the comparator with the specified sort order, either temporal ascending or
      * temporal descending and the Attribute Name to sort on.
-     * 
+     *
      * @param sortOrder
      *            the temporal sort order, if null is passed in, then the default SortOrder applies,
      *            which is SortOrder.DESCENDING.
@@ -72,7 +71,7 @@ public class TemporalResultComparator implements Comparator<Result> {
 
     /**
      * Compares the effective date between the two results.
-     * 
+     *
      * @return 1 if A is null and B is non-null -1 if A is non-null and B is null 0 if both A and B
      *         are null 1 if temporal ascending and A > B; -1 if temporal ascending and B > A -1 if
      *         temporal descending and A > B; 1 if temporal descending and B > A

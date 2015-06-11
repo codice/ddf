@@ -19,22 +19,22 @@
         <AD
                 description="Enable the Backup Ingest plugin which will write each result to a directory"
                 name="Enable Backup Plugin" id="enableBackupPlugin"
-                required="false" type="Boolean" default="true" />
+                required="false" type="Boolean" default="true"/>
         
         <AD
                 description="Root backup directory for Metacards. A relative path is relative to ddf.home."
                 name="Root backup directory path" id="rootBackupDir" required="true" type="String"
-                default="data/backup" />
+                default="data/backup"/>
 
         <AD
                 description="Number of subdirectory levels to create. Two characters from the ID will be used to name each subdirectory level."
                 name="Subdirectory levels" id="subDirLevels"
-                required="true" type="Integer" default="2" />
+                required="true" type="Integer" default="2"/>
 
     </OCD>
 
     <Designate pid="plugin.backup">
-        <Object ocdref="plugin.backup" />
+        <Object ocdref="plugin.backup"/>
     </Designate>
 
 </metatype:MetaData>

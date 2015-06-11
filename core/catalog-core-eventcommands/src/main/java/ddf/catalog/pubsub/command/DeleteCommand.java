@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.pubsub.command;
 
 import java.io.PrintStream;
@@ -50,13 +49,14 @@ public class DeleteCommand extends SubscriptionsCommand {
     @Argument(name = "search phrase or LDAP filter", description = "Subscription ID to search for. Wildcard characters (*) can be used in the ID, e.g., my*name or *123. ", index = 0, multiValued = false, required = true)
     String id = null;
 
-    @Option(name = "filter", required = false, aliases = {"-f"}, multiValued = false, description = "Allows user to specify any type of LDAP filter rather than deleting on single subscription ID.\n"
-            + "You should enclose the LDAP filter in quotes since it will often have special characters in it.\n"
-            + "An example would be:\n"
-            + "(& (subscription-id=my*) (subscription-id=*169*))\n"
-            + "which searches for all subscriptions starting with \"my\" and having 169 in the ID, which can be thought of as part of an IP address.\n"
-            + "An example of the entire quote command would be:\n"
-            + "subscriptions:delete -f \"\"(& (subscription-id=my*) (subscription-id=*169*))\"")
+    @Option(name = "filter", required = false, aliases = {"-f"}, multiValued = false, description =
+            "Allows user to specify any type of LDAP filter rather than deleting on single subscription ID.\n"
+                    + "You should enclose the LDAP filter in quotes since it will often have special characters in it.\n"
+                    + "An example would be:\n"
+                    + "(& (subscription-id=my*) (subscription-id=*169*))\n"
+                    + "which searches for all subscriptions starting with \"my\" and having 169 in the ID, which can be thought of as part of an IP address.\n"
+                    + "An example of the entire quote command would be:\n"
+                    + "subscriptions:delete -f \"\"(& (subscription-id=my*) (subscription-id=*169*))\"")
     boolean ldapFilter = false;
 
     @Override
@@ -68,14 +68,15 @@ public class DeleteCommand extends SubscriptionsCommand {
         if (subscriptionIds.size() == 0) {
             console.println(RED_CONSOLE_COLOR + NO_SUBSCRIPTIONS_FOUND_MSG + DEFAULT_CONSOLE_COLOR);
         } else {
-            ServiceReference[] serviceReferences = bundleContext.getServiceReferences(
-                    SUBSCRIBER_SERVICE_PID, null);
+            ServiceReference[] serviceReferences = bundleContext
+                    .getServiceReferences(SUBSCRIBER_SERVICE_PID, null);
             if (serviceReferences == null || serviceReferences.length == 0) {
                 LOGGER.debug("Found no service references for {}", SUBSCRIBER_SERVICE_PID);
-                console.println(RED_CONSOLE_COLOR + NO_SUBSCRIBERS_FOUND_MSG
-                        + DEFAULT_CONSOLE_COLOR);
+                console.println(
+                        RED_CONSOLE_COLOR + NO_SUBSCRIBERS_FOUND_MSG + DEFAULT_CONSOLE_COLOR);
             } else {
-                LOGGER.debug("Found {} service references for {}", serviceReferences.length, SUBSCRIBER_SERVICE_PID);
+                LOGGER.debug("Found {} service references for {}", serviceReferences.length,
+                        SUBSCRIBER_SERVICE_PID);
 
                 int deletedSubscriptionsCount = 0;
                 for (String subscriptionId : subscriptionIds) {

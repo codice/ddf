@@ -1,18 +1,28 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.federation.impl;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -75,22 +85,8 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.SourcePoller;
 import ddf.catalog.util.impl.SourcePollerRunner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @PrepareForTest(AbstractFederationStrategy.class)
 public class FederationStrategyTest {
-
-    @Rule
-    public PowerMockRule rule = new PowerMockRule();
 
     private static final long SHORT_TIMEOUT = 25;
 
@@ -102,6 +98,9 @@ public class FederationStrategyTest {
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(FederationStrategyTest.class.getName());
+
+    @Rule
+    public PowerMockRule rule = new PowerMockRule();
 
     /**
      * Tests that the framework properly times out using the default federation strategy.

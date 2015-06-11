@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.federation.layered;
 
 import java.io.InputStream;
@@ -44,18 +43,15 @@ public class MockRestEndpoint {
 
     @GET
     @Path("/{id}")
-    public Response getDocument(@PathParam("id")
-    String id, @QueryParam("transform")
-    String transformerParam, @Context
-    UriInfo uriInfo) {
+    public Response getDocument(@PathParam("id") String id,
+            @QueryParam("transform") String transformerParam, @Context UriInfo uriInfo) {
         return Response.ok().build();
     }
 
     @PUT
     @Path("/{id}")
-    public Response updateDocument(@PathParam("id")
-    String id, @Context
-    HttpHeaders headers, InputStream message) {
+    public Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
+            InputStream message) {
 
         LOGGER.info("id={}", id);
         return Response.ok().build();
@@ -63,28 +59,26 @@ public class MockRestEndpoint {
 
     /**
      * REST Post. Creates a new metadata entry in the catalog.
-     * 
+     *
      * @param message
      * @return
      */
     @POST
-    public Response addDocument(@Context
-    HttpHeaders headers, @Context
-    UriInfo requestUriInfo, InputStream message) {
+    public Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
+            InputStream message) {
         LOGGER.debug("POST");
         return Response.ok().build();
     }
 
     /**
      * REST Delete. Deletes a record from the catalog.
-     * 
+     *
      * @param id
      * @return
      */
     @DELETE
     @Path("/{id}")
-    public Response deleteDocument(@PathParam("id")
-    String id) {
+    public Response deleteDocument(@PathParam("id") String id) {
         LOGGER.debug("DELETE");
         return Response.ok().build();
     }

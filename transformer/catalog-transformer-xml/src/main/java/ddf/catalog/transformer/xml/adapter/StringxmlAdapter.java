@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.transformer.xml.adapter;
 
 import java.io.ByteArrayInputStream;
@@ -59,18 +58,13 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
 
         // Create Transformer
         TransformerFactory transFactory = TransformerFactory.newInstance();
-        Source xsltSource = new StreamSource(StringxmlAdapter.class.getClassLoader()
-                .getResourceAsStream("stringxml.xslt"));
+        Source xsltSource = new StreamSource(
+                StringxmlAdapter.class.getClassLoader().getResourceAsStream("stringxml.xslt"));
         try {
             templates = transFactory.newTemplates(xsltSource);
         } catch (TransformerConfigurationException e) {
         }
 
-    }
-
-    @Override
-    public StringxmlElement marshal(Attribute attribute) throws CatalogTransformerException {
-        return marshalFrom(attribute);
     }
 
     /**
@@ -79,7 +73,7 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
      * @throws CatalogTransformerException
      */
     public static StringxmlElement marshalFrom(Attribute attribute)
-        throws CatalogTransformerException {
+            throws CatalogTransformerException {
 
         StringxmlElement element = new StringxmlElement();
         element.setName(attribute.getName());
@@ -96,8 +90,8 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
                         builder = factory.newDocumentBuilder();
                         builder.setErrorHandler(null);
                     }
-                    anyElement = builder.parse(new ByteArrayInputStream(xmlString.getBytes(
-                            StandardCharsets.UTF_8))).getDocumentElement();
+                    anyElement = builder.parse(new ByteArrayInputStream(
+                            xmlString.getBytes(StandardCharsets.UTF_8))).getDocumentElement();
                 } catch (ParserConfigurationException e) {
                     throw new CatalogTransformerException(TRANSFORMATION_FAILED_ERROR_MESSAGE, e);
                 } catch (SAXException e) {
@@ -113,14 +107,8 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
         return element;
     }
 
-    @Override
-    public Attribute unmarshal(StringxmlElement element) throws CatalogTransformerException,
-        TransformerException, JAXBException {
-        return unmarshalFrom(element);
-    }
-
     public static Attribute unmarshalFrom(StringxmlElement element)
-        throws CatalogTransformerException, TransformerException, JAXBException {
+            throws CatalogTransformerException, TransformerException, JAXBException {
         AttributeImpl attribute = null;
 
         if (templates == null) {
@@ -158,6 +146,17 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
             }
         }
         return attribute;
+    }
+
+    @Override
+    public StringxmlElement marshal(Attribute attribute) throws CatalogTransformerException {
+        return marshalFrom(attribute);
+    }
+
+    @Override
+    public Attribute unmarshal(StringxmlElement element)
+            throws CatalogTransformerException, TransformerException, JAXBException {
+        return unmarshalFrom(element);
     }
 
 }

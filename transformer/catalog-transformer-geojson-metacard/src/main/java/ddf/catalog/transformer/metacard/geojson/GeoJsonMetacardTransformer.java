@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.transformer.metacard.geojson;
 
 import java.io.ByteArrayInputStream;
@@ -48,28 +47,28 @@ import ddf.geo.formatter.CompositeGeometry;
  * instance to GeoJSON. This class places what is returned by {@link Metacard#getLocation()} in the
  * geometry JSON object in the GeoJSON output. The rest of the attributes of the Metacard are placed
  * in the properties object in the JSON. See geojson.org for the GeoJSON specification.
- * 
+ *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- * 
+ *
  * @see MetacardTransformer
  * @see Metacard
  * @see Attribute
- * 
+ *
  */
 public class GeoJsonMetacardTransformer implements MetacardTransformer {
 
     public static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-    protected static final String METACARD_TYPE_PROPERTY_KEY = "metacard-type";
-
     public static final String ID = "geojson";
 
-    public static MimeType DEFAULT_MIME_TYPE = null;
+    protected static final String METACARD_TYPE_PROPERTY_KEY = "metacard-type";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonMetacardTransformer.class);
 
     private static final String SOURCE_ID_PROPERTY = "source-id";
+
+    public static MimeType DEFAULT_MIME_TYPE = null;
 
     static {
         try {
@@ -77,18 +76,6 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
         } catch (MimeTypeParseException e) {
             LOGGER.warn("MimeType exception during static setup", e);
         }
-    }
-
-    @Override
-    public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
-        throws CatalogTransformerException {
-
-        JSONObject rootObject = convertToJSON(metacard);
-
-        String jsonText = JSONValue.toJSONString(rootObject);
-
-        return new ddf.catalog.data.BinaryContentImpl(
-                new ByteArrayInputStream(jsonText.getBytes(StandardCharsets.UTF_8)), DEFAULT_MIME_TYPE);
     }
 
     public static JSONObject convertToJSON(Metacard metacard) throws CatalogTransformerException {
@@ -189,9 +176,22 @@ public class GeoJsonMetacardTransformer implements MetacardTransformer {
     }
 
     @Override
+    public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
+            throws CatalogTransformerException {
+
+        JSONObject rootObject = convertToJSON(metacard);
+
+        String jsonText = JSONValue.toJSONString(rootObject);
+
+        return new ddf.catalog.data.BinaryContentImpl(
+                new ByteArrayInputStream(jsonText.getBytes(StandardCharsets.UTF_8)),
+                DEFAULT_MIME_TYPE);
+    }
+
+    @Override
     public String toString() {
-        return MetacardTransformer.class.getName() + " {Impl=" + this.getClass().getName()
-                + ", id=" + ID + ", MIME Type=" + DEFAULT_MIME_TYPE + "}";
+        return MetacardTransformer.class.getName() + " {Impl=" + this.getClass().getName() + ", id="
+                + ID + ", MIME Type=" + DEFAULT_MIME_TYPE + "}";
     }
 
 }

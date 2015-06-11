@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog;
 
 import static org.hamcrest.Matchers.containsString;
@@ -63,6 +62,13 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 public class TestReplicationCommand {
 
+    private static final Set<String> sourceIds = new HashSet<String>(
+            Arrays.asList("sourceId1", "sourceId2"));
+
+    private static final int HITS = 1000;
+
+    private static ConsoleOutput consoleOutput;
+
     private CatalogFramework catalogFramework;
 
     private QueryResponse mockQueryResponse = mock(QueryResponse.class);
@@ -73,21 +79,21 @@ public class TestReplicationCommand {
 
     private InputStream mockIS = IOUtils.toInputStream("sourceId1");
 
-    private static final Set<String> sourceIds = new HashSet<String>(Arrays.asList("sourceId1",
-            "sourceId2"));
-
     private ReplicationCommand replicationCmd;
 
     private int pageSize;
 
-    private static final int HITS = 1000;
-
-    private static ConsoleOutput consoleOutput;
+    @AfterClass
+    public static void cleanUp() throws IOException {
+        consoleOutput.resetSystemOut();
+        consoleOutput.closeBuffer();
+    }
 
     @Before
-    public void setUp() throws UnsupportedQueryException, SourceUnavailableException,
-        FederationException, IngestException {
-        
+    public void setUp()
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+            IngestException {
+
         consoleOutput = new ConsoleOutput();
         consoleOutput.interceptSystemOut();
 
@@ -121,16 +127,17 @@ public class TestReplicationCommand {
         when(mockSession.getKeyboard()).thenReturn(mockIS);
 
         when(catalogFramework.getSourceIds()).thenReturn(sourceIds);
-        when(catalogFramework.query(isA(QueryRequest.class))).thenAnswer(
-                new Answer<QueryResponse>() {
-                    @Override
-                    public QueryResponse answer(InvocationOnMock invocation) throws Throwable {
-                        Object[] args = invocation.getArguments();
-                        QueryRequest request = (QueryRequest) args[0];
-                        pageSize = request.getQuery().getPageSize();
-                        return mockQueryResponse;
-                    }
-                });
+        when(catalogFramework.query(isA(QueryRequest.class)))
+                .thenAnswer(new Answer<QueryResponse>() {
+                            @Override
+                            public QueryResponse answer(InvocationOnMock invocation)
+                                    throws Throwable {
+                                Object[] args = invocation.getArguments();
+                                QueryRequest request = (QueryRequest) args[0];
+                                pageSize = request.getQuery().getPageSize();
+                                return mockQueryResponse;
+                            }
+                        });
 
         when(mockQueryResponse.getHits()).thenReturn(Long.valueOf(HITS));
         when(mockQueryResponse.getResults()).thenAnswer(new Answer<List<Result>>() {
@@ -139,24 +146,19 @@ public class TestReplicationCommand {
                 return getResultList(pageSize);
             }
         });
-        when(catalogFramework.create(isA(CreateRequest.class))).thenAnswer(
-                new Answer<CreateResponse>() {
-                    @Override
-                    public CreateResponse answer(InvocationOnMock invocation) throws Throwable {
-                        Object[] args = invocation.getArguments();
-                        CreateRequest request = (CreateRequest) args[0];
-                        when(mockCreateResponse.getCreatedMetacards()).thenReturn(
-                                request.getMetacards());
-                        return mockCreateResponse;
-                    }
-                });
+        when(catalogFramework.create(isA(CreateRequest.class)))
+                .thenAnswer(new Answer<CreateResponse>() {
+                            @Override
+                            public CreateResponse answer(InvocationOnMock invocation)
+                                    throws Throwable {
+                                Object[] args = invocation.getArguments();
+                                CreateRequest request = (CreateRequest) args[0];
+                                when(mockCreateResponse.getCreatedMetacards())
+                                        .thenReturn(request.getMetacards());
+                                return mockCreateResponse;
+                            }
+                        });
 
-    }
-
-    @AfterClass
-    public static void cleanUp() throws IOException {
-        consoleOutput.resetSystemOut();
-        consoleOutput.closeBuffer();
     }
 
     @Test
@@ -198,8 +200,8 @@ public class TestReplicationCommand {
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework, times(HITS / replicationCmd.batchSize + 1)).query(
-                argument.capture());
+        verify(catalogFramework, times(HITS / replicationCmd.batchSize + 1))
+                .query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
@@ -218,8 +220,8 @@ public class TestReplicationCommand {
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework, times(HITS / replicationCmd.batchSize + 1)).query(
-                argument.capture());
+        verify(catalogFramework, times(HITS / replicationCmd.batchSize + 1))
+                .query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
@@ -239,8 +241,8 @@ public class TestReplicationCommand {
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework, times(HITS / replicationCmd.batchSize + 1)).query(
-                argument.capture());
+        verify(catalogFramework, times(HITS / replicationCmd.batchSize + 1))
+                .query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
@@ -260,8 +262,8 @@ public class TestReplicationCommand {
         replicationCmd.doExecute();
 
         ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework, times(HITS / replicationCmd.batchSize + 1)).query(
-                argument.capture());
+        verify(catalogFramework, times(HITS / replicationCmd.batchSize + 1))
+                .query(argument.capture());
         QueryRequest request = argument.getValue();
         assertThat(request, notNullValue());
         Query query = request.getQuery();
@@ -275,18 +277,19 @@ public class TestReplicationCommand {
     @Test
     public void testFailedtoIngestHalf() throws Exception {
 
-        when(catalogFramework.create(isA(CreateRequest.class))).thenAnswer(
-                new Answer<CreateResponse>() {
-                    @Override
-                    public CreateResponse answer(InvocationOnMock invocation) throws Throwable {
-                        Object[] args = invocation.getArguments();
-                        CreateRequest request = (CreateRequest) args[0];
-                        when(mockCreateResponse.getCreatedMetacards()).thenReturn(
-                                request.getMetacards()
-                                        .subList(0, request.getMetacards().size() / 2));
-                        return mockCreateResponse;
-                    }
-                });
+        when(catalogFramework.create(isA(CreateRequest.class)))
+                .thenAnswer(new Answer<CreateResponse>() {
+                            @Override
+                            public CreateResponse answer(InvocationOnMock invocation)
+                                    throws Throwable {
+                                Object[] args = invocation.getArguments();
+                                CreateRequest request = (CreateRequest) args[0];
+                                when(mockCreateResponse.getCreatedMetacards()).thenReturn(
+                                        request.getMetacards()
+                                                .subList(0, request.getMetacards().size() / 2));
+                                return mockCreateResponse;
+                            }
+                        });
 
         replicationCmd.isProvider = true;
         replicationCmd.isUseTemporal = false;

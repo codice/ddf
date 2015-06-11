@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.pubsub.command;
 
 import static org.hamcrest.Matchers.containsString;
@@ -32,9 +31,9 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.mockito.ArgumentCaptor;
 
 public class ListCommandTest {
     private static final String SUBSCRIPTION_ID_PROPERTY_KEY = "subscription-id";
@@ -45,7 +44,7 @@ public class ListCommandTest {
 
     /**
      * Test subscriptions:list command with no args. Should return all registered subscriptions.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -56,15 +55,15 @@ public class ListCommandTest {
         listCommand.setBundleContext(bundleContext);
 
         ServiceReference mySubscription = mock(ServiceReference.class);
-        when(mySubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(mySubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
         when(mySubscription.getProperty("subscription-id")).thenReturn(MY_SUBSCRIPTION_ID);
 
         ServiceReference yourSubscription = mock(ServiceReference.class);
-        when(yourSubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                YOUR_SUBSCRIPTION_ID);
+        when(yourSubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(YOUR_SUBSCRIPTION_ID);
 
         ServiceReference[] refs = new ServiceReference[] {mySubscription, yourSubscription};
         when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
@@ -85,11 +84,9 @@ public class ListCommandTest {
         // then
         List<String> linesWithText = getConsoleOutputText(buffer);
         assertThat(linesWithText.size(), is(4));
-        assertThat(
-                linesWithText,
-                hasItems("Total subscriptions found: 2", ListCommand.CYAN_CONSOLE_COLOR
-                        + ListCommand.SUBSCRIPTION_ID_COLUMN_HEADER
-                        + ListCommand.DEFAULT_CONSOLE_COLOR, MY_SUBSCRIPTION_ID,
+        assertThat(linesWithText, hasItems("Total subscriptions found: 2",
+                        ListCommand.CYAN_CONSOLE_COLOR + ListCommand.SUBSCRIPTION_ID_COLUMN_HEADER
+                                + ListCommand.DEFAULT_CONSOLE_COLOR, MY_SUBSCRIPTION_ID,
                         YOUR_SUBSCRIPTION_ID));
 
         buffer.close();
@@ -97,7 +94,7 @@ public class ListCommandTest {
 
     /**
      * Test subscriptions:list command with no args. Should return no registered subscriptions.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -122,8 +119,9 @@ public class ListCommandTest {
         System.setOut(realSystemOut);
 
         // then
-        assertThat(buffer.toString(), startsWith(ListCommand.RED_CONSOLE_COLOR
-                + ListCommand.NO_SUBSCRIPTIONS_FOUND_MSG + ListCommand.DEFAULT_CONSOLE_COLOR));
+        assertThat(buffer.toString(), startsWith(
+                ListCommand.RED_CONSOLE_COLOR + ListCommand.NO_SUBSCRIPTIONS_FOUND_MSG
+                        + ListCommand.DEFAULT_CONSOLE_COLOR));
 
         buffer.close();
     }
@@ -131,7 +129,7 @@ public class ListCommandTest {
     /**
      * Test subscriptions:list command with one subscription ID argument not matching any registered
      * subscriptions. Should return no subscriptions.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -162,23 +160,24 @@ public class ListCommandTest {
         System.setOut(realSystemOut);
 
         // then
-        assertThat(buffer.toString(), startsWith(ListCommand.RED_CONSOLE_COLOR
-                + ListCommand.NO_SUBSCRIPTIONS_FOUND_MSG + ListCommand.DEFAULT_CONSOLE_COLOR));
+        assertThat(buffer.toString(), startsWith(
+                ListCommand.RED_CONSOLE_COLOR + ListCommand.NO_SUBSCRIPTIONS_FOUND_MSG
+                        + ListCommand.DEFAULT_CONSOLE_COLOR));
 
         buffer.close();
 
         // Verify the LDAP filter passed in when mock BundleContext.getServiceReferences() was
         // called.
         verify(bundleContext).getServiceReferences(anyString(), argument.capture());
-        String expectedLdapFilter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=" + MY_SUBSCRIPTION_ID
-                + ")";
+        String expectedLdapFilter =
+                "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=" + MY_SUBSCRIPTION_ID + ")";
         assertThat(argument.getValue(), containsString(expectedLdapFilter));
     }
 
     /**
      * Test subscriptions:list command with one subscription ID argument. Should return the one
      * matching registered subscriptions.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -193,16 +192,16 @@ public class ListCommandTest {
         listCommand.setBundleContext(bundleContext);
 
         ServiceReference mySubscription = mock(ServiceReference.class);
-        when(mySubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                MY_SUBSCRIPTION_ID);
+        when(mySubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(MY_SUBSCRIPTION_ID);
 
         ServiceReference yourSubscription = mock(ServiceReference.class);
-        when(yourSubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                YOUR_SUBSCRIPTION_ID);
+        when(yourSubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(YOUR_SUBSCRIPTION_ID);
 
         when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
                 .thenReturn(new ServiceReference[] {mySubscription});
@@ -223,26 +222,24 @@ public class ListCommandTest {
         // then
         List<String> linesWithText = getConsoleOutputText(buffer);
         assertThat(linesWithText.size(), is(3));
-        assertThat(
-                linesWithText,
-                hasItems("Total subscriptions found: 1", ListCommand.CYAN_CONSOLE_COLOR
-                        + ListCommand.SUBSCRIPTION_ID_COLUMN_HEADER
-                        + ListCommand.DEFAULT_CONSOLE_COLOR, MY_SUBSCRIPTION_ID));
+        assertThat(linesWithText, hasItems("Total subscriptions found: 1",
+                        ListCommand.CYAN_CONSOLE_COLOR + ListCommand.SUBSCRIPTION_ID_COLUMN_HEADER
+                                + ListCommand.DEFAULT_CONSOLE_COLOR, MY_SUBSCRIPTION_ID));
 
         buffer.close();
 
         // Verify the LDAP filter passed in when mock BundleContext.getServiceReferences() was
         // called.
         verify(bundleContext).getServiceReferences(anyString(), argument.capture());
-        String expectedLdapFilter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=" + MY_SUBSCRIPTION_ID
-                + ")";
+        String expectedLdapFilter =
+                "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=" + MY_SUBSCRIPTION_ID + ")";
         assertThat(argument.getValue(), containsString(expectedLdapFilter));
     }
 
     /**
      * Test subscriptions:list command with the LDAP filter arg specified, e.g., subscriptions:list
      * -f "(subscription-id=my*)" Should return matching subscriptions.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -257,10 +254,10 @@ public class ListCommandTest {
         listCommand.setBundleContext(bundleContext);
 
         ServiceReference mySubscription = mock(ServiceReference.class);
-        when(mySubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                MY_SUBSCRIPTION_ID);
+        when(mySubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(MY_SUBSCRIPTION_ID);
         when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
                 .thenReturn(new ServiceReference[] {mySubscription});
 
@@ -283,11 +280,9 @@ public class ListCommandTest {
         // then
         List<String> linesWithText = getConsoleOutputText(buffer);
         assertThat(linesWithText.size(), is(3));
-        assertThat(
-                linesWithText,
-                hasItems("Total subscriptions found: 1", ListCommand.CYAN_CONSOLE_COLOR
-                        + ListCommand.SUBSCRIPTION_ID_COLUMN_HEADER
-                        + ListCommand.DEFAULT_CONSOLE_COLOR, MY_SUBSCRIPTION_ID));
+        assertThat(linesWithText, hasItems("Total subscriptions found: 1",
+                        ListCommand.CYAN_CONSOLE_COLOR + ListCommand.SUBSCRIPTION_ID_COLUMN_HEADER
+                                + ListCommand.DEFAULT_CONSOLE_COLOR, MY_SUBSCRIPTION_ID));
 
         buffer.close();
 

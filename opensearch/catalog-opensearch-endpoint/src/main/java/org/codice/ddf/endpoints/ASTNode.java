@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 
 package org.codice.ddf.endpoints;
 
@@ -30,27 +29,6 @@ public abstract class ASTNode extends ImmutableBinaryTreeNode<ASTNode> {
         super(left, right);
     }
 
-    public enum Operator {
-        AND, OR, NOT;
-
-        public static Operator getOperatorFromString(String operatorString) {
-            if (operatorString.trim().equals(KeywordTextParser.AND_STRING)) {
-                return Operator.AND;
-            } else if (operatorString.trim().equals(KeywordTextParser.OR_STRING)) {
-                return Operator.OR;
-            } else if (operatorString.trim().equals(KeywordTextParser.NOT_STRING)) {
-                return Operator.NOT;
-            } else if (operatorString.contains(KeywordTextParser.SPACE_STRING) // if the string is
-                                                                               // all spaces, it's
-                                                                               // an AND
-                    && operatorString.trim().isEmpty()) {
-                return Operator.AND;
-            } else {
-                return null;
-            }
-        }
-    }
-
     public abstract String getKeyword();
 
     public abstract Operator getOperator();
@@ -63,4 +41,25 @@ public abstract class ASTNode extends ImmutableBinaryTreeNode<ASTNode> {
 
     @Override
     public abstract String toString();
+
+    public enum Operator {
+        AND, OR, NOT;
+
+        public static Operator getOperatorFromString(String operatorString) {
+            if (operatorString.trim().equals(KeywordTextParser.AND_STRING)) {
+                return Operator.AND;
+            } else if (operatorString.trim().equals(KeywordTextParser.OR_STRING)) {
+                return Operator.OR;
+            } else if (operatorString.trim().equals(KeywordTextParser.NOT_STRING)) {
+                return Operator.NOT;
+            } else if (operatorString.contains(KeywordTextParser.SPACE_STRING) // if the string is
+                    // all spaces, it's
+                    // an AND
+                    && operatorString.trim().isEmpty()) {
+                return Operator.AND;
+            } else {
+                return null;
+            }
+        }
+    }
 }

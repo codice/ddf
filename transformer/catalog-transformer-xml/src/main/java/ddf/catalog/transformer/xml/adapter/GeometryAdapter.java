@@ -1,25 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.transformer.xml.adapter;
 
 import java.io.Serializable;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-
-import net.opengis.gml.v_3_1_1.AbstractGeometryType;
 
 import org.jvnet.jaxb2_commons.locator.DefaultRootObjectLocator;
 import org.jvnet.ogc.gml.v_3_1_1.jts.ConversionFailedException;
@@ -37,18 +34,14 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transformer.xml.binding.GeometryElement;
 import ddf.catalog.transformer.xml.binding.GeometryElement.Value;
+import net.opengis.gml.v_3_1_1.AbstractGeometryType;
 
 public class GeometryAdapter extends XmlAdapter<GeometryElement, Attribute> {
 
     private static GeometryFactory geometryFactory = new GeometryFactory();
 
-    @Override
-    public GeometryElement marshal(Attribute attribute) throws CatalogTransformerException {
-        return marshalFrom(attribute);
-    }
-
     public static GeometryElement marshalFrom(Attribute attribute)
-        throws CatalogTransformerException {
+            throws CatalogTransformerException {
         GeometryElement element = new GeometryElement();
         element.setName(attribute.getName());
         if (attribute.getValue() != null) {
@@ -80,20 +73,16 @@ public class GeometryAdapter extends XmlAdapter<GeometryElement, Attribute> {
         return element;
     }
 
-    @Override
-    public Attribute unmarshal(GeometryElement element) throws ConversionFailedException {
-        return unmarshalFrom(element);
-    }
-
-    public static Attribute unmarshalFrom(GeometryElement element) throws ConversionFailedException {
+    public static Attribute unmarshalFrom(GeometryElement element)
+            throws ConversionFailedException {
         AttributeImpl attribute = null;
         GML311ToJTSGeometryConverter converter = new GML311ToJTSGeometryConverter();
         WKTWriter wktWriter = new WKTWriter();
 
         for (Value xmlValue : element.getValue()) {
             JAXBElement<AbstractGeometryType> xmlGeometry = xmlValue.getGeometry();
-            Geometry geometry = converter.createGeometry(new DefaultRootObjectLocator(xmlValue),
-                    xmlGeometry.getValue());
+            Geometry geometry = converter
+                    .createGeometry(new DefaultRootObjectLocator(xmlValue), xmlGeometry.getValue());
             String wkt = wktWriter.write(geometry);
 
             if (attribute == null) {
@@ -103,6 +92,16 @@ public class GeometryAdapter extends XmlAdapter<GeometryElement, Attribute> {
             }
         }
         return attribute;
+    }
+
+    @Override
+    public GeometryElement marshal(Attribute attribute) throws CatalogTransformerException {
+        return marshalFrom(attribute);
+    }
+
+    @Override
+    public Attribute unmarshal(GeometryElement element) throws ConversionFailedException {
+        return unmarshalFrom(element);
     }
 
 }

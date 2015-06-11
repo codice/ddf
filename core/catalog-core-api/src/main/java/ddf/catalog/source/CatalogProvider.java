@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.source;
 
 import java.util.List;
@@ -32,16 +31,16 @@ import ddf.catalog.util.Maskable;
  * External facing (outside of {@link CatalogFramework}) API used to interact with providers of data
  * such as a file system or database. The basic premise of a CatalogProvider is to allow query,
  * create, update, and delete operations.
- * 
+ *
  * The provider performs a translation between DDF objects and its native format. The key functions
  * of the CatalogProvider can be found in the {@link Source} and {@link Metacard} interfaces.
- * 
+ *
  */
 public interface CatalogProvider extends Source, Maskable {
 
     /**
      * Publishes a list of {@link Metacard} objects into the catalog.
-     * 
+     *
      * @param createRequest
      *            - the {@link CreateRequest} that includes a {@link List} of {@link Metacard}
      *            objects to be stored in a {@link Source}. The ID of the {@link Metacard} object
@@ -58,7 +57,7 @@ public interface CatalogProvider extends Source, Maskable {
     /**
      * Updates a list of {@link Metacard} records. {@link Metacard} records that are not in the
      * Catalog will not be created.
-     * 
+     *
      * @param updateRequest
      *            - the {@link UpdateRequest} that includes updates to {@link Metacard} records that
      *            have been previously stored in a {@link Source}. A given {@link Attribute}
@@ -75,7 +74,7 @@ public interface CatalogProvider extends Source, Maskable {
 
     /**
      * Deletes records specified by a list of attribute values such as an id attribute.
-     * 
+     *
      * @param deleteRequest
      *            - the {@link DeleteRequest} containing the attribute values associated with
      *            {@link Metacard}s to delete

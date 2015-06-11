@@ -11,16 +11,15 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:cxf="http://cxf.apache.org/blueprint/core"
-           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <bean id="catalogBackupPlugin" class="ddf.catalog.backup.CatalogBackupPlugin">
-        <cm:managed-properties persistent-id="plugin.backup" update-strategy="container-managed" />
-        <property name="rootBackupDir" value="data/backup" />
-        <property name="subDirLevels" value="2" />
+        <cm:managed-properties persistent-id="plugin.backup" update-strategy="container-managed"/>
+        <property name="rootBackupDir" value="data/backup"/>
+        <property name="subDirLevels" value="2"/>
     </bean>
 
-    <service ref="catalogBackupPlugin" interface="ddf.catalog.plugin.PostIngestPlugin" />
+    <service ref="catalogBackupPlugin" interface="ddf.catalog.plugin.PostIngestPlugin"/>
 
 </blueprint>

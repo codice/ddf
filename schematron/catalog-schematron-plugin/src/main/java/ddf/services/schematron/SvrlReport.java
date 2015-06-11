@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 
 package ddf.services.schematron;
 
@@ -39,17 +38,11 @@ import org.w3c.dom.NodeList;
 /**
  * Schematron Validation Report Language (SVRL) formatted report of output from Schematron
  * validation.
- * 
+ *
  * @author rodgersh
- * 
+ *
  */
 public class SvrlReport implements SchematronReport {
-    /** Schematron report in DOM format */
-    private DOMResult report;
-
-    /** The root element of the report's DOM tree. */
-    private Element root = null;
-
     /** SVRL report tag for assertion that failed during Schematron validation */
     private static final String ASSERT_FAIL_TAG = "svrl:failed-assert";
 
@@ -64,7 +57,7 @@ public class SvrlReport implements SchematronReport {
 
     /**
      * Value for svrl:failed-assert tag's flag attribute for warnings.
-     * 
+     *
      * Example: <svrl:failed-assert test="if(invalid) then 1 else not($hasInvalids)" flag="warning">
      * ... </svrl:failed-assert>
      */
@@ -72,13 +65,19 @@ public class SvrlReport implements SchematronReport {
 
     /**
      * Value for svrl:failed-assert tag's flag attribute for errors
-     * 
+     *
      * Example: <svrl:failed-assert test="if(invalid) then 1 else not($hasInvalids)" flag="error">
      * ... </svrl:failed-assert>
      */
     private static final String ERROR_FLAG_ATTR_TEXT = "error";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SvrlReport.class);
+
+    /** Schematron report in DOM format */
+    private DOMResult report;
+
+    /** The root element of the report's DOM tree. */
+    private Element root = null;
 
     /**
      * Private default constructor to prevent instantiating SvrlReport without required DOMResult
@@ -102,10 +101,10 @@ public class SvrlReport implements SchematronReport {
      * to be valid if it has no failed assertions for errors and no failed reports for errors. If
      * the suppressWarnings argument is true, then Schematron warnings are also included in the
      * document's validity assessment.
-     * 
+     *
      * @param suppressWarnings
      *            do not include Schematron warnings in determining validity
-     * 
+     *
      * @return true if no assert or report error messages found in SVRL report, false otherwise
      */
     @Override
@@ -113,15 +112,17 @@ public class SvrlReport implements SchematronReport {
         List<Node> errorAssertions = getAllAssertMessages(ERROR_FLAG_ATTR_TEXT);
         List<Node> errorReports = getAllReportMessages(ERROR_FLAG_ATTR_TEXT);
 
-        if (errorAssertions.size() != 0 || errorReports.size() != 0)
+        if (errorAssertions.size() != 0 || errorReports.size() != 0) {
             return false;
+        }
 
         if (!suppressWarnings) {
             List<Node> warningAssertions = getAllAssertMessages(WARNING_FLAG_ATTR_TEXT);
             List<Node> warningReports = getAllReportMessages(WARNING_FLAG_ATTR_TEXT);
 
-            if (warningAssertions.size() != 0 || warningReports.size() != 0)
+            if (warningAssertions.size() != 0 || warningReports.size() != 0) {
                 return false;
+            }
         }
 
         return true;
@@ -129,7 +130,7 @@ public class SvrlReport implements SchematronReport {
 
     /**
      * Retrieve all assertion messages, warnings and errors, from the SVRL report.
-     * 
+     *
      * @return list of XML Nodes for all assert nodes
      */
     @Override
@@ -140,7 +141,7 @@ public class SvrlReport implements SchematronReport {
     /**
      * Retrieve only the specified type of assertion messages (warnings or errors) from the SVRL
      * report.
-     * 
+     *
      * @parameter type the type of assert message to search for in SVRL report, "warning" or "error"
      * @return list of XML Nodes for all assert nodes of specified type
      */
@@ -162,7 +163,7 @@ public class SvrlReport implements SchematronReport {
 
     /**
      * Retrieve all report messages, warnings and errors, from the SVRL report.
-     * 
+     *
      * @return list of XML Nodes for all report nodes
      */
     @Override
@@ -173,7 +174,7 @@ public class SvrlReport implements SchematronReport {
     /**
      * Retrieve only the specified type of report messages (warnings or errors) from the SVRL
      * report.
-     * 
+     *
      * @parameter type the type of report message to search for in SVRL report, "warning" or "error"
      * @return list of XML Nodes for all report nodes
      */
@@ -195,7 +196,7 @@ public class SvrlReport implements SchematronReport {
 
     /**
      * Get a list of all of the assertion and report error messages from the SVRL report.
-     * 
+     *
      * @return list of error strings
      */
     @Override
@@ -217,7 +218,7 @@ public class SvrlReport implements SchematronReport {
 
     /**
      * Get a list of all of the assertion and report warning messages from the SVRL report.
-     * 
+     *
      * @return list of warning strings
      */
     @Override
@@ -241,7 +242,7 @@ public class SvrlReport implements SchematronReport {
 
     /**
      * Retrieve the entire SVRL report as an XML-formatted string.
-     * 
+     *
      * @return XML-formatted string representation of SVRL report
      */
     @Override

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.geo.formatter;
 
 import java.util.ArrayList;
@@ -35,13 +34,29 @@ public class Polygon extends MultiPoint {
     }
 
     /**
-     * 
+     *
      * @param coordinates
      *            a List of coordinates formatted in the GeoJSON Array equivalent
      * @return
      */
     public static CompositeGeometry toCompositeGeometry(List coordinates) {
         return new Polygon(buildPolygon(coordinates));
+    }
+
+    protected static com.vividsolutions.jts.geom.Polygon buildPolygon(List coordinates) {
+
+        // according to the GeoJson specification, first ring is the exterior
+        LinearRing exterior = geometryFactory
+                .createLinearRing(getCoordinates((List) coordinates.get(0)));
+
+        LinearRing[] interiorHoles = new LinearRing[coordinates.size() - 1];
+
+        for (int i = 1; i < coordinates.size(); i++) {
+            interiorHoles[i - 1] = geometryFactory
+                    .createLinearRing(getCoordinates((List) coordinates.get(i)));
+        }
+
+        return geometryFactory.createPolygon(exterior, interiorHoles);
     }
 
     @Override
@@ -76,26 +91,11 @@ public class Polygon extends MultiPoint {
         return linearRingsList;
     }
 
-    protected static com.vividsolutions.jts.geom.Polygon buildPolygon(List coordinates) {
-
-        // according to the GeoJson specification, first ring is the exterior
-        LinearRing exterior = geometryFactory.createLinearRing(getCoordinates((List) coordinates
-                .get(0)));
-
-        LinearRing[] interiorHoles = new LinearRing[coordinates.size() - 1];
-
-        for (int i = 1; i < coordinates.size(); i++) {
-            interiorHoles[i - 1] = geometryFactory
-                    .createLinearRing(getCoordinates((List) coordinates.get(i)));
-        }
-
-        return geometryFactory.createPolygon(exterior, interiorHoles);
-    }
-
     @Override
     public List<Position> toGeoRssPositions() {
 
-        org.apache.abdera.ext.geo.Coordinates coords = getPolygonCoordinates((com.vividsolutions.jts.geom.Polygon) geometry);
+        org.apache.abdera.ext.geo.Coordinates coords = getPolygonCoordinates(
+                (com.vividsolutions.jts.geom.Polygon) geometry);
 
         return Arrays.asList((Position) (new org.apache.abdera.ext.geo.Polygon(coords)));
 

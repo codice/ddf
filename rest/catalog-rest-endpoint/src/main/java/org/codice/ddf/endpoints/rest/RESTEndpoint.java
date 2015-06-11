@@ -1,20 +1,61 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.endpoints.rest;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.io.FileBackedOutputStream;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
@@ -47,56 +88,18 @@ import ddf.mime.MimeTypeToTransformerMapper;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
-import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 @Path("/")
 public class RESTEndpoint implements RESTService {
 
     static final String DEFAULT_METACARD_TRANSFORMER = "xml";
 
+    static final String BYTES_TO_SKIP = "BytesToSkip";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RESTEndpoint.class);
 
-    private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
-
-    private static String JSON_MIME_TYPE_STRING = "application/json";
+    private static final Logger INGEST_LOGGER = LoggerFactory
+            .getLogger(Constants.INGEST_LOGGER_NAME);
 
     private static final String HEADER_RANGE = "Range";
 
@@ -114,17 +117,9 @@ public class RESTEndpoint implements RESTService {
 
     private static final String BYTES_EQUAL = "bytes=";
 
-    static final String BYTES_TO_SKIP = "BytesToSkip";
+    private static String JSON_MIME_TYPE_STRING = "application/json";
 
     private static MimeType JSON_MIME_TYPE = null;
-
-    private FilterBuilder filterBuilder;
-
-    private CatalogFramework catalogFramework;
-
-    private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
-
-    private MimeTypeResolver tikaMimeTypeResolver;
 
     static {
         MimeType mime = null;
@@ -136,6 +131,14 @@ public class RESTEndpoint implements RESTService {
         JSON_MIME_TYPE = mime;
 
     }
+
+    private FilterBuilder filterBuilder;
+
+    private CatalogFramework catalogFramework;
+
+    private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
+
+    private MimeTypeResolver tikaMimeTypeResolver;
 
     public RESTEndpoint(CatalogFramework framework) {
         LOGGER.debug("constructing rest endpoint");
@@ -154,9 +157,7 @@ public class RESTEndpoint implements RESTService {
      */
     @HEAD
     @Path("/{id}")
-    public Response getHeaders(
-            @PathParam("id") String id,
-            @Context UriInfo uriInfo,
+    public Response getHeaders(@PathParam("id") String id, @Context UriInfo uriInfo,
             @Context HttpServletRequest httpRequest) {
 
         return getHeaders(null, id, uriInfo, httpRequest);
@@ -174,11 +175,8 @@ public class RESTEndpoint implements RESTService {
      */
     @HEAD
     @Path("/sources/{sourceid}/{id}")
-    public Response getHeaders(
-            @PathParam("sourceid") String sourceid,
-            @PathParam("id") String id,
-            @Context UriInfo uriInfo,
-            @Context HttpServletRequest httpRequest) {
+    public Response getHeaders(@PathParam("sourceid") String sourceid, @PathParam("id") String id,
+            @Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
 
         Response response;
         Response.ResponseBuilder responseBuilder;
@@ -229,7 +227,8 @@ public class RESTEndpoint implements RESTService {
                 }
 
                 LOGGER.debug("Calling transform.");
-                final BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
+                final BinaryContent content = catalogFramework
+                        .transform(card, transformer, convertedMap);
                 LOGGER.debug("Read and transform complete, preparing response.");
 
                 responseBuilder = Response.noContent();
@@ -251,8 +250,8 @@ public class RESTEndpoint implements RESTService {
 
                 if (StringUtils.isNotBlank(filename)) {
                     LOGGER.debug("filename: {}", filename);
-                    responseBuilder.header(HEADER_CONTENT_DISPOSITION, "inline; filename=\"" + filename
-                            + "\"");
+                    responseBuilder.header(HEADER_CONTENT_DISPOSITION,
+                            "inline; filename=\"" + filename + "\"");
                 }
 
                 long size = content.getSize();
@@ -305,11 +304,9 @@ public class RESTEndpoint implements RESTService {
      */
     @GET
     @Path("/{id}")
-    public Response getDocument(@PathParam("id")
-                                    String id, @QueryParam("transform")
-                                    String transformerParam, @Context
-                                    UriInfo uriInfo, @Context
-                                    HttpServletRequest httpRequest) {
+    public Response getDocument(@PathParam("id") String id,
+            @QueryParam("transform") String transformerParam, @Context UriInfo uriInfo,
+            @Context HttpServletRequest httpRequest) {
 
         return getDocument(null, id, transformerParam, uriInfo, httpRequest);
     }
@@ -323,9 +320,7 @@ public class RESTEndpoint implements RESTService {
      */
     @GET
     @Path("/sources")
-    public Response getDocument(@Context
-                                    UriInfo uriInfo, @Context
-                                    HttpServletRequest httpRequest) {
+    public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
         BinaryContent content;
         ResponseBuilder responseBuilder;
         String sourcesString = null;
@@ -333,7 +328,8 @@ public class RESTEndpoint implements RESTService {
         JSONArray resultsList = new JSONArray();
         SourceInfoResponse sources;
         try {
-            SourceInfoRequestEnterprise sourceInfoRequestEnterprise = new SourceInfoRequestEnterprise(true);
+            SourceInfoRequestEnterprise sourceInfoRequestEnterprise = new SourceInfoRequestEnterprise(
+                    true);
 
             sources = catalogFramework.getSourceInfo(sourceInfoRequestEnterprise);
             for (SourceDescriptor source : sources.getSourceInfo()) {
@@ -347,10 +343,9 @@ public class RESTEndpoint implements RESTService {
                         if (contentType != null && contentType.getName() != null) {
                             JSONObject contentTypeObj = new JSONObject();
                             contentTypeObj.put("name", contentType.getName());
-                            contentTypeObj.put("version",
-                                    contentType.getVersion() != null ? contentType.getVersion()
-                                            : ""
-                            );
+                            contentTypeObj.put("version", contentType.getVersion() != null ?
+                                            contentType.getVersion() :
+                                            "");
                             contentTypesObj.add(contentTypeObj);
                         }
                     }
@@ -363,8 +358,8 @@ public class RESTEndpoint implements RESTService {
         }
 
         sourcesString = JSONValue.toJSONString(resultsList);
-        content = new BinaryContentImpl(new ByteArrayInputStream(sourcesString.getBytes(
-                StandardCharsets.UTF_8)),
+        content = new BinaryContentImpl(
+                new ByteArrayInputStream(sourcesString.getBytes(StandardCharsets.UTF_8)),
                 JSON_MIME_TYPE);
         responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
 
@@ -387,12 +382,9 @@ public class RESTEndpoint implements RESTService {
      */
     @GET
     @Path("/sources/{sourceid}/{id}")
-    public Response getDocument(@PathParam("sourceid")
-                                    String sourceid, @PathParam("id")
-                                    String id, @QueryParam("transform")
-                                    String transformerParam, @Context
-                                    UriInfo uriInfo, @Context
-                                    HttpServletRequest httpRequest) {
+    public Response getDocument(@PathParam("sourceid") String sourceid, @PathParam("id") String id,
+            @QueryParam("transform") String transformerParam, @Context UriInfo uriInfo,
+            @Context HttpServletRequest httpRequest) {
 
         Response response = null;
         Response.ResponseBuilder responseBuilder;
@@ -455,11 +447,11 @@ public class RESTEndpoint implements RESTService {
                 }
 
                 LOGGER.debug("Calling transform.");
-                final BinaryContent content = catalogFramework.transform(card, transformer, convertedMap);
+                final BinaryContent content = catalogFramework
+                        .transform(card, transformer, convertedMap);
                 LOGGER.debug("Read and transform complete, preparing response.");
 
-                responseBuilder = Response.ok(content.getInputStream(),
-                        content.getMimeTypeValue());
+                responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
 
                 // Add the Accept-ranges header to let the client know that we accept ranges in bytes
                 responseBuilder.header(HEADER_ACCEPT_RANGES, BYTES);
@@ -478,8 +470,8 @@ public class RESTEndpoint implements RESTService {
 
                 if (StringUtils.isNotBlank(filename)) {
                     LOGGER.debug("filename: {}", filename);
-                    responseBuilder.header(HEADER_CONTENT_DISPOSITION, "inline; filename=\"" + filename
-                            + "\"");
+                    responseBuilder.header(HEADER_CONTENT_DISPOSITION,
+                            "inline; filename=\"" + filename + "\"");
                 }
 
                 response = responseBuilder.build();
@@ -514,13 +506,12 @@ public class RESTEndpoint implements RESTService {
         }
         return response;
     }
-    
+
     @POST
     @Path("/metacard")
-    public Response createMetacard(MultipartBody multipartBody, 
-        @Context UriInfo requestUriInfo, 
-        @QueryParam("transform") String transformerParam) {
-        
+    public Response createMetacard(MultipartBody multipartBody, @Context UriInfo requestUriInfo,
+            @QueryParam("transform") String transformerParam) {
+
         LOGGER.trace("ENTERING: createMetacard");
 
         String contentUri = multipartBody.getAttachmentObject("contentUri", String.class);
@@ -530,7 +521,7 @@ public class RESTEndpoint implements RESTService {
         String filename = null;
         String contentType = null;
         Response response = null;
-        
+
         String transformer = DEFAULT_METACARD_TRANSFORMER;
         if (transformerParam != null) {
             transformer = transformerParam;
@@ -557,7 +548,7 @@ public class RESTEndpoint implements RESTService {
         } else {
             LOGGER.debug("No file contents attachment found");
         }
-        
+
         MimeType mimeType = null;
         if (contentType != null) {
             try {
@@ -568,20 +559,21 @@ public class RESTEndpoint implements RESTService {
         } else {
             LOGGER.debug("No content type specified in request");
         }
-        
+
         try {
             Metacard metacard = generateMetacard(mimeType, "assigned-when-ingested", stream);
             LOGGER.debug("metacard created");
-            LOGGER.debug("Transforming metacard to {} to be able to return it to client", transformer);
+            LOGGER.debug("Transforming metacard to {} to be able to return it to client",
+                    transformer);
             final BinaryContent content = catalogFramework.transform(metacard, transformer, null);
             LOGGER.debug("Metacard to {} transform complete, preparing response.", transformer);
 
-            Response.ResponseBuilder responseBuilder = Response.ok(content.getInputStream(),
-                    content.getMimeTypeValue());
+            Response.ResponseBuilder responseBuilder = Response
+                    .ok(content.getInputStream(), content.getMimeTypeValue());
             response = responseBuilder.build();
         } catch (MetacardCreationException | CatalogTransformerException e) {
             throw new ServerErrorException("Unable to create metacard", Status.BAD_REQUEST);
-        }        
+        }
 
         LOGGER.debug("EXITING: createMetacard");
 
@@ -597,9 +589,8 @@ public class RESTEndpoint implements RESTService {
      */
     @PUT
     @Path("/{id}")
-    public Response updateDocument(@PathParam("id")
-                                       String id, @Context
-                                       HttpHeaders headers, @Context HttpServletRequest httpRequest, InputStream message) {
+    public Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
+            @Context HttpServletRequest httpRequest, InputStream message) {
         LOGGER.debug("PUT");
         Response response;
 
@@ -607,8 +598,8 @@ public class RESTEndpoint implements RESTService {
             if (id != null && message != null) {
 
                 MimeType mimeType = getMimeType(headers);
-                UpdateRequestImpl updateReq = new UpdateRequestImpl(id, generateMetacard(mimeType,
-                        id, message));
+                UpdateRequestImpl updateReq = new UpdateRequestImpl(id,
+                        generateMetacard(mimeType, id, message));
 
                 catalogFramework.update(updateReq);
                 response = Response.ok().build();
@@ -640,10 +631,8 @@ public class RESTEndpoint implements RESTService {
      * @return
      */
     @POST
-    public Response addDocument(@Context HttpHeaders headers,
-                                @Context UriInfo requestUriInfo,
-                                @Context HttpServletRequest httpRequest,
-                                InputStream message) {
+    public Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
+            @Context HttpServletRequest httpRequest, InputStream message) {
         LOGGER.debug("POST");
         Response response;
 
@@ -652,8 +641,8 @@ public class RESTEndpoint implements RESTService {
         try {
             if (message != null) {
 
-                CreateRequestImpl createReq = new CreateRequestImpl(generateMetacard(mimeType,
-                        null, message));
+                CreateRequestImpl createReq = new CreateRequestImpl(
+                        generateMetacard(mimeType, null, message));
 
                 CreateResponse createResponse = catalogFramework.create(createReq);
 
@@ -679,8 +668,8 @@ public class RESTEndpoint implements RESTService {
                 throw new ServerErrorException(errorMessage, Status.BAD_REQUEST);
             }
         } catch (SourceUnavailableException e) {
-            String exceptionMessage = "Cannot create catalog entry because source is unavailable: "
-                    + e.getMessage();
+            String exceptionMessage =
+                    "Cannot create catalog entry because source is unavailable: " + e.getMessage();
             LOGGER.warn(exceptionMessage, e.getCause());
             // Catalog framework logs these exceptions to the ingest logger so we don't have to.
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
@@ -690,8 +679,8 @@ public class RESTEndpoint implements RESTService {
             // Catalog framework logs these exceptions to the ingest logger so we don't have to.
             throw new ServerErrorException(exceptionMessage, Status.INTERNAL_SERVER_ERROR);
         } catch (MetacardCreationException e) {
-            String exceptionMessage = "Unable to create Metacard from provided metadata: "
-                    + e.getMessage();
+            String exceptionMessage =
+                    "Unable to create Metacard from provided metadata: " + e.getMessage();
             LOGGER.warn(exceptionMessage, e.getCause());
             if (INGEST_LOGGER.isWarnEnabled()) {
                 INGEST_LOGGER.warn("Unable to create Metacard from provided metadata.", e);
@@ -710,7 +699,8 @@ public class RESTEndpoint implements RESTService {
      */
     @DELETE
     @Path("/{id}")
-    public Response deleteDocument(@PathParam("id") String id, @Context HttpServletRequest httpRequest) {
+    public Response deleteDocument(@PathParam("id") String id,
+            @Context HttpServletRequest httpRequest) {
         LOGGER.debug("DELETE");
         Response response;
         try {
@@ -757,8 +747,8 @@ public class RESTEndpoint implements RESTService {
     private Metacard generateMetacard(MimeType mimeType, String id, InputStream message)
             throws MetacardCreationException {
 
-        List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper.findMatches(
-                InputTransformer.class, mimeType);
+        List<InputTransformer> listOfCandidates = mimeTypeToTransformerMapper
+                .findMatches(InputTransformer.class, mimeType);
 
         LOGGER.debug("List of matches for mimeType [{}]: {}", mimeType, listOfCandidates);
 
@@ -770,7 +760,8 @@ public class RESTEndpoint implements RESTService {
                 if (null != message) {
                     IOUtils.copy(message, fileBackedOutputStream);
                 } else {
-                    throw new MetacardCreationException("Could not copy bytes of content message.  Message was NULL.");
+                    throw new MetacardCreationException(
+                            "Could not copy bytes of content message.  Message was NULL.");
                 }
             } catch (IOException e) {
                 throw new MetacardCreationException("Could not copy bytes of content message.", e);
@@ -778,13 +769,15 @@ public class RESTEndpoint implements RESTService {
 
             Iterator<InputTransformer> it = listOfCandidates.iterator();
 
-            StringBuilder causeMessage = new StringBuilder("Could not create metacard with mimeType ");
+            StringBuilder causeMessage = new StringBuilder(
+                    "Could not create metacard with mimeType ");
             causeMessage.append(mimeType);
             causeMessage.append(". Reason: ");
             while (it.hasNext()) {
                 InputTransformer transformer = it.next();
 
-                try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource().openStream()) {
+                try (InputStream inputStreamMessageCopy = fileBackedOutputStream.asByteSource()
+                        .openStream()) {
                     generatedMetacard = transformer.transform(inputStreamMessageCopy);
                 } catch (CatalogTransformerException | IOException e) {
                     causeMessage.append(System.lineSeparator());
@@ -848,8 +841,7 @@ public class RESTEndpoint implements RESTService {
 
     private String getFileExtensionForMimeType(String mimeType) {
         String fileExtension = this.tikaMimeTypeResolver.getFileExtensionForMimeType(mimeType);
-        LOGGER.debug("Mime Type [{}] resolves to file extension [{}].",
-                mimeType, fileExtension);
+        LOGGER.debug("Mime Type [{}] resolves to file extension [{}].", mimeType, fileExtension);
         return fileExtension;
     }
 
@@ -890,7 +882,8 @@ public class RESTEndpoint implements RESTService {
             if (rangeHeader.startsWith(BYTES_EQUAL)) {
                 String tempString = rangeHeader.substring(BYTES_EQUAL.length());
                 if (tempString.contains("-")) {
-                    response = rangeHeader.substring(BYTES_EQUAL.length(), rangeHeader.lastIndexOf("-"));
+                    response = rangeHeader
+                            .substring(BYTES_EQUAL.length(), rangeHeader.lastIndexOf("-"));
                 } else {
                     response = rangeHeader.substring(BYTES_EQUAL.length());
                 }

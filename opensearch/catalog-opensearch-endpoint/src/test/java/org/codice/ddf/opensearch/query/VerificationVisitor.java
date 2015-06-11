@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 
 package org.codice.ddf.opensearch.query;
 
@@ -40,14 +39,24 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 public class VerificationVisitor extends DefaultFilterVisitor {
+    public static final String SEPARATOR = " - ";
+
     private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(VerificationVisitor.class));
-
-    public static final String SEPARATOR = " - ";
 
     private int indent = 0;
 
     private Map<String, FilterStatus> map = new HashMap<String, FilterStatus>();
+
+    public static String indent(int count) {
+        StringBuffer buffer = new StringBuffer();
+
+        for (int i = 0; i < count; i++) {
+            buffer.append("  ");
+        }
+
+        return buffer.toString();
+    }
 
     @Override
     public Object visit(Function expression, Object data) {
@@ -180,8 +189,8 @@ public class VerificationVisitor extends DefaultFilterVisitor {
 
         countOccurrence(expression);
 
-        LOGGER.debug(indent(indent + 2) + expression.getPropertyName() + SEPARATOR
-                + expression.getClass().getName());
+        LOGGER.debug(indent(indent + 2) + expression.getPropertyName() + SEPARATOR + expression
+                .getClass().getName());
 
         return data;
     }
@@ -191,19 +200,10 @@ public class VerificationVisitor extends DefaultFilterVisitor {
 
         countOccurrence(expression);
 
-        LOGGER.debug(indent(indent) + expression.getValue() + VerificationVisitor.SEPARATOR
-                + expression.getClass().getName());
+        LOGGER.debug(
+                indent(indent) + expression.getValue() + VerificationVisitor.SEPARATOR + expression
+                        .getClass().getName());
         return data;
-    }
-
-    public static String indent(int count) {
-        StringBuffer buffer = new StringBuffer();
-
-        for (int i = 0; i < count; i++) {
-            buffer.append("  ");
-        }
-
-        return buffer.toString();
     }
 
     private void countOccurrence(Filter filter) {

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.camel.component.catalog.framework;
 
 import java.util.ArrayList;
@@ -44,18 +43,18 @@ import ddf.catalog.source.SourceUnavailableException;
  * to a Camel <to> route node with a URI like <code>catalog:framework</code>. The message sent to
  * this component should have header named "operation" with a value of "CREATE", "UPDATE" or
  * "DELETE".
- * 
+ *
  * For the CREATE and UPDATE operation, the message body can contain a {@link java.util.List} of
  * Metacards or a single Metacard object.
- * 
+ *
  * For the DELETE operation, the message body can contain a {@link java.util.List} of {@link String}
  * or a single {@link String} object. The {@link String} objects represent the IDs of Metacards that
  * you would want to delete.
- * 
+ *
  * The exchange's "in" message will be set with the affected Metacards. In the case of a CREATE, it
  * will be updated with the created Metacards. In the case of the UPDATE, it will be updated with
  * the updated Metacards and with the DELETE it will contain the deleted Metacards.
- * 
+ *
  * <table border="1">
  * <tr>
  * <th>USE CASE</th>
@@ -86,7 +85,7 @@ import ddf.catalog.source.SourceUnavailableException;
  * <td>exchange.getIn().getBody() updated with {@link java.util.List} of Metacards deleted</td>
  * </tr>
  * </table>
- * 
+ *
  * @author Sam Patel, Lockheed Martin
  * @author ddf.isgs@lmco.com
  */
@@ -106,7 +105,7 @@ public class FrameworkProducer extends DefaultProducer {
 
     /**
      * Constructs the {@link org.apache.camel.Producer} for the custom Camel CatalogComponent.
-     * 
+     *
      * @param endpoint
      *            the Camel endpoint that created this consumer
      * @param catalogFramework
@@ -161,7 +160,7 @@ public class FrameworkProducer extends DefaultProducer {
 
     /**
      * Creates metacard(s) in the catalog using the Catalog Framework.
-     * 
+     *
      * @param exchange
      *            The {@link org.apache.camel.Exchange} can contain a
      *            {@link org.apache.camel.Message} with a body of type {@link java.util.List} of
@@ -170,8 +169,8 @@ public class FrameworkProducer extends DefaultProducer {
      * @throws ddf.catalog.source.IngestException
      * @throws ddf.camel.component.catalog.framework.FrameworkProducerException
      */
-    private void create(final Exchange exchange) throws SourceUnavailableException,
-        IngestException, FrameworkProducerException {
+    private void create(final Exchange exchange)
+            throws SourceUnavailableException, IngestException, FrameworkProducerException {
         CreateResponse createResponse = null;
 
         // read in data
@@ -224,7 +223,7 @@ public class FrameworkProducer extends DefaultProducer {
 
     /**
      * Updates metacard(s) in the catalog using the Catalog Framework.
-     * 
+     *
      * @param exchange
      *            The {@link org.apache.camel.Exchange} can contain a
      *            {@link org.apache.camel.Message} with a body of type {@link java.util.List} of
@@ -233,8 +232,8 @@ public class FrameworkProducer extends DefaultProducer {
      * @throws ddf.catalog.source.IngestException
      * @throws ddf.camel.component.catalog.framework.FrameworkProducerException
      */
-    private void update(final Exchange exchange) throws SourceUnavailableException,
-        IngestException, FrameworkProducerException {
+    private void update(final Exchange exchange)
+            throws SourceUnavailableException, IngestException, FrameworkProducerException {
         UpdateResponse updateResponse = null;
 
         // read in data from exchange
@@ -253,7 +252,8 @@ public class FrameworkProducer extends DefaultProducer {
             metacardIds[i] = metacardsToBeUpdated.get(i).getId();
         }
 
-        final UpdateRequest updateRequest = new UpdateRequestImpl(metacardIds, metacardsToBeUpdated);
+        final UpdateRequest updateRequest = new UpdateRequestImpl(metacardIds,
+                metacardsToBeUpdated);
         final int expectedNumberOfUpdatedMetacards = metacardsToBeUpdated.size();
 
         if (expectedNumberOfUpdatedMetacards < 1) {
@@ -293,7 +293,7 @@ public class FrameworkProducer extends DefaultProducer {
 
     /**
      * Deletes metacard(s) in the catalog using the Catalog Framework.
-     * 
+     *
      * @param exchange
      *            The {@link org.apache.camel.Exchange} can contain a
      *            {@link org.apache.camel.Message} with a body of type {@link java.util.List} of
@@ -303,8 +303,8 @@ public class FrameworkProducer extends DefaultProducer {
      * @throws ddf.catalog.source.IngestException
      * @throws ddf.camel.component.catalog.framework.FrameworkProducerException
      */
-    private void delete(final Exchange exchange) throws SourceUnavailableException,
-        IngestException, FrameworkProducerException {
+    private void delete(final Exchange exchange)
+            throws SourceUnavailableException, IngestException, FrameworkProducerException {
         DeleteResponse deleteResponse = null;
 
         // read in data
@@ -362,7 +362,7 @@ public class FrameworkProducer extends DefaultProducer {
 
     /**
      * Makes sure that a Metacard or Metacard ID list contains objects of a particular type
-     * 
+     *
      * @param list
      *            {@link java.util.List} of Metacard IDs
      * @param cls
@@ -389,7 +389,7 @@ public class FrameworkProducer extends DefaultProducer {
 
     /**
      * Processes the response from the Catalog Framework and updates the exchange accordingly.
-     * 
+     *
      * @param response
      *            response of type CreateResponse
      * @param exchange
@@ -413,7 +413,7 @@ public class FrameworkProducer extends DefaultProducer {
 
     /**
      * Processes the response from the Catalog Framework and updates the exchange accordingly.
-     * 
+     *
      * @param response
      *            response of type UpdateResponse
      * @param exchange
@@ -437,7 +437,7 @@ public class FrameworkProducer extends DefaultProducer {
 
     /**
      * Processes the response from the Catalog Framework and updates the exchange accordingly.
-     * 
+     *
      * @param response
      *            response of type DeleteResponse
      * @param exchange
@@ -461,7 +461,7 @@ public class FrameworkProducer extends DefaultProducer {
 
     /**
      * Reads in Metacard ids from message body of exchange
-     * 
+     *
      * @param exchange
      *            the exchange with the message payload
      * @return {@link java.util.List} of {@link String} representing Metacard IDs
@@ -508,7 +508,7 @@ public class FrameworkProducer extends DefaultProducer {
 
     /**
      * Reads in Metacard data from message body of exchange
-     * 
+     *
      * @param exchange
      *            the exchange containing the message data
      * @return {@link java.util.List} of Metacard objects

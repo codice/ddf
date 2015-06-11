@@ -13,10 +13,11 @@
  **/
 -->
 
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-	<cm:property-placeholder persistent-id="query.response.transformer.properties" update-strategy="reload">
+	<cm:property-placeholder persistent-id="query.response.transformer.properties"
+                             update-strategy="reload">
 		<cm:default-properties>
 			<cm:property name="header" value=""/>
 			<cm:property name="footer" value=""/>
@@ -26,17 +27,18 @@
 		</cm:default-properties>
 	</cm:property-placeholder>
 
-	<!--  
-		This is to address a timing issue (DDF-2268) where this bundle
-		attempts to create a camel route when the 'catalog' component
-		has not been started/registered on startup.
-		This service reference forces this bundle to wait for this required component.
-	 -->
-	<reference id="catalogComponent" interface="org.apache.camel.spi.ComponentResolver" filter="(component=catalog)"/>
+    <!--
+        This is to address a timing issue (DDF-2268) where this bundle
+        attempts to create a camel route when the 'catalog' component
+        has not been started/registered on startup.
+        This service reference forces this bundle to wait for this required component.
+     -->
+    <reference id="catalogComponent" interface="org.apache.camel.spi.ComponentResolver"
+               filter="(component=catalog)"/>
 
 	<camelContext xmlns="http://camel.apache.org/schema/blueprint" depends-on="catalogComponent">
 		<route>
-			<from uri="catalog:queryresponsetransformer?id=querypage&amp;mimeType=text/html" /> 
+			<from uri="catalog:queryresponsetransformer?id=querypage&amp;mimeType=text/html"/>
 			<setProperty propertyName="header"><constant>{{header}}</constant></setProperty>
 			<setProperty propertyName="footer"><constant>{{footer}}</constant></setProperty>
 			<setProperty propertyName="color"><constant>{{color}}</constant></setProperty>
@@ -50,16 +52,20 @@
 			<setProperty propertyName="metacardActionProviderList"><simple>ref:metacardActionProviderList</simple></setProperty>
 			<setProperty propertyName="resourceActionProviderList"><simple>ref:resourceActionProviderList</simple></setProperty>
 
-			<to uri="freemarker:{{template}}?contentCache=false" />
+			<to uri="freemarker:{{template}}?contentCache=false"/>
 		</route>
 	</camelContext>
 
-    <reference-list id="htmlActionProviderList" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.html)" availability="optional"/>
-	<reference-list id="metacardActionProviderList" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.view)" availability="optional"/>
-	<reference-list id="resourceActionProviderList" interface="ddf.action.ActionProvider" filter="(id=catalog.data.metacard.resource)" availability="optional"/>
+    <reference-list id="htmlActionProviderList" interface="ddf.action.ActionProvider"
+                    filter="(id=catalog.data.metacard.html)" availability="optional"/>
+	<reference-list id="metacardActionProviderList" interface="ddf.action.ActionProvider"
+                    filter="(id=catalog.data.metacard.view)" availability="optional"/>
+	<reference-list id="resourceActionProviderList" interface="ddf.action.ActionProvider"
+                    filter="(id=catalog.data.metacard.resource)" availability="optional"/>
 
-	<bean id="sourceInfoRequestEnterprise" class="ddf.catalog.operation.SourceInfoRequestEnterprise">
-		<argument value="true" />
+	<bean id="sourceInfoRequestEnterprise"
+          class="ddf.catalog.operation.SourceInfoRequestEnterprise">
+		<argument value="true"/>
 	</bean>
 
 	<bean id="beansWrapper" class="freemarker.ext.beans.BeansWrapper"/>

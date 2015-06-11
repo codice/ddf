@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.metrics;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -59,14 +58,12 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * Tests {@link CatalogMetrics}
- * 
+ *
  * @author Phillip Klinefelter
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class CatalogMetricsTest {
-
-    private CatalogMetrics underTest;
 
     private static FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
 
@@ -74,6 +71,8 @@ public class CatalogMetricsTest {
 
     private static Filter idFilter = filterBuilder.attribute(Metacard.ID).is().equalTo()
             .text("metacardId");
+
+    private CatalogMetrics underTest;
 
     @Before
     public void setup() {
@@ -98,10 +97,10 @@ public class CatalogMetricsTest {
         underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Temporal"));
 
         underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE));
-        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
-                "UnsupportedQuery"));
-        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
-                "SourceUnavailable"));
+        underTest.metrics
+                .remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE, "UnsupportedQuery"));
+        underTest.metrics
+                .remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE, "SourceUnavailable"));
         underTest.metrics
                 .remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE, "Federation"));
 
@@ -131,8 +130,8 @@ public class CatalogMetricsTest {
         query = new QueryRequestImpl(new QueryImpl(idFilter), Arrays.asList("fedSourceId"));
         underTest.process(query);
 
-        query = new QueryRequestImpl(new QueryImpl(idFilter), Arrays.asList("fedSource1Id",
-                "fedSource2Id"));
+        query = new QueryRequestImpl(new QueryImpl(idFilter),
+                Arrays.asList("fedSource1Id", "fedSource2Id"));
         underTest.process(query);
 
         assertThat(underTest.federatedQueries.getCount(), is(3L));
