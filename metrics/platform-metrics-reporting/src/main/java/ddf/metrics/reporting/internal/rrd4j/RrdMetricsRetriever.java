@@ -589,7 +589,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
      * @throws IOException
      * @throws MetricsGraphException
      */
-    private MetricData getMetricData(String rrdFilename, long startTime, long endTime)
+    public MetricData getMetricData(String rrdFilename, long startTime, long endTime)
         throws IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: getMetricData");
 
@@ -634,14 +634,16 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             // have a summation of their totals
             metricData.setHasTotalCount(true);
             for (int i = 0; i < timestamps.length; i++) {
+                long timestamp = timestamps[i];
                 // Filter out the RRD values that have not yet been sampled (they will
                 // have been set to NaN as a placeholder when the RRD file was created)
-                if (!Double.toString(values[i]).equals("NaN")) {
+                if (timestamp >= startTime && timestamp <= endTime
+                        && !Double.toString(values[i]).equals("NaN")) {
                     // RRD averages the collected samples over the step interval.
                     // To "undo" this averaging and get the actual count, need to
                     // multiply the sampled data value by the RRD step interval.
                     double nonAveragedValue = (double) (values[i] * rrdStep);
-                    validTimestamps.add(timestamps[i]);
+                    validTimestamps.add(timestamp);
                     validValues.add(nonAveragedValue);
                     totalCount += (long) nonAveragedValue;
                 }
@@ -650,10 +652,12 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             // Gauges are for data that waxes and wanes, hence no total count
             metricData.setHasTotalCount(false);
             for (int i = 0; i < timestamps.length; i++) {
+                long timestamp = timestamps[i];
                 // Filter out the RRD values that have not yet been sampled (they will
                 // have been set to NaN as a placeholder when the RRD file was created)
-                if (!Double.toString(values[i]).equals("NaN")) {
-                    validTimestamps.add(timestamps[i]);
+                if (timestamp >= startTime && timestamp <= endTime
+                        && !Double.toString(values[i]).equals("NaN")) {
+                    validTimestamps.add(timestamp);
                     validValues.add(values[i]);
                 }
             }
