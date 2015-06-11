@@ -380,7 +380,8 @@
                     <version>2.8.1</version>
                     <configuration>
                         <!-- -XX:-UseSplitVerifier is needed to make tests using powermock compile under java 7 -->
-                        <argLine>${argLine} -Djava.awt.headless=true -XX:-UseSplitVerifier</argLine>
+                        <!-- Replaced -XX:-UseSplitVerifier with -noverify -->
+                        <argLine>${argLine} -Djava.awt.headless=true -noverify</argLine>
                     </configuration>
                 </plugin>
 
