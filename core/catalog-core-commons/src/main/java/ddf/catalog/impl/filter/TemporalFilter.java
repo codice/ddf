@@ -25,7 +25,7 @@ import org.slf4j.ext.XLogger;
 
 public class TemporalFilter // implements Filter
 {
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(TemporalFilter.class));
 
     private static DateTimeFormatter formatter;
@@ -91,7 +91,7 @@ public class TemporalFilter // implements Filter
             try {
                 returnDate = formatter.parseDateTime(date).toDate();
             } catch (IllegalArgumentException iae) {
-                logger.warn(
+                LOGGER.warn(
                         "Could not parse out updated date in response, date will not being passed back.");
             }
         }

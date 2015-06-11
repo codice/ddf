@@ -62,7 +62,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 
 public class TestReplicationCommand {
 
-    private static final Set<String> sourceIds = new HashSet<String>(
+    private static final Set<String> SOURCE_IDS = new HashSet<String>(
             Arrays.asList("sourceId1", "sourceId2"));
 
     private static final int HITS = 1000;
@@ -126,7 +126,7 @@ public class TestReplicationCommand {
 
         when(mockSession.getKeyboard()).thenReturn(mockIS);
 
-        when(catalogFramework.getSourceIds()).thenReturn(sourceIds);
+        when(catalogFramework.getSourceIds()).thenReturn(SOURCE_IDS);
         when(catalogFramework.query(isA(QueryRequest.class)))
                 .thenAnswer(new Answer<QueryResponse>() {
                             @Override

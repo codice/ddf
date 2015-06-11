@@ -59,7 +59,7 @@ public class SortedServiceList<T> implements List<T> {
 
     private static final String READ_ONLY_ERROR_MESSAGE = "This list is meant to be read only.";
 
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(SortedServiceList.class));
 
     private Map<ServiceReference, T> serviceMap = Collections
@@ -93,7 +93,7 @@ public class SortedServiceList<T> implements List<T> {
      */
     public void bindPlugin(ServiceReference ref) {
 
-        logger.debug(this + " Binding " + ref);
+        LOGGER.debug(this + " Binding " + ref);
         BundleContext context = getContext();
 
         if (context != null) {
@@ -101,10 +101,10 @@ public class SortedServiceList<T> implements List<T> {
 
             serviceMap.put(ref, service);
         } else {
-            logger.debug("BundleContext was null, unable to add service reference");
+            LOGGER.debug("BundleContext was null, unable to add service reference");
         }
 
-        logger.debug(Arrays.asList(serviceMap.values()).toString());
+        LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
 
     }
 
@@ -118,11 +118,11 @@ public class SortedServiceList<T> implements List<T> {
      */
     public void unbindPlugin(ServiceReference ref) {
 
-        logger.debug("Unbinding " + ref);
+        LOGGER.debug("Unbinding " + ref);
 
         serviceMap.remove(ref);
 
-        logger.debug(Arrays.asList(serviceMap.values()).toString());
+        LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
     }
 
     /**
@@ -178,7 +178,7 @@ public class SortedServiceList<T> implements List<T> {
 
     @Override
     public T get(int arg0) {
-        logger.debug("GET called on : " + arg0);
+        LOGGER.debug("GET called on : " + arg0);
         if (serviceMap.values() != null) {
             ArrayList<T> list = new ArrayList<T>(serviceMap.values());
             return list.get(arg0);

@@ -40,7 +40,7 @@ public class SourcePoller {
 
     private static final int INITIAL_DELAY = 0;
 
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(SourcePoller.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(SourcePoller.class));
 
     private ScheduledExecutorService scheduler;
 
@@ -92,7 +92,7 @@ public class SourcePoller {
      */
     public void cancel(CatalogFramework framework, Map properties) {
 
-        logger.info("Cancelling scheduled polling.");
+        LOGGER.info("Cancelling scheduled polling.");
 
         runner.shutdown();
 
@@ -112,7 +112,7 @@ public class SourcePoller {
      *            unused, but required by blueprint
      */
     public void start(CatalogFramework framework, Map properties) {
-        logger.debug("Framework started for [{}]", framework);
+        LOGGER.debug("Framework started for [{}]", framework);
     }
 
 }

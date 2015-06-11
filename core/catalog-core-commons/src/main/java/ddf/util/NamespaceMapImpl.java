@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
 public class NamespaceMapImpl implements NamespaceContext {
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(NamespaceMapImpl.class));
 
     private Map<String, String> allNamespaceUris;
@@ -31,7 +31,7 @@ public class NamespaceMapImpl implements NamespaceContext {
     private Map<String, String> allPrefixes;
 
     public NamespaceMapImpl(Map<String, String> namespaces) {
-        logger.debug("MockNamespaceResolver constructor");
+        LOGGER.debug("MockNamespaceResolver constructor");
 
         allNamespaceUris = new HashMap<String, String>();
         allPrefixes = new HashMap<String, String>();

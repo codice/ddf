@@ -41,7 +41,7 @@ import ddf.catalog.source.Source;
  */
 public class FifoFederationStrategy extends AbstractFederationStrategy {
 
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(FifoFederationStrategy.class));
 
     /**
@@ -134,7 +134,7 @@ public class FifoFederationStrategy extends AbstractFederationStrategy {
                 try {
                     queryResponse = curFuture.get();
                 } catch (Exception e) {
-                    logger.warn("FederatedSite.query() never returned");
+                    LOGGER.warn("FederatedSite.query() never returned");
                 }
                 if (queryResponse != null) {
                     // boolean hasTotals = false;
@@ -147,7 +147,7 @@ public class FifoFederationStrategy extends AbstractFederationStrategy {
                     // Check if we have hit the maximum number
                     // of results
                     if (sentTotal >= pageSize) {
-                        logger.debug("Received max number of results so ending polling");
+                        LOGGER.debug("Received max number of results so ending polling");
 
                     } else {
                         returnResults.addResults(queryResponse.getResults(), false);
@@ -156,12 +156,12 @@ public class FifoFederationStrategy extends AbstractFederationStrategy {
                 }
 
                 addToGrandTotal(lastKnownGrandTotal);
-                logger.debug(
+                LOGGER.debug(
                         "adding grand total from this site to grand total from all sites: " + total
                                 .get());
                 if (updateSites(-1) == 0) {
                     // all done, send the Terminator.
-                    logger.debug("sending terminator for fifo federation strategy.");
+                    LOGGER.debug("sending terminator for fifo federation strategy.");
                     returnResults.closeResultQueue();
                 }
             }

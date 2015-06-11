@@ -51,7 +51,7 @@ public final class ContextualEvaluator {
 
     private static final String CASE_SENSITIVE_FIELD_NAME = "cs_Resource";
 
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(ContextualEvaluator.class));
 
     private static final String DEFAULT_XPATH_1 =
@@ -85,7 +85,7 @@ public final class ContextualEvaluator {
     public static boolean evaluate(ContextualEvaluationCriteria cec)
             throws IOException, ParseException {
         String methodName = "evaluate";
-        logger.entry(methodName);
+        LOGGER.entry(methodName);
 
         Directory index = cec.getIndex();
         String searchPhrase = cec.getCriteria();
@@ -100,22 +100,22 @@ public final class ContextualEvaluator {
             if (textPaths != null && textPaths.length > 0 && fullDocument != null) {
                 String indexableText = getIndexableText(fullDocument, textPaths);
                 if (indexableText != null && !indexableText.isEmpty()) {
-                    logger.trace("Found element/attribute for textPaths");
-                    logger.exit(methodName + " - returning true");
+                    LOGGER.trace("Found element/attribute for textPaths");
+                    LOGGER.exit(methodName + " - returning true");
                     return true;
                 }
             }
 
-            logger.trace(
+            LOGGER.trace(
                     "No search phrase specified and could not find element/attribute based on textPaths");
-            logger.exit(methodName + " - returning false");
+            LOGGER.exit(methodName + " - returning false");
             return false;
         }
 
         // a. query
         QueryParser queryParser = null;
         if (cec.isCaseSensitiveSearch()) {
-            logger.debug("Doing case-sensitive search ...");
+            LOGGER.debug("Doing case-sensitive search ...");
             queryParser = new QueryParser(Version.LUCENE_30, CASE_SENSITIVE_FIELD_NAME,
                     new CaseSensitiveContextualAnalyzer(Version.LUCENE_30));
 
@@ -123,7 +123,7 @@ public final class ContextualEvaluator {
             // i.e., make them be case-sensitive
             queryParser.setLowercaseExpandedTerms(false);
         } else {
-            logger.debug("Doing case-insensitive search ...");
+            LOGGER.debug("Doing case-insensitive search ...");
             queryParser = new QueryParser(Version.LUCENE_30, FIELD_NAME,
                     new ContextualAnalyzer(Version.LUCENE_30));
         }
@@ -140,13 +140,13 @@ public final class ContextualEvaluator {
         TopDocs topDocs = searcher.search(q, hitsPerPage);
 
         // c. display results
-        logger.debug("Found " + topDocs.totalHits + " hits.");
+        LOGGER.debug("Found " + topDocs.totalHits + " hits.");
 
         // searcher can only be closed when there
         // is no need to access the documents any more.
         searcher.close();
 
-        logger.exit(methodName);
+        LOGGER.exit(methodName);
 
         return topDocs.totalHits > 0;
     }
@@ -183,7 +183,7 @@ public final class ContextualEvaluator {
      */
     public static Directory buildIndex(String fullDocument) throws IOException {
         String methodName = "buildIndex (DEFAULT)";
-        logger.entry(methodName);
+        LOGGER.entry(methodName);
 
         return buildIndex(fullDocument, DEFAULT_XPATH_SELECTORS);
     }
@@ -205,9 +205,9 @@ public final class ContextualEvaluator {
     public static Directory buildIndex(String fullDocument, String[] xpathSelectors)
             throws IOException {
         String methodName = "buildIndex";
-        logger.entry(methodName);
+        LOGGER.entry(methodName);
 
-        // logger.debug( XPathHelper.xmlToString( fullDocument ) );
+        // LOGGER.debug( XPathHelper.xmlToString( fullDocument ) );
 
         // 0. Specify the analyzer for tokenizing text.
         // The same analyzer should be used for indexing and searching
@@ -246,28 +246,28 @@ public final class ContextualEvaluator {
         addDoc(csIndexWriter, CASE_SENSITIVE_FIELD_NAME, indexableText);
         csIndexWriter.close();
 
-        logger.exit(methodName);
+        LOGGER.exit(methodName);
 
         return index;
     }
 
     private static void logTokens(Analyzer analyzer, String fieldName, String fullDocument,
             String analyzerName) throws IOException {
-        if (!logger.isDebugEnabled()) {
+        if (!LOGGER.isDebugEnabled()) {
             return;
         }
 
         TokenStream tokenStream = analyzer.tokenStream(fieldName, new StringReader(fullDocument));
         OffsetAttribute offsetAttribute = tokenStream.getAttribute(OffsetAttribute.class);
         TermAttribute termAttribute = tokenStream.getAttribute(TermAttribute.class);
-        logger.debug("-----  {} tokens  -----", analyzerName);
+        LOGGER.debug("-----  {} tokens  -----", analyzerName);
         while (tokenStream.incrementToken()) {
             int startOffset = offsetAttribute.startOffset();
             int endOffset = offsetAttribute.endOffset();
             String term = termAttribute.term();
-            logger.debug(term);
+            LOGGER.debug(term);
         }
-        logger.debug("-----  END:  {} tokens  -----", analyzerName);
+        LOGGER.debug("-----  END:  {} tokens  -----", analyzerName);
     }
 
     /**
@@ -280,11 +280,11 @@ public final class ContextualEvaluator {
      */
     private static String getIndexableText(String document, String[] xpathSelectors) {
         String methodName = "getIndexableText";
-        logger.entry(methodName);
+        LOGGER.entry(methodName);
 
         List<String> indexedText = new ArrayList<String>();
 
-        logger.debug("xpathSelectors.size = " + xpathSelectors.length);
+        LOGGER.debug("xpathSelectors.size = " + xpathSelectors.length);
 
         StringBuilder sbuilder = new StringBuilder();
 
@@ -307,15 +307,15 @@ public final class ContextualEvaluator {
             XPathHelper xHelper = new XPathHelper(document);
 
             for (String xpath : xpathSelectors) {
-                logger.debug("Processing xpath selector:\n" + xpath);
+                LOGGER.debug("Processing xpath selector:\n" + xpath);
                 NodeList nodeList = (NodeList) xHelper.evaluate(xpath, XPathConstants.NODESET);
-                logger.debug("nodeList length = " + nodeList.getLength());
+                LOGGER.debug("nodeList length = " + nodeList.getLength());
 
                 for (int i = 0; i < nodeList.getLength(); i++) {
                     Node node = nodeList.item(i);
                     if (node.getNodeType() == Node.ATTRIBUTE_NODE) {
                         Attr attribute = (Attr) node;
-                        logger.debug("Adding text [" + attribute.getNodeValue() + "]");
+                        LOGGER.debug("Adding text [" + attribute.getNodeValue() + "]");
 
                         sbuilder.append(attribute.getNodeValue() + " ");
 
@@ -331,14 +331,14 @@ public final class ContextualEvaluator {
                         // Doe
                         // That's not good ...
                     } else {
-                        logger.debug(
+                        LOGGER.debug(
                                 "Unsupported node type: " + node.getNodeType() + ",   node name = "
                                         + node.getNodeName());
                     }
                 }
             }
         } catch (XPathExpressionException e1) {
-            logger.catching(e1);
+            LOGGER.catching(e1);
         }
 
         // Append all of the Text nodes' values to the single indexable text string
@@ -346,7 +346,7 @@ public final class ContextualEvaluator {
             sbuilder.append(text);
         }
 
-        logger.exit(methodName);
+        LOGGER.exit(methodName);
 
         return sbuilder.toString();
     }

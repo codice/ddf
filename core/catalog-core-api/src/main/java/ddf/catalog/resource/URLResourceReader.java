@@ -53,7 +53,7 @@ public class URLResourceReader implements ResourceReader {
 
     private static final String URL_FILE_SCHEME = "file";
 
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(URLResourceReader.class));
 
     private static final String VERSION = "1.0";
@@ -84,13 +84,13 @@ public class URLResourceReader implements ResourceReader {
      * Default URLResourceReader constructor.
      */
     public URLResourceReader() {
-        logger.debug("INSIDE: resource-impl.URLResourceReader default constructor");
+        LOGGER.debug("INSIDE: resource-impl.URLResourceReader default constructor");
     }
 
     public URLResourceReader(MimeTypeMapper mimeTypeMapper) {
-        logger.debug("INSIDE: resource-impl.URLResourceReader constructor to set mimeTypeMapper");
+        LOGGER.debug("INSIDE: resource-impl.URLResourceReader constructor to set mimeTypeMapper");
         if (mimeTypeMapper == null) {
-            logger.debug("mimeTypeMapper is NULL");
+            LOGGER.debug("mimeTypeMapper is NULL");
         }
         this.mimeTypeMapper = mimeTypeMapper;
     }
@@ -139,7 +139,7 @@ public class URLResourceReader implements ResourceReader {
     }
 
     public void setMimeTypeMapper(MimeTypeMapper mimeTypeMapper) {
-        logger.debug("Setting mimeTypeMapper");
+        LOGGER.debug("Setting mimeTypeMapper");
         this.mimeTypeMapper = mimeTypeMapper;
     }
 
@@ -160,25 +160,25 @@ public class URLResourceReader implements ResourceReader {
     public ResourceResponse retrieveResource(URI resourceURI, Map<String, Serializable> properties)
             throws IOException, ResourceNotFoundException {
         String methodName = "getResource";
-        logger.entry(methodName);
+        LOGGER.entry(methodName);
 
         if (resourceURI == null) {
-            logger.warn("Resource URI was null");
+            LOGGER.warn("Resource URI was null");
             throw new ResourceNotFoundException("Unable to find resource");
         }
 
         if (resourceURI.getScheme().equals(URL_HTTP_SCHEME) || resourceURI.getScheme()
                 .equals(URL_HTTPS_SCHEME)) {
-            logger.debug("Resource URI is HTTP or HTTPS");
+            LOGGER.debug("Resource URI is HTTP or HTTPS");
             URL url = resourceURI.toURL();
-            logger.debug("resource name: " + url.getFile());
+            LOGGER.debug("resource name: " + url.getFile());
             return doRetrieveProduct(resourceURI, url.getFile());
 
         } else if (resourceURI.getScheme().equals(URL_FILE_SCHEME)) {
-            logger.debug("Resource URI is a File");
+            LOGGER.debug("Resource URI is a File");
             File filePathName = new File(resourceURI);
             String fileName = filePathName.getName();
-            logger.debug("resource name: " + fileName);
+            LOGGER.debug("resource name: " + fileName);
             return doRetrieveProduct(resourceURI, fileName);
         } else {
             ResourceNotFoundException ce = new ResourceNotFoundException(
@@ -186,20 +186,20 @@ public class URLResourceReader implements ResourceReader {
                             + URLResourceReader.TITLE + " requires a qualifier of "
                             + URL_HTTP_SCHEME + " or " + URL_HTTPS_SCHEME + " or "
                             + URL_FILE_SCHEME);
-            logger.throwing(XLogger.Level.DEBUG, ce);
-            logger.exit(methodName);
+            LOGGER.throwing(XLogger.Level.DEBUG, ce);
+            LOGGER.exit(methodName);
             throw ce;
         }
     }
 
     private ResourceResponse doRetrieveProduct(URI resourceURI, String productName)
             throws IOException, ResourceNotFoundException {
-        logger.trace("ENTERING: doRetrieveProduct");
+        LOGGER.trace("ENTERING: doRetrieveProduct");
         try {
-            logger.debug("Creating URL for path: " + resourceURI.getPath());
+            LOGGER.debug("Creating URL for path: " + resourceURI.getPath());
 
             URL url = resourceURI.toURL();
-            logger.debug("Opening connection to: " + resourceURI.toString());
+            LOGGER.debug("Opening connection to: " + resourceURI.toString());
             URLConnection conn = url.openConnection();
 
             // Determine the mime type in a hierarchical fashion. The hierarchy is based on the
@@ -213,7 +213,7 @@ public class URLResourceReader implements ResourceReader {
 
             String mimeType = null;
             if (mimeTypeMapper == null) {
-                logger.warn("mimeTypeMapper is NULL");
+                LOGGER.warn("mimeTypeMapper is NULL");
             } else {
                 // Extract the file extension (if any) from the URL's file
                 int index = url.getFile().lastIndexOf(".");
@@ -230,14 +230,14 @@ public class URLResourceReader implements ResourceReader {
                     // C:\workspaces\ddf_sprints\ddf\catalog\resource\./src/test/resources/data/JpegWithoutExtension
                     // When this occurs move on to alternate mime type resolution approaches.
                     if (!fileExtension.contains("\\") && !fileExtension.contains("/")) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("url.getFile() = " + url.getFile() + ",   fileExtension = "
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("url.getFile() = " + url.getFile() + ",   fileExtension = "
                                     + fileExtension);
                         }
                         mimeType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
                     } else {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("fileExtension = " + fileExtension
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("fileExtension = " + fileExtension
                                     + " is not valid - proceeding with alternate mime type resolution");
                         }
                     }
@@ -251,10 +251,10 @@ public class URLResourceReader implements ResourceReader {
                 // Use Apache Tika to detect mime type from URL
                 Tika tika = new Tika();
                 mimeType = tika.detect(url);
-                logger.debug("Tika determined mimeType for url = " + mimeType);
+                LOGGER.debug("Tika determined mimeType for url = " + mimeType);
             } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("mimeType = " + mimeType + " set by MimeTypeMapper");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("mimeType = " + mimeType + " set by MimeTypeMapper");
                 }
             }
 
@@ -273,23 +273,23 @@ public class URLResourceReader implements ResourceReader {
                 mimeType = "application/unknown";
             }
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("mimeType set to: " + mimeType);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("mimeType set to: " + mimeType);
             }
             InputStream is = conn.getInputStream();
-            if (logger.isDebugEnabled()) {
-                logger.debug("url file: " + url.getFile());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("url file: " + url.getFile());
             }
 
-            logger.trace("EXITING: doRetrieveProduct");
+            LOGGER.trace("EXITING: doRetrieveProduct");
 
             return new ResourceResponseImpl(
                     new ResourceImpl(new BufferedInputStream(is), mimeType, productName));
         } catch (IOException e) {
-            logger.error("IOException on retrieving resource", e);
+            LOGGER.error("IOException on retrieving resource", e);
             throw e;
         } catch (Exception e) {
-            logger.error("Error retrieving resource", e);
+            LOGGER.error("Error retrieving resource", e);
             throw new ResourceNotFoundException(
                     "Unable to retrieve resource at: " + resourceURI.toString(), e);
         }
@@ -297,8 +297,8 @@ public class URLResourceReader implements ResourceReader {
 
     @Override
     public Set<String> getOptions(Metacard metacard) {
-        logger.trace("ENTERING/EXITING: getOptions");
-        logger.debug("URLResourceReader getOptions doesn't support options, returning empty set.");
+        LOGGER.trace("ENTERING/EXITING: getOptions");
+        LOGGER.debug("URLResourceReader getOptions doesn't support options, returning empty set.");
         return Collections.emptySet();
     }
 }

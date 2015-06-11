@@ -55,7 +55,7 @@ class GeotoolsBuilder {
     // match units assigned elsewhere throughout DDF
     private static final String METERS = UomOgcMapping.METRE.name();
 
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(GeotoolsBuilder.class));
 
     private static WKTReader reader = new WKTReader();
@@ -97,7 +97,7 @@ class GeotoolsBuilder {
 
     protected Filter build() {
 
-        logger.debug("BUILDING attribute = " + attribute + ", operator = " + operator + ", value = "
+        LOGGER.debug("BUILDING attribute = " + attribute + ", operator = " + operator + ", value = "
                 + value + ", secondaryValue = " + secondaryValue + "\n");
 
         Filter filter = null;
@@ -292,7 +292,7 @@ class GeotoolsBuilder {
      *            the operator to set
      */
     protected void setOperator(Operator operator) {
-        logger.debug("setting operator to " + operator);
+        LOGGER.debug("setting operator to " + operator);
         this.operator = operator;
     }
 
@@ -335,9 +335,9 @@ class GeotoolsBuilder {
             }
 
         } catch (ParseException e) {
-            logger.warn("Unable to compute geometry for WKT = " + wkt, e);
+            LOGGER.warn("Unable to compute geometry for WKT = " + wkt, e);
         } catch (java.text.ParseException e) {
-            logger.warn("Unable to compute geometry for WKT = " + wkt, e);
+            LOGGER.warn("Unable to compute geometry for WKT = " + wkt, e);
         }
 
         return geometry;

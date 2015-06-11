@@ -34,7 +34,7 @@ import org.slf4j.ext.XLogger;
  * @author Hugh Rodgers
  */
 public class NamespaceResolver implements NamespaceContext {
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(NamespaceResolver.class));
 
     protected ArrayList<NamespaceContext> namespaceContexts;
@@ -48,9 +48,9 @@ public class NamespaceResolver implements NamespaceContext {
      * Registry will be the one used.
      */
     public NamespaceResolver() {
-        logger.trace("ENTERING: NamespaceResolver constructor");
+        LOGGER.trace("ENTERING: NamespaceResolver constructor");
 
-        logger.trace("EXITING: NamespaceResolver constructor");
+        LOGGER.trace("EXITING: NamespaceResolver constructor");
     }
 
     /**
@@ -63,7 +63,7 @@ public class NamespaceResolver implements NamespaceContext {
      */
     public String getNamespaceURI(String prefix) {
         String methodName = "getNamespaceURI";
-        logger.trace("ENTERING: " + methodName);
+        LOGGER.trace("ENTERING: " + methodName);
 
         getNamespaceContexts();
 
@@ -76,7 +76,7 @@ public class NamespaceResolver implements NamespaceContext {
             }
         }
 
-        logger.trace("EXITING: " + methodName + "    (namespaceUri = " + namespaceUri + ")");
+        LOGGER.trace("EXITING: " + methodName + "    (namespaceUri = " + namespaceUri + ")");
 
         return namespaceUri;
     }
@@ -91,7 +91,7 @@ public class NamespaceResolver implements NamespaceContext {
      */
     public String getPrefix(String namespace) {
         String methodName = "getPrefix";
-        logger.trace("ENTERING: " + methodName + ",   namespace = " + namespace);
+        LOGGER.trace("ENTERING: " + methodName + ",   namespace = " + namespace);
 
         getNamespaceContexts();
 
@@ -104,7 +104,7 @@ public class NamespaceResolver implements NamespaceContext {
             }
         }
 
-        logger.trace("EXITING: " + methodName + "    (prefix = " + prefix + ")");
+        LOGGER.trace("EXITING: " + methodName + "    (prefix = " + prefix + ")");
 
         return prefix;
     }
@@ -121,7 +121,7 @@ public class NamespaceResolver implements NamespaceContext {
     private void getNamespaceContexts() {
         // Determine the OSGi bundle context for the NamespaceResolver
         if (this.bundleContext == null) {
-            logger.debug("Setting bundleContext");
+            LOGGER.debug("Setting bundleContext");
             this.bundleContext = BundleReference.class.cast(this.getClass().getClassLoader())
                     .getBundle().getBundleContext();
         }
@@ -133,14 +133,14 @@ public class NamespaceResolver implements NamespaceContext {
             try {
                 // Retrieve all of the namespace mappings from the OSGi Service Registry
                 refs = bundleContext.getServiceReferences(NamespaceContext.class.getName(), null);
-                logger.debug("num NamespaceContexts service refs found = " + refs.length);
+                LOGGER.debug("num NamespaceContexts service refs found = " + refs.length);
             } catch (InvalidSyntaxException e) {
-                logger.warn("Invalid NamespaceContext syntax", e);
+                LOGGER.warn("Invalid NamespaceContext syntax", e);
             }
 
             // If no NamespaceMaps found, nothing further to be done
             if (refs == null || refs.length == 0) {
-                logger.warn("No NamespaceContext services found");
+                LOGGER.warn("No NamespaceContext services found");
             } else {
                 // For each NamespaceMap found, add its namespace mappings to the two HashMaps
                 // maintained for prefix-to-uri and uri=to-prefix
@@ -150,12 +150,12 @@ public class NamespaceResolver implements NamespaceContext {
                     if (namespaceContext != null) {
                         namespaceContexts.add(namespaceContext);
                     } else {
-                        logger.debug("NamespaceContext for ServiceReference was null");
+                        LOGGER.debug("NamespaceContext for ServiceReference was null");
                     }
                 }
             }
         } else {
-            logger.warn("BundleContext is NULL");
+            LOGGER.warn("BundleContext is NULL");
         }
     }
 }

@@ -33,7 +33,7 @@ import ddf.catalog.data.BinaryContentImpl;
 @Deprecated
 public class ResourceImpl extends BinaryContentImpl implements Resource {
 
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(ResourceImpl.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(ResourceImpl.class));
 
     private String name;
 
@@ -94,7 +94,7 @@ public class ResourceImpl extends BinaryContentImpl implements Resource {
         try {
             mimeType = mimeTypeString == null ? null : new MimeType(mimeTypeString);
         } catch (MimeTypeParseException e) {
-            logger.warn("Could not assign the MimeType to the Resource named '" + name
+            LOGGER.warn("Could not assign the MimeType to the Resource named '" + name
                     + "' because the following " + "MimeType could not be parsed properly: "
                     + mimeTypeString);
         }

@@ -55,7 +55,7 @@ public class TestGeoJsonQueryResponseTransformer {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(TestGeoJsonQueryResponseTransformer.class);
 
-    private static final JSONParser parser = new JSONParser();
+    private static final JSONParser PARSER = new JSONParser();
 
     private static final String DEFAULT_TITLE = "myTitle";
 
@@ -73,7 +73,7 @@ public class TestGeoJsonQueryResponseTransformer {
 
     private static final double DEFAULT_RELEVANCE = 0.75;
 
-    private static final Date now = new Date();
+    private static final Date NOW = new Date();
 
     @Test(expected = CatalogTransformerException.class)
     public void testNullResponse() throws CatalogTransformerException {
@@ -130,7 +130,7 @@ public class TestGeoJsonQueryResponseTransformer {
                 GeoJsonQueryResponseTransformer.DEFAULT_MIME_TYPE.getBaseType());
 
         String jsonText = new String(content.getByteArray());
-        Object object = parser.parse(jsonText);
+        Object object = PARSER.parse(jsonText);
         JSONObject obj = (JSONObject) object;
         return obj;
     }
@@ -148,8 +148,8 @@ public class TestGeoJsonQueryResponseTransformer {
     private Result setupResult() {
         MetacardImpl metacard = new MetacardImpl();
 
-        metacard.setCreatedDate(now);
-        metacard.setModifiedDate(now);
+        metacard.setCreatedDate(NOW);
+        metacard.setModifiedDate(NOW);
         metacard.setMetadata(DEFAULT_XML);
         metacard.setContentTypeName(DEFAULT_TYPE);
         metacard.setContentTypeVersion(DEFAULT_VERSION);
@@ -195,10 +195,10 @@ public class TestGeoJsonQueryResponseTransformer {
         SimpleDateFormat dateFormat = new SimpleDateFormat(
                 GeoJsonMetacardTransformer.ISO_8601_DATE_FORMAT);
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        assertThat(toString(properties.get(Metacard.CREATED)), is(dateFormat.format(now)));
+        assertThat(toString(properties.get(Metacard.CREATED)), is(dateFormat.format(NOW)));
         assertThat(toString(properties.get(Metacard.EXPIRATION)), nullValue());
         assertThat(toString(properties.get(Metacard.EFFECTIVE)), nullValue());
-        assertThat(toString(properties.get(Metacard.MODIFIED)), is(dateFormat.format(now)));
+        assertThat(toString(properties.get(Metacard.MODIFIED)), is(dateFormat.format(NOW)));
         assertThat(toString(properties.get(Metacard.THUMBNAIL)), is("CA=="));
         assertThat(toString(properties.get(Metacard.METADATA)), is(DEFAULT_XML));
         assertThat(toString(properties.get(Metacard.RESOURCE_URI)), is(DEFAULT_URI));

@@ -43,7 +43,7 @@ public class SortedServiceReferenceList implements List<ServiceReference> {
 
     private static final String READ_ONLY_ERROR_MESSAGE = "This list is meant to be read only.";
 
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(SortedServiceReferenceList.class));
 
     private Set<ServiceReference> serviceSet = Collections
@@ -58,7 +58,7 @@ public class SortedServiceReferenceList implements List<ServiceReference> {
      */
     public void bindService(ServiceReference ref) {
 
-        logger.debug(this + " Binding " + ref);
+        LOGGER.debug(this + " Binding " + ref);
 
         serviceSet.add(ref);
 
@@ -74,7 +74,7 @@ public class SortedServiceReferenceList implements List<ServiceReference> {
      */
     public void unbindService(ServiceReference ref) {
 
-        logger.debug("Unbinding " + ref);
+        LOGGER.debug("Unbinding " + ref);
 
         serviceSet.remove(ref);
 
@@ -133,7 +133,7 @@ public class SortedServiceReferenceList implements List<ServiceReference> {
 
     @Override
     public ServiceReference get(int arg0) {
-        logger.debug("GET called on : " + arg0);
+        LOGGER.debug("GET called on : " + arg0);
 
         if (serviceSet != null) {
             ArrayList<ServiceReference> list = new ArrayList<ServiceReference>(serviceSet);

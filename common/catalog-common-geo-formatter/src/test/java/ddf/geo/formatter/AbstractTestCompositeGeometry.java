@@ -32,7 +32,7 @@ import com.vividsolutions.jts.io.WKTReader;
 
 public abstract class AbstractTestCompositeGeometry {
 
-    protected static final Abdera abdera = new Abdera();
+    protected static final Abdera ABDERA = new Abdera();
 
     protected WKTReader reader = new WKTReader();
 
@@ -58,7 +58,7 @@ public abstract class AbstractTestCompositeGeometry {
 
         List<Position> positions = composite.toGeoRssPositions();
 
-        Entry sampleEntry = abdera.newEntry();
+        Entry sampleEntry = ABDERA.newEntry();
 
         for (Position pos : positions) {
             GeoHelper.addPosition(sampleEntry, pos, Encoding.GML);

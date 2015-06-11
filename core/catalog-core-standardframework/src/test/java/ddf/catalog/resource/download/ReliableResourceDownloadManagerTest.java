@@ -76,12 +76,12 @@ import ddf.catalog.resourceretriever.ResourceRetriever;
 
 public class ReliableResourceDownloadManagerTest {
 
-    public static final int maxRetryAttempts = 3;
+    public static final int MAX_RETRY_ATTEMPTS = 3;
 
-    public static final int delayBetweenAttempts = 5;
+    public static final int DELAY_BETWEEN_ATTEMPTS = 5;
 
 
-    public static final int monitorPeriod = 5;
+    public static final int MONITOR_PERIOD = 5;
 
     public static final String EXPECTED_METACARD_ID = "abc123";
 
@@ -468,7 +468,7 @@ public class ReliableResourceDownloadManagerTest {
     public void testClientCancelProductDownloadCachingStops() throws Exception {
 
         mis = new MockInputStream(productInputFilename, true);
-        mis.setReadDelay(monitorPeriod - 2);
+        mis.setReadDelay(MONITOR_PERIOD - 2);
 
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
@@ -575,7 +575,7 @@ public class ReliableResourceDownloadManagerTest {
         // download manager is writing to, simulating a cache file exception during
         // the product download
         mis = new MockInputStream(productInputFilename, true);
-        mis.setReadDelay(monitorPeriod - 2);
+        mis.setReadDelay(MONITOR_PERIOD - 2);
 
         Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
         resourceResponse = getMockResourceResponse();
@@ -755,7 +755,7 @@ public class ReliableResourceDownloadManagerTest {
                 invocationCount++;
                 if (readSlow) {
                     mis = new MockInputStream(productInputFilename, true);
-                    mis.setReadDelay(monitorPeriod - 2);
+                    mis.setReadDelay(MONITOR_PERIOD - 2);
                 } else {
                     mis = new MockInputStream(productInputFilename);
                 }
@@ -769,7 +769,7 @@ public class ReliableResourceDownloadManagerTest {
                 } else if (retryType == RetryType.TIMEOUT_EXCEPTION) {
                     if (invocationCount == 1) {
                         mis.setInvocationCountToTimeout(3);
-                        mis.setReadDelay(monitorPeriod * 2);
+                        mis.setReadDelay(MONITOR_PERIOD * 2);
                     } else {
                         mis.setInvocationCountToTimeout(-1);
                         mis.setReadDelay(0);
@@ -829,7 +829,7 @@ public class ReliableResourceDownloadManagerTest {
                 invocationCount++;
                 if (readSlow) {
                     mis = new MockInputStream(productInputFilename, true);
-                    mis.setReadDelay(monitorPeriod - 2);
+                    mis.setReadDelay(MONITOR_PERIOD - 2);
                 } else {
                     mis = new MockInputStream(productInputFilename);
                 }
@@ -849,7 +849,7 @@ public class ReliableResourceDownloadManagerTest {
                 } else if (retryType == RetryType.TIMEOUT_EXCEPTION) {
                     if (invocationCount == 1) {
                         mis.setInvocationCountToTimeout(3);
-                        mis.setReadDelay(monitorPeriod * 2);
+                        mis.setReadDelay(MONITOR_PERIOD * 2);
                     } else {
                         mis.setInvocationCountToTimeout(-1);
                         mis.setReadDelay(0);

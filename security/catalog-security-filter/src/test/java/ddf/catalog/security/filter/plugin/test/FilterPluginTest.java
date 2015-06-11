@@ -70,7 +70,7 @@ import ddf.security.permission.KeyValueCollectionPermission;
 /**
  */
 public class FilterPluginTest {
-    private static final Logger logger = LoggerFactory.getLogger(FilterPluginTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FilterPluginTest.class);
 
     FilterPlugin plugin;
 
@@ -148,9 +148,9 @@ public class FilterPluginTest {
             QueryResponse response = plugin.process(incomingResponse);
             verifyFilterResponse(response);
         } catch (PluginExecutionException e) {
-            logger.error("Error while processing the redaction plugin", e);
+            LOGGER.error("Error while processing the redaction plugin", e);
         } catch (StopProcessingException e) {
-            logger.error("Stopped processing the redaction plugin", e);
+            LOGGER.error("Stopped processing the redaction plugin", e);
         }
     }
 
@@ -169,10 +169,10 @@ public class FilterPluginTest {
     }
 
     public void verifyFilterResponse(QueryResponse response) {
-        logger.info("Filtered with " + response.getResults().size() + " out of 5 original.");
-        logger.info("Checking Results");
+        LOGGER.info("Filtered with " + response.getResults().size() + " out of 5 original.");
+        LOGGER.info("Checking Results");
         Assert.assertEquals(4, response.getResults().size());
-        logger.info("Filtering succeeded.");
+        LOGGER.info("Filtering succeeded.");
     }
 
     public Metacard getMoreRolesMetacard() {
@@ -181,7 +181,7 @@ public class FilterPluginTest {
         try {
             metacard.setResourceURI(new URI("http://some.fancy.uri/goes/here"));
         } catch (URISyntaxException e) {
-            logger.error("", e);
+            LOGGER.error("", e);
         }
         metacard.setContentTypeName("Resource");
         metacard.setTitle("Metacard 1");
@@ -200,7 +200,7 @@ public class FilterPluginTest {
         try {
             metacard.setResourceURI(new URI("http://some.fancy.uri/goes/here"));
         } catch (URISyntaxException e) {
-            logger.error("", e);
+            LOGGER.error("", e);
         }
         metacard.setContentTypeName("Resource");
         metacard.setTitle("Metacard 1");
@@ -220,7 +220,7 @@ public class FilterPluginTest {
         try {
             metacard.setResourceURI(new URI("http://some.fancy.uri/goes/here"));
         } catch (URISyntaxException e) {
-            logger.error("", e);
+            LOGGER.error("", e);
         }
         metacard.setContentTypeName("Resource");
         metacard.setTitle("Metacard 1");
@@ -240,7 +240,7 @@ public class FilterPluginTest {
         try {
             metacard.setResourceURI(new URI("http://some.fancy.uri/goes/here"));
         } catch (URISyntaxException e) {
-            logger.error("", e);
+            LOGGER.error("", e);
         }
         metacard.setContentTypeName("Resource");
         metacard.setTitle("Metacard 1");
@@ -259,7 +259,7 @@ public class FilterPluginTest {
         try {
             metacard.setResourceURI(new URI("http://some.fancy.uri/goes/here"));
         } catch (URISyntaxException e) {
-            logger.error("", e);
+            LOGGER.error("", e);
         }
         //Intentionally do not set the Metacard.SECURITY attribute
         metacard.setContentTypeName("Resource");

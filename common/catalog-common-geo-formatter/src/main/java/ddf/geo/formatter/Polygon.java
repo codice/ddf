@@ -46,17 +46,17 @@ public class Polygon extends MultiPoint {
     protected static com.vividsolutions.jts.geom.Polygon buildPolygon(List coordinates) {
 
         // according to the GeoJson specification, first ring is the exterior
-        LinearRing exterior = geometryFactory
+        LinearRing exterior = GEOMETRY_FACTORY
                 .createLinearRing(getCoordinates((List) coordinates.get(0)));
 
         LinearRing[] interiorHoles = new LinearRing[coordinates.size() - 1];
 
         for (int i = 1; i < coordinates.size(); i++) {
-            interiorHoles[i - 1] = geometryFactory
+            interiorHoles[i - 1] = GEOMETRY_FACTORY
                     .createLinearRing(getCoordinates((List) coordinates.get(i)));
         }
 
-        return geometryFactory.createPolygon(exterior, interiorHoles);
+        return GEOMETRY_FACTORY.createPolygon(exterior, interiorHoles);
     }
 
     @Override

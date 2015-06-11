@@ -31,7 +31,7 @@ import org.slf4j.ext.XLogger;
 @Deprecated
 public class ListConverter implements Converter {
 
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(ListConverter.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(ListConverter.class));
 
     /**
      * @parameter sourceObject object considering to be converted
@@ -41,10 +41,10 @@ public class ListConverter implements Converter {
      */
     @Override
     public boolean canConvert(Object sourceObject, ReifiedType targetType) {
-        logger.trace("Deciphering if canConvert ");
+        LOGGER.trace("Deciphering if canConvert ");
 
         if (targetType != null) {
-            logger.debug("ReifiedType:" + targetType.getRawClass());
+            LOGGER.debug("ReifiedType:" + targetType.getRawClass());
         }
         return (sourceObject instanceof SortedServiceList);
     }
@@ -60,7 +60,7 @@ public class ListConverter implements Converter {
     @Override
     public Object convert(Object sourceObject, ReifiedType targetType) throws Exception {
 
-        logger.trace("Converting " + sourceObject);
+        LOGGER.trace("Converting " + sourceObject);
 
         SortedServiceList list = ((SortedServiceList) sourceObject);
 

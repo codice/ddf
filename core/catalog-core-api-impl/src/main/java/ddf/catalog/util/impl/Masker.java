@@ -30,7 +30,7 @@ import ddf.catalog.util.Maskable;
  */
 public class Masker {
 
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(Masker.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(Masker.class));
 
     protected List<Maskable> maskees;
 
@@ -59,8 +59,8 @@ public class Masker {
 
             for (Maskable masked : maskees) {
                 masked.maskId(id);
-                if (logger.isDebugEnabled()) {
-                    logger.debug(
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
                             "Updating id for " + masked.getClass().getName() + " from " + masked
                                     .getId() + " to " + this.mask);
                 }
@@ -78,8 +78,8 @@ public class Masker {
     public void bind(Maskable masked) {
         synchronized (this) {
             if (mask_set) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
                             "Updating id for " + masked.getClass().getName() + " from " + masked
                                     .getId() + " to " + this.mask);
                 }

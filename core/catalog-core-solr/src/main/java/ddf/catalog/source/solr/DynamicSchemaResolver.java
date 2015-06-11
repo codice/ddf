@@ -77,7 +77,7 @@ public class DynamicSchemaResolver {
 
     protected static final String COULD_NOT_SERIALIZE_OBJECT_MESSAGE = "Could not serialize object";
 
-    protected static final XMLInputFactory xmlInputFactory;
+    protected static final XMLInputFactory XML_INPUT_FACTORY;
 
     private static final String SOLR_CLOUD_VERSION_FIELD = "_version_";
 
@@ -93,13 +93,13 @@ public class DynamicSchemaResolver {
             Thread.currentThread()
                     .setContextClassLoader(DynamicSchemaResolver.class.getClassLoader());
 
-            xmlInputFactory = XMLInputFactory2.newInstance();
-            xmlInputFactory
+            XML_INPUT_FACTORY = XMLInputFactory2.newInstance();
+            XML_INPUT_FACTORY
                     .setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
-            xmlInputFactory
+            XML_INPUT_FACTORY
                     .setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
-            xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
-            xmlInputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
+            XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+            XML_INPUT_FACTORY.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
         } finally {
             Thread.currentThread().setContextClassLoader(tccl);
         }
@@ -533,7 +533,7 @@ public class DynamicSchemaResolver {
         try {
             // xml parser does not handle leading whitespace
             sr = new StringReader(xmlData);
-            xmlStreamReader = xmlInputFactory.createXMLStreamReader(sr);
+            xmlStreamReader = XML_INPUT_FACTORY.createXMLStreamReader(sr);
 
             while (xmlStreamReader.hasNext()) {
                 int event = xmlStreamReader.next();

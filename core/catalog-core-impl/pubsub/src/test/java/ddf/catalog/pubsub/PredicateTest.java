@@ -66,7 +66,7 @@ import ddf.measure.Distance;
 
 public class PredicateTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(PredicateTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PredicateTest.class);
 
     private static final double EQUATORIAL_RADIUS_IN_METERS = 6378137.0;
 
@@ -102,7 +102,7 @@ public class PredicateTest {
     public void testContentTypeEvaluation() throws IOException {
 
         String methodName = "testContentTypeEvaluation";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         // test input that has type1:version1 matches
         // test input that has type1:version2 doesn't match
@@ -191,13 +191,13 @@ public class PredicateTest {
         Event testEvent4 = new Event("topic", properties);
         assertFalse(ctp2.matches(testEvent4));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testContentTypeEvaluationNullMetadata() throws IOException {
         String methodName = "testContentTypeEvaluationNullMetadata";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         ContentTypePredicate ctp = new ContentTypePredicate("type1", "version1");
         HashMap<String, Object> properties = new HashMap<>();
@@ -208,13 +208,13 @@ public class PredicateTest {
         Event testEvent = new Event("topic", properties);
         assertTrue(ctp.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testContentTypeEvaluationNullOperation() throws IOException {
         String methodName = "testContentTypeEvaluationNullOperation";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         MetacardImpl metacard = new MetacardImpl();
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
@@ -229,13 +229,13 @@ public class PredicateTest {
         Event testEvent = new Event("topic", properties);
         assertTrue(ctp.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testContentTypeFilter() throws Exception {
         String methodName = "testContentTypeFilter";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         MetacardImpl metacard = new MetacardImpl();
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
@@ -290,7 +290,7 @@ public class PredicateTest {
         testEvent = new Event("topic", properties);
         assertFalse(pred.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     private Map<String, Object> constructContextualMap(MetacardImpl metacard) throws IOException {
@@ -304,7 +304,7 @@ public class PredicateTest {
     @Test
     public void testContentTypeFilterTypeOnly() throws Exception {
         String methodName = "testContentTypeFilterTypeOnly";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         MetacardImpl metacard = new MetacardImpl();
         metacard.setMetadata(TestDataLibrary.getCatAndDogEntry());
@@ -369,13 +369,13 @@ public class PredicateTest {
         testEvent = new Event("topic", properties);
         assertFalse(pred.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testMultipleContentTypes() throws IOException {
         String methodName = "testMultipleContentTypes";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         String type1 = "type1";
         String version1 = "version1";
@@ -395,7 +395,7 @@ public class PredicateTest {
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        logger.debug("Resulting Predicate: " + pred);
+        LOGGER.debug("Resulting Predicate: " + pred);
 
         HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -451,13 +451,13 @@ public class PredicateTest {
         testEvent = new Event("topic", properties);
         assertFalse(pred.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testContentTypesWildcard() throws IOException {
         String methodName = "testContentTypesWildcard";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         String type1 = "type1*";
         String type1Input = "type1";
@@ -501,7 +501,7 @@ public class PredicateTest {
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        logger.debug("Resulting Predicate: " + pred);
+        LOGGER.debug("Resulting Predicate: " + pred);
 
         HashMap<String, Object> properties = new HashMap<>();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -558,13 +558,13 @@ public class PredicateTest {
         testEvent = new Event("topic", properties);
         assertFalse(pred.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testTemporal() throws Exception {
         String methodName = "testTemporal";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         MockQuery query = new MockQuery();
 
@@ -575,16 +575,16 @@ public class PredicateTest {
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        logger.debug("resulting predicate: " + pred);
+        LOGGER.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation(2);
         String filterXml = transform.transform(filter);
-        logger.debug(filterXml);
+        LOGGER.debug(filterXml);
 
         // input that passes temporal
-        logger.debug("\npass temporal.\n");
+        LOGGER.debug("\npass temporal.\n");
         MetacardImpl metacard = new MetacardImpl();
         metacard.setCreatedDate(new Date());
         metacard.setExpirationDate(new Date());
@@ -608,12 +608,12 @@ public class PredicateTest {
         assertTrue(b);
 
         // input that fails temporal
-        logger.debug("\nfail temporal.  fail content type.\n");
+        LOGGER.debug("\nfail temporal.  fail content type.\n");
         XMLGregorianCalendar cal1 = df.newXMLGregorianCalendarDate(2012, 10, 30, 0); // time out of
         // range
         Date effectiveDate1 = cal1.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate1);
-        logger.debug("metacard date: " + metacard.getEffectiveDate());
+        LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -622,13 +622,13 @@ public class PredicateTest {
         testEvent = new Event("topic", properties);
         assertFalse(pred.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testTemporalNullMetadata() throws Exception {
         String methodName = "testTemporalNullMetadata";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         MockQuery query = new MockQuery();
 
@@ -639,16 +639,16 @@ public class PredicateTest {
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        logger.debug("resulting predicate: " + pred);
+        LOGGER.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation(2);
         String filterXml = transform.transform(filter);
-        logger.debug(filterXml);
+        LOGGER.debug(filterXml);
 
         // input that passes temporal
-        logger.debug("\npass temporal.\n");
+        LOGGER.debug("\npass temporal.\n");
         MetacardImpl metacard = new MetacardImpl();
         metacard.setCreatedDate(new Date());
         metacard.setExpirationDate(new Date());
@@ -667,13 +667,13 @@ public class PredicateTest {
         boolean b = pred.matches(testEvent);
         assertTrue(b);
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testTemporalNullOperation() throws Exception {
         String methodName = "testTemporalNullOperation";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         MockQuery query = new MockQuery();
 
@@ -684,16 +684,16 @@ public class PredicateTest {
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        logger.debug("resulting predicate: " + pred);
+        LOGGER.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation(2);
         String filterXml = transform.transform(filter);
-        logger.debug(filterXml);
+        LOGGER.debug(filterXml);
 
         // input that passes temporal
-        logger.debug("\npass temporal.\n");
+        LOGGER.debug("\npass temporal.\n");
         MetacardImpl metacard = new MetacardImpl();
         metacard.setCreatedDate(new Date());
         metacard.setExpirationDate(new Date());
@@ -714,13 +714,13 @@ public class PredicateTest {
         boolean b = pred.matches(testEvent);
         assertTrue(b);
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testSpatial() throws Exception {
         String methodName = "testSpatial";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         MockQuery query = new MockQuery();
 
@@ -735,19 +735,19 @@ public class PredicateTest {
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        logger.debug("resulting predicate: " + pred);
+        LOGGER.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation(2);
         String filterXml = transform.transform(filter);
-        logger.debug(filterXml);
+        LOGGER.debug(filterXml);
     }
 
     @Test
     public void testMultipleCriteriaWithContentTypes() throws Exception {
         String methodName = "testMultipleCriteriaWithContentTypes";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         MockQuery query = new MockQuery();
 
@@ -771,16 +771,16 @@ public class PredicateTest {
 
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        logger.debug("resulting predicate: " + pred);
+        LOGGER.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation(2);
         String filterXml = transform.transform(filter);
-        logger.debug(filterXml);
+        LOGGER.debug(filterXml);
 
         // input that passes both temporal and content type
-        logger.debug("\npass temporal and pass content type.\n");
+        LOGGER.debug("\npass temporal and pass content type.\n");
         MetacardImpl metacard = new MetacardImpl();
         metacard.setCreatedDate(new Date());
         metacard.setExpirationDate(new Date());
@@ -805,12 +805,12 @@ public class PredicateTest {
         assertTrue(b);
 
         // input that fails both temporal and content type
-        logger.debug("\nfail temporal.  fail content type.\n");
+        LOGGER.debug("\nfail temporal.  fail content type.\n");
         XMLGregorianCalendar cal1 = df.newXMLGregorianCalendarDate(2012, 10, 30, 0); // time out of
         // range
         Date effectiveDate1 = cal1.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate1);
-        logger.debug("metacard date: " + metacard.getEffectiveDate());
+        LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -821,12 +821,12 @@ public class PredicateTest {
         assertFalse(pred.matches(testEvent));
 
         // input that passes temporal and fails content type
-        logger.debug("\npass temporal.  fail content type\n");
+        LOGGER.debug("\npass temporal.  fail content type\n");
         XMLGregorianCalendar cal2 = df.newXMLGregorianCalendarDate(2011, 10, 26, 0); // time in
         // range
         Date effectiveDate2 = cal2.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate2);
-        logger.debug("metacard date: " + metacard.getEffectiveDate());
+        LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -837,12 +837,12 @@ public class PredicateTest {
         assertFalse(pred.matches(testEvent));
 
         // input that fails temporal and passes content type
-        logger.debug("\nfail temporal.  pass content type\n");
+        LOGGER.debug("\nfail temporal.  pass content type\n");
         XMLGregorianCalendar cal3 = df.newXMLGregorianCalendarDate(2012, 10, 26, 0); // time out of
         // range
         Date effectiveDate3 = cal3.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate3);
-        logger.debug("metacard date: " + metacard.getEffectiveDate());
+        LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -853,7 +853,7 @@ public class PredicateTest {
         assertFalse(pred.matches(testEvent));
 
         // multiple content types
-        logger.debug("\nTesting multiple content types.\n");
+        LOGGER.debug("\nTesting multiple content types.\n");
 
         String type2 = "type2";
         String version2 = "version2";
@@ -874,7 +874,7 @@ public class PredicateTest {
         query2.addTypeFilter(extensions);
         SubscriptionFilterVisitor visitor1 = new SubscriptionFilterVisitor();
         Predicate pred1 = (Predicate) query2.getFilter().accept(visitor1, null);
-        logger.debug("resulting predicate: " + pred1);
+        LOGGER.debug("resulting predicate: " + pred1);
 
         // Create metacard for input
         // time and contentType match
@@ -882,7 +882,7 @@ public class PredicateTest {
         // range
         Date effectiveDate4 = cal4.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate4);
-        logger.debug("metacard date: " + metacard.getEffectiveDate());
+        LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -897,7 +897,7 @@ public class PredicateTest {
         // range
         Date effectiveDate5 = cal5.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate5);
-        logger.debug("metacard date: " + metacard.getEffectiveDate());
+        LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -912,7 +912,7 @@ public class PredicateTest {
         // range
         Date effectiveDate6 = cal6.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate6);
-        logger.debug("metacard date: " + metacard.getEffectiveDate());
+        LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -927,7 +927,7 @@ public class PredicateTest {
         // range
         Date effectiveDate7 = cal7.toGregorianCalendar().getTime();
         metacard.setEffectiveDate(effectiveDate7);
-        logger.debug("metacard date: " + metacard.getEffectiveDate());
+        LOGGER.debug("metacard date: " + metacard.getEffectiveDate());
 
         properties.clear();
         properties.put(PubSubConstants.HEADER_OPERATION_KEY, PubSubConstants.CREATE);
@@ -937,13 +937,13 @@ public class PredicateTest {
         testEvent = new Event("topic", properties);
         assertFalse(pred1.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testMultipleCriteria() throws Exception {
         String methodName = "testMultipleCriteria";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         // test with temporal, spatial, and entry
         MockQuery query = new MockQuery();
@@ -986,13 +986,13 @@ public class PredicateTest {
         // input passes temporal, id, and geo
         SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
         Predicate pred = (Predicate) query.getFilter().accept(visitor, null);
-        logger.debug("resulting predicate: " + pred);
+        LOGGER.debug("resulting predicate: " + pred);
 
         Filter filter = query.getFilter();
         FilterTransformer transform = new FilterTransformer();
         transform.setIndentation(2);
         String filterXml = transform.transform(filter);
-        logger.debug(filterXml);
+        LOGGER.debug(filterXml);
 
         assertTrue(pred.matches(testEvent));
 
@@ -1047,13 +1047,13 @@ public class PredicateTest {
         testEvent = new Event("topic", properties);
         assertFalse(pred.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testContextualQuery() throws Exception {
         String methodName = "testContextualQuery";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         String searchPhrase = "serengeti event";
 
@@ -1092,13 +1092,13 @@ public class PredicateTest {
         testEvent = new Event("topic", properties);
         assertFalse(predicate.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testCaseSensitiveContextualQuery() throws Exception {
         String methodName = "testCaseSensitiveContextualQuery";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         String searchPhrase = "laZy BROwn foX";
         Predicate predicate = getPredicate(searchPhrase, true);
@@ -1119,7 +1119,7 @@ public class PredicateTest {
         testEvent = getEvent(metadata);
         assertFalse(predicate.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
@@ -1222,7 +1222,7 @@ public class PredicateTest {
     @Test
     public void testContextualQueryNullMetadata() throws Exception {
         String methodName = "testContextualQueryNullMetadata";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         String searchPhrase = "serengeti event";
 
@@ -1244,12 +1244,12 @@ public class PredicateTest {
         Event testEvent = new Event("topic", properties);
         assertFalse(predicate.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testTemporalEvaluator() throws Exception {
-        logger.debug(
+        LOGGER.debug(
                 "**************************  START: testTemporalEvaluator()  ***********************");
 
         Calendar calendar = Calendar.getInstance();
@@ -1262,13 +1262,13 @@ public class PredicateTest {
 
         assertTrue(status);
 
-        logger.debug(
+        LOGGER.debug(
                 "**************************  END: testTemporalEvaluator()  ***********************");
     }
 
     @Test
     public void testGeospatialEvaluatorOverlaps() throws Exception {
-        logger.debug(
+        LOGGER.debug(
                 "**************************  START: testGeospatialEvaluator_Overlaps()  ***********************");
 
         // WKT specifies points in LON LAT order
@@ -1290,21 +1290,21 @@ public class PredicateTest {
                         + "</gml:Polygon>";
 
         Geometry input = GeospatialEvaluator.buildGeometry(geospatialXml);
-        logger.debug("input.toText() = " + input.toText());
+        LOGGER.debug("input.toText() = " + input.toText());
         GeospatialEvaluationCriteria gec = new GeospatialEvaluationCriteriaImpl(geoCriteria,
                 operation, input, distance);
         boolean status = GeospatialEvaluator.evaluate(gec);
 
         assertTrue(status);
 
-        logger.debug(
+        LOGGER.debug(
                 "**************************  END: testGeospatialEvaluator_Overlaps()  ***********************");
     }
 
     @Test
     public void testGeospatialPredicateNullMetadata() throws IOException {
         String methodName = "testGeospatialPredicateNullMetadata()";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         String geometryWkt = "POLYGON ((40 34, 40 33, 44.5 33, 44.5 34, 40 34))";
         String operation = "overlaps";
@@ -1323,13 +1323,13 @@ public class PredicateTest {
         Event testEvent = new Event("topic", properties);
         assertTrue(predicate.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testGeospatialPredicateNullOperation() throws IOException {
         String methodName = "testGeospatialPredicateNullOperation";
-        logger.debug("***************  START: " + methodName + "  *****************");
+        LOGGER.debug("***************  START: " + methodName + "  *****************");
 
         String geometryWkt = "POLYGON ((40 34, 40 33, 44.5 33, 44.5 34, 40 34))";
         String operation = "overlaps";
@@ -1350,12 +1350,12 @@ public class PredicateTest {
         Event testEvent = new Event("topic", properties);
         assertTrue(predicate.matches(testEvent));
 
-        logger.debug("***************  END: " + methodName + "  *****************");
+        LOGGER.debug("***************  END: " + methodName + "  *****************");
     }
 
     @Test
     public void testGeospatialEvaluatorPointRadiusNotContains() throws Exception {
-        logger.debug(
+        LOGGER.debug(
                 "**************************  START: testGeospatialEvaluator_PointRadius_NotContains()  ***********************");
 
         // WKT specifies points in LON LAT order
@@ -1366,7 +1366,7 @@ public class PredicateTest {
         GeospatialPredicate predicate = new GeospatialPredicate(geometryWkt, operation,
                 radiusInDegrees);
         Geometry geoCriteria = predicate.getGeoCriteria();
-        logger.debug("geoCriteria.toText() = " + geoCriteria.toText());
+        LOGGER.debug("geoCriteria.toText() = " + geoCriteria.toText());
 
         String geospatialXml =
                 "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml\" gml:id=\"BGE-1\">\n"
@@ -1380,20 +1380,20 @@ public class PredicateTest {
                         + "</gml:Polygon>";
 
         Geometry input = GeospatialEvaluator.buildGeometry(geospatialXml);
-        logger.debug("input.toText() = " + input.toText());
+        LOGGER.debug("input.toText() = " + input.toText());
         GeospatialEvaluationCriteria gec = new GeospatialEvaluationCriteriaImpl(geoCriteria,
                 operation, input, radiusInDegrees);
         boolean status = GeospatialEvaluator.evaluate(gec);
 
         assertFalse(status);
 
-        logger.debug(
+        LOGGER.debug(
                 "**************************  END: testGeospatialEvaluator_PointRadius_NotContains()  ***********************");
     }
 
     @Test
     public void testGeospatialEvaluatorPointRadiusContains() throws Exception {
-        logger.debug(
+        LOGGER.debug(
                 "**************************  START: testGeospatialEvaluator_PointRadius_Contains()  ***********************");
 
         // WKT specifies points in LON LAT order
@@ -1403,12 +1403,12 @@ public class PredicateTest {
         // latitude in
         // meters
         double radiusInDegrees = (distance * 180.0) / (Math.PI * EQUATORIAL_RADIUS_IN_METERS);
-        logger.debug(
+        LOGGER.debug(
                 "distance (in meters) = " + distance + ",   radiusInDegrees = " + radiusInDegrees);
         GeospatialPredicate predicate = new GeospatialPredicate(geometryWkt, operation,
                 radiusInDegrees);
         Geometry geoCriteria = predicate.getGeoCriteria();
-        logger.debug("geoCriteria.toText() = " + geoCriteria.toText());
+        LOGGER.debug("geoCriteria.toText() = " + geoCriteria.toText());
 
         String geospatialXml =
                 "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml\" gml:id=\"BGE-1\">\n"
@@ -1422,20 +1422,20 @@ public class PredicateTest {
                         + "</gml:Polygon>";
 
         Geometry input = GeospatialEvaluator.buildGeometry(geospatialXml);
-        logger.debug("input.toText() = " + input.toText());
+        LOGGER.debug("input.toText() = " + input.toText());
         GeospatialEvaluationCriteria gec = new GeospatialEvaluationCriteriaImpl(geoCriteria,
                 operation, input, radiusInDegrees);
         boolean status = GeospatialEvaluator.evaluate(gec);
 
         assertTrue(status);
 
-        logger.debug(
+        LOGGER.debug(
                 "**************************  END: testGeospatialEvaluator_PointRadius_Contains()  ***********************");
     }
 
     @Test
     public void testSpatialAndTemporalAnd2EntryPredicates() throws Exception {
-        // logger.debug("**************************  START: testSpatial_And_Temporal_And_2_EntryPredicates()  ***********************");
+        // LOGGER.debug("**************************  START: testSpatial_And_Temporal_And_2_EntryPredicates()  ***********************");
         //
         // Calendar calendar = Calendar.getInstance();
         // Date start = calendar.getTime();
@@ -1466,14 +1466,14 @@ public class PredicateTest {
         // PubSubProviderImpl pubSub = new PubSubProviderImpl(new MockBundle().getBundleContext(),
         // new MockEventAdmin());
         // Predicate finalPredicate = pubSub.createFinalPredicate(subscription);
-        // logger.debug("finalPredicate:\n" + finalPredicate.toString());
+        // LOGGER.debug("finalPredicate:\n" + finalPredicate.toString());
         //
-        // logger.debug("**************************  END: testSpatial_And_Temporal_And_2_EntryPredicates()  ***********************");
+        // LOGGER.debug("**************************  END: testSpatial_And_Temporal_And_2_EntryPredicates()  ***********************");
     }
 
     @Test
     public void testSpatialOrTemporalAnd2EntryPredicates() throws Exception {
-        // logger.debug("**************************  START: testSpatial_Or_Temporal_And_2_EntryPredicates()  ***********************");
+        // LOGGER.debug("**************************  START: testSpatial_Or_Temporal_And_2_EntryPredicates()  ***********************");
         //
         // Calendar calendar = Calendar.getInstance();
         // Date start = calendar.getTime();
@@ -1504,14 +1504,14 @@ public class PredicateTest {
         // PubSubProviderImpl pubSub = new PubSubProviderImpl(new MockBundle().getBundleContext(),
         // new MockEventAdmin());
         // Predicate finalPredicate = pubSub.createFinalPredicate(subscription);
-        // logger.debug("finalPredicate:\n" + finalPredicate.toString());
+        // LOGGER.debug("finalPredicate:\n" + finalPredicate.toString());
         //
-        // logger.debug("**************************  END: testSpatial_Or_Temporal_And_2_EntryPredicates()  ***********************");
+        // LOGGER.debug("**************************  END: testSpatial_Or_Temporal_And_2_EntryPredicates()  ***********************");
     }
 
     @Test
     public void testContentTypeEvaluatorOnlyTypeMatch() throws Exception {
-        logger.debug(
+        LOGGER.debug(
                 "**************************  START: testContentTypeEvaluator_OnlyType_Match()  ***********************");
 
         // Match on "nitf", all versions
@@ -1525,13 +1525,13 @@ public class PredicateTest {
         boolean status = ContentTypeEvaluator.evaluate(ctec);
         assertTrue(status);
 
-        logger.debug(
+        LOGGER.debug(
                 "**************************  END: testContentTypeEvaluator_OnlyType_Match()  ***********************");
     }
 
     @Test
     public void testContentTypeEvaluatorOnlyTypeNoMatch() throws Exception {
-        logger.debug(
+        LOGGER.debug(
                 "**************************  START: testContentTypeEvaluator_OnlyType_NoMatch()  ***********************");
 
         // Match on "nitf", all versions
@@ -1545,13 +1545,13 @@ public class PredicateTest {
         boolean status = ContentTypeEvaluator.evaluate(ctec);
         assertFalse(status);
 
-        logger.debug(
+        LOGGER.debug(
                 "**************************  END: testContentTypeEvaluator_OnlyType_NoMatch()  ***********************");
     }
 
     @Test
     public void testContentTypeEvaluatorTypeAndVersionMatch() throws Exception {
-        logger.debug(
+        LOGGER.debug(
                 "**************************  START: testContentTypeEvaluator_TypeAndVersion_Match()  ***********************");
 
         // Match on "nitf, v20"
@@ -1565,13 +1565,13 @@ public class PredicateTest {
         boolean status = ContentTypeEvaluator.evaluate(ctec);
         assertTrue(status);
 
-        logger.debug(
+        LOGGER.debug(
                 "**************************  END: testContentTypeEvaluator_TypeAndVersion_Match()  ***********************");
     }
 
     @Test
     public void testContentTypeEvaluatorTypeAndVersionTypeMismatch() throws Exception {
-        logger.debug(
+        LOGGER.debug(
                 "**************************  START: testContentTypeEvaluator_TypeAndVersion_TypeMismatch()  ***********************");
 
         // Match on "nitf, v20"
@@ -1585,13 +1585,13 @@ public class PredicateTest {
         boolean status = ContentTypeEvaluator.evaluate(ctec);
         assertFalse(status);
 
-        logger.debug(
+        LOGGER.debug(
                 "**************************  END: testContentTypeEvaluator_TypeAndVersion_TypeMismatch()  ***********************");
     }
 
     @Test
     public void testContentTypeEvaluatorTypeAndVersionVersionMismatch() throws Exception {
-        logger.debug(
+        LOGGER.debug(
                 "**************************  START: testContentTypeEvaluator_TypeAndVersion_VersionMismatch()  ***********************");
 
         // Match on "nitf, v20"
@@ -1605,7 +1605,7 @@ public class PredicateTest {
         boolean status = ContentTypeEvaluator.evaluate(ctec);
         assertFalse(status);
 
-        logger.debug(
+        LOGGER.debug(
                 "**************************  END: testContentTypeEvaluator_TypeAndVersion_VersionMismatch()  ***********************");
     }
 
@@ -1627,13 +1627,13 @@ public class PredicateTest {
     private List<MockTypeVersionsExtension> createContentTypeVersionList(String typesVersions) {
         List<MockTypeVersionsExtension> extensions = new ArrayList<>();
 
-        logger.debug("typesVersions = " + typesVersions);
+        LOGGER.debug("typesVersions = " + typesVersions);
         String[] typeVersionPairs = typesVersions.split("\\|");
         for (String typeVersionPair : typeVersionPairs) {
-            logger.debug("typeVersionPair = " + typeVersionPair);
+            LOGGER.debug("typeVersionPair = " + typeVersionPair);
             MockTypeVersionsExtension ext = null;
             String[] pair = typeVersionPair.split(",");
-            logger.debug("pair.length = " + pair.length);
+            LOGGER.debug("pair.length = " + pair.length);
             String type = pair[0];
             String version = null;
             if (pair.length == 2) {

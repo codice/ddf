@@ -64,7 +64,7 @@ public class MetacardImpl implements Metacard {
 
     private static final long serialVersionUID = 1L;
 
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(MetacardImpl.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(MetacardImpl.class));
 
     /**
      * key/value map of {@link Attribute}s.
@@ -423,7 +423,7 @@ public class MetacardImpl implements Metacard {
             try {
                 uri = new URI(data);
             } catch (URISyntaxException e) {
-                logger.warn("failed parsing URI string, returning null");
+                LOGGER.warn("failed parsing URI string, returning null");
             }
         }
         return uri;
@@ -507,8 +507,8 @@ public class MetacardImpl implements Metacard {
         Attribute attribute = getAttribute(attributeName);
 
         if (attribute == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Attribute " + attributeName + " was not found, returning null");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Attribute " + attributeName + " was not found, returning null");
             }
             return null;
         }
@@ -518,8 +518,8 @@ public class MetacardImpl implements Metacard {
         if (returnType.isAssignableFrom(data.getClass())) {
             return returnType.cast(data);
         } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug(data.getClass().toString() + " can not be assigned to " + returnType
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(data.getClass().toString() + " can not be assigned to " + returnType
                         .toString());
             }
         }

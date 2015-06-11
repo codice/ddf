@@ -37,7 +37,7 @@ import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 
 public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin {
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(SourceConfigurationAdminPlugin.class));
 
     private CatalogFramework catalogFramework;
@@ -77,7 +77,7 @@ public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin 
     public Map<String, Object> getConfigurationData(String configurationPid,
             Map<String, Object> configurationDataMap, BundleContext bundleContext) {
 
-        logger.debug("Obtaining configuration data for the following configuration PID: {}",
+        LOGGER.debug("Obtaining configuration data for the following configuration PID: {}",
                 configurationPid);
 
         Map<String, Object> statusMap = new HashMap<String, Object>();
@@ -100,7 +100,7 @@ public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin 
                 if (superService instanceof ConfiguredService) {
                     ConfiguredService cs = (ConfiguredService) superService;
 
-                    logger.debug("ConfiguredService configuration PID: {}",
+                    LOGGER.debug("ConfiguredService configuration PID: {}",
                             cs.getConfigurationPid());
 
                     boolean csConfigPidMatchesTargetPid = false;
@@ -145,9 +145,9 @@ public class SourceConfigurationAdminPlugin implements ConfigurationAdminPlugin 
             }
         } catch (org.osgi.framework.InvalidSyntaxException ise) {
             // this should never happen because the filter is always null
-            logger.error("Error reading LDAP service filter", ise);
+            LOGGER.error("Error reading LDAP service filter", ise);
         } catch (SourceUnavailableException sue) {
-            logger.error("Unable to retrieve sources from Catalog Framework", sue);
+            LOGGER.error("Unable to retrieve sources from Catalog Framework", sue);
         }
 
         return statusMap;

@@ -45,9 +45,9 @@ import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;
 
 public class MockQuery implements Query {
-    public static final FilterFactory filterFactory = new FilterFactoryImpl();
+    public static final FilterFactory FILTER_FACTORY = new FilterFactoryImpl();
 
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(MockQuery.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(MockQuery.class));
 
     private static String MODIFIED_DATE = "modifiedDate";
 
@@ -80,7 +80,7 @@ public class MockQuery implements Query {
         this.startIndex = startIndex;
         this.count = count;
         if (sortField != null && sortOrder != null) {
-            this.sortBy = filterFactory.sort(sortField.toUpperCase(), sortOrder); // RELEVANCE or
+            this.sortBy = FILTER_FACTORY.sort(sortField.toUpperCase(), sortOrder); // RELEVANCE or
             // TEMPORAL
         }
         this.maxTimeout = maxTimeout;
@@ -95,12 +95,12 @@ public class MockQuery implements Query {
             String[] selectors = selector.split(",");
             for (int i = 0; i < selectors.length; i++) {
                 Expression xpathRef = new AttributeExpressionImpl(selectors[i]);
-                filter = filterFactory.like(xpathRef, searchTerm);
+                filter = FILTER_FACTORY.like(xpathRef, searchTerm);
                 xpathFilters.add(filter);
             }
-            filter = filterFactory.or(xpathFilters);
+            filter = FILTER_FACTORY.or(xpathFilters);
         } else {
-            filter = filterFactory.like(filterFactory.property(Metacard.ANY_TEXT), searchTerm);
+            filter = FILTER_FACTORY.like(FILTER_FACTORY.property(Metacard.ANY_TEXT), searchTerm);
         }
 
         if (filter != null) {
@@ -130,8 +130,8 @@ public class MockQuery implements Query {
                     new DefaultPosition(temporalFilter.getEndDate()));
             Period period = new DefaultPeriod(startInstant, endInstant);
 
-            Filter filter = filterFactory
-                    .during(filterFactory.property(MODIFIED_DATE), filterFactory.literal(period));
+            Filter filter = FILTER_FACTORY
+                    .during(FILTER_FACTORY.property(MODIFIED_DATE), FILTER_FACTORY.literal(period));
 
             filters.add(filter);
             this.filter = getFilter();
@@ -144,7 +144,7 @@ public class MockQuery implements Query {
         Geometry geometry = spatialFilter.getGeometry();
 
         if (geometry != null) {
-            Filter filter = filterFactory.contains(Metacard.ANY_GEO, geometry);
+            Filter filter = FILTER_FACTORY.contains(Metacard.ANY_GEO, geometry);
 
             filters.add(filter);
             this.filter = getFilter();
@@ -157,7 +157,7 @@ public class MockQuery implements Query {
         Geometry geometry = distanceFilter.getGeometry();
 
         if (geometry != null) {
-            Filter filter = filterFactory
+            Filter filter = FILTER_FACTORY
                     .dwithin(Metacard.ANY_GEO, geometry, Double.parseDouble(radius),
                             UomOgcMapping.METRE.getSEString());
 
@@ -174,24 +174,24 @@ public class MockQuery implements Query {
             List<Filter> typeVersionPairsFilters = new ArrayList<Filter>();
 
             for (String version : typeVersions) {
-                PropertyIsEqualTo typeFilter = filterFactory
-                        .equals(filterFactory.property(Metacard.CONTENT_TYPE),
-                                filterFactory.literal(type));
-                PropertyIsEqualTo versionFilter = filterFactory
-                        .equals(filterFactory.property(Metacard.CONTENT_TYPE_VERSION),
-                                filterFactory.literal(version));
-                typeVersionPairsFilters.add(filterFactory.and(typeFilter, versionFilter));
+                PropertyIsEqualTo typeFilter = FILTER_FACTORY
+                        .equals(FILTER_FACTORY.property(Metacard.CONTENT_TYPE),
+                                FILTER_FACTORY.literal(type));
+                PropertyIsEqualTo versionFilter = FILTER_FACTORY
+                        .equals(FILTER_FACTORY.property(Metacard.CONTENT_TYPE_VERSION),
+                                FILTER_FACTORY.literal(version));
+                typeVersionPairsFilters.add(FILTER_FACTORY.and(typeFilter, versionFilter));
             }
 
             if (!typeVersionPairsFilters.isEmpty()) {
-                filter = filterFactory.or(typeVersionPairsFilters);
+                filter = FILTER_FACTORY.or(typeVersionPairsFilters);
             } else {
-                filter = filterFactory.equals(filterFactory.property(Metacard.CONTENT_TYPE),
-                        filterFactory.literal(type));
+                filter = FILTER_FACTORY.equals(FILTER_FACTORY.property(Metacard.CONTENT_TYPE),
+                        FILTER_FACTORY.literal(type));
             }
         } else {
-            filter = filterFactory.equals(filterFactory.property(Metacard.CONTENT_TYPE),
-                    filterFactory.literal(type));
+            filter = FILTER_FACTORY.equals(FILTER_FACTORY.property(Metacard.CONTENT_TYPE),
+                    FILTER_FACTORY.literal(type));
         }
 
         if (filter != null) {
@@ -202,7 +202,7 @@ public class MockQuery implements Query {
 
     @Override
     public Object accept(FilterVisitor visitor, Object obj) {
-        logger.debug("accept");
+        LOGGER.debug("accept");
         return filter.accept(visitor, obj);
     }
 
@@ -248,7 +248,7 @@ public class MockQuery implements Query {
     public Filter getFilter() {
         // If multiple filters, then AND them all together
         if (filters.size() > 1) {
-            return filterFactory.and(filters);
+            return FILTER_FACTORY.and(filters);
 
         // If only one filter, then just return it
         // (AND'ing it would create an erroneous </ogc:and> closing tag)

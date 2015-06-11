@@ -39,7 +39,7 @@ public class MultiPolygon extends Polygon {
             allPolygons[i] = buildPolygon((List) coordinates.get(i));
 
         }
-        return new MultiPolygon(geometryFactory.createMultiPolygon(allPolygons));
+        return new MultiPolygon(GEOMETRY_FACTORY.createMultiPolygon(allPolygons));
     }
 
     @Override

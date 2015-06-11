@@ -47,7 +47,7 @@ public class Point extends CompositeGeometry {
      *            [x,y] coordinate list
      */
     public static CompositeGeometry toCompositeGeometry(List coordinates) {
-        return new Point(geometryFactory.createPoint(getCoordinate(coordinates)));
+        return new Point(GEOMETRY_FACTORY.createPoint(getCoordinate(coordinates)));
     }
 
     protected boolean isNotType(Geometry geo) {

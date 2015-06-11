@@ -33,32 +33,32 @@ import javax.xml.xpath.XPathFactory;
  */
 public class XPathCache {
 
-    private static final XPathFactory xpf = XPathFactory.newInstance();
+    private static final XPathFactory XPF = XPathFactory.newInstance();
 
-    private static final XPath xpath = xpf.newXPath();
+    private static final XPath XPATH = XPF.newXPath();
 
     private static Map<String, XPathExpression> expressionMap = new HashMap<String, XPathExpression>();
 
     private static NamespaceContext namespaceResolver; // = new NamespaceResolver() ;
 
     public static XPath getXPath() {
-        return xpath;
+        return XPATH;
     }
 
-    public static XPathExpression getCompiledExpression(String xpathExpressionKey)
+    public static XPathExpression getCompiledExpression(String XPATHExpressionKey)
             throws XPathExpressionException, NullPointerException {
 
         // go to cache, check if we have the compiled expression
 
-        XPathExpression compiledExpression = expressionMap.get(xpathExpressionKey);
+        XPathExpression compiledExpression = expressionMap.get(XPATHExpressionKey);
 
         if (compiledExpression == null) {
 
             // must compile new expression and place in the map
 
-            compiledExpression = xpath.compile(xpathExpressionKey);
+            compiledExpression = XPATH.compile(XPATHExpressionKey);
 
-            expressionMap.put(xpathExpressionKey, compiledExpression);
+            expressionMap.put(XPATHExpressionKey, compiledExpression);
         }
 
         return compiledExpression;

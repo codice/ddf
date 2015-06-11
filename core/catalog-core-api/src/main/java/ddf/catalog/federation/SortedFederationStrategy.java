@@ -65,16 +65,12 @@ import ddf.catalog.util.TemporalResultComparator;
 @Deprecated
 public class SortedFederationStrategy extends AbstractFederationStrategy {
 
-    /** The default comparator for sorting by {@link Result.RELEVANCE}, {@link SortOrder.DESCENDING} */
-    protected static final Comparator<Result> DEFAULT_COMPARATOR = new RelevanceResultComparator(
-            SortOrder.DESCENDING);
-
     /**
      * The default comparator for sorting by {@link Result.RELEVANCE}, {@link SortOrder.DESCENDING}
      *
      * @deprecated
      */
-    protected static final Comparator<Result> defaultComparator = new RelevanceResultComparator(
+    protected static final Comparator<Result> DEFAULT_COMPARATOR = new RelevanceResultComparator(
             SortOrder.DESCENDING);
 
     private static XLogger logger = new XLogger(

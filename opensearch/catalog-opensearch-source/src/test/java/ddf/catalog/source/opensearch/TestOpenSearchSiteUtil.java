@@ -47,7 +47,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.impl.QueryImpl;
 
 public class TestOpenSearchSiteUtil {
-    private static final Logger logger = LoggerFactory.getLogger(TestOpenSearchSiteUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestOpenSearchSiteUtil.class);
 
     private final StringBuilder url = new StringBuilder(
             "http://localhost:8080/services/catalog/query");
@@ -68,7 +68,7 @@ public class TestOpenSearchSiteUtil {
         } catch (MalformedURLException mue) {
             fail("URL is not valid: " + mue.getMessage());
         }
-        logger.info("URL after contextual population: {}", urlStr.toString());
+        LOGGER.info("URL after contextual population: {}", urlStr.toString());
     }
 
     /**
@@ -118,7 +118,7 @@ public class TestOpenSearchSiteUtil {
         } catch (MalformedURLException mue) {
             fail("URL is not valid: " + mue.getMessage());
         }
-        logger.info("URL after temporal population: {}", resultStr.toString());
+        LOGGER.info("URL after temporal population: {}", resultStr.toString());
     }
 
     /**
@@ -272,7 +272,7 @@ public class TestOpenSearchSiteUtil {
         } catch (MalformedURLException mue) {
             fail("URL is not valid: " + mue.getMessage());
         }
-        logger.info("URL after lat lon geospatial population: {}", urlStr.toString());
+        LOGGER.info("URL after lat lon geospatial population: {}", urlStr.toString());
 
     }
 
@@ -299,13 +299,13 @@ public class TestOpenSearchSiteUtil {
         double lon = 15;
         double radius = 200000;
         double[] bbox = OpenSearchSiteUtil.createBBoxFromPointRadius(lon, lat, radius);
-        logger.info("minX = " + bbox[0]);
+        LOGGER.info("minX = " + bbox[0]);
         assertEquals(3.3531, bbox[0], 0.0001);
-        logger.info("minY = " + bbox[1]);
+        LOGGER.info("minY = " + bbox[1]);
         assertEquals(28.2034, bbox[1], 0.0001);
-        logger.info("maxX = " + bbox[2]);
+        LOGGER.info("maxX = " + bbox[2]);
         assertEquals(26.6468, bbox[2], 0.0001);
-        logger.info("maxY = " + bbox[3]);
+        LOGGER.info("maxY = " + bbox[3]);
         assertEquals(31.7965, bbox[3], 0.0001);
     }
 

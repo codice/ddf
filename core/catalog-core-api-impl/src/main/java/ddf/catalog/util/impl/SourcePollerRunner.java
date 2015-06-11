@@ -39,7 +39,7 @@ import ddf.catalog.source.Source;
  */
 public class SourcePollerRunner implements Runnable {
 
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(SourcePollerRunner.class));
 
     private List<Source> sources;
@@ -56,7 +56,7 @@ public class SourcePollerRunner implements Runnable {
      */
     public SourcePollerRunner() {
 
-        logger.info("Creating source poller runner.");
+        LOGGER.info("Creating source poller runner.");
         sources = new CopyOnWriteArrayList<Source>();
     }
 
@@ -66,7 +66,7 @@ public class SourcePollerRunner implements Runnable {
     @Override
     public void run() {
 
-        logger.trace("RUNNER checking source statuses");
+        LOGGER.trace("RUNNER checking source statuses");
 
         for (Source source : sources) {
 
@@ -102,7 +102,7 @@ public class SourcePollerRunner implements Runnable {
                     Lock sourceStatusThreadLock = sourceStatusThreadLocks.get(source);
 
                     if (sourceStatusThreadLock.tryLock()) {
-                        logger.debug("Acquired lock for Source [{}] with id [{}]", source,
+                        LOGGER.debug("Acquired lock for Source [{}] with id [{}]", source,
                                 source.getId());
 
                         try {
@@ -110,11 +110,11 @@ public class SourcePollerRunner implements Runnable {
                         } finally {
                             // release the lock acquired initially
                             sourceStatusThreadLock.unlock();
-                            logger.debug("Released lock for Source [{}] with id [{}]", source,
+                            LOGGER.debug("Released lock for Source [{}] with id [{}]", source,
                                     source.getId());
                         }
                     } else {
-                        logger.debug("Unable to get lock for Source [{}] with id [{}]."
+                        LOGGER.debug("Unable to get lock for Source [{}] with id [{}]."
                                         + "  A status thread is already running.", source,
                                 source.getId());
                     }
@@ -133,9 +133,9 @@ public class SourcePollerRunner implements Runnable {
      */
     public void bind(Source source) {
 
-        logger.info("Binding source: {}", source);
+        LOGGER.info("Binding source: {}", source);
         if (source != null) {
-            logger.debug("Marking new source {} as UNCHECKED.", source);
+            LOGGER.debug("Marking new source {} as UNCHECKED.", source);
             sources.add(source);
             sourceStatusThreadLocks.put(source, new ReentrantLock());
             cachedSources.put(source, new CachedSource(source));
@@ -152,7 +152,7 @@ public class SourcePollerRunner implements Runnable {
      *            the source to remove from the list
      */
     public void unbind(Source source) {
-        logger.info("Unbinding source [{}]", source);
+        LOGGER.info("Unbinding source [{}]", source);
         if (source != null) {
             cachedSources.remove(source);
             sources.remove(source);
@@ -179,10 +179,10 @@ public class SourcePollerRunner implements Runnable {
      * Calls the @link ExecutorService to shutdown immediately
      */
     public void shutdown() {
-        logger.trace("Shutting down status threads");
+        LOGGER.trace("Shutting down status threads");
         if (pool != null) {
             pool.shutdownNow();
         }
-        logger.trace("Status threads shut down");
+        LOGGER.trace("Status threads shut down");
     }
 }

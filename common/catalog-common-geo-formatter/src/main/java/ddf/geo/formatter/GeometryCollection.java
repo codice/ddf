@@ -38,7 +38,7 @@ public class GeometryCollection extends MultiPolygon {
             allGeometries[i] = getCompositeGeometry(jsonGeometry.get(TYPE_KEY).toString(),
                     jsonGeometry).getGeometry();
         }
-        return new GeometryCollection(geometryFactory.createGeometryCollection(allGeometries));
+        return new GeometryCollection(GEOMETRY_FACTORY.createGeometryCollection(allGeometries));
     }
 
     @Override

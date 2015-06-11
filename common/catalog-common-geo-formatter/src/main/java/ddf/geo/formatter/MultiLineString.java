@@ -36,11 +36,11 @@ public class MultiLineString extends LineString {
                 .size()];
 
         for (int i = 0; i < allLineStrings.length; i++) {
-            allLineStrings[i] = geometryFactory
+            allLineStrings[i] = GEOMETRY_FACTORY
                     .createLineString(getCoordinates((List) coordinates.get(i)));
         }
 
-        return new MultiLineString(geometryFactory.createMultiLineString(allLineStrings));
+        return new MultiLineString(GEOMETRY_FACTORY.createMultiLineString(allLineStrings));
     }
 
     @Override

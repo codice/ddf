@@ -41,7 +41,7 @@ public abstract class CompositeGeometry {
 
     public static final String GEOMETRIES_KEY = "geometries";
 
-    protected static final GeometryFactory geometryFactory = new GeometryFactory();
+    protected static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
     /**
      * Deciphers the {@link CompositeGeometry} object to return based on {@link Geometry}

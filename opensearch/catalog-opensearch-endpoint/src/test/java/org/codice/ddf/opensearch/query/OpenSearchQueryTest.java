@@ -75,7 +75,7 @@ public class OpenSearchQueryTest {
     private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(OpenSearchQueryTest.class));
 
-    private static final FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
+    private static final FilterBuilder FILTER_BUILDER = new GeotoolsFilterBuilder();
 
     private static final double DOUBLE_DELTA = 0.00001;
 
@@ -111,7 +111,7 @@ public class OpenSearchQueryTest {
     }
 
     private Filter getKeywordAttributeFilter(String keyword) {
-        return filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(keyword);
+        return FILTER_BUILDER.attribute(Metacard.ANY_TEXT).is().like().text(keyword);
     }
 
     @Test
@@ -136,67 +136,67 @@ public class OpenSearchQueryTest {
         testKeywordFiler("\"OR AND NOT\"", getKeywordAttributeFilter("OR AND NOT"));
         testKeywordFiler("\"This is a sentence.\"",
                 getKeywordAttributeFilter("This is a sentence."));
-        testKeywordFiler("A \"test keyword2 keyword3\" OR test2", filterBuilder.anyOf(// OR
-                filterBuilder.allOf(getKeywordAttributeFilter("A"),
+        testKeywordFiler("A \"test keyword2 keyword3\" OR test2", FILTER_BUILDER.anyOf(// OR
+                FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
                         getKeywordAttributeFilter("test keyword2 keyword3")), // A AND test keyword2
                 // keyword3
                 getKeywordAttributeFilter("test2"))); // test2
 
-        testKeywordFiler("A ((\"test\" OR test2) NOT test3)", filterBuilder.allOf(// AND
+        testKeywordFiler("A ((\"test\" OR test2) NOT test3)", FILTER_BUILDER.allOf(// AND
                 getKeywordAttributeFilter("A"), // A
-                filterBuilder.allOf(// AND
-                        filterBuilder.anyOf(getKeywordAttributeFilter("test"),
+                FILTER_BUILDER.allOf(// AND
+                        FILTER_BUILDER.anyOf(getKeywordAttributeFilter("test"),
                                 getKeywordAttributeFilter("test2")), // test OR test2
-                        filterBuilder.not(getKeywordAttributeFilter("test3"))))); // NOT test3
+                        FILTER_BUILDER.not(getKeywordAttributeFilter("test3"))))); // NOT test3
 
         testKeywordFiler("some!keyword*1 ((\"test keyword1 keyword!1#A\" OR test2) NOT test3)",
-                filterBuilder.allOf(// AND
+                FILTER_BUILDER.allOf(// AND
                         getKeywordAttributeFilter("some!keyword*1"), // some!keyword*1
-                        filterBuilder.allOf(// AND
-                                filterBuilder.anyOf(getKeywordAttributeFilter(
+                        FILTER_BUILDER.allOf(// AND
+                                FILTER_BUILDER.anyOf(getKeywordAttributeFilter(
                                         "test keyword1 keyword!1#A"),
                                         getKeywordAttributeFilter("test2")), // test keyword1
                                 // keyword!1#A OR test2
-                                filterBuilder.not(getKeywordAttributeFilter("test3"))))); // NOT
+                                FILTER_BUILDER.not(getKeywordAttributeFilter("test3"))))); // NOT
         // test3
     }
 
     @Test
     public void testComplexContextualFilterGroups() {
         // Test Group
-        testKeywordFiler("( (Apple) AND ((Orange OR Banana)   ) NOT (Strawberry )  )", filterBuilder
-                        .allOf(filterBuilder.allOf(getKeywordAttributeFilter("Apple"), filterBuilder
+        testKeywordFiler("( (Apple) AND ((Orange OR Banana)   ) NOT (Strawberry )  )", FILTER_BUILDER
+                        .allOf(FILTER_BUILDER.allOf(getKeywordAttributeFilter("Apple"), FILTER_BUILDER
                                         .anyOf(getKeywordAttributeFilter("Orange"),
                                                 getKeywordAttributeFilter("Banana"))),
-                                filterBuilder.not(getKeywordAttributeFilter("Strawberry"))));
+                                FILTER_BUILDER.not(getKeywordAttributeFilter("Strawberry"))));
     }
 
     @Test
     public void testComplexContextualFilterMixedBooleanOperators() {
         // Test Boolean Operators
-        testKeywordFiler("A AND B OR C", filterBuilder.anyOf(// OR
-                        filterBuilder.allOf(getKeywordAttributeFilter("A"),
+        testKeywordFiler("A AND B OR C", FILTER_BUILDER.anyOf(// OR
+                        FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
                                 getKeywordAttributeFilter("B")), // A AND B
                         getKeywordAttributeFilter("C"))); // C
 
-        testKeywordFiler("  A AND B AND C", filterBuilder.allOf(// AND
-                        filterBuilder.allOf(getKeywordAttributeFilter("A"),
+        testKeywordFiler("  A AND B AND C", FILTER_BUILDER.allOf(// AND
+                        FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
                                 getKeywordAttributeFilter("B")), // A AND B
                         getKeywordAttributeFilter("C"))); // C
 
-        testKeywordFiler("A AND B OR C NOT D  ", filterBuilder.allOf(filterBuilder
-                        .anyOf(filterBuilder.allOf(getKeywordAttributeFilter("A"),
+        testKeywordFiler("A AND B OR C NOT D  ", FILTER_BUILDER.allOf(FILTER_BUILDER
+                        .anyOf(FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
                                 getKeywordAttributeFilter("B")), getKeywordAttributeFilter("C")),
-                filterBuilder.not(getKeywordAttributeFilter("D"))));
+                FILTER_BUILDER.not(getKeywordAttributeFilter("D"))));
 
-        testKeywordFiler("A B OR (C NOT D)", filterBuilder.anyOf(// OR
-                        filterBuilder.allOf(getKeywordAttributeFilter("A"),
+        testKeywordFiler("A B OR (C NOT D)", FILTER_BUILDER.anyOf(// OR
+                        FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
                                 getKeywordAttributeFilter("B")), // A AND B
-                        filterBuilder.allOf(getKeywordAttributeFilter("C"),
-                                filterBuilder.not(getKeywordAttributeFilter("D"))))); // C NOT D
+                        FILTER_BUILDER.allOf(getKeywordAttributeFilter("C"),
+                                FILTER_BUILDER.not(getKeywordAttributeFilter("D"))))); // C NOT D
 
-        testKeywordFiler("A (\"test\") OR test2", filterBuilder.anyOf(// OR
-                filterBuilder
+        testKeywordFiler("A (\"test\") OR test2", FILTER_BUILDER.anyOf(// OR
+                FILTER_BUILDER
                         .allOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("test")),
                 // A AND (test test2)
                 getKeywordAttributeFilter("test2"))); // test2
@@ -205,25 +205,25 @@ public class OpenSearchQueryTest {
     @Test
     public void testComplexContextualFilterNOTOperator() {
         // Test NOT Operator
-        testKeywordFiler("A NOT B", filterBuilder.allOf(getKeywordAttributeFilter("A"),
-                        filterBuilder.not(getKeywordAttributeFilter("B"))));
-        testKeywordFiler("A NOT \"B\"", filterBuilder.allOf(getKeywordAttributeFilter("A"),
-                        filterBuilder.not(getKeywordAttributeFilter("B"))));
-        testKeywordFiler("A NOT   A", filterBuilder.allOf(getKeywordAttributeFilter("A"),
-                        filterBuilder.not(getKeywordAttributeFilter("A"))));
-        testKeywordFiler("NOT    NOT NOT", filterBuilder.allOf(getKeywordAttributeFilter("NOT"),
-                        filterBuilder.not(getKeywordAttributeFilter("NOT"))));
+        testKeywordFiler("A NOT B", FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+                        FILTER_BUILDER.not(getKeywordAttributeFilter("B"))));
+        testKeywordFiler("A NOT \"B\"", FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+                        FILTER_BUILDER.not(getKeywordAttributeFilter("B"))));
+        testKeywordFiler("A NOT   A", FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
+                        FILTER_BUILDER.not(getKeywordAttributeFilter("A"))));
+        testKeywordFiler("NOT    NOT NOT", FILTER_BUILDER.allOf(getKeywordAttributeFilter("NOT"),
+                        FILTER_BUILDER.not(getKeywordAttributeFilter("NOT"))));
     }
 
     @Test
     public void testComplexContextualFilterOROperator() {
         // Test OR Operator
-        testKeywordFiler("A OR B", filterBuilder
+        testKeywordFiler("A OR B", FILTER_BUILDER
                 .anyOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("B")));
-        testKeywordFiler("(A OR A)", filterBuilder
+        testKeywordFiler("(A OR A)", FILTER_BUILDER
                 .anyOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("A")));
-        testKeywordFiler("OR OR OR OR OR OR OR", filterBuilder.anyOf(filterBuilder
-                        .anyOf(filterBuilder.anyOf(getKeywordAttributeFilter("OR"),
+        testKeywordFiler("OR OR OR OR OR OR OR", FILTER_BUILDER.anyOf(FILTER_BUILDER
+                        .anyOf(FILTER_BUILDER.anyOf(getKeywordAttributeFilter("OR"),
                                         getKeywordAttributeFilter("OR")),
                                 getKeywordAttributeFilter("OR")), getKeywordAttributeFilter("OR")));
     }
@@ -231,18 +231,18 @@ public class OpenSearchQueryTest {
     @Test
     public void testComplexContextualFilterANDOperator() {
         // Test AND Operator
-        testKeywordFiler("A AND 999", filterBuilder
+        testKeywordFiler("A AND 999", FILTER_BUILDER
                 .allOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("999")));
         // TODO with the new keyword query grammar, this... probably shouldn't be allowed?
-        // testKeywordFiler("AND AND", filterBuilder.allOf(getKeywordAttributeFilter("AND"),
+        // testKeywordFiler("AND AND", FILTER_BUILDER.allOf(getKeywordAttributeFilter("AND"),
         // getKeywordAttributeFilter("AND")));
-        testKeywordFiler("A B C D", filterBuilder.allOf(filterBuilder.allOf(filterBuilder
+        testKeywordFiler("A B C D", FILTER_BUILDER.allOf(FILTER_BUILDER.allOf(FILTER_BUILDER
                         .allOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("B")),
                         getKeywordAttributeFilter("C")), getKeywordAttributeFilter("D")));
-        testKeywordFiler("A B C AND D", filterBuilder.allOf(filterBuilder.allOf(filterBuilder
+        testKeywordFiler("A B C AND D", FILTER_BUILDER.allOf(FILTER_BUILDER.allOf(FILTER_BUILDER
                         .allOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("B")),
                         getKeywordAttributeFilter("C")), getKeywordAttributeFilter("D")));
-        testKeywordFiler("A AND AND AND C", filterBuilder.allOf(filterBuilder
+        testKeywordFiler("A AND AND AND C", FILTER_BUILDER.allOf(FILTER_BUILDER
                         .allOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("AND")),
                 getKeywordAttributeFilter("C")));
     }
@@ -259,26 +259,26 @@ public class OpenSearchQueryTest {
     @Test
     public void testComplexContextualFilterOrderOfPrecedence() {
         // Test Order of Precedence
-        testKeywordFiler("A OR B   OR C OR D", filterBuilder.anyOf(filterBuilder.anyOf(filterBuilder
+        testKeywordFiler("A OR B   OR C OR D", FILTER_BUILDER.anyOf(FILTER_BUILDER.anyOf(FILTER_BUILDER
                         .anyOf(getKeywordAttributeFilter("A"), getKeywordAttributeFilter("B")),
                         getKeywordAttributeFilter("C")), getKeywordAttributeFilter("D")));
-        testKeywordFiler("A AND B AND   C AND D  ", filterBuilder.allOf(filterBuilder
-                        .allOf(filterBuilder.allOf(getKeywordAttributeFilter("A"),
+        testKeywordFiler("A AND B AND   C AND D  ", FILTER_BUILDER.allOf(FILTER_BUILDER
+                        .allOf(FILTER_BUILDER.allOf(getKeywordAttributeFilter("A"),
                                 getKeywordAttributeFilter("B")), getKeywordAttributeFilter("C")),
                 getKeywordAttributeFilter("D")));
-        testKeywordFiler("A AND (B AND C) AND D", filterBuilder.allOf(filterBuilder
-                        .allOf(getKeywordAttributeFilter("A"), filterBuilder
+        testKeywordFiler("A AND (B AND C) AND D", FILTER_BUILDER.allOf(FILTER_BUILDER
+                        .allOf(getKeywordAttributeFilter("A"), FILTER_BUILDER
                                 .allOf(getKeywordAttributeFilter("B"),
                                         getKeywordAttributeFilter("C"))),
                 getKeywordAttributeFilter("D")));
-        testKeywordFiler("A AND (\"B\" AND \"C\")", filterBuilder
-                        .allOf(getKeywordAttributeFilter("A"), filterBuilder
+        testKeywordFiler("A AND (\"B\" AND \"C\")", FILTER_BUILDER
+                        .allOf(getKeywordAttributeFilter("A"), FILTER_BUILDER
                                 .allOf(getKeywordAttributeFilter("B"),
                                         getKeywordAttributeFilter("C"))));
     }
 
     private void testKeywordFiler(String inputKeywordPhrase, Filter expectedFilter) {
-        OpenSearchQuery osq = new OpenSearchQuery(null, 0, 0, "relevance", "asc", 0, filterBuilder);
+        OpenSearchQuery osq = new OpenSearchQuery(null, 0, 0, "relevance", "asc", 0, FILTER_BUILDER);
 
         LOGGER.info("Testing filter: " + inputKeywordPhrase);
         osq.addContextualFilter(inputKeywordPhrase, null);
@@ -293,7 +293,7 @@ public class OpenSearchQueryTest {
         String selector = null;
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addContextualFilter(searchTerm, selector);
         Filter filter = query.getFilter();
 
@@ -321,7 +321,7 @@ public class OpenSearchQueryTest {
         String selector = "//fileTitle";
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addContextualFilter(searchTerm, selector);
         Filter filter = query.getFilter();
 
@@ -349,7 +349,7 @@ public class OpenSearchQueryTest {
         String selectors = "//fileTitle,//nitf";
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addContextualFilter(searchTerm, selectors);
         Filter filter = query.getFilter();
 
@@ -379,7 +379,7 @@ public class OpenSearchQueryTest {
         LOGGER.debug(temporalFilter.toString());
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addTemporalFilter(temporalFilter);
         Filter filter = query.getFilter();
 
@@ -409,7 +409,7 @@ public class OpenSearchQueryTest {
         LOGGER.debug(temporalFilter.toString());
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addTemporalFilter(startDate, endDate, dateOffset);
         Filter filter = query.getFilter();
 
@@ -438,7 +438,7 @@ public class OpenSearchQueryTest {
         LOGGER.debug(temporalFilter.toString());
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addTemporalFilter(temporalFilter);
         Filter filter = query.getFilter();
 
@@ -467,7 +467,7 @@ public class OpenSearchQueryTest {
         LOGGER.debug(temporalFilter.toString());
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addTemporalFilter(startDate, endDate, dateOffset);
         Filter filter = query.getFilter();
 
@@ -492,7 +492,7 @@ public class OpenSearchQueryTest {
         String selector = null;
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addContextualFilter(searchTerm, selector);
 
         String startDate = "2011-10-4T05:48:27.891-07:00";
@@ -555,7 +555,7 @@ public class OpenSearchQueryTest {
         String bboxCorners = "0,10,20,30";
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addBBoxSpatialFilter(bboxCorners);
 
         Filter filter = query.getFilter();
@@ -608,7 +608,7 @@ public class OpenSearchQueryTest {
         String radius = "5000";
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addSpatialDistanceFilter(lon, lat, radius);
         Filter filter = query.getFilter();
 
@@ -648,7 +648,7 @@ public class OpenSearchQueryTest {
         String lonLat = "10,0,30,0,30,20,10,20,10,0";
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addPolygonSpatialFilter(latLon);
 
         Filter filter = query.getFilter();
@@ -698,7 +698,7 @@ public class OpenSearchQueryTest {
         String versions = "";
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addTypeFilter(type, versions);
         Filter filter = query.getFilter();
 
@@ -723,7 +723,7 @@ public class OpenSearchQueryTest {
         String versions = "collectorPosition";
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addTypeFilter(type, versions);
         Filter filter = query.getFilter();
 
@@ -762,7 +762,7 @@ public class OpenSearchQueryTest {
         String versions = "v20,invalid_version,*";
 
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addTypeFilter(type, versions);
         Filter filter = query.getFilter();
 
@@ -952,7 +952,7 @@ public class OpenSearchQueryTest {
         String searchTerm = "cat";
         String selectors = "//fileTitle,//nitf";
         OpenSearchQuery query = new OpenSearchQuery(null, 0, 10, "relevance", "desc", 30000,
-                filterBuilder);
+                FILTER_BUILDER);
         query.addContextualFilter(searchTerm, selectors);
 
         String startDate = "2011-10-4T05:48:27.891-07:00";

@@ -69,7 +69,7 @@ public class TestGeoJsonMetacardTransformer {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(TestGeoJsonMetacardTransformer.class);
 
-    private static final JSONParser parser = new JSONParser();
+    private static final JSONParser PARSER = new JSONParser();
 
     private static final String SOURCE_ID_PROPERTY = "source-id";
 
@@ -103,7 +103,7 @@ public class TestGeoJsonMetacardTransformer {
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
-        Object object = parser.parse(jsonText);
+        Object object = PARSER.parse(jsonText);
 
         JSONObject obj2 = (JSONObject) object;
 
@@ -162,7 +162,7 @@ public class TestGeoJsonMetacardTransformer {
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
-        Object object = parser.parse(jsonText);
+        Object object = PARSER.parse(jsonText);
 
         JSONObject obj2 = (JSONObject) object;
 
@@ -205,7 +205,7 @@ public class TestGeoJsonMetacardTransformer {
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
-        Object object = parser.parse(jsonText);
+        Object object = PARSER.parse(jsonText);
 
         JSONObject obj2 = (JSONObject) object;
 
@@ -248,7 +248,7 @@ public class TestGeoJsonMetacardTransformer {
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
-        Object object = parser.parse(jsonText);
+        Object object = PARSER.parse(jsonText);
 
         JSONObject obj2 = (JSONObject) object;
 
@@ -292,7 +292,7 @@ public class TestGeoJsonMetacardTransformer {
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
-        Object object = parser.parse(jsonText);
+        Object object = PARSER.parse(jsonText);
 
         JSONObject obj2 = (JSONObject) object;
 
@@ -345,7 +345,7 @@ public class TestGeoJsonMetacardTransformer {
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
-        Object object = parser.parse(jsonText);
+        Object object = PARSER.parse(jsonText);
 
         JSONObject obj2 = (JSONObject) object;
 
@@ -384,7 +384,7 @@ public class TestGeoJsonMetacardTransformer {
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
-        Object object = parser.parse(jsonText);
+        Object object = PARSER.parse(jsonText);
 
         JSONObject obj2 = (JSONObject) object;
 
@@ -438,7 +438,7 @@ public class TestGeoJsonMetacardTransformer {
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
-        Object object = parser.parse(jsonText);
+        Object object = PARSER.parse(jsonText);
 
         JSONObject obj2 = (JSONObject) object;
 
@@ -483,7 +483,7 @@ public class TestGeoJsonMetacardTransformer {
 
         String jsonText = new String(content.getByteArray());
         LOGGER.debug(jsonText);
-        Object object = parser.parse(jsonText);
+        Object object = PARSER.parse(jsonText);
 
         JSONObject obj2 = (JSONObject) object;
 

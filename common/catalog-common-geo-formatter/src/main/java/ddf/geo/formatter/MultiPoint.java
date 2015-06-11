@@ -35,10 +35,10 @@ public class MultiPoint extends Point {
                 .size()];
 
         for (int i = 0; i < allPoints.length; i++) {
-            allPoints[i] = geometryFactory.createPoint(getCoordinate((List) coordinates.get(i)));
+            allPoints[i] = GEOMETRY_FACTORY.createPoint(getCoordinate((List) coordinates.get(i)));
         }
 
-        return new MultiPoint(geometryFactory.createMultiPoint(allPoints));
+        return new MultiPoint(GEOMETRY_FACTORY.createMultiPoint(allPoints));
     }
 
     @Override

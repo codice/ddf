@@ -36,7 +36,7 @@ import ddf.catalog.resource.impl.ResourceImpl;
 public class ResourceImplTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceImplTest.class);
 
-    private static final String testName = ResourceImplTest.class.getSimpleName();
+    private static final String TEST_NAME = ResourceImplTest.class.getSimpleName();
 
     private File content;
 
@@ -59,14 +59,14 @@ public class ResourceImplTest {
         InputStream is;
         try {
             is = new FileInputStream(content);
-            ResourceImpl ri = new ResourceImpl(is, testName);
+            ResourceImpl ri = new ResourceImpl(is, TEST_NAME);
             ri.setSize(content.length());
             assertEquals(is, ri.getInputStream());
             assertEquals(null, ri.getMimeType());
             assertEquals(content.length(), ri.getSize());
             assertNotNull(ri.toString());
 
-            ri = new ResourceImpl(is, mimeType, testName);
+            ri = new ResourceImpl(is, mimeType, TEST_NAME);
             ri.setSize(content.length());
             assertEquals(is, ri.getInputStream());
             assertEquals(mimeType.toString(), ri.getMimeType().toString());
@@ -74,7 +74,7 @@ public class ResourceImplTest {
             assertEquals(mimeType.toString(), ri.getMimeTypeValue());
             assertNotNull(ri.toString());
 
-            ri = new ResourceImpl(is, mimeType.toString(), testName);
+            ri = new ResourceImpl(is, mimeType.toString(), TEST_NAME);
             ri.setSize(content.length());
             assertEquals(is, ri.getInputStream());
             assertEquals(mimeType.toString(), ri.getMimeType().toString());
@@ -90,7 +90,7 @@ public class ResourceImplTest {
     @Test
     public void testResourceImplNullInputStream() {
         InputStream is = null;
-        ResourceImpl ri = new ResourceImpl(is, mimeType, testName);
+        ResourceImpl ri = new ResourceImpl(is, mimeType, TEST_NAME);
         ri.setSize(content.length());
         assertEquals(is, ri.getInputStream());
         assertEquals(mimeType.toString(), ri.getMimeType().toString());
@@ -106,10 +106,10 @@ public class ResourceImplTest {
             LOGGER.error("IO Failure", e);
             new Failure(null, e);
         }
-        ResourceImpl ri = new ResourceImpl(is, (MimeType) null, testName);
+        ResourceImpl ri = new ResourceImpl(is, (MimeType) null, TEST_NAME);
         assertEquals(null, ri.getMimeType());
 
-        ri = new ResourceImpl(is, (String) null, testName);
+        ri = new ResourceImpl(is, (String) null, TEST_NAME);
         assertEquals(null, ri.getMimeType());
     }
 
@@ -118,7 +118,7 @@ public class ResourceImplTest {
         InputStream is;
         try {
             is = new FileInputStream(content);
-            ResourceImpl ri = new ResourceImpl(is, mimeType, testName);
+            ResourceImpl ri = new ResourceImpl(is, mimeType, TEST_NAME);
             assertEquals(-1, ri.getSize());
         } catch (IOException e) {
             LOGGER.error("IO Failure", e);
@@ -131,7 +131,7 @@ public class ResourceImplTest {
         InputStream is;
         try {
             is = new FileInputStream(content);
-            ResourceImpl ri = new ResourceImpl(is, mimeType, testName);
+            ResourceImpl ri = new ResourceImpl(is, mimeType, TEST_NAME);
             ri.setSize(-20l);
             assertEquals(-1, ri.getSize());
         } catch (IOException e) {

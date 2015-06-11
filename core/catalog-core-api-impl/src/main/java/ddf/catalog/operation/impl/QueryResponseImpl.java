@@ -36,7 +36,7 @@ import ddf.catalog.operation.SourceResponse;
 
 public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements QueryResponse {
 
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(QueryResponseImpl.class));
 
     protected static Result POISON_PILL_RESULT = new POISON_PILL_RESULT();
@@ -269,7 +269,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
             try {
                 result = queue.poll(timeout, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
-                logger.warn(
+                LOGGER.warn(
                         "QueryResponseImpl queue thread was interrputed.  Returning null for last result");
             }
         }
@@ -306,7 +306,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
                 result = null;
             }
         } catch (InterruptedException e) {
-            logger.warn(
+            LOGGER.warn(
                     "QueryResponseImpl queue thread was interrputed.  Returning null for last result");
         }
         return result;

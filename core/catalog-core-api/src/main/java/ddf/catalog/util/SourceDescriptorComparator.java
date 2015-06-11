@@ -29,7 +29,7 @@ import ddf.catalog.source.SourceDescriptor;
 @Deprecated
 public class SourceDescriptorComparator implements Comparator<SourceDescriptor> {
 
-    private static final Logger logger = LoggerFactory.getLogger(SourceDescriptorComparator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SourceDescriptorComparator.class);
 
     /**
      * Uses the {@link String}#compareTo method on the lower-cased sourceId fields to sort
@@ -39,7 +39,7 @@ public class SourceDescriptorComparator implements Comparator<SourceDescriptor> 
         if (one.getSourceId() != null && two.getSourceId() != null) {
             return one.getSourceId().toLowerCase().compareTo(two.getSourceId().toLowerCase());
         } else {
-            logger.warn("Error comparing results, at least one was null.  Returning 1: ");
+            LOGGER.warn("Error comparing results, at least one was null.  Returning 1: ");
             return 1;
         }
     }

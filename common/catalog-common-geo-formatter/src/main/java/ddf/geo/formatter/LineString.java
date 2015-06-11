@@ -33,7 +33,7 @@ public class LineString extends MultiPoint {
     }
 
     public static CompositeGeometry toCompositeGeometry(List coordinates) {
-        return new LineString(geometryFactory.createLineString(getCoordinates(coordinates)));
+        return new LineString(GEOMETRY_FACTORY.createLineString(getCoordinates(coordinates)));
     }
 
     @Override

@@ -27,7 +27,7 @@ import org.slf4j.ext.XLogger;
 import com.vividsolutions.jts.io.WKTReader;
 
 public class SpatialFilter {
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(SpatialFilter.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(SpatialFilter.class));
 
     protected String geometryWkt;
 
@@ -76,9 +76,9 @@ public class SpatialFilter {
             }
 
         } catch (ParseException e) {
-            logger.warn("Unable to compute geometry for WKT = " + this.geometryWkt, e);
+            LOGGER.warn("Unable to compute geometry for WKT = " + this.geometryWkt, e);
         } catch (com.vividsolutions.jts.io.ParseException e) {
-            logger.warn("Unable to read multi geometry for WKT = " + this.geometryWkt, e);
+            LOGGER.warn("Unable to read multi geometry for WKT = " + this.geometryWkt, e);
         }
 
         return geometry;

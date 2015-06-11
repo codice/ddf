@@ -109,7 +109,7 @@ public final class OpenSearchSiteUtil {
 
     public static final String SORT_TEMPORAL = "date";
 
-    private static final Logger logger = LoggerFactory.getLogger(OpenSearchSiteUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSiteUtil.class);
 
     private OpenSearchSiteUtil() {
 
@@ -197,7 +197,7 @@ public final class OpenSearchSiteUtil {
         } else if (Result.TEMPORAL.equals(sortByField.getPropertyName())) {
             openSearchSortStr = SORT_TEMPORAL + SORT_DELIMITER + orderType;
         } else {
-            logger.warn(
+            LOGGER.warn(
                     "Couldn't determine sort policy, not adding sorting in request to federated site.");
         }
 
@@ -219,7 +219,7 @@ public final class OpenSearchSiteUtil {
             try {
                 queryStr = URLEncoder.encode(queryStr, "UTF-8");
             } catch (UnsupportedEncodingException uee) {
-                logger.warn("Could not encode contextual string: {}", uee.getMessage());
+                LOGGER.warn("Could not encode contextual string: {}", uee.getMessage());
             }
         }
 
@@ -295,7 +295,7 @@ public final class OpenSearchSiteUtil {
                     radiusStr = "";
                 }
             } else {
-                logger.warn("WKT ({}) not supported for POINT-RADIUS search, use POINT.", wktStr);
+                LOGGER.warn("WKT ({}) not supported for POINT-RADIUS search, use POINT.", wktStr);
             }
         }
 
@@ -343,7 +343,7 @@ public final class OpenSearchSiteUtil {
                     }
                 }
             } else {
-                logger.warn("WKT ({}) not supported for SPATIAL search, use POLYGON.", wktStr);
+                LOGGER.warn("WKT ({}) not supported for SPATIAL search, use POLYGON.", wktStr);
             }
         }
 
@@ -468,7 +468,7 @@ public final class OpenSearchSiteUtil {
 
         double curX, curY;
         for (int i = 0; i < polyAry.length - 1; i += 2) {
-            logger.debug("polyToBBox: lon - {} lat - {}", polyAry[i], polyAry[i + 1]);
+            LOGGER.debug("polyToBBox: lon - {} lat - {}", polyAry[i], polyAry[i + 1]);
             curX = Double.parseDouble(polyAry[i]);
             curY = Double.parseDouble(polyAry[i + 1]);
             if (curX < minX) {
