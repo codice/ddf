@@ -339,13 +339,13 @@ public class AtomTransformer implements QueryResponseTransformer, ConfigurationW
 
                 try {
                     binaryContent = metacardTransformer.transform(metacard, null);
-                }
+
                 // If the transformer cannot handle the data appropriately
-                catch (CatalogTransformerException e) {
+                } catch (CatalogTransformerException e) {
                     LOGGER.warn(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
-                }
+
                 // If the transformer service is unavailable
-                catch (RuntimeException e) {
+                } catch (RuntimeException e) {
                     LOGGER.info(COULD_NOT_CREATE_XML_CONTENT_MESSAGE, e);
                 }
 

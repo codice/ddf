@@ -277,13 +277,13 @@ public class RESTEndpoint implements RESTService {
                 String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
-            }
+
             // The catalog framework will throw this if any of the transformers blow up. We need to
             // catch this exception
             // here or else execution will return to CXF and we'll lose this message and end up with
             // a huge stack trace
             // in a GUI or whatever else is connected to this endpoint
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 throw new ServerErrorException(e, Status.BAD_REQUEST);
             }
         } else {
@@ -491,14 +491,13 @@ public class RESTEndpoint implements RESTService {
                 String exceptionMessage = "Specified query is unsupported.  Change query and resubmit: ";
                 LOGGER.warn(exceptionMessage, e);
                 throw new ServerErrorException(exceptionMessage, Status.BAD_REQUEST);
-            }
-
             // The catalog framework will throw this if any of the transformers blow up. We need to
+
             // catch this exception
             // here or else execution will return to CXF and we'll lose this message and end up with
             // a huge stack trace
             // in a GUI or whatever else is connected to this endpoint
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 throw new ServerErrorException(e, Status.BAD_REQUEST);
             }
         } else {

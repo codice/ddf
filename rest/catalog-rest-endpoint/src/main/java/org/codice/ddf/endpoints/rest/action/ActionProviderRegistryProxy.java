@@ -68,9 +68,8 @@ public class ActionProviderRegistryProxy {
 
             transformerId = reference.getProperty(Constants.SERVICE_ID).toString();
 
-        }
         // backwards compatibility
-        else if (reference.getProperty(Constants.SERVICE_SHORTNAME) != null) {
+        } else if (reference.getProperty(Constants.SERVICE_SHORTNAME) != null) {
 
             transformerId = reference.getProperty(Constants.SERVICE_SHORTNAME).toString();
         }

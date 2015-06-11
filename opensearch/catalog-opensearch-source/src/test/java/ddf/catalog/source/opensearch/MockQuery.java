@@ -249,16 +249,14 @@ public class MockQuery implements Query {
         // If multiple filters, then AND them all together
         if (filters.size() > 1) {
             return filterFactory.and(filters);
-        }
 
         // If only one filter, then just return it
         // (AND'ing it would create an erroneous </ogc:and> closing tag)
-        else if (filters.size() == 1) {
+        } else if (filters.size() == 1) {
             return (Filter) filters.get(0);
-        }
 
         // Otherwise, no filters
-        else {
+        } else {
             return null;
         }
     }

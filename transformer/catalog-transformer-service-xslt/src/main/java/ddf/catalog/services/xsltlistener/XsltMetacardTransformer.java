@@ -63,9 +63,7 @@ public class XsltMetacardTransformer extends AbstractXsltTransformer
 
     @Override
     public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
-            throws CatalogTransformerException
-
-    {
+            throws CatalogTransformerException {
         LOGGER.debug("Entering metacard xslt transform.");
 
         Transformer transformer;

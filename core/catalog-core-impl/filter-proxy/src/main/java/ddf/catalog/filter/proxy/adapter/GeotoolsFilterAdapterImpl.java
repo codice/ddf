@@ -815,9 +815,8 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
             Date end = period.getEnding().getPosition().getDate();
 
             return ((FilterDelegate<?>) delegate).during(filterValues.propertyName, start, end);
-        }
         // Relative
-        else if (filterValues.literal instanceof DefaultPeriodDuration) {
+        } else if (filterValues.literal instanceof DefaultPeriodDuration) {
             // TODO should support PeriodDuration and reconstruct the duration
             // instead of using an implementation to get the milliseconds
             DefaultPeriodDuration duration = (DefaultPeriodDuration) filterValues.literal;

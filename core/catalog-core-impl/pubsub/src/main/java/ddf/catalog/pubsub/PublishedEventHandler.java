@@ -118,9 +118,8 @@ public class PublishedEventHandler implements EventHandler {
             LOGGER.debug(
                     "predicate is NULL (must be filterless subscription), publishing all events");
             new DeliveryProcessor(subscription, preDelivery).process(event);
-        }
         // Otherwise, only send events that match the predicate's filter criteria
-        else if (predicate.matches(event)) {
+        } else if (predicate.matches(event)) {
             new DeliveryProcessor(subscription, preDelivery).process(event);
         }
     }

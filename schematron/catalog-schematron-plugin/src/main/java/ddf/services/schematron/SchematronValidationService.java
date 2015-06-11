@@ -310,10 +310,9 @@ public class SchematronValidationService implements MetacardValidator {
             throw new SchematronInitializationException(
                     "Error trying to create SchematronValidationService using sch file "
                             + this.schematronSchemaFilename, e);
-        }
 
         // Would go here if an invalid .sch file was passed in
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("Couldn't create transfomer", e);
             throw new SchematronInitializationException(
                     "Error trying to create SchematronValidationService using sch file "

@@ -318,11 +318,10 @@ public final class ContextualEvaluator {
                         logger.debug("Adding text [" + attribute.getNodeValue() + "]");
 
                         sbuilder.append(attribute.getNodeValue() + " ");
-                    }
 
                     // On each element node detected, traverse all of its children. Look for
                     // any Text nodes it has, adding their text values to the list of indexable text
-                    else if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    } else if (node.getNodeType() == Node.ELEMENT_NODE) {
                         Element elem = (Element) node;
                         traverse(elem, indexedText);
 

@@ -234,11 +234,11 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
                     // Combine the two.
                     if (currentType != null && incomingType == null && incomingVersion != null) {
                         currentContentTypePred.setVersion(incomingVersion);
-                    }
+
                     // Case 2
                     // First ContentTypePredicate has no type but has a version. Second
                     // ContentTypePredicate has no version, but it has a type.
-                    else if (currentType == null && currentVersion != null
+                    } else if (currentType == null && currentVersion != null
                             && incomingType != null) {
                         currentContentTypePred.setType(incomingType);
                     }
@@ -356,9 +356,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
             LOGGER.debug("EXITING: (temporal) filter");
 
             returnPredicate = new TemporalPredicate(start, end, DateType.valueOf(temporalType));
-        }
         // CREATE RELATIVE
-        else if (literal instanceof PeriodDuration) {
+        } else if (literal instanceof PeriodDuration) {
             DefaultPeriodDuration duration = (DefaultPeriodDuration) literal;
 
             long offset = duration.getTimeInMillis();

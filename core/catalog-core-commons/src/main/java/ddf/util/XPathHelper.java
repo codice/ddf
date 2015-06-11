@@ -77,8 +77,7 @@ public class XPathHelper {
      * @param document
      *            - To parse
      */
-    public XPathHelper(Document document) // throws NullPointerException
-    {
+    public XPathHelper(Document document) {
         // Hugh Rodgers - 6/7/2011
         // This code seemed to work except it was not reliable for namespace aware
         // xpath expressions. The String constructor always worked, hence the new code
@@ -223,8 +222,7 @@ public class XPathHelper {
      * @throws XPathExpressionException
      */
     public String evaluate(String xpathExpressionKey, NamespaceContext nsContext)
-            throws XPathExpressionException // , NullPointerException
-    {
+            throws XPathExpressionException {
         return (String) this.evaluate(xpathExpressionKey, XPathConstants.STRING, nsContext);
     }
 
