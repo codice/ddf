@@ -198,7 +198,7 @@ public class RemoveAllCommand extends CatalogCommands {
             StringBuffer buffer = new StringBuffer();
             System.err.println(String.format(WARNING_MESSAGE_FORMAT, (expired ? "expired " : "")));
             System.err.flush();
-            for (; ; ) {
+            while (true) {
                 int byteOfData = session.getKeyboard().read();
 
                 if (byteOfData < 0) {

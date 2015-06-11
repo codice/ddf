@@ -241,7 +241,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
         StringBuilder buffer = new StringBuilder();
         console.print(String.format(message));
         console.flush();
-        for (; ; ) {
+        while (true) {
             int byteOfData = session.getKeyboard().read();
 
             if (byteOfData < 0) {
