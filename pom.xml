@@ -379,7 +379,6 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.8.1</version>
                     <configuration>
-                        <!-- Replaced -XX:-UseSplitVerifier with -noverify for java 8 compatibility-->
                         <argLine>${argLine} -Djava.awt.headless=true -noverify</argLine>
                     </configuration>
                 </plugin>
