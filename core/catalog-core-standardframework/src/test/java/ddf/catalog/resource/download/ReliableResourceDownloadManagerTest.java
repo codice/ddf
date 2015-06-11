@@ -80,7 +80,6 @@ public class ReliableResourceDownloadManagerTest {
 
     public static final int delayBetweenAttempts = 5;
 
-    ;
 
     public static final int monitorPeriod = 5;
 

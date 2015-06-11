@@ -56,7 +56,6 @@ import ddf.catalog.pubsub.predicate.Predicate;
 public class EventProcessorImpl implements EventProcessor, EventHandler, PostIngestPlugin {
     public static final double EQUATORIAL_RADIUS_IN_METERS = 6378137.0;
 
-    ;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventProcessorImpl.class);
 

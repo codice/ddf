@@ -427,7 +427,6 @@ public class CatalogFrameworkImplTest {
                 return uri;
             }
 
-            ;
 
             @Override
             protected ResourceInfo getResourceInfo(ResourceRequest resourceRequest, String site,

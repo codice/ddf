@@ -23,7 +23,6 @@ public class DownloadManagerState {
 
     private DownloadState state;
 
-    ;
 
     private boolean cacheEnabled;
 

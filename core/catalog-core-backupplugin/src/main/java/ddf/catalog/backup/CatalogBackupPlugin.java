@@ -64,7 +64,6 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         subDirLevels = 0;
     }
 
-    ;
 
     /**
      * Backs up created metacards to the file system backup.

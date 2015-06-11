@@ -110,7 +110,6 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     // Map of sourceId to Source's metric data
     protected Map<String, SourceMetric> metrics = new HashMap<String, SourceMetric>();
 
-    ;
 
     // Injected list of CatalogProviders and FederatedSources
     // that is kept updated by container, e.g., with latest sourceIds

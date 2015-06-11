@@ -304,7 +304,6 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
             return source.query(new QueryRequestImpl(query, properties));
         }
 
-        ;
     }
 
     private static class OffsetResultHandler implements Runnable {

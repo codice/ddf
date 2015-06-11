@@ -213,7 +213,6 @@ public class FifoFederationStrategy implements FederationStrategy {
             return sourceResponse;
         }
 
-        ;
     }
 
     /**

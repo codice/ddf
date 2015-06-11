@@ -137,5 +137,4 @@ public interface AttributeType<T extends Serializable> extends Serializable {
 
     }
 
-    ;
 }

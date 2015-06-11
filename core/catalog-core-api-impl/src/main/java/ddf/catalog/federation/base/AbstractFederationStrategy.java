@@ -302,7 +302,6 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
             return sourceResponse;
         }
 
-        ;
     }
 
     private class OffsetResultHandler implements Runnable {
