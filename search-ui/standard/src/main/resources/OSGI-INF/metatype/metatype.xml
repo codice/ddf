@@ -36,6 +36,9 @@
         <AD description="Projection of imagery providers" name="Map Projection" id="projection"
             required="false" type="String" default="EPSG:3857" />
 
+        <AD description="Bing Maps API key. This should only be set if you are using Bing Maps Imagery or Terrain Providers." name="Bing Maps Key" id="bingKey"
+            required="false" type="String" default="" />
+
         <AD description="Specifies the client-side connection timeout in milliseconds."
             name="Connection Timeout" id="timeout"
             required="false" type="Integer" default="15000" />

@@ -15,31 +15,8 @@
 
 package org.codice.ddf.ui.searchui.standard.properties;
 
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.BinaryContentImpl;
-
-import org.apache.commons.collections.Factory;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.felix.webconsole.BrandingPlugin;
-import org.codice.proxy.http.HttpProxyService;
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import us.bpsm.edn.EdnIOException;
-import us.bpsm.edn.EdnSyntaxException;
-import us.bpsm.edn.parser.Parser;
-import us.bpsm.edn.parser.Parsers;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import static org.boon.Boon.toJson;
+import static us.bpsm.edn.parser.Parsers.defaultConfiguration;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -51,8 +28,30 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import static org.boon.Boon.toJson;
-import static us.bpsm.edn.parser.Parsers.defaultConfiguration;
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.collections.Factory;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.felix.webconsole.BrandingPlugin;
+import org.codice.proxy.http.HttpProxyService;
+import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.BinaryContentImpl;
+import us.bpsm.edn.EdnIOException;
+import us.bpsm.edn.EdnSyntaxException;
+import us.bpsm.edn.parser.Parser;
+import us.bpsm.edn.parser.Parsers;
 
 /**
  * Stores external configuration properties.
@@ -109,6 +108,8 @@ public class ConfigurationStore {
     private String bundleName;
 
     private String projection = "EPSG:3857";
+
+    private String bingKey = "";
 
     private String helpUrl = "help.html";
 
@@ -174,6 +175,7 @@ public class ConfigurationStore {
         config.put("showIngest", isIngest);
         config.put("projection", projection);
         config.put("helpUrl", helpUrl);
+        config.put("bingKey", bingKey);
 
         String configJson = toJson(config);
         BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configJson.getBytes()),
@@ -438,6 +440,14 @@ public class ConfigurationStore {
 
     public void setProjection(String projection) {
         this.projection = projection;
+    }
+
+    public String getBingKey() {
+        return bingKey;
+    }
+
+    public void setBingKey(String bingKey) {
+        this.bingKey = bingKey;
     }
 
     public String getHelpUrl() {

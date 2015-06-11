@@ -71,6 +71,8 @@ define(['underscore',
                     baseLayerPicker: false
                 };
 
+                Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
+
                 if(properties.imageryProviders) {
                     _.each(properties.imageryProviders, function(imageryProvider) {
                         if (imageryProvider) {
