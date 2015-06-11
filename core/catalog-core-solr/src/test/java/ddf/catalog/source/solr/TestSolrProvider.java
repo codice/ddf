@@ -3850,7 +3850,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     @Test
-    public void testSpatialDistanceCalculation_ExactPoint() throws Exception {
+    public void testSpatialDistanceCalculationExactPoint() throws Exception {
         deleteAllIn(provider);
 
         // given
@@ -3887,7 +3887,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
     }
 
     @Test
-    public void testSpatialDistanceCalculation_BetweenTwoPoints() throws Exception {
+    public void testSpatialDistanceCalculationBetweenTwoPoints() throws Exception {
         deleteAllIn(provider);
 
         // given
@@ -4469,7 +4469,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
      * @throws Exception
      */
     @Test
-    public void testDisableTextPathTrue_ExistsFilter() throws Exception {
+    public void testDisableTextPathTrueExistsFilter() throws Exception {
         prepareXPath(true);
 
         queryXpathNegativeExists("//comment");
@@ -4481,7 +4481,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
      * @throws Exception
      */
     @Test
-    public void testDisableTextPathTrue_LikeFilter() throws Exception {
+    public void testDisableTextPathTrueLikeFilter() throws Exception {
         prepareXPath(true);
 
         queryXpathNegativeWithSearchPhrase("//comment", "Hurry, my lawn is going wild!");
@@ -4493,7 +4493,7 @@ public class TestSolrProvider extends SolrProviderTestCase {
      * @throws Exception
      */
     @Test
-    public void testDisableTextPathTrue_Fuzzy() throws Exception {
+    public void testDisableTextPathTrueFuzzy() throws Exception {
         prepareXPath(true);
 
         assertNotFilter(filterBuilder.xpath("//comment").is().like()

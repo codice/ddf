@@ -372,7 +372,7 @@ public class CatalogFrameworkImplTest {
      */
     @Test
     @Ignore
-    public void testGetResource_WhenNonNullResourceRequest_ExpectPostResourcePluginToReceiveResourceResponseWithNonNullResourceRequest()
+    public void testGetResourceWhenNonNullResourceRequestExpectPostResourcePluginToReceiveResourceResponseWithNonNullResourceRequest()
             throws Exception {
 
         // Setup
@@ -496,7 +496,7 @@ public class CatalogFrameworkImplTest {
     }
 
     @Test(expected = FederationException.class)
-    public void testPreQuery_StopExecution() throws UnsupportedQueryException, FederationException {
+    public void testPreQueryStopExecution() throws UnsupportedQueryException, FederationException {
 
         SourcePoller poller = mock(SourcePoller.class);
         when(poller.getCachedSource(isA(Source.class))).thenReturn(null);
@@ -535,7 +535,7 @@ public class CatalogFrameworkImplTest {
     }
 
     @Test(expected = FederationException.class)
-    public void testPostQuery_StopExecution()
+    public void testPostQueryStopExecution()
             throws UnsupportedQueryException, FederationException {
 
         SourcePoller poller = mock(SourcePoller.class);

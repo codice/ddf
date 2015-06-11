@@ -165,349 +165,349 @@ public class CopyFilterDelegateTest {
     }
 
     @Test
-    public void testPropertyIsEqualTo_StringCaseInsensitive() {
+    public void testPropertyIsEqualToStringCaseInsensitive() {
         assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
     }
 
     @Test
-    public void testPropertyIsEqualTo_StringCaseSensitive() {
+    public void testPropertyIsEqualToStringCaseSensitive() {
         assertFilterEquals(FF.equal(TEST_PROPERTY, FOO_LITERAL, true));
     }
 
     @Test
-    public void testPropertyIsEqualTo_Date() {
+    public void testPropertyIsEqualToDate() {
         assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(EPOCH)));
     }
 
     @Test
-    public void testPropertyIsEqualTo_DateRange() throws Exception {
+    public void testPropertyIsEqualToDateRange() throws Exception {
         assertFilterException(FF.equals(TEST_PROPERTY, FF.literal(EPOCH_DAY_PERIOD)));
     }
 
     @Test
-    public void testPropertyIsEqualTo_Int() {
+    public void testPropertyIsEqualToInt() {
         assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(new Integer(5))));
     }
 
     @Test
-    public void testPropertyIsEqualTo_Long() {
+    public void testPropertyIsEqualToLong() {
         assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(new Long(5))));
     }
 
     @Test
-    public void testPropertyIsEqualTo_Short() {
+    public void testPropertyIsEqualToShort() {
         assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(new Short((short) 5))));
     }
 
     @Test
-    public void testPropertyIsEqualTo_Float() {
+    public void testPropertyIsEqualToFloat() {
         assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(new Float(5.0))));
     }
 
     @Test
-    public void testPropertyIsEqualTo_Double() {
+    public void testPropertyIsEqualToDouble() {
         assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(new Double(5.0))));
     }
 
     @Test
-    public void testPropertyIsEqualTo_Boolean() {
+    public void testPropertyIsEqualToBoolean() {
         assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(true)));
     }
 
     @Test
-    public void testPropertyIsEqualTo_ByteArray() {
+    public void testPropertyIsEqualToByteArray() {
         assertFilterEquals(FF.equals(TEST_PROPERTY, FF.literal(new byte[] {5, 6})));
     }
 
     @Test
-    public void testPropertyIsEqualTo_Object() throws Exception {
+    public void testPropertyIsEqualToObject() throws Exception {
         assertFilterException(FF.equals(TEST_PROPERTY, FF.literal(Arrays.asList(1, 2, 3))));
     }
 
     @Test
-    public void testPropertyIsNotEqualTo_StringCaseInsensitive() {
+    public void testPropertyIsNotEqualToStringCaseInsensitive() {
         assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
     }
 
     @Test
-    public void testPropertyIsNotEqualTo_StringCaseSensitive() {
+    public void testPropertyIsNotEqualToStringCaseSensitive() {
         assertFilterEquals(FF.notEqual(TEST_PROPERTY, FOO_LITERAL, true));
     }
 
     @Test
-    public void testPropertyIsNotEqualTo_Date() {
+    public void testPropertyIsNotEqualToDate() {
         assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(EPOCH)));
     }
 
     @Test
-    public void testPropertyIsNotEqualTo_DateRange() throws Exception {
+    public void testPropertyIsNotEqualToDateRange() throws Exception {
         assertFilterException(FF.notEqual(TEST_PROPERTY, FF.literal(EPOCH_DAY_PERIOD)));
     }
 
     @Test
-    public void testPropertyIsNotEqualTo_Int() {
+    public void testPropertyIsNotEqualToInt() {
         assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(new Integer(5))));
     }
 
     @Test
-    public void testPropertyIsNotEqualTo_Long() {
+    public void testPropertyIsNotEqualToLong() {
         assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(new Long(5))));
     }
 
     @Test
-    public void testPropertyIsNotEqualTo_Short() {
+    public void testPropertyIsNotEqualToShort() {
         assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(new Short((short) 5))));
     }
 
     @Test
-    public void testPropertyIsNotEqualTo_Float() {
+    public void testPropertyIsNotEqualToFloat() {
         assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(new Float(5.0))));
     }
 
     @Test
-    public void testPropertyIsNotEqualTo_Double() {
+    public void testPropertyIsNotEqualToDouble() {
         assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(new Double(5.0))));
     }
 
     @Test
-    public void testPropertyIsNotEqualTo_Boolean() {
+    public void testPropertyIsNotEqualToBoolean() {
         assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(true)));
     }
 
     @Test
-    public void testPropertyIsNotEqualTo_ByteArray() {
+    public void testPropertyIsNotEqualToByteArray() {
         assertFilterEquals(FF.notEqual(TEST_PROPERTY, FF.literal(new byte[] {5, 6})));
     }
 
     @Test
-    public void testPropertyIsNotEqualTo_Object() throws Exception {
+    public void testPropertyIsNotEqualToObject() throws Exception {
         assertFilterException(FF.notEqual(TEST_PROPERTY, FF.literal(Arrays.asList(1, 2, 3))));
     }
 
     @Test
-    public void testPropertyIsGreaterThan_String() throws Exception {
+    public void testPropertyIsGreaterThanString() throws Exception {
         assertFilterException(
                 FF.greater(TEST_PROPERTY, FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
     }
 
     @Test
-    public void testPropertyIsGreaterThan_Date() throws Exception {
+    public void testPropertyIsGreaterThanDate() throws Exception {
         assertFilterException(FF.greater(TEST_PROPERTY, FF.literal(EPOCH)));
     }
 
     @Test
-    public void testPropertyIsGreaterThan_Int() {
+    public void testPropertyIsGreaterThanInt() {
         assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(new Integer(5))));
     }
 
     @Test
-    public void testPropertyIsGreaterThan_Long() {
+    public void testPropertyIsGreaterThanLong() {
         assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(new Long(5))));
     }
 
     @Test
-    public void testPropertyIsGreaterThan_Short() {
+    public void testPropertyIsGreaterThanShort() {
         assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(new Short((short) 5))));
     }
 
     @Test
-    public void testPropertyIsGreaterThan_Float() {
+    public void testPropertyIsGreaterThanFloat() {
         assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(new Float(5.0))));
     }
 
     @Test
-    public void testPropertyIsGreaterThan_Double() {
+    public void testPropertyIsGreaterThanDouble() {
         assertFilterEquals(FF.greater(TEST_PROPERTY, FF.literal(new Double(5.0))));
     }
 
     @Test
-    public void testPropertyIsGreaterThan_Object() throws Exception {
+    public void testPropertyIsGreaterThanObject() throws Exception {
         assertFilterException(FF.greater(TEST_PROPERTY, FF.literal(Arrays.asList(1, 2, 3))));
     }
 
     @Test
-    public void testPropertyIsGreaterThanOrEqualTo_String() throws Exception {
+    public void testPropertyIsGreaterThanOrEqualToString() throws Exception {
         assertFilterException(
                 FF.greaterOrEqual(TEST_PROPERTY, FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
     }
 
     @Test
-    public void testPropertyIsGreaterThanOrEqualTo_Date() throws Exception {
+    public void testPropertyIsGreaterThanOrEqualToDate() throws Exception {
         assertFilterException(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(EPOCH)));
     }
 
     @Test
-    public void testPropertyIsGreaterThanOrEqualTo_Int() {
+    public void testPropertyIsGreaterThanOrEqualToInt() {
         assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(new Integer(5))));
     }
 
     @Test
-    public void testPropertyIsGreaterThanOrEqualTo_Long() {
+    public void testPropertyIsGreaterThanOrEqualToLong() {
         assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(new Long(5))));
     }
 
     @Test
-    public void testPropertyIsGreaterThanOrEqualTo_Short() {
+    public void testPropertyIsGreaterThanOrEqualToShort() {
         assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(new Short((short) 5))));
     }
 
     @Test
-    public void testPropertyIsGreaterThanOrEqualTo_Float() {
+    public void testPropertyIsGreaterThanOrEqualToFloat() {
         assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(new Float(5.0))));
     }
 
     @Test
-    public void testPropertyIsGreaterThanOrEqualTo_Double() {
+    public void testPropertyIsGreaterThanOrEqualToDouble() {
         assertFilterEquals(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(new Double(5.0))));
     }
 
     @Test
-    public void testPropertyIsGreaterThanOrEqualTo_Object() throws Exception {
+    public void testPropertyIsGreaterThanOrEqualToObject() throws Exception {
         assertFilterException(FF.greaterOrEqual(TEST_PROPERTY, FF.literal(Arrays.asList(1, 2, 3))));
     }
 
     @Test
-    public void testPropertyIsLesserThan_String() throws Exception {
+    public void testPropertyIsLesserThanString() throws Exception {
         assertFilterException(FF.less(TEST_PROPERTY, FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
     }
 
     @Test
-    public void testPropertyIsLesserThan_Date() throws Exception {
+    public void testPropertyIsLesserThanDate() throws Exception {
         assertFilterException(FF.less(TEST_PROPERTY, FF.literal(EPOCH)));
     }
 
     @Test
-    public void testPropertyIsLesserThan_Int() {
+    public void testPropertyIsLesserThanInt() {
         assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(new Integer(5))));
     }
 
     @Test
-    public void testPropertyIsLesserThan_Long() {
+    public void testPropertyIsLesserThanLong() {
         assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(new Long(5))));
     }
 
     @Test
-    public void testPropertyIsLesserThan_Short() {
+    public void testPropertyIsLesserThanShort() {
         assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(new Short((short) 5))));
     }
 
     @Test
-    public void testPropertyIsLesserThan_Float() {
+    public void testPropertyIsLesserThanFloat() {
         assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(new Float(5.0))));
     }
 
     @Test
-    public void testPropertyIsLesserThan_Double() {
+    public void testPropertyIsLesserThanDouble() {
         assertFilterEquals(FF.less(TEST_PROPERTY, FF.literal(new Double(5.0))));
     }
 
     @Test
-    public void testPropertyIsLesserThan_Object() throws Exception {
+    public void testPropertyIsLesserThanObject() throws Exception {
         assertFilterException(FF.less(TEST_PROPERTY, FF.literal(Arrays.asList(1, 2, 3))));
     }
 
     @Test
-    public void testPropertyIsLesserThanOrEqualTo_String() throws Exception {
+    public void testPropertyIsLesserThanOrEqualToString() throws Exception {
         assertFilterException(
                 FF.lessOrEqual(TEST_PROPERTY, FF.literal(FOO_LITERAL_VALUE.toUpperCase())));
     }
 
     @Test
-    public void testPropertyIsLesserThanOrEqualTo_Date() throws Exception {
+    public void testPropertyIsLesserThanOrEqualToDate() throws Exception {
         assertFilterException(FF.lessOrEqual(TEST_PROPERTY, FF.literal(EPOCH)));
     }
 
     @Test
-    public void testPropertyIsLesserThanOrEqualTo_Int() {
+    public void testPropertyIsLesserThanOrEqualToInt() {
         assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(new Integer(5))));
     }
 
     @Test
-    public void testPropertyIsLesserThanOrEqualTo_Long() {
+    public void testPropertyIsLesserThanOrEqualToLong() {
         assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(new Long(5))));
     }
 
     @Test
-    public void testPropertyIsLesserThanOrEqualTo_Short() {
+    public void testPropertyIsLesserThanOrEqualToShort() {
         assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(new Short((short) 5))));
     }
 
     @Test
-    public void testPropertyIsLesserThanOrEqualTo_Float() {
+    public void testPropertyIsLesserThanOrEqualToFloat() {
         assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(new Float(5.0))));
     }
 
     @Test
-    public void testPropertyIsLesserThanOrEqualTo_Double() {
+    public void testPropertyIsLesserThanOrEqualToDouble() {
         assertFilterEquals(FF.lessOrEqual(TEST_PROPERTY, FF.literal(new Double(5.0))));
     }
 
     @Test
-    public void testPropertyIsLesserThanOrEqualTo_Object() throws Exception {
+    public void testPropertyIsLesserThanOrEqualToObject() throws Exception {
         assertFilterException(FF.lessOrEqual(TEST_PROPERTY, FF.literal(Arrays.asList(1, 2, 3))));
     }
 
     @Test
-    public void testPropertyIsBetween_Strings() throws Exception {
+    public void testPropertyIsBetweenStrings() throws Exception {
         assertFilterException(FF.between(TEST_PROPERTY, FOO_LITERAL, FF.literal("bar")));
     }
 
     @Test
-    public void testPropertyIsBetween_Dates() throws Exception {
+    public void testPropertyIsBetweenDates() throws Exception {
         assertFilterException(
                 FF.between(TEST_PROPERTY, FF.literal(EPOCH), FF.literal(EPOCH_PLUS_DAY)));
     }
 
     @Test
-    public void testPropertyIsBetween_Ints() throws Exception {
+    public void testPropertyIsBetweenInts() throws Exception {
         assertFilterEquals(
                 FF.between(TEST_PROPERTY, FF.literal(new Integer(1)), FF.literal(new Integer(5))));
     }
 
     @Test
-    public void testPropertyIsBetween_Shorts() throws Exception {
+    public void testPropertyIsBetweenShorts() throws Exception {
         assertFilterEquals(FF.between(TEST_PROPERTY, FF.literal(new Short((short) 1)),
                 FF.literal(new Short((short) 5))));
     }
 
     @Test
-    public void testPropertyIsBetween_Longs() throws Exception {
+    public void testPropertyIsBetweenLongs() throws Exception {
         assertFilterEquals(
                 FF.between(TEST_PROPERTY, FF.literal(new Long(1)), FF.literal(new Long(5))));
     }
 
     @Test
-    public void testPropertyIsBetween_Floats() throws Exception {
+    public void testPropertyIsBetweenFloats() throws Exception {
         assertFilterEquals(
                 FF.between(TEST_PROPERTY, FF.literal(new Float(1.0)), FF.literal(new Float(5.0))));
     }
 
     @Test
-    public void testPropertyIsBetween_Doubles() throws Exception {
+    public void testPropertyIsBetweenDoubles() throws Exception {
         assertFilterEquals(FF.between(TEST_PROPERTY, FF.literal(new Double(1.0)),
                 FF.literal(new Double(5.0))));
     }
 
     @Test
-    public void testPropertyIsBetween_Objects() throws Exception {
+    public void testPropertyIsBetweenObjects() throws Exception {
         assertFilterException(FF.between(TEST_PROPERTY, FF.literal(Arrays.asList(1, 2, 3)),
                 FF.literal(Arrays.asList(4, 5, 6))));
     }
 
     @Test
-    public void testPropertyIsLike_CaseInsensitive() {
+    public void testPropertyIsLikeCaseInsensitive() {
         assertFilterEquals(FF.like(TEST_PROPERTY, FOO_LITERAL_VALUE.toUpperCase()));
     }
 
     @Test
-    public void testPropertyIsLike_CaseSensitive() {
+    public void testPropertyIsLikeCaseSensitive() {
         assertFilterEquals(FF.like(TEST_PROPERTY, FOO_LITERAL_VALUE.toUpperCase(),
                 FilterDelegate.WILDCARD_CHAR, FilterDelegate.SINGLE_CHAR,
                 FilterDelegate.ESCAPE_CHAR, true));
     }
 
     @Test
-    public void testPropertyIsLike_Fuzzy() {
+    public void testPropertyIsLikeFuzzy() {
         assertFilterEquals(FF.like(new FuzzyFunction(Arrays.asList((Expression) (TEST_PROPERTY)),
                 FF.literal("")), FOO_LITERAL_VALUE));
     }
@@ -524,7 +524,7 @@ public class CopyFilterDelegateTest {
     }
 
     @Test
-    public void testXpathIsLike_CaseSensitive() {
+    public void testXpathIsLikeCaseSensitive() {
         assertFilterEquals(FF.like(FF.property("//ns:title"), "foo*", FilterDelegate.WILDCARD_CHAR,
                 FilterDelegate.SINGLE_CHAR, FilterDelegate.ESCAPE_CHAR, true));
     }
@@ -593,42 +593,42 @@ public class CopyFilterDelegateTest {
     }
 
     @Test
-    public void testTemporalAfter_Date() {
+    public void testTemporalAfterDate() {
         assertFilterEquals(FF.after(TEST_PROPERTY, FF.literal(EPOCH)));
     }
 
     @Test
-    public void testTemporalAfter_DateInstant() {
+    public void testTemporalAfterDateInstant() {
         assertFilterEquals(FF.after(TEST_PROPERTY, FF.literal(EPOCH_INSTANT)));
     }
 
     @Test
-    public void testTemporalAfter_DatePeriod() {
+    public void testTemporalAfterDatePeriod() {
         assertFilterEquals(FF.after(TEST_PROPERTY, FF.literal(EPOCH_DAY_PERIOD)));
     }
 
     @Test
-    public void testTemporalBefore_Date() {
+    public void testTemporalBeforeDate() {
         assertFilterEquals(FF.before(TEST_PROPERTY, FF.literal(EPOCH)));
     }
 
     @Test
-    public void testTemporalBefore_DateInstant() {
+    public void testTemporalBeforeDateInstant() {
         assertFilterEquals(FF.before(TEST_PROPERTY, FF.literal(EPOCH_INSTANT)));
     }
 
     @Test
-    public void testTemporalBefore_DatePeriod() {
+    public void testTemporalBeforeDatePeriod() {
         assertFilterEquals(FF.before(TEST_PROPERTY, FF.literal(EPOCH_DAY_PERIOD)));
     }
 
     @Test
-    public void testTemporalDuring_Absolute() {
+    public void testTemporalDuringAbsolute() {
         assertFilterEquals(FF.during(TEST_PROPERTY, FF.literal(EPOCH_DAY_PERIOD)));
     }
 
     @Test
-    public void testTemporalDuring_Relative() {
+    public void testTemporalDuringRelative() {
         assertFilterEquals(FF.during(TEST_PROPERTY, FF.literal(DAY_DURATION)));
     }
 

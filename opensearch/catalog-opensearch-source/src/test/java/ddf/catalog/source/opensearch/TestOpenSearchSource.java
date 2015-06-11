@@ -270,7 +270,7 @@ public class TestOpenSearchSource {
      * @throws MalformedURLException
      */
     @Test
-    public void testQuery_ById() throws UnsupportedQueryException, IOException {
+    public void testQueryById() throws UnsupportedQueryException, IOException {
         WebClient client = mock(WebClient.class);
 
         Response clientResponse = mock(Response.class);
@@ -315,7 +315,7 @@ public class TestOpenSearchSource {
     @Test
     @Ignore
     // Ignored because Content Type support has yet to be added.
-    public void testQuery_ByContentType()
+    public void testQueryByContentType()
             throws UnsupportedQueryException, IOException, URISyntaxException {
 
         // given
@@ -336,7 +336,7 @@ public class TestOpenSearchSource {
     }
 
     @Test
-    public void testQuery_BySearchPhrase()
+    public void testQueryBySearchPhrase()
             throws UnsupportedQueryException, URISyntaxException, IOException {
         WebClient client = mock(WebClient.class);
 
@@ -378,7 +378,7 @@ public class TestOpenSearchSource {
     }
 
     @Test
-    public void testQuery_BySearchPhraseRss()
+    public void testQueryBySearchPhraseRss()
             throws UnsupportedQueryException, URISyntaxException, IOException {
         WebClient client = mock(WebClient.class);
 
@@ -420,7 +420,7 @@ public class TestOpenSearchSource {
     }
 
     @Test
-    public void testQuery_BySearchPhrase_ContentTypeSet()
+    public void testQueryBySearchPhraseContentTypeSet()
             throws UnsupportedQueryException, URISyntaxException, IOException {
         WebClient client = mock(WebClient.class);
 
@@ -476,7 +476,7 @@ public class TestOpenSearchSource {
     }
 
     @Test
-    public void testQuery_BySearchPhrase_ContentTypeSetRss()
+    public void testQueryBySearchPhraseContentTypeSetRss()
             throws UnsupportedQueryException, URISyntaxException, IOException {
         WebClient client = mock(WebClient.class);
 
@@ -765,7 +765,7 @@ public class TestOpenSearchSource {
 
     // DDF-161
     @Test
-    public void testQuery_QueryByMetacardIdFollowedByAnyTextQuery() throws Exception {
+    public void testQueryQueryByMetacardIdFollowedByAnyTextQuery() throws Exception {
 
         WebClient client = mock(WebClient.class);
 
@@ -822,7 +822,7 @@ public class TestOpenSearchSource {
 
     // DDF-161
     @Test
-    public void testQuery_QueryByMetacardIdFollowedByAnyTextQueryRss() throws Exception {
+    public void testQueryQueryByMetacardIdFollowedByAnyTextQueryRss() throws Exception {
 
         WebClient client = mock(WebClient.class);
 

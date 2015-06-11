@@ -1267,7 +1267,7 @@ public class PredicateTest {
     }
 
     @Test
-    public void testGeospatialEvaluator_Overlaps() throws Exception {
+    public void testGeospatialEvaluatorOverlaps() throws Exception {
         logger.debug(
                 "**************************  START: testGeospatialEvaluator_Overlaps()  ***********************");
 
@@ -1354,7 +1354,7 @@ public class PredicateTest {
     }
 
     @Test
-    public void testGeospatialEvaluator_PointRadius_NotContains() throws Exception {
+    public void testGeospatialEvaluatorPointRadiusNotContains() throws Exception {
         logger.debug(
                 "**************************  START: testGeospatialEvaluator_PointRadius_NotContains()  ***********************");
 
@@ -1392,7 +1392,7 @@ public class PredicateTest {
     }
 
     @Test
-    public void testGeospatialEvaluator_PointRadius_Contains() throws Exception {
+    public void testGeospatialEvaluatorPointRadiusContains() throws Exception {
         logger.debug(
                 "**************************  START: testGeospatialEvaluator_PointRadius_Contains()  ***********************");
 
@@ -1434,7 +1434,7 @@ public class PredicateTest {
     }
 
     @Test
-    public void testSpatial_And_Temporal_And_2_EntryPredicates() throws Exception {
+    public void testSpatialAndTemporalAnd2EntryPredicates() throws Exception {
         // logger.debug("**************************  START: testSpatial_And_Temporal_And_2_EntryPredicates()  ***********************");
         //
         // Calendar calendar = Calendar.getInstance();
@@ -1472,7 +1472,7 @@ public class PredicateTest {
     }
 
     @Test
-    public void testSpatial_Or_Temporal_And_2_EntryPredicates() throws Exception {
+    public void testSpatialOrTemporalAnd2EntryPredicates() throws Exception {
         // logger.debug("**************************  START: testSpatial_Or_Temporal_And_2_EntryPredicates()  ***********************");
         //
         // Calendar calendar = Calendar.getInstance();
@@ -1510,7 +1510,7 @@ public class PredicateTest {
     }
 
     @Test
-    public void testContentTypeEvaluator_OnlyType_Match() throws Exception {
+    public void testContentTypeEvaluatorOnlyTypeMatch() throws Exception {
         logger.debug(
                 "**************************  START: testContentTypeEvaluator_OnlyType_Match()  ***********************");
 
@@ -1530,7 +1530,7 @@ public class PredicateTest {
     }
 
     @Test
-    public void testContentTypeEvaluator_OnlyType_NoMatch() throws Exception {
+    public void testContentTypeEvaluatorOnlyTypeNoMatch() throws Exception {
         logger.debug(
                 "**************************  START: testContentTypeEvaluator_OnlyType_NoMatch()  ***********************");
 
@@ -1550,7 +1550,7 @@ public class PredicateTest {
     }
 
     @Test
-    public void testContentTypeEvaluator_TypeAndVersion_Match() throws Exception {
+    public void testContentTypeEvaluatorTypeAndVersionMatch() throws Exception {
         logger.debug(
                 "**************************  START: testContentTypeEvaluator_TypeAndVersion_Match()  ***********************");
 
@@ -1570,7 +1570,7 @@ public class PredicateTest {
     }
 
     @Test
-    public void testContentTypeEvaluator_TypeAndVersion_TypeMismatch() throws Exception {
+    public void testContentTypeEvaluatorTypeAndVersionTypeMismatch() throws Exception {
         logger.debug(
                 "**************************  START: testContentTypeEvaluator_TypeAndVersion_TypeMismatch()  ***********************");
 
@@ -1590,7 +1590,7 @@ public class PredicateTest {
     }
 
     @Test
-    public void testContentTypeEvaluator_TypeAndVersion_VersionMismatch() throws Exception {
+    public void testContentTypeEvaluatorTypeAndVersionVersionMismatch() throws Exception {
         logger.debug(
                 "**************************  START: testContentTypeEvaluator_TypeAndVersion_VersionMismatch()  ***********************");
 

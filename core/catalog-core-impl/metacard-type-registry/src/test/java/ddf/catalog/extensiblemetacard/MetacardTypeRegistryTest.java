@@ -183,12 +183,12 @@ public class MetacardTypeRegistryTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testLookupMetacardType_NullNamespace() {
+    public void testLookupMetacardTypeNullNamespace() {
         mtr.lookup(null, QUALIFIED_METACARD_TYPE_NAME_3);
     }
 
     @Test
-    public void testLookupMetacardType_EmptyNamespace() {
+    public void testLookupMetacardTypeEmptyNamespace() {
         QualifiedMetacardType qmtResult = mtr.lookup("", QUALIFIED_METACARD_TYPE_NAME_3);
         assertNotNull(qmtResult);
         assertEquals(QUALIFIED_METACARD_TYPE_NAME_3, qmtResult.getName());
@@ -198,25 +198,25 @@ public class MetacardTypeRegistryTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testLookupMetacardType_NullName() {
+    public void testLookupMetacardTypeNullName() {
         mtr.lookup(QUALIFIED_METACARD_TYPE_NAMESPACE_1, null);
 
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testLookupMetacardType_EmptyName() {
+    public void testLookupMetacardTypeEmptyName() {
         mtr.lookup(QUALIFIED_METACARD_TYPE_NAMESPACE_1, "");
     }
 
     @Test
-    public void testLookupMetacardType_CantFindName() {
+    public void testLookupMetacardTypeCantFindName() {
         QualifiedMetacardType qmt = mtr
                 .lookup(QUALIFIED_METACARD_TYPE_NAMESPACE_1, QUALIFIED_METACARD_TYPE_NAME_BAD);
         assertNull(qmt);
     }
 
     @Test
-    public void testLookupMetacardType_CantFindNamespace() {
+    public void testLookupMetacardTypeCantFindNamespace() {
         QualifiedMetacardType qmt = mtr
                 .lookup(QUALIFIED_METACARD_TYPE_NAMESPACE_BAD, QUALIFIED_METACARD_TYPE_NAME_3);
         assertNull(qmt);
@@ -232,24 +232,24 @@ public class MetacardTypeRegistryTest {
     }
 
     @Test
-    public void testNoNamespaceLookup_CantFindName() {
+    public void testNoNamespaceLookupCantFindName() {
         QualifiedMetacardType qmt = mtr.lookup(QUALIFIED_METACARD_TYPE_NAME_BAD);
         assertNull(qmt);
     }
 
     @Test
-    public void testNoNamespaceLookup_MatchingNameMismatchingNamespace() {
+    public void testNoNamespaceLookupMatchingNameMismatchingNamespace() {
         QualifiedMetacardType qmt = mtr.lookup(QUALIFIED_METACARD_TYPE_NAME_2);
         assertNull(qmt);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNoNamespaceLookup_EmptyName() {
+    public void testNoNamespaceLookupEmptyName() {
         mtr.lookup("");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNoNamespaceLookup_NullName() {
+    public void testNoNamespaceLookupNullName() {
         mtr.lookup(null);
     }
 

@@ -288,7 +288,7 @@ public class OpenSearchQueryTest {
     }
 
     @Test
-    public void testContextualFilter_PhraseOnly() throws Exception {
+    public void testContextualFilterPhraseOnly() throws Exception {
         String searchTerm = "cat";
         String selector = null;
 
@@ -316,7 +316,7 @@ public class OpenSearchQueryTest {
     }
 
     @Test
-    public void testContextualFilter_PhraseAndSelector() throws Exception {
+    public void testContextualFilterPhraseAndSelector() throws Exception {
         String searchTerm = "cat";
         String selector = "//fileTitle";
 
@@ -344,7 +344,7 @@ public class OpenSearchQueryTest {
     }
 
     @Test
-    public void testContextualFilter_MultipleSelectors() throws Exception {
+    public void testContextualFilterMultipleSelectors() throws Exception {
         String searchTerm = "cat";
         String selectors = "//fileTitle,//nitf";
 
@@ -372,7 +372,7 @@ public class OpenSearchQueryTest {
     }
 
     @Test
-    public void testTemporalFilter_ModifiedSearch() throws Exception {
+    public void testTemporalFilterModifiedSearch() throws Exception {
         String dateOffset = "1800000"; // 30 minutes
 
         TemporalFilter temporalFilter = new TemporalFilter(Long.parseLong(dateOffset));
@@ -400,7 +400,7 @@ public class OpenSearchQueryTest {
     }
 
     @Test
-    public void testTemporalFilter_ModifiedSearch_StringDates() throws Exception {
+    public void testTemporalFilterModifiedSearchStringDates() throws Exception {
         String startDate = null;
         String endDate = null;
         String dateOffset = "1800000"; // 30 minutes
@@ -430,7 +430,7 @@ public class OpenSearchQueryTest {
     }
 
     @Test
-    public void testTemporalFilter_AbsoluteSearch() throws Exception {
+    public void testTemporalFilterAbsoluteSearch() throws Exception {
         String startDate = "2011-10-4T05:48:27.891-07:00";
         String endDate = "2011-10-4T06:18:27.581-07:00";
 
@@ -458,7 +458,7 @@ public class OpenSearchQueryTest {
     }
 
     @Test
-    public void testTemporalFilter_AbsoluteSearch_StringDates() throws Exception {
+    public void testTemporalFilterAbsoluteSearchStringDates() throws Exception {
         String startDate = "2011-10-4T05:48:27.891-07:00";
         String endDate = "2011-10-4T06:18:27.581-07:00";
         String dateOffset = null;
@@ -693,7 +693,7 @@ public class OpenSearchQueryTest {
     }
 
     @Test
-    public void testTypeFilter_TypeOnly() throws Exception {
+    public void testTypeFilterTypeOnly() throws Exception {
         String type = "nitf";
         String versions = "";
 
@@ -718,7 +718,7 @@ public class OpenSearchQueryTest {
     }
 
     @Test
-    public void testTypeFilter_WildcardTypeAndVersion() throws Exception {
+    public void testTypeFilterWildcardTypeAndVersion() throws Exception {
         String type = "*";
         String versions = "collectorPosition";
 
@@ -757,7 +757,7 @@ public class OpenSearchQueryTest {
     }
 
     @Test
-    public void testTypeFilter_WildcardTypeAndMultipleVersions() throws Exception {
+    public void testTypeFilterWildcardTypeAndMultipleVersions() throws Exception {
         String type = "*";
         String versions = "v20,invalid_version,*";
 
@@ -828,7 +828,7 @@ public class OpenSearchQueryTest {
 
     @Test
     @Ignore
-    public void testWktParser_Polygon() throws Exception {
+    public void testWktParserPolygon() throws Exception {
         String geometryWkt = "POLYGON(( 0 10, 0 30, 20 30, 20 10, 0 10 ))";
         GeometryBuilder builder = new GeometryBuilder(DefaultGeographicCRS.WGS84);
         WKTParser parser = new WKTParser(builder);
@@ -860,7 +860,7 @@ public class OpenSearchQueryTest {
 
     @Test
     // @Ignore
-    public void testOgcFilterEvaluate_Temporal_Between() throws Exception {
+    public void testOgcFilterEvaluateTemporalBetween() throws Exception {
         FilterFactory filterFactory = new FilterFactoryImpl();
 
         // get a calendar instance, which defaults to "now"
@@ -978,7 +978,7 @@ public class OpenSearchQueryTest {
 
     @Test
     @Ignore
-    public void testOgcFilterEvaluate_Contextual_Like() throws Exception {
+    public void testOgcFilterEvaluateContextualLike() throws Exception {
         // String input = "abc_cat_dog_xyz";
         String input = "<ns1:thing xmlns:ns1=\"http://ddf.codice.org/mynamespace\">cat</ns1:thing>";
         // String searchTerm = "cat";

@@ -185,7 +185,7 @@ public class SourceMetricsImplTest {
     }
 
     @Test
-    public void testDeleteSource_BlankSourceId() throws Exception {
+    public void testDeleteSourceBlankSourceId() throws Exception {
         String sourceId = "cp-1";
         String metricName = SourceMetrics.QUERIES_SCOPE;
 
@@ -221,7 +221,7 @@ public class SourceMetricsImplTest {
     }
 
     @Test
-    public void testGetRrdFilename_DashesNumbers() throws Exception {
+    public void testGetRrdFilenameDashesNumbers() throws Exception {
         String sourceId = "dib30rhel-58";
         String collectorName = SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
 
@@ -233,7 +233,7 @@ public class SourceMetricsImplTest {
     }
 
     @Test
-    public void testGetRrdFilename_NonAlphanumerics() throws Exception {
+    public void testGetRrdFilenameNonAlphanumerics() throws Exception {
         String sourceId = "dib30rh%^&*()$e#@!l-58";
         String collectorName = SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
 

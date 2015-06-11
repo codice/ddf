@@ -74,7 +74,7 @@ public class XPathHelperTest {
     }
 
     @Test
-    public void testXPathHelper_WithDocument() throws Exception {
+    public void testXPathHelperWithDocument() throws Exception {
         try {
             Document document = getDocument(INPUT_FILE);
 
@@ -91,7 +91,7 @@ public class XPathHelperTest {
     }
 
     @Test
-    public void testXPathHelper_WithXmlFile() throws Exception {
+    public void testXPathHelperWithXmlFile() throws Exception {
         try {
             String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
 
@@ -108,7 +108,7 @@ public class XPathHelperTest {
     }
 
     @Test
-    public void testXPathHelper_WithNoNamespaceTextPath() throws Exception {
+    public void testXPathHelperWithNoNamespaceTextPath() throws Exception {
         try {
             String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
 
@@ -125,7 +125,7 @@ public class XPathHelperTest {
     }
 
     @Test
-    public void testXPathHelper_WithNamespaceTextPath() throws Exception {
+    public void testXPathHelperWithNamespaceTextPath() throws Exception {
         try {
             String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
 
@@ -142,7 +142,7 @@ public class XPathHelperTest {
     }
 
     @Test
-    public void testXPathHelper_WithAnyNamespaceTextPath() throws Exception {
+    public void testXPathHelperWithAnyNamespaceTextPath() throws Exception {
         try {
             String xmlString = getFileContentsAsString(TEST_DATA_PATH + INPUT_FILE);
 
@@ -158,7 +158,7 @@ public class XPathHelperTest {
     }
 
     @Test
-    public void testXPathHelper_NoTitle() throws Exception {
+    public void testXPathHelperNoTitle() throws Exception {
         try {
             String xmlString = getFileContentsAsString(
                     TEST_DATA_PATH + "IngestMetadata_NoTitle.xml");

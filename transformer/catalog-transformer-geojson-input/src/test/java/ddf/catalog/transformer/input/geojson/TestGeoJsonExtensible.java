@@ -258,7 +258,7 @@ public class TestGeoJsonExtensible {
     }
 
     @Test
-    public void testExtensibleGeoJsonB_NonParseableField()
+    public void testExtensibleGeoJsonBNonParseableField()
             throws IOException, CatalogTransformerException {
         MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
 
@@ -293,7 +293,7 @@ public class TestGeoJsonExtensible {
     }
 
     @Test
-    public void testExtensibleGeoJson_NoMetacardType()
+    public void testExtensibleGeoJsonNoMetacardType()
             throws IOException, CatalogTransformerException {
         MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
 
@@ -316,7 +316,7 @@ public class TestGeoJsonExtensible {
     }
 
     @Test(expected = CatalogTransformerException.class)
-    public void testExtensibleGeoJson_UnregisteredMetacardType()
+    public void testExtensibleGeoJsonUnregisteredMetacardType()
             throws IOException, CatalogTransformerException {
         MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
 
@@ -337,7 +337,7 @@ public class TestGeoJsonExtensible {
     }
 
     @Test
-    public void testBasicMetacardType_NoMetacardType()
+    public void testBasicMetacardTypeNoMetacardType()
             throws IOException, CatalogTransformerException, ParseException {
         MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
         ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(

@@ -105,7 +105,7 @@ public class MetacardTypeImplTest {
     }
 
     @Test
-    public void testEquals_DifferentDescriptors() {
+    public void testEqualsDifferentDescriptors() {
 
         MetacardTypeImpl metacardType1 = generateMetacardType("metacardType", 0);
 
@@ -116,7 +116,7 @@ public class MetacardTypeImplTest {
     }
 
     @Test
-    public void testEquals_DifferentNames() {
+    public void testEqualsDifferentNames() {
 
         MetacardTypeImpl metacardType1 = generateMetacardType("differentName", 0);
 
@@ -127,7 +127,7 @@ public class MetacardTypeImplTest {
     }
 
     @Test
-    public void testEquals_NullNames() {
+    public void testEqualsNullNames() {
 
         MetacardTypeImpl metacardType1 = generateMetacardType(null, 0);
 
@@ -138,7 +138,7 @@ public class MetacardTypeImplTest {
     }
 
     @Test
-    public void testEquals_NullDescriptors() {
+    public void testEqualsNullDescriptors() {
 
         MetacardTypeImpl metacardType1 = generateMetacardType("name", 2);
 
@@ -149,7 +149,7 @@ public class MetacardTypeImplTest {
     }
 
     @Test
-    public void testEquals_SubClass() {
+    public void testEqualsSubClass() {
         HashSet<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
         descriptors.add(new AttributeDescriptorImpl("id", true, true, false, false,
                 BasicTypes.STRING_TYPE));

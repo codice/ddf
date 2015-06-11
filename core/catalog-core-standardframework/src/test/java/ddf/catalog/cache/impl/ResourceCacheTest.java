@@ -308,7 +308,7 @@ public class ResourceCacheTest {
     }
 
     @Test
-    public void testContainsTrueInvalid2_CantFindFile() throws URISyntaxException, Exception {
+    public void testContainsTrueInvalid2CantFindFile() throws URISyntaxException, Exception {
         MetacardImpl cachedMetacard = generateMetacard();
         cachedMetacard.setId("different-id");
         MetacardImpl latestMetacard = generateMetacard();

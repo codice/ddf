@@ -222,7 +222,7 @@ public class CatalogComponentTest extends CamelTestSupport {
     }
 
     @Test
-    public void testTransformMetacard_NoMimeTypeToTransformerMapperRegistered() throws Exception {
+    public void testTransformMetacardNoMimeTypeToTransformerMapperRegistered() throws Exception {
         LOGGER.debug("Running testTransformMetacard_NoMimeTypeToTransformerMapperRegistered()");
 
         catalogComponent.setMimeTypeToTransformerMapper(null);
@@ -253,7 +253,7 @@ public class CatalogComponentTest extends CamelTestSupport {
     }
 
     @Test
-    public void testTransformMetacard_NoProducerInputTransformerRegistered() throws Exception {
+    public void testTransformMetacardNoProducerInputTransformerRegistered() throws Exception {
         LOGGER.debug("Running testTransformMetacard()");
 
         // Mock the MimeTypeToTransformerMapper and register it in the OSGi

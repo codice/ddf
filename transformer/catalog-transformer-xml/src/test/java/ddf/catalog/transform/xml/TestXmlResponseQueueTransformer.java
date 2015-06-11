@@ -129,7 +129,7 @@ public class TestXmlResponseQueueTransformer {
      * @throws XpathException
      */
     @Test
-    public void testMetacardTypeName_Null()
+    public void testMetacardTypeNameNull()
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given
@@ -162,7 +162,7 @@ public class TestXmlResponseQueueTransformer {
      * @throws XpathException
      */
     @Test
-    public void testMetacardTypeName_Empty()
+    public void testMetacardTypeNameEmpty()
             throws CatalogTransformerException, IOException, XpathException, SAXException {
 
         // given

@@ -52,7 +52,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
     }
 
     @Test
-    public void testMetacardIdUrlEncoded_Space() {
+    public void testMetacardIdUrlEncodedSpace() {
 
         // given
         MetacardImpl metacard = new MetacardImpl();
@@ -71,7 +71,7 @@ public class TestViewMetacardActionProvider extends AbstractActionProviderTest {
     }
 
     @Test
-    public void testMetacardIdUrlEncoded_Ampersand() {
+    public void testMetacardIdUrlEncodedAmpersand() {
 
         // given
         MetacardImpl metacard = new MetacardImpl();
