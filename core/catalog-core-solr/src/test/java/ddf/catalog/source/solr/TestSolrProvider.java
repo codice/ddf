@@ -1363,46 +1363,44 @@ public class TestSolrProvider extends SolrProviderTestCase {
 
         DeleteResponse deleteResponse = provider.delete(new DeleteRequest() {
 
-                                                            @Override
-                                                            public boolean hasProperties() {
-                                                                return false;
-                                                            }
+            @Override
+            public boolean hasProperties() {
+                return false;
+            }
 
-                                                            @Override
-                                                            public Serializable getPropertyValue(
-                                                                    String name) {
-                                                                return null;
-                                                            }
+            @Override
+            public Serializable getPropertyValue(
+                    String name) {
+                return null;
+            }
 
-                                                            @Override
-                                                            public Set<String> getPropertyNames() {
-                                                                return null;
-                                                            }
+            @Override
+            public Set<String> getPropertyNames() {
+                return null;
+            }
 
-                                                            @Override
-                                                            public Map<String, Serializable> getProperties() {
-                                                                return null;
-                                                            }
+            @Override
+            public Map<String, Serializable> getProperties() {
+                return null;
+            }
 
-                                                            @Override
-                                                            public boolean containsPropertyName(
-                                                                    String name) {
-                                                                return false;
-                                                            }
+            @Override
+            public boolean containsPropertyName(
+                    String name) {
+                return false;
+            }
 
-                                                            @Override
-                                                            public List<? extends Serializable> getAttributeValues() {
-                                                                return Arrays
-                                                                        .asList(MockMetacard.DEFAULT_TITLE);
-                                                            }
+            @Override
+            public List<? extends Serializable> getAttributeValues() {
+                return Arrays
+                        .asList(MockMetacard.DEFAULT_TITLE);
+            }
 
-                                                            @Override
-                                                            public String getAttributeName() {
-                                                                return Metacard.TITLE;
-                                                            }
-                                                        }
-
-        );
+            @Override
+            public String getAttributeName() {
+                return Metacard.TITLE;
+            }
+        });
 
         Metacard deletedMetacard = deleteResponse.getDeletedMetacards().get(0);
 
