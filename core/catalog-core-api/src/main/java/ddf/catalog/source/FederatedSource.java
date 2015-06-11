@@ -13,14 +13,13 @@
  */
 package ddf.catalog.source;
 
-import ddf.catalog.operation.Query;
 
 /**
  * Provides an implementation of {@link Source} that represents a remote {@Source} that can
- * be optionally included in federated {@link Query} implementations.
+ * be optionally included in federated {@link ddf.catalog.operation.Query} implementations.
  *
  * @see Source
- * @see Query
+ * @see ddf.catalog.operation.Query
  */
 public interface FederatedSource extends RemoteSource {
 

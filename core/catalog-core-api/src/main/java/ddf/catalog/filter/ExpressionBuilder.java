@@ -14,29 +14,10 @@
 package ddf.catalog.filter;
 
 import org.opengis.filter.Filter;
-import org.opengis.filter.PropertyIsBetween;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.PropertyIsGreaterThan;
-import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
-import org.opengis.filter.PropertyIsLessThan;
-import org.opengis.filter.PropertyIsLessThanOrEqualTo;
-import org.opengis.filter.PropertyIsLike;
-import org.opengis.filter.PropertyIsNotEqualTo;
-import org.opengis.filter.PropertyIsNull;
-import org.opengis.filter.spatial.Beyond;
-import org.opengis.filter.spatial.Contains;
-import org.opengis.filter.spatial.DWithin;
-import org.opengis.filter.spatial.Intersects;
-import org.opengis.filter.spatial.Within;
-import org.opengis.filter.temporal.After;
-import org.opengis.filter.temporal.Before;
-import org.opengis.filter.temporal.During;
-import org.opengis.filter.temporal.OverlappedBy;
 
-import ddf.catalog.data.Attribute;
 
 /**
- * Continues the fluent API to create {@link Filter} based on a particular {@link Attribute}
+ * Continues the fluent API to create {@link Filter} based on a particular {@link ddf.catalog.data.Attribute}
  *
  * @author Michael Menousek, Lockheed Martin
  * @author ddf.isgs@lmco.com
@@ -48,7 +29,7 @@ public interface ExpressionBuilder extends EqualityExpressionBuilder {
      */
 
     /**
-     * Continue building a Filter with the "less than" operator ( {@link PropertyIsLessThan})
+     * Continue building a Filter with the "less than" operator ( {@link org.opengis.filter.PropertyIsLessThan})
      *
      * @return {@link NumericalExpressionBuilder} to continue building the {@link Filter}
      */
@@ -56,14 +37,14 @@ public interface ExpressionBuilder extends EqualityExpressionBuilder {
 
     /**
      * Continue building a Filter with the "less than or equal to" operator (
-     * {@link PropertyIsLessThanOrEqualTo})
+     * {@link org.opengis.filter.PropertyIsLessThanOrEqualTo})
      *
      * @return {@link NumericalExpressionBuilder} to continue building the {@link Filter}
      */
     public NumericalExpressionBuilder lessThanOrEqualTo();
 
     /**
-     * Continue building a Filter with the "greater than" operator ( {@link PropertyIsGreaterThan})
+     * Continue building a Filter with the "greater than" operator ( {@link org.opengis.filter.PropertyIsGreaterThan})
      *
      * @return {@link NumericalExpressionBuilder} to continue building the {@link Filter}
      */
@@ -71,14 +52,14 @@ public interface ExpressionBuilder extends EqualityExpressionBuilder {
 
     /**
      * Continue building a Filter with the "greater than or equal to" operator (
-     * {@link PropertyIsGreaterThanOrEqualTo})
+     * {@link org.opengis.filter.PropertyIsGreaterThanOrEqualTo})
      *
      * @return {@link NumericalExpressionBuilder} to continue building the {@link Filter}
      */
     public NumericalExpressionBuilder greaterThanOrEqualTo();
 
     /**
-     * Continue building a Filter with the "equal to" operator ( {@link PropertyIsEqualTo})
+     * Continue building a Filter with the "equal to" operator ( {@link org.opengis.filter.PropertyIsEqualTo})
      *
      * @return {@link NumericalExpressionBuilder} to continue building the {@link Filter}
      */
@@ -89,49 +70,49 @@ public interface ExpressionBuilder extends EqualityExpressionBuilder {
      */
 
     /**
-     * Continue building a Filter with the "like" operator ( {@link PropertyIsLike})
+     * Continue building a Filter with the "like" operator ( {@link org.opengis.filter.PropertyIsLike})
      *
      * @return {@link ContextualExpressionBuilder} to continue building the {@link Filter}
      */
     public ContextualExpressionBuilder like();
 
     /**
-     * Continue building a Filter with the "between" operator ( {@link PropertyIsBetween})
+     * Continue building a Filter with the "between" operator ( {@link org.opengis.filter.PropertyIsBetween})
      *
      * @return {@link NumericalRangeExpressionBuilder} to continue building the {@link Filter}
      */
     public NumericalRangeExpressionBuilder between();
 
     /**
-     * Continue building a Filter with the "not equal" operator ( {@link PropertyIsNotEqualTo})
+     * Continue building a Filter with the "not equal" operator ( {@link org.opengis.filter.PropertyIsNotEqualTo})
      *
      * @return {@link EqualityExpressionBuilder} to continue building the {@link Filter}
      */
     public EqualityExpressionBuilder notEqualTo();
 
     /**
-     * Complete building a Filter with the "is null" operator ( {@link PropertyIsNull})
+     * Complete building a Filter with the "is null" operator ( {@link org.opengis.filter.PropertyIsNull})
      *
      * @return {@link Filter}
      */
     public Filter empty();
 
     /**
-     * Continue building a Filter with the "after" operator ( {@link After}) for a moment in time
+     * Continue building a Filter with the "after" operator ( {@link org.opengis.filter.temporal.After}) for a moment in time
      *
      * @return {@link TemporalInstantExpressionBuilder} to continue building the {@link Filter}
      */
     public TemporalInstantExpressionBuilder after();
 
     /**
-     * Continue building a Filter with the "before" operator ( {@link Before}) for a moment in time
+     * Continue building a Filter with the "before" operator ( {@link org.opengis.filter.temporal.Before}) for a moment in time
      *
      * @return {@link TemporalInstantExpressionBuilder} to continue building the {@link Filter}
      */
     public TemporalInstantExpressionBuilder before();
 
     /**
-     * Continue building a Filter with the "during" operator ( {@link During}) for a timne range
+     * Continue building a Filter with the "during" operator ( {@link org.opengis.filter.temporal.During}) for a timne range
      * (inclusive)
      *
      * @return {@link TemporalRangeExpressionBuilder} to continue building the {@link Filter}
@@ -141,7 +122,7 @@ public interface ExpressionBuilder extends EqualityExpressionBuilder {
     // TODO is this needed?
 
     /**
-     * Continue building a Filter with the "overlaps" operator ( {@link OverlappedBy}) for a time
+     * Continue building a Filter with the "overlaps" operator ( {@link org.opengis.filter.temporal.OverlappedBy}) for a time
      * range (inclusive)
      *
      * @return {@link TemporalRangeExpressionBuilder} to continue building the {@link Filter}
@@ -153,35 +134,35 @@ public interface ExpressionBuilder extends EqualityExpressionBuilder {
      */
 
     /**
-     * Continue building a Filter with the "intersects" operator ( {@link Intersects})
+     * Continue building a Filter with the "intersects" operator ( {@link org.opengis.filter.spatial.Intersects})
      *
      * @return {@link SpatialExpressionBuilder} to continue building the {@link Filter}
      */
     public SpatialExpressionBuilder intersecting();
 
     /**
-     * Continue building a Filter with the "contains" operator ( {@link Contains})
+     * Continue building a Filter with the "contains" operator ( {@link org.opengis.filter.spatial.Contains})
      *
      * @return {@link SpatialExpressionBuilder} to continue building the {@link Filter}
      */
     public SpatialExpressionBuilder containing();
 
     /**
-     * Continue building a Filter with the "beyond" operator ( {@link Beyond})
+     * Continue building a Filter with the "beyond" operator ( {@link org.opengis.filter.spatial.Beyond})
      *
      * @return {@link BufferedSpatialExpressionBuilder} to continue building the {@link Filter}
      */
     public BufferedSpatialExpressionBuilder beyond();
 
     /**
-     * Continue building a Filter with the "within" operator ( {@link Within})
+     * Continue building a Filter with the "within" operator ( {@link org.opengis.filter.spatial.Within})
      *
      * @return {@link SpatialExpressionBuilder} to continue building the {@link Filter}
      */
     public SpatialExpressionBuilder within();
 
     /**
-     * Continue building a Filter with the "within distance" operator ( {@link DWithin})
+     * Continue building a Filter with the "within distance" operator ( {@link org.opengis.filter.spatial.DWithin})
      *
      * @return {@link SpatialExpressionBuilder} to continue building the {@link Filter}
      */

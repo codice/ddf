@@ -16,8 +16,6 @@ package ddf.catalog.operation;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
-import ddf.catalog.source.Source;
-import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * A {@link Query} contains the basic aspects of executing a search. A {@link Query} extends
@@ -38,8 +36,8 @@ public interface Query extends Filter {
      * then the query results will start with the 5th result discovered by the query.
      * </p>
      * <p>
-     * If a value less than 1 is returned, {@link Source} implementations will throw
-     * {@link UnsupportedQueryException}.
+     * If a value less than 1 is returned, {@link ddf.catalog.source.Source} implementations will throw
+     * {@link ddf.catalog.source.UnsupportedQueryException}.
      * </p>
      *
      * @return int - the start index for the query results
@@ -49,7 +47,7 @@ public interface Query extends Filter {
     /**
      * The page size represents the maximum amount of results the query will return. Page sizes of
      * less than 1 (0 or a negative number) should return the maximum number of results for each
-     * {@link Source}.
+     * {@link ddf.catalog.source.Source}.
      *
      * @return the page size - the maximum result size
      */

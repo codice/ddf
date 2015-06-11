@@ -16,13 +16,10 @@ package ddf.catalog.operation;
 import java.io.Serializable;
 import java.util.List;
 
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.source.CatalogProvider;
 
 /**
- * A request to delete {@link Metacard}s from the {@link CatalogProvider}
+ * A request to delete {@link Metacard}s from the {@link ddf.catalog.source.CatalogProvider}
  *
  * @author ddf.isgs@lmco.com
  *
@@ -34,14 +31,14 @@ public interface DeleteRequest extends Request {
     public static final String DELETE_BY_PRODUCT_URI = Metacard.RESOURCE_URI;
 
     /**
-     * The attribute name tells the {@link CatalogProvider} implementer what type of attribute
+     * The attribute name tells the {@link ddf.catalog.source.CatalogProvider} implementer what type of attribute
      * values are in the ({@link #getAttributeValues()}) {@code List}. For instance, if the
-     * attribute name was "id," then the {@link CatalogProvider} implementer would know that the
+     * attribute name was "id," then the {@link ddf.catalog.source.CatalogProvider} implementer would know that the
      * attribute values in the list were id values (such as {@code 575aa9625fa24b338bd3c439f2613709}
      * ).
      *
-     * @return the attribute name, the attribute name must correspond to an {@link Attribute} that
-     *         has an {@link AttributeFormat} of {@link AttributeFormat#STRING}
+     * @return the attribute name, the attribute name must correspond to an {@link ddf.catalog.data.Attribute} that
+     *         has an {@link ddf.catalog.data.AttributeType.AttributeFormat} of {@link ddf.catalog.data.AttributeType.AttributeFormat#STRING}
      */
     public String getAttributeName();
 

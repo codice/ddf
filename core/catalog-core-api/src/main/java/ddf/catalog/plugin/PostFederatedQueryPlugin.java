@@ -13,22 +13,20 @@
  */
 package ddf.catalog.plugin;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryResponse;
 
 /**
  * A PostFederatedQueryPlugin is used to execute functionality after a federated query has been
  * executed. For example if metrics need to be recorded on the query, a PostFederatedQueryPlugin
  * could be implemented to do this prior to the query response being returned to the
- * {@link CatalogFramework}.
+ * {@link ddf.catalog.CatalogFramework}.
  *
  * @author rodgersh
  */
 public interface PostFederatedQueryPlugin {
 
     /**
-     * Processes a {@link QueryResponse} after the execution of the Federated {@link Query}.
+     * Processes a {@link QueryResponse} after the execution of the Federated {@link ddf.catalog.operation.Query}.
      *
      * @param input
      *            the Federated {@link QueryResponse} to process

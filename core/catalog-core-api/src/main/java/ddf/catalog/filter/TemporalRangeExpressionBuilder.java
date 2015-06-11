@@ -17,8 +17,6 @@ import java.util.Date;
 
 import org.opengis.filter.Filter;
 
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.Metacard;
 
 /**
  * Finishes the fluent API to create a Temporal Range {@link Filter}
@@ -29,7 +27,7 @@ import ddf.catalog.data.Metacard;
 public interface TemporalRangeExpressionBuilder {
 
     /**
-     * Create a {@link Filter} matching {@link Metacard}s where the indicated {@link Attribute} is a
+     * Create a {@link Filter} matching {@link ddf.catalog.data.Metacard}s where the indicated {@link ddf.catalog.data.Attribute} is a
      * time between the specified dates
      *
      * @param start
@@ -41,7 +39,7 @@ public interface TemporalRangeExpressionBuilder {
     public abstract Filter dates(Date start, Date end);
 
     /**
-     * Create a {@link Filter} matching {@link Metacard}s where the indicated {@link Attribute} is a
+     * Create a {@link Filter} matching {@link ddf.catalog.data.Metacard}s where the indicated {@link ddf.catalog.data.Attribute} is a
      * time between now and the specified number of milliseconds in the past (inclusive)
      *
      * @param millis
@@ -50,7 +48,7 @@ public interface TemporalRangeExpressionBuilder {
     public abstract Filter last(long millis);
 
     /**
-     * Create a {@link Filter} matching {@link Metacard}s where the indicated {@link Attribute} is a
+     * Create a {@link Filter} matching {@link ddf.catalog.data.Metacard}s where the indicated {@link ddf.catalog.data.Attribute} is a
      * time between now and the specified number of milliseconds in the future (inclusive)
      *
      * @param millis

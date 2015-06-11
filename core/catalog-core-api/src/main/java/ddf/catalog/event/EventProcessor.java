@@ -13,16 +13,8 @@
  */
 package ddf.catalog.event;
 
-import org.opengis.filter.Filter;
 
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.Update;
-import ddf.catalog.plugin.PreDeliveryPlugin;
-import ddf.catalog.plugin.PreSubscriptionPlugin;
-import ddf.catalog.source.ConnectedSource;
-import ddf.catalog.source.FederatedSource;
-import ddf.catalog.source.RemoteSource;
 
 /**
  * This interface is used to describe:
@@ -75,13 +67,13 @@ public interface EventProcessor {
      * @return {@link String} an id for the registered {@link Subscription} that can be used later
      *         by calling {@link #unsubscribe(String)}
      * @throws InvalidSubscriptionException
-     *             if this {@link EventProcessor} can not support the {@link Filter} of the provided
+     *             if this {@link EventProcessor} can not support the {@link org.opengis.filter.Filter} of the provided
      *             {@link Subscription}.
      */
     public String createSubscription(Subscription subscription) throws InvalidSubscriptionException;
 
     /**
-     * Register a {@link Subscription} with this {@link CatalogFramework}.
+     * Register a {@link Subscription} with this {@link ddf.catalog.CatalogFramework}.
      * <p>
      * <b>Note:</b> <em>{@link Subscription}s are transient, not durable,
      * i.e., only maintained in memory and will be lost if DDF is shutdown.</em><br/>
@@ -100,14 +92,14 @@ public interface EventProcessor {
      * </p>
      *
      * Implementations of this method <em>must</em> call the
-     * {@link PreSubscriptionPlugin#process(Subscription)} method for each
+     * {@link ddf.catalog.plugin.PreSubscriptionPlugin#process(Subscription)} method for each
      *
      * @param subscription
      *            the {@link Subscription} to register
      * @param subscriptionId
      *            the desired id
      * @throws InvalidSubscriptionException
-     *             if this {@link EventProcessor} can not support the {@link Filter} of the provided
+     *             if this {@link EventProcessor} can not support the {@link org.opengis.filter.Filter} of the provided
      *             {@link Subscription}.
      * @throws SubscriptionExistsException
      *             if a subscription with this ID already exists
@@ -142,13 +134,13 @@ public interface EventProcessor {
 
     /**
      * Notify this {@code EventProcessor} that a {@link Metacard} (or equivalent) has been created
-     * in a {@link RemoteSource}.
+     * in a {@link ddf.catalog.source.RemoteSource}.
      *
      * <p>
      * <b>Implementations of this method must:</b>
      * <ol>
-     * <li>Call the {@link PreDeliveryPlugin#processCreate(Metacard)} method for all of the
-     * registered {@link PreDeliveryPlugin}s
+     * <li>Call the {@link ddf.catalog.plugin.PreDeliveryPlugin#processCreate(Metacard)} method for all of the
+     * registered {@link ddf.catalog.plugin.PreDeliveryPlugin}s
      * <li>Call the {@link DeliveryMethod#created(Metacard)} method of the {@link DeliveryMethod} of
      * matching {@link Subscription}s with the new {@link Metacard} created.
      * </ol>
@@ -157,24 +149,24 @@ public interface EventProcessor {
      * @param newMetacard
      *            the newly created {@link Metacard}
      *
-     * @see RemoteSource
-     * @see FederatedSource
-     * @see ConnectedSource
+     * @see ddf.catalog.source.RemoteSource
+     * @see ddf.catalog.source.FederatedSource
+     * @see ddf.catalog.source.ConnectedSource
      */
     public void notifyCreated(Metacard newMetacard);
 
     /**
      * Notify this {@code EventProcessor} that a {@link Metacard} (or equivalent) has been updated
-     * in a {@link RemoteSource}.
+     * in a {@link ddf.catalog.source.RemoteSource}.
      *
      * <p>
      * <b>Implementations of this method must:</b>
      * <ol>
-     * <li/>Call {@link PreDeliveryPlugin#processUpdateHit(Update)} method of all registered
-     * {@link PreDeliveryPlugin}s when a {@link Metacard} has been updated and the new version
+     * <li/>Call {@link ddf.catalog.plugin.PreDeliveryPlugin#processUpdateHit(ddf.catalog.operation.Update)} method of all registered
+     * {@link ddf.catalog.plugin.PreDeliveryPlugin}s when a {@link Metacard} has been updated and the new version
      * matches a {@link Subscription}
-     * <li/>Call {@link PreDeliveryPlugin#processUpdateMiss(Update)} method of all registered
-     * {@link PreDeliveryPlugin}s when a {@link Metacard} has been updated and the new version
+     * <li/>Call {@link ddf.catalog.plugin.PreDeliveryPlugin#processUpdateMiss(ddf.catalog.operation.Update)} method of all registered
+     * {@link ddf.catalog.plugin.PreDeliveryPlugin}s when a {@link Metacard} has been updated and the new version
      * matches a {@link Subscription} but the old version does not
      * <li>Call all registered implementations of {@link DeliveryMethod} with the updated
      * {@link Metacard}.
@@ -187,15 +179,15 @@ public interface EventProcessor {
      *            the previous version of the {@link Metacard} (optional, pass {@code null} if not
      *            relevant)
      *
-     * @see FederatedSource
-     * @see RemoteSource
-     * @see ConnectedSource
+     * @see ddf.catalog.source.FederatedSource
+     * @see ddf.catalog.source.RemoteSource
+     * @see ddf.catalog.source.ConnectedSource
      */
     public void notifyUpdated(Metacard newMetacard, Metacard oldMetacard);
 
     /**
      * Notify this {@link EventProcessor} that a {@link Metacard} (or equivalent) has been deleted
-     * in a {@link RemoteSource}.
+     * in a {@link ddf.catalog.source.RemoteSource}.
      *
      * <p>
      * <b>Implementations of this method must:</b>
@@ -209,9 +201,9 @@ public interface EventProcessor {
      * @param oldMetacard
      *            the deleted {@link Metacard}
      *
-     * @see RemoteSource
-     * @see FederatedSource
-     * @see ConnectedSource
+     * @see ddf.catalog.source.RemoteSource
+     * @see ddf.catalog.source.FederatedSource
+     * @see ddf.catalog.source.ConnectedSource
      */
     public void notifyDeleted(Metacard oldMetacard);
 

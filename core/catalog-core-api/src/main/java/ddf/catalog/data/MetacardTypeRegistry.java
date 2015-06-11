@@ -16,9 +16,6 @@ package ddf.catalog.data;
 
 import java.util.Set;
 
-import ddf.catalog.transform.InputTransformer;
-import ddf.catalog.transform.MetacardTransformer;
-import ddf.catalog.transform.QueryResponseTransformer;
 
 /**
  * Registry to maintain {@link MetacardType}s that are supported by the system's Endpoints and
@@ -41,7 +38,7 @@ public interface MetacardTypeRegistry {
 
     /**
      * Registers a {@link QualifiedMetacardType} in the system so that it is accessible to
-     * {@link InputTransformer}s, {@link MetacardTransformer}s, {@link QueryResponseTransformer}s,
+     * {@link ddf.catalog.transform.InputTransformer}s, {@link ddf.catalog.transform.MetacardTransformer}s, {@link ddf.catalog.transform.QueryResponseTransformer}s,
      * and other components. This allows those components to know how to properly interpret a
      * {@link Metacard} and its {@link Attribute}s.
      *

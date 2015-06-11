@@ -13,10 +13,9 @@
  */
 package ddf.catalog.filter;
 
-import org.opengis.filter.Filter;
 
 /**
- * Builds XPath-based Contextual {@link Filter}s.
+ * Builds XPath-based Contextual {@link org.opengis.filter.Filter}s.
  *
  * @author Michael Menousek, Lockheed Martin
  * @author ddf.isgs@lmco.com
@@ -24,7 +23,7 @@ import org.opengis.filter.Filter;
 public interface XPathBasicBuilder {
 
     /**
-     * Continue building an XPath {@link Filter} with a Contextual operator
+     * Continue building an XPath {@link org.opengis.filter.Filter} with a Contextual operator
      *
      * @return {@link ContextualExpressionBuilder} to continue building
      */

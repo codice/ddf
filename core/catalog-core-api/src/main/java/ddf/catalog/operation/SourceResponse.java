@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 
 import ddf.catalog.data.Result;
-import ddf.catalog.source.Source;
 
 /**
  * Query status should come back in the properties.
@@ -29,7 +28,7 @@ public interface SourceResponse extends Response<QueryRequest> {
 
     /**
      * The total number of hits matching the associated {@link Query} for the associated
-     * {@link Source}, -1 if unknown. This is typically more than the number of {@link Result}s
+     * {@link ddf.catalog.source.Source}, -1 if unknown. This is typically more than the number of {@link Result}s
      * returned from {@link #getResults()}.
      *
      * @return long - total hits matching this {@link Query}, -1 if unknown.

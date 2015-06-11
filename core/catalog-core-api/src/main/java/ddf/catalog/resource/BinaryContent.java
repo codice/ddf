@@ -17,15 +17,13 @@ import java.io.InputStream;
 
 import javax.activation.MimeType;
 
-import ddf.catalog.transform.InputTransformer;
-import ddf.catalog.transform.QueryResponseTransformer;
 
 /**
  * The BinaryContent is used to return content as an {@link InputStream} that has been transformed
  * by a Transformer
  *
- * @see InputTransformer
- * @see QueryResponseTransformer
+ * @see ddf.catalog.transform.InputTransformer
+ * @see ddf.catalog.transform.QueryResponseTransformer
  *
  * @deprecated superceded by ddf.catalog.data.BinaryContent
  *

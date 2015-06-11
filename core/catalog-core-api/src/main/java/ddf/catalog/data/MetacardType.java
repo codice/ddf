@@ -14,7 +14,6 @@
 package ddf.catalog.data;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -42,7 +41,7 @@ public interface MetacardType extends Serializable {
      * Returns the unmodifiable {@link Set} of {@link AttributeDescriptor}s for this
      * {@link MetacardType}.
      *
-     * @see Collections#unmodifiableSet(Set)
+     * @see java.util.Collections#unmodifiableSet(Set)
      * @return
      */
     public Set<AttributeDescriptor> getAttributeDescriptors();

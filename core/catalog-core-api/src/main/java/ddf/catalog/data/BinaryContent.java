@@ -18,13 +18,12 @@ import java.io.InputStream;
 
 import javax.activation.MimeType;
 
-import ddf.catalog.transform.QueryResponseTransformer;
 
 /**
  * {@link BinaryContent} is used to return a format that has been transformed by a Transformer.
  *
  * @see InputTransformer
- * @see QueryResponseTransformer
+ * @see ddf.catalog.transform.QueryResponseTransformer
  */
 public interface BinaryContent {
 

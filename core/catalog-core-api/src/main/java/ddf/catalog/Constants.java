@@ -13,7 +13,6 @@
  */
 package ddf.catalog;
 
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.event.EventProcessor;
 
@@ -123,7 +122,7 @@ public final class Constants {
     public static final String SORT_POLICY_VALUE_DISTANCE = Result.DISTANCE;
 
     /**
-     * @deprecated Use the appropriate temporal field from {@link Metacard}
+     * @deprecated Use the appropriate temporal field from {@link ddf.catalog.data.Metacard}
      */
     public static final String SORT_POLICY_VALUE_TEMPORAL = "TEMPORAL";
 

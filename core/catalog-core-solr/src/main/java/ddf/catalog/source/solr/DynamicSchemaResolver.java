@@ -49,7 +49,6 @@ import org.codice.solr.factory.ConfigurationStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.AttributeType.AttributeFormat;
@@ -343,7 +342,7 @@ public class DynamicSchemaResolver {
      * @param propertyName
      *            property name provided by user
      * @param format
-     *            {@link AttributeFormat} that describes the type of {@link Attribute} the field is
+     *            {@link AttributeFormat} that describes the type of {@link ddf.catalog.data.Attribute} the field is
      * @param isSearchedAsExactValue
      *            specifies if any special index suffixes need to be added to the field
      * @return the proper schema field name. If a schema name cannot be found in cache, returns a

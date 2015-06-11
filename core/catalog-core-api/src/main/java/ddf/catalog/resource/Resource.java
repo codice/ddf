@@ -14,11 +14,10 @@
 package ddf.catalog.resource;
 
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Metacard;
 
 /**
  * A Resource represents an item (e.g. image, video, document, etc.) that has been posted for
- * sharing. A {@link Metacard} is created to provide metadata about a Resource, which can be
+ * sharing. A {@link ddf.catalog.data.Metacard} is created to provide metadata about a Resource, which can be
  * accessed via a {@link ResourceReader}.
  *
  * @author LMCO

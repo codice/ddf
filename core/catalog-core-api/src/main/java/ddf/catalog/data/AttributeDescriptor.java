@@ -14,11 +14,7 @@
 package ddf.catalog.data;
 
 import java.io.Serializable;
-import java.util.List;
 
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.operation.Query;
-import ddf.catalog.source.Source;
 
 /**
  * AttributeDescriptor describes an {@link Attribute} and associates it with a {@link AttributeType}
@@ -35,7 +31,7 @@ public interface AttributeDescriptor extends Serializable {
 
     /**
      * Returns whether or not {@link Attribute}s described by this {@link AttributeDescriptor} are
-     * multivalued, that is, {@link Attribute#getValue()} returns a {@link List}.
+     * multivalued, that is, {@link Attribute#getValue()} returns a {@link java.util.List}.
      *
      * @return whether or not it is multivalued
      */
@@ -51,8 +47,8 @@ public interface AttributeDescriptor extends Serializable {
     public AttributeType<?> getType();
 
     /**
-     * Whether or not this {@link Attribute} should be indexed by {@link Source} implementations,
-     * therefore part of {@link Query} evaluation. <br/>
+     * Whether or not this {@link Attribute} should be indexed by {@link ddf.catalog.source.Source} implementations,
+     * therefore part of {@link ddf.catalog.operation.Query} evaluation. <br/>
      * Some {@link Attribute}s may only want to be stored, not indexed.
      *
      * @see #isStored()
@@ -62,13 +58,13 @@ public interface AttributeDescriptor extends Serializable {
     public boolean isIndexed();
 
     /**
-     * If the {@link AttributeFormat} of this {@link Attribute} is {@link AttributeFormat#STRING},
-     * returns whether or not {@link Source} implementations should tokenize it; removing stopwords,
+     * If the {@link ddf.catalog.data.AttributeType.AttributeFormat} of this {@link Attribute} is {@link ddf.catalog.data.AttributeType.AttributeFormat#STRING},
+     * returns whether or not {@link ddf.catalog.source.Source} implementations should tokenize it; removing stopwords,
      * etc.
      *
      * <p>
-     * <b> This method is only relevant to {@link Attribute}s with an {@link AttributeFormat} of
-     * {@link AttributeFormat#STRING} </b>
+     * <b> This method is only relevant to {@link Attribute}s with an {@link ddf.catalog.data.AttributeType.AttributeFormat} of
+     * {@link ddf.catalog.data.AttributeType.AttributeFormat#STRING} </b>
      * </p>
      *
      * Some {@link Attribute}s may only need to be stored, not indexed (or vice versa).
@@ -80,7 +76,7 @@ public interface AttributeDescriptor extends Serializable {
     public boolean isTokenized();
 
     /**
-     * Returns whether or not {@link Source} implementations must store the value of this
+     * Returns whether or not {@link ddf.catalog.source.Source} implementations must store the value of this
      * {@link Attribute}. Some {@link Attribute}s may only need to be indexed, not stored (or vice
      * versa).
      *

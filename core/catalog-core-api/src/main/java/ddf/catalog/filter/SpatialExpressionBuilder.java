@@ -15,8 +15,6 @@ package ddf.catalog.filter;
 
 import org.opengis.filter.Filter;
 
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.Metacard;
 
 /**
  * Complete the fluent API to build a spatial {@link Filter}
@@ -27,8 +25,8 @@ import ddf.catalog.data.Metacard;
 public interface SpatialExpressionBuilder {
 
     /**
-     * Complete building a spatial {@link Filter} for {@link Metacard}s where the specified
-     * {@link Attribute} relates to the specified WKT per the specified operator.
+     * Complete building a spatial {@link Filter} for {@link ddf.catalog.data.Metacard}s where the specified
+     * {@link ddf.catalog.data.Attribute} relates to the specified WKT per the specified operator.
      *
      * @param wkt
      *            - WKT-formatted shape definition (2D)

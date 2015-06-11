@@ -13,7 +13,6 @@
  */
 package ddf.catalog.plugin;
 
-import ddf.catalog.data.Metacard;
 
 /**
  *
@@ -22,7 +21,7 @@ import ddf.catalog.data.Metacard;
  *
  * <br/>
  * An example use of would be for a {@link PreIngestPlugin} to throw this exception if a
- * {@link Metacard} does not validate against a particular schema.
+ * {@link ddf.catalog.data.Metacard} does not validate against a particular schema.
  *
  * @author michael.menousek@lmco.com
  */

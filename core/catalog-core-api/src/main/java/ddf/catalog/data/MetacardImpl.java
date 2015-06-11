@@ -30,7 +30,6 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import ddf.catalog.data.AttributeType.AttributeFormat;
 
 /**
  * Implements the {@link Metacard}'s required attributes. <br/>
@@ -440,7 +439,7 @@ public class MetacardImpl implements Metacard {
      * @param uri
      *            a {@link URI} representation of the {@link Metacard}'s
      *            {@link Metacard#RESOURCE_URI Resource URI} which itself is stored as a
-     *            {@link AttributeFormat#STRING String AttributeFormat}
+     *            {@link ddf.catalog.data.AttributeType.AttributeFormat#STRING String ddf.catalog.data.AttributeType.AttributeFormat}
      *
      * @see Metacard#RESOURCE_URI
      */

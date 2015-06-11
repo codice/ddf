@@ -16,7 +16,6 @@ package ddf.catalog.operation.impl;
 import java.io.Serializable;
 import java.util.Map;
 
-import ddf.catalog.operation.Request;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
@@ -53,7 +52,7 @@ public class ResourceResponseImpl extends ResponseImpl<ResourceRequest>
     }
 
     /**
-     * Instantiates a new ResourceResponseImpl from the {@link Request}, {@link Map}, and
+     * Instantiates a new ResourceResponseImpl from the {@link ddf.catalog.operation.Request}, {@link Map}, and
      * {@link Resource}
      *
      * @param request

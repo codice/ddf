@@ -14,13 +14,12 @@
 package ddf.catalog.filter;
 
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterVisitor;
 
 import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * {@code FilterAdapter} visits a {@link Filter} and invokes {@link FilterDelegate} methods with
- * normalized, typed values. A large part of implementing a {@link FilterVisitor} is handling
+ * normalized, typed values. A large part of implementing a {@link org.opengis.filter.FilterVisitor} is handling
  * expressions, type casting literals, and supporting custom filter logic like {@code FuzzyFunction}
  * s. The {@code FilterAdapter} handles all of this common boilerplate functionality. Furthermore,
  * sources using the {@code FilterAdapter} will receive future enhancements and ensure basic

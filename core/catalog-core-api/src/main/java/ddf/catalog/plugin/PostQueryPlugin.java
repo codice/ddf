@@ -13,7 +13,6 @@
  */
 package ddf.catalog.plugin;
 
-import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryResponse;
 
 /**
@@ -23,7 +22,7 @@ import ddf.catalog.operation.QueryResponse;
  */
 public interface PostQueryPlugin {
     /**
-     * Processes a {@link QueryResponse} after the execution of the {@link Query}.
+     * Processes a {@link QueryResponse} after the execution of the {@link ddf.catalog.operation.Query}.
      *
      * @param input
      *            the {@link QueryResponse} to process

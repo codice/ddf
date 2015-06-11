@@ -15,12 +15,10 @@ package ddf.catalog.source;
 
 import java.util.Set;
 
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.util.Describable;
-import ddf.catalog.util.SourcePoller;
 
 /**
  * The Source is used to represent a system that has Metacards in a catalog. A Source may be remote
@@ -34,11 +32,11 @@ public interface Source extends Describable {
      * sort of simple query or ping to the native catalog.
      *
      * <b>This is expected to be an expensive operation, possibly involving network I/O.</b>
-     * Typically only {@link CatalogFramework} implementations will call this and only periodically.
+     * Typically only {@link ddf.catalog.CatalogFramework} implementations will call this and only periodically.
      *
      * @return true - if the site is available (up), false - if the site is unavailable (down)
      *
-     * @see SourcePoller
+     * @see ddf.catalog.util.SourcePoller
      */
     public boolean isAvailable();
 

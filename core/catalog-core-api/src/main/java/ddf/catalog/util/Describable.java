@@ -13,13 +13,10 @@
  */
 package ddf.catalog.util;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.source.Source;
-import ddf.catalog.transform.MetacardTransformer;
 
 /**
  * Describable is used to capture a basic description. For an example of a how the Describable
- * interface is used view the {@link Source} interface and the {@link DescribableImpl} class.
+ * interface is used view the {@link ddf.catalog.source.Source} interface and the {@link DescribableImpl} class.
  *
  * @author ddf.isgs@lmco.com
  */
@@ -36,7 +33,7 @@ public interface Describable {
      * Returns the name, aka ID, of the describable item. The name should be unique for each
      * instance. <br/>
      * Example:
-     * <code>html<code> for a {@link MetacardTransformer} that transforms {@link Metacard}s to HTML
+     * <code>html<code> for a {@link ddf.catalog.transform.MetacardTransformer} that transforms {@link ddf.catalog.data.Metacard}s to HTML
      *
      * @return ID of the item
      */

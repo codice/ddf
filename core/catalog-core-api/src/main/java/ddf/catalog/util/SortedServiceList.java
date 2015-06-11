@@ -30,14 +30,12 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.plugin.PreIngestPlugin;
 
 /**
  * <p>
  * This utility object sorts Services by their service rankings first and then
  * breaks ties with service ids. Its initial intent is to be used with
- * {@link CatalogFramework} plugins, but can be used with any service.
+ * {@link ddf.catalog.CatalogFramework} plugins, but can be used with any service.
  * <p>
  *
  * <p>
@@ -51,9 +49,9 @@ import ddf.catalog.plugin.PreIngestPlugin;
  * <p>
  * For instance if this was a SortedServiceList<PreIngestPlugin> object, then in
  * the internal TreeMap the {@link ServiceReference} objects would be maintained
- * as keys but {@link PreIngestPlugin} objects would be what is passed to
+ * as keys but {@link ddf.catalog.plugin.PreIngestPlugin} objects would be what is passed to
  * clients. Therefore, a call to a populated {@link SortedServiceList} list such
- * as <code>list.get(0)</code> would return the first {@link PreIngestPlugin}
+ * as <code>list.get(0)</code> would return the first {@link ddf.catalog.plugin.PreIngestPlugin}
  * object.
  * </p>
  *

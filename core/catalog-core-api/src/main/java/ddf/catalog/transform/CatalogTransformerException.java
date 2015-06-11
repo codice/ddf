@@ -13,10 +13,9 @@
  */
 package ddf.catalog.transform;
 
-import ddf.catalog.operation.QueryResponse;
 
 /**
- * The exception thrown when problems transforming a {@link QueryResponse} are detected.
+ * The exception thrown when problems transforming a {@link ddf.catalog.operation.QueryResponse} are detected.
  *
  * @author ddf.isgs@lmco.com
  *

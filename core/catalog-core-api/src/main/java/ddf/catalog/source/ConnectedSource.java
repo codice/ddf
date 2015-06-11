@@ -13,17 +13,16 @@
  */
 package ddf.catalog.source;
 
-import ddf.catalog.operation.Query;
 import ddf.catalog.util.Maskable;
 
 /**
  * Provides an implementation of {@link Source} that represents a remote {@Source} that is
- * always included in every local and enterprise {@link Query} processed. However,
+ * always included in every local and enterprise {@link ddf.catalog.operation.Query} processed. However,
  * {@link ConnectedSource} implementations can never be queried individually by clients, meaning a
  * client cannot query a {@link ConnectedSource} by name.
  *
  * @see Source
- * @see Query
+ * @see ddf.catalog.operation.Query
  */
 public interface ConnectedSource extends RemoteSource, Maskable {
 

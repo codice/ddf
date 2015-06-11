@@ -17,8 +17,6 @@ import java.util.Date;
 
 import org.opengis.filter.Filter;
 
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.Metacard;
 
 /**
  * Completes the fluent API to build a temporal {@link Filter} using an instant in time (vs a
@@ -30,8 +28,8 @@ import ddf.catalog.data.Metacard;
 public interface TemporalInstantExpressionBuilder {
 
     /**
-     * Complete building the {@link Filter} matching {@link Metacard}s where the specified
-     * {@link Attribute} relates to the specified date via the specified relationship.
+     * Complete building the {@link Filter} matching {@link ddf.catalog.data.Metacard}s where the specified
+     * {@link ddf.catalog.data.Attribute} relates to the specified date via the specified relationship.
      *
      * @param date
      *            - the {@link Date} to be used for filtering, inclusive

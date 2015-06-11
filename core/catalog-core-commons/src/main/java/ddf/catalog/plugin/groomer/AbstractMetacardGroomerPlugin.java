@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
-import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreIngestPlugin;
@@ -75,7 +74,7 @@ public abstract class AbstractMetacardGroomerPlugin implements PreIngestPlugin {
             if (singleUpdate == null || singleUpdate.getKey() == null
                     || singleUpdate.getValue() == null) {
                 LOGGER.info(
-                        "Either the single Update, the Update's identifier, or the Update's value is null, skipping preparation. No preparation necessary.");
+                        "Either the single ddf.catalog.operation.Update, the Update's identifier, or the Update's value is null, skipping preparation. No preparation necessary.");
                 continue;
             }
 
@@ -120,7 +119,7 @@ public abstract class AbstractMetacardGroomerPlugin implements PreIngestPlugin {
      * @param updateRequest
      *            the entire {@link UpdateRequest} object
      * @param anUpdate
-     *            a single {@link Update} within the {@link UpdateRequest}
+     *            a single {@link ddf.catalog.operation.Update} within the {@link UpdateRequest}
      * @param aMetacard
      *            a {@link Metacard} within the request
      * @param timestamp

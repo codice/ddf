@@ -17,11 +17,10 @@ import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 
-import ddf.catalog.filter.FilterBuilder;
 
 /**
  * Simple implementation of filter that does not depend on GeoTools. Please use
- * {@link FilterBuilder} instead to create filters.
+ * {@link ddf.catalog.filter.FilterBuilder} instead to create filters.
  *
  * @author ddf.isgs@lmco.com
  *

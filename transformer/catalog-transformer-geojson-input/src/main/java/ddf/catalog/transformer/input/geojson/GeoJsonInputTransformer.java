@@ -33,7 +33,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.data.QualifiedMetacardType;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
@@ -41,7 +40,7 @@ import ddf.geo.formatter.CompositeGeometry;
 
 /**
  * Converts standard GeoJSON (geojson.org) into a Metacard. The limitation on the GeoJSON is that it
- * must conform to the {@link BasicTypes#BASIC_METACARD} {@link MetacardType}.
+ * must conform to the {@link ddf.catalog.data.impl.BasicTypes#BASIC_METACARD} {@link MetacardType}.
  *
  */
 public class GeoJsonInputTransformer implements InputTransformer {

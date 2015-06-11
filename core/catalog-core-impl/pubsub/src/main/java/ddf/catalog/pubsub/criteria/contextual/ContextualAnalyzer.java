@@ -40,11 +40,10 @@ import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.WordlistLoader;
 import org.apache.lucene.analysis.standard.StandardFilter;
-import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.util.Version;
 
 /**
- * Filters {@link StandardTokenizer} with {@link StandardFilter}, {@link LowerCaseFilter} and
+ * Filters {@link org.apache.lucene.analysis.standard.StandardTokenizer} with {@link StandardFilter}, {@link LowerCaseFilter} and
  * {@link StopFilter}, using a list of English stop words.
  *
  * <a name="version"/>
@@ -132,7 +131,7 @@ public class ContextualAnalyzer extends Analyzer {
     }
 
     /**
-     * Constructs a {@link StandardTokenizer} filtered by a {@link StandardFilter}, a
+     * Constructs a {@link org.apache.lucene.analysis.standard.StandardTokenizer} filtered by a {@link StandardFilter}, a
      * {@link LowerCaseFilter} and a {@link StopFilter}.
      */
     @Override

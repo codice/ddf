@@ -33,8 +33,6 @@ import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeType;
-import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -446,7 +444,7 @@ public class MetacardImpl implements Metacard {
      * @param uri
      *            a {@link URI} representation of the {@link Metacard}'s
      *            {@link Metacard#RESOURCE_URI Resource URI} which itself is stored as a
-     *            {@link AttributeFormat#STRING String AttributeFormat}
+     *            {@link ddf.catalog.data.AttributeType.AttributeFormat#STRING String ddf.catalog.data.AttributeType.AttributeFormat}
      *
      * @see Metacard#RESOURCE_URI
      */
@@ -506,7 +504,7 @@ public class MetacardImpl implements Metacard {
      * @param attributeName
      *            the name of the {@link Attribute} to retrieve
      * @param returnType
-     *            the class that the value of the {@link AttributeType} is expected to be bound to
+     *            the class that the value of the {@link ddf.catalog.data.AttributeType} is expected to be bound to
      * @return the value of the requested {@link Attribute} name
      */
     protected <T> T requestData(String attributeName, Class<T> returnType) {

@@ -13,7 +13,6 @@
  */
 package ddf.catalog.util;
 
-import java.util.List;
 
 import org.osgi.service.blueprint.container.Converter;
 import org.osgi.service.blueprint.container.ReifiedType;
@@ -22,7 +21,7 @@ import org.slf4j.ext.XLogger;
 
 /**
  * This converter is used to allow {@link ServiceReferenceListConverter} objects
- * to pass through for {@link List} implementations. This was originally
+ * to pass through for {@link java.util.List} implementations. This was originally
  * intended to allow plugins to be automatically sorted in the list. Without
  * this converter, blueprint will copy the list and lose the reference.
  *

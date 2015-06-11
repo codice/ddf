@@ -14,12 +14,11 @@
 package ddf.catalog.plugin;
 
 import ddf.catalog.operation.ResourceRequest;
-import ddf.catalog.resource.Resource;
 
 /**
  * The PreResourcePlugin executes prior to the getResource operation.
  *
- * @see Resource
+ * @see ddf.catalog.resource.Resource
  */
 public interface PreResourcePlugin {
 

@@ -16,20 +16,17 @@ package ddf.catalog.filter;
 import java.util.Date;
 import java.util.List;
 
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterVisitor;
-import org.opengis.filter.expression.Expression;
 
 /***
  * FilterDelegate is the target delegate of the {@link FilterAdapter}. The FilterAdapter will visit
- * a {@link Filter} and call the corresponding delegate methods after type conversion and input
+ * a {@link org.opengis.filter.Filter} and call the corresponding delegate methods after type conversion and input
  * normalization.
  * <p>
- * Not all Filter and {@link Expression} types are supported by the delegate. FilterAdapter and
- * FilterDelegate would need to be extended to support other Filter and Expression types.
- * Alternatively, other types could be supported by implementing the {@link FilterVisitor} directly.
+ * Not all org.opengis.filter.Filter and {@link org.opengis.filter.expression.Expression} types are supported by the delegate. FilterAdapter and
+ * FilterDelegate would need to be extended to support other org.opengis.filter.Filter and org.opengis.filter.expression.Expression types.
+ * Alternatively, other types could be supported by implementing the {@link org.opengis.filter.FilterVisitor} directly.
  * <p>
- * A reference implementation is provided with the DDF Core in the Filter Proxy bundle.
+ * A reference implementation is provided with the DDF Core in the org.opengis.filter.Filter Proxy bundle.
  *
  * @author ddf.isgs@lmco.com
  *
@@ -66,7 +63,7 @@ public abstract class FilterDelegate<T> {
      * @return result of "and" operation on operands
      */
     public T and(List<T> operands) {
-        throw new UnsupportedOperationException("And filter not supported by Filter Delegate.");
+        throw new UnsupportedOperationException("And filter not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -77,7 +74,7 @@ public abstract class FilterDelegate<T> {
      * @return result of "or" operation on operands
      */
     public T or(List<T> operands) {
-        throw new UnsupportedOperationException("Or filter not supported by Filter Delegate.");
+        throw new UnsupportedOperationException("Or filter not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -91,7 +88,7 @@ public abstract class FilterDelegate<T> {
      */
     public T nearestNeighbor(String propertyName, String wkt) {
         throw new UnsupportedOperationException(
-                "Nearest neighbor filter not supported by Filter Delegate.");
+                "Nearest neighbor filter not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -102,7 +99,7 @@ public abstract class FilterDelegate<T> {
      * @return result of "not" operation on operand
      */
     public T not(T operand) {
-        throw new UnsupportedOperationException("Not filter not supported by Filter Delegate.");
+        throw new UnsupportedOperationException("Not filter not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -111,7 +108,7 @@ public abstract class FilterDelegate<T> {
      * @return returns the equivalent of true
      */
     public T include() {
-        throw new UnsupportedOperationException("include() not supported by Filter Delegate.");
+        throw new UnsupportedOperationException("include() not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -120,7 +117,7 @@ public abstract class FilterDelegate<T> {
      * @return returns the equivalent of false
      */
     public T exclude() {
-        throw new UnsupportedOperationException("exclude() not supported by Filter Delegate.");
+        throw new UnsupportedOperationException("exclude() not supported by org.opengis.filter.Filter Delegate.");
     }
 
     // Comparison operators
@@ -142,7 +139,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
         throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,String,boolean) not supported by Filter Delegate.");
+                "propertyIsEqualTo(String,String,boolean) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -158,7 +155,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsEqualTo(String propertyName, Date literal) {
         throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,Date) not supported by Filter Delegate.");
+                "propertyIsEqualTo(String,Date) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -176,7 +173,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsEqualTo(String propertyName, Date startDate, Date endDate) {
         throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,Date,Date) not supported by Filter Delegate.");
+                "propertyIsEqualTo(String,Date,Date) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -192,7 +189,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsEqualTo(String propertyName, int literal) {
         throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,int) not supported by Filter Delegate.");
+                "propertyIsEqualTo(String,int) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -208,7 +205,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsEqualTo(String propertyName, short literal) {
         throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,short) not supported by Filter Delegate.");
+                "propertyIsEqualTo(String,short) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -224,7 +221,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsEqualTo(String propertyName, long literal) {
         throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,long) not supported by Filter Delegate.");
+                "propertyIsEqualTo(String,long) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -240,7 +237,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsEqualTo(String propertyName, float literal) {
         throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,float) not supported by Filter Delegate.");
+                "propertyIsEqualTo(String,float) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -256,7 +253,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsEqualTo(String propertyName, double literal) {
         throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,double) not supported by Filter Delegate.");
+                "propertyIsEqualTo(String,double) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -272,7 +269,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsEqualTo(String propertyName, boolean literal) {
         throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,boolean) not supported by Filter Delegate.");
+                "propertyIsEqualTo(String,boolean) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -288,7 +285,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsEqualTo(String propertyName, byte[] literal) {
         throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,byte[]) not supported by Filter Delegate.");
+                "propertyIsEqualTo(String,byte[]) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -304,7 +301,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsEqualTo(String propertyName, Object literal) {
         throw new UnsupportedOperationException(
-                "propertyIsEqualTo(String,Object) not supported by Filter Delegate.");
+                "propertyIsEqualTo(String,Object) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     // PropertyIsNotEqualTo
@@ -324,7 +321,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsNotEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
         throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,String,boolean) not supported by Filter Delegate.");
+                "propertyIsNotEqualTo(String,String,boolean) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -340,7 +337,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsNotEqualTo(String propertyName, Date literal) {
         throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,Date) not supported by Filter Delegate.");
+                "propertyIsNotEqualTo(String,Date) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -358,7 +355,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsNotEqualTo(String propertyName, Date startDate, Date endDate) {
         throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,Date,Date) not supported by Filter Delegate.");
+                "propertyIsNotEqualTo(String,Date,Date) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -374,7 +371,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsNotEqualTo(String propertyName, int literal) {
         throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,int) not supported by Filter Delegate.");
+                "propertyIsNotEqualTo(String,int) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -390,7 +387,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsNotEqualTo(String propertyName, short literal) {
         throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,short) not supported by Filter Delegate.");
+                "propertyIsNotEqualTo(String,short) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -406,7 +403,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsNotEqualTo(String propertyName, long literal) {
         throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,long) not supported by Filter Delegate.");
+                "propertyIsNotEqualTo(String,long) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -422,7 +419,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsNotEqualTo(String propertyName, float literal) {
         throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,float) not supported by Filter Delegate.");
+                "propertyIsNotEqualTo(String,float) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -438,7 +435,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsNotEqualTo(String propertyName, double literal) {
         throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,double) not supported by Filter Delegate.");
+                "propertyIsNotEqualTo(String,double) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -454,7 +451,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsNotEqualTo(String propertyName, boolean literal) {
         throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,boolean) not supported by Filter Delegate.");
+                "propertyIsNotEqualTo(String,boolean) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -470,7 +467,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsNotEqualTo(String propertyName, byte[] literal) {
         throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,byte[]) not supported by Filter Delegate.");
+                "propertyIsNotEqualTo(String,byte[]) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -487,7 +484,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsNotEqualTo(String propertyName, Object literal) {
         throw new UnsupportedOperationException(
-                "propertyIsNotEqualTo(String,Object) not supported by Filter Delegate.");
+                "propertyIsNotEqualTo(String,Object) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     // PropertyIsGreaterThan
@@ -505,7 +502,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThan(String propertyName, String literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,String) not supported by Filter Delegate.");
+                "propertyIsGreaterThan(String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -521,7 +518,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThan(String propertyName, Date literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,Date) not supported by Filter Delegate.");
+                "propertyIsGreaterThan(String,Date) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -537,7 +534,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThan(String propertyName, int literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,int) not supported by Filter Delegate.");
+                "propertyIsGreaterThan(String,int) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -553,7 +550,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThan(String propertyName, short literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,short) not supported by Filter Delegate.");
+                "propertyIsGreaterThan(String,short) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -569,7 +566,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThan(String propertyName, long literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,long) not supported by Filter Delegate.");
+                "propertyIsGreaterThan(String,long) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -585,7 +582,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThan(String propertyName, float literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,float) not supported by Filter Delegate.");
+                "propertyIsGreaterThan(String,float) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -601,7 +598,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThan(String propertyName, double literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,double) not supported by Filter Delegate.");
+                "propertyIsGreaterThan(String,double) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -617,7 +614,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThan(String propertyName, Object literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThan(String,Object) not supported by Filter Delegate.");
+                "propertyIsGreaterThan(String,Object) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     // PropertyIsGreaterThanOrEqualTo
@@ -635,7 +632,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, String literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,String) not supported by Filter Delegate.");
+                "propertyIsGreaterThanOrEqualTo(String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -651,7 +648,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, Date literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,Date) not supported by Filter Delegate.");
+                "propertyIsGreaterThanOrEqualTo(String,Date) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -667,7 +664,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, int literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,int) not supported by Filter Delegate.");
+                "propertyIsGreaterThanOrEqualTo(String,int) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -683,7 +680,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, short literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,short) not supported by Filter Delegate.");
+                "propertyIsGreaterThanOrEqualTo(String,short) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -699,7 +696,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, long literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,long) not supported by Filter Delegate.");
+                "propertyIsGreaterThanOrEqualTo(String,long) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -715,7 +712,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, float literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,float) not supported by Filter Delegate.");
+                "propertyIsGreaterThanOrEqualTo(String,float) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -731,7 +728,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, double literal) {
         throw new UnsupportedOperationException(
-                "propertyIsGreaterThanOrEqualTo(String,double) not supported by Filter Delegate.");
+                "propertyIsGreaterThanOrEqualTo(String,double) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -748,7 +745,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsGreaterThanOrEqualTo(String propertyName, Object literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,Object) not supported by Filter Delegate.");
+                "propertyIsLessThanOrEqualTo(String,Object) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     // PropertyIsLessThan
@@ -766,7 +763,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThan(String propertyName, String literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,String) not supported by Filter Delegate.");
+                "propertyIsLessThan(String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -782,7 +779,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThan(String propertyName, Date literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,Date) not supported by Filter Delegate.");
+                "propertyIsLessThan(String,Date) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -798,7 +795,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThan(String propertyName, int literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,int) not supported by Filter Delegate.");
+                "propertyIsLessThan(String,int) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -814,7 +811,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThan(String propertyName, short literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,short) not supported by Filter Delegate.");
+                "propertyIsLessThan(String,short) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -830,7 +827,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThan(String propertyName, long literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,long) not supported by Filter Delegate.");
+                "propertyIsLessThan(String,long) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -846,7 +843,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThan(String propertyName, float literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,float) not supported by Filter Delegate.");
+                "propertyIsLessThan(String,float) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -862,7 +859,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThan(String propertyName, double literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,double) not supported by Filter Delegate.");
+                "propertyIsLessThan(String,double) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -878,7 +875,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThan(String propertyName, Object literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThan(String,Object) not supported by Filter Delegate.");
+                "propertyIsLessThan(String,Object) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     // PropertyIsLessThanOrEqualTo
@@ -897,7 +894,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, String literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,String) not supported by Filter Delegate.");
+                "propertyIsLessThanOrEqualTo(String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -914,7 +911,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, Date literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,Date) not supported by Filter Delegate.");
+                "propertyIsLessThanOrEqualTo(String,Date) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -931,7 +928,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, int literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,int) not supported by Filter Delegate.");
+                "propertyIsLessThanOrEqualTo(String,int) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -948,7 +945,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, short literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,short) not supported by Filter Delegate.");
+                "propertyIsLessThanOrEqualTo(String,short) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -965,7 +962,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, long literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,long) not supported by Filter Delegate.");
+                "propertyIsLessThanOrEqualTo(String,long) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -982,7 +979,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, float literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,float) not supported by Filter Delegate.");
+                "propertyIsLessThanOrEqualTo(String,float) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -999,7 +996,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, double literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,double) not supported by Filter Delegate.");
+                "propertyIsLessThanOrEqualTo(String,double) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1017,7 +1014,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLessThanOrEqualTo(String propertyName, Object literal) {
         throw new UnsupportedOperationException(
-                "propertyIsLessThanOrEqualTo(String,Object) not supported by Filter Delegate.");
+                "propertyIsLessThanOrEqualTo(String,Object) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     // PropertyIsBetween
@@ -1037,7 +1034,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsBetween(String propertyName, String lowerBoundary, String upperBoundary) {
         throw new UnsupportedOperationException(
-                "propertyIsBetween(String,String,String) not supported by Filter Delegate.");
+                "propertyIsBetween(String,String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -1055,7 +1052,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsBetween(String propertyName, Date lowerBoundary, Date upperBoundary) {
         throw new UnsupportedOperationException(
-                "propertyIsBetween(String,Date,Date) not supported by Filter Delegate.");
+                "propertyIsBetween(String,Date,Date) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -1073,7 +1070,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsBetween(String propertyName, int lowerBoundary, int upperBoundary) {
         throw new UnsupportedOperationException(
-                "propertyIsBetween(String,int,int) not supported by Filter Delegate.");
+                "propertyIsBetween(String,int,int) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -1091,7 +1088,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsBetween(String propertyName, short lowerBoundary, short upperBoundary) {
         throw new UnsupportedOperationException(
-                "propertyIsBetween(String,short,short) not supported by Filter Delegate.");
+                "propertyIsBetween(String,short,short) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -1109,7 +1106,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsBetween(String propertyName, long lowerBoundary, long upperBoundary) {
         throw new UnsupportedOperationException(
-                "propertyIsBetween(String,long,long) not supported by Filter Delegate.");
+                "propertyIsBetween(String,long,long) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -1127,7 +1124,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsBetween(String propertyName, float lowerBoundary, float upperBoundary) {
         throw new UnsupportedOperationException(
-                "propertyIsBetween(String,float,float) not supported by Filter Delegate.");
+                "propertyIsBetween(String,float,float) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /***
@@ -1145,7 +1142,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsBetween(String propertyName, double lowerBoundary, double upperBoundary) {
         throw new UnsupportedOperationException(
-                "propertyIsBetween(String,double,double) not supported by Filter Delegate.");
+                "propertyIsBetween(String,double,double) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1164,7 +1161,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsBetween(String propertyName, Object lowerBoundary, Object upperBoundary) {
         throw new UnsupportedOperationException(
-                "propertyIsBetween(String,Object,Object) not supported by Filter Delegate.");
+                "propertyIsBetween(String,Object,Object) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1178,7 +1175,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsNull(String propertyName) {
         throw new UnsupportedOperationException(
-                "propertyIsNull(String) not supported by Filter Delegate.");
+                "propertyIsNull(String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1198,7 +1195,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsLike(String propertyName, String pattern, boolean isCaseSensitive) {
         throw new UnsupportedOperationException(
-                "propertyIsLike(String,String,boolean) not supported by Filter Delegate.");
+                "propertyIsLike(String,String,boolean) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1213,7 +1210,7 @@ public abstract class FilterDelegate<T> {
      */
     public T propertyIsFuzzy(String propertyName, String literal) {
         throw new UnsupportedOperationException(
-                "propertyIsFuzzy(String,String) not supported by Filter Delegate.");
+                "propertyIsFuzzy(String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     // XPath operators
@@ -1227,7 +1224,7 @@ public abstract class FilterDelegate<T> {
      */
     public T xpathExists(String xpath) {
         throw new UnsupportedOperationException(
-                "xpathExists(String) not supported by Filter Delegate.");
+                "xpathExists(String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1245,7 +1242,7 @@ public abstract class FilterDelegate<T> {
      */
     public T xpathIsLike(String xpath, String pattern, boolean isCaseSensitive) {
         throw new UnsupportedOperationException(
-                "xpathIsLike(String,String,boolean) not supported by Filter Delegate.");
+                "xpathIsLike(String,String,boolean) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1260,7 +1257,7 @@ public abstract class FilterDelegate<T> {
      */
     public T xpathIsFuzzy(String xpath, String literal) {
         throw new UnsupportedOperationException(
-                "xpathIsFuzzy(String,String) not supported by Filter Delegate.");
+                "xpathIsFuzzy(String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     // Spatial operators
@@ -1278,7 +1275,7 @@ public abstract class FilterDelegate<T> {
      */
     public T beyond(String propertyName, String wkt, double distance) {
         throw new UnsupportedOperationException(
-                "beyond(String,String,double) not supported by Filter Delegate.");
+                "beyond(String,String,double) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1292,7 +1289,7 @@ public abstract class FilterDelegate<T> {
      */
     public T contains(String propertyName, String wkt) {
         throw new UnsupportedOperationException(
-                "contains(String,String) not supported by Filter Delegate.");
+                "contains(String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1306,7 +1303,7 @@ public abstract class FilterDelegate<T> {
      */
     public T crosses(String propertyName, String wkt) {
         throw new UnsupportedOperationException(
-                "crosses(String,String) not supported by Filter Delegate.");
+                "crosses(String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1320,7 +1317,7 @@ public abstract class FilterDelegate<T> {
      */
     public T disjoint(String propertyName, String wkt) {
         throw new UnsupportedOperationException(
-                "disjoint(String,String) not supported by Filter Delegate.");
+                "disjoint(String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1336,7 +1333,7 @@ public abstract class FilterDelegate<T> {
      */
     public T dwithin(String propertyName, String wkt, double distance) {
         throw new UnsupportedOperationException(
-                "dwithin(String,String,double) not supported by Filter Delegate.");
+                "dwithin(String,String,double) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1350,7 +1347,7 @@ public abstract class FilterDelegate<T> {
      */
     public T intersects(String propertyName, String wkt) {
         throw new UnsupportedOperationException(
-                "intersects(String,String) not supported by Filter Delegate.");
+                "intersects(String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1364,7 +1361,7 @@ public abstract class FilterDelegate<T> {
      */
     public T overlaps(String propertyName, String wkt) {
         throw new UnsupportedOperationException(
-                "overlaps(String,String) not supported by Filter Delegate.");
+                "overlaps(String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1378,7 +1375,7 @@ public abstract class FilterDelegate<T> {
      */
     public T touches(String propertyName, String wkt) {
         throw new UnsupportedOperationException(
-                "touches(String,String) not supported by Filter Delegate.");
+                "touches(String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1392,7 +1389,7 @@ public abstract class FilterDelegate<T> {
      */
     public T within(String propertyName, String wkt) {
         throw new UnsupportedOperationException(
-                "within(String,String) not supported by Filter Delegate.");
+                "within(String,String) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     // Temporal operators
@@ -1411,7 +1408,7 @@ public abstract class FilterDelegate<T> {
      */
     public T after(String propertyName, Date date) {
         throw new UnsupportedOperationException(
-                "after(String,Date) not supported by Filter Delegate.");
+                "after(String,Date) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1428,7 +1425,7 @@ public abstract class FilterDelegate<T> {
      */
     public T before(String propertyName, Date date) {
         throw new UnsupportedOperationException(
-                "before(String,Date) not supported by Filter Delegate.");
+                "before(String,Date) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1447,7 +1444,7 @@ public abstract class FilterDelegate<T> {
      */
     public T during(String propertyName, Date startDate, Date endDate) {
         throw new UnsupportedOperationException(
-                "during(String,Date,Date) not supported by Filter Delegate.");
+                "during(String,Date,Date) not supported by org.opengis.filter.Filter Delegate.");
     }
 
     /**
@@ -1462,7 +1459,7 @@ public abstract class FilterDelegate<T> {
      */
     public T relative(String propertyName, long duration) {
         throw new UnsupportedOperationException(
-                "relative(String,long) not supported by Filter Delegate.");
+                "relative(String,long) not supported by org.opengis.filter.Filter Delegate.");
     }
 
 }

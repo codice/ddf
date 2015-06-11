@@ -15,7 +15,6 @@ package ddf.catalog.data.impl;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 
@@ -70,16 +69,16 @@ public class AttributeDescriptorImpl implements AttributeDescriptor {
      * @param name
      *            - the name of this {@link AttributeDescriptor}
      * @param indexed
-     *            - whether {@link Attribute} values using this {@link AttributeDescriptor} should
+     *            - whether {@link ddf.catalog.data.Attribute} values using this {@link AttributeDescriptor} should
      *            be indexed
      * @param stored
-     *            - whether {@link Attribute} values using this {@link AttributeDescriptor} should
+     *            - whether {@link ddf.catalog.data.Attribute} values using this {@link AttributeDescriptor} should
      *            be stored
      * @param tokenized
-     *            - whether {@link Attribute} values using this {@link AttributeDescriptor} should
+     *            - whether {@link ddf.catalog.data.Attribute} values using this {@link AttributeDescriptor} should
      *            be tokenized
      * @param multivalued
-     *            whether {@link Attribute} values using this {@link AttributeDescriptor} are
+     *            whether {@link ddf.catalog.data.Attribute} values using this {@link AttributeDescriptor} are
      *            multivalued
      * @param type
      *            - the type of this {@link AttributeDescriptor}

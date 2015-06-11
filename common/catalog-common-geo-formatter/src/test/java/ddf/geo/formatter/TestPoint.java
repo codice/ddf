@@ -35,9 +35,9 @@ public class TestPoint extends AbstractTestCompositeGeometry {
 
         String control =
                 "<entry xmlns=\"http://www.w3.org/2005/Atom\" xmlns:georss=\"http://www.georss.org/georss\">\r\n"
-                        + "	<georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
-                        + "		<gml:Point>\r\n" + "			<gml:pos>2.0 1.0</gml:pos>"
-                        + "		</gml:Point>\r\n" + "	</georss:where>\r\n" + "</entry>";
+                        + "    <georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
+                        + "        <gml:Point>\r\n" + "            <gml:pos>2.0 1.0</gml:pos>"
+                        + "        </gml:Point>\r\n" + "    </georss:where>\r\n" + "</entry>";
 
         assertXMLEqual(control, entryXmlText);
 

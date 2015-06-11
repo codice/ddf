@@ -39,8 +39,6 @@ import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
-import ddf.catalog.operation.Operation;
-import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryRequestImpl;
 import ddf.catalog.operation.QueryResponse;
@@ -60,7 +58,6 @@ import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
@@ -68,8 +65,6 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
-import ddf.catalog.source.RemoteSource;
-import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceDescriptorImpl;
 import ddf.catalog.source.SourceUnavailableException;
@@ -77,8 +72,8 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.SourcePoller;
 
 /**
- * {@link FanoutCatalogFramework} evaluates all {@link Operation}s as
- * enterprise-wide federated {@link Operation}s. A
+ * {@link FanoutCatalogFramework} evaluates all {@link ddf.catalog.operation.Operation}s as
+ * enterprise-wide federated {@link ddf.catalog.operation.Operation}s. A
  * {@link FanoutCatalogFramework} has no {@link CatalogProvider} configured for
  * it, hence no ingest operations are supported. All source names for any
  * {@link FederatedSource}s or {@link ConnectedSource}s in the
@@ -89,7 +84,7 @@ import ddf.catalog.util.SourcePoller;
  * <ol>
  * <li>A single node being exposed from an enterprise (hiding the enterprise
  * from an external client)</li>
- * <li>To ensure each {@link Query} is searches all {@link Source}s</li>
+ * <li>To ensure each {@link ddf.catalog.operation.Query} is searches all {@link ddf.catalog.source.Source}s</li>
  * <li>Backwards compatibility (e.g., federating with older versions)</li>
  * </ol>
  * </p>
@@ -137,7 +132,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
      *            - A {@link List} of {@link FederatedSource}(s) that will be searched on an
      *            enterprise query.
      * @param resourceReaders
-     *            - set of {@link ResourceReader}(s) that will be get a {@link Resource}
+     *            - set of {@link ResourceReader}(s) that will be get a {@link ddf.catalog.resource.Resource}
      * @param queryStrategy
      *            - The default federation strategy (e.g. Sorted).
      * @param pool
@@ -189,7 +184,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
      *            - A {@link List} of {@link FederatedSource}(s) that will be searched on an
      *            enterprise query.
      * @param resourceReaders
-     *            - set of {@link ResourceReader}(s) that will be get a {@link Resource}
+     *            - set of {@link ResourceReader}(s) that will be get a {@link ddf.catalog.resource.Resource}
      * @param queryStrategy
      *            - The default federation strategy (e.g. Sorted).
      * @param pool
@@ -218,7 +213,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
     }
 
     /**
-     * Always executes an enterprise {@link Query}, replacing the {@link Source} ID in the
+     * Always executes an enterprise {@link ddf.catalog.operation.Query}, replacing the {@link ddf.catalog.source.Source} ID in the
      * {@link QueryResponse} with this {@link CatalogFramework}'s id so that the ids of all
      * {@link FederatedSource}s remain hidden from the external client.
      *
@@ -501,12 +496,12 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
     }
 
     /**
-     * Retrieve a resource from the enterprise or specified {@link RemoteSource} .
+     * Retrieve a resource from the enterprise or specified {@link ddf.catalog.source.RemoteSource} .
      *
      * First perform an entry query on all the {@link FederatedSource}s and {@link ConnectedSource}
      * s. This is done to locate which source the {@link Metacard} resides on. Next, get the
      * resource URI from the {@link Metacard}. Finally, do a
-     * {@link RemoteSource#retrieveResource(URI, Map)}.
+     * {@link ddf.catalog.source.RemoteSource#retrieveResource(URI, Map)}.
      */
     // TODO: This is TECHNICAL DEBT. The reason that we had to override
     // CatalogframeworkImpl's getResource
@@ -517,7 +512,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
     // It does this to locate which source the entry resides on. Once that is
     // discovered, we then get the
     // resource URI from the metacard. After that we can finally do a
-    // retrieveResource request on the Source.
+    // retrieveResource request on the ddf.catalog.source.Source.
     // DDF-1120 captures this issue.
     @Override
     public ResourceResponse getResource(ResourceRequest resourceRequest, boolean isEnterprise,
@@ -550,7 +545,7 @@ public class FanoutCatalogFramework extends CatalogFrameworkImpl {
 
             if (ResourceRequest.GET_RESOURCE_BY_ID.equals(attributeName)) {
                 String metacardId = (String) attributeValue;
-                logger.debug("Get Resource By ID.  Need to obtain resource URL from metacard: "
+                logger.debug("Get ddf.catalog.resource.Resource By ID.  Need to obtain resource URL from metacard: "
                         + metacardId);
 
                 QueryRequest queryRequest = new QueryRequestImpl(createMetacardIdQuery(metacardId),

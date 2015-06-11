@@ -83,7 +83,6 @@ import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
@@ -260,7 +259,7 @@ public class CatalogFrameworkImpl extends DescribableImpl
      *            - A {@link List} of {@link FederatedSource}(s) that will be searched on an
      *            enterprise query.
      * @param resourceReaders
-     *            - set of {@link ResourceReader}(s) that will be get a {@link Resource}
+     *            - set of {@link ResourceReader}(s) that will be get a {@link ddf.catalog.resource.Resource}
      * @param queryStrategy
      *            - The default federation strategy (e.g. Sorted).
      * @param pool
@@ -315,7 +314,7 @@ public class CatalogFrameworkImpl extends DescribableImpl
      *            - A {@link List} of {@link FederatedSource}(s) that will be searched on an
      *            enterprise query.
      * @param resourceReaders
-     *            - set of {@link ResourceReader}(s) that will be get a {@link Resource}
+     *            - set of {@link ResourceReader}(s) that will be get a {@link ddf.catalog.resource.Resource}
      * @param queryStrategy
      *            - The default federation strategy (e.g. Sorted).
      * @param pool
@@ -1260,7 +1259,7 @@ public class CatalogFrameworkImpl extends DescribableImpl
             }
 
             // check if the resourceRequest has an ID only
-            // If so, the metacard needs to be found and the Resource URI
+            // If so, the metacard needs to be found and the ddf.catalog.resource.Resource URI
             StringBuilder resolvedSourceIdHolder = new StringBuilder();
             URI responseURI = getResourceURI(resourceReq, resourceSourceName, isEnterprise,
                     resolvedSourceIdHolder, requestProperties);
@@ -1696,7 +1695,7 @@ public class CatalogFrameworkImpl extends DescribableImpl
     }
 
     /**
-     * Validates that the {@link ResourceResponse} has a {@link Resource} in it that was retrieved,
+     * Validates that the {@link ResourceResponse} has a {@link ddf.catalog.resource.Resource} in it that was retrieved,
      * and that the original {@link ResourceRequest} is included in the response.
      *
      * @param getResourceResponse

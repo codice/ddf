@@ -13,14 +13,13 @@
  */
 package ddf.catalog.data;
 
-import ddf.catalog.operation.Query;
 
 /**
  * The Result is used to supplement {@link Metacard} fields when a {@link Metacard} is returned from
  * a query. It adds a relevance score and distance in meters to the {@link Metacard}'s existing
  * attributes.
  *
- * @see Query
+ * @see ddf.catalog.operation.Query
  */
 public interface Result {
 

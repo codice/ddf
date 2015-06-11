@@ -13,28 +13,26 @@
  */
 package ddf.catalog.plugin;
 
-import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.UpdateRequest;
-import ddf.catalog.source.CatalogProvider;
 
 /**
- * Executes business logic prior to an ingest operation executing. For example if {@link Metacard}s
- * need to be validated prior to {@link CatalogProvider#create(CreateRequest)} a
+ * Executes business logic prior to an ingest operation executing. For example if {@link ddf.catalog.data.Metacard}s
+ * need to be validated prior to {@link ddf.catalog.source.CatalogProvider#create(CreateRequest)} a
  * {@link PreIngestPlugin} can do the validation.
  *
- * @see Metacard
+ * @see ddf.catalog.data.Metacard
  */
 public interface PreIngestPlugin {
 
     /**
-     * Process a {@link CreateRequest} prior to {@link CatalogProvider#create(CreateRequest)}.
+     * Process a {@link CreateRequest} prior to {@link ddf.catalog.source.CatalogProvider#create(CreateRequest)}.
      *
      * @param input
      *            the {@link CreateRequest} to process
      * @return the value of the processed {@link CreateRequest} to pass to the next
-     *         {@link PreIngestPlugin}, or to the {@link CatalogProvider} if this is the last
+     *         {@link PreIngestPlugin}, or to the {@link ddf.catalog.source.CatalogProvider} if this is the last
      *         {@link PreIngestPlugin} to be called
      * @throws PluginExecutionException
      *             if an error in processing occurs
@@ -43,12 +41,12 @@ public interface PreIngestPlugin {
             throws PluginExecutionException, StopProcessingException;
 
     /**
-     * Process a {@link UpdateRequest} prior to {@link CatalogProvider#update(UpdateRequest)}.
+     * Process a {@link UpdateRequest} prior to {@link ddf.catalog.source.CatalogProvider#update(UpdateRequest)}.
      *
      * @param input
      *            the {@link UpdateRequest} to process
      * @return the value of the processed {@link UpdateRequest} to pass to the next
-     *         {@link PreIngestPlugin}, or to the {@link CatalogProvider} if this is the last
+     *         {@link PreIngestPlugin}, or to the {@link ddf.catalog.source.CatalogProvider} if this is the last
      *         {@link PreIngestPlugin} to be called
      * @throws PluginExecutionException
      *             if an error in processing occurs

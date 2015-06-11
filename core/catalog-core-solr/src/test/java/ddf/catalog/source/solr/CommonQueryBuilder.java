@@ -28,8 +28,6 @@ import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.PropertyIsLike;
 import org.opengis.geometry.Geometry;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
@@ -43,7 +41,7 @@ public class CommonQueryBuilder {
     public final FilterFactory filterFactory = new FilterFactoryImpl();
 
     /**
-     * Builds an OGC {@link PropertyIsEqualTo} filter and returns a generic {@link QueryImpl} with a
+     * Builds an OGC {@link org.opengis.filter.PropertyIsEqualTo} filter and returns a generic {@link QueryImpl} with a
      * start index of 1 and request for total count set to true
      *
      * @param property
@@ -97,7 +95,7 @@ public class CommonQueryBuilder {
     }
 
     /**
-     * Builds an OGC {@link PropertyIsLike} filter and returns a generic {@link QueryImpl} with a
+     * Builds an OGC {@link org.opengis.filter.PropertyIsLike} filter and returns a generic {@link QueryImpl} with a
      * start index of 1 and request for total count set to true.
      *
      * <p>

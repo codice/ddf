@@ -21,7 +21,6 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import org.apache.camel.Message;
-import org.apache.camel.Producer;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +36,7 @@ import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeToTransformerMapper;
 
 /**
- * Producer for the custom Camel CatalogComponent. This {@link org.apache.camel.Producer} would map
+ * org.apache.camel.Producer for the custom Camel CatalogComponent. This {@link org.apache.camel.Producer} would map
  * to a Camel <to> route node with a URI like <code>catalog:inputtransformer</code>
  *
  * @author Hugh Rodgers, Lockheed Martin
@@ -50,7 +49,7 @@ public class InputTransformerProducer extends TransformerProducer {
             .getLogger(InputTransformerProducer.class);
 
     /**
-     * Constructs the {@link Producer} for the custom Camel CatalogComponent. This producer would
+     * Constructs the {@link org.apache.camel.Producer} for the custom Camel CatalogComponent. This producer would
      * map to a Camel <to> route node with a URI like <code>catalog:inputtransformer</code>
      *
      * @param endpoint

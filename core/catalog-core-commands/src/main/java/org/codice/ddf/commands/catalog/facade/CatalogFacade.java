@@ -15,7 +15,6 @@ package org.codice.ddf.commands.catalog.facade;
 
 import java.util.Set;
 
-import ddf.catalog.CatalogFramework;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
@@ -25,15 +24,14 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
-import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.Describable;
 
 /**
- * A Catalog facade which unifies at least the {@link CatalogFramework} and the
- * {@link CatalogProvider} interfaces.
+ * A Catalog facade which unifies at least the {@link ddf.catalog.CatalogFramework} and the
+ * {@link ddf.catalog.source.CatalogProvider} interfaces.
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com

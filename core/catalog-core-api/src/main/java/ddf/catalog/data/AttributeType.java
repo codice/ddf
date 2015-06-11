@@ -14,10 +14,7 @@
 package ddf.catalog.data;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Enumeration;
 
-import ddf.catalog.source.Source;
 
 /**
  * The type of an {@link Attribute}, indicating the {@link Class}
@@ -45,8 +42,8 @@ public interface AttributeType<T extends Serializable> extends Serializable {
     public AttributeFormat getAttributeFormat();
 
     /**
-     * {@link Enumeration} used to indicate formats of {@link Attribute}s. Because JDK 1.6 cannot
-     * switch on <code>instanceof</code>, an {@link Enumeration} is used instead.
+     * {@link java.util.Enumeration} used to indicate formats of {@link Attribute}s. Because JDK 1.6 cannot
+     * switch on <code>instanceof</code>, an {@link java.util.Enumeration} is used instead.
      *
      * @author michael.menousek@lmco.com
      *
@@ -67,7 +64,7 @@ public interface AttributeType<T extends Serializable> extends Serializable {
 
         /**
          * {@link Attribute}s of this {@link AttributeFormat} <b>must</b> have a value that is a
-         * Java {@link Date}.
+         * Java {@link java.util.Date}.
          */
         DATE,
 
@@ -128,9 +125,9 @@ public interface AttributeType<T extends Serializable> extends Serializable {
          * indicated by the {@link AttributeDescriptor}. <br>
          *
          * <p>
-         * <b>NOTE:</b> In order for classes to be deserialized by a {@link Source}, that class must
-         * exist on the classpath of that {@link Source}. This may require additional parameters to
-         * be set such as DynamicImport-Package in order for the Source to accommodate OBJECT
+         * <b>NOTE:</b> In order for classes to be deserialized by a {@link ddf.catalog.source.Source}, that class must
+         * exist on the classpath of that {@link ddf.catalog.source.Source}. This may require additional parameters to
+         * be set such as DynamicImport-Package in order for the ddf.catalog.source.Source to accommodate OBJECT
          * format.
          * </p>
          *

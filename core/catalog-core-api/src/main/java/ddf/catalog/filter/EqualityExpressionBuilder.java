@@ -16,11 +16,10 @@ package ddf.catalog.filter;
 import java.util.Date;
 
 import org.opengis.filter.Filter;
-import org.opengis.filter.PropertyIsEqualTo;
 
 /**
  *
- * Completes the fluent API to create a {@link PropertyIsEqualTo} {@link Filter} .
+ * Completes the fluent API to create a {@link org.opengis.filter.PropertyIsEqualTo} {@link Filter} .
  *
  * @author Michael Menousek, Lockheed Martin
  * @author ddf.isgs@lmco.com

@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
-import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.mime.MimeTypeMapper;
@@ -53,7 +52,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 
 /**
- * A URLResourceReader retrieves a {@link Resource} from a local or remote file system using a
+ * A URLResourceReader retrieves a {@link ddf.catalog.resource.Resource} from a local or remote file system using a
  * {@link URI}. The {@link URI} is used to specify the file location. A URLResourceReader supports
  * {@link URI}s with HTTP, HTTPS, and file schemes.
  */
@@ -70,7 +69,7 @@ public class URLResourceReader implements ResourceReader {
 
     private static final String SHORTNAME = "URLResourceReader";
 
-    private static final String TITLE = "URL Resource Reader";
+    private static final String TITLE = "URL ddf.catalog.resource.Resource Reader";
 
     private static final String DESCRIPTION = "Retrieves a file from a remote file system.";
 
@@ -157,15 +156,15 @@ public class URLResourceReader implements ResourceReader {
     }
 
     /**
-     * Retrieves a {@link Resource} based on a {@link URI} and provided arguments. A connection is
-     * made to the {@link URI} to obtain the {@link Resource}'s {@link InputStream} and build a
+     * Retrieves a {@link ddf.catalog.resource.Resource} based on a {@link URI} and provided arguments. A connection is
+     * made to the {@link URI} to obtain the {@link ddf.catalog.resource.Resource}'s {@link InputStream} and build a
      * {@link ResourceResponse} from that. If the {@link URI}'s scheme is HTTP or HTTPS, the
-     * {@link Resource}'s name gets set to the {@link URI} passed in, otherwise, if it is a file
+     * {@link ddf.catalog.resource.Resource}'s name gets set to the {@link URI} passed in, otherwise, if it is a file
      * scheme, the name is set to the actual file name.
      *
-     * @param resourceURI A {@link URI} that defines what {@link Resource} to retrieve and how to do it.
+     * @param resourceURI A {@link URI} that defines what {@link ddf.catalog.resource.Resource} to retrieve and how to do it.
      * @param properties  Any additional arguments that should be passed to the {@link ResourceReader}.
-     * @return A {@link ResourceResponse} containing the retrieved {@link Resource}.
+     * @return A {@link ResourceResponse} containing the retrieved {@link ddf.catalog.resource.Resource}.
      */
     @Override
     public ResourceResponse retrieveResource(URI resourceURI, Map<String, Serializable> properties)

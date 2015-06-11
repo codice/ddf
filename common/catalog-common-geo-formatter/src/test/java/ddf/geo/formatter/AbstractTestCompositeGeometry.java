@@ -28,7 +28,6 @@ import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.BeforeClass;
 
-import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
 public abstract class AbstractTestCompositeGeometry {
@@ -52,7 +51,7 @@ public abstract class AbstractTestCompositeGeometry {
      *
      * @param composite
      * @return Atom entry as text
-     * @throws ParseException
+     * @throws com.vividsolutions.jts.io.ParseException
      * @throws IOException
      */
     protected String getSampleAtomEntry(CompositeGeometry composite) throws IOException {

@@ -14,12 +14,11 @@
 package ddf.catalog.plugin;
 
 import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.resource.Resource;
 
 /**
  * The PostResourcePlugin is executed after a getResource operation has completed.
  *
- * @see Resource
+ * @see ddf.catalog.resource.Resource
  */
 public interface PostResourcePlugin {
     /**

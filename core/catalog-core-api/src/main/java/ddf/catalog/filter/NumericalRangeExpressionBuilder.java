@@ -15,8 +15,6 @@ package ddf.catalog.filter;
 
 import org.opengis.filter.Filter;
 
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.Metacard;
 
 /**
  *
@@ -33,8 +31,8 @@ public interface NumericalRangeExpressionBuilder {
      *            the bottom range, inclusive
      * @param arg1
      *            the top of the range, inclusive
-     * @return {@link Filter} a filter that will pass only {@link Metacard}s where the indicated
-     *         {@link Attribute} is within the indicated range
+     * @return {@link Filter} a filter that will pass only {@link ddf.catalog.data.Metacard}s where the indicated
+     *         {@link ddf.catalog.data.Attribute} is within the indicated range
      */
     public abstract Filter numbers(Integer arg0, Integer arg1);
 
@@ -45,8 +43,8 @@ public interface NumericalRangeExpressionBuilder {
      *            the bottom range, inclusive
      * @param arg1
      *            the top of the range, inclusive
-     * @return {@link Filter} a filter that will pass only {@link Metacard}s where the indicated
-     *         {@link Attribute} is within the indicated range
+     * @return {@link Filter} a filter that will pass only {@link ddf.catalog.data.Metacard}s where the indicated
+     *         {@link ddf.catalog.data.Attribute} is within the indicated range
      */
     public abstract Filter numbers(Long arg0, Long arg1);
 
@@ -58,8 +56,8 @@ public interface NumericalRangeExpressionBuilder {
      *            the bottom range, inclusive
      * @param arg1
      *            the top of the range, inclusive
-     * @return {@link Filter} a filter that will pass only {@link Metacard}s where the indicated
-     *         {@link Attribute} is within the indicated range
+     * @return {@link Filter} a filter that will pass only {@link ddf.catalog.data.Metacard}s where the indicated
+     *         {@link ddf.catalog.data.Attribute} is within the indicated range
      */
     public abstract Filter numbers(Short arg0, Short arg1);
 
@@ -71,8 +69,8 @@ public interface NumericalRangeExpressionBuilder {
      *            the bottom range, inclusive
      * @param arg1
      *            the top of the range, inclusive
-     * @return {@link Filter} a filter that will pass only {@link Metacard}s where the indicated
-     *         {@link Attribute} is within the indicated range
+     * @return {@link Filter} a filter that will pass only {@link ddf.catalog.data.Metacard}s where the indicated
+     *         {@link ddf.catalog.data.Attribute} is within the indicated range
      */
     public abstract Filter numbers(Float arg0, Float arg1);
 
@@ -84,8 +82,8 @@ public interface NumericalRangeExpressionBuilder {
      *            the bottom range, inclusive
      * @param arg1
      *            the top of the range, inclusive
-     * @return {@link Filter} a filter that will pass only {@link Metacard}s where the indicated
-     *         {@link Attribute} is within the indicated range
+     * @return {@link Filter} a filter that will pass only {@link ddf.catalog.data.Metacard}s where the indicated
+     *         {@link ddf.catalog.data.Attribute} is within the indicated range
      */
     public abstract Filter numbers(Double arg0, Double arg1);
 

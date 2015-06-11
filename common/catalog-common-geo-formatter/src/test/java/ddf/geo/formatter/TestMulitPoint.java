@@ -32,18 +32,18 @@ public class TestMulitPoint extends AbstractTestCompositeGeometry {
 
         String control =
                 "<entry xmlns=\"http://www.w3.org/2005/Atom\" xmlns:georss=\"http://www.georss.org/georss\">\r\n"
-                        + "	<georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
-                        + "		<gml:Point>\r\n" + "			<gml:pos>2.0 1.0</gml:pos>"
-                        + "		</gml:Point>\r\n" + "	</georss:where>\r\n"
-                        + "	<georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
-                        + "		<gml:Point>\r\n" + "			<gml:pos>4.0 3.0</gml:pos>"
-                        + "		</gml:Point>\r\n" + "	</georss:where>\r\n"
-                        + "	<georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
-                        + "		<gml:Point>\r\n" + "			<gml:pos>6.0 5.0</gml:pos>"
-                        + "		</gml:Point>\r\n" + "	</georss:where>\r\n"
-                        + "	<georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
-                        + "		<gml:Point>\r\n" + "			<gml:pos>8.0 7.0</gml:pos>"
-                        + "		</gml:Point>\r\n" + "	</georss:where>\r\n" + "</entry>";
+                        + "    <georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
+                        + "        <gml:Point>\r\n" + "            <gml:pos>2.0 1.0</gml:pos>"
+                        + "        </gml:Point>\r\n" + "    </georss:where>\r\n"
+                        + "    <georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
+                        + "        <gml:Point>\r\n" + "            <gml:pos>4.0 3.0</gml:pos>"
+                        + "        </gml:Point>\r\n" + "    </georss:where>\r\n"
+                        + "    <georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
+                        + "        <gml:Point>\r\n" + "            <gml:pos>6.0 5.0</gml:pos>"
+                        + "        </gml:Point>\r\n" + "    </georss:where>\r\n"
+                        + "    <georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
+                        + "        <gml:Point>\r\n" + "            <gml:pos>8.0 7.0</gml:pos>"
+                        + "        </gml:Point>\r\n" + "    </georss:where>\r\n" + "</entry>";
 
         assertXMLEqual(control, entryXmlText);
 

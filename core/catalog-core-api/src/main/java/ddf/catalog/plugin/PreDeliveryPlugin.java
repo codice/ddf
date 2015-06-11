@@ -14,8 +14,6 @@
 package ddf.catalog.plugin;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.event.DeliveryMethod;
-import ddf.catalog.event.Subscription;
 import ddf.catalog.operation.Update;
 
 /**
@@ -33,7 +31,7 @@ public interface PreDeliveryPlugin {
      *            - the newly created {@link Metacard}
      * @return the value of the {@link Metacard} to pass to the next {@link PreDeliveryPlugin}, or
      *         if this is the last {@link PreDeliveryPlugin} to be called, the
-     *         {@link DeliveryMethod}
+     *         {@link ddf.catalog.event.DeliveryMethod}
      * @throws PluginExecutionException
      *             if there is a problem evaluating the update but processing should continue
      * @throws StopProcessingException
@@ -44,11 +42,11 @@ public interface PreDeliveryPlugin {
 
     /**
      * Callback invoked when a {@link Metacard} has been updated and only the old version matches a
-     * {@link Subscription}
+     * {@link ddf.catalog.event.Subscription}
      *
      * @param update
      * @return the {@link Update} to pass to the next {@link PreDeliveryPlugin}, or if this is the
-     *         last {@link PreDeliveryPlugin} to be called, the {@link DeliveryMethod}
+     *         last {@link PreDeliveryPlugin} to be called, the {@link ddf.catalog.event.DeliveryMethod}
      * @throws PluginExecutionException
      *             if there is a problem evaluating the update but processing should continue
      * @throws StopProcessingException
@@ -60,11 +58,11 @@ public interface PreDeliveryPlugin {
 
     /**
      * Callback invoked when a {@link Metacard} has been updated and the new version matches a
-     * {@link Subscription}. The old version may or may not match the {@link Subscription}
+     * {@link ddf.catalog.event.Subscription}. The old version may or may not match the {@link ddf.catalog.event.Subscription}
      *
      * @param update
      * @return the {@link Update} to pass to the next {@link PreDeliveryPlugin}, or if this is the
-     *         last {@link PreDeliveryPlugin} to be called, the {@link DeliveryMethod}
+     *         last {@link PreDeliveryPlugin} to be called, the {@link ddf.catalog.event.DeliveryMethod}
      * @throws PluginExecutionException
      *             if there is a problem evaluating the update but processing should continue
      * @throws StopProcessingException
@@ -79,7 +77,7 @@ public interface PreDeliveryPlugin {
      * @param metacard
      *            - the deleted {@link Metacard}
      * @return the {@link Metacard} to pass to the next {@link PreDeliveryPlugin}, or if this is the
-     *         last {@link PreDeliveryPlugin} to be called, the {@link DeliveryMethod}
+     *         last {@link PreDeliveryPlugin} to be called, the {@link ddf.catalog.event.DeliveryMethod}
      * @throws PluginExecutionException
      *             if there is a problem evaluating the update but processing should continue
      * @throws StopProcessingException

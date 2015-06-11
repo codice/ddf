@@ -24,9 +24,7 @@ import javax.activation.MimeTypeParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -39,14 +37,14 @@ import net.minidev.json.JSONValue;
 
 /**
  * Implements the {@link QueryResponseTransformer} interface to transform a {@link SourceResponse}
- * instance to GeoJSON. This class creates JSON objects for the list of {@link Metacard}s that are
+ * instance to GeoJSON. This class creates JSON objects for the list of {@link ddf.catalog.data.Metacard}s that are
  * the results from a query. This class leverages the {@link GeoJsonMetacardTransformer} to convert
  * metacards to JSON.
  *
  * @see GeoJsonMetacardTransformer
  * @see QueryResponseTransformer
- * @see Metacard
- * @see Attribute
+ * @see ddf.catalog.data.Metacard
+ * @see ddf.catalog.data.Attribute
  *
  */
 public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer {

@@ -43,7 +43,6 @@ import org.slf4j.ext.XLogger;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
-import ddf.catalog.FanoutCatalogFramework;
 import ddf.catalog.cache.impl.CacheKey;
 import ddf.catalog.cache.impl.ResourceCache;
 import ddf.catalog.data.BinaryContent;
@@ -1302,7 +1301,7 @@ public class CatalogFrameworkImpl extends DescribableImpl
 
     /**
      * Whether this {@link CatalogFramework} is configured with a {@link CatalogProvider}.
-     * {@link FanoutCatalogFramework} does not.
+     * {@link ddf.catalog.FanoutCatalogFramework} does not.
      *
      * @return true if this {@link CatalogFrameworkImpl} has a {@link CatalogProvider} configured,
      * false otherwise

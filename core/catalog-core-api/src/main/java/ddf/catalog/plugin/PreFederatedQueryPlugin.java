@@ -13,7 +13,6 @@
  */
 package ddf.catalog.plugin;
 
-import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.source.Source;
 
@@ -27,7 +26,7 @@ import ddf.catalog.source.Source;
 public interface PreFederatedQueryPlugin {
 
     /**
-     * Processes a {@link QueryRequest} prior to execution of the Federated {@link Query}.
+     * Processes a {@link QueryRequest} prior to execution of the Federated {@link ddf.catalog.operation.Query}.
      *
      * @param source
      *            the {@link Source} the query will be sent to

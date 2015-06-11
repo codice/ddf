@@ -13,12 +13,10 @@
  */
 package ddf.catalog.filter;
 
-import org.opengis.filter.Filter;
 
-import ddf.catalog.data.Attribute;
 
 /**
- * Starts the fluent API to create {@link Filter} based on a particular {@link Attribute}
+ * Starts the fluent API to create {@link org.opengis.filter.Filter} based on a particular {@link ddf.catalog.data.Attribute}
  *
  * @author Michael Menousek, Lockheed Martin
  * @author ddf.isgs@lmco.com
@@ -26,10 +24,10 @@ import ddf.catalog.data.Attribute;
 public interface AttributeBuilder extends ExpressionBuilder {
 
     /**
-     * Continue building the {@link Filter} with an implied equality operator. Also used for
+     * Continue building the {@link org.opengis.filter.Filter} with an implied equality operator. Also used for
      * syntactic completeness (readability).
      *
-     * @return ExpressionBuilder to continue building this {@link Filter}
+     * @return ExpressionBuilder to continue building this {@link org.opengis.filter.Filter}
      */
     public abstract ExpressionBuilder is();
 

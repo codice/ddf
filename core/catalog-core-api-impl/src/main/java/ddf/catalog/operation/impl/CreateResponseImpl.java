@@ -20,10 +20,9 @@ import java.util.Map;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
-import ddf.catalog.operation.Response;
 
 /**
- * CreateResponseImpl contains the {@link Response} information (created metacards) on a
+ * CreateResponseImpl contains the {@link ddf.catalog.operation.Response} information (created metacards) on a
  * {@link CreateRequest}.
  *
  */

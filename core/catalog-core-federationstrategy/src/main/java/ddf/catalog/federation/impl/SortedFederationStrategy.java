@@ -37,7 +37,6 @@ import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.federation.base.AbstractFederationStrategy;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
@@ -53,7 +52,7 @@ import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.TemporalResultComparator;
 
 /**
- * This class represents a {@link FederationStrategy} based on sorting {@link Metacard}s. The
+ * This class represents a {@link ddf.catalog.federation.FederationStrategy} based on sorting {@link Metacard}s. The
  * sorting is based on the {@link Query}'s {@link SortBy} propertyName. The possible sorting values
  * are {@link Metacard.EFFECTIVE}, {@link Result.TEMPORAL}, {@link Result.DISTANCE}, or
  * {@link Result.RELEVANCE} . The supported ordering includes {@link SortOrder.DESCENDING} and

@@ -17,8 +17,6 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Date;
 
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.source.Source;
 
 /**
  * A {@link Metacard} is a container for Metadata.
@@ -86,7 +84,7 @@ public interface Metacard extends Serializable {
     // Stored Metacard properties
     /**
      * {@link Attribute} name for accessing the ID of the {@link Metacard}. <br/>
-     * Every {@link Source} is required to return this attribute.
+     * Every {@link ddf.catalog.source.Source} is required to return this attribute.
      */
     public static final String ID = "id";
 
@@ -330,7 +328,7 @@ public interface Metacard extends Serializable {
      *
      * @return {@link URI} - a {@link URI} representation of the {@link Metacard}'s
      *         {@link Metacard#RESOURCE_URI Resource URI} which itself is stored as a
-     *         {@link AttributeFormat#STRING String AttributeFormat}
+     *         {@link ddf.catalog.data.AttributeType.AttributeFormat#STRING String ddf.catalog.data.AttributeType.AttributeFormat}
      */
     public URI getResourceURI();
 

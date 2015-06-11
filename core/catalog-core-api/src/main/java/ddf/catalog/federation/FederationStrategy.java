@@ -15,20 +15,17 @@ package ddf.catalog.federation;
 
 import java.util.List;
 
-import ddf.catalog.data.Result;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
 
 /**
  * Implementations of this interface federate the specified query to all the {@link Source}s in the
- * list, process the {@link Result}s in a unique way, and then return the results to the client.
+ * list, process the {@link ddf.catalog.data.Result}s in a unique way, and then return the results to the client.
  * <p>
- * For example, implementations can choose to block until all {@link SourceResponse}s return then do
+ * For example, implementations can choose to block until all {@link ddf.catalog.operation.SourceResponse}s return then do
  * a mass sort, or to return the results back to the client as soon as they are received back from a
- * {@link FederatedSource}.
+ * {@link ddf.catalog.source.FederatedSource}.
  *
  * @author ddf.isgs@lmco.com
  */
@@ -36,14 +33,14 @@ public interface FederationStrategy {
 
     /**
      * Federate the given query to the {@link List} of {@link Source}s, returning a
-     * {@link QueryResponse} back to the user that will include the matching {@link Result}s.
+     * {@link QueryResponse} back to the user that will include the matching {@link ddf.catalog.data.Result}s.
      *
      * @param sources
      *            the {@link List} of {@link Source}s to be queried. Cannot be {@code null} or
      *            empty.
      * @param query
      *            the {@link QueryRequest} to execute. Cannot be {@code null}.
-     * @return {@link QueryResponse} which contains the list of {@link Result}s.
+     * @return {@link QueryResponse} which contains the list of {@link ddf.catalog.data.Result}s.
      */
     public QueryResponse federate(List<Source> sources, QueryRequest query)
             throws FederationException;

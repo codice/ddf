@@ -16,7 +16,6 @@ package ddf.catalog.data;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,7 +25,7 @@ import java.util.Set;
  * {@link BasicTypes} to create the {@link BasicTypes#BASIC_METACARD}.
  *
  * <p>
- * This class is {@link Serializable} and care should be taken with
+ * This class is {@link java.io.Serializable} and care should be taken with
  * compatibility if changes are made.
  * </p>
  *

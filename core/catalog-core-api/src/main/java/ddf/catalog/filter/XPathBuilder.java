@@ -15,9 +15,6 @@ package ddf.catalog.filter;
 
 import org.opengis.filter.Filter;
 
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.data.Metacard;
 
 /**
  * Builds XPath {@link Filter}s
@@ -28,9 +25,9 @@ import ddf.catalog.data.Metacard;
 public interface XPathBuilder extends XPathBasicBuilder {
 
     /**
-     * Builds a {@link Filter} that matches {@link Metacard}s where the XML node indicated by the
-     * XPath exists. Searches across all {@link Metacard} {@link Attribute}s of type
-     * {@link AttributeFormat#XML}.
+     * Builds a {@link Filter} that matches {@link ddf.catalog.data.Metacard}s where the XML node indicated by the
+     * XPath exists. Searches across all {@link ddf.catalog.data.Metacard} {@link ddf.catalog.data.Attribute}s of type
+     * {@link ddf.catalog.data.AttributeType.AttributeFormat#XML}.
      *
      * @return {@link Filter} for indicated XPath
      */

@@ -16,7 +16,6 @@ package ddf.catalog.transform;
 import java.io.Serializable;
 import java.util.Map;
 
-import ddf.catalog.Constants;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 
@@ -30,7 +29,7 @@ import ddf.catalog.data.Metacard;
  * <b>Implementations of this interface <em>must</em>:</b>
  * <ul>
  * <li/>Register with the OSGi Service Registry using the {@code MetacardTransformer} interface.
- * <li/>Include a Service property with name "id" ({@link Constants#SERVICE_ID}) and a
+ * <li/>Include a Service property with name "id" ({@link ddf.catalog.Constants#SERVICE_ID}) and a
  * {@link String} value uniquely identifying the particular implementation
  *
  * </ul>

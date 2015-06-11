@@ -17,11 +17,10 @@ import java.io.Serializable;
 import java.util.Map;
 
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.Result;
 import ddf.catalog.operation.SourceResponse;
 
 /**
- * The {@code QueryResponseTransformer} is used to transform a list of {@link Result} objects from a
+ * The {@code QueryResponseTransformer} is used to transform a list of {@link ddf.catalog.data.Result} objects from a
  * {@link SourceResponse}. For example, if the list of results contains XML data, the entire list
  * can be transformed to HTML data.
  *

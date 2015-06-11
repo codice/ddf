@@ -32,10 +32,10 @@ public class TestLineString extends AbstractTestCompositeGeometry {
 
         String control =
                 "<entry xmlns=\"http://www.w3.org/2005/Atom\" xmlns:georss=\"http://www.georss.org/georss\">\r\n"
-                        + "	<georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
-                        + "		<gml:LineString>\r\n"
-                        + "			<gml:posList>2.0 1.0 4.0 3.0 7.0 5.0</gml:posList>"
-                        + "		</gml:LineString>\r\n" + "	</georss:where>\r\n" + "</entry>";
+                        + "    <georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
+                        + "        <gml:LineString>\r\n"
+                        + "            <gml:posList>2.0 1.0 4.0 3.0 7.0 5.0</gml:posList>"
+                        + "        </gml:LineString>\r\n" + "    </georss:where>\r\n" + "</entry>";
 
         assertXMLEqual(control, entryXmlText);
 
