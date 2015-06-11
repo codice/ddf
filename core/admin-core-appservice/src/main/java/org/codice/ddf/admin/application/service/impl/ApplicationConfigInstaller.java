@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.admin.application.service.impl;
 
 import java.io.File;
@@ -37,6 +36,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationConfigInstaller extends Thread {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfigInstaller.class);
+
     private ApplicationService appService;
 
     private FeaturesService featuresService;
@@ -44,8 +45,6 @@ public class ApplicationConfigInstaller extends Thread {
     private String postInstallFeatureStart;
 
     private String postInstallFeatureStop;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfigInstaller.class);
 
     private String fileName;
 
@@ -88,8 +87,7 @@ public class ApplicationConfigInstaller extends Thread {
                 for (Entry<Object, Object> curApp : props.entrySet()) {
                     String appName = curApp.getKey().toString();
                     String appLocation = curApp.getValue().toString();
-                    LOGGER.debug("Starting app {} at location: {}", appName,
-                            appLocation);
+                    LOGGER.debug("Starting app {} at location: {}", appName, appLocation);
 
                     try {
                         if (StringUtils.isNotEmpty(appLocation)) {

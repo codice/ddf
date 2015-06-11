@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.admin.insecure.defaults.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -53,9 +52,9 @@ public class PlatformGlobalConfigurationValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getMessage(), is(String.format(
-                PlatformGlobalConfigurationValidator.PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP,
-                PROTOCOL_PROPERTY)));
+        assertThat(alerts.get(0).getMessage(), is(String
+                .format(PlatformGlobalConfigurationValidator.PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP,
+                        PROTOCOL_PROPERTY)));
     }
 
     @Test

@@ -13,21 +13,22 @@
  **/
 -->
 
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0" xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs">
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="webBranding" interface="org.apache.felix.webconsole.BrandingPlugin" />
+    <reference id="webBranding" interface="org.apache.felix.webconsole.BrandingPlugin"/>
 
-	<bean id="configurationStore" class="org.codice.admin.ui.configuration.Configuration"
-		factory-method="getInstance">
-		<cm:managed-properties persistent-id="org.codice.admin.ui.configuration"
-			update-strategy="container-managed" />
-        <property name="branding" ref="webBranding" />
-	</bean>
+    <bean id="configurationStore" class="org.codice.admin.ui.configuration.Configuration"
+          factory-method="getInstance">
+        <cm:managed-properties persistent-id="org.codice.admin.ui.configuration"
+                               update-strategy="container-managed"/>
+        <property name="branding" ref="webBranding"/>
+    </bean>
 
     <jaxrs:server id="restService" address="/admin">
         <jaxrs:serviceBeans>
-            <ref component-id="configurationStore" />
+            <ref component-id="configurationStore"/>
         </jaxrs:serviceBeans>
         <jaxrs:outInterceptors>
             <bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>

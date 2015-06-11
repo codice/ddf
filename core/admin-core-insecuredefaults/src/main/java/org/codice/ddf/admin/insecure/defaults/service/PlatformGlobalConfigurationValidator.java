@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.admin.insecure.defaults.service;
 
 import java.io.IOException;
@@ -28,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 public class PlatformGlobalConfigurationValidator implements Validator {
 
+    static final String PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP = "The [%s] in Platform Global Configuration is set to [http].";
+
     private static final Logger LOGGER = LoggerFactory
             .getLogger(PlatformGlobalConfigurationValidator.class);
 
@@ -40,8 +41,6 @@ public class PlatformGlobalConfigurationValidator implements Validator {
     private ConfigurationAdmin configAdmin;
 
     private List<Alert> alerts;
-
-    static final String PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP = "The [%s] in Platform Global Configuration is set to [http].";
 
     public PlatformGlobalConfigurationValidator(ConfigurationAdmin configAdmin) {
         alerts = new ArrayList<>();
@@ -63,7 +62,9 @@ public class PlatformGlobalConfigurationValidator implements Validator {
                 LOGGER.debug("props: {}", properties.toString());
                 String protocol = (String) properties.get(PROTOCOL_PROPERTY);
                 if (StringUtils.equalsIgnoreCase(protocol, HTTP_PROTOCOL)) {
-                    alerts.add(new Alert(Level.WARN, String.format(PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP, PROTOCOL_PROPERTY)));
+                    alerts.add(new Alert(Level.WARN,
+                            String.format(PROTCOL_IN_PLATFORM_GLOBAL_CONFIG_IS_HTTP,
+                                    PROTOCOL_PROPERTY)));
                 }
             } else {
                 String msg = "Unable to determine if Platform Global Configuration has insecure defaults. Cannot access Configuration Admin.";

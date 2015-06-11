@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.admin.insecure.defaults.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -42,11 +41,9 @@ public class PaxWebCfgFileValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(
-                alerts.get(0).getMessage(),
-                is(String.format(PaxWebCfgFileValidator.GENERIC_INSECURE_DEFAULTS_MSG,
-                        FAKE_PAX_WEB_CFG_FILE)
-                        + FAKE_PAX_WEB_CFG_FILE
+        assertThat(alerts.get(0).getMessage(), is(String
+                        .format(PaxWebCfgFileValidator.GENERIC_INSECURE_DEFAULTS_MSG,
+                                FAKE_PAX_WEB_CFG_FILE) + FAKE_PAX_WEB_CFG_FILE
                         + " (No such file or directory)"));
     }
 
@@ -62,9 +59,9 @@ public class PaxWebCfgFileValidatorTest {
 
         // Verify
         assertThat(alerts.size(), is(1));
-        assertThat(alerts.get(0).getMessage(), is(String.format(
-                PaxWebCfgFileValidator.HTTP_ENABLED_MSG,
-                PaxWebCfgFileValidator.HTTP_ENABLED_PROPERTY, path)));
+        assertThat(alerts.get(0).getMessage(), is(String
+                .format(PaxWebCfgFileValidator.HTTP_ENABLED_MSG,
+                        PaxWebCfgFileValidator.HTTP_ENABLED_PROPERTY, path)));
     }
 
     @Test

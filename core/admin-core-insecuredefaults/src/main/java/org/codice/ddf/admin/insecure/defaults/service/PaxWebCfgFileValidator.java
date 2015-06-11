@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.admin.insecure.defaults.service;
 
 import java.util.List;
@@ -24,11 +23,11 @@ import org.slf4j.LoggerFactory;
 
 public class PaxWebCfgFileValidator extends PropertiesFileValidator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PaxWebCfgFileValidator.class);
-
     static final String HTTP_ENABLED_PROPERTY = "org.osgi.service.http.enabled";
 
     static final String HTTP_ENABLED_MSG = "The property [%s] is set to [true] in file [%s]. This enables HTTP.";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaxWebCfgFileValidator.class);
 
     @Override
     public List<Alert> validate() {
@@ -50,8 +49,8 @@ public class PaxWebCfgFileValidator extends PropertiesFileValidator {
         String enabled = properties.getProperty(HTTP_ENABLED_PROPERTY);
 
         if (StringUtils.equalsIgnoreCase(enabled, "true")) {
-            alerts.add(new Alert(Level.WARN, String.format(HTTP_ENABLED_MSG, HTTP_ENABLED_PROPERTY,
-                    path)));
+            alerts.add(new Alert(Level.WARN,
+                    String.format(HTTP_ENABLED_MSG, HTTP_ENABLED_PROPERTY, path)));
         }
     }
 }
