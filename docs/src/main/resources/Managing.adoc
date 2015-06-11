@@ -11,9 +11,41 @@ The DDF Catalog provides a framework for storing, searching, processing, and t
 
 === Catalog Architecture
 
-----
-INSERT DIAGRAM HERE
-----
+[ditaa,catalog_architecture]
+....
+
+                /-=-----------------\                                      
+                |      Clients      |                                      
+                \-------------------/                                      
+                          |                                                
+                          v                                                
+                /-------------------\                                      
+                |cDEFEndpoints      |                                      
+                +------------+------+                                      
+                |cDEF        |cDEF  |                                      
+                | Operations | Data |                                      
+/---------------+------------+------+------------+---------\    +--------+ 
+|cDEF           |cDEF               |cDEF        |cDEF     |<-> |        | 
+|  Transformers |                   | Federation | Sources |    |External| 
++---------------+ Catalog Framework +------------+---------+<-> |  Data  | 
+|cDEF           |                   |cDEF   Eventing       |    |Holdings| 
+|   Catalog     |                   +------------+---------+<-> |    {s} | 
+|   Plugins     |                   |cDEF   Resources      |    +------=-+ 
+\---------------+-------------------+----------------------/                
+                |cDEF               |                                      
+                | Catalog Provider  |                                      
+                \-------------------/                                      
+                          ^                                                
+                          |                                                
+                          v                         Legend                
+                  +---------------+                /---------------------\  
+                  |{s}            |                |cDEF DDF Component   |  
+                  |  Data Store   |                \---------------------/  
+                  |               |                /---------------------\  
+                  +------------=--+                | External Component  |  
+                                                   \--------------------=/  
+
+....
 
 == Installing and Uninstalling
 
