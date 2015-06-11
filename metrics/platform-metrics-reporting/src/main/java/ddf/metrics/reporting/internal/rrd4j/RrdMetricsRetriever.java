@@ -106,6 +106,10 @@ public class RrdMetricsRetriever implements MetricsRetriever {
 
     public static final String SUMMARY_TIMESTAMP = "dd-MM-yy HHmm";
 
+    public static final int MILLISECONDS_PER_SECOND = 1000;
+
+    public static final int EXCEL_MAX_COLUMNS = 256;
+
     /**
      * Used for formatting long timestamps into more readable calendar dates/times.
      */
@@ -543,8 +547,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             long startTime, long endTime, SUMMARY_INTERVALS summaryInterval)
             throws IOException, MetricsGraphException {
         // convert seconds to milliseconds
-        startTime *= 1000;
-        endTime *= 1000;
+        startTime *= MILLISECONDS_PER_SECOND;
+        endTime *= MILLISECONDS_PER_SECOND;
         DateTime reportStart = new DateTime(startTime, DateTimeZone.UTC);
         DateTime reportEnd = new DateTime(endTime, DateTimeZone.UTC);
 
@@ -553,6 +557,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
                 .toString(SUMMARY_TIMESTAMP));
         Row headingRow = sheet.createRow(0);
 
+        int columnMax = 1;
         for (String metricName : metricNames) {
             MutableDateTime chunkStart = new MutableDateTime(reportStart);
             MutableDateTime chunkEnd = new MutableDateTime(chunkStart);
@@ -560,7 +565,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             int columnCounter = 1;
             Boolean isSum = null;
 
-            while (reportEnd.compareTo(chunkEnd) > 0 && columnCounter < 256) {
+            while (reportEnd.compareTo(chunkEnd) > 0 && columnCounter < EXCEL_MAX_COLUMNS) {
                 increment(chunkEnd, summaryInterval);
                 if (chunkEnd.isAfter(reportEnd)) {
                     chunkEnd.setMillis(reportEnd);
@@ -569,7 +574,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
                 // offset range by one millisecond so rrd will calculate granularity correctly
                 chunkEnd.addMillis(-1);
                 MetricData metricData = getMetricData(getRrdFilename(metricsDir, metricName),
-                        chunkStart.getMillis() / 1000, chunkEnd.getMillis() / 1000);
+                        chunkStart.getMillis() / MILLISECONDS_PER_SECOND,
+                        chunkEnd.getMillis() / MILLISECONDS_PER_SECOND);
                 isSum = metricData.hasTotalCount();
                 chunkEnd.addMillis(1);
 
@@ -590,13 +596,14 @@ public class RrdMetricsRetriever implements MetricsRetriever {
                 chunkStart.setMillis(chunkEnd);
                 columnCounter++;
             }
+            columnMax = columnCounter;
 
             if (isSum != null) {
                 row.createCell(0).setCellValue(
                         convertCamelCase(metricName) + " (" + (isSum ? "sum" : "avg") + ")");
             }
         }
-        for (int i = 0; i < 256; i++) {
+        for (int i = 0; i < columnMax; i++) {
             sheet.autoSizeColumn(i);
         }
     }
