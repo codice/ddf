@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.mime;
 
 import java.io.InputStream;
@@ -35,8 +34,8 @@ public interface MimeTypeMapper {
      * @throws MimeTypeException
      *             if any problems encountered during mime type mapping
      */
-    public String getFileExtensionForMimeType(String contentType) throws
-            MimeTypeResolutionException;
+    public String getFileExtensionForMimeType(String contentType)
+            throws MimeTypeResolutionException;
 
     /**
      * Retrieves the mime type for the specified file extension, e.g., returns "image/nitf" for a
@@ -48,8 +47,8 @@ public interface MimeTypeMapper {
      * @throws MimeTypeException
      *             if any problems encountered during mime type mapping
      */
-    public String getMimeTypeForFileExtension(String fileExtension) throws
-            MimeTypeResolutionException;
+    public String getMimeTypeForFileExtension(String fileExtension)
+            throws MimeTypeResolutionException;
 
     /**
      * Attempts to guess the mime type for the specified file extension by
@@ -62,6 +61,6 @@ public interface MimeTypeMapper {
      * @throws MimeTypeResolutionException
      *          if any problems encountered during mime type mapping
      */
-    public String guessMimeType(InputStream is, String fileExtension) throws
-            MimeTypeResolutionException;
+    public String guessMimeType(InputStream is, String fileExtension)
+            throws MimeTypeResolutionException;
 }

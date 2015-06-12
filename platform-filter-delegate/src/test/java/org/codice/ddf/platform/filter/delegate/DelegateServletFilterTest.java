@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.platform.filter.delegate;
 
 import static org.mockito.Matchers.any;
@@ -73,8 +72,8 @@ public class DelegateServletFilterTest {
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testDoFilterWithFilters() throws IOException, ServletException,
-            InvalidSyntaxException {
+    public void testDoFilterWithFilters()
+            throws IOException, ServletException, InvalidSyntaxException {
         ServletRequest request = mock(HttpServletRequest.class);
         ServletResponse response = mock(HttpServletResponse.class);
 
@@ -101,8 +100,8 @@ public class DelegateServletFilterTest {
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testDoFilterWithNoFilters() throws IOException, ServletException,
-            InvalidSyntaxException {
+    public void testDoFilterWithNoFilters()
+            throws IOException, ServletException, InvalidSyntaxException {
         ServletRequest request = mock(HttpServletRequest.class);
         ServletResponse response = mock(HttpServletResponse.class);
 
@@ -144,8 +143,8 @@ public class DelegateServletFilterTest {
         verify(initialChain).doFilter(request, response);
     }
 
-    private List<Filter> mockFilters(boolean includeFilters) throws InvalidSyntaxException,
-            IOException, ServletException {
+    private List<Filter> mockFilters(boolean includeFilters)
+            throws InvalidSyntaxException, IOException, ServletException {
         List<Filter> filters = new ArrayList<Filter>(3);
         filter1 = createMockFilter("filter1");
         filter2 = createMockFilter("filter2");
@@ -178,8 +177,8 @@ public class DelegateServletFilterTest {
         return mockFilter;
     }
 
-    private BundleContext createMockContext(boolean includeFilters) throws InvalidSyntaxException,
-            IOException, ServletException {
+    private BundleContext createMockContext(boolean includeFilters)
+            throws InvalidSyntaxException, IOException, ServletException {
         BundleContext context = mock(BundleContext.class);
         List<Filter> mockFilters = mockFilters(includeFilters);
         List<ServiceReference<Filter>> referenceList = new ArrayList<ServiceReference<Filter>>();

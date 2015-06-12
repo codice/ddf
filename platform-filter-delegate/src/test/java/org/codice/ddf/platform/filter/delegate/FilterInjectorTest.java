@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.platform.filter.delegate;
 
 import static org.mockito.Matchers.any;
@@ -79,7 +78,7 @@ public class FilterInjectorTest {
         when(curContext.addFilter(anyString(), any(Filter.class))).thenReturn(filterReg);
         curRegistration = mock(ServiceRegistration.class);
         when(context.registerService(eq(Filter.class), Mockito.any(Filter.class),
-                        Matchers.<Dictionary<String, Object>>any())).thenReturn(curRegistration);
+                Matchers.<Dictionary<String, Object>>any())).thenReturn(curRegistration);
         when(context.getService(curReference)).thenReturn(curContext);
         when(bundle.getBundleContext()).thenReturn(context);
         when(bundle.getSymbolicName()).thenReturn("Mock Bundle.");

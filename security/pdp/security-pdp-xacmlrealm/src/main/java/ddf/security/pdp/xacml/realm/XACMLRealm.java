@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.security.pdp.xacml.realm;
 
 import java.util.ArrayList;
@@ -74,8 +73,8 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
     }
 
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws
-            AuthenticationException {
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
+            throws AuthenticationException {
         return null;
     }
 
@@ -358,8 +357,8 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
     }
 
     @Override
-    public void checkPermission(PrincipalCollection subjectPrincipal, String permission) throws
-            AuthorizationException {
+    public void checkPermission(PrincipalCollection subjectPrincipal, String permission)
+            throws AuthorizationException {
         if (!isPermitted(subjectPrincipal, permission)) {
             throw new AuthorizationException(
                     subjectPrincipal.getPrimaryPrincipal() + AUTHZ_PERMITTED_EXCEPTION);
@@ -367,8 +366,8 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
     }
 
     @Override
-    public void checkPermission(PrincipalCollection subjectPrincipal, Permission permission) throws
-            AuthorizationException {
+    public void checkPermission(PrincipalCollection subjectPrincipal, Permission permission)
+            throws AuthorizationException {
         if (!isPermitted(subjectPrincipal, permission)) {
             throw new AuthorizationException(
                     subjectPrincipal.getPrimaryPrincipal() + AUTHZ_PERMITTED_EXCEPTION);
@@ -376,8 +375,8 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
     }
 
     @Override
-    public void checkPermissions(PrincipalCollection subjectPrincipal, String... permissions) throws
-            AuthorizationException {
+    public void checkPermissions(PrincipalCollection subjectPrincipal, String... permissions)
+            throws AuthorizationException {
         if (!isPermittedAll(subjectPrincipal, permissions)) {
             throw new AuthorizationException(
                     subjectPrincipal.getPrimaryPrincipal() + AUTHZ_PERMITTED_EXCEPTION);
@@ -422,8 +421,8 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
     }
 
     @Override
-    public void checkRole(PrincipalCollection subjectPrincipal, String roleIdentifier) throws
-            AuthorizationException {
+    public void checkRole(PrincipalCollection subjectPrincipal, String roleIdentifier)
+            throws AuthorizationException {
         if (!hasRole(subjectPrincipal, roleIdentifier)) {
             throw new AuthorizationException(
                     subjectPrincipal.getPrimaryPrincipal() + AUTHZ_ROLE_EXCEPTION);
@@ -432,8 +431,8 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
     }
 
     @Override
-    public void checkRoles(PrincipalCollection subjectPrincipal,
-            Collection<String> roleIdentifiers) throws AuthorizationException {
+    public void checkRoles(PrincipalCollection subjectPrincipal, Collection<String> roleIdentifiers)
+            throws AuthorizationException {
         if (!hasAllRoles(subjectPrincipal, roleIdentifiers)) {
             throw new AuthorizationException(
                     subjectPrincipal.getPrimaryPrincipal() + AUTHZ_ROLE_EXCEPTION);
@@ -441,8 +440,8 @@ public class XACMLRealm extends AbstractAuthorizingRealm {
     }
 
     @Override
-    public void checkRoles(PrincipalCollection subjectPrincipal, String... roleIdentifiers) throws
-            AuthorizationException {
+    public void checkRoles(PrincipalCollection subjectPrincipal, String... roleIdentifiers)
+            throws AuthorizationException {
         if (!hasAllRoles(subjectPrincipal, Arrays.asList(roleIdentifiers))) {
             throw new AuthorizationException(
                     subjectPrincipal.getPrimaryPrincipal() + AUTHZ_ROLE_EXCEPTION);

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.metrics.collector.rrd4j;
 
 import java.io.File;
@@ -348,8 +347,8 @@ public class RrdJmxCollector implements JmxCollector {
         return attr != null;
     }
 
-    private void createRrdFile(final String metricName, final String dsName,
-            final DsType dsType) throws IOException, CollectorException {
+    private void createRrdFile(final String metricName, final String dsName, final DsType dsType)
+            throws IOException, CollectorException {
         createRrdFile(metricName, dsName, dsType, 0, Double.NaN);
     }
 

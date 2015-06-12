@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.filter.login;
 
 import static org.junit.Assert.fail;
@@ -59,8 +58,8 @@ import ddf.security.service.SecurityServiceException;
 
 public class LoginFilterTest {
 
-    public static Document readXml(InputStream is) throws SAXException, IOException,
-            ParserConfigurationException {
+    public static Document readXml(InputStream is)
+            throws SAXException, IOException, ParserConfigurationException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
         dbf.setValidating(false);
@@ -93,8 +92,8 @@ public class LoginFilterTest {
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         FilterChain filterChain = new FilterChain() {
             @Override
-            public void doFilter(ServletRequest request, ServletResponse response) throws
-                    IOException, ServletException {
+            public void doFilter(ServletRequest request, ServletResponse response)
+                    throws IOException, ServletException {
                 fail("Should not have called doFilter without a valid Subject");
             }
         };
@@ -128,8 +127,8 @@ public class LoginFilterTest {
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         FilterChain filterChain = new FilterChain() {
             @Override
-            public void doFilter(ServletRequest request, ServletResponse response) throws
-                    IOException, ServletException {
+            public void doFilter(ServletRequest request, ServletResponse response)
+                    throws IOException, ServletException {
                 fail("Should not have continued down the filter chain without a valid Subject");
             }
         };
@@ -154,8 +153,9 @@ public class LoginFilterTest {
     }
 
     @Test(expected = ServletException.class)
-    public void testExpiredSamlCookie() throws IOException, XMLStreamException, ServletException,
-            ParserConfigurationException, SAXException, SecurityServiceException {
+    public void testExpiredSamlCookie()
+            throws IOException, XMLStreamException, ServletException, ParserConfigurationException,
+            SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter();
         ddf.security.service.SecurityManager securityManager = mock(
@@ -183,8 +183,9 @@ public class LoginFilterTest {
     }
 
     @Test(expected = ServletException.class)
-    public void testBadSigSamlCookie() throws IOException, XMLStreamException, ServletException,
-            ParserConfigurationException, SAXException, SecurityServiceException {
+    public void testBadSigSamlCookie()
+            throws IOException, XMLStreamException, ServletException, ParserConfigurationException,
+            SAXException, SecurityServiceException {
         FilterConfig filterConfig = mock(FilterConfig.class);
         LoginFilter loginFilter = new LoginFilter();
         ddf.security.service.SecurityManager securityManager = mock(SecurityManager.class);
@@ -210,8 +211,8 @@ public class LoginFilterTest {
         loginFilter.doFilter(servletRequest, servletResponse, filterChain);
     }
 
-    private Document readDocument(String name) throws SAXException, IOException,
-            ParserConfigurationException {
+    private Document readDocument(String name)
+            throws SAXException, IOException, ParserConfigurationException {
         InputStream inStream = getClass().getResourceAsStream(name);
         return readXml(inStream);
     }

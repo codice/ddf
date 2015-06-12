@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.filter.websso;
 
 import static org.mockito.Matchers.any;
@@ -66,9 +65,9 @@ public class WebSSOFilterTest {
         when(completedResult.getStatus()).thenReturn(Status.COMPLETED);
         when(completedResult.getToken()).thenReturn(null);
         when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
-                        any(FilterChain.class), eq(true))).thenReturn(completedResult);
+                any(FilterChain.class), eq(true))).thenReturn(completedResult);
         when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
-                        any(FilterChain.class), eq(false))).thenReturn(noActionResult);
+                any(FilterChain.class), eq(false))).thenReturn(noActionResult);
 
         filter.setHandlerList(Arrays.asList(handler1));
         filter.setContextPolicyManager(policyManager);
@@ -106,9 +105,9 @@ public class WebSSOFilterTest {
         when(completedResult.getStatus()).thenReturn(Status.COMPLETED);
         when(completedResult.getToken()).thenReturn(null);
         when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
-                        any(FilterChain.class), eq(true))).thenReturn(completedResult);
+                any(FilterChain.class), eq(true))).thenReturn(completedResult);
         when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
-                        any(FilterChain.class), eq(false))).thenReturn(noActionResult);
+                any(FilterChain.class), eq(false))).thenReturn(noActionResult);
 
         filter.setHandlerList(Arrays.asList(handler1));
 
@@ -146,9 +145,9 @@ public class WebSSOFilterTest {
         when(redirectedResult.getStatus()).thenReturn(Status.REDIRECTED);
         when(redirectedResult.getToken()).thenReturn(null);
         when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
-                        any(FilterChain.class), eq(false))).thenReturn(noActionResult);
+                any(FilterChain.class), eq(false))).thenReturn(noActionResult);
         when(handler1.getNormalizedToken(any(ServletRequest.class), any(ServletResponse.class),
-                        any(FilterChain.class), eq(true))).thenReturn(redirectedResult);
+                any(FilterChain.class), eq(true))).thenReturn(redirectedResult);
 
         filter.setHandlerList(Arrays.asList(handler1));
 

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.handler.api;
 
 import static org.junit.Assert.assertEquals;
@@ -54,9 +53,9 @@ public class BSTAuthenticationTokenTest {
         // Empty Prinicpal
         BaseAuthenticationToken bat = BSTAuthenticationToken
                 .parse(BSTAuthenticationToken.BST_PRINCIPAL + "" + BSTAuthenticationToken.NEWLINE
-                        + BSTAuthenticationToken.BST_CREDENTIALS + CREDENTIALS
-                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM + REALM,
-                        false);
+                                + BSTAuthenticationToken.BST_CREDENTIALS + CREDENTIALS
+                                + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM
+                                + REALM, false);
         MockBSTAuthenticationToken mockToken = new MockBSTAuthenticationToken(bat.getPrincipal(),
                 bat.getCredentials(), bat.getRealm());
         assertNotNull(mockToken);
@@ -66,8 +65,8 @@ public class BSTAuthenticationTokenTest {
         // Missing Principal
         expectedException.expect(WSSecurityException.class);
         bat = BSTAuthenticationToken.parse(BSTAuthenticationToken.BST_CREDENTIALS + "name"
-                + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM + "realm",
-                false);
+                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM
+                        + "realm", false);
     }
 
     @Test
@@ -75,10 +74,9 @@ public class BSTAuthenticationTokenTest {
         // Empty Credentials
         BaseAuthenticationToken bat = BSTAuthenticationToken
                 .parse(BSTAuthenticationToken.BST_PRINCIPAL + PRINCIPAL
-                                + BSTAuthenticationToken.NEWLINE +
-                                BSTAuthenticationToken.BST_CREDENTIALS + ""
-                                + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM
-                                + REALM, false);
+                        + BSTAuthenticationToken.NEWLINE +
+                        BSTAuthenticationToken.BST_CREDENTIALS + "" + BSTAuthenticationToken.NEWLINE
+                        + BSTAuthenticationToken.BST_REALM + REALM, false);
         MockBSTAuthenticationToken mockToken = new MockBSTAuthenticationToken(bat.getPrincipal(),
                 bat.getCredentials(), bat.getRealm());
         assertNotNull(mockToken);
@@ -88,8 +86,8 @@ public class BSTAuthenticationTokenTest {
         // Missing Credentials
         expectedException.expect(WSSecurityException.class);
         bat = BSTAuthenticationToken.parse(BSTAuthenticationToken.BST_CREDENTIALS + "name"
-                + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM + "realm",
-                false);
+                        + BSTAuthenticationToken.NEWLINE + BSTAuthenticationToken.BST_REALM
+                        + "realm", false);
     }
 
     @Test

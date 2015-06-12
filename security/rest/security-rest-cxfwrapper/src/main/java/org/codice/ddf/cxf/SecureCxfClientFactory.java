@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.cxf;
 
 import java.io.FileInputStream;
@@ -65,8 +64,8 @@ public class SecureCxfClientFactory<T> {
     /**
      * @see #SecureCxfClientFactory(String, Class, java.util.List, Interceptor, boolean)
      */
-    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass) throws
-            SecurityServiceException {
+    public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass)
+            throws SecurityServiceException {
         this(endpointUrl, interfaceClass, null, null, false);
     }
 
@@ -83,8 +82,8 @@ public class SecureCxfClientFactory<T> {
      * @param disableCnCheck disable ssl check for common name / host name match
      */
     public SecureCxfClientFactory(String endpointUrl, Class<T> interfaceClass, List<?> providers,
-            Interceptor<? extends Message> interceptor, boolean disableCnCheck) throws
-            SecurityServiceException {
+            Interceptor<? extends Message> interceptor, boolean disableCnCheck)
+            throws SecurityServiceException {
         if (StringUtils.isEmpty(endpointUrl) || interfaceClass == null) {
             throw new IllegalArgumentException(
                     "Called without a valid URL, will not be able to connect.");
@@ -154,8 +153,8 @@ public class SecureCxfClientFactory<T> {
      * This method should be called for each new request in order to ensure
      * that the security token is up-to-date each time.
      */
-    public T getClientForBasicAuth(String username, String password) throws
-            SecurityServiceException {
+    public T getClientForBasicAuth(String username, String password)
+            throws SecurityServiceException {
         String asciiString = clientFactory.getAddress();
         if (!StringUtils.startsWithIgnoreCase(asciiString, "https")) {
             throw new SecurityServiceException("Cannot secure non-https connection " + asciiString);
@@ -169,8 +168,8 @@ public class SecureCxfClientFactory<T> {
      *
      * @see #getClientForBasicAuth(String, String)
      */
-    public WebClient getWebClientForBasicAuth(String username, String password) throws
-            SecurityServiceException {
+    public WebClient getWebClientForBasicAuth(String username, String password)
+            throws SecurityServiceException {
         return WebClient.fromClient(WebClient.client(getClientForBasicAuth(username, password)));
     }
 
@@ -296,8 +295,8 @@ public class SecureCxfClientFactory<T> {
      * Add TLS and Basic Auth credentials to the underlying {@link org.apache.cxf.transport.http.HTTPConduit}
      * This includes two-way ssl assuming that the platform keystores are configured correctly
      */
-    private void initSecurity(ClientConfiguration clientConfig, String username,
-            String password) throws SecurityServiceException {
+    private void initSecurity(ClientConfiguration clientConfig, String username, String password)
+            throws SecurityServiceException {
         HTTPConduit httpConduit = clientConfig.getHttpConduit();
         if (httpConduit == null) {
             throw new SecurityServiceException(

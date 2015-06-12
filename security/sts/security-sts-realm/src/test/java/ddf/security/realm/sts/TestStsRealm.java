@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.security.realm.sts;
 
 import static org.junit.Assert.assertEquals;
@@ -47,8 +46,8 @@ import ddf.security.sts.client.configuration.STSClientConfiguration;
 
 public class TestStsRealm {
 
-    public static Document readXml(InputStream is) throws SAXException, IOException,
-            ParserConfigurationException {
+    public static Document readXml(InputStream is)
+            throws SAXException, IOException, ParserConfigurationException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
         dbf.setValidating(false);
@@ -96,8 +95,8 @@ public class TestStsRealm {
 
     @Ignore
     @Test
-    public void testDoGetAuthenticationInfo_SAML() throws ParserConfigurationException,
-            SAXException, IOException {
+    public void testDoGetAuthenticationInfo_SAML()
+            throws ParserConfigurationException, SAXException, IOException {
         StsRealm realm = new StsRealm() {
             protected SecurityToken renewSecurityToken(SecurityToken securityToken) {
                 return securityToken;
@@ -119,8 +118,8 @@ public class TestStsRealm {
 
     @Ignore
     @Test
-    public void testDoGetAuthenticationInfo_Base() throws ParserConfigurationException,
-            SAXException, IOException {
+    public void testDoGetAuthenticationInfo_Base()
+            throws ParserConfigurationException, SAXException, IOException {
         Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
         String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
         final SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
@@ -169,8 +168,8 @@ public class TestStsRealm {
         assertEquals("claim7", childNodes.item(6).getAttributes().item(1).getTextContent());
     }
 
-    protected Document readDocument(String name) throws SAXException, IOException,
-            ParserConfigurationException {
+    protected Document readDocument(String name)
+            throws SAXException, IOException, ParserConfigurationException {
         InputStream inStream = getClass().getResourceAsStream(name);
         return readXml(inStream);
     }

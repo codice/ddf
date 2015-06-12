@@ -11,7 +11,8 @@
  *
  **/
 -->
-<saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  ID="_32E4D3F6633B9C5C2513667603947531" IssueInstant="2013-04-23T23:39:54.756Z"
                  Version="2.0"
                  xsi:type="saml2:AssertionType">

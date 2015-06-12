@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.solr.factory;
 
 import static org.hamcrest.Matchers.hasItemInArray;
@@ -214,15 +213,14 @@ public class TestConfigurationFileProxy {
         // needs to return a new Enumeration each time
         when(bundle.findEntries(isA(String.class), isA(String.class), isA(Boolean.class)))
                 .then(new Answer<Enumeration>() {
-                            @Override
-                            public Enumeration answer(InvocationOnMock invocation) throws
-                                    Throwable {
-                                List<URL> urls = new ArrayList<URL>();
-                                urls.add(file1.toURI().toURL());
-                                urls.add(file2.toURI().toURL());
-                                return new EnumerationStub(urls);
-                            }
-                        });
+                    @Override
+                    public Enumeration answer(InvocationOnMock invocation) throws Throwable {
+                        List<URL> urls = new ArrayList<URL>();
+                        urls.add(file1.toURI().toURL());
+                        urls.add(file2.toURI().toURL());
+                        return new EnumerationStub(urls);
+                    }
+                });
         return bundleContext;
     }
 

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.mime.mapper;
 
 import static org.hamcrest.Matchers.is;
@@ -164,8 +163,8 @@ public class TestMimeTypeToTransformerMapperImpl {
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testNullMimeTypeWithEmptyServiceList() throws MimeTypeParseException,
-            InvalidSyntaxException {
+    public void testNullMimeTypeWithEmptyServiceList()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);
@@ -255,8 +254,8 @@ public class TestMimeTypeToTransformerMapperImpl {
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testNoMatch_InputTransformerBaseTypeAndId() throws MimeTypeParseException,
-            InvalidSyntaxException {
+    public void testNoMatch_InputTransformerBaseTypeAndId()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);
@@ -304,8 +303,8 @@ public class TestMimeTypeToTransformerMapperImpl {
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testBaseTypeMatch_IdMismatch() throws MimeTypeParseException,
-            InvalidSyntaxException {
+    public void testBaseTypeMatch_IdMismatch()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);
@@ -479,8 +478,8 @@ public class TestMimeTypeToTransformerMapperImpl {
     }
 
     @Test
-    public void testInvalidMimeTypeServiceProperty() throws MimeTypeParseException,
-            InvalidSyntaxException {
+    public void testInvalidMimeTypeServiceProperty()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);
@@ -515,8 +514,8 @@ public class TestMimeTypeToTransformerMapperImpl {
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testSingleMimeTypeServiceProperty() throws MimeTypeParseException,
-            InvalidSyntaxException {
+    public void testSingleMimeTypeServiceProperty()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);
@@ -549,8 +548,8 @@ public class TestMimeTypeToTransformerMapperImpl {
     }
 
     @Test
-    public void testInvalidMimeTypeServicePropertyWithMatch() throws MimeTypeParseException,
-            InvalidSyntaxException {
+    public void testInvalidMimeTypeServicePropertyWithMatch()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);
@@ -590,8 +589,8 @@ public class TestMimeTypeToTransformerMapperImpl {
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testMultiIdMatchExtraParameters() throws MimeTypeParseException,
-            InvalidSyntaxException {
+    public void testMultiIdMatchExtraParameters()
+            throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
         final BundleContext context = mock(BundleContext.class);

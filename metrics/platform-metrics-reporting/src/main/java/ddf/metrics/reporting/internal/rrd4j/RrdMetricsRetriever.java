@@ -1,20 +1,20 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.metrics.reporting.internal.rrd4j;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -168,8 +168,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     }
 
     @Override
-    public byte[] createGraph(String metricName, String rrdFilename, long startTime,
-            long endTime) throws IOException, MetricsGraphException {
+    public byte[] createGraph(String metricName, String rrdFilename, long startTime, long endTime)
+            throws IOException, MetricsGraphException {
         // Create default label and title for graph
         String displayableMetricName = convertCamelCase(metricName);
         String verticalAxisLabel = displayableMetricName;
@@ -294,8 +294,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     }
 
     @Override
-    public String createCsvData(String rrdFilename, long startTime, long endTime) throws
-            IOException, MetricsGraphException {
+    public String createCsvData(String rrdFilename, long startTime, long endTime)
+            throws IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: createCsvData");
 
         MetricData metricData = getMetricData(rrdFilename, startTime, endTime);
@@ -320,8 +320,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     }
 
     @Override
-    public String createXmlData(String metricName, String rrdFilename, long startTime,
-            long endTime) throws IOException, MetricsGraphException {
+    public String createXmlData(String metricName, String rrdFilename, long startTime, long endTime)
+            throws IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: createXmlData");
 
         MetricData metricData = getMetricData(rrdFilename, startTime, endTime);
@@ -636,8 +636,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
      * @throws IOException
      * @throws MetricsGraphException
      */
-    private MetricData getMetricData(String rrdFilename, long startTime, long endTime) throws
-            IOException, MetricsGraphException {
+    private MetricData getMetricData(String rrdFilename, long startTime, long endTime)
+            throws IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: getMetricData");
 
         // Create RRD DB in read-only mode for the specified RRD file
@@ -734,8 +734,8 @@ public class RrdMetricsRetriever implements MetricsRetriever {
      * @throws IOException
      * @throws MetricsGraphException
      */
-    private void createSlide(SlideShow ppt, String title, byte[] graph,
-            MetricData metricData) throws IOException, MetricsGraphException {
+    private void createSlide(SlideShow ppt, String title, byte[] graph, MetricData metricData)
+            throws IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: createSlide");
 
         if (LOGGER.isDebugEnabled()) {

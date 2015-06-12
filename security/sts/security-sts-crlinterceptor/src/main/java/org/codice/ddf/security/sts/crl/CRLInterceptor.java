@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.security.sts.crl;
 
 import java.io.File;
@@ -146,8 +145,8 @@ public class CRLInterceptor extends AbstractPhaseInterceptor<Message> {
      *             If the input CRL file is invalid and cannot be used to
      *             generate a crl object.
      */
-    private CRL createCRL(String location) throws FileNotFoundException, CertificateException,
-            CRLException {
+    private CRL createCRL(String location)
+            throws FileNotFoundException, CertificateException, CRLException {
         FileInputStream fis = new FileInputStream(new File(location));
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         return cf.generateCRL(fis);

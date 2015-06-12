@@ -1,20 +1,19 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.metrics.reporting.internal.rrd4j;
 
-import java.awt.*;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Calendar;
@@ -123,8 +122,8 @@ public class RrdDumper {
     }
 
     public static void displayGraph(String metricName, String rrdFilename, long startTime,
-            long endTime, String verticalAxisLabel, String title) throws IOException,
-            MetricsGraphException {
+            long endTime, String verticalAxisLabel, String title)
+            throws IOException, MetricsGraphException {
         // Create RRD DB in read-only mode for the specified RRD file
         RrdDb rrdDb = new RrdDb(rrdFilename, true);
 
