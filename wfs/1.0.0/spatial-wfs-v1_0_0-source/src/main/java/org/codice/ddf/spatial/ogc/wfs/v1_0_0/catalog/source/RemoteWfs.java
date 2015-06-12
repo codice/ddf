@@ -28,7 +28,6 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.jaxrs.client.Client;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
@@ -50,7 +49,7 @@ import ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType;
 
 /**
  * A client to a WFS 1.0.0 Service. This class uses the {@link Wfs} interface to create a client
- * proxy from the {@link JAXRSClientFactory}.
+ * proxy from the {@link org.apache.cxf.jaxrs.client.JAXRSClientFactory}.
  *
  */
 public class RemoteWfs extends TrustedRemoteSource implements Wfs {

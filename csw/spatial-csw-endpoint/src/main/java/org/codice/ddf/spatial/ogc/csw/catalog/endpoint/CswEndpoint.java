@@ -71,7 +71,6 @@ import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Parser;
 import org.opengis.filter.Filter;
-import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.osgi.framework.BundleContext;

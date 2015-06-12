@@ -17,11 +17,10 @@ package org.codice.ddf.spatial.ogc.wfs.catalog.common;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.BasicTypes;
 
 /**
  * Extension of the {@link AttributeDescriptorImpl} to allow for mapping of an actual property name,
- * which may collide with a "reserved" attributeDescriptor from {@link BasicTypes.BASIC_METACARD},
+ * which may collide with a "reserved" attributeDescriptor from {@link ddf.catalog.data.impl.BasicTypes.BASIC_METACARD},
  * to a name that can be used without over-writing existing attributeDescriptors.
  *
  */

@@ -40,7 +40,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.lang3.StringUtils;
@@ -265,7 +264,7 @@ public class KMLTransformerImpl implements KMLTransformer {
      *            - the {@link Metacard} to transform.
      * @param urlToMetacard
      * @return
-     * @throws TransformerException
+     * @throws javax.xml.transform.TransformerException
      */
     protected Placemark performDefaultTransformation(Metacard entry, String url) throws
             CatalogTransformerException {

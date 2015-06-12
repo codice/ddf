@@ -31,7 +31,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
@@ -68,7 +67,7 @@ import net.opengis.cat.csw.v_2_0_2.TransactionType;
 
 /**
  * A client to a CSW 2.0.2 Service. This class uses the {@link Csw} interface to create a client
- * proxy from the {@link JAXRSClientFactoryBean}.
+ * proxy from the {@link org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean}.
  */
 public class RemoteCsw extends TrustedRemoteSource implements Csw {
 

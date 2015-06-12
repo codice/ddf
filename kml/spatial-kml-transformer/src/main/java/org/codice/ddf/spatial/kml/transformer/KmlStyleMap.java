@@ -20,11 +20,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 
 /**
- * Bean to provide a mapping based on {@link Metacard} {@link Attribute}s to supply custom style
+ * Bean to provide a mapping based on {@link Metacard} {@link ddf.catalog.data.Attribute}s to supply custom style
  * configuration.
  *
  * @author kcwire

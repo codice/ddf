@@ -53,7 +53,6 @@ import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.TrustedRemoteSource;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -83,7 +82,6 @@ import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
@@ -251,7 +249,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     /**
      * Instantiates a CswSource. This constructor is for unit tests
      *
-     * @param remoteCsw The JAXRS connection to a {@link Csw}
+     * @param remoteCsw The JAXRS connection to a {@link org.codice.ddf.spatial.ogc.csw.catalog.common.Csw}
      * @param context   The {@link BundleContext} from the OSGi Framework
      */
     public CswSource(RemoteCsw remoteCsw, BundleContext context,
@@ -1125,7 +1123,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     /**
-     * Parses the getRecords {@link Operation} to understand the capabilities of the Csw Server. A
+     * Parses the getRecords {@link Operation} to understand the capabilities of the org.codice.ddf.spatial.ogc.csw.catalog.common.Csw Server. A
      * sample GetRecords Operation may look like this:
      * <p/>
      * <pre>
@@ -1164,7 +1162,7 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
      * </pre>
      *
      * @param capabilitiesType
-     *            The capabilities the Csw Server supports
+     *            The capabilities the org.codice.ddf.spatial.ogc.csw.catalog.common.Csw Server supports
      */
     private void readGetRecordsOperation(CapabilitiesType capabilitiesType) {
         OperationsMetadata operationsMetadata = capabilitiesType.getOperationsMetadata();
@@ -1229,8 +1227,8 @@ public class CswSource extends MaskableImpl implements FederatedSource, Connecte
     }
 
     /**
-     * Sets the {@link FilterDelegate} used by the CswSource. May be overridden
-     * in order to provide a custom FilterDelegate implementation.
+     * Sets the {@link ddf.catalog.filter.FilterDelegate} used by the CswSource. May be overridden
+     * in order to provide a custom ddf.catalog.filter.FilterDelegate implementation.
      *
      * @param cswRecordMetacardType
      * @param getRecordsOp

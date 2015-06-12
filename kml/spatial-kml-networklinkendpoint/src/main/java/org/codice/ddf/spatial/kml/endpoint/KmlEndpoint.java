@@ -50,7 +50,6 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
-import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import de.micromata.opengis.kml.v_2_2_0.Folder;
@@ -59,7 +58,6 @@ import de.micromata.opengis.kml.v_2_2_0.KmlFactory;
 import de.micromata.opengis.kml.v_2_2_0.Link;
 import de.micromata.opengis.kml.v_2_2_0.NetworkLink;
 import de.micromata.opengis.kml.v_2_2_0.RefreshMode;
-import de.micromata.opengis.kml.v_2_2_0.Style;
 import de.micromata.opengis.kml.v_2_2_0.ViewRefreshMode;
 
 /**
@@ -153,7 +151,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
     }
 
     /**
-     * Attempts to load a KML {@link Style} from a file provided via a file system path.
+     * Attempts to load a KML {@link de.micromata.opengis.kml.v_2_2_0.Style} from a file provided via a file system path.
      *
      * @param url
      *            - the path to the file.
@@ -165,9 +163,9 @@ public class KmlEndpoint implements ConfigurationWatcher {
                 styleUrl = url;
                 styleDoc = Kml.unmarshal(new URL(styleUrl).openStream());
             } catch (MalformedURLException e) {
-                LOGGER.warn("StyleUrl is not a valid URL. Unable to serve up custom KML Style.", e);
+                LOGGER.warn("StyleUrl is not a valid URL. Unable to serve up custom KML de.micromata.opengis.kml.v_2_2_0.Style.", e);
             } catch (IOException e) {
-                LOGGER.warn("Unable to open Style Document from StyleUrl.", e);
+                LOGGER.warn("Unable to open de.micromata.opengis.kml.v_2_2_0.Style Document from StyleUrl.", e);
             }
         }
     }
@@ -197,7 +195,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
     }
 
     /**
-     * Sets if the Source {@link NetworkLink}s should be Visible by Default.
+     * Sets if the ddf.catalog.source.Source {@link NetworkLink}s should be Visible by Default.
      *
      * @param visibleByDefault
      *            - true to enable
@@ -311,7 +309,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
     }
 
     /**
-     * Creates a list of {@link NetworkLink}s, one for each {@link Source} including the local
+     * Creates a list of {@link NetworkLink}s, one for each {@link ddf.catalog.source.Source} including the local
      * catalog.
      *
      * @param uriInfo
@@ -425,7 +423,7 @@ public class KmlEndpoint implements ConfigurationWatcher {
             return styleDoc;
         }
         throw new WebApplicationException(new FileNotFoundException(
-                "No KML Style has been configured or unable to load document."), Status.NOT_FOUND);
+                "No KML de.micromata.opengis.kml.v_2_2_0.Style has been configured or unable to load document."), Status.NOT_FOUND);
     }
 
     /**

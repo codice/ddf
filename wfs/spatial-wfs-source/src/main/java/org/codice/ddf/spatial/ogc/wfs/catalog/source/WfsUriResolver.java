@@ -15,14 +15,13 @@
 package org.codice.ddf.spatial.ogc.wfs.catalog.source;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.resolver.DefaultURIResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 /**
- * This class is used by {@link XmlSchema} to override the {@link DefaultURIResolver}. It is used to
+ * This class is used by {@link org.apache.ws.commons.schema.XmlSchema} to override the {@link DefaultURIResolver}. It is used to
  * resolve schemas defined by "import" and"include".
  *
  */

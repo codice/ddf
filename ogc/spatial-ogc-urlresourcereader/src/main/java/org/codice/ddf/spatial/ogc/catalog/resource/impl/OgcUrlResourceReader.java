@@ -35,7 +35,6 @@ import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.resource.impl.URLResourceReader;
 import ddf.mime.MimeTypeMapper;
@@ -59,7 +58,7 @@ public class OgcUrlResourceReader extends URLResourceReader {
      * script to redirect to the resourceURI instead of attempting to download it.
      *
      * @param resourceURI A {@link URI} that defines what {@link Resource} to retrieve and how to do it.
-     * @param properties  Any additional arguments that should be passed to the {@link ResourceReader}.
+     * @param properties  Any additional arguments that should be passed to the {@link ddf.catalog.resource.ResourceReader}.
      * @return A {@link ResourceResponse} containing the retrieved {@link Resource}.
      */
     @Override

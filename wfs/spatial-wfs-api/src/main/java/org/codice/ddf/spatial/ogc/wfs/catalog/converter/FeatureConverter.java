@@ -16,7 +16,6 @@ package org.codice.ddf.spatial.ogc.wfs.catalog.converter;
 
 import com.thoughtworks.xstream.converters.Converter;
 
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 
 /**
@@ -26,7 +25,7 @@ import ddf.catalog.data.MetacardType;
  *
  *
  * The FeatureConverter adds: <li>ability to set SourceID which is required when converting features
- * to {@link Metacard}s <li>ability to set the {@link MetacardType} <br>
+ * to {@link ddf.catalog.data.Metacard}s <li>ability to set the {@link MetacardType} <br>
  *
  */
 public interface FeatureConverter extends Converter {
