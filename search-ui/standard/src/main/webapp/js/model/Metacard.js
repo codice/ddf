@@ -61,7 +61,7 @@ define([
                     return _.flatten(_.map(geometries, function (geometry) {
                         var geoModel = new MetaCard.Geometry(geometry);
                         return geoModel.getAllPoints();
-                    }), true);
+                    }));
                 }
             },
 
