@@ -50,7 +50,7 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     // Since this FilterVisitor is used across multiple Solr cores and this cache map
     // is static, the key must be able to distinguish values that may have the same property name
     // in multiple cores.
-    private static Map<String, SchemaField> SCHEMA_FIELDS_CACHE = new HashMap<String, SchemaField>();
+    private static Map<String, SchemaField> schemaFieldsCache = new HashMap<String, SchemaField>();
 
     static {
         Map<String, String> tempMap = new HashMap<String, String>();
@@ -108,13 +108,13 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
         // fieldsInfo will have keys for "user_txt", "user_txt_tokenized", and "user_txt_tokenized_has_case"
         SchemaField schemaField = null;
         String cacheKey = solrCoreName + "." + propertyName;
-        if (SCHEMA_FIELDS_CACHE.containsKey(cacheKey)) {
+        if (schemaFieldsCache.containsKey(cacheKey)) {
             LOGGER.info("Getting SchemaField for propertyName {} from cache", propertyName);
-            schemaField = SCHEMA_FIELDS_CACHE.get(cacheKey);
+            schemaField = schemaFieldsCache.get(cacheKey);
         } else {
             LOGGER.info("Using SchemaFieldResolver for propertyName {}", propertyName);
             schemaField = schemaFieldResolver.getSchemaField(propertyName, true);
-            SCHEMA_FIELDS_CACHE.put(cacheKey, schemaField);
+            schemaFieldsCache.put(cacheKey, schemaField);
         }
 
         if (schemaField != null) {

@@ -34,7 +34,7 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
  *
  */
 public final class PropertiesLoader {
-    private static Logger LOGGER = LoggerFactory.getLogger(PropertiesLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesLoader.class);
 
     private PropertiesLoader() {
         // static only!

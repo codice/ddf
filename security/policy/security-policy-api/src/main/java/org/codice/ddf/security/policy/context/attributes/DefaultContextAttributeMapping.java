@@ -138,12 +138,11 @@ public class DefaultContextAttributeMapping implements ContextAttributeMapping {
                                     return true;
                                 }
                             }
-                        }
                         // Currently we use key value permissions for everything. However, we still need
                         // to be able to handle
                         // permissions other than KV, so this else block will serve as the catch all for
                         // everything else.
-                        else {
+                        } else {
                             // Shiro permissions are always a "match all" condition so we need to flip
                             // the implies to make it match one
                             if (perm.implies(ourPerm)) {

@@ -75,7 +75,7 @@ import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
 public class MetricsEndpoint implements ConfigurationWatcher {
     public static final String DEFAULT_METRICS_DIR = "data/metrics/";
 
-    static final Map<String, Long> timeRanges = new HashMap<String, Long>();
+    static final Map<String, Long> TIME_RANGES = new HashMap<String, Long>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsEndpoint.class);
 
@@ -99,11 +99,8 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
     private static final long ONE_HOUR_IN_SECONDS = 4 * FIFTEEN_MINUTES_IN_SECONDS;
 
-    // private static final long FOUR_HOURS_IN_SECONDS = 4 * ONE_HOUR_IN_SECONDS;
-    // private static final long TWELVE_HOURS_IN_SECONDS = 12 * ONE_HOUR_IN_SECONDS;
     private static final long ONE_DAY_IN_SECONDS = 24 * ONE_HOUR_IN_SECONDS;
 
-    // private static final long THREE_DAYS_IN_SECONDS = 3 * ONE_DAY_IN_SECONDS;
     private static final long ONE_WEEK_IN_SECONDS = 7 * ONE_DAY_IN_SECONDS;
 
     private static final long ONE_MONTH_IN_SECONDS = 30 * ONE_DAY_IN_SECONDS;
@@ -119,17 +116,14 @@ public class MetricsEndpoint implements ConfigurationWatcher {
     private static final String CSV_FORMAT = "csv";
 
     static {
-        timeRanges.put("15m", FIFTEEN_MINUTES_IN_SECONDS);
-        timeRanges.put("1h", ONE_HOUR_IN_SECONDS);
-        // timeRanges.put("4h", FOUR_HOURS_IN_SECONDS);
-        // timeRanges.put("12h", TWELVE_HOURS_IN_SECONDS);
-        timeRanges.put("1d", ONE_DAY_IN_SECONDS);
-        // timeRanges.put("3d", THREE_DAYS_IN_SECONDS);
-        timeRanges.put("1w", ONE_WEEK_IN_SECONDS);
-        timeRanges.put("1M", ONE_MONTH_IN_SECONDS);
-        timeRanges.put("3M", THREE_MONTHS_IN_SECONDS);
-        timeRanges.put("6M", SIX_MONTHS_IN_SECONDS);
-        timeRanges.put("1y", ONE_YEAR_IN_SECONDS);
+        TIME_RANGES.put("15m", FIFTEEN_MINUTES_IN_SECONDS);
+        TIME_RANGES.put("1h", ONE_HOUR_IN_SECONDS);
+        TIME_RANGES.put("1d", ONE_DAY_IN_SECONDS);
+        TIME_RANGES.put("1w", ONE_WEEK_IN_SECONDS);
+        TIME_RANGES.put("1M", ONE_MONTH_IN_SECONDS);
+        TIME_RANGES.put("3M", THREE_MONTHS_IN_SECONDS);
+        TIME_RANGES.put("6M", SIX_MONTHS_IN_SECONDS);
+        TIME_RANGES.put("1y", ONE_YEAR_IN_SECONDS);
     }
 
     // Storage string for DDF site name from Configuration Watcher
@@ -137,7 +131,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
 
     private String servicesContextRoot = "/services";
 
-    private SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     private String metricsDir = DEFAULT_METRICS_DIR;
 
@@ -615,7 +609,7 @@ public class MetricsEndpoint implements ConfigurationWatcher {
         // value=[("PNG", "http://host:port/.../catalogQueries.png?dateOffset=900),("CSV", ...)]
         SortedMap<String, Map<String, String>> metricTimeRangeLinks = new TreeMap<String, Map<String, String>>(
                 new MetricsTimeRangeComparator());
-        Iterator timeRangesIter = timeRanges.entrySet().iterator();
+        Iterator timeRangesIter = TIME_RANGES.entrySet().iterator();
         while (timeRangesIter.hasNext()) {
             Map.Entry entry = (Map.Entry) timeRangesIter.next();
             String timeRange = (String) entry.getKey();
@@ -746,8 +740,8 @@ public class MetricsEndpoint implements ConfigurationWatcher {
             String timeRange1 = (String) o1;
             String timeRange2 = (String) o2;
 
-            Long dateOffset1 = timeRanges.get(timeRange1);
-            Long dateOffset2 = timeRanges.get(timeRange2);
+            Long dateOffset1 = TIME_RANGES.get(timeRange1);
+            Long dateOffset2 = TIME_RANGES.get(timeRange2);
 
             return dateOffset1.compareTo(dateOffset2);
         }

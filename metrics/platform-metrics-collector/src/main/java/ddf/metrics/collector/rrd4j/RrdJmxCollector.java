@@ -450,11 +450,10 @@ public class RrdJmxCollector implements JmxCollector {
 
                 // 15 minute resolution for the last year
                 def.addArchive(ConsolFun.MIN, DEFAULT_XFF_FACTOR, 15, ONE_YEAR_IN_15_MINUTE_STEPS);
-            }
 
             // Use a GAUGE to store the values we measure directly as they are,
             // e.g., response time for an ingest or query
-            else if (dsType == DsType.GAUGE) {
+            } else if (dsType == DsType.GAUGE) {
                 // If you want to know the amount, look at the averages.
                 // If you want to know the rate, look at the maximum.
 

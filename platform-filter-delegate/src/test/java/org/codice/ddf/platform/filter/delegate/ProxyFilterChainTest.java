@@ -120,8 +120,9 @@ public class ProxyFilterChainTest {
                 return null;
             }
 
-        }).when(mockFilter).doFilter(any(ServletRequest.class), any(ServletResponse.class),
-                any(FilterChain.class));
+        })
+                .when(mockFilter).doFilter(any(ServletRequest.class), any(ServletResponse.class),
+                        any(FilterChain.class));
 
         return mockFilter;
     }

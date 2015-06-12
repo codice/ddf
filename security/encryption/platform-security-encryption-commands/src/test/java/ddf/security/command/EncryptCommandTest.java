@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import ddf.security.encryption.impl.EncryptionServiceImpl;
 
 public class EncryptCommandTest {
-    private static Logger LOGGER = LoggerFactory.getLogger(EncryptCommandTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EncryptCommandTest.class);
 
     @Test
     public void testDoExecuteNonNullPlainTextValue() {

@@ -695,9 +695,8 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         for (int i = 0; i < numExpectedShapes; i++) {
             if (shapes[i] instanceof Picture) {
                 picture = (Picture) shapes[i];
-            }
             // title text box is actually an AutoShape
-            else if (shapes[i] instanceof TextBox || shapes[i] instanceof AutoShape) {
+            } else if (shapes[i] instanceof TextBox || shapes[i] instanceof AutoShape) {
                 numTextBoxes++;
             }
         }

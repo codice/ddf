@@ -54,7 +54,7 @@ import org.eclipse.jetty.server.session.AbstractSessionIdManager;
  */
 public class HashSessionIdManager extends AbstractSessionIdManager {
 
-    private final Map<String, Set<WeakReference<HttpSession>>> _sessions = new HashMap<String, Set<WeakReference<HttpSession>>>();
+    private final Map<String, Set<WeakReference<HttpSession>>> sessions = new HashMap<String, Set<WeakReference<HttpSession>>>();
 
     public HashSessionIdManager() {
     }
@@ -67,7 +67,7 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
      * @return Collection of String session IDs
      */
     public Collection<String> getSessions() {
-        return Collections.unmodifiableCollection(_sessions.keySet());
+        return Collections.unmodifiableCollection(sessions.keySet());
     }
 
     /**
@@ -75,7 +75,7 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
      */
     public Collection<HttpSession> getSession(String id) {
         ArrayList<HttpSession> sessions = new ArrayList<HttpSession>();
-        Set<WeakReference<HttpSession>> refs = _sessions.get(id);
+        Set<WeakReference<HttpSession>> refs = this.sessions.get(id);
         if (refs != null) {
             for (WeakReference<HttpSession> ref : refs) {
                 HttpSession session = ref.get();
@@ -94,7 +94,7 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
 
     @Override
     protected void doStop() throws Exception {
-        _sessions.clear();
+        sessions.clear();
         super.doStop();
     }
 
@@ -104,7 +104,7 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
     @Override
     public boolean idInUse(String id) {
         synchronized (this) {
-            return _sessions.containsKey(id);
+            return sessions.containsKey(id);
         }
     }
 
@@ -117,10 +117,10 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
         WeakReference<HttpSession> ref = new WeakReference<HttpSession>(session);
 
         synchronized (this) {
-            Set<WeakReference<HttpSession>> sessions = _sessions.get(id);
+            Set<WeakReference<HttpSession>> sessions = this.sessions.get(id);
             if (sessions == null) {
                 sessions = new HashSet<WeakReference<HttpSession>>();
-                _sessions.put(id, sessions);
+                this.sessions.put(id, sessions);
             } else {
                 //Check for session already in cluster, copy over session information to new session
                 Iterator<WeakReference<HttpSession>> iterator = sessions.iterator();
@@ -156,7 +156,7 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
         String id = getClusterId(session.getId());
 
         synchronized (this) {
-            Collection<WeakReference<HttpSession>> sessions = _sessions.get(id);
+            Collection<WeakReference<HttpSession>> sessions = this.sessions.get(id);
             if (sessions != null) {
                 Iterator<WeakReference<HttpSession>> iter = sessions.iterator();
                 while (iter.hasNext()) {
@@ -172,7 +172,7 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
                     }
                 }
                 if (sessions.isEmpty()) {
-                    _sessions.remove(id);
+                    this.sessions.remove(id);
                 }
             }
         }
@@ -185,7 +185,7 @@ public class HashSessionIdManager extends AbstractSessionIdManager {
     public void invalidateAll(String id) {
         Collection<WeakReference<HttpSession>> sessions;
         synchronized (this) {
-            sessions = _sessions.remove(id);
+            sessions = this.sessions.remove(id);
         }
 
         if (sessions != null) {

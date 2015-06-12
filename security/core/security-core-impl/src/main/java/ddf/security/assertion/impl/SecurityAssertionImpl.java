@@ -86,7 +86,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
     /**
      * Log4j Logger
      */
-    private Logger LOGGER = LoggerFactory.getLogger(SecurityConstants.SECURITY_LOGGER);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConstants.SECURITY_LOGGER);
 
     /**
      * Wrapped SecurityToken.

@@ -40,7 +40,7 @@ public class ScheduledCommandTask implements ScheduledTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledCommandTask.class);
 
-    private static int ONE_DAY = 60 * 60 * 24;
+    private static final int ONE_DAY = 60 * 60 * 24;
 
     private Class<? extends Job> classObject;
 

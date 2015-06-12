@@ -40,11 +40,11 @@ import ddf.security.SecurityConstants;
 public final class CommonSSLFactory {
     public static final String PROTOCOL = "TLS";
 
-    private static Logger LOGGER = LoggerFactory.getLogger(SecurityConstants.SECURITY_LOGGER);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConstants.SECURITY_LOGGER);
 
-    private static String ENTERING = "ENTERING: {}";
+    private static final String ENTERING = "ENTERING: {}";
 
-    private static String EXITING = "EXITING: {}";
+    private static final String EXITING = "EXITING: {}";
 
     private CommonSSLFactory() {
 

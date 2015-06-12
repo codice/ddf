@@ -175,7 +175,7 @@ public class MetricsEndpointTest extends XMLTestCase {
                 String timeRange = (String) timeRangeLinkEntry.getKey();
                 Map<String, String> metricHyperlinks = (Map<String, String>) timeRangeLinkEntry
                         .getValue();
-                Long dateOffset = MetricsEndpoint.timeRanges.get(timeRange);
+                Long dateOffset = MetricsEndpoint.TIME_RANGES.get(timeRange);
                 assertThat(metricHyperlinks.containsKey("PNG"), is(true));
                 assertThat(metricHyperlinks.get("PNG"), endsWith("dateOffset=" + dateOffset));
                 assertThat(metricHyperlinks.containsKey("CSV"), is(true));

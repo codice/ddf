@@ -44,7 +44,7 @@ public class SecurityManagerImplTest {
      * @throws SecurityServiceException
      */
     @Test
-    public void TestBadToken() throws SecurityServiceException {
+    public void testBadToken() throws SecurityServiceException {
         thrown.expect(SecurityServiceException.class);
         SecurityManagerImpl manager = new SecurityManagerImpl();
         manager.getSubject(REALM_NAME);
@@ -56,7 +56,7 @@ public class SecurityManagerImplTest {
      * @throws SecurityServiceException
      */
     @Test
-    public void TestAuthTokenNoRealm() throws SecurityServiceException {
+    public void testAuthTokenNoRealm() throws SecurityServiceException {
         thrown.expect(org.apache.shiro.authc.AuthenticationException.class);
         thrown.expectMessage("Authentication failed for token submission");
         AuthenticationToken token = mock(AuthenticationToken.class);
@@ -75,7 +75,7 @@ public class SecurityManagerImplTest {
      * @throws SecurityServiceException
      */
     @Test
-    public void TestAuthToken() throws SecurityServiceException {
+    public void testAuthToken() throws SecurityServiceException {
         // mock setup
         SimplePrincipalCollection principals = new SimplePrincipalCollection();
         SecurityToken secToken = new SecurityToken();
@@ -104,7 +104,7 @@ public class SecurityManagerImplTest {
      * @throws SecurityServiceException
      */
     @Test
-    public void TestSecToken() throws SecurityServiceException {
+    public void testSecToken() throws SecurityServiceException {
         // mock setup
         SimplePrincipalCollection principals = new SimplePrincipalCollection();
         SecurityToken secToken = new SecurityToken();

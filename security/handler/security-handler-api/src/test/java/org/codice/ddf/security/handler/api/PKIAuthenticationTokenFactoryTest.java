@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import junit.framework.TestCase;
 
 public class PKIAuthenticationTokenFactoryTest extends TestCase {
-    protected static final String encodedCert =
+    protected static final String ENCODED_CERT =
             "MIIDejCCAmKgAwIBAgIBBTANBgkqhkiG9w0BAQUFADBgMQswCQYDVQQGEwJVUzEY"
                     + "MBYGA1UEChMPVS5TLiBHb3Zlcm5tZW50MQwwCgYDVQQLEwNEb0QxDDAKBgNVBAsT"
                     + "A1BLSTEbMBkGA1UEAxMSRG9EIEpJVEMgUm9vdCBDQSAyMB4XDTA1MDcxNTAzMzEz"
@@ -48,7 +48,7 @@ public class PKIAuthenticationTokenFactoryTest extends TestCase {
         factory.setSignaturePropertiesPath("signature.properties");
         factory.init();
 
-        PKIAuthenticationToken token = factory.getTokenFromString(encodedCert, true);
+        PKIAuthenticationToken token = factory.getTokenFromString(ENCODED_CERT, true);
         LOGGER.info("Token: " + token.toString());
   */
     }

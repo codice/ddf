@@ -49,7 +49,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
 
     private static final String XML_FILE_EXTENSION = "xml";
 
-    private static Comparator<MimeTypeResolver> COMPARATOR = new Comparator<MimeTypeResolver>() {
+    private static Comparator<MimeTypeResolver> comparator = new Comparator<MimeTypeResolver>() {
         public int compare(MimeTypeResolver o1, MimeTypeResolver o2) {
             return o1.getPriority() - o2.getPriority();
         }

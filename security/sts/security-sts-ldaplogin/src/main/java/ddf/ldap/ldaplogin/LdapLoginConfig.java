@@ -53,7 +53,7 @@ public class LdapLoginConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LdapLoginConfig.class);
 
-    private static String LDAP_MODULE = ddf.ldap.ldaplogin.SslLdapLoginModule.class.getName();
+    private static final String LDAP_MODULE = ddf.ldap.ldaplogin.SslLdapLoginModule.class.getName();
 
     private ServiceRegistration<JaasRealm> registration = null;
 

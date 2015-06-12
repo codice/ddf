@@ -278,9 +278,8 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
                         KeyValuePermission kvp = new KeyValuePermission(
                                 matchAllMap.get(metacardKey), metacardPermission.getValues());
                         matchAllPermissions.add(kvp);
-                    }
                     // user specified this metacard key in the match one list - remap key
-                    else if (matchOneMap.containsKey(metacardKey)) {
+                    } else if (matchOneMap.containsKey(metacardKey)) {
                         if (SecurityLogger.isDebugEnabled()) {
                             SecurityLogger.logDebug(
                                     "Mapping metacard key " + metacardKey + " to " + matchOneMap
@@ -289,10 +288,9 @@ public class SimpleAuthzRealm extends AbstractAuthorizingRealm {
                         KeyValuePermission kvp = new KeyValuePermission(
                                 matchOneMap.get(metacardKey), metacardPermission.getValues());
                         matchOnePermissions.add(kvp);
-                    }
                     // this metacard key was not specified in either - default to match all with the
                     // same key value
-                    else {
+                    } else {
                         matchAllPermissions.add(metacardPermission);
                     }
                 }

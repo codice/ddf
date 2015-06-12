@@ -80,7 +80,7 @@ public class BalanaPdpTest {
 
     private static final String US_COUNTRY = "USA";
 
-    private static String PROJECT_HOME;
+    private static String projectHome;
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -90,8 +90,8 @@ public class BalanaPdpTest {
     @BeforeClass
     public static void init() {
         try {
-            PROJECT_HOME = new File(".").getCanonicalFile().getPath();
-            LOGGER.debug("PROJECT_HOME: {}", PROJECT_HOME);
+            projectHome = new File(".").getCanonicalFile().getPath();
+            LOGGER.debug("projectHome: {}", projectHome);
         } catch (IOException e) {
             LOGGER.debug(e.getMessage(), e);
         }
@@ -106,7 +106,7 @@ public class BalanaPdpTest {
         LOGGER.debug("Making directory: {}", destDir.getPath());
         destDir.mkdir();
         File srcFile = new File(
-                PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR + File.separator
+                projectHome + File.separator + RELATIVE_POLICIES_DIR + File.separator
                         + POLICY_FILE);
         FileUtils.copyFileToDirectory(srcFile, destDir);
 
@@ -297,7 +297,7 @@ public class BalanaPdpTest {
         BalanaPdp pdp = new BalanaPdp(policyDir);
 
         File srcFile = new File(
-                PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR + File.separator
+                projectHome + File.separator + RELATIVE_POLICIES_DIR + File.separator
                         + POLICY_FILE);
         FileUtils.copyFileToDirectory(srcFile, policyDir);
 
@@ -384,7 +384,7 @@ public class BalanaPdpTest {
         LOGGER.debug("Making directory: {}", tempDir.getPath());
         tempDir.mkdir();
         File srcFile = new File(
-                PROJECT_HOME + File.separator + RELATIVE_POLICIES_DIR + File.separator
+                projectHome + File.separator + RELATIVE_POLICIES_DIR + File.separator
                         + POLICY_FILE);
         FileUtils.copyFileToDirectory(srcFile, tempDir);
     }

@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * must be present in the user store for this handler to work correctly.
  */
 public class AnonymousHandler implements AuthenticationHandler {
-    public static final Logger logger = LoggerFactory.getLogger(AnonymousHandler.class.getName());
+    public static final Logger LOGGER = LoggerFactory.getLogger(AnonymousHandler.class.getName());
 
     /**
      * Anonymous type to use when configuring context policy.
@@ -106,7 +106,7 @@ public class AnonymousHandler implements AuthenticationHandler {
                 return handlerResult.getToken();
             }
         } catch (ServletException e) {
-            logger.warn("Encountered an exception while checking for PKI auth info.", e);
+            LOGGER.warn("Encountered an exception while checking for PKI auth info.", e);
         }
 
         //if everything fails, the user is anonymous, log in as such
@@ -124,12 +124,12 @@ public class AnonymousHandler implements AuthenticationHandler {
             httpResponse.getWriter().write(INVALID_MESSAGE);
             httpResponse.flushBuffer();
         } catch (IOException e) {
-            logger.debug("Failed to send auth response: {}", e);
+            LOGGER.debug("Failed to send auth response: {}", e);
         }
 
         HandlerResult result = new HandlerResult();
         result.setSource(realm + "-AnonymousHandler");
-        logger.debug("In error handler for anonymous - returning action completed.");
+        LOGGER.debug("In error handler for anonymous - returning action completed.");
         result.setStatus(HandlerResult.Status.REDIRECTED);
         return result;
     }

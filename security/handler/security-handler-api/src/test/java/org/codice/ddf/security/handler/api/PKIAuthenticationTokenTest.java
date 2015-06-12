@@ -21,7 +21,7 @@ import org.junit.Test;
 
 public class PKIAuthenticationTokenTest {
 
-    protected static final String encodedCert =
+    protected static final String ENCODED_CERT =
             "MIIFGDCCBACgAwIBAgICJe0wDQYJKoZIhvcNAQEFBQAwXDELMAkGA1UEBhMCVVMxGDAWBgNVBAoT\n"
                     + "D1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kxFzAVBgNVBAMTDkRP\n"
                     + "RCBKSVRDIENBLTI3MB4XDTEzMDUwNzAwMjU0OVoXDTE2MDUwNzAwMjU0OVowaTELMAkGA1UEBhMC\n"
@@ -53,7 +53,7 @@ public class PKIAuthenticationTokenTest {
     @Test
     public void testEncodeAndParse() throws Exception {
         PKIAuthenticationToken pkiToken = new PKIAuthenticationToken(TEST_PRINCIPAL,
-                encodedCert.getBytes(), TEST_REALM);
+                ENCODED_CERT.getBytes(), TEST_REALM);
         assertNotNull(pkiToken);
         String encodedCreds = pkiToken.getEncodedCredentials();
         BaseAuthenticationToken bat = PKIAuthenticationToken.parse(encodedCreds, true);
@@ -61,7 +61,7 @@ public class PKIAuthenticationTokenTest {
                 bat.getCredentials().toString(), bat.getRealm());
         assertNotNull(pki);
         assertEquals(TEST_PRINCIPAL, pki.getDn());
-        assertArrayEquals(encodedCert.getBytes(), pki.getCertificate());
+        assertArrayEquals(ENCODED_CERT.getBytes(), pki.getCertificate());
         assertEquals(TEST_REALM, pki.getRealm());
         assertEquals(PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE, pki.tokenValueType);
         assertEquals(PKIAuthenticationToken.BST_X509_LN, pki.tokenId);
