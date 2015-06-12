@@ -114,7 +114,7 @@ public class BinaryContentImplTest {
         try {
             is = new FileInputStream(content);
             BinaryContentImpl bci = new BinaryContentImpl(is, mimeType);
-            bci.setSize(-20l);
+            bci.setSize(-20L);
             assertEquals(BinaryContentImpl.UNKNOWN_SIZE, bci.getSize());
         } catch (IOException e) {
             LOGGER.error(IO_FAILURE, e);

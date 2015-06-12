@@ -82,7 +82,7 @@ public class TestGeoJsonQueryResponseTransformer {
 
     @Test
     public void testNullResults() throws CatalogTransformerException, IOException, ParseException {
-        SourceResponse sourceResponse = new SourceResponseImpl(null, null, 0l);
+        SourceResponse sourceResponse = new SourceResponseImpl(null, null, 0L);
         JSONObject obj = transform(sourceResponse, 0, 0);
         verifyResponse(obj, 0, 0);
     }
@@ -94,7 +94,7 @@ public class TestGeoJsonQueryResponseTransformer {
         results.add(null);
         results.add(null);
 
-        SourceResponse sourceResponse = new SourceResponseImpl(null, results, 2l);
+        SourceResponse sourceResponse = new SourceResponseImpl(null, results, 2L);
         new GeoJsonQueryResponseTransformer().transform(sourceResponse, null);
     }
 
@@ -106,7 +106,7 @@ public class TestGeoJsonQueryResponseTransformer {
 
         results.add(result);
 
-        SourceResponse sourceResponse = new SourceResponseImpl(null, results, 1l);
+        SourceResponse sourceResponse = new SourceResponseImpl(null, results, 1L);
         new GeoJsonQueryResponseTransformer().transform(sourceResponse, null);
     }
 

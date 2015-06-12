@@ -132,7 +132,7 @@ public class ResourceImplTest {
         try {
             is = new FileInputStream(content);
             ResourceImpl ri = new ResourceImpl(is, mimeType, TEST_NAME);
-            ri.setSize(-20l);
+            ri.setSize(-20L);
             assertEquals(-1, ri.getSize());
         } catch (IOException e) {
             LOGGER.error("IO Failure", e);

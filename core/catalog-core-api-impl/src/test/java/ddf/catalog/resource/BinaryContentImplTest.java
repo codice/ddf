@@ -111,7 +111,7 @@ public class BinaryContentImplTest {
         try {
             is = new FileInputStream(content);
             BinaryContentImpl bci = new BinaryContentImpl(is, mimeType);
-            bci.setSize(-20l);
+            bci.setSize(-20L);
             assertEquals(-1, bci.getSize());
         } catch (IOException e) {
             LOGGER.error("IO Failure", e);
