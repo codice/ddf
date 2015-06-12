@@ -59,7 +59,7 @@ public class TestAttributeMetacardTransformer {
     }
 
     private static final AttributeMetacardTransformer THUMBNAIL_TRANSFORMER = new AttributeMetacardTransformer(
-        Metacard.THUMBNAIL, Metacard.THUMBNAIL, jpegMimeType);
+            Metacard.THUMBNAIL, Metacard.THUMBNAIL, jpegMimeType);
 
     private static final AttributeMetacardTransformer METADATA_TRANSFORMER = new AttributeMetacardTransformer(
             Metacard.METADATA, Metacard.METADATA, xmlMimeType);
