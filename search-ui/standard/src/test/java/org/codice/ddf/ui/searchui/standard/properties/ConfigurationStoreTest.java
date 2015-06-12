@@ -55,7 +55,6 @@ public class ConfigurationStoreTest {
     
         ConfigurationStore configurationStore = new ConfigurationStore();
         configurationStore.setHttpProxy(mockHttpProxyService);
-        configurationStore.setBundleContext(mockBundleContext);
         configurationStore.setImageryProviders(IMAGERY_PROVIDERS);
 
         // Verify
@@ -76,7 +75,6 @@ public class ConfigurationStoreTest {
 
         ConfigurationStore configurationStore = new ConfigurationStore();
         configurationStore.setHttpProxy(mockHttpProxyService);
-        configurationStore.setBundleContext(mockBundleContext);
         configurationStore.setTerrainProvider(TERRAIN_PROVIDER);
 
         // Verify

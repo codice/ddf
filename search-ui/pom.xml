@@ -32,7 +32,6 @@
     </properties>
 
     <modules>
-        <module>search-proxy</module>
         <module>simple</module>
         <module>standard</module>
         <module>search-redirect</module>

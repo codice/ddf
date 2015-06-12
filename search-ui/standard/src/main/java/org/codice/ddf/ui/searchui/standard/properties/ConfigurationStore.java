@@ -1,16 +1,15 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
  **/
 
 package org.codice.ddf.ui.searchui.standard.properties;
@@ -42,7 +41,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.webconsole.BrandingPlugin;
 import org.codice.proxy.http.HttpProxyService;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +65,7 @@ public class ConfigurationStore {
 
     public static final String URL = "url";
 
-    public static final String QUOTE = "\"";
+    public static final String ENDPOINT_NAME = "standard";
 
     private String format;
 
@@ -94,18 +92,14 @@ public class ConfigurationStore {
     private BrandingPlugin branding;
 
     private static MimeType JSON_MIME_TYPE;
-    
+
     private Integer timeout = 15000;
-    
+
     private HttpProxyService httpProxy;
 
-    private BundleContext bundleContext;
-    
-    private int incrementer=0;
+    private int incrementer = 0;
 
     private Integer resultCount = 250;
-    
-    private String bundleName;
 
     private String projection = "EPSG:3857";
 
@@ -138,7 +132,7 @@ public class ConfigurationStore {
 
     public void destroy() {
         if (imageryEndpoints.size() > 0) {
-            for(String endpoint : imageryEndpoints) {
+            for (String endpoint : imageryEndpoints) {
                 try {
                     httpProxy.stop(endpoint);
                 } catch (Exception e) {
@@ -178,8 +172,8 @@ public class ConfigurationStore {
         config.put("bingKey", bingKey);
 
         String configJson = toJson(config);
-        BinaryContent content = new BinaryContentImpl(new ByteArrayInputStream(configJson.getBytes()),
-                JSON_MIME_TYPE);
+        BinaryContent content = new BinaryContentImpl(
+                new ByteArrayInputStream(configJson.getBytes()), JSON_MIME_TYPE);
         response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
 
         return response;
@@ -218,7 +212,7 @@ public class ConfigurationStore {
     public void setFormat(String format) {
         this.format = format;
     }
-    
+
     public Integer getTimeout() {
         return timeout;
     }
@@ -268,7 +262,7 @@ public class ConfigurationStore {
 
     private void setProxiesForImagery(List<String> imageryProviders) {
         if (imageryEndpoints.size() > 0) {
-            for(String endpoint : imageryEndpoints) {
+            for (String endpoint : imageryEndpoints) {
                 try {
                     httpProxy.stop(endpoint);
                 } catch (Exception e) {
@@ -278,7 +272,7 @@ public class ConfigurationStore {
         }
         proxiedImageryProviders.clear();
 
-        for(String provider : imageryProviders) {
+        for (String provider : imageryProviders) {
             Map<String, Object> proxiedProvider = getProxiedProvider(provider, true);
             if (proxiedProvider != null) {
                 proxiedImageryProviders.add(proxiedProvider);
@@ -314,7 +308,7 @@ public class ConfigurationStore {
                         value.getClass().getName(), provider);
                 return null;
             }
-        } catch (EdnSyntaxException|EdnIOException e) {
+        } catch (EdnSyntaxException | EdnIOException e) {
             LOGGER.warn("Unable to parse provider configuration: " + provider, e);
             return null;
         }
@@ -323,9 +317,9 @@ public class ConfigurationStore {
             String url = config.get(URL).toString();
 
             try {
-                bundleName = bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
+                String endpointName = ENDPOINT_NAME + incrementer;
                 incrementer++;
-                String endpointName = httpProxy.start(bundleName, url, timeout);
+                endpointName = httpProxy.start(endpointName, url, timeout);
                 if (imagery) {
                     imageryEndpoints.add(endpointName);
                 } else {
@@ -340,21 +334,13 @@ public class ConfigurationStore {
         return config;
     }
 
-	public HttpProxyService getHttpProxy() {
-		return httpProxy;
-	}
+    public HttpProxyService getHttpProxy() {
+        return httpProxy;
+    }
 
-	public void setHttpProxy(HttpProxyService httpProxy) {
-		this.httpProxy = httpProxy;
-	}
-
-	public BundleContext getBundleContext() {
-		return bundleContext;
-	}
-
-	public void setBundleContext(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
-	}
+    public void setHttpProxy(HttpProxyService httpProxy) {
+        this.httpProxy = httpProxy;
+    }
 
     public Integer getResultCount() {
         return resultCount;
@@ -426,7 +412,7 @@ public class ConfigurationStore {
 
     public void setTypeNameMapping(String string) {
         if (string != null) {
-            this.setTypeNameMapping(new String[]{string});
+            this.setTypeNameMapping(new String[] {string});
         }
     }
 
