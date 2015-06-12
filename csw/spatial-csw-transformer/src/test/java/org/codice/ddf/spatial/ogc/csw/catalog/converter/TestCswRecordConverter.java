@@ -106,11 +106,11 @@ public class TestCswRecordConverter {
 
     private static DateTimeFormatter dateFormatter;
 
-    private static String MODIFIED;
+    private static String modified;
 
-    private static String EFFECTIVE;
+    private static String effective;
 
-    private static String CREATED;
+    private static String created;
 
     private static CswRecordConverter converter;
 
@@ -127,9 +127,9 @@ public class TestCswRecordConverter {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         dateFormatter = ISODateTimeFormat.dateOptionalTimeParser();
-        MODIFIED = XSD_FACTORY.newXMLGregorianCalendar(MODIFIED_DATE).toXMLFormat();
-        EFFECTIVE = XSD_FACTORY.newXMLGregorianCalendar(EFFECTIVE_DATE).toXMLFormat();
-        CREATED = XSD_FACTORY.newXMLGregorianCalendar(CREATED_DATE).toXMLFormat();
+        modified = XSD_FACTORY.newXMLGregorianCalendar(MODIFIED_DATE).toXMLFormat();
+        effective = XSD_FACTORY.newXMLGregorianCalendar(EFFECTIVE_DATE).toXMLFormat();
+        created = XSD_FACTORY.newXMLGregorianCalendar(CREATED_DATE).toXMLFormat();
 
         converter = new CswRecordConverter();
     }
@@ -324,13 +324,13 @@ public class TestCswRecordConverter {
                 equalTo("IMAGE-PRODUCT"));
 
         // Verify extensible CSW attributes in metacard were populated
-        // CREATED
+        // created
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
                 equalTo("2003-01-28T07:09:16Z"));
 
         assertDates(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED, mc);
 
-        // EFFECTIVE
+        // effective
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED).getValue(),
                 equalTo("2013-07-12T16:16:16Z"));
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_COPYRIGHTED).getValue(),
@@ -338,7 +338,7 @@ public class TestCswRecordConverter {
 
         assertDates(Metacard.EFFECTIVE, CswRecordMetacardType.CSW_DATE_ACCEPTED, mc);
 
-        // MODIFIED
+        // modified
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_MODIFIED).getValue(),
                 equalTo("2013-05-15T19:15:15Z"));
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_SUBMITTED).getValue(),
@@ -416,13 +416,13 @@ public class TestCswRecordConverter {
                 equalTo((String) mc.getAttribute(CswRecordMetacardType.CSW_IDENTIFIER).getValue()));
 
         // Verify extensible CSW attributes in metacard were populated
-        // CREATED
+        // created
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_CREATED).getValue(),
                 equalTo("2003-01-28T07:09:16Z"));
 
         assertDates(Metacard.CREATED, CswRecordMetacardType.CSW_CREATED, mc);
 
-        // EFFECTIVE
+        // effective
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_ACCEPTED).getValue(),
                 equalTo("2013-07-12T16:16:16Z"));
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_COPYRIGHTED).getValue(),
@@ -430,7 +430,7 @@ public class TestCswRecordConverter {
 
         assertDates(Metacard.EFFECTIVE, CswRecordMetacardType.CSW_DATE_SUBMITTED, mc);
 
-        // MODIFIED
+        // modified
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_MODIFIED).getValue(),
                 equalTo("2013-05-15T19:15:15Z"));
         assertThat((String) mc.getAttribute(CswRecordMetacardType.CSW_DATE_SUBMITTED).getValue(),
@@ -822,16 +822,16 @@ public class TestCswRecordConverter {
                 + "<csw:Record xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" "
                 + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
                 + "xmlns:dct=\"http://purl.org/dc/terms/\" "
-                + "xmlns:ows=\"http://www.opengis.net/ows\">\n" + "  <dct:created>" + CREATED
-                + "</dct:created>\n" + "  <dc:date>" + MODIFIED + "</dc:date>\n"
-                + "  <dct:modified>" + MODIFIED + "</dct:modified>\n" + "  <dct:dateSubmitted>"
-                + MODIFIED + "</dct:dateSubmitted>\n" + "  <dct:issued>" + MODIFIED
+                + "xmlns:ows=\"http://www.opengis.net/ows\">\n" + "  <dct:created>" + created
+                + "</dct:created>\n" + "  <dc:date>" + modified + "</dc:date>\n"
+                + "  <dct:modified>" + modified + "</dct:modified>\n" + "  <dct:dateSubmitted>"
+                + modified + "</dct:dateSubmitted>\n" + "  <dct:issued>" + modified
                 + "</dct:issued>\n" + "  <dc:identifier>ID</dc:identifier>\n"
                 + "  <dct:bibliographicCitation>ID</dct:bibliographicCitation>\n" + "  <dc:source>"
                 + ACTION_URL + "</dc:source>\n" + "  <dc:title>This is my title</dc:title>\n"
                 + "  <dct:alternative>This is my title</dct:alternative>\n"
                 + "  <dc:type>I have some content type</dc:type>\n" + "  <dct:dateAccepted>"
-                + EFFECTIVE + "</dct:dateAccepted>\n" + "  <dct:dateCopyrighted>" + EFFECTIVE
+                + effective + "</dct:dateAccepted>\n" + "  <dct:dateCopyrighted>" + effective
                 + "</dct:dateCopyrighted>\n" + "  <dc:publisher>sourceID</dc:publisher>\n"
                 + "  <ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
                 + "    <ows:LowerCorner>10.0 10.0</ows:LowerCorner>\n"
@@ -840,15 +840,15 @@ public class TestCswRecordConverter {
     }
 
     private String getRecordNoNamespaceDeclaration() {
-        return "<csw:Record>\n" + "  <dct:created>" + CREATED + "</dct:created>\n" + "  <dc:date>"
-                + MODIFIED + "</dc:date>\n" + "  <dct:modified>" + MODIFIED + "</dct:modified>\n"
-                + "  <dct:dateSubmitted>" + MODIFIED + "</dct:dateSubmitted>\n" + "  <dct:issued>"
-                + MODIFIED + "</dct:issued>\n" + "  <dc:identifier>ID</dc:identifier>\n"
+        return "<csw:Record>\n" + "  <dct:created>" + created + "</dct:created>\n" + "  <dc:date>"
+                + modified + "</dc:date>\n" + "  <dct:modified>" + modified + "</dct:modified>\n"
+                + "  <dct:dateSubmitted>" + modified + "</dct:dateSubmitted>\n" + "  <dct:issued>"
+                + modified + "</dct:issued>\n" + "  <dc:identifier>ID</dc:identifier>\n"
                 + "  <dct:bibliographicCitation>ID</dct:bibliographicCitation>\n" + "  <dc:source>"
                 + ACTION_URL + "</dc:source>\n" + "  <dc:title>This is my title</dc:title>\n"
                 + "  <dct:alternative>This is my title</dct:alternative>\n"
                 + "  <dc:type>I have some content type</dc:type>\n" + "  <dct:dateAccepted>"
-                + EFFECTIVE + "</dct:dateAccepted>\n" + "  <dct:dateCopyrighted>" + EFFECTIVE
+                + effective + "</dct:dateAccepted>\n" + "  <dct:dateCopyrighted>" + effective
                 + "</dct:dateCopyrighted>\n" + "  <dc:publisher>sourceID</dc:publisher>\n"
                 + "  <ows:BoundingBox crs=\"urn:x-ogc:def:crs:EPSG:6.11:4326\">\n"
                 + "    <ows:LowerCorner>10.0 10.0</ows:LowerCorner>\n"
@@ -863,16 +863,16 @@ public class TestCswRecordConverter {
                     + "</dct:bibliographicCitation>"));
             assertThat(xml, containsString(
                     "<dct:alternative>" + metacard.getTitle() + "</dct:alternative>"));
-            assertThat(xml, containsString("<dc:date>" + MODIFIED + "</dc:date>"));
-            assertThat(xml, containsString("<dct:modified>" + MODIFIED + "</dct:modified>"));
-            assertThat(xml, containsString("<dct:created>" + CREATED + "</dct:created>"));
+            assertThat(xml, containsString("<dc:date>" + modified + "</dc:date>"));
+            assertThat(xml, containsString("<dct:modified>" + modified + "</dct:modified>"));
+            assertThat(xml, containsString("<dct:created>" + created + "</dct:created>"));
             assertThat(xml,
-                    containsString("<dct:dateAccepted>" + EFFECTIVE + "</dct:dateAccepted>"));
+                    containsString("<dct:dateAccepted>" + effective + "</dct:dateAccepted>"));
             assertThat(xml,
-                    containsString("<dct:dateCopyrighted>" + EFFECTIVE + "</dct:dateCopyrighted>"));
+                    containsString("<dct:dateCopyrighted>" + effective + "</dct:dateCopyrighted>"));
             assertThat(xml,
-                    containsString("<dct:dateSubmitted>" + MODIFIED + "</dct:dateSubmitted>"));
-            assertThat(xml, containsString("<dct:issued>" + MODIFIED + "</dct:issued>"));
+                    containsString("<dct:dateSubmitted>" + modified + "</dct:dateSubmitted>"));
+            assertThat(xml, containsString("<dct:issued>" + modified + "</dct:issued>"));
             assertThat(xml,
                     containsString("<dc:source>" + metacard.getResourceURI() + "</dc:source>"));
             assertThat(xml,
@@ -880,7 +880,7 @@ public class TestCswRecordConverter {
 
         case SUMMARY:
             // This seems weak but we only have a default mapping for modified
-            assertThat(xml, containsString("<dct:modified>" + MODIFIED + "</dct:modified>"));
+            assertThat(xml, containsString("<dct:modified>" + modified + "</dct:modified>"));
             //            assertThat(xml, containsString("<dc:subject>" + metacard.getId() + "</dc:subject>"));
             //            assertThat(xml, containsString("<dc:format>" + metacard.getId() + "</dc:format>"));
             //            assertThat(xml, containsString("<dc:relation>" + metacard.getId() + "</dc:relation>"));

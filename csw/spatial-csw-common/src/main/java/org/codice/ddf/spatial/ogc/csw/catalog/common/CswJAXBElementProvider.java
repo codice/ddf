@@ -64,7 +64,7 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
     }
 
     private static JAXBContext initJaxbContext() {
-        JAXBContext JAXB_CONTEXT = null;
+        JAXBContext jaxbContext = null;
 
         // JAXB context path
         // "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0"
@@ -74,13 +74,13 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
 
         try {
             LOGGER.debug("Creating JAXB context with context path: {}.", contextPath);
-            JAXB_CONTEXT = JAXBContext
+            jaxbContext = JAXBContext
                     .newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
         } catch (JAXBException e) {
             LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
         }
 
-        return JAXB_CONTEXT;
+        return jaxbContext;
     }
 
     @Override

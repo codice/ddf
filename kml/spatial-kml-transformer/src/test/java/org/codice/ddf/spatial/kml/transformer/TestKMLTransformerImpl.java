@@ -251,7 +251,7 @@ public class TestKMLTransformerImpl {
         MetacardImpl metacard = createMockMetacard();
         metacard.setLocation(POINT_WKT);
         BinaryContent content = kmlTransformer.transform(metacard, null);
-        assertThat(content.getMimeTypeValue(), is(KMLTransformerImpl.KML_MIMETYPE.toString()));
+        assertThat(content.getMimeTypeValue(), is(KMLTransformerImpl.kmlMimetype.toString()));
         String kml = IOUtils.toString(content.getInputStream());
         // TODO - validate the style is there
     }

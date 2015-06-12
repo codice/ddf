@@ -263,7 +263,7 @@ public class TestCswEndpoint {
 
     private static BundleContext mockContext = mock(BundleContext.class);
 
-    private static Geometry POLYGON;
+    private static Geometry polygon;
 
     private static net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory;
 
@@ -302,7 +302,7 @@ public class TestCswEndpoint {
         csw = new CswEndpoint(mockContext, catalogFramework, filterBuilder, mockUriInfo,
                 mockMimeTypeManager, mockSchemaManager);
 
-        POLYGON = new WKTReader().read(POLYGON_STR);
+        polygon = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
         filterObjectFactory = new ObjectFactory();
         when(mockMimeTypeManager.getAvailableMimeTypes())
@@ -1998,7 +1998,7 @@ public class TestCswEndpoint {
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
         assertThat((Polygon) ((LiteralExpressionImpl) spatial.getExpression2()).getValue(),
-                is(POLYGON));
+                is(polygon));
 
         assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
                 is(SPATIAL_TEST_ATTRIBUTE));
@@ -2050,7 +2050,7 @@ public class TestCswEndpoint {
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
         assertThat((Polygon) ((LiteralExpressionImpl) spatial.getExpression2()).getValue(),
-                is(POLYGON));
+                is(polygon));
 
         assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
                 is(SPATIAL_TEST_ATTRIBUTE));
@@ -2129,10 +2129,10 @@ public class TestCswEndpoint {
     }
 
     private JAXBElement<AbstractGeometryType> createPolygon() {
-        PolygonType polygon = new PolygonType();
+        PolygonType localPolygon = new PolygonType();
 
         LinearRingType ring = new LinearRingType();
-        for (Coordinate coordinate : POLYGON.getCoordinates()) {
+        for (Coordinate coordinate : polygon.getCoordinates()) {
             CoordType coord = new CoordType();
             coord.setX(BigDecimal.valueOf(coordinate.x));
             coord.setY(BigDecimal.valueOf(coordinate.y));
@@ -2143,11 +2143,11 @@ public class TestCswEndpoint {
         }
         AbstractRingPropertyType abstractRing = new AbstractRingPropertyType();
         abstractRing.setRing(gmlObjectFactory.createLinearRing(ring));
-        polygon.setExterior(gmlObjectFactory.createExterior(abstractRing));
+        localPolygon.setExterior(gmlObjectFactory.createExterior(abstractRing));
 
         JAXBElement<AbstractGeometryType> agt = new JAXBElement<AbstractGeometryType>(
                 new QName("http://www.opengis.net/gml", "Polygon"), AbstractGeometryType.class,
-                null, polygon);
+                null, localPolygon);
         return agt;
     }
 
@@ -2185,7 +2185,7 @@ public class TestCswEndpoint {
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
         assertThat((Polygon) ((LiteralExpressionImpl) spatial.getExpression2()).getValue(),
-                is(POLYGON));
+                is(polygon));
 
         assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
                 is(SPATIAL_TEST_ATTRIBUTE));
@@ -2238,7 +2238,7 @@ public class TestCswEndpoint {
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
         assertThat((Polygon) ((LiteralExpressionImpl) spatial.getExpression2()).getValue(),
-                is(POLYGON));
+                is(polygon));
 
         assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
                 is(SPATIAL_TEST_ATTRIBUTE));
@@ -2291,7 +2291,7 @@ public class TestCswEndpoint {
         @SuppressWarnings("unchecked")
         N spatial = (N) frameworkQuery.getFilter();
         assertThat((Polygon) ((LiteralExpressionImpl) spatial.getExpression2()).getValue(),
-                is(POLYGON));
+                is(polygon));
 
         assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
                 is(SPATIAL_TEST_ATTRIBUTE));

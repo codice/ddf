@@ -44,9 +44,9 @@ public class GmlGeometryConverter implements Converter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GmlGeometryConverter.class);
 
-    private static String ERROR_SERIALIZING_MSG = "Failed to serialize GML from Geometry.";
+    private static final String ERROR_SERIALIZING_MSG = "Failed to serialize GML from Geometry.";
 
-    private static String ERROR_PARSING_MSG = "Error parsing Geometry from feature xml.";
+    private static final String ERROR_PARSING_MSG = "Error parsing Geometry from feature xml.";
 
     @Override
     public boolean canConvert(Class clazz) {

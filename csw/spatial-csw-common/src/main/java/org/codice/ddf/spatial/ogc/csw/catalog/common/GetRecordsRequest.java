@@ -267,7 +267,7 @@ public class GetRecordsRequest extends CswRequest {
      *             An exception when some field cannot be converted to the equivalent GetRecordsType
      *             value
      */
-    public GetRecordsType get_2_0_2_RecordsType() throws CswException {
+    public GetRecordsType get202RecordsType() throws CswException {
         GetRecordsType getRecords = new GetRecordsType();
 
         getRecords.setOutputSchema(getOutputSchema());

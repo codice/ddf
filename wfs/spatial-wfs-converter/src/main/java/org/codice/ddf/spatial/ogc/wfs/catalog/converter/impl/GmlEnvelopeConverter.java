@@ -24,13 +24,13 @@ import com.vividsolutions.jts.geom.Envelope;
 
 public class GmlEnvelopeConverter implements Converter {
 
-    private static String BOX_NODE_NAME = "gml:Box";
+    private static final String BOX_NODE_NAME = "gml:Box";
 
-    private static String COORDINATE_NODE_NAME = "gml:coordinates";
+    private static final String COORDINATE_NODE_NAME = "gml:coordinates";
 
-    private static String SRS_NAME = "srsName";
+    private static final String SRS_NAME = "srsName";
 
-    private static String SRS_VALUE = "EPSG:4326";
+    private static final String SRS_VALUE = "EPSG:4326";
 
     @Override
     public boolean canConvert(Class clazz) {

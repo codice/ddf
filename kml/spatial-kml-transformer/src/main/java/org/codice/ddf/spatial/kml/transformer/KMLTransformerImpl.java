@@ -102,13 +102,13 @@ public class KMLTransformerImpl implements KMLTransformer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KMLTransformerImpl.class);
 
-    protected static MimeType KML_MIMETYPE;
+    protected static MimeType kmlMimetype;
 
     private static List<StyleSelector> defaultStyle = new ArrayList<StyleSelector>();
 
     static {
         try {
-            KML_MIMETYPE = new MimeType("application/vnd.google-earth.kml+xml");
+            kmlMimetype = new MimeType("application/vnd.google-earth.kml+xml");
         } catch (MimeTypeParseException e) {
             LOGGER.warn("Unable to parse KML MimeType.", e);
         }
@@ -405,7 +405,7 @@ public class KMLTransformerImpl implements KMLTransformer {
             // logger.debug("transformed kml metacard: " + transformedKmlString);
             InputStream kmlInputStream = new ByteArrayInputStream(transformedKmlString.getBytes());
 
-            return new BinaryContentImpl(kmlInputStream, KML_MIMETYPE);
+            return new BinaryContentImpl(kmlInputStream, kmlMimetype);
         } catch (Exception e) {
             LOGGER.error("Error transforming metacard ({}) to KML: {}", metacard.getId(),
                     e.getMessage());
@@ -458,7 +458,7 @@ public class KMLTransformerImpl implements KMLTransformer {
 
         InputStream kmlInputStream = new ByteArrayInputStream(transformedKml.getBytes());
         LOGGER.trace("EXITING: ResponseQueue transform");
-        return new BinaryContentImpl(kmlInputStream, KML_MIMETYPE);
+        return new BinaryContentImpl(kmlInputStream, kmlMimetype);
     }
 
     private String marshalKml(Kml kmlResult) {

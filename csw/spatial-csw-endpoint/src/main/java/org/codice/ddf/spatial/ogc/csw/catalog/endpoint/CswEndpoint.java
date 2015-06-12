@@ -332,7 +332,7 @@ public class CswEndpoint implements Csw {
             validateVersion(request.getVersion());
         }
 
-        return getRecords(request.get_2_0_2_RecordsType());
+        return getRecords(request.get202RecordsType());
     }
 
     @Override

@@ -30,7 +30,7 @@ public class Wfs20JaxbElementProvider<T> extends JAXBElementProvider<T> {
     private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
     private static JAXBContext initJaxbContext() {
-        JAXBContext JAXB_CONTEXT = null;
+        JAXBContext jaxbContext = null;
 
         String contextPath = StringUtils.join(new String[] {Wfs20Constants.OGC_FILTER_PACKAGE,
                 Wfs20Constants.OGC_GML_PACKAGE, Wfs20Constants.OGC_OWS_PACKAGE,
@@ -38,13 +38,13 @@ public class Wfs20JaxbElementProvider<T> extends JAXBElementProvider<T> {
 
         try {
             LOGGER.debug("Creating JAXB context with context path: {}.", contextPath);
-            JAXB_CONTEXT = JAXBContext
+            jaxbContext = JAXBContext
                     .newInstance(contextPath, Wfs20JaxbElementProvider.class.getClassLoader());
         } catch (JAXBException e) {
             LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
         }
 
-        return JAXB_CONTEXT;
+        return jaxbContext;
     }
 
     @Override

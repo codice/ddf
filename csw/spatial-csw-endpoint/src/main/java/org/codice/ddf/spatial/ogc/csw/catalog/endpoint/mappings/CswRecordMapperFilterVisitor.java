@@ -315,7 +315,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     public Object visit(And filter, Object extraData) {
         List<Filter> children = filter.getChildren();
         List<Filter> newChildren = new ArrayList<Filter>();
-        for (Iterator<Filter> iter = children.iterator(); iter.hasNext(); ) {
+        Iterator<Filter> iter = children.iterator();
+        while (iter.hasNext()) {
             Filter child = iter.next();
             if (child != null) {
                 Filter newChild = (Filter) child.accept(this, extraData);
@@ -336,7 +337,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     public Object visit(Or filter, Object extraData) {
         List<Filter> children = filter.getChildren();
         List<Filter> newChildren = new ArrayList<Filter>();
-        for (Iterator<Filter> iter = children.iterator(); iter.hasNext(); ) {
+        Iterator<Filter> iter = children.iterator();
+        while (iter.hasNext()) {
             Filter child = iter.next();
             if (child != null) {
                 Filter newChild = (Filter) child.accept(this, extraData);

@@ -148,14 +148,9 @@ public class TestWfsSource {
 
     private static final String LITERAL = "literal";
 
-    //
-    // private Response mockResponse = mock(Response.class);
-
-    // private ServiceReference mockServiceRef = mock(ServiceReference.class);
-    //
     private static byte[] resultsByteArray;
 
-    private static Comparator<QueryType> QueryTypeComparator = new Comparator<QueryType>() {
+    private static final Comparator<QueryType> QUERY_TYPE_COMPARATOR = new Comparator<QueryType>() {
 
         public int compare(QueryType queryType1, QueryType queryType2) {
 
@@ -173,10 +168,6 @@ public class TestWfsSource {
     private WFSCapabilitiesType mockCapabilites = new WFSCapabilitiesType();
 
     private WfsFeatureCollection mockFeatureCollection = mock(WfsFeatureCollection.class);
-
-    // private static final QName[] SAMPLE_FEATURE = {new
-    // QName("SampleFeature1"),
-    // new QName("http://example.com", "SampleFeature2", "Prefix")};
 
     private BundleContext mockContext = mock(BundleContext.class);
 
@@ -396,7 +387,7 @@ public class TestWfsSource {
 
         GetFeatureType getFeatureType = captor.getValue();
         assertMaxFeatures(getFeatureType, twoContentTypeQuery);
-        Collections.sort(getFeatureType.getQuery(), QueryTypeComparator);
+        Collections.sort(getFeatureType.getQuery(), QUERY_TYPE_COMPARATOR);
         assertEquals(TWO_FEATURES.intValue(), getFeatureType.getQuery().size());
         assertEquals(sampleFeatures.get(0), getFeatureType.getQuery().get(0).getTypeName());
     }
@@ -542,7 +533,7 @@ public class TestWfsSource {
         GetFeatureType getFeatureType = captor.getValue();
         assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
         assertTrue(getFeatureType.getQuery().size() == TWO_FEATURES);
-        Collections.sort(getFeatureType.getQuery(), QueryTypeComparator);
+        Collections.sort(getFeatureType.getQuery(), QUERY_TYPE_COMPARATOR);
         QueryType query = getFeatureType.getQuery().get(0);
         assertTrue(query.getTypeName().equals(sampleFeatures.get(0)));
         assertTrue(query.getFilter().isSetComparisonOps());
@@ -896,7 +887,7 @@ public class TestWfsSource {
 
         GetFeatureType getFeatureType = captor.getValue();
         assertMaxFeatures(getFeatureType, inQuery);
-        Collections.sort(getFeatureType.getQuery(), QueryTypeComparator);
+        Collections.sort(getFeatureType.getQuery(), QUERY_TYPE_COMPARATOR);
         assertEquals(TWO_FEATURES.intValue(), getFeatureType.getQuery().size());
         // Feature 1
         QueryType query = getFeatureType.getQuery().get(0);

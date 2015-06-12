@@ -144,13 +144,13 @@ public class TestWfsFilterDelegate {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private String MOCK_METACARD_ATTRIBUTE = "modified";
+    private String mockMetacardAttribute = "modified";
 
-    private String MOCK_FEATURE_TYPE = "mockFeatureType";
+    private String mockFeatureType = "mockFeatureType";
 
-    private String MOCK_FEATURE_PROPERTY = "mockFeatureProperty";
+    private String mockFeatureProperty = "mockFeatureProperty";
 
-    private MetacardMapper MOCK_MAPPER;
+    private MetacardMapper mockMapper;
 
     private FeatureMetacardType mockFeatureMetacardType = mock(FeatureMetacardType.class);
 
@@ -1539,11 +1539,11 @@ public class TestWfsFilterDelegate {
         FilterType beforeFilter = setupBeforeFilterType();
         FilterCapabilities duringFilterCapabilities = setupFilterCapabilities();
         WfsFilterDelegate duringDelegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                duringFilterCapabilities, Wfs20Constants.EPSG_4326_URN, MOCK_MAPPER,
+                duringFilterCapabilities, Wfs20Constants.EPSG_4326_URN, mockMapper,
                 WfsConstants.LAT_LON_ORDER);
 
-        WfsFilterDelegate spatialDelegate = mockFeatureMetacardCreateDelegate(MOCK_FEATURE_PROPERTY,
-                MOCK_FEATURE_TYPE);
+        WfsFilterDelegate spatialDelegate = mockFeatureMetacardCreateDelegate(mockFeatureProperty,
+                mockFeatureType);
         FilterType spatialFilter = spatialDelegate
                 .dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
 
@@ -1643,55 +1643,55 @@ public class TestWfsFilterDelegate {
     }
 
     private void setupMockMetacardType() {
-        MOCK_METACARD_ATTRIBUTE = "modified";
-        MOCK_FEATURE_TYPE = "myFeatureType";
-        MOCK_FEATURE_PROPERTY = "localpart.EXACT_COLLECT_DATE";
+        mockMetacardAttribute = "modified";
+        mockFeatureType = "myFeatureType";
+        mockFeatureProperty = "localpart.EXACT_COLLECT_DATE";
         List<String> mockProperties = new ArrayList<>(1);
-        mockProperties.add(MOCK_FEATURE_PROPERTY);
+        mockProperties.add(mockFeatureProperty);
 
         QName localName = new QName("EXACT_COLLECT_DATE", "localpart");
         when(mockFeatureMetacardType.getFeatureType()).thenReturn(localName);
         when(mockFeatureMetacardType.getProperties()).thenReturn(mockProperties);
-        when(mockFeatureMetacardType.getName()).thenReturn(MOCK_FEATURE_TYPE);
+        when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
         when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
 
         FeatureAttributeDescriptor mockFeatureAttributeDescriptor = mock(
                 FeatureAttributeDescriptor.class);
         when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
         when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn("EXACT_COLLECT_DATE");
-        when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_FEATURE_PROPERTY))
+        when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty))
                 .thenReturn(mockFeatureAttributeDescriptor);
 
-        MOCK_MAPPER = mock(MetacardMapper.class);
-        when(MOCK_MAPPER.getFeatureProperty(MOCK_METACARD_ATTRIBUTE))
-                .thenReturn(MOCK_FEATURE_PROPERTY);
+        mockMapper = mock(MetacardMapper.class);
+        when(mockMapper.getFeatureProperty(mockMetacardAttribute))
+                .thenReturn(mockFeatureProperty);
     }
 
     private FilterType setupBeforeFilterType() {
         WfsFilterDelegate beforeDelegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, MOCK_MAPPER,
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper,
                 WfsConstants.LAT_LON_ORDER);
         DateTime beforeDate = new DateTime().minusDays(1);
-        return beforeDelegate.before(MOCK_METACARD_ATTRIBUTE, beforeDate.toDate());
+        return beforeDelegate.before(mockMetacardAttribute, beforeDate.toDate());
     }
 
     private FilterType setupAfterFilterType() {
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, MOCK_MAPPER,
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper,
                 WfsConstants.LAT_LON_ORDER);
         DateTime afterDate = new DateTime().minusDays(30);
-        return delegate.after(MOCK_METACARD_ATTRIBUTE, afterDate.toDate());
+        return delegate.after(mockMetacardAttribute, afterDate.toDate());
     }
 
     private FilterType setupDuringFilterType() {
         WfsFilterDelegate delegate = new WfsFilterDelegate(mockFeatureMetacardType,
-                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, MOCK_MAPPER,
+                MockWfsServer.getFilterCapabilities(), Wfs20Constants.EPSG_4326_URN, mockMapper,
                 WfsConstants.LAT_LON_ORDER);
         DateTime startDate = new DateTime(2014, 01, 01, 01, 01, 01, 123,
                 DateTimeZone.forID("-07:00"));
         DateTime endDate = new DateTime(2014, 01, 02, 01, 01, 01, 123,
                 DateTimeZone.forID("-07:00"));
-        return delegate.during(MOCK_METACARD_ATTRIBUTE, startDate.toDate(), endDate.toDate());
+        return delegate.during(mockMetacardAttribute, startDate.toDate(), endDate.toDate());
     }
 
     private Date timePositionTypeToDate(TimePositionType timePositionType) {

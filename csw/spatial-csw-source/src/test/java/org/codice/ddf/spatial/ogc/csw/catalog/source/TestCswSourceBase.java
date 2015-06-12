@@ -100,9 +100,9 @@ public class TestCswSourceBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCswSourceBase.class);
 
-    protected static String ID = "MyCswSource";
+    protected static final String ID = "MyCswSource";
 
-    protected static String URL = "http://www.example.com/csw";
+    protected static final String URL = "http://www.example.com/csw";
 
     protected final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
 
