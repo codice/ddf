@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.FileNotFoundException;
 import java.security.Principal;
 import java.util.Map;
 
@@ -48,7 +47,7 @@ public class AttributeMapLoaderTest {
     /**
      * Tests loading the attributes from a file.
      *
-     * @throws FileNotFoundException
+     * @throws java.io.FileNotFoundException
      */
     @Test
     public void testAttributeFile() {

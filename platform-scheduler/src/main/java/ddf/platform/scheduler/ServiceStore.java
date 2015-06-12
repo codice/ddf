@@ -16,10 +16,9 @@ package ddf.platform.scheduler;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.quartz.Job;
 
 /**
- * Allows {@link Job}s or other objects within this limited classpath to acquire them from a single
+ * Allows {@link org.quartz.Job}s or other objects within this limited classpath to acquire them from a single
  * location.
  *
  * @author Ashraf Barakat

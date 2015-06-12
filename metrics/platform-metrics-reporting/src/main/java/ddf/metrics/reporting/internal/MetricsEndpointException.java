@@ -17,10 +17,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import ddf.metrics.reporting.internal.rest.MetricsEndpoint;
 
 /**
- * Exception thrown when a {@link MetricsEndpoint} encounters problems during its graphing.
+ * Exception thrown when a {@link ddf.metrics.reporting.internal.rest.MetricsEndpoint} encounters problems during its graphing.
  *
  * @since 2.1.0
  *

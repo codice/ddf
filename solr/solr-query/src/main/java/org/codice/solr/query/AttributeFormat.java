@@ -13,8 +13,6 @@
  */
 package org.codice.solr.query;
 
-import java.io.Serializable;
-import java.util.Date;
 
 public enum AttributeFormat {
 
@@ -32,7 +30,7 @@ public enum AttributeFormat {
 
     /**
      * {@link Attribute}s of this {@link AttributeFormat} <b>must</b> have a value that is a
-     * Java {@link Date}.
+     * Java {@link java.util.Date}.
      */
     DATE,
 
@@ -87,7 +85,7 @@ public enum AttributeFormat {
 
     /**
      * {@link Attribute}s of this {@link AttributeFormat} <b>must</b> have a value that
-     * implements the {@link Serializable} interface. Additional processing (
+     * implements the {@link java.io.Serializable} interface. Additional processing (
      * {@link AttributeDescriptor#isIndexed() indexing},
      * {@link AttributeDescriptor#isTokenized() tokenizing}) will not be performed even if
      * indicated by the {@link AttributeDescriptor}. <br>
@@ -99,7 +97,7 @@ public enum AttributeFormat {
      * format.
      * </p>
      *
-     * @see Serializable
+     * @see java.io.Serializable
      */
     OBJECT
 

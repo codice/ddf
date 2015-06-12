@@ -13,10 +13,9 @@
  */
 package ddf.metrics.reporting.internal;
 
-import ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever;
 
 /**
- * Exception thrown when a {@link RrdMetricsRetriever} encounters problems during its graphing.
+ * Exception thrown when a {@link ddf.metrics.reporting.internal.rrd4j.RrdMetricsRetriever} encounters problems during its graphing.
  *
  * @since 2.1.0
  *
