@@ -45,7 +45,7 @@ public class XmlSchemaMessageBodyReader implements MessageBodyReader<XmlSchema> 
 
     private static final String COUNT_XPATH = "count(/" + XSD_PREFIX + ":schema)";
 
-    private static final XPathBuilder countXPathBuilder = new XPathBuilder(COUNT_XPATH)
+    private static final XPathBuilder COUNT_XPATH_BUILDER = new XPathBuilder(COUNT_XPATH)
             .namespace(XSD_PREFIX, XMLConstants.W3C_XML_SCHEMA_NS_URI).numberResult();
 
     protected WfsUriResolver wfsUriResolver = new WfsUriResolver();
@@ -65,7 +65,7 @@ public class XmlSchemaMessageBodyReader implements MessageBodyReader<XmlSchema> 
         // Determine if this is an XMLSchema
         String input = IOUtils.toString(inStream);
         inStream.reset();
-        String count = countXPathBuilder.evaluate(camelContext, input);
+        String count = COUNT_XPATH_BUILDER.evaluate(camelContext, input);
         // See if there exactly one instance of "xsd:schema" in this doc
         if (Integer.valueOf(count) == 1) {
             XmlSchema schema = null;

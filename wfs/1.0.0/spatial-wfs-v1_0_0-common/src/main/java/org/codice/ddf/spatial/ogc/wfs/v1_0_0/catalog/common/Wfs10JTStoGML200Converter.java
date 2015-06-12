@@ -36,7 +36,7 @@ import ogc.schema.opengis.gml.v_2_1_2.PolygonType;
 
 public class Wfs10JTStoGML200Converter {
 
-    private static final ObjectFactory gmlObjectFactory = new ObjectFactory();
+    private static final ObjectFactory GML_OBJECT_FACTORY = new ObjectFactory();
 
     private static final String MULTIGEOMETRY_GML = "multigeometry";
 
@@ -80,20 +80,20 @@ public class Wfs10JTStoGML200Converter {
             AbstractGeometryType abstractGeometryType) {
 
         if (abstractGeometryType instanceof PolygonType) {
-            return gmlObjectFactory.createPolygon((PolygonType) abstractGeometryType);
+            return GML_OBJECT_FACTORY.createPolygon((PolygonType) abstractGeometryType);
         } else if (abstractGeometryType instanceof PointType) {
-            return gmlObjectFactory.createPoint((PointType) abstractGeometryType);
+            return GML_OBJECT_FACTORY.createPoint((PointType) abstractGeometryType);
         } else if (abstractGeometryType instanceof LineStringType) {
-            return gmlObjectFactory.createLineString((LineStringType) abstractGeometryType);
+            return GML_OBJECT_FACTORY.createLineString((LineStringType) abstractGeometryType);
         } else if (abstractGeometryType instanceof MultiPointType) {
-            return gmlObjectFactory.createMultiPoint((MultiPointType) abstractGeometryType);
+            return GML_OBJECT_FACTORY.createMultiPoint((MultiPointType) abstractGeometryType);
         } else if (abstractGeometryType instanceof MultiLineStringType) {
-            return gmlObjectFactory
+            return GML_OBJECT_FACTORY
                     .createMultiLineString((MultiLineStringType) abstractGeometryType);
         } else if (abstractGeometryType instanceof MultiPolygonType) {
-            return gmlObjectFactory.createMultiPolygon((MultiPolygonType) abstractGeometryType);
+            return GML_OBJECT_FACTORY.createMultiPolygon((MultiPolygonType) abstractGeometryType);
         } else if (abstractGeometryType instanceof GeometryCollectionType) {
-            return gmlObjectFactory
+            return GML_OBJECT_FACTORY
                     .createGeometryCollection((GeometryCollectionType) abstractGeometryType);
         } else {
             return null;

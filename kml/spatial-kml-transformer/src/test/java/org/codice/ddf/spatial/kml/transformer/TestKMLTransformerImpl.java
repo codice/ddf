@@ -48,7 +48,7 @@ import de.micromata.opengis.kml.v_2_2_0.TimeSpan;
 
 public class TestKMLTransformerImpl {
 
-    private static final String defaultStyleLocation = "/kml-styling/defaultStyling.kml";
+    private static final String DEFAULT_STYLE_LOCATION = "/kml-styling/defaultStyling.kml";
 
     private static final String ID = "1234567890";
 
@@ -86,7 +86,7 @@ public class TestKMLTransformerImpl {
     @BeforeClass
     public static void setUp() throws IOException {
         when(mockContext.getBundle()).thenReturn(mockBundle);
-        URL url = TestKMLTransformerImpl.class.getResource(defaultStyleLocation);
+        URL url = TestKMLTransformerImpl.class.getResource(DEFAULT_STYLE_LOCATION);
         when(mockBundle.getResource(any(String.class))).thenReturn(url);
 
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -94,7 +94,7 @@ public class TestKMLTransformerImpl {
         mockAction = mock(Action.class);
         when(mockActionProvider.getAction(any(Metacard.class))).thenReturn(mockAction);
         when(mockAction.getUrl()).thenReturn(new URL(ACTION_URL));
-        kmlTransformer = new KMLTransformerImpl(mockContext, defaultStyleLocation,
+        kmlTransformer = new KMLTransformerImpl(mockContext, DEFAULT_STYLE_LOCATION,
                 new KmlStyleMap(), mockActionProvider);
     }
 

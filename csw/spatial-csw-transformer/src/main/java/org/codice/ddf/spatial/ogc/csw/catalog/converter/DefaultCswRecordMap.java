@@ -38,15 +38,15 @@ import ddf.catalog.data.Metacard;
  *
  */
 public class DefaultCswRecordMap {
-    private static final Map<QName, String> cswRecordQNameMapping;
+    private static final Map<QName, String> CSW_RECORD_QNAME_MAPPING;
 
-    private static final Map<String, String> cswRecordLocalNameMapping;
+    private static final Map<String, String> CSW_RECORD_LOCAL_NAME_MAPPING;
 
-    private static final Map<String, List<QName>> metacardMapping;
+    private static final Map<String, List<QName>> METACARD_MAPPING;
 
-    private static final Map<String, String> prefixToUriMapping;
+    private static final Map<String, String> PREFIX_TO_URI_MAPPING;
 
-    private static final DefaultCswRecordMap mapping;
+    private static final DefaultCswRecordMap MAPPING;
 
     static {
         Map<String, String> localNameMap = new CaseInsensitiveMap();
@@ -70,7 +70,7 @@ public class DefaultCswRecordMap {
         localNameMap.put(CswRecordMetacardType.CSW_DATE_COPYRIGHTED, Metacard.EFFECTIVE);
         localNameMap.put(CswRecordMetacardType.CSW_VALID, Metacard.EXPIRATION);
 
-        cswRecordLocalNameMapping = Collections.unmodifiableMap(localNameMap);
+        CSW_RECORD_LOCAL_NAME_MAPPING = Collections.unmodifiableMap(localNameMap);
 
         Map<QName, String> qNameMap = new HashMap<QName, String>();
 
@@ -89,7 +89,7 @@ public class DefaultCswRecordMap {
         qNameMap.put(CswRecordMetacardType.CSW_ISSUED_QNAME, Metacard.MODIFIED);
         qNameMap.put(CswRecordMetacardType.CSW_VALID_QNAME, Metacard.EXPIRATION);
 
-        cswRecordQNameMapping = Collections.unmodifiableMap(qNameMap);
+        CSW_RECORD_QNAME_MAPPING = Collections.unmodifiableMap(qNameMap);
 
         Map<String, List<QName>> metacardMap = new HashMap<String, List<QName>>();
 
@@ -111,7 +111,7 @@ public class DefaultCswRecordMap {
         metacardMap
                 .put(Metacard.RESOURCE_URI, Arrays.asList(CswRecordMetacardType.CSW_SOURCE_QNAME));
 
-        metacardMapping = Collections.unmodifiableMap(metacardMap);
+        METACARD_MAPPING = Collections.unmodifiableMap(metacardMap);
 
         Map<String, String> prefixMapping = new HashMap<String, String>();
 
@@ -127,41 +127,41 @@ public class DefaultCswRecordMap {
         prefixMapping.put(CswConstants.DUBLIN_CORE_TERMS_NAMESPACE_PREFIX,
                 CswConstants.DUBLIN_CORE_TERMS_SCHEMA);
 
-        prefixToUriMapping = Collections.unmodifiableMap(prefixMapping);
+        PREFIX_TO_URI_MAPPING = Collections.unmodifiableMap(prefixMapping);
 
-        mapping = new DefaultCswRecordMap();
+        MAPPING = new DefaultCswRecordMap();
     }
 
     public static DefaultCswRecordMap getDefaultCswRecordMap() {
-        return mapping;
+        return MAPPING;
     }
 
     /**
      * NOTE: This is a {@link CaseInsensitiveMap}.
      */
     public Map<String, String> getCswToMetacardAttributeNames() {
-        return cswRecordLocalNameMapping;
+        return CSW_RECORD_LOCAL_NAME_MAPPING;
     }
 
     public String getDefaultMetacardFieldFor(QName cswField) {
-        if (cswRecordQNameMapping.containsKey(cswField)) {
-            return cswRecordQNameMapping.get(cswField);
+        if (CSW_RECORD_QNAME_MAPPING.containsKey(cswField)) {
+            return CSW_RECORD_QNAME_MAPPING.get(cswField);
         }
 
         return getDefaultMetacardFieldFor(cswField.getLocalPart());
     }
 
     public boolean hasDefaultMetacardFieldFor(QName cswField) {
-        return cswRecordQNameMapping.containsKey(cswField);
+        return CSW_RECORD_QNAME_MAPPING.containsKey(cswField);
     }
 
     public boolean hasDefaultMetacardFieldFor(String cswField) {
-        return cswRecordLocalNameMapping.containsKey(cswField);
+        return CSW_RECORD_LOCAL_NAME_MAPPING.containsKey(cswField);
     }
 
     public String getDefaultMetacardFieldFor(String cswField) {
-        if (cswRecordLocalNameMapping.containsKey(cswField)) {
-            return cswRecordLocalNameMapping.get(cswField);
+        if (CSW_RECORD_LOCAL_NAME_MAPPING.containsKey(cswField)) {
+            return CSW_RECORD_LOCAL_NAME_MAPPING.get(cswField);
         }
 
         return cswField;
@@ -212,13 +212,13 @@ public class DefaultCswRecordMap {
     }
 
     public List<QName> getCswFieldsFor(String metacardField) {
-        if (metacardMapping.containsKey(metacardField)) {
-            return metacardMapping.get(metacardField);
+        if (METACARD_MAPPING.containsKey(metacardField)) {
+            return METACARD_MAPPING.get(metacardField);
         }
         return Arrays.asList(new QName(metacardField));
     }
 
     public Map<String, String> getPrefixToUriMapping() {
-        return prefixToUriMapping;
+        return PREFIX_TO_URI_MAPPING;
     }
 }

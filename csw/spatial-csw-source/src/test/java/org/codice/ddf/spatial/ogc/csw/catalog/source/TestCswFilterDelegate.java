@@ -95,7 +95,7 @@ import net.opengis.ows.v_1_0_0.Operation;
 public class TestCswFilterDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestCswFilterDelegate.class);
 
-    private static final JAXBContext jaxbContext = initJaxbContext();
+    private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
     private static final String FILTER_QNAME_LOCAL_PART = "Filter";
 
@@ -545,7 +545,7 @@ public class TestCswFilterDelegate {
     @BeforeClass
     public static void setupTestClass() throws JAXBException, ParseException {
         XMLUnit.setIgnoreWhitespace(true);
-        marshaller = jaxbContext.createMarshaller();
+        marshaller = JAXB_CONTEXT.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
         POS_LIST_GEO_FILTER_PROP_MAP.put(USE_POS_LIST_GEO_FILTER_PROP_MAP_KEY, "true");

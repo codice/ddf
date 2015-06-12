@@ -44,7 +44,7 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CswJAXBElementProvider.class);
 
-    private static final JAXBContext jaxbContext = initJaxbContext();
+    private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
     public CswJAXBElementProvider() {
         super();
@@ -64,7 +64,7 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
     }
 
     private static JAXBContext initJaxbContext() {
-        JAXBContext jaxbContext = null;
+        JAXBContext JAXB_CONTEXT = null;
 
         // JAXB context path
         // "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0"
@@ -74,18 +74,18 @@ public class CswJAXBElementProvider<T> extends JAXBElementProvider<T> {
 
         try {
             LOGGER.debug("Creating JAXB context with context path: {}.", contextPath);
-            jaxbContext = JAXBContext
+            JAXB_CONTEXT = JAXBContext
                     .newInstance(contextPath, CswJAXBElementProvider.class.getClassLoader());
         } catch (JAXBException e) {
             LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
         }
 
-        return jaxbContext;
+        return JAXB_CONTEXT;
     }
 
     @Override
     public JAXBContext getJAXBContext(Class<?> type, Type genericType) throws JAXBException {
-        return jaxbContext;
+        return JAXB_CONTEXT;
     }
 
     @Override

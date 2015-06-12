@@ -27,10 +27,10 @@ import org.slf4j.LoggerFactory;
 public class Wfs20JaxbElementProvider<T> extends JAXBElementProvider<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(Wfs20JaxbElementProvider.class);
 
-    private static final JAXBContext jaxbContext = initJaxbContext();
+    private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
     private static JAXBContext initJaxbContext() {
-        JAXBContext jaxbContext = null;
+        JAXBContext JAXB_CONTEXT = null;
 
         String contextPath = StringUtils.join(new String[] {Wfs20Constants.OGC_FILTER_PACKAGE,
                 Wfs20Constants.OGC_GML_PACKAGE, Wfs20Constants.OGC_OWS_PACKAGE,
@@ -38,17 +38,17 @@ public class Wfs20JaxbElementProvider<T> extends JAXBElementProvider<T> {
 
         try {
             LOGGER.debug("Creating JAXB context with context path: {}.", contextPath);
-            jaxbContext = JAXBContext
+            JAXB_CONTEXT = JAXBContext
                     .newInstance(contextPath, Wfs20JaxbElementProvider.class.getClassLoader());
         } catch (JAXBException e) {
             LOGGER.error("Unable to create JAXB context using contextPath: {}.", contextPath, e);
         }
 
-        return jaxbContext;
+        return JAXB_CONTEXT;
     }
 
     @Override
     public JAXBContext getJAXBContext(Class<?> type, Type genericType) throws JAXBException {
-        return jaxbContext;
+        return JAXB_CONTEXT;
     }
 }

@@ -54,7 +54,7 @@ public class GetRecordsRequest extends CswRequest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetRecordsRequest.class);
 
-    private static final JAXBContext jaxBContext;
+    private static final JAXBContext JAX_BCONTEXT;
 
     static {
         JAXBContext context = null;
@@ -70,7 +70,7 @@ public class GetRecordsRequest extends CswRequest {
             LOGGER.error("Unable to create JAXB context using contextPath: {}", contextPath, e);
         }
 
-        jaxBContext = context;
+        JAX_BCONTEXT = context;
     }
 
     /**
@@ -380,7 +380,7 @@ public class GetRecordsRequest extends CswRequest {
             } else if (getConstraintLanguage()
                     .equalsIgnoreCase(CswConstants.CONSTRAINT_LANGUAGE_FILTER)) {
                 try {
-                    Unmarshaller unmarshaller = jaxBContext.createUnmarshaller();
+                    Unmarshaller unmarshaller = JAX_BCONTEXT.createUnmarshaller();
                     Reader reader = new StringReader(getConstraint());
                     @SuppressWarnings("unchecked")
                     JAXBElement<FilterType> jaxbFilter = (JAXBElement<FilterType>) unmarshaller

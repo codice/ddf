@@ -56,7 +56,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 
 public class FeatureCollectionConverterWfs20 implements Converter {
 
-    private static final String featureMember = "member";
+    private static final String FEATURE_MEMBER = "member";
 
     private static final String FEATURE_COLLECTION = "FeatureCollection";
 
@@ -104,7 +104,7 @@ public class FeatureCollectionConverterWfs20 implements Converter {
             }
 
             for (Metacard mc : wfc.getMembers()) {
-                writer.startNode(Wfs20Constants.GML_PREFIX + ":" + featureMember);
+                writer.startNode(Wfs20Constants.GML_PREFIX + ":" + FEATURE_MEMBER);
                 context.convertAnother(mc);
                 writer.endNode();
             }
@@ -176,7 +176,7 @@ public class FeatureCollectionConverterWfs20 implements Converter {
 
             // Its important to note that the reader appears to drop the
             // namespace.
-            if (featureMember.equals(nodeName)) {
+            if (FEATURE_MEMBER.equals(nodeName)) {
                 reader.moveDown();
                 String subNodeName = reader.getNodeName();
                 //If the member contains a sub feature collection, step in and get members
@@ -185,7 +185,7 @@ public class FeatureCollectionConverterWfs20 implements Converter {
                     while (reader.hasMoreChildren()) {
                         reader.moveDown();
                         String subNodeName2 = reader.getNodeName();
-                        if (featureMember.equals(subNodeName2)) {
+                        if (FEATURE_MEMBER.equals(subNodeName2)) {
                             reader.moveDown();
                             // lookup the converter for this featuretype
                             featureCollection = addMetacardToFeatureCollection(featureCollection,

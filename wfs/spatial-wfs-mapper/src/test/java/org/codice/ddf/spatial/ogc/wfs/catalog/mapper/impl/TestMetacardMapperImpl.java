@@ -24,7 +24,7 @@ import ddf.catalog.data.Metacard;
 
 public class TestMetacardMapperImpl {
 
-    private static final String exampleFeatureType = "{http://www.example.com}featureType1";
+    private static final String EXAMPLE_FEATURE_TYPE = "{http://www.example.com}featureType1";
 
     private static final String FEATURE_PROPERTY = "feature.prop1";
 
@@ -34,7 +34,7 @@ public class TestMetacardMapperImpl {
     public void testGetFeaturePropertyMappingGivenMetacardAttribute_MappingExists() {
         // setup
         MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
-        metacardMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setFeatureType(EXAMPLE_FEATURE_TYPE);
         metacardMapper.setCreatedDateMapping(FEATURE_PROPERTY);
 
         // Test
@@ -48,7 +48,7 @@ public class TestMetacardMapperImpl {
     public void testGetFeaturePropertyMappingGivenMetacardAttribute_MappingDoesNotExists() {
         // setup
         MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
-        metacardMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setFeatureType(EXAMPLE_FEATURE_TYPE);
         metacardMapper.setCreatedDateMapping(FEATURE_PROPERTY);
 
         // Test
@@ -62,7 +62,7 @@ public class TestMetacardMapperImpl {
     public void testGetMetacardAttributeMappingGivenFeatureProperty_MappingExists() {
         // setup
         MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
-        metacardMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setFeatureType(EXAMPLE_FEATURE_TYPE);
         metacardMapper.setResourceSizeMapping(FEATURE_PROPERTY);
         metacardMapper.setDataUnit("MB");
 
@@ -79,7 +79,7 @@ public class TestMetacardMapperImpl {
     public void testGetMetacardAttributeMappingGivenFeatureProperty_MappingDoesNotExists() {
         // setup
         MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
-        metacardMapper.setFeatureType(exampleFeatureType);
+        metacardMapper.setFeatureType(EXAMPLE_FEATURE_TYPE);
         metacardMapper.setExpirationDateMapping(FEATURE_PROPERTY);
 
         // Test

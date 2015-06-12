@@ -125,7 +125,7 @@ public class TestCswCqlFilter {
 
     private static final String REPLACE_TEMPORAL_PROPERTY = "REPLACE_TEMPORAL_PROPERTY";
 
-    private static final String cswRecordId = "cswRecord.1234";
+    private static final String CSW_RECORD_ID = "cswRecord.1234";
 
     private final CswFilterDelegate cswFilterDelegate = initDefaultCswFilterDelegate(
             initCswSourceConfiguration(true, CswRecordMetacardType.CSW_TYPE));
@@ -361,7 +361,7 @@ public class TestCswCqlFilter {
 
     private final String featureIdCql =
             CswRecordMetacardType.CSW_IDENTIFIER + SPACE + EQUALS + SPACE + SINGLE_QUOTE
-                    + cswRecordId + SINGLE_QUOTE;
+                    + CSW_RECORD_ID + SINGLE_QUOTE;
 
     private static FilterCapabilities getMockFilterCapabilities() {
         FilterCapabilities mockFilterCapabilities = mock(FilterCapabilities.class);
@@ -1153,7 +1153,7 @@ public class TestCswCqlFilter {
     @Test
     public void testFeatureId() throws UnsupportedQueryException {
         FilterType filter = cswFilterDelegate
-                .propertyIsEqualTo(Metacard.ID, String.valueOf(cswRecordId), false);
+                .propertyIsEqualTo(Metacard.ID, String.valueOf(CSW_RECORD_ID), false);
 
         String cqlText = CswCqlTextFilter.getInstance().getCqlText(filter);
         assertEquals(featureIdCql, cqlText);
