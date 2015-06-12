@@ -37,7 +37,6 @@ import org.codice.ddf.persistence.PersistentStore;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
 import org.cometd.annotation.Session;
-import org.cometd.bayeux.server.SecurityPolicy;
 import org.cometd.bayeux.server.ServerMessage;
 import org.cometd.bayeux.server.ServerSession;
 import org.osgi.framework.BundleContext;
@@ -184,7 +183,7 @@ public abstract class AbstractEventController implements EventHandler {
 
     /**
      * Enables private message delivery to a given user. As of CometD version 2.8.0, this must be
-     * called from the canHandshake method of a {@link SecurityPolicy}. See <a href=
+     * called from the canHandshake method of a {@link org.cometd.bayeux.server.SecurityPolicy}. See <a href=
      * "http://stackoverflow.com/questions/22695516/null-serversession-on-cometd-meta-handshake"
      * >Obtaining user and session information for private message delivery</a> for more
      * information.

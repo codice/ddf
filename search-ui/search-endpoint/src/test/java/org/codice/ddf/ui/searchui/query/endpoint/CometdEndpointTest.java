@@ -27,7 +27,6 @@ import javax.servlet.ServletException;
 
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.ui.searchui.query.actions.ActionRegistryImpl;
-import org.codice.ddf.ui.searchui.query.controller.NotificationController;
 import org.cometd.bayeux.ChannelId;
 import org.cometd.bayeux.MarkedReference;
 import org.cometd.bayeux.server.BayeuxServer;
@@ -55,7 +54,7 @@ import ddf.catalog.filter.FilterBuilder;
 public class CometdEndpointTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CometdEndpointTest.class);
 
-    private static final String mockSessionId = "1234-5678-9012-3456";
+    private static final String MOCK_SESSION_ID = "1234-5678-9012-3456";
 
     private BayeuxServer bayeuxServer = mock(BayeuxServerImpl.class);
 
@@ -71,7 +70,7 @@ public class CometdEndpointTest {
     @Before
     public void setUp() throws Exception {
 
-        when(mockServerSession.getId()).thenReturn(mockSessionId);
+        when(mockServerSession.getId()).thenReturn(MOCK_SESSION_ID);
 
         // Return a new mock of LocalSession each time newLocalSession is
         // called on the BayeuxServer
@@ -149,7 +148,7 @@ public class CometdEndpointTest {
      * method of the custom {@link org.cometd.bayeux.server.SecurityPolicy}
      * associated with the {@link org.cometd.bayeux.server.BayeuxServer} created
      * by the {@link CometdEndpoint} registers users with the 
-     * {@link NotificationController}.
+     * {@link org.codice.ddf.ui.searchui.query.controller.NotificationController}.
      *
      * @throws ServletException
      */
@@ -160,17 +159,17 @@ public class CometdEndpointTest {
         assertNotNull("BayeuxServer's SecurityPolicy is null", securityPolicy);
 
         // Verify that the mock ServerSession is not already being managed by
-        // the NotificationController
-        assertNull(cometdEndpoint.notificationController.getSessionByUserId(mockSessionId));
+        // the org.codice.ddf.ui.searchui.query.controller.NotificationController
+        assertNull(cometdEndpoint.notificationController.getSessionByUserId(MOCK_SESSION_ID));
 
         // Invoke the canHandshake method of the SecurityPolicy
         securityPolicy.canHandshake(bayeuxServer, mockServerSession, mockServerMessage);
 
         // Verify that the user userId/ServerSession pair are now being managed
-        // by the NotificationController
+        // by the org.codice.ddf.ui.searchui.query.controller.NotificationController
         assertEquals("NotificationController did not return the expected ServerSession",
                 mockServerSession,
-                cometdEndpoint.notificationController.getSessionByUserId(mockSessionId));
+                cometdEndpoint.notificationController.getSessionByUserId(MOCK_SESSION_ID));
     }
 
 }

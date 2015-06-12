@@ -34,7 +34,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +58,7 @@ public class NotificationController extends AbstractEventController {
     }
 
     /**
-     * Implementation of {@link EventHandler#handleEvent(Event)} that receives notifications
+     * Implementation of {@link org.osgi.service.event.EventHandler#handleEvent(Event)} that receives notifications
      * published on the {@link #NOTIFICATIONS_TOPIC_NAME} topic from the OSGi eventing framework and
      * forwards them to their intended recipients.
      *
