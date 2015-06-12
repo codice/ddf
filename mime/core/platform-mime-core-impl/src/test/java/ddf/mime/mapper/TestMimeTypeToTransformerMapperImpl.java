@@ -254,7 +254,7 @@ public class TestMimeTypeToTransformerMapperImpl {
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testNoMatch_InputTransformerBaseTypeAndId()
+    public void testNoMatchInputTransformerBaseTypeAndId()
             throws MimeTypeParseException, InvalidSyntaxException {
 
         // given
@@ -303,7 +303,7 @@ public class TestMimeTypeToTransformerMapperImpl {
      * @throws InvalidSyntaxException
      */
     @Test
-    public void testBaseTypeMatch_IdMismatch()
+    public void testBaseTypeMatchIdMismatch()
             throws MimeTypeParseException, InvalidSyntaxException {
 
         // given

@@ -95,7 +95,7 @@ public class TestStsRealm {
 
     @Ignore
     @Test
-    public void testDoGetAuthenticationInfo_SAML()
+    public void testDoGetAuthenticationInfoSAML()
             throws ParserConfigurationException, SAXException, IOException {
         StsRealm realm = new StsRealm() {
             protected SecurityToken renewSecurityToken(SecurityToken securityToken) {
@@ -118,7 +118,7 @@ public class TestStsRealm {
 
     @Ignore
     @Test
-    public void testDoGetAuthenticationInfo_Base()
+    public void testDoGetAuthenticationInfoBase()
             throws ParserConfigurationException, SAXException, IOException {
         Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
         String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();

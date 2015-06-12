@@ -28,7 +28,7 @@ public class EncryptCommandTest {
     private static Logger LOGGER = LoggerFactory.getLogger(EncryptCommandTest.class);
 
     @Test
-    public void testDoExecute_NonNullPlainTextValue() {
+    public void testDoExecuteNonNullPlainTextValue() {
         final String key = "secret";
         final String plainTextValue = "protect";
         LOGGER.debug("key: {}", key);
@@ -54,7 +54,7 @@ public class EncryptCommandTest {
     }
 
     @Test
-    public void testDoExecute_NullPlainTextValue() {
+    public void testDoExecuteNullPlainTextValue() {
         final String key = "secret";
         final String plainTextValue = null;
         LOGGER.debug("key: {}", key);

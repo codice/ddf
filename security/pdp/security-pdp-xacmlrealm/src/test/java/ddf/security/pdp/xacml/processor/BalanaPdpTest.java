@@ -98,7 +98,7 @@ public class BalanaPdpTest {
     }
 
     @Test
-    public void testEvaluate_role_user_action_query_citizenship_US() throws Exception {
+    public void testEvaluateroleuseractionquerycitizenshipUS() throws Exception {
         LOGGER.debug("\n\n\n##### testEvaluate_role_user_action_query_citizenship_US");
 
         // Setup
@@ -180,7 +180,7 @@ public class BalanaPdpTest {
     }
 
     @Test
-    public void testEvaluate_role_user_action_query_citizenship_CA() throws Exception {
+    public void testEvaluateroleuseractionquerycitizenshipCA() throws Exception {
         LOGGER.debug("\n\n\n##### testEvaluate_role_user_action_query_citizenship_CA");
 
         final String COUNTRY = "CA";
@@ -254,7 +254,7 @@ public class BalanaPdpTest {
     }
 
     @Test
-    public void testBalanaPdp_policies_directory_does_not_exist() throws PdpException, IOException {
+    public void testBalanaPdppoliciesdirectorydoesnotexist() throws PdpException, IOException {
         LOGGER.debug("\n\n\n##### testBalanaPdp_policies_directory_does_not_exist");
 
         // Perform Test on new directory
@@ -268,7 +268,7 @@ public class BalanaPdpTest {
     @Test
     /**
      * No longer expect an exception thrown here since we can start with an empty directory
-     */ public void testBalanaPdp_policies_directory_exists_and_is_empty() throws Exception {
+     */ public void testBalanaPdppoliciesdirectoryexistsandisempty() throws Exception {
         LOGGER.debug("\n\n\n##### testBalanaPdp_policies_directory_exists_and_is_empty");
 
         // Setup
@@ -288,7 +288,7 @@ public class BalanaPdpTest {
     }
 
     @Test
-    public void testBalanaPdp_policies_directory_policy_added() throws Exception {
+    public void testBalanaPdppoliciesdirectorypolicyadded() throws Exception {
         LOGGER.debug("\n\n\n##### testBalanaPdp_policies_directory_policy_added");
 
         File policyDir = folder.newFolder("tempDir");

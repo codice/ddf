@@ -130,7 +130,7 @@ public class CustomMimeTypeResolverTest {
     }
 
     @Test
-    public void testGetFileExtensionForMimeType_MultipleMappings() throws Exception {
+    public void testGetFileExtensionForMimeTypeMultipleMappings() throws Exception {
         CustomMimeTypeResolver resolver = new CustomMimeTypeResolver();
         resolver.setCustomMimeTypes(new String[] {"nitf=image/nitf", "ntf=image/nitf"});
 
