@@ -47,13 +47,7 @@ public class TestAttributeMetacardTransformer {
 
     private static MimeType jpegMimeType = null;
 
-    private static final AttributeMetacardTransformer THUMBNAIL_TRANSFORMER = new AttributeMetacardTransformer(
-            Metacard.THUMBNAIL, Metacard.THUMBNAIL, jpegMimeType);
-
     private static MimeType xmlMimeType = null;
-
-    private static final AttributeMetacardTransformer METADATA_TRANSFORMER = new AttributeMetacardTransformer(
-            Metacard.METADATA, Metacard.METADATA, xmlMimeType);
 
     static {
         try {
@@ -63,6 +57,12 @@ public class TestAttributeMetacardTransformer {
             LOGGER.warn("MimeTypeParseException during static setup", e);
         }
     }
+
+    private static final AttributeMetacardTransformer THUMBNAIL_TRANSFORMER = new AttributeMetacardTransformer(
+        Metacard.THUMBNAIL, Metacard.THUMBNAIL, jpegMimeType);
+
+    private static final AttributeMetacardTransformer METADATA_TRANSFORMER = new AttributeMetacardTransformer(
+            Metacard.METADATA, Metacard.METADATA, xmlMimeType);
 
     /**
      * Tests case of null {@link Metacard}
