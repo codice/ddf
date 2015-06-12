@@ -51,6 +51,6 @@ public class KeywordASTNode extends ASTNode {
 
     @Override
     public String toString() {
-        return "Keyword: " + keyword;
+        return "keyword: " + keyword;
     }
 }

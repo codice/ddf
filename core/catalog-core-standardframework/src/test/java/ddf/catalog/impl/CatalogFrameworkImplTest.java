@@ -614,13 +614,6 @@ public class CatalogFrameworkImplTest {
                 new HashSet<ContentType>(), true, new Date());
         List<FederatedSource> federatedSources = createDefaultFederatedSourceList(true);
 
-        // Set<Source> expectedSourceSet = new HashSet<Source>();
-        // add framework as a site
-        // add local provider
-        // expectedSourceSet.add(provider);
-        // add all of the federated sites
-        // expectedSourceSet.addAll(federatedSources);
-
         // Mock register the provider in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
@@ -1150,27 +1143,6 @@ public class CatalogFrameworkImplTest {
         }
 
     }
-
-    // @Test( expected = CatalogException.class )
-    // public void testProviderRuntimeExceptionOnRead() throws CatalogException
-    // {
-    // MockEventProcessor eventAdmin = new MockEventProcessor();
-    // MockExceptionProvider provider = new MockExceptionProvider( "Provider",
-    // "Provider", "v1.0", "DDF",
-    // new HashSet<MetacardType>(), true, new Date() );
-    // CatalogFramework framework = this.createDummyCatalogFramework(provider,
-    // eventAdmin);
-    //
-    // MetacardImpl newCard = new MetacardImpl( );
-    // newCard.setId( null );
-    //
-    // List<String> ids = new ArrayList<String>();
-    // ids.add( newCard.getId() );
-    //
-    // // send read to framework
-    // // framework.read( null, ids );
-    //
-    // }
 
     @Test(expected = IngestException.class)
     public void testProviderRuntimeExceptionOnUpdateByID() throws IngestException {

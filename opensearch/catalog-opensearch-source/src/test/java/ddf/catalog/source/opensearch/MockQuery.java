@@ -49,7 +49,7 @@ public class MockQuery implements Query {
 
     private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(MockQuery.class));
 
-    private static String MODIFIED_DATE = "modifiedDate";
+    private static final String MODIFIED_DATE = "modifiedDate";
 
     protected Filter filter;
 

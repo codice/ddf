@@ -80,7 +80,7 @@ public class OpenSearchEndpointTest {
             FederationException, UnsupportedEncodingException, CatalogTransformerException {
 
         // ***Test setup***
-        final String TEST_SITE_NAME = "TestSiteName";
+        final String testSiteName = "TestSiteName";
 
         CatalogFramework mockFramework = mock(CatalogFramework.class);
         FilterBuilder mockFilterBuilder = mock(FilterBuilder.class);
@@ -122,7 +122,7 @@ public class OpenSearchEndpointTest {
                 // ***Test verification***
                 // This assert is the whole point of this unit test
                 Assert.assertTrue(((OpenSearchQuery) queryRequest.getQuery()).getSiteIds()
-                        .contains(TEST_SITE_NAME));
+                        .contains(testSiteName));
 
                 return new QueryResponseImpl(queryRequest);
             }
@@ -142,7 +142,7 @@ public class OpenSearchEndpointTest {
         // Call ddfConfigurationUpdated to set the id values to the site name we want
         // local to be replaced with
         Map<String, String> ddfProperties = new HashMap<String, String>();
-        ddfProperties.put("id", TEST_SITE_NAME);
+        ddfProperties.put("id", testSiteName);
         osEndPoint.configurationUpdateCallback(ddfProperties);
 
         // ***Test Execution***

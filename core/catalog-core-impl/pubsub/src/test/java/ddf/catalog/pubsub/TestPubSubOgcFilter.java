@@ -113,10 +113,10 @@ public class TestPubSubOgcFilter {
         // other available FeatureType's ComplexFeatureTypeImpl (link features),
         // FeatureTypeImpl, NonFeatureTypeProxy, SimpleFeatureTypeImpl,
         // UniqueNameFeatureTypeImpl
-        final FeatureType PUB_SUB_FEATURE = generateMetacardFeatureType();
+        final FeatureType pubSubFeature = generateMetacardFeatureType();
 
         SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(
-                (SimpleFeatureType) PUB_SUB_FEATURE);
+                (SimpleFeatureType) pubSubFeature);
         featureBuilder.set(Metacard.TITLE, "Muppet Metacard");
         featureBuilder.set(Metacard.CONTENT_TYPE, "Talking Green Frog");
         featureBuilder.set(Metacard.CREATED, new Date());
@@ -175,9 +175,9 @@ public class TestPubSubOgcFilter {
         b.setCRS(DefaultGeographicCRS.WGS84);
         b.add("geo", Point.class);
 
-        final SimpleFeatureType PUB_SUB_FEATURE = b.buildFeatureType();
+        final SimpleFeatureType pubSubFeature = b.buildFeatureType();
 
-        SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(PUB_SUB_FEATURE);
+        SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(pubSubFeature);
         featureBuilder.set("name", "FirstFeature");
         featureBuilder.set("classification", 10);
         featureBuilder.set("height", 5.8);

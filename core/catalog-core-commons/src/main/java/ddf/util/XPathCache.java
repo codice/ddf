@@ -45,20 +45,20 @@ public class XPathCache {
         return XPATH;
     }
 
-    public static XPathExpression getCompiledExpression(String XPATHExpressionKey)
+    public static XPathExpression getCompiledExpression(String xpathExpressionkey)
             throws XPathExpressionException, NullPointerException {
 
         // go to cache, check if we have the compiled expression
 
-        XPathExpression compiledExpression = expressionMap.get(XPATHExpressionKey);
+        XPathExpression compiledExpression = expressionMap.get(xpathExpressionkey);
 
         if (compiledExpression == null) {
 
             // must compile new expression and place in the map
 
-            compiledExpression = XPATH.compile(XPATHExpressionKey);
+            compiledExpression = XPATH.compile(xpathExpressionkey);
 
-            expressionMap.put(XPATHExpressionKey, compiledExpression);
+            expressionMap.put(xpathExpressionkey, compiledExpression);
         }
 
         return compiledExpression;

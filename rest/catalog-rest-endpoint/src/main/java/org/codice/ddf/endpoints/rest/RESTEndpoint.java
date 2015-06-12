@@ -117,9 +117,9 @@ public class RESTEndpoint implements RESTService {
 
     private static final String BYTES_EQUAL = "bytes=";
 
-    private static String JSON_MIME_TYPE_STRING = "application/json";
+    private static final String JSON_MIME_TYPE_STRING = "application/json";
 
-    private static MimeType JSON_MIME_TYPE = null;
+    private static MimeType jsonMimeType = null;
 
     static {
         MimeType mime = null;
@@ -128,7 +128,7 @@ public class RESTEndpoint implements RESTService {
         } catch (MimeTypeParseException e) {
             LOGGER.warn("Failed to create json mimetype.");
         }
-        JSON_MIME_TYPE = mime;
+        jsonMimeType = mime;
 
     }
 
@@ -360,7 +360,7 @@ public class RESTEndpoint implements RESTService {
         sourcesString = JSONValue.toJSONString(resultsList);
         content = new BinaryContentImpl(
                 new ByteArrayInputStream(sourcesString.getBytes(StandardCharsets.UTF_8)),
-                JSON_MIME_TYPE);
+                jsonMimeType);
         responseBuilder = Response.ok(content.getInputStream(), content.getMimeTypeValue());
 
         // Add the Accept-ranges header to let the client know that we accept ranges in bytes

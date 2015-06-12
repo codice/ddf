@@ -140,7 +140,7 @@ public class TestKeywordTextParser {
         for (String input : inputs) {
             KeywordTextParser parser = Parboiled.createParser(KeywordTextParser.class);
 
-            ParsingResult<?> result = new ReportingParseRunner(parser.InputPhrase()).run(input);
+            ParsingResult<?> result = new ReportingParseRunner(parser.inputPhrase()).run(input);
             LOGGER.debug("input = " + input + "\t\t=====>result matched = " + result.matched);
             assertEquals(
                     "Failed on input [" + input + "]. Parse Error [" + getErrorOutput(result) + "]",
@@ -188,7 +188,7 @@ public class TestKeywordTextParser {
         for (String input : inputs) {
             KeywordTextParser parser = Parboiled.createParser(KeywordTextParser.class);
 
-            ParsingResult<?> result = new ReportingParseRunner(parser.InputPhrase()).run(input);
+            ParsingResult<?> result = new ReportingParseRunner(parser.inputPhrase()).run(input);
 
             LOGGER.debug("input = " + input + "\t\t=====>result matched = " + result.matched);
 
@@ -214,7 +214,7 @@ public class TestKeywordTextParser {
         for (String input : inputs) {
             KeywordTextParser parser = Parboiled.createParser(KeywordTextParser.class);
 
-            ParsingResult<?> result = new ReportingParseRunner(parser.InputPhrase()).run(input);
+            ParsingResult<?> result = new ReportingParseRunner(parser.inputPhrase()).run(input);
 
             assertEquals(
                     "Failed on input [" + input + "]. Parse Error [" + getErrorOutput(result) + "]",
@@ -241,9 +241,9 @@ public class TestKeywordTextParser {
         for (String input : inputs) {
             KeywordTextParser parser = Parboiled.createParser(KeywordTextParser.class);
 
-            ParsingResult<ASTNode> result = new TracingParseRunner(parser.InputPhrase()).run(input);
+            ParsingResult<ASTNode> result = new TracingParseRunner(parser.inputPhrase()).run(input);
             // ParsingResult<ASTNode> result = new
-            // ReportingParseRunner(parser.InputPhrase()).run(input);
+            // ReportingParseRunner(parser.inputPhrase()).run(input);
 
             KeywordFilterGenerator kfg = new KeywordFilterGenerator(filterBuilder);
             Filter filter = kfg.getFilterFromASTNode(result.resultValue);

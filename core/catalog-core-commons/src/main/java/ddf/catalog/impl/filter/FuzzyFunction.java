@@ -35,7 +35,7 @@ public class FuzzyFunction extends FunctionExpressionImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FuzzyFunction.class);
 
-    public static FunctionName NAME = new FunctionNameImpl(FUNCTION_NAME, Expression.class,
+    public static final FunctionName NAME = new FunctionNameImpl(FUNCTION_NAME, Expression.class,
             FunctionNameImpl.parameter("expression", Expression.class));
 
     public FuzzyFunction(List<Expression> parameters, Literal fallback) {
@@ -51,8 +51,6 @@ public class FuzzyFunction extends FunctionExpressionImpl {
         }
         this.params = parameters;
         this.functionName = NAME;
-        // HUGH this.functionName = new FunctionNameImpl( FUNCTION_NAME, Expression.class,
-        // FunctionNameImpl.parameter( "expression", Expression.class ) );
 
         LOGGER.debug("EXITING: FuzzyFunction constructor");
     }

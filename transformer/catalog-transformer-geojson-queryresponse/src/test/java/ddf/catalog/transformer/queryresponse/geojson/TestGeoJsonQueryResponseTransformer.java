@@ -127,7 +127,7 @@ public class TestGeoJsonQueryResponseTransformer {
                 .transform(sourceResponse, null);
 
         assertEquals(content.getMimeTypeValue(),
-                GeoJsonQueryResponseTransformer.DEFAULT_MIME_TYPE.getBaseType());
+                GeoJsonQueryResponseTransformer.defaultMimeType.getBaseType());
 
         String jsonText = new String(content.getByteArray());
         Object object = PARSER.parse(jsonText);

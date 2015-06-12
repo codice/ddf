@@ -48,6 +48,6 @@ public class PhraseDelimiterASTNode extends ASTNode {
 
     @Override
     public String toString() {
-        return "Phrase Start Delimiter";
+        return "phrase Start Delimiter";
     }
 }

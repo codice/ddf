@@ -158,7 +158,7 @@ public class OpenSearchQuery implements Query {
         KeywordTextParser parser = Parboiled.createParser(KeywordTextParser.class);
 
         // translate the search terms into an abstract syntax tree
-        ParsingResult<ASTNode> result = new RecoveringParseRunner(parser.InputPhrase())
+        ParsingResult<ASTNode> result = new RecoveringParseRunner(parser.inputPhrase())
                 .run(searchTerm);
 
         // make sure it's a good result before using it

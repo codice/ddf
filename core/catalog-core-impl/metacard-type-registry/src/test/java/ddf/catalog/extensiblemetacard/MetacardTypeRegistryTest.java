@@ -282,7 +282,7 @@ public class MetacardTypeRegistryTest {
     }
 
     @Test
-    public void registerMetacardType_NullNamespace()
+    public void registerMetacardTypeNullNamespace()
             throws IllegalArgumentException, MetacardTypeUnregistrationException {
         QualifiedMetacardType qmt = new QualifiedMetacardTypeImpl(null,
                 QUALIFIED_METACARD_TYPE_NAME_1, qmtAttributes);
@@ -298,7 +298,7 @@ public class MetacardTypeRegistryTest {
     }
 
     @Test
-    public void registerMetacardType_EmptyNamepsace()
+    public void registerMetacardTypeEmptyNamepsace()
             throws IllegalArgumentException, MetacardTypeUnregistrationException {
         QualifiedMetacardType qmt = new QualifiedMetacardTypeImpl("",
                 QUALIFIED_METACARD_TYPE_NAME_1, qmtAttributes);
@@ -314,19 +314,19 @@ public class MetacardTypeRegistryTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void registerMetacardType_Null() {
+    public void registerMetacardTypeNull() {
         mtr.register(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void registerMetacardType_NullName() {
+    public void registerMetacardTypeNullName() {
         QualifiedMetacardType qmt = new QualifiedMetacardTypeImpl(
                 QUALIFIED_METACARD_TYPE_NAMESPACE_1, null, qmtAttributes);
         mtr.register(qmt);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void registerMetacardType_EmptyName() {
+    public void registerMetacardTypeEmptyName() {
 
         QualifiedMetacardType qmt = new QualifiedMetacardTypeImpl(
                 QUALIFIED_METACARD_TYPE_NAMESPACE_1, "", qmtAttributes);

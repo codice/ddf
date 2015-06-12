@@ -111,11 +111,11 @@ public class TestAtomTransformer {
 
     static Validator validator = null; // thread-unsafe
 
-    private static SimpleDateFormat ATOM_DATE_FORMAT = null;
+    private static SimpleDateFormat atomDateFormat = null;
 
     static {
-        ATOM_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        ATOM_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+        atomDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        atomDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     static {
@@ -1009,9 +1009,9 @@ public class TestAtomTransformer {
         assertXpathEvaluatesTo(Double.toString(relevanceScore),
                 "/atom:feed/atom:entry/relevance:score", output);
         assertXpathExists("/atom:feed/atom:entry/atom:content", output);
-        assertXpathEvaluatesTo(ATOM_DATE_FORMAT.format(SAMPLE_DATE_TIME.toDate()),
+        assertXpathEvaluatesTo(atomDateFormat.format(SAMPLE_DATE_TIME.toDate()),
                 "/atom:feed/atom:entry/atom:published", output);
-        assertXpathEvaluatesTo(ATOM_DATE_FORMAT.format(SAMPLE_DATE_TIME.toDate()),
+        assertXpathEvaluatesTo(atomDateFormat.format(SAMPLE_DATE_TIME.toDate()),
                 "/atom:feed/atom:entry/atom:updated", output);
         assertXpathEvaluatesTo("application/xml", "/atom:feed/atom:entry/atom:content/@type",
                 output);
@@ -1112,9 +1112,9 @@ public class TestAtomTransformer {
         assertXpathEvaluatesTo(Double.toString(relevanceScore),
                 "/atom:feed/atom:entry/relevance:score", output);
         assertXpathExists("/atom:feed/atom:entry/atom:content", output);
-        assertXpathEvaluatesTo(ATOM_DATE_FORMAT.format(SAMPLE_DATE_TIME.toDate()),
+        assertXpathEvaluatesTo(atomDateFormat.format(SAMPLE_DATE_TIME.toDate()),
                 "/atom:feed/atom:entry/atom:published", output);
-        assertXpathEvaluatesTo(ATOM_DATE_FORMAT.format(SAMPLE_DATE_TIME.toDate()),
+        assertXpathEvaluatesTo(atomDateFormat.format(SAMPLE_DATE_TIME.toDate()),
                 "/atom:feed/atom:entry/atom:updated", output);
         assertXpathEvaluatesTo("application/xml", "/atom:feed/atom:entry/atom:content/@type",
                 output);

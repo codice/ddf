@@ -108,7 +108,7 @@ public class TestGeoJsonExtensible {
                 + "                30.0," + "                10.0" + "        ]" + "    }" + "}";
     }
 
-    private static final String sampleJsonExtensibleA_NoMetacardType() {
+    private static final String sampleJsonExtensibleANoMetacardType() {
         return "{" + "    \"properties\":{" + "        \"title\":\"myTitle\","
                 + "        \"frequency\":\"14000000\"," + "        \"min-frequency\":\"10000000\","
                 + "        \"max-frequency\":\"20000000\"," + "        \"angle\":\"180\","
@@ -117,7 +117,7 @@ public class TestGeoJsonExtensible {
                 + "                30.0," + "                10.0" + "        ]" + "    }" + "}";
     }
 
-    private static final String sampleJsonExtensibleA_UnregisteredMetacardType() {
+    private static final String sampleJsonExtensibleAUnregisteredMetacardType() {
         return "{" + "    \"properties\":{" + "        \"title\":\"myTitle\","
                 + "        \"frequency\":\"14000000\"," + "        \"min-frequency\":\"10000000\","
                 + "        \"max-frequency\":\"20000000\"," + "        \"angle\":\"180\","
@@ -148,7 +148,7 @@ public class TestGeoJsonExtensible {
                 + "                40.0" + "            ]" + "        ]" + "    }" + "}";
     }
 
-    private static final String sampleBasicMetacard_NoMetacard() {
+    private static final String sampleBasicMetacardNoMetacard() {
         return "{" + "    \"properties\":{" + "        \"title\":\"myTitle\","
                 + "        \"id\":\"myId\"," + "        \"thumbnail\":\"CA==\","
                 + "        \"resource-uri\":\"http:\\/\\/example.com\","
@@ -181,7 +181,7 @@ public class TestGeoJsonExtensible {
                 + "        ]" + "    }" + "}";
     }
 
-    private static final String sampleJsonExtensibleB_WithBadField() {
+    private static final String sampleJsonExtensibleBWithBadField() {
         return "{" + "    \"properties\":{" + "        \"title\":\"myTitle\","
                 + "        \"columns\":\"5\"," + "        \"rows\":\"100\","
                 + "        \"description\":\"sample description\"," + "        \"id\":\"myId\","
@@ -263,7 +263,7 @@ public class TestGeoJsonExtensible {
         MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
 
         ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(
-                sampleJsonExtensibleB_WithBadField().getBytes());
+                sampleJsonExtensibleBWithBadField().getBytes());
         Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
 
         // all sample B fields should be added to metacard except the non-parseable one
@@ -298,7 +298,7 @@ public class TestGeoJsonExtensible {
         MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
 
         ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(
-                sampleJsonExtensibleA_NoMetacardType().getBytes());
+                sampleJsonExtensibleANoMetacardType().getBytes());
         Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
 
         // since no metacard type was specified only the Basic Metacard Type attributes should be
@@ -321,7 +321,7 @@ public class TestGeoJsonExtensible {
         MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
 
         ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(
-                sampleJsonExtensibleA_UnregisteredMetacardType().getBytes());
+                sampleJsonExtensibleAUnregisteredMetacardType().getBytes());
         Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
     }
 
@@ -341,7 +341,7 @@ public class TestGeoJsonExtensible {
             throws IOException, CatalogTransformerException, ParseException {
         MetacardTypeRegistry mtr = prepareMetacardTypeRegistry();
         ByteArrayInputStream geoJsonInput = new ByteArrayInputStream(
-                sampleBasicMetacard_NoMetacard().getBytes());
+                sampleBasicMetacardNoMetacard().getBytes());
         Metacard metacard = new GeoJsonInputTransformer(mtr).transform(geoJsonInput);
 
         verifyBasics(metacard);

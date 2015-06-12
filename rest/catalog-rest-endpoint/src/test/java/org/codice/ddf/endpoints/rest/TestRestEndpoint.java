@@ -547,11 +547,11 @@ public class TestRestEndpoint {
             throws SourceUnavailableException, UnsupportedQueryException, FederationException,
             CatalogTransformerException, URISyntaxException, ParseException, IOException {
 
-        final String LOCAL_SOURCE_ID = "local";
-        final String FED1_SOURCE_ID = "fed1";
-        final String FED2_SOURCE_ID = "fed2";
-        final String VERSION = "4.0";
-        final String JSON_MIME_TYPE_STRING = "application/json";
+        final String localSourceId = "local";
+        final String fed1SourceId = "fed1";
+        final String fed2SourceId = "fed2";
+        final String version = "4.0";
+        final String jsonMimeTypeString = "application/json";
 
         Set<ContentType> contentTypes = new HashSet<ContentType>();
         contentTypes.add(new ContentTypeImpl("ct1", "v1"));
@@ -566,13 +566,13 @@ public class TestRestEndpoint {
         }
 
         Set<SourceDescriptor> sourceDescriptors = new HashSet<SourceDescriptor>();
-        SourceDescriptorImpl localDescriptor = new SourceDescriptorImpl(LOCAL_SOURCE_ID,
+        SourceDescriptorImpl localDescriptor = new SourceDescriptorImpl(localSourceId,
                 contentTypes);
-        localDescriptor.setVersion(VERSION);
-        SourceDescriptorImpl fed1Descriptor = new SourceDescriptorImpl(FED1_SOURCE_ID,
+        localDescriptor.setVersion(version);
+        SourceDescriptorImpl fed1Descriptor = new SourceDescriptorImpl(fed1SourceId,
                 contentTypes);
-        fed1Descriptor.setVersion(VERSION);
-        SourceDescriptorImpl fed2Descriptor = new SourceDescriptorImpl(FED2_SOURCE_ID, null);
+        fed1Descriptor.setVersion(version);
+        SourceDescriptorImpl fed2Descriptor = new SourceDescriptorImpl(fed2SourceId, null);
 
         sourceDescriptors.add(localDescriptor);
         sourceDescriptors.add(fed1Descriptor);
@@ -589,7 +589,7 @@ public class TestRestEndpoint {
 
         Response response = restEndpoint.getDocument(null, null);
         assertEquals(OK, response.getStatus());
-        assertEquals(JSON_MIME_TYPE_STRING, response.getMetadata().get("Content-Type").get(0));
+        assertEquals(jsonMimeTypeString, response.getMetadata().get("Content-Type").get(0));
 
         String responseMessage = IOUtils.toString((ByteArrayInputStream) response.getEntity());
         JSONArray srcList = (JSONArray) new JSONParser().parse(responseMessage);
@@ -600,17 +600,17 @@ public class TestRestEndpoint {
             JSONObject src = (JSONObject) o;
             assertEquals(true, src.get("available"));
             String id = (String) src.get("id");
-            if (id.equals(LOCAL_SOURCE_ID)) {
+            if (id.equals(localSourceId)) {
                 assertThat((Iterable<Object>) src.get("contentTypes"),
                         hasItems(contentTypesInJSON.toArray()));
                 assertEquals(contentTypes.size(), ((JSONArray) src.get("contentTypes")).size());
-                assertEquals(VERSION, src.get("version"));
-            } else if (id.equals(FED1_SOURCE_ID)) {
+                assertEquals(version, src.get("version"));
+            } else if (id.equals(fed1SourceId)) {
                 assertThat((Iterable<Object>) src.get("contentTypes"),
                         hasItems(contentTypesInJSON.toArray()));
                 assertEquals(contentTypes.size(), ((JSONArray) src.get("contentTypes")).size());
-                assertEquals(VERSION, src.get("version"));
-            } else if (id.equals(FED2_SOURCE_ID)) {
+                assertEquals(version, src.get("version"));
+            } else if (id.equals(fed2SourceId)) {
                 assertEquals(0, ((JSONArray) src.get("contentTypes")).size());
                 assertEquals("", src.get("version"));
             } else {
