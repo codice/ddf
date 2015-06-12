@@ -50,7 +50,7 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BSTAuthenticationToken.class);
 
-    private static final JAXBContext binaryTokenContext = initContext();
+    private static final JAXBContext BINARY_TOKEN_CONTEXT = initContext();
 
     // values to be included in the binary security token - specific to each subclass
     protected String tokenValueType = BST_NS + TOKEN_VALUE_SEPARATOR + BST_LN;
@@ -167,9 +167,9 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
                         "BinarySecurityToken"), BinarySecurityTokenType.class,
                 binarySecurityTokenType);
 
-        if (binaryTokenContext != null) {
+        if (BINARY_TOKEN_CONTEXT != null) {
             try {
-                marshaller = binaryTokenContext.createMarshaller();
+                marshaller = BINARY_TOKEN_CONTEXT.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
             } catch (JAXBException e) {
                 LOGGER.error("Exception while creating UsernameToken marshaller.", e);

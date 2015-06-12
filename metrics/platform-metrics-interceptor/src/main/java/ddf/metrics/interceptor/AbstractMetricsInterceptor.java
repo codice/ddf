@@ -24,7 +24,7 @@ import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
 
 /**
- * This class is extended by the metrics interceptors used for capturing round trip message latency.
+ * This class is extended by the METRICS interceptors used for capturing round trip message latency.
  *
  * @author willisod
  *
@@ -33,13 +33,13 @@ public abstract class AbstractMetricsInterceptor extends AbstractPhaseIntercepto
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractMetricsInterceptor.class);
 
-    private static final String REGISTRY_NAME = "ddf.metrics.services";
+    private static final String REGISTRY_NAME = "ddf.METRICS.services";
 
     private static final String HISTOGRAM_NAME = "Latency";
 
-    private static final MetricRegistry metrics = new MetricRegistry();
+    private static final MetricRegistry METRICS = new MetricRegistry();
 
-    private static final JmxReporter reporter = JmxReporter.forRegistry(metrics)
+    private static final JmxReporter REPORTER = JmxReporter.forRegistry(METRICS)
             .inDomain(REGISTRY_NAME).build();
 
     final Histogram messageLatency;
@@ -54,9 +54,9 @@ public abstract class AbstractMetricsInterceptor extends AbstractPhaseIntercepto
 
         super(phase);
 
-        messageLatency = metrics.histogram(MetricRegistry.name(HISTOGRAM_NAME));
+        messageLatency = METRICS.histogram(MetricRegistry.name(HISTOGRAM_NAME));
 
-        reporter.start();
+        REPORTER.start();
     }
 
     protected boolean isClient(Message msg) {

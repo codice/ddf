@@ -103,7 +103,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     /**
      * Used for formatting long timestamps into more readable calendar dates/times.
      */
-    private static final String months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+    private static final String MONTHS[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
             "Sep", "Oct", "Nov", "Dec"};
 
     /**
@@ -137,7 +137,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         calendar.setTimeInMillis(timestamp * 1000);
 
         String calTime =
-                months[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE) + " "
+                MONTHS[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE) + " "
                         + calendar.get(Calendar.YEAR) + " ";
 
         calTime += addLeadingZero(calendar.get(Calendar.HOUR_OF_DAY)) + ":";

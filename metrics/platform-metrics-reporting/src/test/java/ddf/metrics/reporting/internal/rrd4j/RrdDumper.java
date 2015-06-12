@@ -33,7 +33,7 @@ import ddf.metrics.reporting.internal.MetricsGraphException;
 
 public class RrdDumper {
 
-    private static final String months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+    private static final String MONTHS[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
             "Sep", "Oct", "Nov", "Dec"};
 
     private static final double METRICS_MAX_THRESHOLD = 4000000000.0;
@@ -103,7 +103,7 @@ public class RrdDumper {
         calendar.setTimeInMillis(timestamp * 1000);
 
         String calTime =
-                months[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE) + " "
+                MONTHS[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE) + " "
                         + calendar.get(Calendar.YEAR) + " ";
 
         calTime += addLeadingZero(calendar.get(Calendar.HOUR_OF_DAY)) + ":";

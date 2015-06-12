@@ -77,7 +77,7 @@ public class MetricsEndpointTest extends XMLTestCase {
 
     private static final String ENDPOINT_ADDRESS = "http://localhost:8181/services/internal/metrics";
 
-    private static final String months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+    private static final String MONTHS[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
             "Sep", "Oct", "Nov", "Dec"};
 
     private RrdDb rrdDb;
@@ -725,7 +725,7 @@ public class MetricsEndpointTest extends XMLTestCase {
         calendar.setTimeInMillis(timestamp * 1000);
 
         String calTime =
-                months[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE) + " "
+                MONTHS[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE) + " "
                         + calendar.get(Calendar.YEAR) + " ";
 
         calTime += addLeadingZero(calendar.get(Calendar.HOUR_OF_DAY)) + ":";
