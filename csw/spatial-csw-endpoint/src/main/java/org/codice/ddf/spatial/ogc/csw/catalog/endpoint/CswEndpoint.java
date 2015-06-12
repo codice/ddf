@@ -90,6 +90,7 @@ import net.opengis.ows.v_1_0_0.ServiceProvider;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
@@ -627,7 +628,8 @@ public class CswEndpoint implements Csw {
 
         if (ResultType.HITS.equals(request.getResultType()) || ResultType.RESULTS
                 .equals(request.getResultType())) {
-            QueryImpl frameworkQuery = new QueryImpl(buildFilter(query));
+            CswRecordMapperFilterVisitor filterVisitor = buildFilter(query);
+            QueryImpl frameworkQuery = new QueryImpl(filterVisitor.getVisitedFilter());
             frameworkQuery.setSortBy(buildSort(query.getSortBy()));
 
             if (ResultType.HITS.equals(request.getResultType())
@@ -638,12 +640,21 @@ public class CswEndpoint implements Csw {
                 frameworkQuery.setStartIndex(request.getStartPosition().intValue());
                 frameworkQuery.setPageSize(request.getMaxRecords().intValue());
             }
-            boolean federated = (request.getDistributedSearch() != null)
-                    && (request.getDistributedSearch().getHopCount().longValue() > 1);
+            QueryRequest queryRequest = null;
+            boolean isDistributed = request.getDistributedSearch() != null && (
+                    request.getDistributedSearch().getHopCount().longValue() > 1);
+
+            if (isDistributed && CollectionUtils.isEmpty(filterVisitor.getSourceIds())) {
+                queryRequest = new QueryRequestImpl(frameworkQuery, true);
+            } else if (isDistributed && !CollectionUtils.isEmpty(filterVisitor.getSourceIds())) {
+                queryRequest = new QueryRequestImpl(frameworkQuery, filterVisitor.getSourceIds());
+            } else {
+                queryRequest = new QueryRequestImpl(frameworkQuery, false);
+            }
 
             try {
                 QueryResponse queryResponse = framework
-                        .query(new QueryRequestImpl(frameworkQuery, federated));
+                        .query(queryRequest);
                 response.setSourceResponse(queryResponse);
             } catch (UnsupportedQueryException e) {
                 LOGGER.warn("Unable to query", e);
@@ -660,7 +671,8 @@ public class CswEndpoint implements Csw {
         return response;
     }
 
-    private Filter buildFilter(QueryType query) throws CswException {
+    private CswRecordMapperFilterVisitor buildFilter(QueryType query) throws CswException {
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor();
         Filter filter = null;
         if (query.getConstraint() != null) {
             if (query.getConstraint().isSetCqlText()) {
@@ -682,17 +694,17 @@ public class CswEndpoint implements Csw {
         if(filter == null) {
             throw new CswException("Invalid Filter Expression", CswConstants.NO_APPLICABLE_CODE, null);
         }
+        visitor.setVisitedFilter(filter);
         if (query.getTypeNames().contains(new QName(CswConstants.CSW_OUTPUT_SCHEMA, 
                 CswConstants.CSW_RECORD_LOCAL_NAME, CswConstants.CSW_NAMESPACE_PREFIX))) {
             
             try {
-                FilterVisitor f = new CswRecordMapperFilterVisitor();
-                filter = (Filter) filter.accept(f, null);
+                visitor.setVisitedFilter((Filter) filter.accept(visitor, null));
             } catch(UnsupportedOperationException ose) {
                 throw new CswException(ose.getMessage(), CswConstants.INVALID_PARAMETER_VALUE, null);
             }
         }
-        return filter;
+        return visitor;
     }
     
     private SortBy buildSort(SortByType sort) throws CswException {
@@ -923,6 +935,7 @@ public class CswEndpoint implements Csw {
                         CswConstants.CONSTRAINT_LANGUAGE_FILTER,
                         CswConstants.CONSTRAINT_LANGUAGE_CQL),
                 getRecordsOp);
+        addFederatedCatalogs(getRecordsOp);
 
         // Builds GetRecordById operation metadata
         Operation getRecordByIdOp = buildOperation(CswConstants.GET_RECORD_BY_ID, getAndPost);
@@ -1028,6 +1041,12 @@ public class CswEndpoint implements Csw {
         dt.setName(name);
         dt.setValue(params);
         return dt;
+    }
+
+    private void addFederatedCatalogs(Operation operation) {
+        List<String> sourceIds = new ArrayList<>(framework.getSourceIds());
+        sourceIds.remove(framework.getId());
+        operation.getConstraint().add(createDomainType(CswConstants.FEDERATED_CATALOGS, sourceIds));
     }
 
     /**

@@ -55,6 +55,8 @@ public interface CswConstants {
 
     String RESULT_TYPE_PARAMETER = "ResultType";
 
+    String FEDERATED_CATALOGS = "FederatedCatalogs";
+
     /*
      * typeName vs typeNames: typeName applies to DescribeRecord, where typeNames applies to
      * getRecords. However, throughout the csw 2.0.2 specification, in particular in section 10.8,

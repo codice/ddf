@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -40,8 +41,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
@@ -83,6 +86,7 @@ import net.opengis.gml.v_3_1_1.CoordType;
 import net.opengis.gml.v_3_1_1.LinearRingType;
 import net.opengis.gml.v_3_1_1.PolygonType;
 import net.opengis.ows.v_1_0_0.AcceptVersionsType;
+import net.opengis.ows.v_1_0_0.DomainType;
 import net.opengis.ows.v_1_0_0.Operation;
 import net.opengis.ows.v_1_0_0.OperationsMetadata;
 import net.opengis.ows.v_1_0_0.SectionsType;
@@ -217,6 +221,9 @@ public class TestCswEndpoint {
     private static final String CQL_CONTEXTUAL_LIKE_QUERY = CONTEXTUAL_TEST_ATTRIBUTE + " Like '"
             + CQL_CONTEXTUAL_PATTERN + "'";
 
+    private static final String CQL_FEDERATED_QUERY =
+            "\"source-id\" = 'source1' AND " + CQL_CONTEXTUAL_LIKE_QUERY;
+
     private static final String CQL_SPATIAL_EQUALS_QUERY = "equals(" + SPATIAL_TEST_ATTRIBUTE
             + ", " + POLYGON_STR + ")";
 
@@ -283,6 +290,8 @@ public class TestCswEndpoint {
         when(mockBundle.getResource(".")).thenReturn(resourceUrlDot);
         QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
         when(catalogFramework.query(any(QueryRequest.class))).thenReturn(response);
+        when(catalogFramework.getSourceIds())
+                .thenReturn(new HashSet<>(Arrays.asList("source1", "source2", "source3")));
 
         AttributeBuilder attrBuilder = mock(AttributeBuilder.class);
         ExpressionBuilder exprBuilder = mock(ExpressionBuilder.class);
@@ -464,6 +473,32 @@ public class TestCswEndpoint {
     }
 
     @Test
+    public void testCapabilitiesFederatedCatalogs() {
+        GetCapabilitiesRequest gcr = createDefaultGetCapabilitiesRequest();
+
+        CapabilitiesType ct = null;
+        try {
+            ct = csw.getCapabilities(gcr);
+        } catch (CswException e) {
+            fail("CswException caught during getCapabilities GET request: " + e.getMessage());
+        }
+        assertNotNull(ct);
+        assertNotNull(ct.getOperationsMetadata());
+        for (Operation operation : ct.getOperationsMetadata().getOperation()) {
+            if (StringUtils.equals(operation.getName(), CswConstants.GET_RECORDS)) {
+                for (DomainType constraint : operation.getConstraint()) {
+                    if (StringUtils.equals(constraint.getName(), CswConstants.FEDERATED_CATALOGS)) {
+                        assertThat(constraint.getValue().size(), is(3));
+                        return;
+                    }
+                }
+            }
+        }
+        fail("Didn't find [" + CswConstants.FEDERATED_CATALOGS + "] in request ["
+                + CswConstants.GET_RECORDS + "]");
+    }
+
+    @Test
     public void testGetCapabilitiesTypeServiceIdentification() {
         // Should only return the ServiceIdentification section
         GetCapabilitiesType gct = createDefaultGetCapabilitiesType();
@@ -633,6 +668,31 @@ public class TestCswEndpoint {
         badVersion.getVersion().add(CswConstants.VERSION_2_0_1);
         gct.setAcceptVersions(badVersion);
         csw.getCapabilities(gct);
+    }
+
+    @Test
+    public void testGetCapabilitiesTypeFederatedCatalogs() {
+        GetCapabilitiesType gct = createDefaultGetCapabilitiesType();
+
+        CapabilitiesType ct = null;
+        try {
+            ct = csw.getCapabilities(gct);
+        } catch (CswException e) {
+            fail("CswException caught during getCapabilities GET request: " + e.getMessage());
+        }
+        assertNotNull(ct);
+        assertNotNull(ct.getOperationsMetadata());
+        for (Operation operation : ct.getOperationsMetadata().getOperation()) {
+            if (StringUtils.equals(operation.getName(), CswConstants.GET_RECORDS)) {
+                for (DomainType constraint : operation.getConstraint()) {
+                    if (StringUtils.equals(constraint.getName(), CswConstants.FEDERATED_CATALOGS)) {
+                        assertThat(constraint.getValue().size(), is(3));
+                        return;
+                    }
+                }
+            }
+        }
+        fail("Didn't find [" + CswConstants.FEDERATED_CATALOGS + "] in request [" + CswConstants.GET_RECORDS + "]");
     }
 
     @Test
@@ -1247,6 +1307,45 @@ public class TestCswEndpoint {
         assertThat(argument.getValue().getSourceIds(), anyOf(nullValue(), empty()));
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testPostGetRecordsDistributedSearchSpecificSources() throws CswException,
+            UnsupportedQueryException, SourceUnavailableException, FederationException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        DistributedSearchType distributedSearch = new DistributedSearchType();
+        distributedSearch.setHopCount(BigInteger.TEN);
+
+        grr.setDistributedSearch(distributedSearch);
+
+        QueryType query = new QueryType();
+        List<QName> typeNames = new ArrayList<QName>();
+        typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
+
+        query.setTypeNames(typeNames);
+        QueryConstraintType constraint = new QueryConstraintType();
+
+        constraint.setCqlText(CQL_FEDERATED_QUERY);
+
+        query.setConstraint(constraint);
+
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<QueryType>(new QName(
+                "http://www.opengis.net/cat/csw/2.0.2"), QueryType.class, query);
+        grr.setAbstractQuery(jaxbQuery);
+
+        CatalogFramework framework = mock(CatalogFramework.class);
+        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<Result>(), 0);
+        ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
+        when(framework.query(argument.capture())).thenReturn(response);
+
+        CswEndpoint cswEndpoint = new CswEndpoint(mockContext, framework, filterBuilder,
+                mockUriInfo, mockMimeTypeManager, mockSchemaManager);
+
+        cswEndpoint.getRecords(grr);
+        assertThat(argument.getValue().isEnterprise(), is(false));
+        assertThat(argument.getValue().getSourceIds(), contains("source1"));
+    }
+
     @Test(expected = CswException.class)
     public void testPostGetRecordsInvalidCQLQuery() throws CswException {
         GetRecordsType grr = createDefaultPostRecordsRequest();
@@ -1417,7 +1516,7 @@ public class TestCswEndpoint {
         List<Result> results = new LinkedList<Result>();
         final long RESULT_COUNT = 10;
         final long TOTAL_COUNT = 10;
-        for(int i = 0; i < RESULT_COUNT; i++) {
+        for (int i = 0; i < RESULT_COUNT; i++) {
             Result result = new ResultImpl();
             results.add(result);
         }
