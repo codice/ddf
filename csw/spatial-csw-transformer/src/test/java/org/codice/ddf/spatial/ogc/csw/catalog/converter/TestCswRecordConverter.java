@@ -349,7 +349,7 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testUnmarshalCswRecordMetacard_NoModifiedDate() {
+    public void testUnmarshalCswRecordMetacardNoModifiedDate() {
         Metacard mc = buildMetacardFromCSW("/Csw_Record_without_ModifiedDate.xml");
         assertThat(mc, not(nullValue()));
 
@@ -369,7 +369,7 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testUnmarshalCswRecordMetacard_NoDateSubmitted() {
+    public void testUnmarshalCswRecordMetacardNoDateSubmitted() {
         Metacard mc = buildMetacardFromCSW("/Csw_Record_without_DateSubmitted.xml");
         assertThat(mc, not(nullValue()));
 
@@ -389,7 +389,7 @@ public class TestCswRecordConverter {
     }
 
     @Test
-    public void testUnmarshalCswRecordMetacard_DateMappings() throws XmlPullParserException {
+    public void testUnmarshalCswRecordMetacardDateMappings() throws XmlPullParserException {
         XStream xstream = new XStream(new WstxDriver());
 
         xstream.registerConverter(converter);

@@ -46,7 +46,7 @@ public class BoundingBoxReaderTest {
      * LON/LAT.
      */
     @Test
-    public void testGetWkt_BoundingBoxInLonLat() throws ParserConfigurationException, SAXException,
+    public void testGetWktBoundingBoxInLonLat() throws ParserConfigurationException, SAXException,
             IOException {
         // Setup
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -68,7 +68,7 @@ public class BoundingBoxReaderTest {
      * LON/LAT (i.e., the coords are reversed).
      */
     @Test
-    public void testGetWkt_BoundingBoxInLatLon() throws ParserConfigurationException, SAXException,
+    public void testGetWktBoundingBoxInLatLon() throws ParserConfigurationException, SAXException,
             IOException {
         // Setup
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -90,7 +90,7 @@ public class BoundingBoxReaderTest {
      * have same exact Lon/Lat, that the resulting WKT is a POINT in LON/LAT.
      */
     @Test
-    public void testGetWkt_BoundingBoxInLonLatForPoint() throws ParserConfigurationException,
+    public void testGetWktBoundingBoxInLonLatForPoint() throws ParserConfigurationException,
             SAXException, IOException {
         // Setup
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();

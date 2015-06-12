@@ -313,7 +313,7 @@ public class TestWfsFilterDelegate {
      *     </During>
      * </Filter>
      *
-     **/ public void testDuring_PropertyIsOfTemporalType() throws Exception {
+     **/ public void testDuringPropertyIsOfTemporalType() throws Exception {
         SequentialTestMockHolder sequentialTestMockHolder = new SequentialTestMockHolder().invoke();
         WfsFilterDelegate delegate = sequentialTestMockHolder.getDelegate();
         String mockMetacardAttribute = sequentialTestMockHolder.getMockMetacardAttribute();
@@ -351,8 +351,8 @@ public class TestWfsFilterDelegate {
     /**
      * Verify that when Feature property "myFeatureProperty" is not defined in the Feature schema as a {http://www.opengis.net/gml/3.2}TimePeriodType
      * an IllegalArgumentException is thrown.
-     */ public void testDuring_PropertyIsNotOfTemporalType() throws Throwable {
-        testSequential_PropertyIsNotOfTemporalType("during", new DateTime().minusDays(365).toDate(),
+     */ public void testDuringPropertyIsNotOfTemporalType() throws Throwable {
+        testSequentialPropertyIsNotOfTemporalType("during", new DateTime().minusDays(365).toDate(),
                 new DateTime().minusDays(10).toDate());
     }
 
@@ -371,7 +371,7 @@ public class TestWfsFilterDelegate {
      *     </During>
      * </Filter>
      *
-     **/ public void testRelative_PropertyIsOfTemporalType() throws Exception {
+     **/ public void testRelativePropertyIsOfTemporalType() throws Exception {
         // Setup
         SequentialTestMockHolder sequentialTestMockHolder = new SequentialTestMockHolder().invoke();
         WfsFilterDelegate delegate = sequentialTestMockHolder.getDelegate();
@@ -421,8 +421,8 @@ public class TestWfsFilterDelegate {
      * an IllegalArgumentException is thrown.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testRelative_PropertyIsNotOfTemporalType() throws Throwable {
-        testSequential_PropertyIsNotOfTemporalType("relative", 604800000L);
+    public void testRelativePropertyIsNotOfTemporalType() throws Throwable {
+        testSequentialPropertyIsNotOfTemporalType("relative", 604800000L);
     }
 
     /**
@@ -439,8 +439,8 @@ public class TestWfsFilterDelegate {
      *     </ns5:Filter>
      */
     @Test
-    public void testAfter_PropertyIsOfTemporalType() throws Exception {
-        testSequential_PropertyIsOfTemporalType("after", "{http://www.opengis.net/fes/2.0}After");
+    public void testAfterPropertyIsOfTemporalType() throws Exception {
+        testSequentialPropertyIsOfTemporalType("after", "{http://www.opengis.net/fes/2.0}After");
     }
 
     /**
@@ -448,8 +448,8 @@ public class TestWfsFilterDelegate {
      * an IllegalArgumentException is thrown.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testAfter_PropertyIsNotOfTemporalType() throws Throwable {
-        testSequential_PropertyIsNotOfTemporalType("after", new DateTime().minusDays(365).toDate());
+    public void testAfterPropertyIsNotOfTemporalType() throws Throwable {
+        testSequentialPropertyIsNotOfTemporalType("after", new DateTime().minusDays(365).toDate());
     }
 
     /**
@@ -467,11 +467,11 @@ public class TestWfsFilterDelegate {
      *
      */
     @Test
-    public void testBefore_PropertyIsOfTemporalType() throws Exception {
-        testSequential_PropertyIsOfTemporalType("before", "{http://www.opengis.net/fes/2.0}Before");
+    public void testBeforePropertyIsOfTemporalType() throws Exception {
+        testSequentialPropertyIsOfTemporalType("before", "{http://www.opengis.net/fes/2.0}Before");
     }
 
-    private void testSequential_PropertyIsOfTemporalType(String methName,
+    private void testSequentialPropertyIsOfTemporalType(String methName,
             String temporalOpName) throws Exception {
         SequentialTestMockHolder sequentialTestMockHolder = new SequentialTestMockHolder().invoke();
         WfsFilterDelegate delegate = sequentialTestMockHolder.getDelegate();
@@ -506,12 +506,12 @@ public class TestWfsFilterDelegate {
      * an IllegalArgumentException is thrown.
      */
     @Test(expected = IllegalArgumentException.class)
-    public void testBefore_PropertyIsNotOfTemporalType() throws Throwable {
-        testSequential_PropertyIsNotOfTemporalType("before",
+    public void testBeforePropertyIsNotOfTemporalType() throws Throwable {
+        testSequentialPropertyIsNotOfTemporalType("before",
                 new DateTime().minusDays(365).toDate());
     }
 
-    private void testSequential_PropertyIsNotOfTemporalType(String methName,
+    private void testSequentialPropertyIsNotOfTemporalType(String methName,
             Object... inputParams) throws Throwable {
         String mockMetacardAttribute = "myMetacardAttribute";
         String mockFeatureType = "myFeatureType";

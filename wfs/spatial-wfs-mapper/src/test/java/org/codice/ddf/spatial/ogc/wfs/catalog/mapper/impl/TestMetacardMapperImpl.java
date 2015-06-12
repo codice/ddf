@@ -31,7 +31,7 @@ public class TestMetacardMapperImpl {
     private static final String NON_EXISTENT_FEATURE_PROPERTY = "feature.prop.nonexistent";
 
     @Test
-    public void testGetFeaturePropertyMappingGivenMetacardAttribute_MappingExists() {
+    public void testGetFeaturePropertyMappingGivenMetacardAttributeMappingExists() {
         // setup
         MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
         metacardMapper.setFeatureType(EXAMPLE_FEATURE_TYPE);
@@ -45,7 +45,7 @@ public class TestMetacardMapperImpl {
     }
 
     @Test
-    public void testGetFeaturePropertyMappingGivenMetacardAttribute_MappingDoesNotExists() {
+    public void testGetFeaturePropertyMappingGivenMetacardAttributeMappingDoesNotExists() {
         // setup
         MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
         metacardMapper.setFeatureType(EXAMPLE_FEATURE_TYPE);
@@ -59,7 +59,7 @@ public class TestMetacardMapperImpl {
     }
 
     @Test
-    public void testGetMetacardAttributeMappingGivenFeatureProperty_MappingExists() {
+    public void testGetMetacardAttributeMappingGivenFeaturePropertyMappingExists() {
         // setup
         MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
         metacardMapper.setFeatureType(EXAMPLE_FEATURE_TYPE);
@@ -76,7 +76,7 @@ public class TestMetacardMapperImpl {
     }
 
     @Test
-    public void testGetMetacardAttributeMappingGivenFeatureProperty_MappingDoesNotExists() {
+    public void testGetMetacardAttributeMappingGivenFeaturePropertyMappingDoesNotExists() {
         // setup
         MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
         metacardMapper.setFeatureType(EXAMPLE_FEATURE_TYPE);
