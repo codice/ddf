@@ -20,7 +20,7 @@
         <!-- FIXME (DDF-1198) - Remove owasp profile when this pom uses the latest ddf-parent pom -->
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>distribution</artifactId>
