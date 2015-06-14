@@ -10,25 +10,22 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.proxy.http;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.component.http.HttpConsumer;
-import org.junit.Test;
-import org.mockito.Mockito;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import javax.servlet.ServletConfig;
+import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.apache.camel.CamelContext;
+import org.apache.camel.component.http.HttpConsumer;
+import org.junit.Test;
 
 public class HttpProxyCamelHttpTransportServletTest {
 
@@ -36,7 +33,8 @@ public class HttpProxyCamelHttpTransportServletTest {
 
     @Test
     public void testResolve() throws Exception {
-        HttpProxyCamelHttpTransportServlet servlet = new HttpProxyCamelHttpTransportServlet(mockContext);
+        HttpProxyCamelHttpTransportServlet servlet = new HttpProxyCamelHttpTransportServlet(
+                mockContext);
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getPathInfo()).thenReturn("/example0/something/something");
         HttpConsumer consumer = servlet.resolve(request);
@@ -50,7 +48,8 @@ public class HttpProxyCamelHttpTransportServletTest {
 
     @Test
     public void testService() throws ServletException, IOException {
-        HttpProxyCamelHttpTransportServlet servlet = new HttpProxyCamelHttpTransportServlet(mockContext);
+        HttpProxyCamelHttpTransportServlet servlet = new HttpProxyCamelHttpTransportServlet(
+                mockContext);
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(request.getPathInfo()).thenReturn("/example0/something/something");
