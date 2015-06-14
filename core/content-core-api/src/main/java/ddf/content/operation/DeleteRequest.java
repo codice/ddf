@@ -13,12 +13,11 @@
  */
 package ddf.content.operation;
 
-import ddf.content.ContentFramework;
 import ddf.content.data.ContentItem;
 
 /**
- * Defines a Delete Request object which can be sent to the {@link ContentFramework#delete
- * ContentFramework.delete}
+ * Defines a Delete Request object which can be sent to the {@link ddf.content.ContentFramework#delete
+ * ddf.content.ContentFramework.delete}
  *
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com

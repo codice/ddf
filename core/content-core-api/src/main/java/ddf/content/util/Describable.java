@@ -13,11 +13,10 @@
  */
 package ddf.content.util;
 
-import ddf.content.storage.StorageProvider;
 
 /**
  * Describable is used to capture a basic description. For an example of a how the Describable
- * interface is used view the {@link StorageProvider} interface and the DescribableImpl
+ * interface is used view the {@link ddf.content.storage.StorageProvider} interface and the DescribableImpl
  * class.
  *
  * @author Hugh Rodgers, Lockheed Martin
@@ -35,7 +34,7 @@ public interface Describable {
      * Returns the name, aka ID, of the describable item. The name should be unique for each
      * instance.
      * <p/>
-     * Example: <code>fsprovider</code> for a {@link StorageProvider}
+     * Example: <code>fsprovider</code> for a {@link ddf.content.storage.StorageProvider}
      * that stores content to a file system
      *
      * @return ID of the item

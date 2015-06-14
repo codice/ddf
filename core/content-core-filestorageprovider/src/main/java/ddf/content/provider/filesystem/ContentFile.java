@@ -29,7 +29,7 @@ import org.slf4j.ext.XLogger;
 import ddf.content.data.ContentItem;
 
 public class ContentFile implements ContentItem {
-    private static XLogger LOGGER = new XLogger(LoggerFactory.getLogger(ContentFile.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(ContentFile.class));
 
     private File file;
 

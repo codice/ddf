@@ -16,7 +16,6 @@ package ddf.content.operation.impl;
 import java.io.Serializable;
 import java.util.Map;
 
-import ddf.content.data.ContentItem;
 import ddf.content.operation.ReadRequest;
 
 /**
@@ -27,19 +26,19 @@ public class ReadRequestImpl extends OperationImpl implements ReadRequest {
     private String id;
 
     /**
-     * Instantiates a new ReadRequestImpl with the ID of the {@link ContentItem} to be retrieved.
+     * Instantiates a new ReadRequestImpl with the ID of the {@link ddf.content.data.ContentItem} to be retrieved.
      *
-     * @param id the GUID of the {@link ContentItem}
+     * @param id the GUID of the {@link ddf.content.data.ContentItem}
      */
     public ReadRequestImpl(String id) {
         this(id, null);
     }
 
     /**
-     * Instantiates a new ReadRequestImpl with the ID of the {@link ContentItem} to be retrieved and
+     * Instantiates a new ReadRequestImpl with the ID of the {@link ddf.content.data.ContentItem} to be retrieved and
      * a {@link Map} of properties.
      *
-     * @param id         the GUID of the {@link ContentItem}
+     * @param id         the GUID of the {@link ddf.content.data.ContentItem}
      * @param properties the properties of the operation
      */
     public ReadRequestImpl(String id, Map<String, Serializable> properties) {

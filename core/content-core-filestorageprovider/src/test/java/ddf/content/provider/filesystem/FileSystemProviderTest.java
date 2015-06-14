@@ -79,19 +79,19 @@ public class FileSystemProviderTest {
     }
 
     @Test
-    public void testCreate_MimeTypeWithNonIdParameter() throws Exception {
+    public void testCreateMimeTypeWithNonIdParameter() throws Exception {
         String mimeType = "image/nitf;charset=UTF-8";
         assertContentItem(TEST_INPUT_CONTENTS, mimeType, ".nitf");
     }
 
     @Test
-    public void testCreate_MimeTypeWithIdParameter() throws Exception {
+    public void testCreateMimeTypeWithIdParameter() throws Exception {
         String mimeType = "text/xml;id=xml";
         assertContentItem(TEST_INPUT_CONTENTS, mimeType, ".xml");
     }
 
     @Test
-    public void testCreate_MimeTypeWithIdAndOtherParameter() throws Exception {
+    public void testCreateMimeTypeWithIdAndOtherParameter() throws Exception {
         String mimeType = "text/xml;charset=UTF-8;id=xml";
         assertContentItem(TEST_INPUT_CONTENTS, mimeType, ".xml");
     }

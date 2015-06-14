@@ -18,18 +18,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import ddf.content.operation.Operation;
 import ddf.content.operation.Request;
 import ddf.content.operation.Response;
-import ddf.content.plugin.ContentPlugin;
-import ddf.content.storage.StorageProvider;
 
 /**
  * Response properties are the properties added specifically to a {@link Response} that are intended
  * for distribution to external clients, e.g., by Endpoints.
  * <p/>
- * Properties, associated with the parent class {@link Operation} are properties intended for use by
- * the Content Framework components, e.g., {@link StorageProvider}s and {@link ContentPlugin}s.
+ * Properties, associated with the parent class {@link ddf.content.operation.Operation} are properties intended for use by
+ * the Content Framework components, e.g., {@link ddf.content.storage.StorageProvider}s and {@link ddf.content.plugin.ContentPlugin}s.
  */
 public class ResponseImpl<T extends Request> extends OperationImpl implements Response<T> {
     /**
@@ -38,7 +35,7 @@ public class ResponseImpl<T extends Request> extends OperationImpl implements Re
     protected T request;
 
     /**
-     * The {@link Map} of response properties associated with an {@link Operation}
+     * The {@link Map} of response properties associated with an {@link ddf.content.operation.Operation}
      */
     protected Map<String, String> responseProperties;
 

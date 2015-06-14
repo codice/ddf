@@ -61,7 +61,7 @@ public class FileSystemProvider implements StorageProvider {
      */
     private static final String ID_PARAMETER = "id";
 
-    private static XLogger LOGGER = new XLogger(LoggerFactory.getLogger(FileSystemProvider.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(FileSystemProvider.class));
 
     /**
      * Mapper for file extensions-to-mime types (and vice versa)

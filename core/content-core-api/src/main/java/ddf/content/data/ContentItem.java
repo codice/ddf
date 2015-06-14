@@ -19,11 +19,10 @@ import java.io.InputStream;
 
 import javax.activation.MimeType;
 
-import ddf.content.storage.StorageProvider;
 
 /**
  * ContentItem is the POJO representing the information about the content to be stored in the
- * {@link StorageProvider}.
+ * {@link ddf.content.storage.StorageProvider}.
  * <p/>
  * A ContentItem encapsulates the content's globally unique ID, mime type, and input stream (i.e.,
  * the actual content).
@@ -49,7 +48,7 @@ public interface ContentItem {
     /**
      * Sets the URI of the content item.
      * <p/>
-     * This is used by the {@link StorageProvider} when the content item is stored in the content
+     * This is used by the {@link ddf.content.storage.StorageProvider} when the content item is stored in the content
      * repository and will be of the form <code>content:&lt;GUID&gt;</code>.
      * <p/>
      * Or this is used by the endpoint when the client specifies the content item's location which

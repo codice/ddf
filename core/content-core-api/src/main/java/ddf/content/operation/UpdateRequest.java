@@ -13,12 +13,11 @@
  */
 package ddf.content.operation;
 
-import ddf.content.ContentFramework;
 import ddf.content.data.ContentItem;
 
 /**
- * Defines an Update Request object which can be sent to the {@link ContentFramework#update
- * ContentFramework.update}
+ * Defines an Update Request object which can be sent to the {@link ddf.content.ContentFramework#update
+ * ddf.content.ContentFramework.update}
  *
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com

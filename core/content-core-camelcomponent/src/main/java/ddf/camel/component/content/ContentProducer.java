@@ -20,7 +20,6 @@ import java.io.IOException;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.Message;
-import org.apache.camel.Producer;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.impl.DefaultProducer;
 import org.apache.commons.io.FileUtils;
@@ -54,7 +53,7 @@ public class ContentProducer extends DefaultProducer {
     private ContentEndpoint endpoint;
 
     /**
-     * Constructs the {@link Producer} for the custom Camel ContentComponent. This producer would
+     * Constructs the {@link org.apache.camel.Producer} for the custom Camel ContentComponent. This producer would
      * map to a Camel <code>&lt;to&gt;</code> route node with a URI like <code>content:framework</code>
      *
      * @param endpoint the Camel endpoint that created this consumer

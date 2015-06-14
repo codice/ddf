@@ -23,14 +23,11 @@ import javax.activation.MimeTypeParseException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import ddf.content.ContentFramework;
 import ddf.content.data.ContentItem;
-import ddf.content.operation.CreateRequest;
-import ddf.content.operation.UpdateRequest;
 
 /**
  * The IncomingContentItem class represents a {@link ContentItem} POJO that is being sent in a
- * {@link CreateRequest} or an {@link UpdateRequest} to the {@link ContentFramework}.
+ * {@link ddf.content.operation.CreateRequest} or an {@link ddf.content.operation.UpdateRequest} to the {@link ddf.content.ContentFramework}.
  *
  * @version 0.1.0
  * @since 2.1.0
@@ -52,8 +49,8 @@ public class IncomingContentItem implements ContentItem {
     private String filename;
 
     /**
-     * An incoming content item for a {@link CreateRequest} since the ID will initially be
-     * <code>null</code> because the {@link ContentFramework} will assign its GUID.
+     * An incoming content item for a {@link ddf.content.operation.CreateRequest} since the ID will initially be
+     * <code>null</code> because the {@link ddf.content.ContentFramework} will assign its GUID.
      *
      * @param stream          the {@link ContentItem}'s input stream containing its actual data
      * @param mimeTypeRawData the {@link ContentItem}'s mime type
@@ -63,7 +60,7 @@ public class IncomingContentItem implements ContentItem {
     }
 
     /**
-     * An incoming content item for an {@link UpdateRequest} where the item's GUID should be known.
+     * An incoming content item for an {@link ddf.content.operation.UpdateRequest} where the item's GUID should be known.
      *
      * @param id              the {@link ContentItem}'s GUID
      * @param stream          the {@link ContentItem}'s input stream containing its actual data

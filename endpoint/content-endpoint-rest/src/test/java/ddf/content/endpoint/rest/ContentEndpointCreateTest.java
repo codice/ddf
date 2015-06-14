@@ -78,7 +78,7 @@ public class ContentEndpointCreateTest {
             "} ";
 
     @Test
-    public void testParseAttachment_ContentTypeSpecified() throws Exception {
+    public void testParseAttachmentContentTypeSpecified() throws Exception {
         InputStream is = IOUtils.toInputStream(TEST_JSON);
         MetadataMap<String, String> headers = new MetadataMap<String, String>();
         headers.add(CONTENT_DISPOSITION,
@@ -102,7 +102,7 @@ public class ContentEndpointCreateTest {
      * @throws Exception
      */
     @Test
-    public void testParseAttachment_ContentTypeNotSpecified() throws Exception {
+    public void testParseAttachmentContentTypeNotSpecified() throws Exception {
         InputStream is = IOUtils.toInputStream(TEST_JSON);
         MetadataMap<String, String> headers = new MetadataMap<String, String>();
         headers.add(ContentEndpoint.CONTENT_DISPOSITION,
@@ -125,7 +125,7 @@ public class ContentEndpointCreateTest {
      * @throws Exception
      */
     @Test
-    public void testParseAttachment_ContentTypeSetToBrowserDefault() throws Exception {
+    public void testParseAttachmentContentTypeSetToBrowserDefault() throws Exception {
         InputStream is = IOUtils.toInputStream(TEST_JSON);
         MetadataMap<String, String> headers = new MetadataMap<String, String>();
         headers.add(ContentEndpoint.CONTENT_DISPOSITION,
@@ -147,7 +147,7 @@ public class ContentEndpointCreateTest {
      * @throws Exception
      */
     @Test
-    public void testParseAttachment_NoFilenameSpecified() throws Exception {
+    public void testParseAttachmentNoFilenameSpecified() throws Exception {
         InputStream is = IOUtils.toInputStream(TEST_JSON);
         MetadataMap<String, String> headers = new MetadataMap<String, String>();
         headers.add(ContentEndpoint.CONTENT_DISPOSITION, "form-data; name=file");
@@ -172,7 +172,7 @@ public class ContentEndpointCreateTest {
      * @throws Exception
      */
     @Test
-    public void testParseAttachment_NoFilenameOrContentTypeSpecified() throws Exception {
+    public void testParseAttachmentNoFilenameOrContentTypeSpecified() throws Exception {
         InputStream is = IOUtils.toInputStream(TEST_JSON);
         MetadataMap<String, String> headers = new MetadataMap<String, String>();
         headers.add(ContentEndpoint.CONTENT_DISPOSITION, "form-data; name=file");
@@ -188,7 +188,7 @@ public class ContentEndpointCreateTest {
     }
 
     @Test
-    public void read_Valid() throws ContentFrameworkException, IOException, MimeTypeParseException,
+    public void readValid() throws ContentFrameworkException, IOException, MimeTypeParseException,
             MimeTypeResolutionException {
         // String requestId = "testRequestId";
         String content = "This is a test";
@@ -200,7 +200,7 @@ public class ContentEndpointCreateTest {
     }
 
     @Test
-    public void read_Valid_Null_FileName_And_MimeType()
+    public void readValidNullFileNameAndMimeType()
             throws ContentFrameworkException, IOException, MimeTypeParseException,
             MimeTypeResolutionException {
         String content = "This is a test";
@@ -209,7 +209,7 @@ public class ContentEndpointCreateTest {
     }
 
     @Test(expected = ContentEndpointException.class)
-    public void read_ContentEndpointExceptionException_Expected()
+    public void readContentEndpointExceptionExceptionExpected()
             throws ContentEndpointException, ContentFrameworkException,
             MimeTypeResolutionException {
         ContentFramework framework = mock(ContentFramework.class);

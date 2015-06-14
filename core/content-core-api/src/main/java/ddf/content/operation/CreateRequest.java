@@ -13,12 +13,11 @@
  */
 package ddf.content.operation;
 
-import ddf.content.ContentFramework;
 import ddf.content.data.ContentItem;
 
 /**
- * Defines a Create Request object which can be sent to the {@link ContentFramework#create
- * ContentFramework.create}
+ * Defines a Create Request object which can be sent to the {@link ddf.content.ContentFramework#create
+ * ddf.content.ContentFramework.create}
  *
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com

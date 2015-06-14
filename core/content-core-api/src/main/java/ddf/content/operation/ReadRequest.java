@@ -13,19 +13,17 @@
  */
 package ddf.content.operation;
 
-import ddf.content.ContentFramework;
-import ddf.content.data.ContentItem;
 
 /**
- * Defines a Read Request object which can be sent to the {@link ContentFramework#read
- * ContentFramework.read}
+ * Defines a Read Request object which can be sent to the {@link ddf.content.ContentFramework#read
+ * ddf.content.ContentFramework.read}
  *
  * @author Hugh Rodgers, Lockheed Martin
  * @author ddf.isgs@lmco.com
  */
 public interface ReadRequest extends Request {
     /**
-     * Gets the GUID associated with the {@link ContentItem} to be retrieved.
+     * Gets the GUID associated with the {@link ddf.content.data.ContentItem} to be retrieved.
      *
      * @return the item's ID
      */

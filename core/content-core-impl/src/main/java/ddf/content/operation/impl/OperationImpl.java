@@ -19,12 +19,10 @@ import java.util.Map;
 import java.util.Set;
 
 import ddf.content.operation.Operation;
-import ddf.content.operation.Request;
-import ddf.content.operation.Response;
 
 /**
  * OperationImpl represents a {@link Operation} and supports the processing of a {@link Map} of
- * properties for all {@link Request} and {@link Response} operations.
+ * properties for all {@link ddf.content.operation.Request} and {@link ddf.content.operation.Response} operations.
  */
 public class OperationImpl implements Operation {
     /**
