@@ -32,7 +32,7 @@ import org.slf4j.ext.XLogger;
  */
 public class ConfigurationWatcherImpl implements ConfigurationWatcher {
 
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(ConfigurationWatcherImpl.class));
 
     private Map<String, String> propertyMap = null;
@@ -148,12 +148,12 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
 
     @Override
     public void configurationUpdateCallback(Map<String, String> properties) {
-        logger.entry("configurationUpdateCallback");
+        LOGGER.entry("configurationUpdateCallback");
 
         if (properties != null && !properties.isEmpty()) {
             propertyMap = properties;
 
-            logger.debug("Configuration values: {}", properties);
+            LOGGER.debug("Configuration values: {}", properties);
 
             String oldValue = hostname;
             hostname = properties.get(ConfigurationManager.HOST);
@@ -168,7 +168,7 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
                 }
                 logConfigurationValue(ConfigurationManager.PORT, oldValue, port);
             } catch (NumberFormatException e) {
-                logger.warn(
+                LOGGER.warn(
                         "Error Updating Configuration value for '{}', not a valid Integer [{}] reverting back to old value [{}]",
                         new Object[] {ConfigurationManager.PORT, portString, port});
             }
@@ -209,14 +209,14 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
             version = null;
             organization = null;
             contactInfo = null;
-            logger.debug(
+            LOGGER.debug(
                     "Platform Configuration Properties are NULL or empty, setting all values to null");
         }
-        logger.exit();
+        LOGGER.exit();
     }
 
     protected void logConfigurationValue(String propertyName, Object oldValue, Object newValue) {
-        logger.debug("Updating Configuration value '{}' oldValue = [{}], newValue = [{}]",
+        LOGGER.debug("Updating Configuration value '{}' oldValue = [{}], newValue = [{}]",
                 new Object[] {propertyName, oldValue, newValue});
     }
 
