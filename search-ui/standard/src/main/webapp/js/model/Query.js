@@ -111,8 +111,12 @@ define([
             },
 
             setRadiusLatLon: function () {
-                var usngsStr = converter.LLtoUSNG(this.get('lat'), this.get('lon'), 5);
-                this.set('usng', usngsStr, {silent:true});
+                var lat = this.get('lat'),
+                    lon = this.get('lon');
+                if (lat && lon) {
+                    var usngsStr = converter.LLtoUSNG(lat, lon, 5);
+                    this.set('usng', usngsStr, {silent: true});
+                }
             },
 
             setBboxUsng: function () {

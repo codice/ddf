@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 
 package org.codice.ddf.ui.searchui.standard.properties;
 
@@ -42,7 +41,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.webconsole.BrandingPlugin;
 import org.codice.proxy.http.HttpProxyService;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +63,7 @@ public class ConfigurationStore {
 
     public static final String URL = "url";
 
-    public static final String QUOTE = "\"";
+    public static final String ENDPOINT_NAME = "standard";
 
     public static final Factory NEW_SET_FACTORY = new Factory() {
         public Object create() {
@@ -75,17 +73,17 @@ public class ConfigurationStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationStore.class);
 
-    private static MimeType JSON_MIME_TYPE;
+    private static MimeType jsonMimeType;
 
     static {
         MimeType mime = null;
         try {
-            String JSON_MIME_TYPE_STRING = "application/json";
-            mime = new MimeType(JSON_MIME_TYPE_STRING);
+            String jsonMimeType_STRING = "application/json";
+            mime = new MimeType(jsonMimeType_STRING);
         } catch (MimeTypeParseException e) {
             LOGGER.warn("Failed to create json mimetype.");
         }
-        JSON_MIME_TYPE = mime;
+        jsonMimeType = mime;
     }
 
     private String format;
@@ -116,15 +114,13 @@ public class ConfigurationStore {
 
     private HttpProxyService httpProxy;
 
-    private BundleContext bundleContext;
-
     private int incrementer = 0;
 
     private Integer resultCount = 250;
 
-    private String bundleName;
-
     private String projection = "EPSG:3857";
+
+    private String bingKey = "";
 
     private String helpUrl = "help.html";
 
@@ -173,10 +169,11 @@ public class ConfigurationStore {
         config.put("showIngest", isIngest);
         config.put("projection", projection);
         config.put("helpUrl", helpUrl);
+        config.put("bingKey", bingKey);
 
         String configJson = toJson(config);
         BinaryContent content = new BinaryContentImpl(
-                new ByteArrayInputStream(configJson.getBytes()), JSON_MIME_TYPE);
+                new ByteArrayInputStream(configJson.getBytes()), jsonMimeType);
         response = Response.ok(content.getInputStream(), content.getMimeTypeValue()).build();
 
         return response;
@@ -232,6 +229,10 @@ public class ConfigurationStore {
         return imageryProviders;
     }
 
+    public void setImageryProviders(String imageryProviders) {
+        setImageryProviders(Arrays.asList(imageryProviders.split(",")));
+    }
+
     public void setImageryProviders(List<String> imageryProviders) {
         List<String> itemList = new ArrayList<String>();
         for (String item : imageryProviders) {
@@ -244,10 +245,6 @@ public class ConfigurationStore {
         }
         this.imageryProviders = itemList;
         setProxiesForImagery(itemList);
-    }
-
-    public void setImageryProviders(String imageryProviders) {
-        setImageryProviders(Arrays.asList(imageryProviders.split(",")));
     }
 
     public Map<String, Object> getProxiedTerrainProvider() {
@@ -320,10 +317,9 @@ public class ConfigurationStore {
             String url = config.get(URL).toString();
 
             try {
-                bundleName =
-                        bundleContext.getBundle().getSymbolicName().toLowerCase() + incrementer;
+                String endpointName = ENDPOINT_NAME + incrementer;
                 incrementer++;
-                String endpointName = httpProxy.start(bundleName, url, timeout);
+                endpointName = httpProxy.start(endpointName, url, timeout);
                 if (imagery) {
                     imageryEndpoints.add(endpointName);
                 } else {
@@ -344,14 +340,6 @@ public class ConfigurationStore {
 
     public void setHttpProxy(HttpProxyService httpProxy) {
         this.httpProxy = httpProxy;
-    }
-
-    public BundleContext getBundleContext() {
-        return bundleContext;
-    }
-
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
     }
 
     public Integer getResultCount() {
@@ -438,6 +426,14 @@ public class ConfigurationStore {
 
     public void setProjection(String projection) {
         this.projection = projection;
+    }
+
+    public String getBingKey() {
+        return bingKey;
+    }
+
+    public void setBingKey(String bingKey) {
+        this.bingKey = bingKey;
     }
 
     public String getHelpUrl() {
