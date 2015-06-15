@@ -48,7 +48,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import ddf.catalog.CatalogFramework;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.osgi.BlueprintListener;
@@ -75,6 +74,7 @@ import org.slf4j.LoggerFactory;
 
 import com.jayway.restassured.response.Response;
 
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 
@@ -352,11 +352,10 @@ public abstract class AbstractIntegrationTest {
                 "ddf.catalog.CatalogFrameworkImpl", null);
 
         Dictionary<String, Object> properties =  configuration.getProperties();
-        if(properties == null)
-        {
+        if (properties == null) {
             properties = new Hashtable<String, Object>();
         }
-        if(fanoutEnabled) {
+        if (fanoutEnabled) {
             properties.put("fanoutEnabled", "True");
         } else {
             properties.put("fanoutEnabled", "False");

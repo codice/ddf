@@ -17,9 +17,8 @@ package org.codice.ddf.webconsole.branding;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.felix.webconsole.BrandingPlugin;
-
 import org.apache.commons.io.IOUtils;
+import org.apache.felix.webconsole.BrandingPlugin;
 
 public class DDFBrandingPlugin implements BrandingPlugin {
     private static final String BRANDING_PROPERTIES = "/META-INF/webconsole.properties";

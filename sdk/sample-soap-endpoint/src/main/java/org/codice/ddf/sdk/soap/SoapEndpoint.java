@@ -14,22 +14,23 @@
  **/
 package org.codice.ddf.sdk.soap;
 
-import ddf.security.SubjectUtils;
+import javax.jws.WebService;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ddf.security.SubjectUtils;
 import sdk.ddf.soap.hello.HelloWorld;
 import sdk.ddf.soap.hello.HelloWorldResponse;
-
-import javax.jws.WebService;
 
 @WebService(
         serviceName = "HelloWorldService",
         portName = "HelloWorldServicePort",
         targetNamespace = "http://ddf.sdk/soap/hello",
         endpointInterface = "sdk.ddf.soap.hello.HelloWorldServicePort"
-)
+        )
 public class SoapEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(SoapEndpoint.class);
     public HelloWorldResponse helloWorldOp(HelloWorld helloWorld) {

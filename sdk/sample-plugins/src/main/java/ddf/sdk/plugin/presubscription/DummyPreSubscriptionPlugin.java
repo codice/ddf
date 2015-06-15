@@ -14,11 +14,11 @@
  **/
 package ddf.sdk.plugin.presubscription;
 
-import ddf.catalog.data.Metacard;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.event.Subscription;
 import ddf.catalog.event.SubscriptionImpl;
 import ddf.catalog.filter.FilterAdapter;
@@ -35,10 +35,10 @@ import ddf.catalog.source.UnsupportedQueryException;
  ****************************************************************************************/
 
 public class DummyPreSubscriptionPlugin implements PreSubscriptionPlugin {
-    private static Logger LOGGER = LoggerFactory.getLogger(DummyPreSubscriptionPlugin.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DummyPreSubscriptionPlugin.class);
 
-    private static String ENTERING = "ENTERING {}";
-    private static String EXITING = "EXITING {}";
+    private static final String ENTERING = "ENTERING {}";
+    private static final String EXITING = "EXITING {}";
 
     private FilterAdapter filterAdapter;
 

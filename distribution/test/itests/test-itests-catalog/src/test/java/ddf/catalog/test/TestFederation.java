@@ -14,7 +14,20 @@
  **/
 package ddf.catalog.test;
 
-import com.jayway.restassured.http.ContentType;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasXPath;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.fail;
+import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.when;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,19 +38,7 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.when;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasXPath;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.fail;
+import com.jayway.restassured.http.ContentType;
 
 /**
  * Tests Federation aspects.
@@ -47,7 +48,7 @@ import static org.junit.Assert.fail;
 @ExamReactorStrategy(PerClass.class)
 public class TestFederation extends TestCatalog {
 
-    private static XLogger LOGGER = new XLogger(LoggerFactory.getLogger(TestFederation.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(TestFederation.class));
 
     private static final String SAMPLE_DATA = "sample data";
 

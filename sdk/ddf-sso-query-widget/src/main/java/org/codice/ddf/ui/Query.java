@@ -14,6 +14,31 @@
  **/
 package org.codice.ddf.ui;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+
+import org.apache.commons.io.IOUtils;
+import org.jasig.cas.client.authentication.AttributePrincipal;
+import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -32,29 +57,6 @@ import ddf.security.Subject;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import ddf.security.service.impl.cas.CasAuthenticationToken;
-import org.apache.commons.io.IOUtils;
-import org.jasig.cas.client.authentication.AttributePrincipal;
-import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.List;
 
 /**
  * This a a very simple example of a servlet protected by CAS that can be used to query for
@@ -273,9 +275,7 @@ public class Query extends HttpServlet {
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             transformer.transform(xmlInput, xmlOutput);
             formattedXml = xmlOutput.getWriter().toString();
-        } catch (TransformerConfigurationException e)
-
-        {
+        } catch (TransformerConfigurationException e) {
             String message = "Unable to transform xml:\n" + unformattedXml
                     + "\nUsing unformatted xml.";
             LOGGER.error(message, e);
