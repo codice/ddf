@@ -16,7 +16,10 @@ package ddf.metrics.reporting.internal.rrd4j;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
@@ -71,6 +74,10 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
 
     private static final long ONE_DAY_IN_SECONDS = 24 * 60 * 60;
 
+    private static final long START_TIME = 900000000L;
+
+    private static final int RRD_STEP = 60;
+
     private static final String MONTHS[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
             "Sep", "Oct", "Nov", "Dec"};
 
@@ -78,9 +85,6 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
 
     @After
     public void tearDown() throws Exception {
-        if (rrdDb != null && !rrdDb.isClosed()) {
-            rrdDb.close();
-        }
 
         // Delete all .png files in test directory to ensure starting with clean directory
         FilenameFilter pngFilter = new FilenameFilter() {
@@ -105,12 +109,11 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsGraphWithGauge() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithGauge(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         byte[] metricsGraph = metricsRetriever
-                .createGraph("Query Reponse Time", rrdFilename, startTime, endTime);
+                .createGraph("Query Reponse Time", rrdFilename, START_TIME, endTime);
 
         assertThat(metricsGraph, not(nullValue()));
         assertThat(metricsGraph.length, is(greaterThan(0)));
@@ -121,7 +124,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         // graph image. Only
         // visual inspection can verify the graph's accurracy, title, and axis labels.
         metricsGraph = metricsRetriever
-                .createGraph("Query Reponse Time", rrdFilename, startTime, endTime,
+                .createGraph("Query Reponse Time", rrdFilename, START_TIME, endTime,
                         "My Vertical Axis Label", "My Title");
 
         assertThat(metricsGraph, not(nullValue()));
@@ -131,12 +134,11 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsGraphWithCounter() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithCounter(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         byte[] metricsGraph = metricsRetriever
-                .createGraph("Query Count", rrdFilename, startTime, endTime);
+                .createGraph("Query Count", rrdFilename, START_TIME, endTime);
 
         assertThat(metricsGraph, not(nullValue()));
         assertThat(metricsGraph.length, is(greaterThan(0)));
@@ -146,7 +148,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         // All we can verify is that this alternate createGraph() method returns a byte array of the
         // graph image. Only
         // visual inspection can verify the graph's accurracy, title, and axis labels.
-        metricsGraph = metricsRetriever.createGraph("Query Count", rrdFilename, startTime, endTime,
+        metricsGraph = metricsRetriever.createGraph("Query Count", rrdFilename, START_TIME, endTime,
                 "My Vertical Axis Label", "My Title");
 
         assertThat(metricsGraph, not(nullValue()));
@@ -156,12 +158,11 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsJsonDataWithCounter() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithCounter(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         String json = metricsRetriever
-                .createJsonData("queryCount", rrdFilename, startTime, endTime);
+                .createJsonData("queryCount", rrdFilename, START_TIME, endTime);
 
         JSONParser parser = new JSONParser();
         JSONObject jsonObj = (JSONObject) parser.parse(json);
@@ -189,12 +190,11 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsJsonDataWithGauge() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithGauge(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         String json = metricsRetriever
-                .createJsonData("queryCount", rrdFilename, startTime, endTime);
+                .createJsonData("queryCount", rrdFilename, START_TIME, endTime);
 
         JSONParser parser = new JSONParser();
         JSONObject jsonObj = (JSONObject) parser.parse(json);
@@ -221,11 +221,10 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsCsvDataWithCounter() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithCounter(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        String csv = metricsRetriever.createCsvData(rrdFilename, startTime, endTime);
+        String csv = metricsRetriever.createCsvData(rrdFilename, START_TIME, endTime);
 
         // Break up CSV data into its individual lines
         // Each line should have 2 parts (cells)
@@ -244,11 +243,10 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsCsvDataWithGauge() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithGauge(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        String csv = metricsRetriever.createCsvData(rrdFilename, startTime, endTime);
+        String csv = metricsRetriever.createCsvData(rrdFilename, START_TIME, endTime);
 
         // Break up CSV data into its individual lines
         // Each line should have 2 parts (cells)
@@ -267,12 +265,11 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsXlsDataWithCounter() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithCounter(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         OutputStream os = metricsRetriever
-                .createXlsData("queryCount", rrdFilename, startTime, endTime);
+                .createXlsData("queryCount", rrdFilename, START_TIME, endTime);
         InputStream xls = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(xls, not(nullValue()));
 
@@ -285,14 +282,35 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     }
 
     @Test
+    public void testGetMetricDataTimeRangeFiltering() throws Exception {
+        String rrdFilename = TEST_DIR + "queryCount_Counter_TimeRange" + RRD_FILE_EXTENSION;
+        long startTime = 1430463600L; // May 1st, 2015 00:00:00
+        long endTime = 1433141999L;  // May 31st, 2015 23:59:59
+        int minutes = 31 * 24 * 60;  // minutes between startTime and endTime
+        int numSamples = minutes + 10; // go into the next month
+        new RrdFileBuilder().startTime(startTime - RRD_STEP * 2).rrdFileName(rrdFilename)
+                .numRows(numSamples).numSamples(numSamples).dsType(DsType.GAUGE).build();
+
+        RrdMetricsRetriever metricsRetriever = new RrdMetricsRetriever();
+        MetricData metricData = metricsRetriever.getMetricData(rrdFilename, startTime, endTime);
+        assertThat(metricData.getTimestamps().size(), equalTo(minutes));
+        assertThat(metricData.getTimestamps().get(minutes - 1), lessThanOrEqualTo(endTime));
+        assertThat(metricData.getTimestamps().get(0), greaterThanOrEqualTo(startTime));
+        metricData = metricsRetriever
+                .getMetricData(rrdFilename, startTime - RRD_STEP * 2, endTime + RRD_STEP * 8);
+        assertThat(metricData.getTimestamps().get(0), lessThan(startTime));
+        assertThat(metricData.getTimestamps().get(numSamples - 1), greaterThan(endTime));
+        assertThat(metricData.getTimestamps().size(), equalTo(numSamples));
+    }
+
+    @Test
     public void testMetricsXlsDataWithGauge() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithGauge(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         OutputStream os = metricsRetriever
-                .createXlsData("queryCount", rrdFilename, startTime, endTime);
+                .createXlsData("queryCount", rrdFilename, START_TIME, endTime);
         InputStream xls = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(xls, not(nullValue()));
 
@@ -306,11 +324,10 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsXmlDataWithCounter() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithCounter(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        String xml = metricsRetriever.createXmlData("queryCount", rrdFilename, startTime, endTime);
+        String xml = metricsRetriever.createXmlData("queryCount", rrdFilename, START_TIME, endTime);
         assertXpathExists("/queryCount", xml);
         assertXpathExists("/queryCount/title", xml);
         assertXpathExists("/queryCount/data", xml);
@@ -323,11 +340,10 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsXmlDataWithGauge() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithGauge(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
-        String xml = metricsRetriever.createXmlData("queryCount", rrdFilename, startTime, endTime);
+        String xml = metricsRetriever.createXmlData("queryCount", rrdFilename, START_TIME, endTime);
         assertXpathExists("/queryCount", xml);
         assertXpathExists("/queryCount/title", xml);
         assertXpathExists("/queryCount/data", xml);
@@ -340,11 +356,10 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsXlsReport() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithCounter(rrdFilename, startTime);
+        new RrdFileBuilder().rrdFileName(rrdFilename).build();
 
         rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        endTime = createRrdFileWithGauge(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
 
         List<String> metricNames = new ArrayList<String>();
         metricNames.add("queryCount_Counter");
@@ -352,7 +367,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         OutputStream os = metricsRetriever
-                .createXlsReport(metricNames, TEST_DIR, startTime, endTime);
+                .createXlsReport(metricNames, TEST_DIR, START_TIME, endTime);
         InputStream xls = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(xls, not(nullValue()));
 
@@ -371,12 +386,11 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsPptDataWithCounter() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithCounter(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         OutputStream os = metricsRetriever
-                .createPptData("queryCount", rrdFilename, startTime, endTime);
+                .createPptData("queryCount", rrdFilename, START_TIME, endTime);
         InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(is, not(nullValue()));
 
@@ -389,12 +403,11 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsPptDataWithGauge() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithGauge(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         OutputStream os = metricsRetriever
-                .createPptData("queryCount", rrdFilename, startTime, endTime);
+                .createPptData("queryCount", rrdFilename, START_TIME, endTime);
         InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(is, not(nullValue()));
 
@@ -407,11 +420,10 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     public void testMetricsPptReport() throws Exception {
         String rrdFilename = TEST_DIR + "queryCount_Counter" + RRD_FILE_EXTENSION;
-        long startTime = 900000000L;
-        long endTime = createRrdFileWithCounter(rrdFilename, startTime);
+        new RrdFileBuilder().rrdFileName(rrdFilename).build();
 
         rrdFilename = TEST_DIR + "queryCount_Gauge" + RRD_FILE_EXTENSION;
-        endTime = createRrdFileWithGauge(rrdFilename, startTime);
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).dsType(DsType.GAUGE).build();
 
         List<String> metricNames = new ArrayList<String>();
         metricNames.add("queryCount_Counter");
@@ -419,7 +431,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         OutputStream os = metricsRetriever
-                .createPptReport(metricNames, TEST_DIR, startTime, endTime);
+                .createPptReport(metricNames, TEST_DIR, START_TIME, endTime);
         InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
         assertThat(is, not(nullValue()));
 
@@ -434,27 +446,13 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     // (expected = MetricsGraphException.class)
     public void testInvalidDataSourceType() throws Exception {
-        String dataSourceName = "data";
         String rrdFilename = TEST_DIR + "dummy_Absolute" + RRD_FILE_EXTENSION;
-        int rrdStep = 60; // in seconds
-        long startTime = 900000000L;
-
-        RrdDef rrdDef = new RrdDef(rrdFilename, rrdStep);
-        rrdDef.setStartTime(startTime - 1);
-        rrdDef.addDatasource(dataSourceName, DsType.ABSOLUTE, 90, 0, Double.NaN);
-
-        // 1 step, 60 seconds per step, for 5 minutes
-        rrdDef.addArchive(ConsolFun.AVERAGE, 0.5, 1, 5);
-
-        rrdDb = new RrdDb(rrdDef);
-
-        long endTime = loadCounterSamples(dataSourceName, 4, rrdStep, startTime);
-
-        rrdDb.close();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).numSamples(4)
+                .dsType(DsType.ABSOLUTE).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         try {
-            metricsRetriever.createGraph("Dummy", rrdFilename, startTime, endTime);
+            metricsRetriever.createGraph("Dummy", rrdFilename, START_TIME, endTime);
             fail();
         } catch (MetricsGraphException e) {
         }
@@ -463,179 +461,17 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
     @Test
     // (expected = MetricsGraphException.class)
     public void testRrdFileWithMultipleDataSources() throws Exception {
-        String dataSourceName = "data";
         String rrdFilename = TEST_DIR + "dummy" + RRD_FILE_EXTENSION;
-        int rrdStep = 60; // in seconds
-        long startTime = 900000000L;
 
-        RrdDef rrdDef = new RrdDef(rrdFilename, rrdStep);
-        rrdDef.setStartTime(startTime - 1);
-        rrdDef.addDatasource(dataSourceName, DsType.COUNTER, 90, 0, Double.NaN);
-        rrdDef.addDatasource("ds2", DsType.GAUGE, 90, 0, Double.NaN);
-
-        // 1 step, 60 seconds per step, for 5 minutes
-        rrdDef.addArchive(ConsolFun.AVERAGE, 0.5, 1, 5);
-
-        rrdDb = new RrdDb(rrdDef);
-
-        long endTime = loadCounterSamples(dataSourceName, 4, rrdStep, startTime);
-
-        rrdDb.close();
+        long endTime = new RrdFileBuilder().rrdFileName(rrdFilename).numSamples(4)
+                .secondDataSource(true).build();
 
         MetricsRetriever metricsRetriever = new RrdMetricsRetriever();
         try {
-            metricsRetriever.createGraph("Dummy", rrdFilename, startTime, endTime);
+            metricsRetriever.createGraph("Dummy", rrdFilename, START_TIME, endTime);
             fail();
         } catch (MetricsGraphException e) {
         }
-    }
-
-    /*************************************************************************/
-
-    private long createRrdFileWithCounter(String rrdFilename, long startTime) throws Exception {
-        int rrdStep = 60; // in seconds
-
-        RrdDef rrdDef = new RrdDef(rrdFilename, rrdStep);
-        rrdDef.setStartTime(startTime - 1);
-        rrdDef.addDatasource("data", DsType.COUNTER, 90, 0, Double.NaN);
-
-        // 1 step, 60 seconds per step, for 5 minutes
-        rrdDef.addArchive(ConsolFun.TOTAL, 0.5, 1, 5);
-        rrdDef.addArchive(ConsolFun.AVERAGE, 0.5, 1, 5);
-        rrdDef.addArchive(ConsolFun.MAX, 0.5, 1, 5);
-        rrdDef.addArchive(ConsolFun.MIN, 0.5, 1, 5);
-
-        // 5 steps, 60 seconds per step, for 30 minutes
-        rrdDef.addArchive(ConsolFun.TOTAL, 0.5, 5, 6);
-        rrdDef.addArchive(ConsolFun.AVERAGE, 0.5, 5, 6);
-        rrdDef.addArchive(ConsolFun.MAX, 0.5, 5, 6);
-        rrdDef.addArchive(ConsolFun.MIN, 0.5, 5, 6);
-
-        rrdDb = new RrdDb(rrdDef);
-
-        // Enough samples to make sure both archivers get samples and the lower resolution archiver
-        // is used by the RrdGraph
-        int numSamples = 50;
-
-        // Small number of samples so that not enough data for second archiver to get any samples
-        // int numSamples = 4;
-
-        long endTime = loadCounterSamples("data", numSamples, rrdStep, startTime);
-
-        dumpData("COUNTER", startTime, endTime);
-
-        rrdDb.close();
-
-        return endTime;
-    }
-
-    private long createRrdFileWithGauge(String rrdFilename, long startTime) throws Exception {
-        int rrdStep = 60; // in seconds
-        RrdDef rrdDef = new RrdDef(rrdFilename, rrdStep);
-        rrdDef.setStartTime(startTime - 1);
-        rrdDef.addDatasource("data", DsType.GAUGE, 90, 0, Double.NaN);
-
-        rrdDef.addArchive(ConsolFun.TOTAL, 0.5, 1, 5);
-        rrdDef.addArchive(ConsolFun.AVERAGE, 0.5, 1, 5);
-        rrdDef.addArchive(ConsolFun.MAX, 0.5, 1, 5);
-        rrdDef.addArchive(ConsolFun.MIN, 0.5, 1, 5);
-
-        // 5 steps, 60 seconds per step, for 30 minutes
-        rrdDef.addArchive(ConsolFun.TOTAL, 0.5, 5, 6);
-        rrdDef.addArchive(ConsolFun.AVERAGE, 0.5, 5, 6);
-        rrdDef.addArchive(ConsolFun.MAX, 0.5, 5, 6);
-        rrdDef.addArchive(ConsolFun.MIN, 0.5, 5, 6);
-
-        rrdDb = new RrdDb(rrdDef);
-
-        // Enough samples to make sure both archivers get samples and the lower resolution archiver
-        // is used by the RrdGraph
-        int numSamples = 50;
-
-        // Small number of samples so that not enough data for second archiver to get any samples
-        // int numSamples = 4;
-
-        long endTime = loadGaugeSamples("data", numSamples, rrdStep, startTime);
-
-        dumpData("GAUGE", startTime, endTime);
-        rrdDb.close();
-
-        return endTime;
-    }
-
-    private long loadCounterSamples(String dataSourceName, int numSamples, int rrdStep,
-            long startTime) throws IOException {
-        Sample sample = rrdDb.createSample();
-
-        double queryCount = 0.0;
-        int min = 0;
-        int max = 20;
-        Random random = new Random();
-        long timestamp = startTime;
-
-        for (int i = 1; i <= numSamples; i++) {
-            int randomQueryCount = random.nextInt(max - min + 1) + min;
-            queryCount += randomQueryCount;
-            LOGGER.debug("timestamp: {}   ({}),   queryCount = {}",
-                    getCalendarTime(timestamp * 1000), timestamp, queryCount);
-            sample.setTime(timestamp);
-            sample.setValue(dataSourceName, queryCount);
-            sample.update();
-
-            // Increment by RRD step
-            // (can only add samples to data source on its step interval, not in between steps)
-            timestamp += rrdStep;
-        }
-
-        return timestamp;
-    }
-
-    private long loadGaugeSamples(String dataSourceName, int numSamples, int rrdStep,
-            long startTime) throws IOException {
-        Sample sample = rrdDb.createSample();
-
-        int min = 200;
-        int max = 2000;
-        Random random = new Random();
-        long timestamp = startTime;
-
-        for (int i = 1; i <= numSamples; i++) {
-            int randomQueryResponseTime = random.nextInt(max - min + 1) + min; // in ms
-            LOGGER.debug("timestamp: {},  ({}),   queryResponseTime = {}",
-                    getCalendarTime(timestamp * 1000), timestamp, randomQueryResponseTime);
-            sample.setTime(timestamp);
-            sample.setValue(dataSourceName, randomQueryResponseTime);
-            sample.update();
-
-            // Increment by RRD step
-            // (can only add samples to data source on its step interval, not in between steps)
-            timestamp += rrdStep;
-        }
-
-        return timestamp;
-    }
-
-    private String getCalendarTime(long timestamp) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timestamp * 1000);
-
-        String calTime =
-                MONTHS[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE) + " "
-                        + calendar.get(Calendar.YEAR) + " ";
-
-        calTime += addLeadingZero(calendar.get(Calendar.HOUR_OF_DAY)) + ":";
-        calTime += addLeadingZero(calendar.get(Calendar.MINUTE)) + ":";
-        calTime += addLeadingZero(calendar.get(Calendar.SECOND));
-
-        return calTime;
-    }
-
-    private String addLeadingZero(int value) {
-        if (value < 10) {
-            return "0" + String.valueOf(value);
-        }
-
-        return String.valueOf(value);
     }
 
     private void verifyWorksheet(HSSFSheet sheet, String metricName, int expectedNumberOfDataRows,
@@ -695,7 +531,7 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         for (int i = 0; i < numExpectedShapes; i++) {
             if (shapes[i] instanceof Picture) {
                 picture = (Picture) shapes[i];
-            // title text box is actually an AutoShape
+                // title text box is actually an AutoShape
             } else if (shapes[i] instanceof TextBox || shapes[i] instanceof AutoShape) {
                 numTextBoxes++;
             }
@@ -706,37 +542,211 @@ public class RrdMetricsRetrieverTest extends XMLTestCase {
         assertThat(numTextBoxes, equalTo(numExpectedTextBoxes));
     }
 
-    private void dumpData(String dsType, long startTime, long endTime) throws IOException {
-        LOGGER.debug(rrdDb.dump());
+    /**
+     * *********************************************************************
+     */
 
-        FetchRequest fetchRequest = rrdDb.createFetchRequest(ConsolFun.AVERAGE, startTime, endTime);
-        FetchData fetchData = fetchRequest.fetchData();
-        LOGGER.debug("************  {}: AVERAGE  **************", dsType);
-        // LOGGER.debug(fetchData.dump());
-        long[] timestamps = fetchData.getTimestamps();
-        double[] values = fetchData.getValues(0);
-        for (int i = 0; i < timestamps.length; i++) {
-            LOGGER.debug("{}:  {}", getCalendarTime(timestamps[i]), values[i]);
+    public static class RrdFileBuilder {
+        private RrdDb rrdDb;
+
+        private RrdDef rrdDef;
+
+        private int rrdStep;
+
+        private String rrdFileName;
+
+        private DsType dsType;
+
+        private long startTime;
+
+        private long endTime;
+
+        private int numRows;
+
+        private int numSamples;
+
+        private boolean secondDataSource;
+
+        private boolean dumpData;
+
+        public RrdFileBuilder() {
+            secondDataSource = false;
+            dsType = DsType.COUNTER;
+            startTime = START_TIME;
+            rrdStep = RRD_STEP;
+            numRows = 5;
+            numSamples = 50;
+            dumpData = false;
         }
 
-        fetchRequest = rrdDb.createFetchRequest(ConsolFun.TOTAL, startTime, endTime);
-        fetchData = fetchRequest.fetchData();
-        LOGGER.debug("************  {}: TOTAL  **************", dsType);
-        // LOGGER.debug(fetchData.dump());
-        timestamps = fetchData.getTimestamps();
-        values = fetchData.getValues(0);
-        for (int i = 0; i < timestamps.length; i++) {
-            LOGGER.debug("{}:  {}", getCalendarTime(timestamps[i]), values[i]);
+        public RrdFileBuilder rrdFileName(String rrdFileName) {
+            this.rrdFileName = rrdFileName;
+            return this;
         }
 
-        // fetchRequest = rrdDb.createFetchRequest(ConsolFun.MIN, startTime, endTime);
-        // fetchData = fetchRequest.fetchData();
-        // LOGGER.debug("************  {}: MIN  **************", dsType);
-        // LOGGER.debug(fetchData.dump());
-        //
-        // fetchRequest = rrdDb.createFetchRequest(ConsolFun.MAX, startTime, endTime);
-        // fetchData = fetchRequest.fetchData();
-        // LOGGER.debug("************  {}: MAX  **************", dsType);
-        // LOGGER.debug(fetchData.dump());
+        public RrdFileBuilder dsType(DsType dsType) {
+            this.dsType = dsType;
+            return this;
+        }
+
+        public RrdFileBuilder startTime(long startTime) {
+            this.startTime = startTime;
+            return this;
+        }
+
+        public RrdFileBuilder numRows(int numRows) {
+            this.numRows = numRows;
+            return this;
+        }
+
+        public RrdFileBuilder numSamples(int numSamples) {
+            this.numSamples = numSamples;
+            return this;
+        }
+
+        public RrdFileBuilder secondDataSource(boolean secondDataSource) {
+            this.secondDataSource = secondDataSource;
+            return this;
+        }
+
+        public long build() throws Exception {
+            rrdDef = new RrdDef(rrdFileName, rrdStep);
+            rrdDef.setStartTime(startTime - 1);
+            rrdDef.addDatasource("data", dsType, 90, 0, Double.NaN);
+            if (secondDataSource) {
+                rrdDef.addDatasource("ds2", DsType.GAUGE, 90, 0, Double.NaN);
+            }
+
+            // 1 step, 60 seconds per step, for 5 minutes
+            rrdDef.addArchive(ConsolFun.TOTAL, 0.5, 1, numRows);
+            rrdDef.addArchive(ConsolFun.AVERAGE, 0.5, 1, numRows);
+            rrdDef.addArchive(ConsolFun.MAX, 0.5, 1, numRows);
+            rrdDef.addArchive(ConsolFun.MIN, 0.5, 1, numRows);
+
+            // 5 steps, 60 seconds per step, for 30 minutes
+            rrdDef.addArchive(ConsolFun.TOTAL, 0.5, 5, numRows + 1);
+            rrdDef.addArchive(ConsolFun.AVERAGE, 0.5, 5, numRows + 1);
+            rrdDef.addArchive(ConsolFun.MAX, 0.5, 5, numRows + 1);
+            rrdDef.addArchive(ConsolFun.MIN, 0.5, 5, numRows + 1);
+
+            rrdDb = new RrdDb(rrdDef);
+
+            endTime = (dsType == DsType.GAUGE) ? loadGaugeSamples() : loadCounterSamples();
+
+            if (dumpData) {
+                dumpData();
+            }
+            rrdDb.close();
+
+            return endTime;
+        }
+
+        private long loadCounterSamples() throws IOException {
+            Sample sample = rrdDb.createSample();
+
+            double queryCount = 0.0;
+            int min = 0;
+            int max = 20;
+            Random random = new Random();
+            long timestamp = startTime;
+
+            for (int i = 1; i <= numSamples; i++) {
+                int randomQueryCount = random.nextInt(max - min + 1) + min;
+                queryCount += randomQueryCount;
+                LOGGER.debug("timestamp: {}   ({}),   queryCount = {}",
+                        getCalendarTime(timestamp * 1000), timestamp, queryCount);
+                sample.setTime(timestamp);
+                sample.setValue("data", queryCount);
+                sample.update();
+
+                // Increment by RRD step
+                // (can only add samples to data source on its step interval, not in between steps)
+                timestamp += rrdStep;
+            }
+
+            return timestamp;
+        }
+
+        private long loadGaugeSamples() throws IOException {
+            Sample sample = rrdDb.createSample();
+
+            int min = 200;
+            int max = 2000;
+            Random random = new Random();
+            long timestamp = startTime;
+
+            for (int i = 1; i <= numSamples; i++) {
+                int randomQueryResponseTime = random.nextInt(max - min + 1) + min; // in ms
+                LOGGER.debug("timestamp: {},  ({}),   queryResponseTime = {}",
+                        getCalendarTime(timestamp * 1000), timestamp, randomQueryResponseTime);
+                sample.setTime(timestamp);
+                sample.setValue("data", randomQueryResponseTime);
+                sample.update();
+
+                // Increment by RRD step
+                // (can only add samples to data source on its step interval, not in between steps)
+                timestamp += rrdStep;
+            }
+
+            return timestamp;
+        }
+
+        private String getCalendarTime(long timestamp) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(timestamp * 1000);
+
+            String calTime =
+                    MONTHS[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DATE) + " "
+                            + calendar.get(Calendar.YEAR) + " ";
+
+            calTime += addLeadingZero(calendar.get(Calendar.HOUR_OF_DAY)) + ":";
+            calTime += addLeadingZero(calendar.get(Calendar.MINUTE)) + ":";
+            calTime += addLeadingZero(calendar.get(Calendar.SECOND));
+
+            return calTime;
+        }
+
+        private String addLeadingZero(int value) {
+            if (value < 10) {
+                return "0" + String.valueOf(value);
+            }
+
+            return String.valueOf(value);
+        }
+
+        private void dumpData() throws IOException {
+            LOGGER.debug(rrdDb.dump());
+
+            FetchRequest fetchRequest = rrdDb
+                    .createFetchRequest(ConsolFun.AVERAGE, startTime, endTime);
+            FetchData fetchData = fetchRequest.fetchData();
+            LOGGER.debug("************  {}: AVERAGE  **************", dsType.name());
+            LOGGER.debug(fetchData.dump());
+            long[] timestamps = fetchData.getTimestamps();
+            double[] values = fetchData.getValues(0);
+            for (int i = 0; i < timestamps.length; i++) {
+                LOGGER.debug("{}:  {}", getCalendarTime(timestamps[i]), values[i]);
+            }
+
+            fetchRequest = rrdDb.createFetchRequest(ConsolFun.TOTAL, startTime, endTime);
+            fetchData = fetchRequest.fetchData();
+            LOGGER.debug("************  {}: TOTAL  **************", dsType.name());
+            LOGGER.debug(fetchData.dump());
+            timestamps = fetchData.getTimestamps();
+            values = fetchData.getValues(0);
+            for (int i = 0; i < timestamps.length; i++) {
+                LOGGER.debug("{}:  {}", getCalendarTime(timestamps[i]), values[i]);
+            }
+
+            fetchRequest = rrdDb.createFetchRequest(ConsolFun.MIN, startTime, endTime);
+            fetchData = fetchRequest.fetchData();
+            LOGGER.debug("************  {}: MIN  **************", dsType);
+            LOGGER.debug(fetchData.dump());
+
+            fetchRequest = rrdDb.createFetchRequest(ConsolFun.MAX, startTime, endTime);
+            fetchData = fetchRequest.fetchData();
+            LOGGER.debug("************  {}: MAX  **************", dsType);
+            LOGGER.debug(fetchData.dump());
+        }
     }
 }
