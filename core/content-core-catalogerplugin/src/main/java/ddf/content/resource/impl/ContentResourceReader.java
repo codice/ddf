@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.content.resource.impl;
 
 import java.io.BufferedInputStream;
@@ -43,9 +42,6 @@ import ddf.content.operation.ReadResponse;
 import ddf.content.operation.impl.ReadRequestImpl;
 
 public class ContentResourceReader implements ResourceReader {
-    private static XLogger logger = new XLogger(
-            LoggerFactory.getLogger(ContentResourceReader.class));
-
     private static final String URL_CONTENT_SCHEME = "content";
 
     private static final String VERSION = "1.0";
@@ -58,7 +54,11 @@ public class ContentResourceReader implements ResourceReader {
 
     private static final String ORGANIZATION = "DDF";
 
+    private static XLogger logger = new XLogger(
+            LoggerFactory.getLogger(ContentResourceReader.class));
+
     private static Set<String> qualifierSet;
+
     static {
         qualifierSet = new HashSet<String>(1);
         qualifierSet.add(URL_CONTENT_SCHEME);
@@ -100,7 +100,8 @@ public class ContentResourceReader implements ResourceReader {
     @Override
     public Set<String> getOptions(Metacard metacard) {
         logger.trace("ENTERING/EXITING: getOptions");
-        logger.debug("ContentResourceReader getOptions doesn't support options, returning empty set.");
+        logger.debug(
+                "ContentResourceReader getOptions doesn't support options, returning empty set.");
 
         return Collections.emptySet();
     }
@@ -112,7 +113,7 @@ public class ContentResourceReader implements ResourceReader {
 
     @Override
     public ResourceResponse retrieveResource(URI resourceUri, Map<String, Serializable> arguments)
-        throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
+            throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
         logger.trace("ENTERING: retrieveResource");
 
         ResourceResponse response = null;
@@ -134,8 +135,9 @@ public class ContentResourceReader implements ResourceReader {
                     String fileName = filePathName.getName();
                     logger.debug("resource name: " + fileName);
                     InputStream is = contentItem.getInputStream();
-                    response = new ResourceResponseImpl(new ResourceImpl(
-                            new BufferedInputStream(is), contentItem.getMimeType(), fileName));
+                    response = new ResourceResponseImpl(
+                            new ResourceImpl(new BufferedInputStream(is), contentItem.getMimeType(),
+                                    fileName));
                 } catch (ContentFrameworkException e) {
                     throw new ResourceNotFoundException(e);
                 }

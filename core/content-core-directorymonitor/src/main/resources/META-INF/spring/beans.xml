@@ -13,22 +13,21 @@
  **/
 
  -->
-<beans:beans xmlns="http://www.springframework.org/schema/osgi" 
-  xmlns:camel="http://camel.apache.org/schema/spring"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:osgix="http://www.springframework.org/schema/osgi-compendium" 
-  xmlns:beans="http://www.springframework.org/schema/beans"
-  xsi:schemaLocation="
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+<beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns="http://www.springframework.org/schema/osgi"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd
-http://www.springframework.org/schema/osgi-compendium http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd
-http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+http://www.springframework.org/schema/osgi-compendium http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium.xsd">
   
  
-  <reference id="camelContext" interface="org.apache.camel.CamelContext" filter="(camel.context.name=contentCamelContext)" />
+  <reference id="camelContext" interface="org.apache.camel.CamelContext"
+             filter="(camel.context.name=contentCamelContext)"/>
   
-  <osgix:managed-service-factory id="contentDirectoryMonitor_MSF" factory-pid="ddf.content.core.directorymonitor.ContentDirectoryMonitor"
-    update-strategy="bean-managed" update-method="updateCallback">
+  <osgix:managed-service-factory id="contentDirectoryMonitor_MSF"
+                                 factory-pid="ddf.content.core.directorymonitor.ContentDirectoryMonitor"
+                                 update-strategy="bean-managed" update-method="updateCallback">
 
 
     <osgix:interfaces>
@@ -36,11 +35,13 @@ http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/came
     </osgix:interfaces>
    
 
-    <beans:bean id="contentDirectoryMonitor" class="ddf.content.core.directorymonitor.ContentDirectoryMonitor" 
-        init-method="init" destroy-method="destroy">
-        <beans:constructor-arg ref="camelContext" />
-    	<beans:property name="monitoredDirectoryPath" value="" />
-    	<beans:property name="directive" value="" />   <!-- STORE, PROCESS, STORE_AND_PROCESS -->
+    <beans:bean id="contentDirectoryMonitor"
+                class="ddf.content.core.directorymonitor.ContentDirectoryMonitor"
+                init-method="init" destroy-method="destroy">
+        <beans:constructor-arg ref="camelContext"/>
+    	<beans:property name="monitoredDirectoryPath" value=""/>
+    	<beans:property name="directive" value=""/>
+        <!-- STORE, PROCESS, STORE_AND_PROCESS -->
     </beans:bean>
     
   </osgix:managed-service-factory>

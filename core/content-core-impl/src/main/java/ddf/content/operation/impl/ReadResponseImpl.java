@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.content.operation.impl;
 
 import java.io.Serializable;
@@ -30,11 +29,9 @@ public class ReadResponseImpl extends ResponseImpl<ReadRequest> implements ReadR
 
     /**
      * Instantiates a ReadResponseImpl object with {@link ContentItem} read.
-     * 
-     * @param request
-     *            the original {@link ReadRequest} that initiated this response
-     * @param contentItem
-     *            the {@link ContentItem} read
+     *
+     * @param request     the original {@link ReadRequest} that initiated this response
+     * @param contentItem the {@link ContentItem} read
      */
     public ReadResponseImpl(ReadRequest request, ContentItem contentItem) {
         this(request, contentItem, null, null);
@@ -42,14 +39,12 @@ public class ReadResponseImpl extends ResponseImpl<ReadRequest> implements ReadR
 
     /**
      * Instantiates a ReadResponseImpl object with {@link ContentItem} read.
-     * 
-     * @param request
-     *            the original {@link ReadRequest} that initiated this response
-     * @param contentItem
-     *            the {@link ContentItem} read
+     *
+     * @param request            the original {@link ReadRequest} that initiated this response
+     * @param contentItem        the {@link ContentItem} read
      * @param responseProperties the
-     *            properties associated with the response that are intended for external
-     *            distribution
+     *                           properties associated with the response that are intended for external
+     *                           distribution
      */
     public ReadResponseImpl(ReadRequest request, ContentItem contentItem,
             Map<String, String> responseProperties) {
@@ -59,16 +54,13 @@ public class ReadResponseImpl extends ResponseImpl<ReadRequest> implements ReadR
     /**
      * Instantiates a ReadResponseImpl object with {@link ContentItem} read a {@link Map} of
      * properties.
-     * 
-     * @param request
-     *            the original {@link ReadRequest} that initiated this response
-     * @param contentItem
-     *            the {@link ContentItem} read
+     *
+     * @param request            the original {@link ReadRequest} that initiated this response
+     * @param contentItem        the {@link ContentItem} read
      * @param responseProperties the
-     *            properties associated with the response that are intended for external
-     *            distribution
-     * @param properties
-     *            the properties associated with the operation
+     *                           properties associated with the response that are intended for external
+     *                           distribution
+     * @param properties         the properties associated with the operation
      */
     public ReadResponseImpl(ReadRequest request, ContentItem contentItem,
             Map<String, String> responseProperties, Map<String, Serializable> properties) {

@@ -12,27 +12,27 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
 	<!-- create the DDF content framework bean -->
-	<bean id="ddf-content-framework" class="ddf.content.impl.ContentFrameworkImpl">
+    <bean id="ddf-content-framework" class="ddf.content.impl.ContentFrameworkImpl">
 		<cm:managed-properties persistent-id="ddf.content.impl.ContentFrameworkImpl"
-			update-strategy="container-managed"/>
-		<argument ref="blueprintBundleContext" />
-		<argument ref="storageProvider" />
-		<argument ref="contentPluginList" />
+                               update-strategy="container-managed"/>
+		<argument ref="blueprintBundleContext"/>
+		<argument ref="storageProvider"/>
+		<argument ref="contentPluginList"/>
 	</bean>
-	
-	
-	<!-- export the bean on the service registry -->
-	<service ref="ddf-content-framework" interface="ddf.content.ContentFramework" />
+
+
+    <!-- export the bean on the service registry -->
+    <service ref="ddf-content-framework" interface="ddf.content.ContentFramework"/>
 	
 	<reference id="storageProvider" interface="ddf.content.storage.StorageProvider"
-	    availability="optional" />
+               availability="optional"/>
 	
 	<reference-list id="contentPluginList" interface="ddf.content.plugin.ContentPlugin"
-	   availability="optional">
+                    availability="optional">
 	</reference-list>
 	
 </blueprint>	

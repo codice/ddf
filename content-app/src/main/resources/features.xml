@@ -11,7 +11,7 @@
  *
  **/
  -->
- 
+
 <!--
      NOTE: This features XML file uses the Karaf "install" attribute to specify whether a feature
      is automatically installed when an app's KAR file is hot deployed.
@@ -25,22 +25,27 @@
 --> 
 <features name="${project.artifactId}-${project.version}">
     
-    <feature name="content-core-api" install="manual" version="${project.version}" description="Content API">
+    <feature name="content-core-api" install="manual" version="${project.version}"
+             description="Content API">
         <bundle>mvn:ddf.content.core/content-core-api/${project.version}</bundle>
     </feature>
 
-    <feature name="content-core" install="manual" version="${project.version}" description="Content Core">
+    <feature name="content-core" install="manual" version="${project.version}"
+             description="Content Core">
         <feature>content-core-api</feature>
         <bundle>mvn:ddf.content.core/content-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.content.core/content-core-standardframework/${project.version}</bundle>
         <bundle>mvn:ddf.content.core/content-core-camelcomponent/${project.version}</bundle>
     </feature>
     
-    <feature name="content-core-filesystemstorageprovider" install="manual" version="${project.version}" description="The File System Provider provides the implementation to create, update, or delete content items as files in the Content Repository.">
+    <feature name="content-core-filesystemstorageprovider" install="manual"
+             version="${project.version}"
+             description="The File System Provider provides the implementation to create, update, or delete content items as files in the Content Repository.">
         <bundle>mvn:ddf.content.core/content-core-filesystemstorageprovider/${project.version}</bundle>
     </feature>
     
-    <feature name="content-core-directorymonitor" install="manual" version="${project.version}" description="Monitors directories to process content files.">
+    <feature name="content-core-directorymonitor" install="manual" version="${project.version}"
+             description="Monitors directories to process content files.">
 	<feature>content-core</feature>
 	<feature>content-catalogerplugin</feature>
 	<feature>content-core-filesystemstorageprovider</feature>
@@ -48,16 +53,18 @@
         <bundle>mvn:ddf.content.core/content-core-directorymonitor/${project.version}</bundle>
     </feature>
 
-    <feature name="content-rest-endpoint" install="manual" version="${project.version}" description="REST Endpoint provides CRUD operations for content storage.">
+    <feature name="content-rest-endpoint" install="manual" version="${project.version}"
+             description="REST Endpoint provides CRUD operations for content storage.">
         <bundle>mvn:ddf.content.endpoint/content-rest-endpoint/${project.version}</bundle>
     </feature>
     
-    <feature name="content-catalogerplugin" install="manual" version="${project.version}" description="Content Plugin provides post-CUD operations after content storage.">
+    <feature name="content-catalogerplugin" install="manual" version="${project.version}"
+             description="Content Plugin provides post-CUD operations after content storage.">
         <bundle>mvn:ddf.content.core/content-core-catalogerplugin/${project.version}</bundle>
     </feature>
     
     <feature name="content-app" install="auto" version="${project.version}"
-        description="DDF Content is used for storing, reading, processing, transforming, and cataloging various file types.\nIt allows a client to give DDF a file and then have that file stored in a content repository and optionally cached in the DDF Catalog.::DDF Content">
+             description="DDF Content is used for storing, reading, processing, transforming, and cataloging various file types.\nIt allows a client to give DDF a file and then have that file stored in a content repository and optionally cached in the DDF Catalog.::DDF Content">
         <feature>catalog-app</feature>
         <feature>content-core</feature>
         <feature>content-core-filesystemstorageprovider</feature>

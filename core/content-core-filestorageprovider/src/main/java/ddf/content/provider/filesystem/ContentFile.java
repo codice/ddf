@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.content.provider.filesystem;
 
 import java.io.File;
@@ -30,7 +29,7 @@ import org.slf4j.ext.XLogger;
 import ddf.content.data.ContentItem;
 
 public class ContentFile implements ContentItem {
-    private static XLogger LOGGER = new XLogger(LoggerFactory.getLogger(ContentFile.class));
+    private static final XLogger LOGGER = new XLogger(LoggerFactory.getLogger(ContentFile.class));
 
     private File file;
 
@@ -113,13 +112,13 @@ public class ContentFile implements ContentItem {
     }
 
     @Override
-    public void setUri(String uri) {
-        this.uri = uri;
+    public String getUri() {
+        return uri;
     }
 
     @Override
-    public String getUri() {
-        return uri;
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     @Override

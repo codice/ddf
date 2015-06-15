@@ -17,15 +17,18 @@
 		<bundle>mvn:ddf.content.core/content-core-api/${project.version}</bundle>
 	</feature>
 	
-	<feature name="content-core-filesystemstorageprovider" version="${project.version}" description="The File System Provider provides the implementation to create, update, or delete content items as files in the Content Repository.">
+	<feature name="content-core-filesystemstorageprovider" version="${project.version}"
+             description="The File System Provider provides the implementation to create, update, or delete content items as files in the Content Repository.">
         <bundle>mvn:ddf.content.core/content-core-filesystemstorageprovider/${project.version}</bundle>
 	</feature>
 	
-	<feature name="content-core-directorymonitor" version="${project.version}" description="Monitors directories to process content files.">
+	<feature name="content-core-directorymonitor" version="${project.version}"
+             description="Monitors directories to process content files.">
         <bundle>mvn:ddf.content.core/content-core-directorymonitor/${project.version}</bundle>
     </feature>
     
-    <feature name="content-core-catalogerplugin" version="${project.version}" description="Content Plugin provides post-CUD operations after content storage.">
+    <feature name="content-core-catalogerplugin" version="${project.version}"
+             description="Content Plugin provides post-CUD operations after content storage.">
 		<bundle>mvn:ddf.content.core/content-core-catalogerplugin/${project.version}</bundle>
 	</feature>
 
@@ -38,8 +41,9 @@
         <bundle>mvn:ddf.content.core/content-core-standardframework/${project.version}</bundle>
 		<bundle>mvn:ddf.content.core/content-core-camelcomponent/${project.version}</bundle>
 	</feature>
-	<!-- TODO Determine if we need one Content app or separate Content REST Endpoint App -->
-	<feature name="content-rest-endpoint" version="${project.version}" description="REST Endpoint provides CRUD operations for content storage.">
+    <!-- TODO Determine if we need one Content app or separate Content REST Endpoint App -->
+    <feature name="content-rest-endpoint" version="${project.version}"
+             description="REST Endpoint provides CRUD operations for content storage.">
 		<bundle>mvn:ddf.content.endpoint/content-rest-endpoint/${project.version}</bundle>
 	</feature>
 

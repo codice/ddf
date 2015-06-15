@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.content.operation.impl;
 
 import java.io.Serializable;
@@ -19,34 +18,32 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import ddf.content.operation.Operation;
 import ddf.content.operation.Request;
 import ddf.content.operation.Response;
-import ddf.content.plugin.ContentPlugin;
-import ddf.content.storage.StorageProvider;
 
 /**
  * Response properties are the properties added specifically to a {@link Response} that are intended
  * for distribution to external clients, e.g., by Endpoints.
- * 
- * Properties, associated with the parent class {@link Operation} are properties intended for use by
- * the Content Framework components, e.g., {@link StorageProvider}s and {@link ContentPlugin}s.
- * 
+ * <p/>
+ * Properties, associated with the parent class {@link ddf.content.operation.Operation} are properties intended for use by
+ * the Content Framework components, e.g., {@link ddf.content.storage.StorageProvider}s and {@link ddf.content.plugin.ContentPlugin}s.
  */
 public class ResponseImpl<T extends Request> extends OperationImpl implements Response<T> {
-    /** The original request associated with this response. */
+    /**
+     * The original request associated with this response.
+     */
     protected T request;
 
-    /** The {@link Map} of response properties associated with an {@link Operation} */
+    /**
+     * The {@link Map} of response properties associated with an {@link ddf.content.operation.Operation}
+     */
     protected Map<String, String> responseProperties;
 
     /**
      * Instantiates an ResponseImpl object with a {@link Map} of response properties.
-     * 
-     * @param request
-     *            - the original request
-     * @param responseProperties
-     *            the properties of the response
+     *
+     * @param request            - the original request
+     * @param responseProperties the properties of the response
      */
     public ResponseImpl(T request, Map<String, String> responseProperties) {
         this(request, responseProperties, null);
@@ -73,16 +70,6 @@ public class ResponseImpl<T extends Request> extends OperationImpl implements Re
         return request;
     }
 
-    /**
-     * Set the {@link Map} of response properties for an {@link Response}.
-     * 
-     * @param newProperties
-     *            the response properties
-     */
-    public void setResponseProperties(Map<String, String> newProperties) {
-        this.responseProperties = newProperties;
-    }
-
     @Override
     public Set<String> getResponsePropertyNames() {
         return responseProperties.keySet();
@@ -106,5 +93,14 @@ public class ResponseImpl<T extends Request> extends OperationImpl implements Re
     @Override
     public Map<String, String> getResponseProperties() {
         return responseProperties;
+    }
+
+    /**
+     * Set the {@link Map} of response properties for an {@link Response}.
+     *
+     * @param newProperties the response properties
+     */
+    public void setResponseProperties(Map<String, String> newProperties) {
+        this.responseProperties = newProperties;
     }
 }
