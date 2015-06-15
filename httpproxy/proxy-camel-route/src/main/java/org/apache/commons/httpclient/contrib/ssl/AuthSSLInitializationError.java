@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 /*
  * $HeadURL$ $Revision$ $Date$
  * 
@@ -41,9 +40,9 @@ package org.apache.commons.httpclient.contrib.ssl;
  * <p>
  * Signals fatal error in initialization of {@link AuthSSLProtocolSocketFactory}.
  * </p>
- * 
+ *
  * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
- * 
+ *
  *         <p>
  *         DISCLAIMER: HttpClient developers DO NOT actively support this component. The component
  *         is provided as a reference material, which may be inappropriate for use without
@@ -62,7 +61,7 @@ public class AuthSSLInitializationError extends Error {
 
     /**
      * Creates a new AuthSSLInitializationError with the specified message.
-     * 
+     *
      * @param message
      *            error message
      */

@@ -10,8 +10,7 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.proxy.http;
 
 import java.io.File;
@@ -41,13 +40,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class HttpProxyServiceImpl implements HttpProxyService {
-    BundleContext bundleContext = null;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxyServiceImpl.class);
-
     public static final String SERVLET_NAME = "CamelServlet";
-
-    private static final String SERVLET_COMPONENT = "servlet";
 
     public static final String SERVLET_PATH = "/proxy";
 
@@ -81,9 +74,15 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     public static final String HTTP_PROXY_AUTH_HOST_KEY = "proxyAuthHost";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxyServiceImpl.class);
+
+    private static final String SERVLET_COMPONENT = "servlet";
+
     private static final int DEFAULT_TIMEOUT_MS = 5000;
 
     private static final String SERVLET = "servlet";
+
+    BundleContext bundleContext = null;
 
     int incrementer = 0;
 
@@ -164,8 +163,8 @@ public class HttpProxyServiceImpl implements HttpProxyService {
         RouteBuilder routeBuilder = new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from(routeEndpointType + protocolDelimeter + endpointName + matchPrefix).removeHeader("Authorization")
-                        .removeHeader("Cookie").to(targetUri
+                from(routeEndpointType + protocolDelimeter + endpointName + matchPrefix)
+                        .removeHeader("Authorization").removeHeader("Cookie").to(targetUri
                         + "?bridgeEndpoint=true&throwExceptionOnFailure=false&httpClient.soTimeout="
                         + timeout + "&httpClient.connectionManagerTimeout=" + timeout)
                         .routeId(endpointName);

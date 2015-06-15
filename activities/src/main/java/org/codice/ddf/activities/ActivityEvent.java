@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.activities;
 
 import java.util.Date;
@@ -24,12 +23,8 @@ import org.slf4j.LoggerFactory;
 
 public class ActivityEvent extends HashMap<String, Object> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ActivityEvent.class);
-
-    private static final long serialVersionUID = -3965553379790729847L;
-
     public static final String ID_KEY = "id";
-    
+
     public static final String SESSION_ID_KEY = "session";
 
     public static final String STATUS_KEY = "status";
@@ -56,31 +51,13 @@ public class ActivityEvent extends HashMap<String, Object> {
 
     public static final String EVENT_TOPIC_DOWNLOAD_CANCEL = "ddf/download/cancel";
 
-    /**
-     * 
-     * Status enumerations for an activity. Describes the various states an
-     * activity can be in. <br/>
-     * <br/>
-     * <b>STARTED</b> - Initial status, the activity is in the process of
-     * starting up and is not RUNNING yet. <br/>
-     * <b>RUNNING</b> - Main state used to describe that the activity is
-     * currently active and performing the activity. <br/>
-     * <b>FINISHED</b> - The activity has finished its processing and will not
-     * send any more statuses. <br/>
-     * <b>STOPPED</b> - The activity has stopped running before finishing and
-     * cannot be resumed. <br/>
-     * <b>PAUSED</b> - The activity has been paused before finishing and can be
-     * resumed. <br/>
-     * <b>FAILED</b> - The activity suffered a failure before finishing and
-     * cannot be resumed.
-     * 
-     */
-    public enum ActivityStatus {
-        STARTED, RUNNING, COMPLETE, STOPPED, PAUSED, FAILED
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActivityEvent.class);
 
-    public ActivityEvent(String id, String sessionId, Date timestamp, String category, String title, String message,
-            int progress, Map<String, String> operations, String user, ActivityStatus type, Long bytes) {
+    private static final long serialVersionUID = -3965553379790729847L;
+
+    public ActivityEvent(String id, String sessionId, Date timestamp, String category, String title,
+            String message, int progress, Map<String, String> operations, String user,
+            ActivityStatus type, Long bytes) {
         setActivityId(id);
         setSessionId(sessionId);
         setTimestamp(timestamp);
@@ -96,7 +73,7 @@ public class ActivityEvent extends HashMap<String, Object> {
 
     /**
      * Sets the operations that this activity can perform.
-     * 
+     *
      * @param operations
      *            Map of operations where the key is the operation name and the
      *            value is a url to the operation
@@ -106,19 +83,8 @@ public class ActivityEvent extends HashMap<String, Object> {
     }
 
     /**
-     * Sets the progress of the activity.
-     * 
-     * @param progress
-     *            Integer value representation of the progress, ranging from 0 to 100,
-     *            or -1 when progress is unknown or not applicable
-     */
-    public void setProgress(int progress) {
-        this.put(PROGRESS_KEY, progress);
-    }
-
-    /**
      * Returns the progress of the activity.
-     * 
+     *
      * @return progress
      *            Integer value representation of the progress, ranging from 0 to 100,
      *            or -1 when progress is unknown or not applicable
@@ -128,8 +94,19 @@ public class ActivityEvent extends HashMap<String, Object> {
     }
 
     /**
+     * Sets the progress of the activity.
+     *
+     * @param progress
+     *            Integer value representation of the progress, ranging from 0 to 100,
+     *            or -1 when progress is unknown or not applicable
+     */
+    public void setProgress(int progress) {
+        this.put(PROGRESS_KEY, progress);
+    }
+
+    /**
      * Return the type of {@code ActivityEvent} that is going on.
-     * 
+     *
      * @return Type of the {@code ActivityEvent}, must follow the enumerated
      *         ActivityType values.
      */
@@ -138,8 +115,17 @@ public class ActivityEvent extends HashMap<String, Object> {
     }
 
     /**
+     * Retrieves the ID of the current {@code ActivityEvent}.
+     *
+     * @return ID of the {@code ActivityEvent}.
+     */
+    public String getActivityId() {
+        return this.get(ID_KEY).toString();
+    }
+
+    /**
      * Set the id of the activity being performed.
-     * 
+     *
      * @param id
      *            This id should be unique and used across the entire lifecycle
      *            of the {@code ActivityEvent}.
@@ -149,17 +135,17 @@ public class ActivityEvent extends HashMap<String, Object> {
     }
 
     /**
-     * Retrieves the ID of the current {@code ActivityEvent}.
-     * 
-     * @return ID of the {@code ActivityEvent}.
+     * Retrieves the session ID of the current {@code ActivityEvent}.
+     *
+     * @return session ID of the {@code ActivityEvent}.
      */
-    public String getActivityId() {
-        return this.get(ID_KEY).toString();
+    public String getSessionId() {
+        return this.get(SESSION_ID_KEY).toString();
     }
 
     /**
      * Set the session id of the activity being performed.
-     * 
+     *
      * @param sessionId
      *            This session id should be unique and used across the entire lifecycle
      *            of the {@code ActivityEvent}.
@@ -169,17 +155,8 @@ public class ActivityEvent extends HashMap<String, Object> {
     }
 
     /**
-     * Retrieves the session ID of the current {@code ActivityEvent}.
-     * 
-     * @return session ID of the {@code ActivityEvent}.
-     */
-    public String getSessionId() {
-        return this.get(SESSION_ID_KEY).toString();
-    }
-
-    /**
      * Returns the message associated with the {@code ActivityEvent}
-     * 
+     *
      * @return The message associated with the {@code ActivityEvent}
      */
     public String getMessage() {
@@ -188,7 +165,7 @@ public class ActivityEvent extends HashMap<String, Object> {
 
     /**
      * Overwrites the message associated with the {@code ActivityEvent}
-     * 
+     *
      * @param message
      *            The new message associated with the {@code ActivityEvent}
      */
@@ -198,7 +175,7 @@ public class ActivityEvent extends HashMap<String, Object> {
 
     /**
      * Returns the title associated with the {@code ActivityEvent}
-     * 
+     *
      * @return The title associated with the {@code ActivityEvent}
      */
     public String getTitle() {
@@ -207,7 +184,7 @@ public class ActivityEvent extends HashMap<String, Object> {
 
     /**
      * Overwrites the title associated with the {@code ActivityEvent}
-     * 
+     *
      * @param title
      *            The new title associated with the {@code ActivityEvent}
      */
@@ -217,7 +194,7 @@ public class ActivityEvent extends HashMap<String, Object> {
 
     /**
      * Returns the category associated with the {@code ActivityEvent}
-     * 
+     *
      * @return The category associated with the {@code ActivityEvent}
      */
     public String getCategory() {
@@ -226,7 +203,7 @@ public class ActivityEvent extends HashMap<String, Object> {
 
     /**
      * Overwrites the category associated with the {@code ActivityEvent}
-     * 
+     *
      * @param category
      *            A human-readable category that describes the event that is
      *            occuring. Example: 'Product Retrieval'.
@@ -238,44 +215,57 @@ public class ActivityEvent extends HashMap<String, Object> {
     /**
      * Returns a {@code String} depicting the time at which the event that
      * triggered this {@code ActivityEvent} occurred.
-     *  
+     *
      * @return A {@code String} representing the number of milliseconds
-     *         between January 1, 1970, 00:00:00 GMT and the point at 
-     *         which the event that triggered this {@code ActivityEvent}  
+     *         between January 1, 1970, 00:00:00 GMT and the point at
+     *         which the event that triggered this {@code ActivityEvent}
      *         occurred.
      */
     public String getTimestampString() {
         return this.get(TIMESTAMP_KEY).toString();
     }
-    
+
     /**
      * Returns a <code>long</code> depicting the time at which the event that
      * triggered this {@code ActivityEvent} occurred.
-     *  
+     *
      * @return A <code>long</code> representing the number of milliseconds
-     *         between January 1, 1970, 00:00:00 GMT and the point at 
-     *         which the event that triggered this {@code ActivityEvent} 
+     *         between January 1, 1970, 00:00:00 GMT and the point at
+     *         which the event that triggered this {@code ActivityEvent}
      *         occurred.
      */
     public Long getTimestampLong() {
         return getTimestamp().getTime();
     }
-    
+
     /**
      * Returns a <code>Date</code> depicting the time at which the event that triggered this
      * {@code ActivityEvent} occurred.
-     * 
+     *
      * @return A <code>Date</code> the point at which the event that triggered this
      *         {@code ActivityEvent} occurred.
      */
     public Date getTimestamp() {
         return ISODateTimeFormat.dateTime().parseDateTime(getTimestampString()).toDate();
     }
-    
+
     /**
      * Overwrites the timestamp that depicts the time at which the event that
      * triggered the {@code ActivityEvent} occurred.
-     *  
+     *
+     * @param timestamp A <code>long</code> representing the number of
+     *                  milliseconds between January 1, 1970, 00:00:00 GMT and
+     *                  the point at which the event that triggered this
+     *                  {@code ActivityEvent} occurred.
+     */
+    public void setTimestamp(Long timestamp) {
+        this.setTimestamp(new Date(timestamp));
+    }
+
+    /**
+     * Overwrites the timestamp that depicts the time at which the event that
+     * triggered the {@code ActivityEvent} occurred.
+     *
      * @param timestampString A {@code String} representing the number of 
      *                        milliseconds between January 1, 1970, 00:00:00 GMT
      *                        and the point at which the event that triggered
@@ -284,11 +274,11 @@ public class ActivityEvent extends HashMap<String, Object> {
     private void setTimestamp(String timestampString) {
         this.put(TIMESTAMP_KEY, timestampString);
     }
-    
+
     /**
      * Overwrites the timestamp that depicts the time at which the event that triggered the
      * {@code ActivityEvent} occurred.
-     * 
+     *
      * @param timestamp
      *            A <code>Date</code> representing the point at which the event that triggered this
      *            {@code ActivityEvent} occurred.
@@ -296,23 +286,10 @@ public class ActivityEvent extends HashMap<String, Object> {
     public void setTimestamp(Date timestamp) {
         setTimestamp(ISODateTimeFormat.dateTime().print(timestamp.getTime()));
     }
-    
-    /**
-     * Overwrites the timestamp that depicts the time at which the event that
-     * triggered the {@code ActivityEvent} occurred.
-     *  
-     * @param timestamp A <code>long</code> representing the number of 
-     *                  milliseconds between January 1, 1970, 00:00:00 GMT and
-     *                  the point at which the event that triggered this 
-     *                  {@code ActivityEvent} occurred.
-     */
-    public void setTimestamp(Long timestamp) {
-        this.setTimestamp(new Date(timestamp));
-    }
 
     /**
      * Returns the id of the user to whom this {@code ActivityEvent} is addressed.
-     * 
+     *
      * @return The id of the user to whom this {@code ActivityEvent} is addressed.
      */
     public String getUserId() {
@@ -321,7 +298,7 @@ public class ActivityEvent extends HashMap<String, Object> {
 
     /**
      * Overwrites the id of the user to whom the {@code ActivityEvent} is addressed.
-     * 
+     *
      * @param userId
      *            The new userId to whom the {@code ActivityEvent} should be
      *            addressed.
@@ -353,5 +330,28 @@ public class ActivityEvent extends HashMap<String, Object> {
      */
     public void setBytesRead(Long bytesRead) {
         this.put(BYTES_READ_KEY, bytesRead);
+    }
+
+    /**
+     *
+     * Status enumerations for an activity. Describes the various states an
+     * activity can be in. <br/>
+     * <br/>
+     * <b>STARTED</b> - Initial status, the activity is in the process of
+     * starting up and is not RUNNING yet. <br/>
+     * <b>RUNNING</b> - Main state used to describe that the activity is
+     * currently active and performing the activity. <br/>
+     * <b>FINISHED</b> - The activity has finished its processing and will not
+     * send any more statuses. <br/>
+     * <b>STOPPED</b> - The activity has stopped running before finishing and
+     * cannot be resumed. <br/>
+     * <b>PAUSED</b> - The activity has been paused before finishing and can be
+     * resumed. <br/>
+     * <b>FAILED</b> - The activity suffered a failure before finishing and
+     * cannot be resumed.
+     *
+     */
+    public enum ActivityStatus {
+        STARTED, RUNNING, COMPLETE, STOPPED, PAUSED, FAILED
     }
 }

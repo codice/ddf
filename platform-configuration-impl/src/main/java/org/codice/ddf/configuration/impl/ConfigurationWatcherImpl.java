@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.configuration.impl;
 
 import java.util.Collections;
@@ -26,14 +25,14 @@ import org.slf4j.ext.XLogger;
  * Implementation of {@link ConfigurationWatcher} that allows bundles that need to use the
  * Configuration values and easy way to do so by injecting an instance of this class into the Object
  * via Blueprint (or similar).
- * 
+ *
  * This allows Objects to easily use a {@link ConfigurationWatcher} instead of be a
  * {@link ConfigurationWatcher}
- * 
+ *
  */
 public class ConfigurationWatcherImpl implements ConfigurationWatcher {
 
-    private static final XLogger logger = new XLogger(
+    private static final XLogger LOGGER = new XLogger(
             LoggerFactory.getLogger(ConfigurationWatcherImpl.class));
 
     private Map<String, String> propertyMap = null;
@@ -63,7 +62,7 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
 
     /**
      * Helper method to get the hostname or IP from the configuration
-     * 
+     *
      * @return the value associated with {@link ConfigurationManager#HOST} property name
      */
     public String getHostname() {
@@ -72,7 +71,7 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
 
     /**
      * Helper method to get the port from the configuration
-     * 
+     *
      * @return the Integer value associated with the {@link ConfigurationManager#PORT} property name
      *         if it is an Integer, otherwise null
      */
@@ -82,7 +81,7 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
 
     /**
      * Helper method to get the Protocol which includes the slashes (e.g. http:// or https://)
-     * 
+     *
      * @return the value associated with the {@link ConfigurationManager#PROTOCOL} property name
      */
     public String getProtocol() {
@@ -92,7 +91,7 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
     /**
      * Helper method to get the Scheme from the Protocol which omits everything after and including
      * the first ':' (e.g. http or https)
-     * 
+     *
      * @return the String value before the first ':' character associated with the
      *         {@link ConfigurationManager#PROTOCOL} property name
      */
@@ -102,7 +101,7 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
 
     /**
      * Helper method to get the site name from the configuration
-     * 
+     *
      * @return the value associated with {@link ConfigurationManager#SITE_NAME} property name
      */
     public String getSiteName() {
@@ -111,7 +110,7 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
 
     /**
      * Helper method to get the version from the configuration
-     * 
+     *
      * @return the value associated with {@link ConfigurationManager#VERSION} property name
      */
     public String getVersion() {
@@ -120,7 +119,7 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
 
     /**
      * Helper method to get the version from the configuration
-     * 
+     *
      * @return the value associated with {@link ConfigurationManager#ORGANIZATION property name
      */
     public String getOrganization() {
@@ -129,7 +128,7 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
 
     /**
      * Helper method to get the contact info from the configuration
-     * 
+     *
      * @return the value associated with {@link ConfigurationManager#CONTACT} property name
      */
     public String getContactEmailAddress() {
@@ -139,7 +138,7 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
     /**
      * Method to get property values from the configuration. Refer to the Constants in the
      * {@link ConfigurationManager} class for a list of property names
-     * 
+     *
      * @return the value associated with property name passed in, null if the property name does not
      *         exist in the configuration
      */
@@ -149,12 +148,12 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
 
     @Override
     public void configurationUpdateCallback(Map<String, String> properties) {
-        logger.entry("configurationUpdateCallback");
+        LOGGER.entry("configurationUpdateCallback");
 
         if (properties != null && !properties.isEmpty()) {
             propertyMap = properties;
 
-            logger.debug("Configuration values: {}", properties);
+            LOGGER.debug("Configuration values: {}", properties);
 
             String oldValue = hostname;
             hostname = properties.get(ConfigurationManager.HOST);
@@ -169,7 +168,7 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
                 }
                 logConfigurationValue(ConfigurationManager.PORT, oldValue, port);
             } catch (NumberFormatException e) {
-                logger.warn(
+                LOGGER.warn(
                         "Error Updating Configuration value for '{}', not a valid Integer [{}] reverting back to old value [{}]",
                         new Object[] {ConfigurationManager.PORT, portString, port});
             }
@@ -210,13 +209,14 @@ public class ConfigurationWatcherImpl implements ConfigurationWatcher {
             version = null;
             organization = null;
             contactInfo = null;
-            logger.debug("Platform Configuration Properties are NULL or empty, setting all values to null");
+            LOGGER.debug(
+                    "Platform Configuration Properties are NULL or empty, setting all values to null");
         }
-        logger.exit();
+        LOGGER.exit();
     }
 
     protected void logConfigurationValue(String propertyName, Object oldValue, Object newValue) {
-        logger.debug("Updating Configuration value '{}' oldValue = [{}], newValue = [{}]",
+        LOGGER.debug("Updating Configuration value '{}' oldValue = [{}], newValue = [{}]",
                 new Object[] {propertyName, oldValue, newValue});
     }
 

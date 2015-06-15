@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.activities;
 
 import static org.junit.Assert.assertEquals;
@@ -42,8 +41,8 @@ public class ActivityEventTest {
         String user = UUID.randomUUID().toString();
         ActivityStatus type = ActivityStatus.RUNNING;
         Long bytes = 1024000000L;
-        ActivityEvent event = new ActivityEvent(id, sessionId, timestamp, category, title, message, progress,
-                operations, user, type, bytes);
+        ActivityEvent event = new ActivityEvent(id, sessionId, timestamp, category, title, message,
+                progress, operations, user, type, bytes);
 
         // id
         assertEquals(id, event.getActivityId());
@@ -60,29 +59,29 @@ public class ActivityEventTest {
                 .parseDateTime(event.get(ActivityEvent.TIMESTAMP_KEY).toString()).toDate()
                 .getTime());
         assertEquals(timestamp, cal.getTime());
-        
+
         // category
         assertEquals(category, event.getCategory());
         assertEquals(category, event.get(ActivityEvent.CATEGORY_KEY));
-        
+
         // title
         assertEquals(title, event.getTitle());
         assertEquals(title, event.get(ActivityEvent.TITLE_KEY));
-        
+
         // message
         assertEquals(message, event.getMessage());
         assertEquals(message, event.get(ActivityEvent.MESSAGE_KEY));
-        
+
         // progress
         assertEquals(progress, event.get(ActivityEvent.PROGRESS_KEY));
-        
+
         // operations
         assertEquals(operations, event.get(ActivityEvent.OPERATIONS_KEY));
-        
+
         // user
         assertEquals(user, event.getUserId());
         assertEquals(user, event.get(ActivityEvent.USER_ID_KEY));
-        
+
         // type
         assertEquals(type, ActivityStatus.valueOf(event.getActivityType()));
         assertEquals(type, ActivityStatus.valueOf(event.get(ActivityEvent.STATUS_KEY).toString()));
@@ -91,7 +90,7 @@ public class ActivityEventTest {
         assertEquals(bytes, event.getBytesRead());
         assertEquals(bytes, event.get(ActivityEvent.BYTES_READ_KEY));
     }
-    
+
     /**
      * Anonymous user will have empty string as their user ID - verify can create
      * an ActivityEvent with an empty string for the user ID.
@@ -110,8 +109,8 @@ public class ActivityEventTest {
         String user = "";
         ActivityStatus type = ActivityStatus.RUNNING;
         Long bytes = 1024000000L;
-        ActivityEvent event = new ActivityEvent(id, sessionId, timestamp, category, title, message, progress,
-                operations, user, type, bytes);
+        ActivityEvent event = new ActivityEvent(id, sessionId, timestamp, category, title, message,
+                progress, operations, user, type, bytes);
 
         // id
         assertEquals(id, event.getActivityId());
@@ -128,29 +127,29 @@ public class ActivityEventTest {
                 .parseDateTime(event.get(ActivityEvent.TIMESTAMP_KEY).toString()).toDate()
                 .getTime());
         assertEquals(timestamp, cal.getTime());
-        
+
         // category
         assertEquals(category, event.getCategory());
         assertEquals(category, event.get(ActivityEvent.CATEGORY_KEY));
-        
+
         // title
         assertEquals(title, event.getTitle());
         assertEquals(title, event.get(ActivityEvent.TITLE_KEY));
-        
+
         // message
         assertEquals(message, event.getMessage());
         assertEquals(message, event.get(ActivityEvent.MESSAGE_KEY));
-        
+
         // progress
         assertEquals(progress, event.get(ActivityEvent.PROGRESS_KEY));
-        
+
         // operations
         assertEquals(operations, event.get(ActivityEvent.OPERATIONS_KEY));
-        
+
         // user
         assertEquals(user, event.getUserId());
         assertEquals(user, event.get(ActivityEvent.USER_ID_KEY));
-        
+
         // type
         assertEquals(type, ActivityStatus.valueOf(event.getActivityType()));
         assertEquals(type, ActivityStatus.valueOf(event.get(ActivityEvent.STATUS_KEY).toString()));

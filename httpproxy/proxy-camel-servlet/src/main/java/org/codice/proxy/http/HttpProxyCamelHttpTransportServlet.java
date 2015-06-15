@@ -1,17 +1,32 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ *
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -31,6 +46,16 @@
  */
 package org.codice.proxy.http;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
@@ -48,24 +73,19 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 /**
  * Camel HTTP servlet which can be used in Camel routes to route servlet invocations in routes.
  */
 public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
     private static final long serialVersionUID = -1797014782158930490L;
-    private static final Logger LOG = LoggerFactory.getLogger(HttpProxyCamelHttpTransportServlet.class);
+
+    private static final Logger LOG = LoggerFactory
+            .getLogger(HttpProxyCamelHttpTransportServlet.class);
 
     private CamelContext camelContext;
+
     private HttpRegistry httpRegistry;
+
     private boolean ignoreDuplicateServletName;
 
     private ConcurrentMap<String, HttpConsumer> consumers = new ConcurrentHashMap<String, HttpConsumer>();
@@ -84,7 +104,9 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
             ignoreDuplicateServletName = bool;
         } else {
             // always log so people can see it easier
-            String msg = "Invalid parameter value for init-parameter ignoreDuplicateServletName with value: " + ignore;
+            String msg =
+                    "Invalid parameter value for init-parameter ignoreDuplicateServletName with value: "
+                            + ignore;
             LOG.error(msg);
             throw new ServletException(msg);
         }
@@ -96,7 +118,8 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
             httpRegistry = DefaultHttpRegistry.getHttpRegistry(name);
             CamelServlet existing = httpRegistry.getCamelServlet(name);
             if (existing != null) {
-                String msg = "Duplicate ServetName detected: " + name + ". Existing: " + existing + " This: " + this.toString()
+                String msg = "Duplicate ServetName detected: " + name + ". Existing: " + existing
+                        + " This: " + this.toString()
                         + ". Its advised to use unique ServletName per Camel application.";
                 // always log so people can see it easier
                 if (isIgnoreDuplicateServletName()) {
@@ -109,9 +132,10 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
             httpRegistry.register(this);
         }
 
-        LOG.info("Initialized CamelHttpTransportServlet[name={}, contextPath={}]", getServletName(), contextPath);
+        LOG.info("Initialized CamelHttpTransportServlet[name={}, contextPath={}]", getServletName(),
+                contextPath);
     }
-    
+
     @Override
     public void destroy() {
         DefaultHttpRegistry.removeHttpRegistry(getServletName());
@@ -121,14 +145,15 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
         }
         LOG.info("Destroyed CamelHttpTransportServlet[{}]", getServletName());
     }
-    
+
     @Override
-    protected void service(HttpServletRequest oldRequest, HttpServletResponse response) throws ServletException, IOException {
-    	
-    	//Wrap request and clean the query String
-    	HttpProxyWrappedCleanRequest request = new HttpProxyWrappedCleanRequest(oldRequest);
-    	
-    	log.trace("Service: {}", request);
+    protected void service(HttpServletRequest oldRequest, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        //Wrap request and clean the query String
+        HttpProxyWrappedCleanRequest request = new HttpProxyWrappedCleanRequest(oldRequest);
+
+        log.trace("Service: {}", request);
 
         // Is there a consumer registered for the request.
         HttpConsumer consumer = resolve(request);
@@ -153,16 +178,16 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        
+
         // are we suspended?
         if (consumer.getEndpoint().isSuspended()) {
             log.debug("Consumer suspended, cannot service request {}", request);
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             return;
         }
-        
-        if (consumer.getEndpoint().getHttpMethodRestrict() != null
-            && !consumer.getEndpoint().getHttpMethodRestrict().equals(request.getMethod())) {
+
+        if (consumer.getEndpoint().getHttpMethodRestrict() != null && !consumer.getEndpoint()
+                .getHttpMethodRestrict().equals(request.getMethod())) {
             response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             return;
         }
@@ -171,7 +196,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
             response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             return;
         }
-        
+
         // create exchange and set data on it
         Exchange exchange = new DefaultExchange(consumer.getEndpoint(), ExchangePattern.InOut);
 
@@ -191,12 +216,11 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
         String contextPath = consumer.getEndpoint().getPath();
         exchange.getIn().setHeader("CamelServletContextPath", contextPath);
 
-        String httpPath = (String)exchange.getIn().getHeader(Exchange.HTTP_PATH);
+        String httpPath = (String) exchange.getIn().getHeader(Exchange.HTTP_PATH);
         // here we just remove the CamelServletContextPath part from the HTTP_PATH
-        if (contextPath != null
-            && httpPath.startsWith(contextPath)) {
-            exchange.getIn().setHeader(Exchange.HTTP_PATH,
-                    httpPath.substring(contextPath.length()));
+        if (contextPath != null && httpPath.startsWith(contextPath)) {
+            exchange.getIn()
+                    .setHeader(Exchange.HTTP_PATH, httpPath.substring(contextPath.length()));
         }
 
         // we want to handle the UoW
@@ -240,13 +264,13 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet {
         }
     }
 
-    
     private ServletEndpoint getServletEndpoint(HttpConsumer consumer) {
         if (!(consumer.getEndpoint() instanceof ServletEndpoint)) {
-            throw new RuntimeException("Invalid consumer type. Must be ServletEndpoint but is " 
-                    + consumer.getClass().getName());
+            throw new RuntimeException(
+                    "Invalid consumer type. Must be ServletEndpoint but is " + consumer.getClass()
+                            .getName());
         }
-        return (ServletEndpoint)consumer.getEndpoint();
+        return (ServletEndpoint) consumer.getEndpoint();
     }
 
     protected HttpConsumer resolve(HttpServletRequest request) {
