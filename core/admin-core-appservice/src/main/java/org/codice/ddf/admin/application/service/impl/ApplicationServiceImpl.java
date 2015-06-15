@@ -1,18 +1,30 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.admin.application.service.impl;
+
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleState;
@@ -38,32 +50,11 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
-
 /**
  * Implementation of the ApplicationService. Uses the karaf features service and
  * bundle state service to determine current state of items in karaf.
  */
 public class ApplicationServiceImpl implements ApplicationService {
-
-    private Logger logger = LoggerFactory.getLogger(ApplicationServiceImpl.class);
-
-    private FeaturesService featuresService = null;
-
-    private List<BundleStateService> bundleStateServices = null;
-
-    private Set<String> ignoredApplicationNames = null;
 
     private static final String POST_CONFIG_START = "admin-post-install-modules";
 
@@ -79,6 +70,14 @@ public class ApplicationServiceImpl implements ApplicationService {
      * Used to make sure that the config file is only checked on first run.
      */
     private static final String FIRST_RUN_MARKER = "first-run";
+
+    private Logger logger = LoggerFactory.getLogger(ApplicationServiceImpl.class);
+
+    private FeaturesService featuresService = null;
+
+    private List<BundleStateService> bundleStateServices = null;
+
+    private Set<String> ignoredApplicationNames = null;
 
     /**
      * Creates a new instance of Application Service.
@@ -119,8 +118,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
             } catch (ApplicationServiceException ase) {
                 logger.warn("Exception while trying to find information for application named {}. "
-                                + "It will be excluded from the application list.", newApp.getName(),
-                        ase);
+                                + "It will be excluded from the application list.",
+                        newApp.getName(), ase);
             }
         }
         return new TreeSet<Application>(applications);
@@ -158,8 +157,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
             }
 
-            logger.debug("{} has {} required features that must be started.",
-                    application.getName(), requiredFeatures.size());
+            logger.debug("{} has {} required features that must be started.", application.getName(),
+                    requiredFeatures.size());
 
             uninstalledFeatures = getNotInstalledFeatures(requiredFeatures);
             boolean isMainFeatureUninstalled = false;
@@ -220,8 +219,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             ServiceReference<ConfigurationAdmin> configAdminRef = context
                     .getServiceReference(ConfigurationAdmin.class);
             ConfigurationAdmin configAdmin = context.getService(configAdminRef);
-            Configuration config = configAdmin.getConfiguration(ApplicationServiceImpl.class
-                    .getName());
+            Configuration config = configAdmin
+                    .getConfiguration(ApplicationServiceImpl.class.getName());
             Dictionary<String, Object> properties = config.getProperties();
 
             if (properties.get(FIRST_RUN_MARKER) == null) {
@@ -294,8 +293,7 @@ public class ApplicationServiceImpl implements ApplicationService {
      *                             the second set of statements will be relevant
      */
     private void traverseDependencies(Map<Application, ApplicationNodeImpl> appMap,
-            Set<Application> filteredApplications,
-            boolean reportDebug) {
+            Set<Application> filteredApplications, boolean reportDebug) {
         // find dependencies in each app and add them into correct node
         for (Entry<Application, ApplicationNodeImpl> curAppNode : appMap.entrySet()) {
             try {
@@ -304,8 +302,8 @@ public class ApplicationServiceImpl implements ApplicationService {
 
                 if (null == mainFeature) {
                     if (reportDebug) {
-                        logger.debug("Application \"{}\" does not contain a main feature", curAppNode
-                                .getKey().getName());
+                        logger.debug("Application \"{}\" does not contain a main feature",
+                                curAppNode.getKey().getName());
                     }
                     continue;
                 }
@@ -319,7 +317,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                 Set<Application> depAppSet = new HashSet<Application>();
                 for (Feature curDepFeature : dependencies) {
                     Application dependencyApp = findFeature(
-                            featuresService.getFeature(curDepFeature.getName()), filteredApplications);
+                            featuresService.getFeature(curDepFeature.getName()),
+                            filteredApplications);
                     if (dependencyApp != null) {
                         if (dependencyApp.equals(curAppNode.getKey())) {
                             if (reportDebug) {
@@ -395,8 +394,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         for (Application curDependency : applicationSet) {
             Set<Application> curDepSet = new HashSet<Application>();
             curDepSet.add(curDependency);
-            for (ApplicationNode curParent = appMap.get(curDependency).getParent(); curParent != null; curParent = curParent
-                    .getParent()) {
+            for (ApplicationNode curParent = appMap.get(curDependency).getParent();
+                    curParent != null; curParent = curParent.getParent()) {
                 curDepSet.add(curParent.getApplication());
             }
             applicationTreeSet.put(curDependency, curDepSet);
@@ -406,11 +405,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         // within its parents
         for (Entry<Application, Set<Application>> curAppEntry : applicationTreeSet.entrySet()) {
             if (!(new HashSet<Application>(applicationSet).retainAll(curAppEntry.getValue()))) {
-                logger.debug("{} contains all needed dependencies.", curAppEntry.getKey().getName());
+                logger.debug("{} contains all needed dependencies.",
+                        curAppEntry.getKey().getName());
                 return curAppEntry.getKey();
             } else {
-                logger.trace("{} does not contain all needed dependencies.", curAppEntry.getKey()
-                        .getName());
+                logger.trace("{} does not contain all needed dependencies.",
+                        curAppEntry.getKey().getName());
             }
         }
 
@@ -509,8 +509,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         for (Feature curFeature : features) {
             for (BundleInfo curBundleInfo : curFeature.getBundles()) {
                 Bundle curBundle = context.getBundle(curBundleInfo.getLocation());
-                if (curBundle != null &&
-                        curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
+                if (curBundle != null && curBundle.adapt(BundleRevision.class).getTypes()
+                        != BundleRevision.TYPE_FRAGMENT) {
 
                     // check if bundle is inactive
                     int bundleState = curBundle.getState();
@@ -596,7 +596,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public synchronized void startApplication(Application application) throws ApplicationServiceException {
+    public synchronized void startApplication(Application application)
+            throws ApplicationServiceException {
         try {
             if (application.getMainFeature() != null) {
                 featuresService.installFeature(application.getMainFeature().getName());
@@ -613,8 +614,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
             }
         } catch (Exception e) {
-            throw new ApplicationServiceException("Could not start application "
-                    + application.getName() + " due to errors.", e);
+            throw new ApplicationServiceException(
+                    "Could not start application " + application.getName() + " due to errors.", e);
         }
     }
 
@@ -628,12 +629,13 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
         }
 
-        throw new ApplicationServiceException("Could not find application named " + application
-                + ". Start application failed.");
+        throw new ApplicationServiceException(
+                "Could not find application named " + application + ". Start application failed.");
     }
 
     @Override
-    public synchronized void stopApplication(Application application) throws ApplicationServiceException {
+    public synchronized void stopApplication(Application application)
+            throws ApplicationServiceException {
         try {
             if (application.getMainFeature() != null) {
                 if (featuresService.isInstalled(application.getMainFeature())) {
@@ -642,8 +644,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                     Set<Feature> features = getAllDependencyFeatures(application.getMainFeature());
                     for (Feature curFeature : features) {
                         try {
-                            if (application.getFeatures().contains(curFeature)
-                                    && featuresService.isInstalled(curFeature)) {
+                            if (application.getFeatures().contains(curFeature) && featuresService
+                                    .isInstalled(curFeature)) {
                                 featuresService.uninstallFeature(curFeature.getName(),
                                         curFeature.getVersion());
                             }
@@ -653,8 +655,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                         }
                     }
                 } else {
-                    throw new ApplicationServiceException("Application " + application.getName()
-                            + " is already stopped.");
+                    throw new ApplicationServiceException(
+                            "Application " + application.getName() + " is already stopped.");
                 }
             } else {
                 logger.debug(
@@ -681,8 +683,170 @@ public class ApplicationServiceImpl implements ApplicationService {
                 return;
             }
         }
-        throw new ApplicationServiceException("Could not find application named " + application
-                + ". Stop application failed.");
+        throw new ApplicationServiceException(
+                "Could not find application named " + application + ". Stop application failed.");
+    }
+
+    @Override
+    public void addApplication(URI applicationURL) throws ApplicationServiceException {
+        try {
+            if (applicationURL.toString().startsWith("file:")) {
+                applicationURL = ApplicationFileInstaller.install(new File(applicationURL));
+                logger.info("Installing newly added feature repo: {}", applicationURL);
+            }
+            featuresService.addRepository(applicationURL, false);
+        } catch (Exception e) {
+            logger.warn("Could not add new application due to error.", e);
+            throw new ApplicationServiceException(e);
+        }
+    }
+
+    @Override
+    public void removeApplication(URI applicationURL) throws ApplicationServiceException {
+        try {
+            //This is a workaround for the Karaf FeaturesService
+            //To remove the repository, it attempts to uninstall all features
+            //whether they are uninstalled or not.
+            uninstallAllFeatures(applicationURL);
+            featuresService.removeRepository(applicationURL, false);
+        } catch (Exception e) {
+            logger.warn("Could not remove application due to error.", e);
+            throw new ApplicationServiceException(e);
+        }
+    }
+
+    @Override
+    public void removeApplication(Application application) throws ApplicationServiceException {
+        try {
+            if (application != null) {
+                uninstallAllFeatures(application);
+                featuresService.removeRepository(application.getURI(), false);
+            }
+        } catch (Exception e) {
+            logger.warn("Could not remove application due to error.", e);
+            throw new ApplicationServiceException(e);
+        }
+
+    }
+
+    @Override
+    public void removeApplication(String applicationName) throws ApplicationServiceException {
+        if (applicationName != null) {
+            removeApplication(getApplication(applicationName));
+        }
+    }
+
+    /**
+     * This method takes in an Application's URI and finds the application
+     * that needs to have all features uninstalled
+     *
+     * @param applicationURL - application to have all its features uninstalled
+     */
+    private void uninstallAllFeatures(URI applicationURL) {
+        if (applicationURL != null) {
+            Set<Application> applications = getApplications();
+
+            //Loop through all the applications for a match
+            for (Application application : applications) {
+                URI applicationURI = application.getURI();
+                if (applicationURI != null) {
+                    if (StringUtils.equals(applicationURL.toString(), applicationURI.toString())) {
+                        uninstallAllFeatures(application);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param application - application to have all its features uninstalled
+     */
+    private void uninstallAllFeatures(Application application) {
+        try {
+            Set<Feature> features = application.getFeatures();
+            for (Feature feature : features) {
+                if (featuresService.isInstalled(feature)) {
+                    try {
+                        featuresService.uninstallFeature(feature.getName(), feature.getVersion());
+                    } catch (Exception e) {
+                        //if there is an issue uninstalling a feature try to keep uninstalling the other features
+                        logger.warn("Could not uninstall feature: {} version: {}",
+                                feature.getName(), feature.getVersion(), e);
+                    }
+                }
+            }
+        } catch (ApplicationServiceException ase) {
+            logger.error("Error obtaining feature list from application", ase);
+        }
+    }
+
+    @Override
+    public List<FeatureDetails> getAllFeatures() {
+        List<FeatureDetails> features = new ArrayList<FeatureDetails>();
+        try {
+            for (Feature feature : featuresService.listFeatures()) {
+                features.add(getFeatureView(feature));
+            }
+        } catch (Exception ex) {
+            logger.warn("Could not obtain all features.", ex);
+        }
+        return features;
+    }
+
+    private Map<String, String> getFeatureToRepository() {
+        Map<String, String> feature2repo = new HashMap<String, String>();
+        try {
+            for (Repository repository : featuresService.listRepositories()) {
+                for (Feature feature : repository.getFeatures()) {
+                    feature2repo.put(feature.getId(), repository.getName());
+                }
+            }
+        } catch (Exception ex) {
+            logger.warn("Could not map Features to their Repositories.", ex);
+        }
+        return feature2repo;
+    }
+
+    private FeatureDetails getFeatureView(Feature feature) {
+        String status = featuresService.isInstalled(feature) ? INSTALLED : UNINSTALLED;
+        String repository = getFeatureToRepository().get(feature.getId());
+        return new FeatureDetails(feature, status, repository);
+    }
+
+    @Override
+    public List<FeatureDetails> findApplicationFeatures(String applicationName) {
+        List<FeatureDetails> features = new ArrayList<FeatureDetails>();
+        try {
+            for (Feature feature : getRepositoryFeatures(applicationName)) {
+                if (!isAppInFeatureList(feature, applicationName)) {
+                    features.add(getFeatureView(feature));
+                }
+            }
+        } catch (Exception ex) {
+            logger.warn("Could not obtain Application Features.", ex);
+        }
+        return features;
+    }
+
+    private boolean isAppInFeatureList(Feature feature, String applicationName) {
+        String appKey = feature.getName() + "-" + feature.getVersion();
+        return appKey.equalsIgnoreCase(applicationName);
+    }
+
+    private List<Feature> getRepositoryFeatures(String repositoryName) {
+        List<Feature> repoFeatures = new ArrayList<Feature>();
+        for (Repository repository : featuresService.listRepositories()) {
+            if (repository.getName().equalsIgnoreCase(repositoryName)) {
+                try {
+                    repoFeatures = Arrays.asList(repository.getFeatures());
+                } catch (Exception ex) {
+                    logger.warn("Could not get Repository Features", ex);
+                }
+                break;
+            }
+        }
+        return repoFeatures;
     }
 
     /**
@@ -731,171 +895,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         int getNumFailedBundles() {
             return failedBundles.size();
         }
-    }
-
-    @Override
-    public void addApplication(URI applicationURL) throws ApplicationServiceException {
-        try {
-            if (applicationURL.toString().startsWith("file:")) {
-                applicationURL = ApplicationFileInstaller.install(new File(applicationURL));
-                logger.info("Installing newly added feature repo: {}", applicationURL);
-            }
-            featuresService.addRepository(applicationURL, false);
-        } catch (Exception e) {
-            logger.warn("Could not add new application due to error.", e);
-            throw new ApplicationServiceException(e);
-        }
-    }
-
-    @Override
-    public void removeApplication(URI applicationURL) throws ApplicationServiceException {
-        try {
-            //This is a workaround for the Karaf FeaturesService
-            //To remove the repository, it attempts to uninstall all features
-            //whether they are uninstalled or not.
-            uninstallAllFeatures(applicationURL);
-            featuresService.removeRepository(applicationURL, false);
-        } catch (Exception e) {
-            logger.warn("Could not remove application due to error.", e);
-            throw new ApplicationServiceException(e);
-        }
-    }
-
-    @Override
-    public void removeApplication(Application application) throws ApplicationServiceException {
-     try {
-        if (application != null) {
-            uninstallAllFeatures(application);
-            featuresService.removeRepository(application.getURI(), false);
-        }
-     } catch (Exception e) {
-         logger.warn("Could not remove application due to error.", e);
-         throw new ApplicationServiceException(e);
-     }
-
-    }
-
-    @Override
-    public void removeApplication(String applicationName) throws ApplicationServiceException {
-        if (applicationName != null) {
-            removeApplication(getApplication(applicationName));
-        }
-    }
-
-    /**
-     * This method takes in an Application's URI and finds the application
-     * that needs to have all features uninstalled
-     *
-     * @param applicationURL - application to have all its features uninstalled
-     */
-    private void uninstallAllFeatures(URI applicationURL) {
-        if (applicationURL != null) {
-            Set<Application> applications = getApplications();
-
-            //Loop through all the applications for a match
-            for (Application application : applications) {
-                URI applicationURI = application.getURI();
-                if(applicationURI != null)
-                {
-                  if (StringUtils.equals(applicationURL.toString(), applicationURI.toString())) {
-                    uninstallAllFeatures(application);
-                    break;
-                  }
-                }
-            }
-        }
-    }
-
-    /**
-     * @param application - application to have all its features uninstalled
-     */
-    private void uninstallAllFeatures(Application application) {
-        try {
-            Set<Feature> features = application.getFeatures();
-            for (Feature feature : features) {
-                if (featuresService.isInstalled(feature)) {
-                    try {
-                        featuresService.uninstallFeature(feature.getName(), feature.getVersion());
-                    } catch (Exception e) {
-                        //if there is an issue uninstalling a feature try to keep uninstalling the other features
-                        logger.warn("Could not uninstall feature: {} version: {}", feature.getName(), feature.getVersion(), e);
-                    }
-                }
-            }
-        } catch (ApplicationServiceException ase) {
-            logger.error("Error obtaining feature list from application", ase);
-        }
-    }
-
-
-
-    @Override
-    public List<FeatureDetails> getAllFeatures() {
-        List<FeatureDetails> features = new ArrayList<FeatureDetails>();
-        try {
-            for (Feature feature : featuresService.listFeatures()) {
-                features.add(getFeatureView(feature));
-            }
-        } catch (Exception ex) {
-            logger.warn("Could not obtain all features.", ex);
-        }
-        return features;
-    }
-
-    private Map<String, String> getFeatureToRepository() {
-        Map<String, String> feature2repo = new HashMap<String, String>();
-        try {
-            for (Repository repository : featuresService.listRepositories()) {
-                for (Feature feature : repository.getFeatures()) {
-                    feature2repo.put(feature.getId(), repository.getName());
-                }
-            }
-        } catch (Exception ex) {
-            logger.warn("Could not map Features to their Repositories.", ex);
-        }
-        return feature2repo;
-    }
-
-    private FeatureDetails getFeatureView(Feature feature) {
-        String status = featuresService.isInstalled(feature) ? INSTALLED
-                : UNINSTALLED;
-        String repository = getFeatureToRepository().get(feature.getId());
-        return new FeatureDetails(feature, status, repository);
-    }
-
-    @Override
-    public List<FeatureDetails> findApplicationFeatures(String applicationName) {
-        List<FeatureDetails> features = new ArrayList<FeatureDetails>();
-        try {
-            for (Feature feature : getRepositoryFeatures(applicationName)) {
-                if (!isAppInFeatureList(feature, applicationName)) {
-                    features.add(getFeatureView(feature));
-                }
-            }
-        } catch (Exception ex) {
-            logger.warn("Could not obtain Application Features.", ex);
-        }
-        return features;
-    }
-
-    private boolean isAppInFeatureList(Feature feature, String applicationName) {
-        String appKey = feature.getName() + "-" + feature.getVersion();
-        return appKey.equalsIgnoreCase(applicationName);
-    }
-
-    private List<Feature> getRepositoryFeatures(String repositoryName) {
-        List<Feature> repoFeatures = new ArrayList<Feature>();
-        for (Repository repository : featuresService.listRepositories()) {
-            if (repository.getName().equalsIgnoreCase(repositoryName)) {
-                try {
-                    repoFeatures = Arrays.asList(repository.getFeatures());
-                } catch (Exception ex) {
-                    logger.warn("Could not get Repository Features", ex);
-                }
-                break;
-            }
-        }
-        return repoFeatures;
     }
 
 }

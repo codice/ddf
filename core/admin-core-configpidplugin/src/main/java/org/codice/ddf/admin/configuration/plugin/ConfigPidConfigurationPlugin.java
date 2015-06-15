@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.admin.configuration.plugin;
 
 import java.util.Dictionary;
@@ -36,7 +35,7 @@ public class ConfigPidConfigurationPlugin implements ConfigurationPlugin {
      * ManagedService/ManagedServiceFactory utilizes a container-managed 
      * update strategy, the configuration PID will subsequently be injected 
      * into the bean.
-     * 
+     *
      * @param reference
      *            Reference to the Managed Service or Managed Service Factory
      * @param properties

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.admin.application.service;
 
 import java.net.URI;
@@ -24,20 +23,20 @@ import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 /**
  * Service that keeps track and obtains status for applications running in the
  * system.
- * 
+ *
  */
 public interface ApplicationService {
 
     /**
      * Retrieve a set of applications are currently installed in the system.
-     * 
+     *
      * @return Set of applications.
      */
     Set<Application> getApplications();
 
     /**
      * Returns the application that has the given name
-     * 
+     *
      * @param applicationName
      *            Name of the application to retrieve. Is case-insensitive.
      * @return The application that matches the name or null if no application
@@ -47,7 +46,7 @@ public interface ApplicationService {
 
     /**
      * Determine if an application is currently started.
-     * 
+     *
      * @param application
      *            Application to check if started.
      * @return true if application is <b>ACTIVE</b>, false if it is
@@ -59,7 +58,7 @@ public interface ApplicationService {
     /**
      * Starts an application, including any defined dependencies in the
      * application.
-     * 
+     *
      * @param application
      *            Application instance to start.
      * @throws ApplicationServiceException
@@ -71,7 +70,7 @@ public interface ApplicationService {
     /**
      * Starts an application, including any defined dependencies in the
      * application.
-     * 
+     *
      * @param application
      *            Name of the application to start.
      * @throws ApplicationServiceException
@@ -83,7 +82,7 @@ public interface ApplicationService {
     /**
      * Stops an application, does not include any external transitive
      * dependencies as they may be needed by other applications.
-     * 
+     *
      * @param application
      *            Application instance to stop.
      * @throws ApplicationServiceException
@@ -96,7 +95,7 @@ public interface ApplicationService {
     /**
      * Stops an application, does not include any external transitive
      * dependencies as they may be needed by other applications.
-     * 
+     *
      * @param application
      *            Name of the application to stop.
      * @throws ApplicationServiceException
@@ -110,7 +109,7 @@ public interface ApplicationService {
      * Adds a new application to the application list. <br/>
      * <br/>
      * <b>NOTE: This does NOT start the application</b>
-     * 
+     *
      * @param applicationURL
      *            URL location of the application. Currently must be a features
      *            repository.
@@ -121,7 +120,7 @@ public interface ApplicationService {
 
     /**
      * Removes an application that has the given URI.
-     * 
+     *
      * @param applicationURL
      *            URL location of the application. Currently must be a features
      *            repository.
@@ -132,7 +131,7 @@ public interface ApplicationService {
 
     /**
      * Removes the given application.
-     * 
+     *
      * @param application
      *            Application instance to remove.
      * @throws ApplicationServiceException
@@ -142,7 +141,7 @@ public interface ApplicationService {
 
     /**
      * Removes an application that has the given name.
-     * 
+     *
      * @param applicationName
      *            Name of the application to remove.
      * @throws ApplicationServiceException
@@ -152,7 +151,7 @@ public interface ApplicationService {
 
     /**
      * Retrieve the status for the given application.
-     * 
+     *
      * @param application
      *            Application to obtain status for.
      * @return Status for the application.
@@ -162,7 +161,7 @@ public interface ApplicationService {
     /**
      * Creates a hierarchy tree of application nodes that show the relationship
      * between applications.
-     * 
+     *
      * @return set of the root application nodes that will contain all other
      *         applications as their children.
      */
@@ -170,7 +169,7 @@ public interface ApplicationService {
 
     /**
      * Determine which application contains a certain feature.
-     * 
+     *
      * @param feature
      *            The feature to search for.
      * @return The application which contains that feature.
@@ -182,12 +181,13 @@ public interface ApplicationService {
      * @return the inatllation profiles.
      */
     List<Feature> getInstallationProfiles();
+
     /**
      * Returns List of FeatureDtos with repository and status information
      * @return
      */
     List<FeatureDetails> getAllFeatures();
-    
+
     /**
      * Returns List of FeatureDtos with repository and status information by Application
      * @return

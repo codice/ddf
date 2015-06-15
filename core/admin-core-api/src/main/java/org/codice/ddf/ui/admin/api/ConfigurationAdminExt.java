@@ -1,18 +1,30 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.ui.admin.api;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
 import org.osgi.framework.Bundle;
@@ -34,50 +46,78 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.LoggerFactory;
 import org.slf4j.ext.XLogger;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-
 public class ConfigurationAdminExt {
 
     static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
 
-    private final XLogger logger = new XLogger(LoggerFactory.getLogger(ConfigurationAdminExt.class));
+    private static final String ENABLED = "enabled";
+
+    private static final String ENABLED_CONFIGURATION = "configurations";
+
+    private static final String DISABLED_CONFIGURATION = "disabledConfigurations";
+
+    private static final String DISABLED_SERVICE_ID = "_disabled";
+
+    private static final String MAP_ENTRY_ID = "id";
+
+    private static final String MAP_ENTRY_FPID = "fpid";
+
+    private static final String MAP_ENTRY_NAME = "name";
+
+    private static final String MAP_ENTRY_BUNDLE = "bundle";
+
+    private static final String MAP_ENTRY_BUNDLE_NAME = "bundle_name";
+
+    private static final String MAP_ENTRY_BUNDLE_LOCATION = "bundle_location";
+
+    private static final String MAP_ENTRY_PROPERTIES = "properties";
+
+    private static final String MAP_ENTRY_METATYPE = "metatype";
+
+    private static final String MAP_ENTRY_CARDINALITY = "cardinality";
+
+    private static final String MAP_ENTRY_DEFAULT_VALUE = "defaultValue";
+
+    private static final String MAP_ENTRY_DESCRIPTION = "description";
+
+    private static final String MAP_ENTRY_TYPE = "type";
+
+    private static final String MAP_ENTRY_OPTION_LABELS = "optionLabels";
+
+    private static final String MAP_ENTRY_OPTION_VALUES = "optionValues";
+
+    private static final String MAP_FACTORY = "factory";
+
+    /**
+     * The implementation of the {@link IdGetter} interface returning the PIDs listed in the meta
+     * type information.
+     *
+     * @see #getPidObjectClasses()
+     */
+    private static final IdGetter PID_GETTER = new IdGetter() {
+        public String[] getIds(MetaTypeInformation metaTypeInformation) {
+            return metaTypeInformation.getPids();
+        }
+    };
+
+    /**
+     * The implementation of the {@link IdGetter} interface returning the factory PIDs listed in the
+     * meta type information.
+     */
+    private static final IdGetter FACTORY_PID_GETTER = new IdGetter() {
+        public String[] getIds(MetaTypeInformation metaTypeInformation) {
+            return metaTypeInformation.getFactoryPids();
+        }
+    };
+
+    private final XLogger logger = new XLogger(
+            LoggerFactory.getLogger(ConfigurationAdminExt.class));
 
     private final ConfigurationAdmin configurationAdmin;
 
     private final Map<String, ServiceTracker> services = new HashMap<String, ServiceTracker>();
 
     private List<ConfigurationAdminPlugin> configurationAdminPluginList;
-    
-    private static final String ENABLED = "enabled";
-    private static final String ENABLED_CONFIGURATION    = "configurations";
-    private static final String DISABLED_CONFIGURATION   = "disabledConfigurations";
-    private static final String DISABLED_SERVICE_ID      = "_disabled";
-    private static final String MAP_ENTRY_ID             = "id";
-    private static final String MAP_ENTRY_FPID           = "fpid";
-    private static final String MAP_ENTRY_NAME           = "name";
-    private static final String MAP_ENTRY_BUNDLE         = "bundle";
-    private static final String MAP_ENTRY_BUNDLE_NAME    = "bundle_name";
-    private static final String MAP_ENTRY_BUNDLE_LOCATION= "bundle_location";
-    private static final String MAP_ENTRY_PROPERTIES     = "properties";
-    private static final String MAP_ENTRY_METATYPE       = "metatype";
-    private static final String MAP_ENTRY_CARDINALITY    = "cardinality";
-    private static final String MAP_ENTRY_DEFAULT_VALUE  = "defaultValue";
-    private static final String MAP_ENTRY_DESCRIPTION    = "description";
-    private static final String MAP_ENTRY_TYPE           = "type";
-    private static final String MAP_ENTRY_OPTION_LABELS  = "optionLabels";
-    private static final String MAP_ENTRY_OPTION_VALUES  = "optionValues";
-    private static final String MAP_FACTORY              = "factory";
 
     /**
      * @param configurationAdmin
@@ -86,6 +126,21 @@ public class ConfigurationAdminExt {
      */
     public ConfigurationAdminExt(final Object configurationAdmin) {
         this.configurationAdmin = (ConfigurationAdmin) configurationAdmin;
+    }
+
+    static Bundle getBundle(final BundleContext bundleContext, final String bundleLocation) {
+        if (bundleLocation == null) {
+            return null;
+        }
+
+        Bundle[] bundles = bundleContext.getBundles();
+        for (int i = 0; i < bundles.length; i++) {
+            if (bundleLocation.equals(bundles[i].getLocation())) {
+                return bundles[i];
+            }
+        }
+
+        return null;
     }
 
     BundleContext getBundleContext() {
@@ -119,11 +174,11 @@ public class ConfigurationAdminExt {
     }
 
     private final Bundle getBoundBundle(Configuration config) {
-        
+
         if (null == config) {
             return null;
         }
-        
+
         final String location = config.getBundleLocation();
         if (null == location) {
             return null;
@@ -138,7 +193,8 @@ public class ConfigurationAdminExt {
         return null;
     }
 
-    public List<Map<String, Object>> listServices(String serviceFactoryFilter, String serviceFilter) {
+    public List<Map<String, Object>> listServices(String serviceFactoryFilter,
+            String serviceFilter) {
         List<Map<String, Object>> serviceList = null;
         List<Map<String, Object>> serviceFactoryList = null;
 
@@ -148,13 +204,15 @@ public class ConfigurationAdminExt {
 
             // Get ManagedService Metatypes
             List<Map<String, Object>> metatypeList = addMetaTypeNamesToMap(getPidObjectClasses(),
-                serviceFilter, Constants.SERVICE_PID);
+                    serviceFilter, Constants.SERVICE_PID);
 
             // Get ManagedServiceFactory instances
-            serviceFactoryList = getServices(ManagedServiceFactory.class.getName(), serviceFilter, true);
+            serviceFactoryList = getServices(ManagedServiceFactory.class.getName(), serviceFilter,
+                    true);
 
             // Get ManagedServiceFactory Metatypes
-            metatypeList.addAll(addMetaTypeNamesToMap(getFactoryPidObjectClasses(), serviceFactoryFilter, ConfigurationAdmin.SERVICE_FACTORYPID));
+            metatypeList.addAll(addMetaTypeNamesToMap(getFactoryPidObjectClasses(),
+                    serviceFactoryFilter, ConfigurationAdmin.SERVICE_FACTORYPID));
 
             for (Map<String, Object> service : serviceFactoryList) {
 
@@ -167,8 +225,9 @@ public class ConfigurationAdminExt {
                     }
                 }
 
-                Configuration[]  configs = configurationAdmin.listConfigurations("(" + ConfigurationAdmin.SERVICE_FACTORYPID
-                        + "=" + service.get(MAP_ENTRY_ID) + ")");
+                Configuration[] configs = configurationAdmin.listConfigurations(
+                        "(" + ConfigurationAdmin.SERVICE_FACTORYPID + "=" + service
+                                .get(MAP_ENTRY_ID) + ")");
                 if (configs != null) {
                     addConfigurationData(service, configs);
                 }
@@ -185,8 +244,8 @@ public class ConfigurationAdminExt {
                     }
                 }
 
-                Configuration[]  configs = configurationAdmin.listConfigurations("(" + Constants.SERVICE_PID
-                        + "=" + service.get(MAP_ENTRY_ID) + ")");
+                Configuration[] configs = configurationAdmin.listConfigurations(
+                        "(" + Constants.SERVICE_PID + "=" + service.get(MAP_ENTRY_ID) + ")");
                 if (configs != null) {
                     addConfigurationData(service, configs);
                 }
@@ -252,7 +311,8 @@ public class ConfigurationAdminExt {
 
             configData.put(MAP_ENTRY_PROPERTIES, propertiesTable);
 
-            Map<String, Object> pluginDataMap = getConfigurationPluginData(configData.get(MAP_ENTRY_ID).toString(),
+            Map<String, Object> pluginDataMap = getConfigurationPluginData(
+                    configData.get(MAP_ENTRY_ID).toString(),
                     Collections.unmodifiableMap(configData));
             if (pluginDataMap != null && !pluginDataMap.isEmpty()) {
                 configData.putAll(pluginDataMap);
@@ -262,13 +322,13 @@ public class ConfigurationAdminExt {
             if (service.containsKey(ENABLED_CONFIGURATION)) {
                 configurations = (List<Map<String, Object>>) service.get(ENABLED_CONFIGURATION);
             } else if (service.containsKey(DISABLED_CONFIGURATION)) {
-            	configurations = (List<Map<String, Object>>) service.get(DISABLED_CONFIGURATION);
+                configurations = (List<Map<String, Object>>) service.get(DISABLED_CONFIGURATION);
             } else {
                 configurations = new ArrayList<Map<String, Object>>();
             }
 
             configurations.add(configData);
-            if (((String)configData.get(MAP_ENTRY_ID)).contains(DISABLED_SERVICE_ID)) {
+            if (((String) configData.get(MAP_ENTRY_ID)).contains(DISABLED_SERVICE_ID)) {
                 configData.put(ENABLED, false);
             } else {
                 configData.put(ENABLED, true);
@@ -282,8 +342,8 @@ public class ConfigurationAdminExt {
         Map<String, Object> allPluginMap = new HashMap<String, Object>();
         if (configurationAdminPluginList != null) {
             for (ConfigurationAdminPlugin plugin : configurationAdminPluginList) {
-                Map<String, Object> pluginDataMap = plugin.getConfigurationData(servicePid,
-                        dataMap, getBundleContext());
+                Map<String, Object> pluginDataMap = plugin
+                        .getConfigurationData(servicePid, dataMap, getBundleContext());
                 allPluginMap.putAll(pluginDataMap);
             }
         }
@@ -299,7 +359,7 @@ public class ConfigurationAdminExt {
      * <li>Otherwise the bundle's location is returned if defined</li>
      * <li>Finally, as a last resort, the bundles id is returned</li>
      * </ol>
-     * 
+     *
      * @param bundle
      *            the bundle which name to retrieve
      * @return the bundle name - see the description of the method for more details.
@@ -340,43 +400,10 @@ public class ConfigurationAdminExt {
     }
 
     /**
-     * The <code>IdGetter</code> interface is an internal helper to abstract retrieving object class
-     * definitions from all bundles for either pids or factory pids.
-     * 
-     * @see #PID_GETTER
-     * @see #FACTORY_PID_GETTER
-     */
-    private interface IdGetter {
-        String[] getIds(MetaTypeInformation metaTypeInformation);
-    }
-
-    /**
-     * The implementation of the {@link IdGetter} interface returning the PIDs listed in the meta
-     * type information.
-     * 
-     * @see #getPidObjectClasses()
-     */
-    private static final IdGetter PID_GETTER = new IdGetter() {
-        public String[] getIds(MetaTypeInformation metaTypeInformation) {
-            return metaTypeInformation.getPids();
-        }
-    };
-
-    /**
-     * The implementation of the {@link IdGetter} interface returning the factory PIDs listed in the
-     * meta type information.
-     */
-    private static final IdGetter FACTORY_PID_GETTER = new IdGetter() {
-        public String[] getIds(MetaTypeInformation metaTypeInformation) {
-            return metaTypeInformation.getFactoryPids();
-        }
-    };
-
-    /**
      * Returns a map of PIDs and providing bundles of MetaType information. The map is indexed by
      * PID and the value of each entry is the bundle providing the MetaType information for that
      * PID.
-     * 
+     *
      * @return see the method description
      */
     Map getPidObjectClasses() {
@@ -387,7 +414,7 @@ public class ConfigurationAdminExt {
      * Returns the <code>ObjectClassDefinition</code> objects for the IDs returned by the
      * <code>idGetter</code>. Depending on the <code>idGetter</code> implementation this will be for
      * factory PIDs or plain PIDs.
-     * 
+     *
      * @param idGetter
      *            The {@link IdGetter} used to get the list of factory PIDs or PIDs from
      *            <code>MetaTypeInformation</code> objects.
@@ -484,7 +511,7 @@ public class ConfigurationAdminExt {
     /**
      * Gets the service with the specified class name. Will create a new {@link ServiceTracker} if
      * the service is not already retrieved.
-     * 
+     *
      * @param serviceName
      *            the service name to obtain
      * @return the service or <code>null</code> if missing.
@@ -516,26 +543,11 @@ public class ConfigurationAdminExt {
         return null;
     }
 
-    static Bundle getBundle(final BundleContext bundleContext, final String bundleLocation) {
-        if (bundleLocation == null) {
-            return null;
-        }
-
-        Bundle[] bundles = bundleContext.getBundles();
-        for (int i = 0; i < bundles.length; i++) {
-            if (bundleLocation.equals(bundles[i].getLocation())) {
-                return bundles[i];
-            }
-        }
-
-        return null;
-    }
-
     /**
      * Returns a map of factory PIDs and providing bundles of MetaType information. The map is
      * indexed by factory PID and the value of each entry is the bundle providing the MetaType
      * information for that factory PID.
-     * 
+     *
      * @return see the method description
      */
     Map getFactoryPidObjectClasses() {
@@ -547,9 +559,9 @@ public class ConfigurationAdminExt {
         List<Map<String, Object>> serviceList = new ArrayList<Map<String, Object>>();
 
         // find all ManagedServiceFactories to get the factoryPIDs
-        ServiceReference[] refs = this.getBundleContext().getAllServiceReferences(serviceClass,
-                serviceFilter);
-        
+        ServiceReference[] refs = this.getBundleContext()
+                .getAllServiceReferences(serviceClass, serviceFilter);
+
         for (int i = 0; refs != null && i < refs.length; i++) {
             Object pidObject = refs[i].getProperty(Constants.SERVICE_PID);
             // only include valid PIDs
@@ -557,7 +569,8 @@ public class ConfigurationAdminExt {
                 String pid = (String) pidObject;
                 String name = pid;
                 boolean haveOcd = !ocdRequired;
-                final ObjectClassDefinition ocd = getObjectClassDefinition(refs[i].getBundle(), pid);
+                final ObjectClassDefinition ocd = getObjectClassDefinition(refs[i].getBundle(),
+                        pid);
                 if (ocd != null) {
                     name = ocd.getName();
                     haveOcd = true;
@@ -587,7 +600,8 @@ public class ConfigurationAdminExt {
         }
 
         List<Map<String, Object>> metatypeList = new ArrayList<Map<String, Object>>();
-        for (Iterator ei = ocdCollection.entrySet().iterator(); ei.hasNext();) {
+        Iterator ei = ocdCollection.entrySet().iterator(); 
+        while (ei.hasNext()) {
             Entry ociEntry = (Entry) ei.next();
             final String pid = (String) ociEntry.getKey();
             final ObjectClassDefinition ocd = (ObjectClassDefinition) ociEntry.getValue();
@@ -634,6 +648,17 @@ public class ConfigurationAdminExt {
         }
 
         return metatypeList;
+    }
+
+    /**
+     * The <code>IdGetter</code> interface is an internal helper to abstract retrieving object class
+     * definitions from all bundles for either pids or factory pids.
+     *
+     * @see #PID_GETTER
+     * @see #FACTORY_PID_GETTER
+     */
+    private interface IdGetter {
+        String[] getIds(MetaTypeInformation metaTypeInformation);
     }
 
 }

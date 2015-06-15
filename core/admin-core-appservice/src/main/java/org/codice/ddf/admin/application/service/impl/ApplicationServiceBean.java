@@ -1,18 +1,32 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.admin.application.service.impl;
+
+import java.lang.management.ManagementFactory;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -36,34 +50,12 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.lang.management.ManagementFactory;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Implementation of the Application Service MBean. Provides an MBean interface
  * for the application service api.
- * 
+ *
  */
 public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
-
-    
-
-	private ObjectName objectName;
-
-    private MBeanServer mBeanServer;
-
-    private ApplicationService appService;
 
     private static final String MAP_NAME = "name";
 
@@ -74,55 +66,62 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     private static final String MAP_CHILDREN = "children";
 
     private static final String MAP_STATE = "state";
-    
+
     private static final String MAP_URI = "uri";
-    
+
     private static final String INSTALL_PROFILE_DEFAULT_APPLICATIONS = "defaultApplications";
 
-	private static final String INSTALL_PROFILE_DESCRIPTION = "description";
+    private static final String INSTALL_PROFILE_DESCRIPTION = "description";
 
-	private static final String INSTALL_PROFILE_NAME = "name";
+    private static final String INSTALL_PROFILE_NAME = "name";
 
     private static final String MAP_DEPENDENCIES = "dependencies";
 
     private static final String MAP_PARENTS = "parents";
-    
+
     private static final String MAP_STATUS = "status";
-    
+
     private static final String MAP_REPOSITORY = "repository";
 
-    private Logger logger = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
-    
+    /** the name of the metatype service to be looked up.*/
+    private static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
+
     private final ConfigurationAdminExt configAdminExt;
-    
+
+    private ObjectName objectName;
+
+    private MBeanServer mBeanServer;
+
+    private ApplicationService appService;
+
     /** the service pid string.*/
 
     /** the service factor pid.*/
 
+    private Logger logger = LoggerFactory.getLogger(ApplicationServiceBeanMBean.class);
+
     /** has all the application plugins.*/
     private List<ApplicationPlugin> applicationPlugins;
-    
-    /** the name of the metatype service to be looked up.*/
-    private static final String META_TYPE_NAME = "org.osgi.service.metatype.MetaTypeService";
-    
+
     /** the service tracker.*/
     private ServiceTracker<Object, Object> serviceTracker;
 
     /**
      * Creates an instance of an ApplicationServiceBean
-     * 
+     *
      * @param appService
      *            ApplicationService that is running in the system.
      * @throws ApplicationServiceException
      *             If an error occurs when trying to construct the MBean
      *             objects.
      */
-    public ApplicationServiceBean(ApplicationService appService, ConfigurationAdminExt configAdminExt) throws ApplicationServiceException {
+    public ApplicationServiceBean(ApplicationService appService,
+            ConfigurationAdminExt configAdminExt) throws ApplicationServiceException {
         this.appService = appService;
         this.configAdminExt = configAdminExt;
         try {
-            objectName = new ObjectName(ApplicationService.class.getName()
-                    + ":service=application-service");
+            objectName = new ObjectName(
+                    ApplicationService.class.getName() + ":service=application-service");
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException mone) {
             throw new ApplicationServiceException("Could not create objectname.", mone);
@@ -136,7 +135,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
      * <b>NOTE: This should be run before any other operations are performed.
      * Operations will NOT be usable until this is called (and until destroy()
      * is called).</b>
-     * 
+     *
      * @throws ApplicationServiceException
      *             if an error occurs during registration.
      */
@@ -165,7 +164,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
      * <b>NOTE: This should be run after all operations are completed and the
      * bean is no longer needed. Operations will NOT be usable after this is
      * called (until init() is called). </b>
-     * 
+     *
      * @throws ApplicationServiceException
      *             if an error occurs during unregistration.
      */
@@ -180,14 +179,12 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         }
     }
 
-
-
     @Override
-    public List<Map<String, Object>> getInstallationProfiles(){
+    public List<Map<String, Object>> getInstallationProfiles() {
         List<Feature> installationProfiles = appService.getInstallationProfiles();
         List<Map<String, Object>> profiles = new ArrayList<Map<String, Object>>();
 
-        for(Feature profile : installationProfiles){
+        for (Feature profile : installationProfiles) {
             Map<String, Object> profileMap = new HashMap<String, Object>();
             profileMap.put(INSTALL_PROFILE_NAME, profile.getName());
             profileMap.put(INSTALL_PROFILE_DESCRIPTION, profile.getDescription());
@@ -204,7 +201,6 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         return profiles;
 
     }
-
 
     @Override
     public List<Map<String, Object>> getApplicationTree() {
@@ -247,7 +243,8 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         return applicationsArray;
     }
 
-    private Map<String, Object> convertApplicationEntries(ApplicationNode application, List<String> parentList, List<Map<String, Object>> applicationsArray) {
+    private Map<String, Object> convertApplicationEntries(ApplicationNode application,
+            List<String> parentList, List<Map<String, Object>> applicationsArray) {
         logger.debug("Converting {} to a map", application.getApplication().getName());
         Map<String, Object> appMap = new HashMap<String, Object>();
         Application internalApplication = application.getApplication();
@@ -273,8 +270,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         if (parentList.size() == 1) {
             transferParentList.clear();
             appMap.put(MAP_PARENTS, transferParentList);
-        }
-        else {
+        } else {
             int index = parentList.indexOf(internalApplication.getName());
             for (int i = 0; i < index; i++) {
                 transferParentList.add(parentList.get(i));
@@ -328,15 +324,15 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
             try {
                 appService.addApplication(new URI((String) curURL.get("value")));
             } catch (URISyntaxException use) {
-                logger.warn("Could not add application with url {}, not a valid URL.", 
+                logger.warn("Could not add application with url {}, not a valid URL.",
                         curURL.get("value"));
             } catch (ApplicationServiceException ase) {
-                logger.warn("Could not add application with url {} due to error.", 
+                logger.warn("Could not add application with url {} due to error.",
                         curURL.get("value"), ase);
             }
         }
     }
-    
+
     @Override
     public void removeApplication(String appName) {
         if (!StringUtils.isEmpty(appName)) {
@@ -350,71 +346,75 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     }
 
     /** {@inheritDoc}.*/
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Map<String, Object>> getServices(String applicationID) {
-		List<Map<String, Object>> services = configAdminExt.listServices(getDefaultFactoryLdapFilter(), getDefaultLdapFilter());
-		List<Map<String, Object>> returnValues = new ArrayList<Map<String, Object>>();
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Map<String, Object>> getServices(String applicationID) {
+        List<Map<String, Object>> services = configAdminExt
+                .listServices(getDefaultFactoryLdapFilter(), getDefaultLdapFilter());
+        List<Map<String, Object>> returnValues = new ArrayList<Map<String, Object>>();
         BundleContext context = getContext();
 
-		if (!services.isEmpty()) {
-			Application app = appService.getApplication(applicationID);
-			MetaTypeService metatypeService = getMetaTypeService();
+        if (!services.isEmpty()) {
+            Application app = appService.getApplication(applicationID);
+            MetaTypeService metatypeService = getMetaTypeService();
 
-			if (app != null) {
-				try {
-					Set<BundleInfo> bundles = app.getBundles();
+            if (app != null) {
+                try {
+                    Set<BundleInfo> bundles = app.getBundles();
 
-					Set<String> bundleLocations = new HashSet<String>();
-	                Set<MetaTypeInformation> metatypeInformation = new HashSet<MetaTypeInformation>();
-					for (BundleInfo info : bundles) {
-						bundleLocations.add(info.getLocation());
-					}
-					
-					for (Bundle bundle : context.getBundles()) {
-					    for (BundleInfo info : bundles) {
-					        if (info.getLocation().equals(bundle.getLocation())) {
-			                       metatypeInformation.add(metatypeService.getMetaTypeInformation(bundle));
-					        }
-					    }
-					}
-					
-					for (Map<String, Object> service : services) {
-						if (service.containsKey("configurations")) {
-							List<Map<String, Object>> configurations = (List<Map<String, Object>>) service.get("configurations");
-							for (Map<String, Object> item : configurations) {
-							    if (item.containsKey("bundle_location")) {
-									String bundleLocation = (String) item.get("bundle_location");
-									if (bundleLocations.contains(bundleLocation)) {
-										returnValues.add(service);
-										break;
-									}
-								}
-							}
-						} else {
+                    Set<String> bundleLocations = new HashSet<String>();
+                    Set<MetaTypeInformation> metatypeInformation = new HashSet<MetaTypeInformation>();
+                    for (BundleInfo info : bundles) {
+                        bundleLocations.add(info.getLocation());
+                    }
+
+                    for (Bundle bundle : context.getBundles()) {
+                        for (BundleInfo info : bundles) {
+                            if (info.getLocation().equals(bundle.getLocation())) {
+                                metatypeInformation
+                                        .add(metatypeService.getMetaTypeInformation(bundle));
+                            }
+                        }
+                    }
+
+                    for (Map<String, Object> service : services) {
+                        if (service.containsKey("configurations")) {
+                            List<Map<String, Object>> configurations = (List<Map<String, Object>>) service
+                                    .get("configurations");
+                            for (Map<String, Object> item : configurations) {
+                                if (item.containsKey("bundle_location")) {
+                                    String bundleLocation = (String) item.get("bundle_location");
+                                    if (bundleLocations.contains(bundleLocation)) {
+                                        returnValues.add(service);
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
                             if (checkForMetaTypesForService(metatypeInformation, service)) {
                                 returnValues.add(service);
                             }
-						}
-					}
+                        }
+                    }
 
-				} catch (ApplicationServiceException e) {
-					logger.warn("There was an error while trying to access the application", e);
-					return new ArrayList<Map<String, Object>>();
-				}
-			}
-		}
+                } catch (ApplicationServiceException e) {
+                    logger.warn("There was an error while trying to access the application", e);
+                    return new ArrayList<Map<String, Object>>();
+                }
+            }
+        }
 
-		return returnValues;
-	}
-	
-	/**
-	 * Checks to see if there are any metatypes out there for a particular service.
-	 * @param metatypeInformations - Where we'll look for metatypes that match our service from.
-	 * @param service - our service we want metatypes for.
-	 * @return true if there is, and the service should be added, or false if it shouldn't be.
-	 */
-	private boolean checkForMetaTypesForService(Set<MetaTypeInformation> metatypeInformations, Map<String, Object> service) {
+        return returnValues;
+    }
+
+    /**
+     * Checks to see if there are any metatypes out there for a particular service.
+     * @param metatypeInformations - Where we'll look for metatypes that match our service from.
+     * @param service - our service we want metatypes for.
+     * @return true if there is, and the service should be added, or false if it shouldn't be.
+     */
+    private boolean checkForMetaTypesForService(Set<MetaTypeInformation> metatypeInformations,
+            Map<String, Object> service) {
         String id = (String) service.get("id");
         boolean ifFactory = (Boolean) service.get("factory");
         if (ifFactory) {
@@ -438,9 +438,9 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
                 }
             }
         }
-	    return false;
-	}
-	
+        return false;
+    }
+
     private String getDefaultFactoryLdapFilter() {
         List<String> filterList = new ArrayList<String>();
         if (CollectionUtils.isNotEmpty(filterList)) {
@@ -464,7 +464,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     }
 
     private String getDefaultLdapFilter() {
-    	List<String> filterList = new ArrayList<String>();
+        List<String> filterList = new ArrayList<String>();
         if (CollectionUtils.isNotEmpty(filterList)) {
             StringBuilder ldapFilter = new StringBuilder();
             ldapFilter.append("(");
@@ -485,23 +485,23 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         }
         return "(" + Constants.SERVICE_PID + "=" + "*)";
     }
-	
-	/**
-	 * Getter method for the plugin list.
-	 * @return the plugin list.
-	 */
-	public List<ApplicationPlugin> getApplicationPlugins() {
-		return applicationPlugins;
-	}
 
-	/**
-	 * Setter method for the plugin list.
-	 * @param applicationPlugins the plugin list.
-	 */
-	public void setApplicationPlugins(List<ApplicationPlugin> applicationPlugins) {
-		this.applicationPlugins = applicationPlugins;
-	}
-	
+    /**
+     * Getter method for the plugin list.
+     * @return the plugin list.
+     */
+    public List<ApplicationPlugin> getApplicationPlugins() {
+        return applicationPlugins;
+    }
+
+    /**
+     * Setter method for the plugin list.
+     * @param applicationPlugins the plugin list.
+     */
+    public void setApplicationPlugins(List<ApplicationPlugin> applicationPlugins) {
+        this.applicationPlugins = applicationPlugins;
+    }
+
     @Override
     public List<Map<String, Object>> getAllFeatures() {
         return getFeatureMap(appService.getAllFeatures());
@@ -512,8 +512,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         return getFeatureMap(appService.findApplicationFeatures(applicationName));
     }
 
-    private List<Map<String, Object>> getFeatureMap(
-            List<FeatureDetails> featureViews) {
+    private List<Map<String, Object>> getFeatureMap(List<FeatureDetails> featureViews) {
         List<Map<String, Object>> features = new ArrayList<Map<String, Object>>();
         for (FeatureDetails feature : featureViews) {
             Map<String, Object> featureMap = new HashMap<String, Object>();
@@ -525,7 +524,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
         }
         return features;
     }
-    
+
     /**
      * Gets the service with the specified class name. Will create a new {@link ServiceTracker} if
      * the service is not already retrieved.
@@ -559,7 +558,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
                 returnValues.add(plugin.toJSON());
             }
         }
-        
+
         return returnValues;
-    }    
+    }
 }

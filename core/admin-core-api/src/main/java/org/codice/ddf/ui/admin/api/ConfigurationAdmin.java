@@ -1,31 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.ui.admin.api;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.ui.admin.api.module.AdminModule;
-import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.cm.Configuration;
-import org.slf4j.LoggerFactory;
-import org.slf4j.ext.XLogger;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -38,6 +25,19 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.ui.admin.api.module.AdminModule;
+import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.cm.Configuration;
+import org.slf4j.LoggerFactory;
+import org.slf4j.ext.XLogger;
 
 /**
  * @author Scott Tustison
@@ -53,11 +53,11 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     private static final String DISABLED = "_disabled";
 
-    private final XLogger logger = new XLogger(LoggerFactory.getLogger(ConfigurationAdmin.class));
-
     private static final String SERVICE_PID = "service.pid";
 
     private static final String SERVICE_FACTORYPID = "service.factoryPid";
+
+    private final XLogger logger = new XLogger(LoggerFactory.getLogger(ConfigurationAdmin.class));
 
     private final org.osgi.service.cm.ConfigurationAdmin configurationAdmin;
 
@@ -75,7 +75,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
 
     /**
      * Constructs a ConfigurationAdmin implementation
-     * 
+     *
      * @param configurationAdmin
      *            instance of org.osgi.service.cm.ConfigurationAdmin service
      */
@@ -142,8 +142,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
     }
 
     public List<Map<String, Object>> listServices() {
-        return configurationAdminExt.listServices(getDefaultFactoryLdapFilter(),
-                getDefaultLdapFilter());
+        return configurationAdminExt
+                .listServices(getDefaultFactoryLdapFilter(), getDefaultLdapFilter());
     }
 
     public Map<String, Object> getService(String filter) {
@@ -254,7 +254,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
      *      java.lang.String)
      */
     public String createFactoryConfigurationForLocation(String factoryPid, String location)
-        throws IOException {
+            throws IOException {
         if (StringUtils.isBlank(factoryPid)) {
             throw new IOException("Argument factoryPid cannot be null or empty");
         }
@@ -309,8 +309,9 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
             throw new IOException("Argument pid cannot be null or empty");
         }
         Configuration config = configurationAdmin.getConfiguration(pid, null);
-        String bundleLocation = (config.getBundleLocation() == null) ? "Configuration is not yet bound to a bundle location"
-                : config.getBundleLocation();
+        String bundleLocation = (config.getBundleLocation() == null) ?
+                "Configuration is not yet bound to a bundle location" :
+                config.getBundleLocation();
         return bundleLocation;
     }
 
@@ -365,7 +366,7 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
      * @see ConfigurationAdminMBean#getPropertiesForLocation(java.lang.String, java.lang.String)
      */
     public Map<String, Object> getPropertiesForLocation(String pid, String location)
-        throws IOException {
+            throws IOException {
         if (pid == null || pid.length() < 1) {
             throw new IOException("Argument pid cannot be null or empty");
         }
@@ -460,8 +461,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         String disabledServiceFactoryPid = originalFactoryPid + DISABLED;
         properties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID,
                 disabledServiceFactoryPid);
-        Configuration disabledConfig = configurationAdmin.createFactoryConfiguration(
-                disabledServiceFactoryPid, null);
+        Configuration disabledConfig = configurationAdmin
+                .createFactoryConfiguration(disabledServiceFactoryPid, null);
         disabledConfig.update(properties);
 
         // remove original configuration
@@ -498,8 +499,8 @@ public class ConfigurationAdmin implements ConfigurationAdminMBean {
         String enabledFactoryPid = StringUtils.removeEnd(disabledFactoryPid, DISABLED);
         properties
                 .put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, enabledFactoryPid);
-        Configuration enabledConfiguration = configurationAdmin.createFactoryConfiguration(
-                enabledFactoryPid, null);
+        Configuration enabledConfiguration = configurationAdmin
+                .createFactoryConfiguration(enabledFactoryPid, null);
         enabledConfiguration.update(properties);
 
         disabledConfig.delete();

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.admin.application.rest;
 
 import java.io.File;
@@ -48,10 +47,6 @@ import org.slf4j.LoggerFactory;
  */
 @Path("/")
 public class ApplicationUploadEndpoint {
-    private final ApplicationService appService;
-
-    private Logger logger = LoggerFactory.getLogger(ApplicationUploadEndpoint.class);
-
     private static final String FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME = "filename";
 
     private static final String DEFAULT_FILE_NAME = "file.jar";
@@ -62,6 +57,10 @@ public class ApplicationUploadEndpoint {
 
     private static final String KAR_EXT = "kar";
 
+    private final ApplicationService appService;
+
+    private Logger logger = LoggerFactory.getLogger(ApplicationUploadEndpoint.class);
+
     public ApplicationUploadEndpoint(ApplicationService appService) {
         this.appService = appService;
     }
@@ -69,8 +68,7 @@ public class ApplicationUploadEndpoint {
     @POST
     @Path("/update")
     @Produces("application/json")
-    public Response update(MultipartBody multipartBody, @Context
-    UriInfo requestUriInfo) {
+    public Response update(MultipartBody multipartBody, @Context UriInfo requestUriInfo) {
         logger.trace("ENTERING: update");
 
         Response response = null;
@@ -89,11 +87,11 @@ public class ApplicationUploadEndpoint {
 
                     if (appDetails != null) {
                         // lets get the existing app if it exists.
-                        Application existingApplication = appService.getApplication(appDetails
-                                .getName());
+                        Application existingApplication = appService
+                                .getApplication(appDetails.getName());
                         boolean wasExistingAppStarted = false; // assume false until proved
-                                                               // otherwise.
-                        if(existingApplication != null){
+                        // otherwise.
+                        if (existingApplication != null) {
                             wasExistingAppStarted = appService
                                     .isApplicationStarted(existingApplication);
                             appService.removeApplication(existingApplication);
@@ -115,8 +113,7 @@ public class ApplicationUploadEndpoint {
                 // we need to output valid JSON to the client so fileupload can correctly call
                 // done/fail callbacks correctly.
                 Response.ResponseBuilder responseBuilder = Response.ok("{\"status\":\"success\"}")
-                        .type(
-                        "application/json");
+                        .type("application/json");
                 response = responseBuilder.build();
             } catch (ApplicationServiceException e) {
                 logger.error("Unable to update an application on the server: " + newFile, e);
@@ -163,11 +160,10 @@ public class ApplicationUploadEndpoint {
         return response;
     }
 
-
     /**
      * Copies the attachment to a system file location. Once copied, a file is returned of the
      * copied file.
-     * 
+     *
      * @param attachment
      *            the attachment to copy and extract.
      * @param response
@@ -178,8 +174,8 @@ public class ApplicationUploadEndpoint {
         InputStream inputStream = null;
         String filename;
         File newFile = null;
-        filename = attachment.getContentDisposition().getParameter(
-                FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
+        filename = attachment.getContentDisposition()
+                .getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
 
         if (StringUtils.isEmpty(filename)) {
             logger.debug("Filename not found, using default.");
@@ -235,7 +231,5 @@ public class ApplicationUploadEndpoint {
         }
         return newFile;
     }
-
-
 
 }

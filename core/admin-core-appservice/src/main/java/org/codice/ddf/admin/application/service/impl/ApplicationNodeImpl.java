@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.admin.application.service.impl;
 
 import java.util.Set;
@@ -24,7 +23,7 @@ import org.codice.ddf.admin.application.service.ApplicationStatus;
 /**
  * Implementation of an ApplicationNode. This Node is used to help form a
  * hierarchy tree for application relationships.
- * 
+ *
  */
 public class ApplicationNodeImpl implements ApplicationNode, Comparable<ApplicationNode> {
 
@@ -38,7 +37,7 @@ public class ApplicationNodeImpl implements ApplicationNode, Comparable<Applicat
 
     /**
      * Creates a new instance of an ApplicationNode.
-     * 
+     *
      * @param application
      *            The application that this node corresponds to.
      */
@@ -52,7 +51,7 @@ public class ApplicationNodeImpl implements ApplicationNode, Comparable<Applicat
 
     /**
      * Creates a new instance of an ApplicationNode.
-     * 
+     *
      * @param application
      *            The application that this node corresponds to.
      * @param status
@@ -79,7 +78,7 @@ public class ApplicationNodeImpl implements ApplicationNode, Comparable<Applicat
 
     /**
      * Sets the status of this application.
-     * 
+     *
      * @param status
      *            Current status for this application
      */
@@ -87,19 +86,19 @@ public class ApplicationNodeImpl implements ApplicationNode, Comparable<Applicat
         this.status = status;
     }
 
+    @Override
+    public ApplicationNode getParent() {
+        return parent;
+    }
+
     /**
      * Sets the parent for this application.
-     * 
+     *
      * @param parent
      *            Application Node that this application depends on.
      */
     public void setParent(ApplicationNode parent) {
         this.parent = parent;
-    }
-
-    @Override
-    public ApplicationNode getParent() {
-        return parent;
     }
 
     @Override

@@ -11,23 +11,27 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" />
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <bean id="configAdminMbean" class="org.codice.ddf.ui.admin.api.ConfigurationAdmin" init-method="init" destroy-method="destroy">
+    <bean id="configAdminMbean" class="org.codice.ddf.ui.admin.api.ConfigurationAdmin"
+          init-method="init" destroy-method="destroy">
         <cm:managed-properties persistent-id="ddf.ui.admin.api"
-            update-strategy="container-managed" />
-        <argument ref="configurationAdmin" />
-        <property name="configurationAdminPluginList" ref="configurationAdminPluginList" />
-        <property name="moduleList" ref="moduleList" />
+                               update-strategy="container-managed"/>
+        <argument ref="configurationAdmin"/>
+        <property name="configurationAdminPluginList" ref="configurationAdminPluginList"/>
+        <property name="moduleList" ref="moduleList"/>
     </bean>
 
-    <reference-list id="configurationAdminPluginList" interface="org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin" availability="optional" />
+    <reference-list id="configurationAdminPluginList"
+                    interface="org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin"
+                    availability="optional"/>
 
-    <reference-list id="moduleList" interface="org.codice.ddf.ui.admin.api.module.AdminModule" availability="optional" />
+    <reference-list id="moduleList" interface="org.codice.ddf.ui.admin.api.module.AdminModule"
+                    availability="optional"/>
 
 </blueprint>

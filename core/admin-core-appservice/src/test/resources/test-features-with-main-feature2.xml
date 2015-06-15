@@ -13,10 +13,10 @@
  -->
 <features name="test-app2-1.0.0">
 
-  <feature name="main-feature2" install="auto" version="1.0.2" description="Main Feature 2 Test">
-    <feature>main-feature</feature>
-    <bundle>mvn:org.codice.test/codice.test.bundle1/1.0.0</bundle>
-  </feature>
+    <feature name="main-feature2" install="auto" version="1.0.2" description="Main Feature 2 Test">
+        <feature>main-feature</feature>
+        <bundle>mvn:org.codice.test/codice.test.bundle1/1.0.0</bundle>
+    </feature>
 
 
 </features>

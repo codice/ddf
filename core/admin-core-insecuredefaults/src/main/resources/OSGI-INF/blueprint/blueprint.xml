@@ -10,15 +10,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/ -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+        >
 
-   <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" />
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
     <bean id="insecureDefaultsServiceMBean"
           class="org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsServiceBean"
           init-method="init"
           destroy-method="destroy">
-          <argument ref="configurationAdmin" />
+        <argument ref="configurationAdmin"/>
     </bean>
-    
+
 </blueprint>

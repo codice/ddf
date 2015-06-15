@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.ui.admin.api;
 
 import java.io.IOException;
@@ -26,7 +25,7 @@ public interface ConfigurationAdminMBean {
 
     /**
      * Lists all managed services and managed service factories with associated metatypes and configurations
-     * 
+     *
      * @return the list of all Services
      */
     List<Map<String, Object>> listServices();
@@ -51,7 +50,7 @@ public interface ConfigurationAdminMBean {
     /**
      * Create a new configuration instance for the supplied persistent id of the factory, answering
      * the PID of the created configuration
-     * 
+     *
      * @param factoryPid
      *            the persistent id of the factory
      * @return the PID of the created configuration
@@ -64,7 +63,7 @@ public interface ConfigurationAdminMBean {
      * Create a factory configuration for the supplied persistent id of the factory and the bundle
      * location bound to bind the created configuration to, answering the PID of the created
      * configuration
-     * 
+     *
      * @param factoryPid
      *            the persistent id of the factory
      * @param location
@@ -74,11 +73,11 @@ public interface ConfigurationAdminMBean {
      *             if the operation failed
      */
     String createFactoryConfigurationForLocation(String factoryPid, String location)
-        throws IOException;
+            throws IOException;
 
     /**
      * Delete the configuration
-     * 
+     *
      * @param pid
      *            the persistent identifier of the configuration
      * @throws IOException
@@ -88,7 +87,7 @@ public interface ConfigurationAdminMBean {
 
     /**
      * Delete the configuration
-     * 
+     *
      * @param pid
      *            the persistent identifier of the configuration
      * @param location
@@ -100,7 +99,7 @@ public interface ConfigurationAdminMBean {
 
     /**
      * Delete the configurations matching the filter specification.
-     * 
+     *
      * @param filter
      *            the string representation of the <code>org.osgi.framework.Filter</code>
      * @throws IOException
@@ -112,7 +111,7 @@ public interface ConfigurationAdminMBean {
 
     /**
      * Answer the bundle location the configuration is bound to
-     * 
+     *
      * @param pid
      *            the persistent identifier of the configuration
      * @return the bundle location
@@ -123,7 +122,7 @@ public interface ConfigurationAdminMBean {
 
     /**
      * Answer the factory PID if the configuration is a factory configuration, null otherwise.
-     * 
+     *
      * @param pid
      *            the persistent identifier of the configuration
      * @return the factory PID
@@ -134,7 +133,7 @@ public interface ConfigurationAdminMBean {
 
     /**
      * Answer the factory PID if the configuration is a factory configuration, null otherwise.
-     * 
+     *
      * @param pid
      *            the persistent identifier of the configuration
      * @param location
@@ -148,9 +147,9 @@ public interface ConfigurationAdminMBean {
     /**
      * Answer the contents of the configuration
      * <p/>
-     * 
+     *
      * @see org.osgi.jmx.JmxConstants#PROPERTIES_TYPE for the details of the TabularType
-     * 
+     *
      * @param pid
      *            the persistent identifier of the configuration
      * @return the table of contents
@@ -163,9 +162,9 @@ public interface ConfigurationAdminMBean {
     /**
      * Answer the contents of the configuration
      * <p/>
-     * 
+     *
      * @see org.osgi.jmx.JmxConstants#PROPERTIES_TYPE for the details of the TabularType
-     * 
+     *
      * @param pid
      *            the persistent identifier of the configuration
      * @param location
@@ -178,7 +177,7 @@ public interface ConfigurationAdminMBean {
 
     /**
      * Answer the list of PID/Location pairs of the configurations managed by this service
-     * 
+     *
      * @param filter
      *            the string representation of the <code>org.osgi.framework.Filter</code>
      * @return the list of configuration PID/Location pairs
@@ -191,7 +190,7 @@ public interface ConfigurationAdminMBean {
 
     /**
      * Set the bundle location the configuration is bound to
-     * 
+     *
      * @param pid
      *            the persistent identifier of the configuration
      * @param location
@@ -205,9 +204,9 @@ public interface ConfigurationAdminMBean {
      * Update the configuration with the supplied properties For each property entry, the following
      * row is supplied
      * <p/>
-     * 
+     *
      * @see org.osgi.jmx.JmxConstants#PROPERTIES_TYPE for the details of the TabularType
-     * 
+     *
      * @param pid
      *            the persistent identifier of the configuration
      * @param configurationTable
@@ -221,9 +220,9 @@ public interface ConfigurationAdminMBean {
      * Update the configuration with the supplied properties For each property entry, the following
      * row is supplied
      * <p/>
-     * 
+     *
      * @see org.osgi.jmx.JmxConstants#PROPERTIES_TYPE for the details of the TabularType
-     * 
+     *
      * @param pid
      *            the persistent identifier of the configuration
      * @param location
@@ -234,11 +233,11 @@ public interface ConfigurationAdminMBean {
      *             if the operation fails
      */
     void updateForLocation(String pid, String location, Map<String, Object> configurationTable)
-        throws IOException;
+            throws IOException;
 
     /**
      * Enables a previously disabled configuration
-     * 
+     *
      * @param servicePid
      *            that uniquely identifies the source to enable.
      * @return the new generated pid of the enabled config
@@ -249,7 +248,7 @@ public interface ConfigurationAdminMBean {
 
     /**
      * Disables a configuration but preserves the configuration to be enabled at a later time.
-     * 
+     *
      * @param servicePid
      *            that uniquely identifies the source to disable.
      * @return the new generated pid of the disabled config

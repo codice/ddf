@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.admin.insecure.defaults.service;
 
 import java.lang.management.ManagementFactory;
@@ -99,10 +98,11 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
         LOGGER.debug("Found {} validator(s)", validators.size());
 
         for (Validator validator : validators) {
-            LOGGER.debug("{} is starting validation process.", validator.getClass().getSimpleName());
+            LOGGER.debug("{} is starting validation process.",
+                    validator.getClass().getSimpleName());
             alerts.addAll(validator.validate());
-            LOGGER.debug("{} finished the validation process.", validator.getClass()
-                    .getSimpleName());
+            LOGGER.debug("{} finished the validation process.",
+                    validator.getClass().getSimpleName());
         }
 
         if (LOGGER.isDebugEnabled()) {
@@ -190,8 +190,8 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
 
     private void addIssuerSignaturePropertiesFileValidator() {
         SignaturePropertiesFileValidator issuerSignatureEncryptionPropertiesFileValidator = new SignaturePropertiesFileValidator();
-        issuerSignatureEncryptionPropertiesFileValidator.setPath(Paths
-                .get(ISSUER_SIGNATURE_PROPERTIES_FILE));
+        issuerSignatureEncryptionPropertiesFileValidator
+                .setPath(Paths.get(ISSUER_SIGNATURE_PROPERTIES_FILE));
         issuerSignatureEncryptionPropertiesFileValidator
                 .setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
         issuerSignatureEncryptionPropertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
@@ -211,8 +211,8 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
 
     private void addServerSignaturePropertiesFileValidator() {
         SignaturePropertiesFileValidator issuerSignatureEncryptionPropertiesFileValidator = new SignaturePropertiesFileValidator();
-        issuerSignatureEncryptionPropertiesFileValidator.setPath(Paths
-                .get(SERVER_SIGNATURE_PROPERTIES_FILE));
+        issuerSignatureEncryptionPropertiesFileValidator
+                .setPath(Paths.get(SERVER_SIGNATURE_PROPERTIES_FILE));
         issuerSignatureEncryptionPropertiesFileValidator
                 .setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
         issuerSignatureEncryptionPropertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);

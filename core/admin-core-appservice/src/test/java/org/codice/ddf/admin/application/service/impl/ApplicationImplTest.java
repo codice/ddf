@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.admin.application.service.impl;
 
 import static org.junit.Assert.assertEquals;
@@ -35,7 +34,7 @@ import org.junit.Test;
 /**
  * Tests out the ApplicationImpl code to make sure it is following the interface
  * specification.
- * 
+ *
  */
 public class ApplicationImplTest {
 
@@ -47,13 +46,14 @@ public class ApplicationImplTest {
     /**
      * Verify that the application is properly exposing the underlying
      * repository.
-     * 
+     *
      * @throws Exception
      */
     @Test
     public void testAppGetters() throws Exception {
-        RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
-                .getResource("test-features-no-main-feature.xml").toURI());
+        RepositoryImpl repo = new RepositoryImpl(
+                getClass().getClassLoader().getResource("test-features-no-main-feature.xml")
+                        .toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);
 
@@ -81,7 +81,7 @@ public class ApplicationImplTest {
     /**
      * Tests that if an application HAS a main feature that the properties in it
      * are properly parsed and set.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -90,8 +90,9 @@ public class ApplicationImplTest {
         String mainFeatureVersion = "1.0.1";
         String mainFeatureDescription = "Main Feature Test";
         String appToString = mainFeatureName + " - " + mainFeatureVersion;
-        RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
-                .getResource("test-features-with-main-feature.xml").toURI());
+        RepositoryImpl repo = new RepositoryImpl(
+                getClass().getClassLoader().getResource("test-features-with-main-feature.xml")
+                        .toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);
 
@@ -107,7 +108,7 @@ public class ApplicationImplTest {
     /**
      * Verifies if an app does NOT have a main feature that operations can still
      * be performed.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -116,8 +117,9 @@ public class ApplicationImplTest {
         String mainFeatureVersion = "0.0.0";
         String mainFeatureDescription = null;
         String appToString = mainFeatureName + " - " + mainFeatureVersion;
-        RepositoryImpl repo = new RepositoryImpl(getClass().getClassLoader()
-                .getResource("test-features-no-main-feature.xml").toURI());
+        RepositoryImpl repo = new RepositoryImpl(
+                getClass().getClassLoader().getResource("test-features-no-main-feature.xml")
+                        .toURI());
         repo.load();
         Application testApp = new ApplicationImpl(repo);
 
@@ -132,20 +134,22 @@ public class ApplicationImplTest {
 
     /**
      * Tests that applications can be compared to each other for equality.
-     * 
+     *
      * @throws Exception
      */
     @Test
     public void testAppEquality() throws Exception {
-        RepositoryImpl repo1 = new RepositoryImpl(getClass().getClassLoader()
-                .getResource("test-features-with-main-feature.xml").toURI());
+        RepositoryImpl repo1 = new RepositoryImpl(
+                getClass().getClassLoader().getResource("test-features-with-main-feature.xml")
+                        .toURI());
         repo1.load();
         Application testApp1 = new ApplicationImpl(repo1);
         Application testApp1Duplicate = new ApplicationImpl(repo1);
         Application testAppNull = null;
 
-        RepositoryImpl repo2 = new RepositoryImpl(getClass().getClassLoader()
-                .getResource("test-features-no-main-feature.xml").toURI());
+        RepositoryImpl repo2 = new RepositoryImpl(
+                getClass().getClassLoader().getResource("test-features-no-main-feature.xml")
+                        .toURI());
         repo2.load();
         Application testApp2 = new ApplicationImpl(repo2);
 

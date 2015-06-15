@@ -10,12 +10,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/ -->
-<web-app xmlns="http://java.sun.com/xml/ns/javaee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
 
-<description>Admin UI</description>
+    <description>Admin UI</description>
     <display-name>Admin UI</display-name>
 
     <!-- Default page to serve -->
@@ -32,8 +32,8 @@
         <param-name>org.eclipse.jetty.servlet.SessionPath</param-name>
         <param-value>/</param-value>
     </context-param>
-	
-	<security-constraint>
+
+    <security-constraint>
         <web-resource-collection>
             <web-resource-name>Admin UI</web-resource-name>
             <url-pattern>/*</url-pattern>

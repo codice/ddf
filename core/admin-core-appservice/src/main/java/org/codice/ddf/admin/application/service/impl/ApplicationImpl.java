@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.admin.application.service.impl;
 
 import java.io.Serializable;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Implementation of the application interface. This class exposes a karaf-based
  * repository (identified inside of a feature) as a DDF application.
- * 
+ *
  */
 public class ApplicationImpl implements Application, Comparable<Application> {
 
@@ -56,7 +55,7 @@ public class ApplicationImpl implements Application, Comparable<Application> {
 
     /**
      * Creates a new instance of application.
-     * 
+     *
      * @param repo
      *            Creates the application from a Karaf Feature Repository
      *            object.
@@ -66,7 +65,8 @@ public class ApplicationImpl implements Application, Comparable<Application> {
         try {
             features = new HashSet<Feature>(Arrays.asList(repo.getFeatures()));
         } catch (Exception e) {
-            logger.warn("Error occured while trying to parse information for application. Application created but may have missing information.");
+            logger.warn(
+                    "Error occured while trying to parse information for application. Application created but may have missing information.");
             features = new HashSet<Feature>();
         }
         List<Feature> autoFeatures = new ArrayList<Feature>();
@@ -82,7 +82,8 @@ public class ApplicationImpl implements Application, Comparable<Application> {
             description = mainFeature.getDescription();
         } else {
             if (repo.getName() == null) {
-                logger.warn("No information available inside the repository, cannot create application instance.");
+                logger.warn(
+                        "No information available inside the repository, cannot create application instance.");
                 throw new IllegalArgumentException(
                         "No identifying information available inside the repository, cannot create application instance.");
             }
@@ -169,6 +170,11 @@ public class ApplicationImpl implements Application, Comparable<Application> {
         }
     }
 
+    @Override
+    public URI getURI() {
+        return location;
+    }
+
     private static class BundleInfoComparator implements Comparator<BundleInfo>, Serializable {
 
         private static final long serialVersionUID = 1L;
@@ -178,10 +184,5 @@ public class ApplicationImpl implements Application, Comparable<Application> {
             return bundle1.getLocation().compareTo(bundle2.getLocation());
         }
 
-    }
-
-    @Override
-    public URI getURI() {
-        return location;
     }
 }
