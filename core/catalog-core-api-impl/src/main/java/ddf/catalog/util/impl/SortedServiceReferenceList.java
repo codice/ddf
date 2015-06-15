@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.util.impl;
 
 import java.util.ArrayList;
@@ -32,34 +31,34 @@ import org.slf4j.ext.XLogger;
  * This utility object sorts ServiceReferences by their service rankings first and then breaks ties
  * with service ids.
  * <p>
- * 
+ *
  * <p>
  * It is an implementation of {@link List} but is backed by a sorted {@link TreeSet} of
  * <ServiceReference> where the {@link ServiceReference} objects are what is used to maintain the
  * list order.
  * </p>
- * 
+ *
  */
 public class SortedServiceReferenceList implements List<ServiceReference> {
 
     private static final String READ_ONLY_ERROR_MESSAGE = "This list is meant to be read only.";
 
+    private static final XLogger LOGGER = new XLogger(
+            LoggerFactory.getLogger(SortedServiceReferenceList.class));
+
     private Set<ServiceReference> serviceSet = Collections
             .synchronizedSet(new TreeSet<ServiceReference>(new ServiceComparator()));
-
-    private static final XLogger logger = new XLogger(
-            LoggerFactory.getLogger(SortedServiceReferenceList.class));
 
     /**
      * Adds the newly bound OSGi service and its service reference to the internally maintained and
      * sorted serviceSet. This method is invoked when a service is bound (created/installed).
-     * 
+     *
      * @param ref
      *            the OSGi service reference
      */
     public void bindService(ServiceReference ref) {
 
-        logger.debug(this + " Binding " + ref);
+        LOGGER.debug(this + " Binding " + ref);
 
         serviceSet.add(ref);
 
@@ -69,13 +68,13 @@ public class SortedServiceReferenceList implements List<ServiceReference> {
      * Removes the newly bound OSGi service and its service reference to the internally maintained
      * and sorted serviceMap. This method is invoked when a service is unbound
      * (removed/uninstalled).
-     * 
+     *
      * @param ref
      *            the OSGi service reference
      */
     public void unbindService(ServiceReference ref) {
 
-        logger.debug("Unbinding " + ref);
+        LOGGER.debug("Unbinding " + ref);
 
         serviceSet.remove(ref);
 
@@ -134,7 +133,7 @@ public class SortedServiceReferenceList implements List<ServiceReference> {
 
     @Override
     public ServiceReference get(int arg0) {
-        logger.debug("GET called on : " + arg0);
+        LOGGER.debug("GET called on : " + arg0);
 
         if (serviceSet != null) {
             ArrayList<ServiceReference> list = new ArrayList<ServiceReference>(serviceSet);

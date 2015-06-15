@@ -11,41 +11,42 @@
  *
  **/ -->
 
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+		>
 
 	<service interface="ddf.catalog.transform.InputTransformer">
 		<service-properties>
-			<entry key="id" value="xml" />
-			<entry key="mime-type" value="text/xml" />
-            <entry key="schema" value="urn:catalog:metacard" />
+			<entry key="id" value="xml"/>
+			<entry key="mime-type" value="text/xml"/>
+            <entry key="schema" value="urn:catalog:metacard"/>
 		</service-properties>
 		<bean class="ddf.catalog.transformer.xml.XmlInputTransformer">
 			<property name="metacardTypes">
-				<reference-list interface="ddf.catalog.data.MetacardType" availability="optional" />
+				<reference-list interface="ddf.catalog.data.MetacardType" availability="optional"/>
 			</property>
 		</bean>
 	</service>
 
 	<service interface="ddf.catalog.transform.MetacardTransformer">
 		<service-properties>
-			<entry key="id" value="xml" />
-			<entry key="mime-type" value="text/xml" />
-			<entry key="title" value="View as XML..." />
-			<!-- deprecated -->
-			<entry key="shortname" value="xml" />
-            <entry key="schema" value="urn:catalog:metacard" />
+			<entry key="id" value="xml"/>
+			<entry key="mime-type" value="text/xml"/>
+			<entry key="title" value="View as XML..."/>
+            <!-- deprecated -->
+            <entry key="shortname" value="xml"/>
+            <entry key="schema" value="urn:catalog:metacard"/>
 		</service-properties>
-		<bean class="ddf.catalog.transformer.xml.XmlMetacardTransformer" />
+		<bean class="ddf.catalog.transformer.xml.XmlMetacardTransformer"/>
 	</service>
 
 	<service interface="ddf.catalog.transform.QueryResponseTransformer">
 		<service-properties>
-			<entry key="id" value="xml" />
-			<entry key="shortname" value="xml" />
-			<entry key="mime-type" value="text/xml" />
-            <entry key="schema" value="urn:catalog:metacard" />
+			<entry key="id" value="xml"/>
+			<entry key="shortname" value="xml"/>
+			<entry key="mime-type" value="text/xml"/>
+            <entry key="schema" value="urn:catalog:metacard"/>
 		</service-properties>
-		<bean class="ddf.catalog.transformer.xml.XmlResponseQueueTransformer" />
+		<bean class="ddf.catalog.transformer.xml.XmlResponseQueueTransformer"/>
 	</service>
 	
 </blueprint>

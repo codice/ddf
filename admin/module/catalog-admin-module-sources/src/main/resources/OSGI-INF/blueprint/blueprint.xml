@@ -11,13 +11,14 @@
  *
  **/
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="
   http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
 
     <bean id="catalogPlugin" class="org.codice.ddf.catalog.admin.plugin.SourcesPlugin"></bean>
 
-    <service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin" ref="catalogPlugin" />
+    <service interface="org.codice.ddf.admin.application.plugin.ApplicationPlugin"
+             ref="catalogPlugin"/>
 </blueprint>

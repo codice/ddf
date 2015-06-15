@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.resource;
 
 import static org.junit.Assert.assertEquals;
@@ -22,34 +21,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.activation.FileDataSource;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.activation.MimetypesFileTypeMap;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.internal.runners.statements.Fail;
 import org.junit.runner.notification.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.impl.BinaryContentImpl;
-import ddf.catalog.event.DeliveryException;
-import ddf.catalog.event.EventException;
-import ddf.catalog.event.InvalidSubscriptionException;
-import ddf.catalog.event.SubscriptionExistsException;
-import ddf.catalog.event.SubscriptionNotFoundException;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
-import ddf.catalog.source.IngestException;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.transform.CatalogTransformerException;
 
 public class BinaryContentImplTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(BinaryContentImplTest.class);
@@ -129,7 +111,7 @@ public class BinaryContentImplTest {
         try {
             is = new FileInputStream(content);
             BinaryContentImpl bci = new BinaryContentImpl(is, mimeType);
-            bci.setSize(-20l);
+            bci.setSize(-20L);
             assertEquals(-1, bci.getSize());
         } catch (IOException e) {
             LOGGER.error("IO Failure", e);

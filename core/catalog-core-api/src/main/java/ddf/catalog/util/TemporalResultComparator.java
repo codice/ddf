@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.util;
 
 import java.util.Comparator;
@@ -25,7 +24,7 @@ import ddf.catalog.data.Result;
 
 /**
  * Comparator for the effective date of 2 {@link Result} objects.
- * 
+ *
  * @deprecated As of release 2.3.0, replaced by
  *             ddf.catalog.util.impl.TemporalResultComparator
  */
@@ -39,7 +38,7 @@ public class TemporalResultComparator implements Comparator<Result> {
     /**
      * Constructs the comparator with the specified sort order, either temporal ascending or
      * temporal descending.
-     * 
+     *
      * @param sortOrder
      *            the temporal sort order, if null is passed in, then the default SortOrder applies,
      *            which is SortOrder.DESCENDING.
@@ -52,7 +51,7 @@ public class TemporalResultComparator implements Comparator<Result> {
 
     /**
      * Compares the effective date between the two results.
-     * 
+     *
      * @return 1 if A is null and B is non-null -1 if A is non-null and B is null 0 if both A and B
      *         are null 1 if temporal ascending and A > B; -1 if temporal ascending and B > A -1 if
      *         temporal descending and A > B; 1 if temporal descending and B > A
@@ -79,10 +78,12 @@ public class TemporalResultComparator implements Comparator<Result> {
         }
 
         if (effectiveDateA == null && effectiveDateB != null) {
-            LOGGER.debug("effectiveDateA is null and effectiveDateB is not null: {}", effectiveDateB);
+            LOGGER.debug("effectiveDateA is null and effectiveDateB is not null: {}",
+                    effectiveDateB);
             return 1;
         } else if (effectiveDateA != null && effectiveDateB == null) {
-            LOGGER.debug("effectiveDateA is not null: {} and effectiveDateB is null", effectiveDateA);
+            LOGGER.debug("effectiveDateA is not null: {} and effectiveDateB is null",
+                    effectiveDateA);
             return -1;
         } else if (effectiveDateA == null && effectiveDateB == null) {
             LOGGER.debug("both are null");

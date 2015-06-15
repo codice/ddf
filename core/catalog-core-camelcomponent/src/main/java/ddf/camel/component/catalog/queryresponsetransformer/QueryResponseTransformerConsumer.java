@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.camel.component.catalog.queryresponsetransformer;
 
 import java.io.Serializable;
@@ -31,13 +30,13 @@ import ddf.catalog.transform.QueryResponseTransformer;
 /**
  * Consumer for the custom Camel CatalogComponent. This {@link Consumer} would map to a Camel <from>
  * route node with a URI like <code>catalog:queryresponsetransformer</code>
- * 
+ *
  * @author William Miller, Lockheed Martin
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
-public class QueryResponseTransformerConsumer extends TransformerConsumer implements
-        QueryResponseTransformer {
+public class QueryResponseTransformerConsumer extends TransformerConsumer
+        implements QueryResponseTransformer {
 
     private static final transient Logger LOGGER = LoggerFactory
             .getLogger(QueryResponseTransformerConsumer.class);
@@ -46,7 +45,7 @@ public class QueryResponseTransformerConsumer extends TransformerConsumer implem
      * Constructs the consumer for the custom Camel CatalogComponent. This
      * {@link org.apache.camel.Consumer} would map to a Camel <from> route node with a URI like
      * <code>catalog:queryresponsetransformer</code>
-     * 
+     *
      * @param endpoint
      *            the Camel endpoint that created this consumer
      * @param processor
@@ -55,8 +54,8 @@ public class QueryResponseTransformerConsumer extends TransformerConsumer implem
         super(QueryResponseTransformer.class, endpoint, processor);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("INSIDE QueryResponseTransformerConsumer constructor for "
-                    + endpoint.getTransformerId());
+            LOGGER.debug("INSIDE QueryResponseTransformerConsumer constructor for " + endpoint
+                    .getTransformerId());
         }
     }
 

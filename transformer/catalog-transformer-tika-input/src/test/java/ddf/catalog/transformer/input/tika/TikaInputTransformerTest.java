@@ -1,23 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.transformer.input.tika;
 
-import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static junit.framework.Assert.assertNotNull;
 
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -148,9 +147,8 @@ public class TikaInputTransformerTest {
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
-        assertThat(
-                metacard.getMetadata(),
-                containsString("<meta name=\"Compression CompressionTypeName\" content=\"BI_RGB\"/>"));
+        assertThat(metacard.getMetadata(), containsString(
+                "<meta name=\"Compression CompressionTypeName\" content=\"BI_RGB\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/x-ms-bmp"));
     }
 
@@ -178,7 +176,7 @@ public class TikaInputTransformerTest {
          */
         TimeZone defaultTimeZone = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        
+
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertNotNull(metacard.getMetadata());
@@ -189,7 +187,7 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getModifiedDate()), is("2009-10-02 23:02:49 UTC"));
         assertThat((String) metacard.getAttribute(Metacard.GEOGRAPHY).getValue(),
                 is("POINT(-54.1234 12.54321)"));
-        
+
         // Reset timezone back to local time zone.
         TimeZone.setDefault(defaultTimeZone);
     }
@@ -206,7 +204,7 @@ public class TikaInputTransformerTest {
          */
         TimeZone defaultTimeZone = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        
+
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertThat(metacard.getTitle(), is("Tosteberga \u00C4ngar"));
@@ -215,7 +213,7 @@ public class TikaInputTransformerTest {
                 containsString("<meta name=\"Keywords\" content=\"bird watching\"/>"));
         assertThat(metacard.getContentTypeName(), is("image/jpeg"));
         assertThat(convertDate(metacard.getCreatedDate()), is("2010-07-28 11:02:00 UTC"));
-        
+
         // Reset timezone back to local time zone.
         TimeZone.setDefault(defaultTimeZone);
     }
@@ -328,8 +326,8 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2010-05-04 06:43:54 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2010-06-29 06:34:35 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("content as every other file being tested for tika content parsing"));
+        assertThat(metacard.getMetadata(), containsString(
+                "content as every other file being tested for tika content parsing"));
         assertThat(metacard.getContentTypeName(),
                 is("application/vnd.openxmlformats-officedocument.presentationml.presentation"));
     }
@@ -344,8 +342,8 @@ public class TikaInputTransformerTest {
         assertThat(convertDate(metacard.getCreatedDate()), is("2007-10-01 16:13:56 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2007-10-01 16:31:43 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("Written and saved in Microsoft Excel X for Mac Service Release 1."));
+        assertThat(metacard.getMetadata(), containsString(
+                "Written and saved in Microsoft Excel X for Mac Service Release 1."));
         assertThat(metacard.getContentTypeName(), is("application/vnd.ms-excel"));
     }
 
@@ -377,21 +375,21 @@ public class TikaInputTransformerTest {
          */
         TimeZone defaultTimeZone = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        
+
         Metacard metacard = transform(stream);
         assertNotNull(metacard);
         assertThat(metacard.getTitle(), is("Test OpenOffice2 Document"));
         assertThat(convertDate(metacard.getCreatedDate()), is("2007-09-14 11:06:08 UTC"));
         assertThat(convertDate(metacard.getModifiedDate()), is("2013-02-13 06:52:10 UTC"));
         assertNotNull(metacard.getMetadata());
-        assertThat(metacard.getMetadata(),
-                containsString("This is a sample Open Office document, written in NeoOffice 2.2.1"));
+        assertThat(metacard.getMetadata(), containsString(
+                "This is a sample Open Office document, written in NeoOffice 2.2.1"));
         assertThat(metacard.getContentTypeName(), is("application/vnd.oasis.opendocument.text"));
 
         // Reset timezone back to local time zone.
         TimeZone.setDefault(defaultTimeZone);
     }
-    
+
     private String convertDate(Date date) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));

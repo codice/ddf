@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.filter.delegate;
 
 import java.util.Date;
@@ -141,7 +140,8 @@ public class CopyFilterDelegate extends FilterDelegate<Filter> {
 
     // PropertyIsNotEqualTo
     @Override
-    public Filter propertyIsNotEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
+    public Filter propertyIsNotEqualTo(String propertyName, String literal,
+            boolean isCaseSensitive) {
         return filterBuilder.attribute(propertyName).notEqualTo().text(literal);
     }
 
@@ -379,7 +379,8 @@ public class CopyFilterDelegate extends FilterDelegate<Filter> {
 
     // PropertyIsBetween
     @Override
-    public Filter propertyIsBetween(String propertyName, String lowerBoundary, String upperBoundary) {
+    public Filter propertyIsBetween(String propertyName, String lowerBoundary,
+            String upperBoundary) {
         throw new UnsupportedOperationException(
                 "propertyIsBetween(String,String lowerBoundary,String upperBoundary) not supported by CopyFilterDelegate.");
     }
@@ -415,13 +416,15 @@ public class CopyFilterDelegate extends FilterDelegate<Filter> {
     }
 
     @Override
-    public Filter propertyIsBetween(String propertyName, double lowerBoundary, double upperBoundary) {
+    public Filter propertyIsBetween(String propertyName, double lowerBoundary,
+            double upperBoundary) {
         return filterBuilder.attribute(propertyName).between()
                 .numbers(lowerBoundary, upperBoundary);
     }
 
     @Override
-    public Filter propertyIsBetween(String propertyName, Object lowerBoundary, Object upperBoundary) {
+    public Filter propertyIsBetween(String propertyName, Object lowerBoundary,
+            Object upperBoundary) {
         throw new UnsupportedOperationException(
                 "propertyIsBetween(String,Object) not supported by CopyFilterDelegate.");
     }

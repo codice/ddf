@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog;
 
 import java.io.PrintStream;
@@ -26,7 +25,6 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.osgi.util.tracker.ServiceTracker;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.filter.FilterBuilder;
@@ -35,10 +33,10 @@ import ddf.catalog.source.CatalogProvider;
 /**
  * Parent object to all Catalog Commands. Provides common methods and instance variables as well as
  * the extension of {@link OsgiCommandSupport} that Catalog Commands can use.
- * 
+ *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class CatalogCommands extends OsgiCommandSupport {
 
@@ -63,16 +61,19 @@ public class CatalogCommands extends OsgiCommandSupport {
 
     protected static final int PROGESS_BAR_NOTCH_LENGTH = 50;
 
-    protected PrintStream console = System.out;
-
     protected static final String DEFAULT_TRANSFORMER_ID = "ser";
 
     private static final Color ERROR_COLOUR = Ansi.Color.RED;
+
     private static final Color HEADER_COLOUR = Ansi.Color.CYAN;
+
     private static final Color SUCCESS_COLOUR = Ansi.Color.GREEN;
 
+    protected PrintStream console = System.out;
+
     // DDF-535: remove "-provider" alias in DDF 3.0
-    @Option(name = "--provider", required = false, aliases = {"-p", "-provider"}, multiValued = false, description = "Interacts with the provider directly instead of the framework.")
+    @Option(name = "--provider", required = false, aliases = {"-p",
+            "-provider"}, multiValued = false, description = "Interacts with the provider directly instead of the framework.")
     boolean isProvider = false;
 
     @Override
@@ -128,8 +129,7 @@ public class CatalogCommands extends OsgiCommandSupport {
     }
 
     protected void printProgressAndFlush(long start, long totalCount, long currentCount) {
-        console.print(getProgressBar(currentCount, totalCount, start,
-                System.currentTimeMillis()));
+        console.print(getProgressBar(currentCount, totalCount, start, System.currentTimeMillis()));
         console.flush();
     }
 
@@ -151,14 +151,17 @@ public class CatalogCommands extends OsgiCommandSupport {
     }
 
     private int calculateNotches(long currentCount, long totalPossible) {
-        return (int) ((Double.valueOf(currentCount) / Double.valueOf(totalPossible)) * PROGESS_BAR_NOTCH_LENGTH);
+        return (int) ((Double.valueOf(currentCount) / Double.valueOf(totalPossible))
+                * PROGESS_BAR_NOTCH_LENGTH);
     }
 
     private int calculateProgressPercentage(long currentCount, long totalPossible) {
-        return (int) ((Double.valueOf(currentCount) / Double.valueOf(totalPossible)) * PERCENTAGE_MULTIPLIER);
+        return (int) ((Double.valueOf(currentCount) / Double.valueOf(totalPossible))
+                * PERCENTAGE_MULTIPLIER);
     }
 
     protected int calculateRecordsPerSecond(long currentCount, long start, long end) {
-        return (int) (Double.valueOf(currentCount) / (Double.valueOf(end - start) / MILLISECONDS_PER_SECOND));
+        return (int) (Double.valueOf(currentCount) / (Double.valueOf(end - start)
+                / MILLISECONDS_PER_SECOND));
     }
 }

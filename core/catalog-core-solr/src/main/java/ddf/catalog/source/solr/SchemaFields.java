@@ -1,34 +1,29 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.source.solr;
-
-import ddf.catalog.data.AttributeType.AttributeFormat;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import ddf.catalog.data.AttributeType.AttributeFormat;
+
 /**
  * Provides the mappings between {@link AttributeFormat} objects and the correct Solr suffix and
  * vice versa
- * 
+ *
  */
 public class SchemaFields {
-
-    private static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP = new HashMap<>();
-
-    private static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP = new HashMap<>();
 
     public static final String OBJECT_SUFFIX = "_obj";
 
@@ -65,6 +60,10 @@ public class SchemaFields {
     public static final String METACARD_TYPE_FIELD_NAME = "metacard_type_name" + TEXT_SUFFIX;
 
     public static final String METACARD_TYPE_OBJECT_FIELD_NAME = "metacard_type" + OBJECT_SUFFIX;
+
+    private static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP = new HashMap<>();
+
+    private static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP = new HashMap<>();
 
     static {
         SUFFIX_TO_FORMAT_MAP.put(GEO_SUFFIX, AttributeFormat.GEOMETRY);

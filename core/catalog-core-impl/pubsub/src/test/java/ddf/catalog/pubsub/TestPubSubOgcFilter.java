@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.pubsub;
 
 import static org.junit.Assert.assertFalse;
@@ -38,9 +37,9 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.spatial.BBOX;
-import org.w3c.dom.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -73,8 +72,8 @@ public class TestPubSubOgcFilter {
         SimpleFeature feature = generateSampleFeature();
 
         FilterFactory filterFactory = new FilterFactoryImpl();
-        PropertyIsEqualTo filter = filterFactory.equal(filterFactory.property("name"),
-                filterFactory.literal("FirstFeature"), true);
+        PropertyIsEqualTo filter = filterFactory
+                .equal(filterFactory.property("name"), filterFactory.literal("FirstFeature"), true);
         printFilter(filter);
         assertTrue(filter.evaluate(feature));
 
@@ -85,12 +84,12 @@ public class TestPubSubOgcFilter {
     public void testGeospatialFeatureEvaluate() throws TransformerException {
         SimpleFeature feature = generateSampleFeature();
         FilterFactoryImpl filterFactory = new FilterFactoryImpl();
-        BBOX bboxFilter = filterFactory.bbox("geo", -114, 10, -110, 30,
-                DefaultGeographicCRS.WGS84.toString());
+        BBOX bboxFilter = filterFactory
+                .bbox("geo", -114, 10, -110, 30, DefaultGeographicCRS.WGS84.toString());
         assertTrue(bboxFilter.evaluate(feature));
 
-        BBOX bboxFilter1 = filterFactory.bbox("geo", -110, 10, 0, 30,
-                DefaultGeographicCRS.WGS84.toString());
+        BBOX bboxFilter1 = filterFactory
+                .bbox("geo", -110, 10, 0, 30, DefaultGeographicCRS.WGS84.toString());
         assertFalse(bboxFilter1.evaluate(feature));
     }
 
@@ -114,10 +113,10 @@ public class TestPubSubOgcFilter {
         // other available FeatureType's ComplexFeatureTypeImpl (link features),
         // FeatureTypeImpl, NonFeatureTypeProxy, SimpleFeatureTypeImpl,
         // UniqueNameFeatureTypeImpl
-        final FeatureType PUB_SUB_FEATURE = generateMetacardFeatureType();
+        final FeatureType pubSubFeature = generateMetacardFeatureType();
 
         SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(
-                (SimpleFeatureType) PUB_SUB_FEATURE);
+                (SimpleFeatureType) pubSubFeature);
         featureBuilder.set(Metacard.TITLE, "Muppet Metacard");
         featureBuilder.set(Metacard.CONTENT_TYPE, "Talking Green Frog");
         featureBuilder.set(Metacard.CREATED, new Date());
@@ -176,9 +175,9 @@ public class TestPubSubOgcFilter {
         b.setCRS(DefaultGeographicCRS.WGS84);
         b.add("geo", Point.class);
 
-        final SimpleFeatureType PUB_SUB_FEATURE = b.buildFeatureType();
+        final SimpleFeatureType pubSubFeature = b.buildFeatureType();
 
-        SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(PUB_SUB_FEATURE);
+        SimpleFeatureBuilder featureBuilder = new SimpleFeatureBuilder(pubSubFeature);
         featureBuilder.set("name", "FirstFeature");
         featureBuilder.set("classification", 10);
         featureBuilder.set("height", 5.8);

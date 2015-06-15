@@ -1,25 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.util.XPathHelper;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -28,6 +21,13 @@ import org.fusesource.jansi.Ansi;
 import org.geotools.filter.text.cql2.CQL;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
+
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.util.XPathHelper;
 
 @Command(scope = CatalogCommands.NAMESPACE, name = "search", description = "Searches records in the catalog provider.")
 public class SearchCommand extends CatalogCommands {
@@ -56,8 +56,7 @@ public class SearchCommand extends CatalogCommands {
     boolean caseSensitive = false;
 
     @Option(name = "--cql", required = false, aliases = {}, multiValued = false, description =
-            "Search using CQL Filter expressions.\n"
-                    + "CQL Examples:\n"
+            "Search using CQL Filter expressions.\n" + "CQL Examples:\n"
                     + "\tTextual:   search --cql \"title like 'some text'\"\n"
                     + "\tTemporal:  search --cql \"modified before 2012-09-01T12:30:00Z\"\n"
                     + "\tSpatial:   search --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
@@ -67,8 +66,8 @@ public class SearchCommand extends CatalogCommands {
     @Override
     protected Object doExecute() throws Exception {
 
-        String formatString = "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %4$-"
-                + EXCERPT_MAX_LENGTH + "s%n";
+        String formatString =
+                "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %4$-" + EXCERPT_MAX_LENGTH + "s%n";
 
         CatalogFacade catalogProvider = getCatalog();
 
@@ -109,8 +108,8 @@ public class SearchCommand extends CatalogCommands {
 
         console.println();
         console.printf(" %d result(s) out of %s%d%s in %3.3f seconds", (size),
-                Ansi.ansi().fg(Ansi.Color.CYAN).toString(), response.getHits(), Ansi.ansi().reset()
-                        .toString(), (end - start) / MILLISECONDS_PER_SECOND);
+                Ansi.ansi().fg(Ansi.Color.CYAN).toString(), response.getHits(),
+                Ansi.ansi().reset().toString(), (end - start) / MILLISECONDS_PER_SECOND);
         console.printf(formatString, "", "", "", "");
         printHeaderMessage(String.format(formatString, ID, DATE, TITLE, EXCERPT));
 
@@ -134,17 +133,24 @@ public class SearchCommand extends CatalogCommands {
                     if (caseSensitive) {
                         index = indexedText.indexOf(normalizedSearchPhrase);
                     } else {
-                        index = indexedText.toLowerCase().indexOf(normalizedSearchPhrase.toLowerCase());
+                        index = indexedText.toLowerCase()
+                                .indexOf(normalizedSearchPhrase.toLowerCase());
                     }
 
                     if (index != -1) {
-                        int contextLength = (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
-                        excerpt = "..." + indexedText.substring(Math.max(index - contextLength, 0), index);
+                        int contextLength =
+                                (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
+                        excerpt = "..." + indexedText
+                                .substring(Math.max(index - contextLength, 0), index);
                         excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
-                        excerpt = excerpt + indexedText.substring(index, index + normalizedSearchPhrase.length());
+                        excerpt = excerpt + indexedText
+                                .substring(index, index + normalizedSearchPhrase.length());
                         excerpt = excerpt + Ansi.ansi().reset().toString();
-                        excerpt = excerpt + indexedText.substring(index + normalizedSearchPhrase.length(),
-                                Math.min(indexedText.length(), index + normalizedSearchPhrase.length() + contextLength)) + "...";
+                        excerpt = excerpt + indexedText
+                                .substring(index + normalizedSearchPhrase.length(),
+                                        Math.min(indexedText.length(),
+                                                index + normalizedSearchPhrase.length()
+                                                        + contextLength)) + "...";
 
                     }
                 }

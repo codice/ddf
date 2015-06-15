@@ -1,31 +1,20 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.plugin.jpeg2000.thumbnail.converter;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.operation.impl.QueryResponseImpl;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.StopProcessingException;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
-import javax.imageio.ImageIO;
-import javax.imageio.spi.IIORegistry;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,7 +24,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import javax.imageio.ImageIO;
+import javax.imageio.spi.IIORegistry;
+
+import org.junit.Test;
+
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.plugin.PluginExecutionException;
+import ddf.catalog.plugin.StopProcessingException;
 
 public class Jpeg2000ThumbnailConverterTest {
     private final Jpeg2000ThumbnailConverter jpeg2000ThumbnailConverter = new Jpeg2000ThumbnailConverter();

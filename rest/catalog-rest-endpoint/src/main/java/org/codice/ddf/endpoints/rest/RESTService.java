@@ -1,18 +1,19 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package org.codice.ddf.endpoints.rest;
+
+import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
@@ -26,7 +27,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.InputStream;
 
 /**
  * REST endpoint interface
@@ -47,11 +47,9 @@ public interface RESTService {
      */
     @GET
     @Path("/{id}")
-    public Response getDocument(@PathParam("id")
-    String id, @QueryParam("transform")
-    String transformerParam, @Context
-    UriInfo uriInfo, @Context
-    HttpServletRequest httpRequest);
+    public Response getDocument(@PathParam("id") String id,
+            @QueryParam("transform") String transformerParam, @Context UriInfo uriInfo,
+            @Context HttpServletRequest httpRequest);
 
     /**
      * REST Get. Retrieves information regarding sources available.
@@ -62,9 +60,7 @@ public interface RESTService {
      */
     @GET
     @Path("/sources")
-    public Response getDocument(@Context
-    UriInfo uriInfo, @Context
-    HttpServletRequest httpRequest);
+    public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest);
 
     /**
      * REST Get. Retrieves the metadata entry specified by the id from the federated source
@@ -79,12 +75,9 @@ public interface RESTService {
      */
     @GET
     @Path("/sources/{sourceid}/{id}")
-    public Response getDocument(@PathParam("sourceid")
-    String sourceid, @PathParam("id")
-    String id, @QueryParam("transform")
-    String transformerParam, @Context
-    UriInfo uriInfo, @Context
-    HttpServletRequest httpRequest);
+    public Response getDocument(@PathParam("sourceid") String sourceid, @PathParam("id") String id,
+            @QueryParam("transform") String transformerParam, @Context UriInfo uriInfo,
+            @Context HttpServletRequest httpRequest);
 
     /**
      * REST Put. Updates the specified metadata entry with the provided metadata.
@@ -95,9 +88,8 @@ public interface RESTService {
      */
     @PUT
     @Path("/{id}")
-    public Response updateDocument(@PathParam("id")
-    String id, @Context
-    HttpHeaders headers, @Context HttpServletRequest httpRequest, InputStream message);
+    public Response updateDocument(@PathParam("id") String id, @Context HttpHeaders headers,
+            @Context HttpServletRequest httpRequest, InputStream message);
 
     /**
      * REST Post. Creates a new metadata entry in the catalog.
@@ -106,9 +98,8 @@ public interface RESTService {
      * @return
      */
     @POST
-    public Response addDocument(@Context
-    HttpHeaders headers, @Context
-    UriInfo requestUriInfo, @Context HttpServletRequest httpRequest, InputStream message);
+    public Response addDocument(@Context HttpHeaders headers, @Context UriInfo requestUriInfo,
+            @Context HttpServletRequest httpRequest, InputStream message);
 
     /**
      * REST Delete. Deletes a record from the catalog.
@@ -118,7 +109,7 @@ public interface RESTService {
      */
     @DELETE
     @Path("/{id}")
-    public Response deleteDocument(@PathParam("id")
-    String id, @Context HttpServletRequest httpRequest);
+    public Response deleteDocument(@PathParam("id") String id,
+            @Context HttpServletRequest httpRequest);
 
 }

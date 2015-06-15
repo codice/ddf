@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.pubsub.command;
 
 import static org.hamcrest.Matchers.containsString;
@@ -63,8 +62,9 @@ public class DeleteCommandTest {
         System.setOut(realSystemOut);
 
         // then
-        assertThat(buffer.toString(), startsWith(DeleteCommand.RED_CONSOLE_COLOR
-                + DeleteCommand.NO_SUBSCRIPTIONS_FOUND_MSG + DeleteCommand.DEFAULT_CONSOLE_COLOR));
+        assertThat(buffer.toString(), startsWith(
+                DeleteCommand.RED_CONSOLE_COLOR + DeleteCommand.NO_SUBSCRIPTIONS_FOUND_MSG
+                        + DeleteCommand.DEFAULT_CONSOLE_COLOR));
 
         buffer.close();
     }
@@ -77,16 +77,16 @@ public class DeleteCommandTest {
         deleteCommand.setBundleContext(bundleContext);
 
         ServiceReference mySubscription = mock(ServiceReference.class);
-        when(mySubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                MY_SUBSCRIPTION_ID);
+        when(mySubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(MY_SUBSCRIPTION_ID);
 
         ServiceReference yourSubscription = mock(ServiceReference.class);
-        when(yourSubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                YOUR_SUBSCRIPTION_ID);
+        when(yourSubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(YOUR_SUBSCRIPTION_ID);
 
         String ldapFilter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=" + MY_SUBSCRIPTION_ID + ")";
 
@@ -97,15 +97,13 @@ public class DeleteCommandTest {
         // NOTE: List of comma-delimited return values specified in the thenReturn() method is
         // Mockito's way of
         // supporting stubbing of consecutive calls to same mocked method.
-        when(
-                bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
-                        eq(ldapFilter))).thenReturn(new ServiceReference[] {mySubscription},
-                new ServiceReference[] {});
+        when(bundleContext
+                        .getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(ldapFilter)))
+                .thenReturn(new ServiceReference[] {mySubscription}, new ServiceReference[] {});
 
         Subscriber mockSubscriber = mock(Subscriber.class);
         ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-        when(
-                bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID),
+        when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID),
                         anyString())).thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
         when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
         when(mockSubscriber.deleteSubscription(anyString())).thenReturn(true);
@@ -124,7 +122,8 @@ public class DeleteCommandTest {
         System.setOut(realSystemOut);
 
         // then
-        assertThat(buffer.toString(), containsString(DeleteCommand.DELETE_MSG + MY_SUBSCRIPTION_ID));
+        assertThat(buffer.toString(),
+                containsString(DeleteCommand.DELETE_MSG + MY_SUBSCRIPTION_ID));
         assertThat(buffer.toString(),
                 containsString("Deleted 1 subscriptions out of 1 subscriptions found."));
 
@@ -139,35 +138,34 @@ public class DeleteCommandTest {
         deleteCommand.setBundleContext(bundleContext);
 
         ServiceReference mySubscription = mock(ServiceReference.class);
-        when(mySubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                MY_SUBSCRIPTION_ID);
+        when(mySubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(MY_SUBSCRIPTION_ID);
 
         ServiceReference yourSubscription = mock(ServiceReference.class);
-        when(yourSubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                YOUR_SUBSCRIPTION_ID);
+        when(yourSubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(YOUR_SUBSCRIPTION_ID);
 
         ServiceReference[] refs = new ServiceReference[] {mySubscription, yourSubscription};
         String ldapFilter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=my*)";
-        when(
-                bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
-                        eq(ldapFilter))).thenReturn(refs);
+        when(bundleContext
+                        .getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(ldapFilter)))
+                .thenReturn(refs);
         ldapFilter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=" + MY_SUBSCRIPTION_ID + ")";
-        when(
-                bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
-                        eq(ldapFilter))).thenReturn(new ServiceReference[] {});
+        when(bundleContext
+                        .getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(ldapFilter)))
+                .thenReturn(new ServiceReference[] {});
         ldapFilter = "(" + SUBSCRIPTION_ID_PROPERTY_KEY + "=" + YOUR_SUBSCRIPTION_ID + ")";
-        when(
-                bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
-                        eq(ldapFilter))).thenReturn(new ServiceReference[] {});
+        when(bundleContext
+                        .getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(ldapFilter)))
+                .thenReturn(new ServiceReference[] {});
 
         Subscriber mockSubscriber = mock(Subscriber.class);
         ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-        when(
-                bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID),
+        when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID),
                         anyString())).thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
         when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
         when(mockSubscriber.deleteSubscription(anyString())).thenReturn(true);
@@ -186,9 +184,10 @@ public class DeleteCommandTest {
         System.setOut(realSystemOut);
 
         // then
-        assertThat(buffer.toString(), containsString(DeleteCommand.DELETE_MSG + MY_SUBSCRIPTION_ID));
-        assertThat(buffer.toString(), containsString(DeleteCommand.DELETE_MSG
-                + YOUR_SUBSCRIPTION_ID));
+        assertThat(buffer.toString(),
+                containsString(DeleteCommand.DELETE_MSG + MY_SUBSCRIPTION_ID));
+        assertThat(buffer.toString(),
+                containsString(DeleteCommand.DELETE_MSG + YOUR_SUBSCRIPTION_ID));
         assertThat(buffer.toString(),
                 containsString("Deleted 2 subscriptions out of 2 subscriptions found."));
 
@@ -203,22 +202,22 @@ public class DeleteCommandTest {
         deleteCommand.setBundleContext(bundleContext);
 
         ServiceReference mySubscription = mock(ServiceReference.class);
-        when(mySubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                MY_SUBSCRIPTION_ID);
+        when(mySubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(MY_SUBSCRIPTION_ID);
 
         ServiceReference yourSubscription = mock(ServiceReference.class);
-        when(yourSubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                YOUR_SUBSCRIPTION_ID);
+        when(yourSubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(YOUR_SUBSCRIPTION_ID);
 
         String ldapFilter = "(& (subscription-id=my*) (subscription-id=*WSDL))";
         ServiceReference[] refs = new ServiceReference[] {mySubscription, yourSubscription};
-        when(
-                bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
-                        eq(ldapFilter))).thenReturn(refs);
+        when(bundleContext
+                        .getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(ldapFilter)))
+                .thenReturn(refs);
 
         // Return empty ServiceReference lists when getting ServiceReference by explicit
         // subscription ID as this invocation
@@ -232,8 +231,7 @@ public class DeleteCommandTest {
 
         Subscriber mockSubscriber = mock(Subscriber.class);
         ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-        when(
-                bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID),
+        when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID),
                         anyString())).thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
         when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
         when(mockSubscriber.deleteSubscription(anyString())).thenReturn(true);
@@ -253,9 +251,10 @@ public class DeleteCommandTest {
         System.setOut(realSystemOut);
 
         // then
-        assertThat(buffer.toString(), containsString(DeleteCommand.DELETE_MSG + MY_SUBSCRIPTION_ID));
-        assertThat(buffer.toString(), containsString(DeleteCommand.DELETE_MSG
-                + YOUR_SUBSCRIPTION_ID));
+        assertThat(buffer.toString(),
+                containsString(DeleteCommand.DELETE_MSG + MY_SUBSCRIPTION_ID));
+        assertThat(buffer.toString(),
+                containsString(DeleteCommand.DELETE_MSG + YOUR_SUBSCRIPTION_ID));
         assertThat(buffer.toString(),
                 containsString("Deleted 2 subscriptions out of 2 subscriptions found."));
 
@@ -270,22 +269,22 @@ public class DeleteCommandTest {
         deleteCommand.setBundleContext(bundleContext);
 
         ServiceReference mySubscription = mock(ServiceReference.class);
-        when(mySubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                MY_SUBSCRIPTION_ID);
+        when(mySubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(MY_SUBSCRIPTION_ID);
 
         ServiceReference yourSubscription = mock(ServiceReference.class);
-        when(yourSubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                YOUR_SUBSCRIPTION_ID);
+        when(yourSubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(YOUR_SUBSCRIPTION_ID);
 
         String ldapFilter = "(& (subscription-id=my*) (subscription-id=*WSDL))";
         ServiceReference[] refs = new ServiceReference[] {mySubscription, yourSubscription};
-        when(
-                bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
-                        eq(ldapFilter))).thenReturn(refs);
+        when(bundleContext
+                        .getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), eq(ldapFilter)))
+                .thenReturn(refs);
 
         // Return empty ServiceReference list for mySubscriptionId but return actual
         // ServiceReference for yourSubscriptionId
@@ -302,8 +301,7 @@ public class DeleteCommandTest {
 
         Subscriber mockSubscriber = mock(Subscriber.class);
         ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-        when(
-                bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID),
+        when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID),
                         anyString())).thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
         when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
         when(mockSubscriber.deleteSubscription(eq(MY_SUBSCRIPTION_ID))).thenReturn(true);
@@ -324,10 +322,11 @@ public class DeleteCommandTest {
         System.setOut(realSystemOut);
 
         // then
-        assertThat(buffer.toString(), containsString(DeleteCommand.DELETE_MSG + MY_SUBSCRIPTION_ID));
-        assertThat(buffer.toString(), containsString(DeleteCommand.RED_CONSOLE_COLOR
-                + DeleteCommand.UNABLE_TO_DELETE_MSG + YOUR_SUBSCRIPTION_ID
-                + DeleteCommand.DEFAULT_CONSOLE_COLOR));
+        assertThat(buffer.toString(),
+                containsString(DeleteCommand.DELETE_MSG + MY_SUBSCRIPTION_ID));
+        assertThat(buffer.toString(), containsString(
+                DeleteCommand.RED_CONSOLE_COLOR + DeleteCommand.UNABLE_TO_DELETE_MSG
+                        + YOUR_SUBSCRIPTION_ID + DeleteCommand.DEFAULT_CONSOLE_COLOR));
 
         buffer.close();
     }
@@ -340,30 +339,27 @@ public class DeleteCommandTest {
         deleteCommand.setBundleContext(bundleContext);
 
         ServiceReference mySubscription = mock(ServiceReference.class);
-        when(mySubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                MY_SUBSCRIPTION_ID);
+        when(mySubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(MY_SUBSCRIPTION_ID);
 
         ServiceReference yourSubscription = mock(ServiceReference.class);
-        when(yourSubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                YOUR_SUBSCRIPTION_ID);
+        when(yourSubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(yourSubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(YOUR_SUBSCRIPTION_ID);
 
-        when(
-                bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
+        when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
                         eq(MY_SUBSCRIPTION_ID)))
                 .thenReturn(new ServiceReference[] {mySubscription});
-        when(
-                bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
-                        eq(YOUR_SUBSCRIPTION_ID))).thenReturn(
-                new ServiceReference[] {yourSubscription});
+        when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID),
+                        eq(YOUR_SUBSCRIPTION_ID)))
+                .thenReturn(new ServiceReference[] {yourSubscription});
 
         Subscriber mockSubscriber = mock(Subscriber.class);
         ServiceReference mockSubscriberServiceRef = mock(ServiceReference.class);
-        when(
-                bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID),
+        when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID),
                         anyString())).thenReturn(new ServiceReference[] {mockSubscriberServiceRef});
         when(bundleContext.getService(any(ServiceReference.class))).thenReturn(mockSubscriber);
         when(mockSubscriber.deleteSubscription(anyString())).thenReturn(true);
@@ -382,8 +378,9 @@ public class DeleteCommandTest {
         System.setOut(realSystemOut);
 
         // then
-        assertThat(buffer.toString(), startsWith(DeleteCommand.RED_CONSOLE_COLOR
-                + DeleteCommand.NO_SUBSCRIPTIONS_FOUND_MSG + DeleteCommand.DEFAULT_CONSOLE_COLOR));
+        assertThat(buffer.toString(), startsWith(
+                DeleteCommand.RED_CONSOLE_COLOR + DeleteCommand.NO_SUBSCRIPTIONS_FOUND_MSG
+                        + DeleteCommand.DEFAULT_CONSOLE_COLOR));
 
         buffer.close();
     }
@@ -396,16 +393,15 @@ public class DeleteCommandTest {
         deleteCommand.setBundleContext(bundleContext);
 
         ServiceReference mySubscription = mock(ServiceReference.class);
-        when(mySubscription.getPropertyKeys()).thenReturn(
-                new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
-        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY)).thenReturn(
-                MY_SUBSCRIPTION_ID);
+        when(mySubscription.getPropertyKeys())
+                .thenReturn(new String[] {SUBSCRIPTION_ID_PROPERTY_KEY});
+        when(mySubscription.getProperty(SUBSCRIPTION_ID_PROPERTY_KEY))
+                .thenReturn(MY_SUBSCRIPTION_ID);
 
         when(bundleContext.getServiceReferences(eq(SubscriptionsCommand.SERVICE_PID), anyString()))
                 .thenReturn(new ServiceReference[] {mySubscription});
 
-        when(
-                bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID),
+        when(bundleContext.getServiceReferences(eq(DeleteCommand.SUBSCRIBER_SERVICE_PID),
                         anyString())).thenReturn(new ServiceReference[] {});
 
         PrintStream realSystemOut = System.out;
@@ -422,8 +418,9 @@ public class DeleteCommandTest {
         System.setOut(realSystemOut);
 
         // then
-        assertThat(buffer.toString(), startsWith(DeleteCommand.RED_CONSOLE_COLOR
-                + DeleteCommand.NO_SUBSCRIBERS_FOUND_MSG + DeleteCommand.DEFAULT_CONSOLE_COLOR));
+        assertThat(buffer.toString(), startsWith(
+                DeleteCommand.RED_CONSOLE_COLOR + DeleteCommand.NO_SUBSCRIBERS_FOUND_MSG
+                        + DeleteCommand.DEFAULT_CONSOLE_COLOR));
 
         buffer.close();
     }

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.resource.download;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,6 +50,8 @@ public class ReliableResourceInputStreamTest {
 
     private static final int THRESHOLD = 1024; // 1 KB
 
+    ResourceResponse resourceResponse;
+
     private FileBackedOutputStream fbos;
 
     private CountingOutputStream countingFbos;
@@ -63,15 +64,13 @@ public class ReliableResourceInputStreamTest {
 
     private String downloadIdentifier;
 
-    ResourceResponse resourceResponse;
-
     @Before
     public void setup() {
         fbos = new FileBackedOutputStream(THRESHOLD);
         countingFbos = new CountingOutputStream(fbos);
         downloadState = mock(DownloadManagerState.class);
-        when(downloadState.getDownloadState()).thenReturn(
-                DownloadManagerState.DownloadState.COMPLETED);
+        when(downloadState.getDownloadState())
+                .thenReturn(DownloadManagerState.DownloadState.COMPLETED);
         reliableResourceCallable = mock(ReliableResourceCallable.class);
         downloadFuture = mock(Future.class);
         downloadIdentifier = UUID.randomUUID().toString();

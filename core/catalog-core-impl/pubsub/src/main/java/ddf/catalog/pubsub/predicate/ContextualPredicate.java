@@ -10,7 +10,7 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 
 package ddf.catalog.pubsub.predicate;
 
@@ -247,13 +247,12 @@ public class ContextualPredicate implements Predicate {
                 LOGGER.error("IO exception during context evaluation", e);
                 return false;
             }
-        }
 
         // This predicate has no text paths specified, so can use default Lucene search index, which
         // indexed the entry's entire metadata
         // per the default XPath expressions in ContextualEvaluator, from the event's properties
         // data
-        else {
+        } else {
             LOGGER.debug("using default Lucene search index for metadata");
             cec = new ContextualEvaluationCriteriaImpl(searchPhrase, fuzzy, caseSensitiveSearch,
                     (Directory) contextualMap.get("DEFAULT_INDEX"));

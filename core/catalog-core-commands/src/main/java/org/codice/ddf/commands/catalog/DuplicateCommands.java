@@ -1,33 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog;
-
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.CreateRequest;
-import ddf.catalog.operation.CreateResponse;
-import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.catalog.source.IngestException;
-import ddf.catalog.source.SourceUnavailableException;
-import org.apache.commons.lang.StringUtils;
-import org.apache.felix.gogo.commands.Option;
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
-import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,64 +30,89 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.felix.gogo.commands.Option;
+import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.CreateResponse;
+import ddf.catalog.operation.impl.CreateRequestImpl;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceUnavailableException;
+
 public abstract class DuplicateCommands extends CatalogCommands {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DuplicateCommands.class);
-
-    protected FilterBuilder builder;
 
     protected static final int MAX_BATCH_SIZE = 1000;
 
-    private List<Metacard> failedMetacards = Collections
-            .synchronizedList(new ArrayList<Metacard>());
-
-    protected AtomicInteger failedCount = new AtomicInteger(0);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DuplicateCommands.class);
 
     private static final String DATE_FORMAT = "MM-dd-yyyy";
 
-    @Option(name = "--batchsize", required = false, aliases = {"-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
+    protected FilterBuilder builder;
+
+    protected AtomicInteger failedCount = new AtomicInteger(0);
+
+    @Option(name = "--batchsize", required = false, aliases = {
+            "-b"}, multiValued = false, description = "Number of Metacards to ingest at a time. Change this argument based on system memory and catalog provider limits.")
     int batchSize = MAX_BATCH_SIZE;
 
-    @Option(name = "--multithreaded", required = false, aliases = {"-m"}, multiValued = false, description = "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
+    @Option(name = "--multithreaded", required = false, aliases = {
+            "-m"}, multiValued = false, description = "Number of threads to use when ingesting. Setting this value too high for your system can cause performance degradation.")
     int multithreaded = 1;
 
-    @Option(name = "-t", required = false, aliases = {"-temporal"}, multiValued = false, description = "Flag to use temporal criteria to query federated source. The default is to use \"keyword like * \"")
+    @Option(name = "-t", required = false, aliases = {
+            "-temporal"}, multiValued = false, description = "Flag to use temporal criteria to query federated source. The default is to use \"keyword like * \"")
     boolean isUseTemporal = false;
 
-    @Option(name = "-s", required = false, aliases = {"-startDate"}, multiValued = false, description = "Flag to specify a start date range to query with. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.")
+    @Option(name = "-s", required = false, aliases = {
+            "-startDate"}, multiValued = false, description = "Flag to specify a start date range to query with. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.")
     String startDate;
 
-    @Option(name = "-e", required = false, aliases = {"-endDate"}, multiValued = false, description = "Flag to specify a start date range to query with. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.")
+    @Option(name = "-e", required = false, aliases = {
+            "-endDate"}, multiValued = false, description = "Flag to specify a start date range to query with. Dates should be formatted as MM-dd-yyyy such as 06-10-2014.")
     String endDate;
 
-    @Option(name = "-lasthours", required = false, aliases = {"-hour"}, multiValued = false, description = "Option to replicate the last N hours.")
+    @Option(name = "-lasthours", required = false, aliases = {
+            "-hour"}, multiValued = false, description = "Option to replicate the last N hours.")
     int lastHours;
 
-    @Option(name = "-lastdays", required = false, aliases = {"-day"}, multiValued = false, description = "Option to replicate the last N days.")
+    @Option(name = "-lastdays", required = false, aliases = {
+            "-day"}, multiValued = false, description = "Option to replicate the last N days.")
     int lastDays;
 
-    @Option(name = "-lastweeks", required = false, aliases = {"-week"}, multiValued = false, description = "Option to replicate the last N weeks.")
+    @Option(name = "-lastweeks", required = false, aliases = {
+            "-week"}, multiValued = false, description = "Option to replicate the last N weeks.")
     int lastWeeks;
 
-    @Option(name = "-lastmonths", required = false, aliases = {"-month"}, multiValued = false, description = "Option to replicate the last N month.")
+    @Option(name = "-lastmonths", required = false, aliases = {
+            "-month"}, multiValued = false, description = "Option to replicate the last N month.")
     int lastMonths;
 
-    @Option(name = "--failedDir", required = false, aliases = {"-f"}, multiValued = false, description = "Option to specify where to write metacards that failed to ingest.")
+    @Option(name = "--failedDir", required = false, aliases = {
+            "-f"}, multiValued = false, description = "Option to specify where to write metacards that failed to ingest.")
     String failedDir;
 
     @Option(name = "--cql", required = false, aliases = {}, multiValued = false, description =
             "Remove Metacards that match a CQL Filter expressions. It is recommended to use the search command first to see which metacards will be removed.\n"
-                    + "CQL Examples:\n"
-                    + "\tTextual:   search --cql \"title like 'some text'\"\n"
+                    + "CQL Examples:\n" + "\tTextual:   search --cql \"title like 'some text'\"\n"
                     + "\tTemporal:  search --cql \"modified before 2012-09-01T12:30:00Z\"\n"
                     + "\tSpatial:   search --cql \"DWITHIN(location, POINT (1 2) , 10, kilometers)\"\n"
                     + "\tComplex:   search --cql \"title like 'some text' AND modified before 2012-09-01T12:30:00Z\"")
     String cqlFilter = null;
 
+    private List<Metacard> failedMetacards = Collections
+            .synchronizedList(new ArrayList<Metacard>());
+
     abstract List<Metacard> query(CatalogFacade facade, int startIndex, Filter filter);
 
     /**
-     * 
+     *
      * @param queryFacade
      *            - the CatalogFacade used for query
      * @param ingestFacade
@@ -146,15 +155,18 @@ public abstract class DuplicateCommands extends CatalogCommands {
             createResponse = provider.create(createRequest);
             createdMetacards = createResponse.getCreatedMetacards();
         } catch (IngestException e) {
-            printErrorMessage(String.format("Received error while ingesting: %s%n", e.getMessage()));
+            printErrorMessage(
+                    String.format("Received error while ingesting: %s%n", e.getMessage()));
             LOGGER.warn("Error during ingest. Attempting to ingest batch individually.");
             return ingestSingly(provider, metacards);
         } catch (SourceUnavailableException e) {
-            printErrorMessage(String.format("Received error while ingesting: %s%n", e.getMessage()));
+            printErrorMessage(
+                    String.format("Received error while ingesting: %s%n", e.getMessage()));
             LOGGER.warn("Error during ingest:", e);
             return createdMetacards;
         } catch (Exception e) {
-            printErrorMessage(String.format("Unexpected Exception received while ingesting: %s%n", e.getMessage()));
+            printErrorMessage(String.format("Unexpected Exception received while ingesting: %s%n",
+                    e.getMessage()));
             LOGGER.warn("Unexpected Exception during ingest:", e);
             return createdMetacards;
         }
@@ -185,8 +197,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
     }
 
     protected Filter getFilter(long start, long end, String temporalProperty)
-        throws InterruptedException,
-        ParseException {
+            throws InterruptedException, ParseException {
         if (builder == null) {
             builder = getFilterBuilder();
         }
@@ -230,7 +241,7 @@ public abstract class DuplicateCommands extends CatalogCommands {
         StringBuilder buffer = new StringBuilder();
         console.print(String.format(message));
         console.flush();
-        for (;;) {
+        while (true) {
             int byteOfData = session.getKeyboard().read();
 
             if (byteOfData < 0) {
@@ -253,11 +264,12 @@ public abstract class DuplicateCommands extends CatalogCommands {
     }
 
     protected void writeFailedMetacards(List<Metacard> failedMetacards)
-        throws FileNotFoundException, IOException {
+            throws FileNotFoundException, IOException {
         File directory = new File(failedDir);
         if (!directory.exists()) {
             if (!directory.mkdirs()) {
-                printErrorMessage("Unable to create directory [" + directory.getAbsolutePath() + "].");
+                printErrorMessage(
+                        "Unable to create directory [" + directory.getAbsolutePath() + "].");
                 return;
             }
         }
@@ -268,7 +280,8 @@ public abstract class DuplicateCommands extends CatalogCommands {
         }
         for (Metacard metacard : failedMetacards) {
 
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(directory.getAbsolutePath(), metacard.getId())))) {
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(
+                    new File(directory.getAbsolutePath(), metacard.getId())))) {
                 oos.writeObject(new MetacardImpl(metacard));
                 oos.flush();
             }

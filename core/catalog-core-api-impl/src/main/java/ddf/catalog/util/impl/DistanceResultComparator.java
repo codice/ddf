@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.util.impl;
 
 import java.util.Comparator;
@@ -24,7 +23,7 @@ import ddf.catalog.data.Result;
 
 /**
  * Comparator for the distance (in meters) of 2 {@link Result} objects.
- * 
+ *
  */
 public class DistanceResultComparator implements Comparator<Result> {
 
@@ -35,7 +34,7 @@ public class DistanceResultComparator implements Comparator<Result> {
     /**
      * Constructs the comparator with the specified sort order, either distance ascending or
      * distance descending.
-     * 
+     *
      * @param distanceOrder
      *            the distance sort order
      */
@@ -45,7 +44,7 @@ public class DistanceResultComparator implements Comparator<Result> {
 
     /**
      * Compares the distance (in meters) between the two results.
-     * 
+     *
      * @return 1 if A is null and B is non-null -1 if A is non-null and B is null 0 if both A and B
      *         are null 1 if ascending sort order and A > B; -1 if ascending sort order and B > A -1
      *         if descending sort order and A > B; 1 if descending sort order and B > A

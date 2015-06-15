@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.filter.proxy.builder.test;
 
 import static org.junit.Assert.assertEquals;
@@ -273,8 +272,8 @@ public class FilterBuilderTest {
         expressionArgument.getValue().getExpression2().accept(expVisitor, null);
         ArgumentCaptor<Literal> literalArgument = ArgumentCaptor.forClass(Literal.class);
         verify(expVisitor).visit(literalArgument.capture(), anyObject());
-        assertEquals(date, ((Instant) literalArgument.getValue().getValue()).getPosition()
-                .getDate());
+        assertEquals(date,
+                ((Instant) literalArgument.getValue().getValue()).getPosition().getDate());
 
     }
 
@@ -582,264 +581,232 @@ public class FilterBuilderTest {
     public void test() {
 
         FilterBuilder builder = new GeotoolsFilterBuilder();
-        Filter filter = builder
-                .allOf(
+        Filter filter = builder.allOf(
 
                 builder.allOf(builder.anyOf(builder.attribute(FOO_ATTRIBUTE).is().empty())),
-                        builder.allOf(builder.attribute(FOO_ATTRIBUTE).is().empty()),
-                        builder.allOf(
+                builder.allOf(builder.attribute(FOO_ATTRIBUTE).is().empty()), builder.allOf(
 
-                                builder.attribute("attr").is().greaterThan()
-                                        .number(new Short((short) 5)),
-                                builder.attribute("frequency").is().greaterThan()
-                                        .number(new Integer(5)),
-                                builder.attribute("frequency").is().greaterThan()
-                                        .number(new Long(5)),
-                                builder.attribute("frequency").is().greaterThan()
-                                        .number(new Float(5)),
-                                builder.attribute("frequency").is().greaterThan()
-                                        .number(new Double(5)),
+                        builder.attribute("attr").is().greaterThan().number(new Short((short) 5)),
+                        builder.attribute("frequency").is().greaterThan().number(new Integer(5)),
+                        builder.attribute("frequency").is().greaterThan().number(new Long(5)),
+                        builder.attribute("frequency").is().greaterThan().number(new Float(5)),
+                        builder.attribute("frequency").is().greaterThan().number(new Double(5)),
 
-                                builder.attribute("frequency").is().greaterThanOrEqualTo()
-                                        .number(new Short((short) 5)),
-                                builder.attribute("frequency").is().greaterThanOrEqualTo()
-                                        .number(new Integer(5)),
-                                builder.attribute("frequency").is().greaterThanOrEqualTo()
-                                        .number(new Long(5)),
-                                builder.attribute("frequency").is().greaterThanOrEqualTo()
-                                        .number(new Float(5)),
-                                builder.attribute("frequency").is().greaterThanOrEqualTo()
-                                        .number(new Double(5)),
+                        builder.attribute("frequency").is().greaterThanOrEqualTo()
+                                .number(new Short((short) 5)),
+                        builder.attribute("frequency").is().greaterThanOrEqualTo()
+                                .number(new Integer(5)),
+                        builder.attribute("frequency").is().greaterThanOrEqualTo()
+                                .number(new Long(5)),
+                        builder.attribute("frequency").is().greaterThanOrEqualTo()
+                                .number(new Float(5)),
+                        builder.attribute("frequency").is().greaterThanOrEqualTo()
+                                .number(new Double(5)),
 
-                                builder.attribute("frequency").is().lessThan()
-                                        .number(new Short((short) 5)),
-                                builder.attribute("frequency").is().lessThan()
-                                        .number(new Integer(5)),
-                                builder.attribute("frequency").is().lessThan().number(new Long(5)),
-                                builder.attribute("frequency").is().lessThan().number(new Float(5)),
-                                builder.attribute("frequency").is().lessThan()
-                                        .number(new Double(5)),
+                        builder.attribute("frequency").is().lessThan().number(new Short((short) 5)),
+                        builder.attribute("frequency").is().lessThan().number(new Integer(5)),
+                        builder.attribute("frequency").is().lessThan().number(new Long(5)),
+                        builder.attribute("frequency").is().lessThan().number(new Float(5)),
+                        builder.attribute("frequency").is().lessThan().number(new Double(5)),
 
-                                builder.attribute("frequency").is().lessThanOrEqualTo()
-                                        .number(new Short((short) 5)),
-                                builder.attribute("frequency").is().lessThanOrEqualTo()
-                                        .number(new Integer(5)),
-                                builder.attribute("frequency").is().lessThanOrEqualTo()
-                                        .number(new Long(5)),
-                                builder.attribute("frequency").is().lessThanOrEqualTo()
-                                        .number(new Float(5)),
-                                builder.attribute("frequency").is().lessThanOrEqualTo()
-                                        .number(new Double(5)),
+                        builder.attribute("frequency").is().lessThanOrEqualTo()
+                                .number(new Short((short) 5)),
+                        builder.attribute("frequency").is().lessThanOrEqualTo()
+                                .number(new Integer(5)),
+                        builder.attribute("frequency").is().lessThanOrEqualTo().number(new Long(5)),
+                        builder.attribute("frequency").is().lessThanOrEqualTo()
+                                .number(new Float(5)),
+                        builder.attribute("frequency").is().lessThanOrEqualTo()
+                                .number(new Double(5)),
 
-                                builder.attribute("frequency").is().between()
-                                        .numbers((short) 5, (short) 6),
-                                builder.attribute("frequency").is().between()
-                                        .numbers(new Integer(5), new Integer(5)),
-                                builder.attribute("frequency").is().between()
-                                        .numbers(new Long(5), new Long(5)),
-                                builder.attribute("frequency").is().between()
-                                        .numbers(new Float(5), new Float(5)),
-                                builder.attribute("frequency").is().between()
-                                        .numbers(new Double(5), new Double(5)),
+                        builder.attribute("frequency").is().between().numbers((short) 5, (short) 6),
+                        builder.attribute("frequency").is().between()
+                                .numbers(new Integer(5), new Integer(5)),
+                        builder.attribute("frequency").is().between()
+                                .numbers(new Long(5), new Long(5)),
+                        builder.attribute("frequency").is().between()
+                                .numbers(new Float(5), new Float(5)),
+                        builder.attribute("frequency").is().between()
+                                .numbers(new Double(5), new Double(5)),
 
-                                // (IN)EQUALITY
-                                builder.attribute(FOO_ATTRIBUTE).is().number(new Short((short) 5)),
-                                builder.attribute("frequency").is().number(new Integer(5)),
-                                builder.attribute("frequency").is().number(new Long(5)),
-                                builder.attribute("frequency").is().number(new Float(5)),
-                                builder.attribute("frequency").is().number(new Double(5)),
-                                builder.attribute("created").is().date(new Date()),
-                                builder.attribute("created").is().dateRange(new Date(), new Date()),
-                                builder.attribute("created").is().bool(true),
-                                builder.attribute("created").is().bytes(new byte[] {}),
-                                builder.attribute("created").is().wkt("POINT (10, 30)"),
-                                builder.attribute("created").is().text("POINT (10, 30)"),
+                        // (IN)EQUALITY
+                        builder.attribute(FOO_ATTRIBUTE).is().number(new Short((short) 5)),
+                        builder.attribute("frequency").is().number(new Integer(5)),
+                        builder.attribute("frequency").is().number(new Long(5)),
+                        builder.attribute("frequency").is().number(new Float(5)),
+                        builder.attribute("frequency").is().number(new Double(5)),
+                        builder.attribute("created").is().date(new Date()),
+                        builder.attribute("created").is().dateRange(new Date(), new Date()),
+                        builder.attribute("created").is().bool(true),
+                        builder.attribute("created").is().bytes(new byte[] {}),
+                        builder.attribute("created").is().wkt("POINT (10, 30)"),
+                        builder.attribute("created").is().text("POINT (10, 30)"),
 
-                                builder.attribute("frequency").is().equalTo()
-                                        .number(new Integer(5)),
-                                builder.attribute("frequency").is().equalTo().number(new Long(5)),
-                                builder.attribute("frequency").is().equalTo().number(new Float(5)),
-                                builder.attribute("frequency").is().equalTo().number(new Double(5)),
-                                builder.attribute("created").is().equalTo().date(new Date()),
-                                builder.attribute("created").is().equalTo()
-                                        .dateRange(new Date(), new Date()),
-                                builder.attribute("created").is().equalTo().bool(true),
-                                builder.attribute("created").is().equalTo().bytes(new byte[] {}),
-                                builder.attribute("created").is().equalTo().wkt("POINT (10, 30)"),
-                                builder.attribute("created").is().equalTo().text("POINT (10, 30)"),
+                        builder.attribute("frequency").is().equalTo().number(new Integer(5)),
+                        builder.attribute("frequency").is().equalTo().number(new Long(5)),
+                        builder.attribute("frequency").is().equalTo().number(new Float(5)),
+                        builder.attribute("frequency").is().equalTo().number(new Double(5)),
+                        builder.attribute("created").is().equalTo().date(new Date()),
+                        builder.attribute("created").is().equalTo()
+                                .dateRange(new Date(), new Date()),
+                        builder.attribute("created").is().equalTo().bool(true),
+                        builder.attribute("created").is().equalTo().bytes(new byte[] {}),
+                        builder.attribute("created").is().equalTo().wkt("POINT (10, 30)"),
+                        builder.attribute("created").is().equalTo().text("POINT (10, 30)"),
 
-                                builder.attribute("frequency").is().notEqualTo()
-                                        .number(new Short((short) 5)),
-                                builder.attribute("frequency").is().notEqualTo()
-                                        .number(new Integer(5)),
-                                builder.attribute("frequency").is().notEqualTo()
-                                        .number(new Long(5)),
-                                builder.attribute("frequency").is().notEqualTo()
-                                        .number(new Float(5)),
-                                builder.attribute("frequency").is().notEqualTo()
-                                        .number(new Double(5)),
-                                builder.attribute("created").is().notEqualTo().date(new Date()),
-                                builder.attribute("created").is().notEqualTo()
-                                        .dateRange(new Date(), new Date()),
-                                builder.attribute("created").is().notEqualTo().bool(true),
-                                builder.attribute("created").is().notEqualTo().bytes(new byte[] {}),
-                                builder.attribute("created").is().notEqualTo()
-                                        .wkt("POINT (10, 30)"),
-                                builder.attribute("created").is().notEqualTo()
-                                        .text("POINT (10, 30)"),
+                        builder.attribute("frequency").is().notEqualTo()
+                                .number(new Short((short) 5)),
+                        builder.attribute("frequency").is().notEqualTo().number(new Integer(5)),
+                        builder.attribute("frequency").is().notEqualTo().number(new Long(5)),
+                        builder.attribute("frequency").is().notEqualTo().number(new Float(5)),
+                        builder.attribute("frequency").is().notEqualTo().number(new Double(5)),
+                        builder.attribute("created").is().notEqualTo().date(new Date()),
+                        builder.attribute("created").is().notEqualTo()
+                                .dateRange(new Date(), new Date()),
+                        builder.attribute("created").is().notEqualTo().bool(true),
+                        builder.attribute("created").is().notEqualTo().bytes(new byte[] {}),
+                        builder.attribute("created").is().notEqualTo().wkt("POINT (10, 30)"),
+                        builder.attribute("created").is().notEqualTo().text("POINT (10, 30)"),
 
-                                // NULLABLE
-                                builder.attribute("created").is().empty(),
+                        // NULLABLE
+                        builder.attribute("created").is().empty(),
 
-                                builder.attribute(FOO_ATTRIBUTE).is().number(50),
+                        builder.attribute(FOO_ATTRIBUTE).is().number(50),
 
-                                // TEMPORAL
-                                builder.attribute("created").is().after().date(new Date()),
-                                builder.attribute("created").is().before().date(new Date()),
-                                builder.attribute("created").is().during()
-                                        .dates(new Date(), new Date()),
-                                builder.attribute("created").is().overlapping()
-                                        .dates(new Date(), new Date()),
+                        // TEMPORAL
+                        builder.attribute("created").is().after().date(new Date()),
+                        builder.attribute("created").is().before().date(new Date()),
+                        builder.attribute("created").is().during().dates(new Date(), new Date()),
+                        builder.attribute("created").is().overlapping()
+                                .dates(new Date(), new Date()),
 
-                                // CONTEXTUAL
-                                builder.attribute(FOO_ATTRIBUTE).is().like().text("bar*"),
+                        // CONTEXTUAL
+                        builder.attribute(FOO_ATTRIBUTE).is().like().text("bar*"),
 
-                                // implied equality
-                                builder.attribute("frequency").is().number((short) 5),
-                                builder.attribute("frequency").is().number(new Integer(5)),
-                                builder.attribute("frequency").is().number(new Long(5)),
-                                builder.attribute("frequency").is().number(new Float(5)),
-                                builder.attribute("frequency").is().number(new Double(5)),
-                                builder.attribute("created").is().date(new Date()),
-                                builder.attribute("created").is().dateRange(new Date(), new Date()),
-                                builder.attribute("created").is().bool(true),
-                                builder.attribute("created").is().bytes(new byte[] {}),
-                                builder.attribute("created").is().wkt("POINT (10, 30)"),
-                                builder.attribute("created").is().text("search*"),
+                        // implied equality
+                        builder.attribute("frequency").is().number((short) 5),
+                        builder.attribute("frequency").is().number(new Integer(5)),
+                        builder.attribute("frequency").is().number(new Long(5)),
+                        builder.attribute("frequency").is().number(new Float(5)),
+                        builder.attribute("frequency").is().number(new Double(5)),
+                        builder.attribute("created").is().date(new Date()),
+                        builder.attribute("created").is().dateRange(new Date(), new Date()),
+                        builder.attribute("created").is().bool(true),
+                        builder.attribute("created").is().bytes(new byte[] {}),
+                        builder.attribute("created").is().wkt("POINT (10, 30)"),
+                        builder.attribute("created").is().text("search*"),
 
-                                // SPATIAL
-                                builder.attribute("location").is().intersecting()
-                                        .wkt("POINT (10, 30)"),
-                                builder.attribute("location").is().containing()
-                                        .wkt("POINT (10, 30)"),
-                                builder.attribute("location").is().beyond().wkt("POINT (10, 30)"),
-                                builder.attribute("location").is().within().wkt("POINT (10, 30)"),
-                                builder.attribute("location").is().withinBuffer()
-                                        .wkt("POINT (10, 30)", (long) 5),
+                        // SPATIAL
+                        builder.attribute("location").is().intersecting().wkt("POINT (10, 30)"),
+                        builder.attribute("location").is().containing().wkt("POINT (10, 30)"),
+                        builder.attribute("location").is().beyond().wkt("POINT (10, 30)"),
+                        builder.attribute("location").is().within().wkt("POINT (10, 30)"),
+                        builder.attribute("location").is().withinBuffer()
+                                .wkt("POINT (10, 30)", (long) 5),
 
-                                // NO IS
+                        // NO IS
 
-                                builder.attribute("frequency").greaterThan()
-                                        .number(new Short((short) 5)),
-                                builder.attribute("frequency").greaterThan().number(new Integer(5)),
-                                builder.attribute("frequency").greaterThan().number(new Long(5)),
-                                builder.attribute("frequency").greaterThan().number(new Float(5)),
-                                builder.attribute("frequency").greaterThan().number(new Double(5)),
+                        builder.attribute("frequency").greaterThan().number(new Short((short) 5)),
+                        builder.attribute("frequency").greaterThan().number(new Integer(5)),
+                        builder.attribute("frequency").greaterThan().number(new Long(5)),
+                        builder.attribute("frequency").greaterThan().number(new Float(5)),
+                        builder.attribute("frequency").greaterThan().number(new Double(5)),
 
-                                builder.attribute("frequency").greaterThanOrEqualTo()
-                                        .number(new Short((short) 5)),
-                                builder.attribute("frequency").greaterThanOrEqualTo()
-                                        .number(new Integer(5)),
-                                builder.attribute("frequency").greaterThanOrEqualTo()
-                                        .number(new Long(5)),
-                                builder.attribute("frequency").greaterThanOrEqualTo()
-                                        .number(new Float(5)),
-                                builder.attribute("frequency").greaterThanOrEqualTo()
-                                        .number(new Double(5)),
+                        builder.attribute("frequency").greaterThanOrEqualTo()
+                                .number(new Short((short) 5)),
+                        builder.attribute("frequency").greaterThanOrEqualTo()
+                                .number(new Integer(5)),
+                        builder.attribute("frequency").greaterThanOrEqualTo().number(new Long(5)),
+                        builder.attribute("frequency").greaterThanOrEqualTo().number(new Float(5)),
+                        builder.attribute("frequency").greaterThanOrEqualTo().number(new Double(5)),
 
-                                builder.attribute("frequency").lessThan()
-                                        .number(new Short((short) 5)),
-                                builder.attribute("frequency").lessThan().number(new Integer(5)),
-                                builder.attribute("frequency").lessThan().number(new Long(5)),
-                                builder.attribute("frequency").lessThan().number(new Float(5)),
-                                builder.attribute("frequency").lessThan().number(new Double(5)),
+                        builder.attribute("frequency").lessThan().number(new Short((short) 5)),
+                        builder.attribute("frequency").lessThan().number(new Integer(5)),
+                        builder.attribute("frequency").lessThan().number(new Long(5)),
+                        builder.attribute("frequency").lessThan().number(new Float(5)),
+                        builder.attribute("frequency").lessThan().number(new Double(5)),
 
-                                builder.attribute("frequency").lessThanOrEqualTo()
-                                        .number(new Short((short) 5)),
-                                builder.attribute("frequency").lessThanOrEqualTo().number(5),
-                                builder.attribute("frequency").lessThanOrEqualTo().number(5L),
-                                builder.attribute("frequency").lessThanOrEqualTo().number(5f),
-                                builder.attribute("frequency").lessThanOrEqualTo().number(5d),
+                        builder.attribute("frequency").lessThanOrEqualTo()
+                                .number(new Short((short) 5)),
+                        builder.attribute("frequency").lessThanOrEqualTo().number(5),
+                        builder.attribute("frequency").lessThanOrEqualTo().number(5L),
+                        builder.attribute("frequency").lessThanOrEqualTo().number(5f),
+                        builder.attribute("frequency").lessThanOrEqualTo().number(5d),
 
-                                builder.attribute("frequency").between()
-                                        .numbers((short) 5, (short) 6),
-                                builder.attribute("frequency").between().numbers(5, 6),
-                                builder.attribute("frequency").between().numbers(5L, 6L),
-                                builder.attribute("frequency").between().numbers(5f, 6f),
-                                builder.attribute("frequency").between().numbers(5d, 6d),
+                        builder.attribute("frequency").between().numbers((short) 5, (short) 6),
+                        builder.attribute("frequency").between().numbers(5, 6),
+                        builder.attribute("frequency").between().numbers(5L, 6L),
+                        builder.attribute("frequency").between().numbers(5f, 6f),
+                        builder.attribute("frequency").between().numbers(5d, 6d),
 
-                                // (IN)EQUALITY
-                                builder.attribute("frequency").number((short) 5),
-                                builder.attribute("frequency").number(5),
-                                builder.attribute("frequency").number(5L),
-                                builder.attribute("frequency").number(5f),
-                                builder.attribute("frequency").number(5d),
-                                builder.attribute("created").date(new Date()),
-                                builder.attribute("created").dateRange(new Date(), new Date()),
-                                builder.attribute("created").bool(true),
-                                builder.attribute("created").bytes(new byte[] {}),
-                                builder.attribute("created").wkt("POINT (10, 30)"),
-                                builder.attribute("created").text("POINT (10, 30)"),
+                        // (IN)EQUALITY
+                        builder.attribute("frequency").number((short) 5),
+                        builder.attribute("frequency").number(5),
+                        builder.attribute("frequency").number(5L),
+                        builder.attribute("frequency").number(5f),
+                        builder.attribute("frequency").number(5d),
+                        builder.attribute("created").date(new Date()),
+                        builder.attribute("created").dateRange(new Date(), new Date()),
+                        builder.attribute("created").bool(true),
+                        builder.attribute("created").bytes(new byte[] {}),
+                        builder.attribute("created").wkt("POINT (10, 30)"),
+                        builder.attribute("created").text("POINT (10, 30)"),
 
-                                builder.attribute("frequency").notEqualTo()
-                                        .number(new Short((short) 5)),
-                                builder.attribute("frequency").notEqualTo().number(new Integer(5)),
-                                builder.attribute("frequency").notEqualTo().number(new Long(5)),
-                                builder.attribute("frequency").notEqualTo().number(new Float(5)),
-                                builder.attribute("frequency").notEqualTo().number(new Double(5)),
-                                builder.attribute("created").notEqualTo().date(new Date()),
-                                builder.attribute("created").notEqualTo()
-                                        .dateRange(new Date(), new Date()),
-                                builder.attribute("created").notEqualTo().bool(true),
-                                builder.attribute("created").notEqualTo().bytes(new byte[] {}),
-                                builder.attribute("created").notEqualTo().wkt("POINT (10, 30)"),
-                                builder.attribute("created").notEqualTo().text("POINT (10, 30)"),
+                        builder.attribute("frequency").notEqualTo().number(new Short((short) 5)),
+                        builder.attribute("frequency").notEqualTo().number(new Integer(5)),
+                        builder.attribute("frequency").notEqualTo().number(new Long(5)),
+                        builder.attribute("frequency").notEqualTo().number(new Float(5)),
+                        builder.attribute("frequency").notEqualTo().number(new Double(5)),
+                        builder.attribute("created").notEqualTo().date(new Date()),
+                        builder.attribute("created").notEqualTo().dateRange(new Date(), new Date()),
+                        builder.attribute("created").notEqualTo().bool(true),
+                        builder.attribute("created").notEqualTo().bytes(new byte[] {}),
+                        builder.attribute("created").notEqualTo().wkt("POINT (10, 30)"),
+                        builder.attribute("created").notEqualTo().text("POINT (10, 30)"),
 
-                                // NULLABLE
-                                builder.attribute("created").empty(),
+                        // NULLABLE
+                        builder.attribute("created").empty(),
 
-                                // TEMPORAL
-                                builder.attribute("created").after().date(new Date()),
-                                builder.attribute("created").before().date(new Date()),
-                                builder.attribute("created").during().dates(new Date(), new Date()),
-                                builder.attribute("created").overlapping()
-                                        .dates(new Date(), new Date()),
+                        // TEMPORAL
+                        builder.attribute("created").after().date(new Date()),
+                        builder.attribute("created").before().date(new Date()),
+                        builder.attribute("created").during().dates(new Date(), new Date()),
+                        builder.attribute("created").overlapping().dates(new Date(), new Date()),
 
-                                // CONTEXTUAL
-                                builder.attribute(FOO_ATTRIBUTE).like().text("bar*"),
+                        // CONTEXTUAL
+                        builder.attribute(FOO_ATTRIBUTE).like().text("bar*"),
 
-                                // SPATIAL
-                                builder.attribute("location").intersecting().wkt("POINT (10, 30)"),
-                                builder.attribute("location").containing().wkt("POINT (10, 30)"),
-                                builder.attribute("location").beyond().wkt("POINT (10, 30)"),
-                                builder.attribute("location").within().wkt("POINT (10, 30)"),
-                                builder.attribute("location").withinBuffer()
-                                        .wkt("POINT (10, 30)", (long) 5),
+                        // SPATIAL
+                        builder.attribute("location").intersecting().wkt("POINT (10, 30)"),
+                        builder.attribute("location").containing().wkt("POINT (10, 30)"),
+                        builder.attribute("location").beyond().wkt("POINT (10, 30)"),
+                        builder.attribute("location").within().wkt("POINT (10, 30)"),
+                        builder.attribute("location").withinBuffer()
+                                .wkt("POINT (10, 30)", (long) 5),
 
-                                builder.xpath("//blah/blah").exists(),
+                        builder.xpath("//blah/blah").exists(),
 
-                                builder.xpath("//foo/bar").like().text("bat"),
-                                builder.xpath("//foo/bar").like().caseSensitiveText("bat"),
-                                builder.xpath("//foo/bar").like().fuzzyText("bat"),
-                                builder.xpath("//blah/blah").is().like().text("bat"),
-                                builder.xpath("//blah/blah").is().like().caseSensitiveText("bat"),
-                                builder.xpath("//blah/blah").is().like().fuzzyText("bat"),
+                        builder.xpath("//foo/bar").like().text("bat"),
+                        builder.xpath("//foo/bar").like().caseSensitiveText("bat"),
+                        builder.xpath("//foo/bar").like().fuzzyText("bat"),
+                        builder.xpath("//blah/blah").is().like().text("bat"),
+                        builder.xpath("//blah/blah").is().like().caseSensitiveText("bat"),
+                        builder.xpath("//blah/blah").is().like().fuzzyText("bat"),
 
-                                builder.attribute(FOO_ATTRIBUTE).like().fuzzyText("bar"),
-                                builder.attribute(FOO_ATTRIBUTE).like().caseSensitiveText("bar"),
-                                builder.attribute(FOO_ATTRIBUTE).like().text("bar"),
-                                builder.attribute(FOO_ATTRIBUTE).is().like().fuzzyText("bar"),
-                                builder.attribute(FOO_ATTRIBUTE).is().like()
-                                        .caseSensitiveText("bar"), builder.attribute(FOO_ATTRIBUTE)
-                                        .is().like().text("bar"),
+                        builder.attribute(FOO_ATTRIBUTE).like().fuzzyText("bar"),
+                        builder.attribute(FOO_ATTRIBUTE).like().caseSensitiveText("bar"),
+                        builder.attribute(FOO_ATTRIBUTE).like().text("bar"),
+                        builder.attribute(FOO_ATTRIBUTE).is().like().fuzzyText("bar"),
+                        builder.attribute(FOO_ATTRIBUTE).is().like().caseSensitiveText("bar"),
+                        builder.attribute(FOO_ATTRIBUTE).is().like().text("bar"),
 
-                                builder.attribute(FOO_ATTRIBUTE).nearestTo().wkt("POINT(10,10)"),
+                        builder.attribute(FOO_ATTRIBUTE).nearestTo().wkt("POINT(10,10)"),
 
-                                // Relative Time
-                                builder.attribute("created").during().last(500L), builder
-                                        .attribute("created").during().next(500L)
+                        // Relative Time
+                        builder.attribute("created").during().last(500L),
+                        builder.attribute("created").during().next(500L)
 
-                        ));
+                ));
 
     }
 }

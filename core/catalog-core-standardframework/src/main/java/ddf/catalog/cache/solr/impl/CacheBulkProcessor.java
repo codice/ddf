@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.cache.solr.impl;
 
 import java.util.ArrayList;
@@ -64,13 +63,13 @@ class CacheBulkProcessor {
      * @param delay delay between decision to bulk add
      * @param delayUnit units of the delay
      */
-    public CacheBulkProcessor(final SolrCache cache, final long delay,
-            final TimeUnit delayUnit) {
+    public CacheBulkProcessor(final SolrCache cache, final long delay, final TimeUnit delayUnit) {
         batchScheduler.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 try {
-                    if (metacardsToCache.size() > 0 && (metacardsToCache.size() >= batchSize || timeToFlush())) {
+                    if (metacardsToCache.size() > 0 && (metacardsToCache.size() >= batchSize
+                            || timeToFlush())) {
                         LOGGER.debug("{} metacards to batch add to cache", metacardsToCache.size());
 
                         List<Metacard> metacards = new ArrayList<>(metacardsToCache.values());

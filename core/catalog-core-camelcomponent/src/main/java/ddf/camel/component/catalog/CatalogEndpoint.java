@@ -1,21 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.camel.component.catalog;
 
-import ddf.camel.component.catalog.framework.FrameworkProducer;
-import ddf.catalog.CatalogFramework;
 import org.apache.camel.Consumer;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.Processor;
@@ -24,14 +21,16 @@ import org.apache.camel.impl.DefaultEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ddf.camel.component.catalog.framework.FrameworkProducer;
 import ddf.camel.component.catalog.inputtransformer.InputTransformerConsumer;
 import ddf.camel.component.catalog.inputtransformer.InputTransformerProducer;
 import ddf.camel.component.catalog.queryresponsetransformer.QueryResponseTransformerConsumer;
 import ddf.camel.component.catalog.queryresponsetransformer.QueryResponseTransformerProducer;
+import ddf.catalog.CatalogFramework;
 
 /**
  * Represents a Camel endpoint for the custom <code>catalog</code> Camel route node.
- * 
+ *
  * @author Hugh Rodgers, Lockheed Martin
  * @author William Miller, Lockheed Martin
  * @author ddf.isgs@lmco.com
@@ -55,7 +54,7 @@ public class CatalogEndpoint extends DefaultEndpoint {
 
     /**
      * Constructs a CatalogEndpoint for the specified custom <code>catalog</code> component.
-     * 
+     *
      * @param uri
      *            the endpoint's URI
      * @param component
@@ -74,7 +73,8 @@ public class CatalogEndpoint extends DefaultEndpoint {
     public CatalogEndpoint(String uri, CatalogComponent component, String transformerId,
             String mimeType, String contextPath, CatalogFramework catalogFramework) {
         super(uri, component);
-        LOGGER.debug("INSIDE CamelCatalogEndpoint(uri, component, transformerId, contextPath, catalogFramework) constructor");
+        LOGGER.debug(
+                "INSIDE CamelCatalogEndpoint(uri, component, transformerId, contextPath, catalogFramework) constructor");
         this.transformerId = transformerId;
         this.mimeType = mimeType;
         this.contextPath = contextPath;
@@ -124,8 +124,8 @@ public class CatalogEndpoint extends DefaultEndpoint {
             producer = new FrameworkProducer(this, catalogFramework);
         } else {
             LOGGER.debug("Unable to create producer for context path [" + contextPath + "]");
-            throw new IllegalArgumentException("Unable to create producer for context path ["
-                    + contextPath + "]");
+            throw new IllegalArgumentException(
+                    "Unable to create producer for context path [" + contextPath + "]");
         }
 
         return producer;
@@ -153,8 +153,8 @@ public class CatalogEndpoint extends DefaultEndpoint {
             consumer = new QueryResponseTransformerConsumer(this, processor);
         } else {
             LOGGER.debug("Unable to create consumer for context path [" + contextPath + "]");
-            throw new IllegalArgumentException("Unable to create consumer for context path ["
-                    + contextPath + "]");
+            throw new IllegalArgumentException(
+                    "Unable to create consumer for context path [" + contextPath + "]");
         }
 
         return consumer;

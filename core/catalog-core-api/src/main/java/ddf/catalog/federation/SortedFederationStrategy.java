@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.federation;
 
 import java.io.Serializable;
@@ -55,7 +54,7 @@ import ddf.catalog.util.TemporalResultComparator;
  * . The supported ordering includes {@link SortOrder.DESCENDING} and
  * {@link SortOrder.ASCENDING}. For this class to function properly a sort value
  * and sort order must be provided.
- * 
+ *
  * @see Metacard
  * @see Query
  * @see SortBy
@@ -66,16 +65,12 @@ import ddf.catalog.util.TemporalResultComparator;
 @Deprecated
 public class SortedFederationStrategy extends AbstractFederationStrategy {
 
-    /** The default comparator for sorting by {@link Result.RELEVANCE}, {@link SortOrder.DESCENDING} */
-    protected static final Comparator<Result> DEFAULT_COMPARATOR = new RelevanceResultComparator(
-            SortOrder.DESCENDING);
-
     /**
      * The default comparator for sorting by {@link Result.RELEVANCE}, {@link SortOrder.DESCENDING}
-     * 
+     *
      * @deprecated
      */
-    protected static final Comparator<Result> defaultComparator = new RelevanceResultComparator(
+    protected static final Comparator<Result> DEFAULT_COMPARATOR = new RelevanceResultComparator(
             SortOrder.DESCENDING);
 
     private static XLogger logger = new XLogger(
@@ -83,7 +78,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
 
     /**
      * Instantiates a {@code SortedFederationStrategy} with the provided {@link ExecutorService}.
-     * 
+     *
      * @param queryExecutorService
      *            the {@link ExecutorService} for queries
      */
@@ -128,8 +123,9 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
             if (sortBy != null && sortBy.getPropertyName() != null) {
                 PropertyName sortingProp = sortBy.getPropertyName();
                 String sortType = sortingProp.getPropertyName();
-                SortOrder sortOrder = (sortBy.getSortOrder() == null) ? SortOrder.DESCENDING
-                        : sortBy.getSortOrder();
+                SortOrder sortOrder = (sortBy.getSortOrder() == null) ?
+                        SortOrder.DESCENDING :
+                        sortBy.getSortOrder();
                 logger.debug("Sorting by type: " + sortType);
                 logger.debug("Sorting by Order: " + sortBy.getSortOrder());
 
@@ -154,9 +150,9 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                 Source site = entry.getKey();
                 try {
 
-                    SourceResponse sourceResponse = query.getTimeoutMillis() < 1 ? entry.getValue()
-                            .get() : entry.getValue().get(getTimeRemaining(deadline),
-                            TimeUnit.MILLISECONDS);
+                    SourceResponse sourceResponse = query.getTimeoutMillis() < 1 ?
+                            entry.getValue().get() :
+                            entry.getValue().get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
 
                     resultList.addAll(sourceResponse.getResults());
                     totalHits += sourceResponse.getHits();
@@ -174,8 +170,9 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                                     + site.getId(), e);
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 } catch (ExecutionException e) {
-                    logger.warn("Couldn't get results from completed federated query on site "
-                            + site.getId(), e);
+                    logger.warn(
+                            "Couldn't get results from completed federated query on site " + site
+                                    .getId(), e);
                     if (logger.isDebugEnabled()) {
                         logger.debug("Adding exception to response.");
                     }
@@ -192,9 +189,9 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
             returnResults.setHits(totalHits);
             int maxResults = query.getPageSize() > 0 ? query.getPageSize() : Integer.MAX_VALUE;
 
-            returnResults
-                    .addResults(resultList.size() > maxResults ? resultList.subList(0, maxResults)
-                            : resultList, true);
+            returnResults.addResults(
+                    resultList.size() > maxResults ? resultList.subList(0, maxResults) : resultList,
+                    true);
         }
 
         private long getTimeRemaining(long deadline) {

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.plugin.resourcesize.metacard;
 
 import java.util.List;
@@ -39,14 +38,13 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
 
     private ResourceCacheInterface cache;
 
-
     public MetacardResourceSizePlugin(ResourceCacheInterface cache) {
         this.cache = cache;
     }
 
     @Override
-    public QueryResponse process(QueryResponse input) throws PluginExecutionException,
-            StopProcessingException {
+    public QueryResponse process(QueryResponse input)
+            throws PluginExecutionException, StopProcessingException {
 
         List<Result> results = input.getResults();
         for (Result result : results) {
@@ -62,19 +60,20 @@ public class MetacardResourceSizePlugin implements PostQueryPlugin {
                     key = cacheKey.generateKey();
                     ClassLoader tccl = Thread.currentThread().getContextClassLoader();
                     try {
-                        Thread.currentThread().setContextClassLoader(
-                                getClass().getClassLoader());
+                        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
                         cachedResource = (ReliableResource) cache.getValid(key, metacard);
                     } finally {
                         Thread.currentThread().setContextClassLoader(tccl);
                     }
                 } catch (Exception e) {
-                    LOGGER.debug("Unable to retrieve cached resource for metacard id = {}", metacard.getId());
+                    LOGGER.debug("Unable to retrieve cached resource for metacard id = {}",
+                            metacard.getId());
                 }
                 if (cachedResource != null) {
                     long resourceSize = cachedResource.getSize();
                     if (resourceSize > 0 && cachedResource.hasProduct()) {
-                        LOGGER.debug("Setting resourceSize = {} for metacard ID = {}", resourceSize, metacard.getId());
+                        LOGGER.debug("Setting resourceSize = {} for metacard ID = {}", resourceSize,
+                                metacard.getId());
                         Attribute resourceSizeAttribute = new AttributeImpl(Metacard.RESOURCE_SIZE,
                                 String.valueOf(resourceSize));
                         metacard.setAttribute(resourceSizeAttribute);

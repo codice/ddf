@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.transformer.input.tika;
 
 import java.awt.Graphics2D;
@@ -70,9 +69,9 @@ import ddf.catalog.transform.InputTransformer;
 
 public class TikaInputTransformer implements InputTransformer {
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaInputTransformer.class);
-    
+
     private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
-    
+
     private static final String XSLT = "/metadata.xslt";
 
     public TikaInputTransformer(BundleContext bundleContext) {
@@ -257,7 +256,8 @@ public class TikaInputTransformer implements InputTransformer {
             Image image = ImageIO.read(new CloseShieldInputStream(input));
 
             if (null != image) {
-                BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+                BufferedImage bufferedImage = new BufferedImage(image.getWidth(null),
+                        image.getHeight(null), BufferedImage.TYPE_INT_RGB);
                 Graphics2D graphics = bufferedImage.createGraphics();
                 graphics.drawImage(image, null, null);
                 graphics.dispose();
@@ -277,17 +277,16 @@ public class TikaInputTransformer implements InputTransformer {
             LOGGER.warn("Unable to read image from input stream to create thumbnail.", e);
         }
     }
-    
+
     private String transformToXml(String xhtml) {
         LOGGER.debug("Transforming xhtml to xml.");
         Writer xml = new StringWriter();
         try {
-            Transformer transformer = TRANSFORMER_FACTORY.newTransformer(new StreamSource(this
-                    .getClass().getResourceAsStream(XSLT)));
+            Transformer transformer = TRANSFORMER_FACTORY
+                    .newTransformer(new StreamSource(this.getClass().getResourceAsStream(XSLT)));
             transformer.transform(new StreamSource(new StringReader(xhtml)), new StreamResult(xml));
         } catch (TransformerException e) {
-            LOGGER.warn("Unable to transform metdata from XHTML to XML.",
-                    e);
+            LOGGER.warn("Unable to transform metdata from XHTML to XML.", e);
             return xhtml;
         }
 

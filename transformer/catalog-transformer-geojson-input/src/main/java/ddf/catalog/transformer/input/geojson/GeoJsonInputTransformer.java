@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.transformer.input.geojson;
 
 import java.io.IOException;
@@ -34,7 +33,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.MetacardTypeRegistry;
 import ddf.catalog.data.QualifiedMetacardType;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
@@ -42,14 +40,16 @@ import ddf.geo.formatter.CompositeGeometry;
 
 /**
  * Converts standard GeoJSON (geojson.org) into a Metacard. The limitation on the GeoJSON is that it
- * must conform to the {@link BasicTypes#BASIC_METACARD} {@link MetacardType}.
- * 
+ * must conform to the {@link ddf.catalog.data.impl.BasicTypes#BASIC_METACARD} {@link MetacardType}.
+ *
  */
 public class GeoJsonInputTransformer implements InputTransformer {
 
-    private static final String METACARD_TYPE_PROPERTY_KEY = "metacard-type";
+    public static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     protected static final JSONParser PARSER = new JSONParser();
+
+    private static final String METACARD_TYPE_PROPERTY_KEY = "metacard-type";
 
     private static final String ID = "geojson";
 
@@ -57,11 +57,9 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
     private static final String SOURCE_ID_PROPERTY = "source-id";
 
-    private MetacardTypeRegistry mTypeRegistry;
-
-    public static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoJsonInputTransformer.class);
+
+    private MetacardTypeRegistry mTypeRegistry;
 
     public GeoJsonInputTransformer(MetacardTypeRegistry mTypeRegistry) {
         this.mTypeRegistry = mTypeRegistry;
@@ -76,8 +74,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
     }
 
     @Override
-    public Metacard transform(InputStream input, String id) throws IOException,
-        CatalogTransformerException {
+    public Metacard transform(InputStream input, String id)
+            throws IOException, CatalogTransformerException {
 
         if (input == null) {
             throw new CatalogTransformerException("Cannot transform null input.");
@@ -108,13 +106,15 @@ public class GeoJsonInputTransformer implements InputTransformer {
         MetacardImpl metacard = null;
 
         if (metacardTypeName == null || metacardTypeName.isEmpty() || mTypeRegistry == null) {
-            LOGGER.debug("MetacardType specified in input is null or empty.  Assuming default MetacardType");
+            LOGGER.debug(
+                    "MetacardType specified in input is null or empty.  Assuming default MetacardType");
             metacard = new MetacardImpl();
         } else {
             QualifiedMetacardType metacardType = mTypeRegistry.lookup(metacardTypeName);
             if (metacardType == null) {
-                String message = "MetacardType specified in input has not been registered with the system.  Cannot parse input.  MetacardType name: "
-                        + metacardTypeName;
+                String message =
+                        "MetacardType specified in input has not been registered with the system.  Cannot parse input.  MetacardType name: "
+                                + metacardTypeName;
                 LOGGER.warn(message);
                 throw new CatalogTransformerException(message);
             }
@@ -135,8 +135,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
                 String geometryTypeJson = geometryJson.get(CompositeGeometry.TYPE_KEY).toString();
 
-                geoJsonGeometry = CompositeGeometry.getCompositeGeometry(geometryTypeJson,
-                        geometryJson);
+                geoJsonGeometry = CompositeGeometry
+                        .getCompositeGeometry(geometryTypeJson, geometryJson);
 
             } else {
                 LOGGER.warn("Could not find geometry type.");
@@ -155,7 +155,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
             if (geoAttributeName != null) {
                 metacard.setAttribute(geoAttributeName, geoJsonGeometry.toWkt());
             } else {
-                LOGGER.warn("Loss of data, could not place geometry [{}] in metacard", geoJsonGeometry.toWkt());
+                LOGGER.warn("Loss of data, could not place geometry [{}] in metacard",
+                        geoJsonGeometry.toWkt());
             }
         }
 
@@ -179,7 +180,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
                             break;
                         case DATE:
                             try {
-                                SimpleDateFormat dateFormat = new SimpleDateFormat(ISO_8601_DATE_FORMAT);
+                                SimpleDateFormat dateFormat = new SimpleDateFormat(
+                                        ISO_8601_DATE_FORMAT);
                                 dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
                                 metacard.setAttribute(ad.getName(),
                                         dateFormat.parse(attributeString));
@@ -210,7 +212,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
                             metacard.setAttribute(ad.getName(), Float.parseFloat(attributeString));
                             break;
                         case DOUBLE:
-                            metacard.setAttribute(ad.getName(), Double.parseDouble(attributeString));
+                            metacard.setAttribute(ad.getName(),
+                                    Double.parseDouble(attributeString));
                             break;
                         default:
                             break;
@@ -219,8 +222,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
                 }
             } catch (NumberFormatException e) {
                 LOGGER.info(
-                    "GeoJSON input for attribute name '{}' does not match expected AttributeType defined in MetacardType: {}. This attribute will not be added to the metacard.",
-                    ad.getName(), metacardTypeName, e);
+                        "GeoJSON input for attribute name '{}' does not match expected AttributeType defined in MetacardType: {}. This attribute will not be added to the metacard.",
+                        ad.getName(), metacardTypeName, e);
             }
         }
 
@@ -237,8 +240,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
     @Override
     public String toString() {
-        return "InputTransformer {Impl=" + this.getClass().getName() + ", id=" + ID
-                + ", mime-type=" + MIME_TYPE + "}";
+        return "InputTransformer {Impl=" + this.getClass().getName() + ", id=" + ID + ", mime-type="
+                + MIME_TYPE + "}";
     }
 
 }

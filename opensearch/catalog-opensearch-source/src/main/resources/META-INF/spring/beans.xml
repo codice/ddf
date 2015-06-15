@@ -13,11 +13,11 @@
  **/
 -->
 
-<beans:beans xmlns="http://www.springframework.org/schema/osgi"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
              xmlns:osgi="http://www.springframework.org/schema/osgi"
              xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns="http://www.springframework.org/schema/osgi"
              xsi:schemaLocation="http://www.springframework.org/schema/osgi
        	http://www.springframework.org/schema/osgi/spring-osgi.xsd
      http://www.springframework.org/schema/osgi-compendium                                    
@@ -29,7 +29,8 @@
 
     <osgi:reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
-    <osgi:reference id="securitySettings" interface="ddf.security.settings.SecuritySettingsService"/>
+    <osgi:reference id="securitySettings"
+                    interface="ddf.security.settings.SecuritySettingsService"/>
 
     <osgix:managed-service-factory id="DDFfederationPrototypeServiceFactory"
                                    factory-pid="OpenSearchSource"
@@ -47,11 +48,13 @@
         <beans:bean id="OpenSearchSource" class="ddf.catalog.source.opensearch.OpenSearchSource"
                     init-method="init" destroy-method="destroy">
             <beans:property name="shortname" value="DDF-OS"/>
-            <beans:property name="endpointUrl" value="http://localhost:8181/services/catalog/query"/>
+            <beans:property name="endpointUrl"
+                            value="http://localhost:8181/services/catalog/query"/>
             <beans:property name="localQueryOnly" value="false"/>
             <beans:property name="shouldConvertToBBox" value="true"/>
             <beans:property name="securitySettings" ref="securitySettings"/>
-            <beans:property name="parameters" value="q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort" />
+            <beans:property name="parameters"
+                            value="q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,polygon,dtstart,dtend,dateName,filter,sort"/>
             <beans:constructor-arg ref="filterAdapter"/>
         </beans:bean>
 

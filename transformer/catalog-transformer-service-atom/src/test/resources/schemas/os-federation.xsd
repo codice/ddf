@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema targetNamespace="http://a9.com/-/opensearch/extensions/federation/1.0/" elementFormDefault="qualified"
-  xmlns:fs="http://a9.com/-/opensearch/extensions/federation/1.0/" xmlns:os="http://a9.com/-/spec/opensearch/1.1/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:fs="http://a9.com/-/opensearch/extensions/federation/1.0/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://a9.com/-/opensearch/extensions/federation/1.0/"
+           elementFormDefault="qualified">
 
 
   <xs:element name="resultSource" type="fs:resultSourceType">
@@ -45,35 +46,35 @@
   <xs:complexType name="resultSourceType">
     <xs:simpleContent>
       <xs:extension base="fs:shortName">
-        <xs:attribute name="sourceId" form="qualified" use="required" type="xs:string" />
+        <xs:attribute name="sourceId" form="qualified" use="required" type="xs:string"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
 
   <xs:complexType name="sourceStatusType">
     <xs:all>
-      <xs:element name="shortName" type="fs:shortName" />
+      <xs:element name="shortName" type="fs:shortName"/>
       <xs:element name="status">
         <xs:simpleType>
           <xs:restriction base="xs:string">
-            <xs:enumeration value="excluded" />
-            <xs:enumeration value="waiting" />
-            <xs:enumeration value="error" />
-            <xs:enumeration value="timeout" />
-            <xs:enumeration value="processing" />
-            <xs:enumeration value="complete" />
+            <xs:enumeration value="excluded"/>
+            <xs:enumeration value="waiting"/>
+            <xs:enumeration value="error"/>
+            <xs:enumeration value="timeout"/>
+            <xs:enumeration value="processing"/>
+            <xs:enumeration value="complete"/>
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
-      <xs:element name="resultsRetrieved" minOccurs="0" type="xs:double" />
-      <xs:element name="totalResults" minOccurs="0" type="xs:double" />
-      <xs:element name="elapsedTime" minOccurs="0" type="xs:double" />
+      <xs:element name="resultsRetrieved" minOccurs="0" type="xs:double"/>
+      <xs:element name="totalResults" minOccurs="0" type="xs:double"/>
+      <xs:element name="elapsedTime" minOccurs="0" type="xs:double"/>
     </xs:all>
   </xs:complexType>
 
   <xs:simpleType name="shortName">
     <xs:restriction base="xs:string">
-      <xs:maxLength value="16" />
+      <xs:maxLength value="16"/>
     </xs:restriction>
   </xs:simpleType>
 

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.endpoints.rest.action;
 
 import static org.hamcrest.Matchers.is;
@@ -35,7 +34,8 @@ public class TestActionProviderRegistryProxy {
 
     private static final String SAMPLE_TRANSFORMER_ID = "sampleTransformerId";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestActionProviderRegistryProxy.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(TestActionProviderRegistryProxy.class);
 
     @Test
     public void testNoTransformerId() {
@@ -52,8 +52,8 @@ public class TestActionProviderRegistryProxy {
         proxy.bind(reference);
 
         // then
-        verify(bundleContext, times(0)).registerService(isA(String.class), isA(Object.class),
-                isA(Dictionary.class));
+        verify(bundleContext, times(0))
+                .registerService(isA(String.class), isA(Object.class), isA(Dictionary.class));
 
     }
 
@@ -76,16 +76,16 @@ public class TestActionProviderRegistryProxy {
         proxy.unbind(reference);
 
         // then
-        verify(bundleContext, times(2)).registerService(isA(String.class), isA(Object.class),
-                isA(Dictionary.class));
+        verify(bundleContext, times(2))
+                .registerService(isA(String.class), isA(Object.class), isA(Dictionary.class));
 
         Dictionary actionProperties = (Dictionary) (answer.getArguments()[2]);
         LOGGER.info("actionproperties:" + actionProperties);
 
         String actionProviderId = actionProperties.get(ddf.catalog.Constants.SERVICE_ID).toString();
 
-        assertThat(actionProviderId, is(ActionProviderRegistryProxy.ACTION_ID_PREFIX
-                + SAMPLE_TRANSFORMER_ID));
+        assertThat(actionProviderId,
+                is(ActionProviderRegistryProxy.ACTION_ID_PREFIX + SAMPLE_TRANSFORMER_ID));
 
         ServiceRegistration mockRegistration1 = answer.getIssuedServiceRegistrations().get(0);
         ServiceRegistration mockRegistration2 = answer.getIssuedServiceRegistrations().get(1);
@@ -98,8 +98,7 @@ public class TestActionProviderRegistryProxy {
     private BundleContext givenBundleContext(ServiceRegistrationAnswer answer) {
         BundleContext bundleContext = mock(BundleContext.class);
 
-        when(
-                bundleContext.registerService(isA(String.class), isA(Object.class),
+        when(bundleContext.registerService(isA(String.class), isA(Object.class),
                         isA(Dictionary.class))).then(answer);
 
         return bundleContext;

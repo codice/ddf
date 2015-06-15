@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 
 package ddf.measure;
 
@@ -33,14 +32,7 @@ public final class Distance {
     private double distanceInMeters = 0.0;
 
     /**
-     * The Enum LinearUnit for the distance in meters
-     */
-    public enum LinearUnit {
-        METER, KILOMETER, NAUTICAL_MILE, MILE, FOOT_U_S, YARD
-    }
-
-    /**
-     * 
+     *
      * @param distance
      *            scalar value
      * @param unitOfMeasure
@@ -84,8 +76,8 @@ public final class Distance {
             convertedDistance = distance;
             break;
         default:
-            throw new IllegalArgumentException("Invalid " + LinearUnit.class.getSimpleName()
-                    + " for conversion.");
+            throw new IllegalArgumentException(
+                    "Invalid " + LinearUnit.class.getSimpleName() + " for conversion.");
         }
         return convertedDistance;
     }
@@ -129,6 +121,13 @@ public final class Distance {
 
         return result;
 
+    }
+
+    /**
+     * The Enum LinearUnit for the distance in meters
+     */
+    public enum LinearUnit {
+        METER, KILOMETER, NAUTICAL_MILE, MILE, FOOT_U_S, YARD
     }
 
 }

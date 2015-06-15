@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.federation.impl;
 
 import java.io.Serializable;
@@ -38,7 +37,6 @@ import org.slf4j.ext.XLogger;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.federation.base.AbstractFederationStrategy;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
@@ -54,13 +52,13 @@ import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.TemporalResultComparator;
 
 /**
- * This class represents a {@link FederationStrategy} based on sorting {@link Metacard}s. The
+ * This class represents a {@link ddf.catalog.federation.FederationStrategy} based on sorting {@link Metacard}s. The
  * sorting is based on the {@link Query}'s {@link SortBy} propertyName. The possible sorting values
  * are {@link Metacard.EFFECTIVE}, {@link Result.TEMPORAL}, {@link Result.DISTANCE}, or
  * {@link Result.RELEVANCE} . The supported ordering includes {@link SortOrder.DESCENDING} and
  * {@link SortOrder.ASCENDING}. For this class to function properly a sort value and sort order must
  * be provided.
- * 
+ *
  * @see Metacard
  * @see Query
  * @see SortBy
@@ -78,7 +76,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
 
     /**
      * Instantiates a {@code SortedFederationStrategy} with the provided {@link ExecutorService}.
-     * 
+     *
      * @param queryExecutorService
      *            the {@link ExecutorService} for queries
      */
@@ -125,8 +123,9 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
             if (sortBy != null && sortBy.getPropertyName() != null) {
                 PropertyName sortingProp = sortBy.getPropertyName();
                 String sortType = sortingProp.getPropertyName();
-                SortOrder sortOrder = (sortBy.getSortOrder() == null) ? SortOrder.DESCENDING
-                        : sortBy.getSortOrder();
+                SortOrder sortOrder = (sortBy.getSortOrder() == null) ?
+                        SortOrder.DESCENDING :
+                        sortBy.getSortOrder();
                 logger.debug("Sorting by type: " + sortType);
                 logger.debug("Sorting by Order: " + sortBy.getSortOrder());
 
@@ -151,16 +150,18 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                 Source site = entry.getKey();
                 SourceResponse sourceResponse = null;
                 try {
-                    sourceResponse = query.getTimeoutMillis() < 1 ? entry.getValue().get() : entry
-                            .getValue().get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
+                    sourceResponse = query.getTimeoutMillis() < 1 ?
+                            entry.getValue().get() :
+                            entry.getValue().get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
                     logger.warn(
                             "Couldn't get results from completed federated query on site with ShortName "
                                     + site.getId(), e);
                     processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
                 } catch (ExecutionException e) {
-                    logger.warn("Couldn't get results from completed federated query on site "
-                            + site.getId(), e);
+                    logger.warn(
+                            "Couldn't get results from completed federated query on site " + site
+                                    .getId(), e);
                     if (logger.isDebugEnabled()) {
                         logger.debug("Adding exception to response.");
                     }
@@ -180,7 +181,8 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                     newSourceProperties
                             .put(QueryResponse.TOTAL_RESULTS_RETURNED, sourceResults.size());
 
-                    Map<String, Serializable> originalSourceProperties = sourceResponse.getProperties();
+                    Map<String, Serializable> originalSourceProperties = sourceResponse
+                            .getProperties();
                     if (originalSourceProperties != null) {
                         Serializable object = originalSourceProperties
                                 .get(QueryResponse.ELAPSED_TIME);
@@ -207,7 +209,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
                         ((List) siteListObject).add(site.getId());
                     } else {
                         siteListObject = new ArrayList<String>();
-                        ((List)siteListObject).add(site.getId());
+                        ((List) siteListObject).add(site.getId());
                         returnProperties
                                 .put(QueryResponse.SITE_LIST, (Serializable) siteListObject);
                     }
@@ -221,9 +223,9 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
             returnResults.setHits(totalHits);
             int maxResults = query.getPageSize() > 0 ? query.getPageSize() : Integer.MAX_VALUE;
 
-            returnResults
-                    .addResults(resultList.size() > maxResults ? resultList.subList(0, maxResults)
-                            : resultList, true);
+            returnResults.addResults(
+                    resultList.size() > maxResults ? resultList.subList(0, maxResults) : resultList,
+                    true);
         }
 
         private long getTimeRemaining(long deadline) {

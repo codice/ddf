@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.data.impl;
 
 import static org.junit.Assert.assertEquals;
@@ -41,11 +40,6 @@ import org.w3c.dom.Element;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.AttributeDescriptorImpl;
-import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.data.impl.MetacardTypeImpl;
 
 public class MetacardImplTest {
     private static final String DEFAULT_SERIALIZATION_FILE_LOCATION = "target/metacard1.ser";
@@ -107,7 +101,7 @@ public class MetacardImplTest {
 
     /**
      * Test XML support
-     * 
+     *
      * @throws ParserConfigurationException
      */
     @Test
@@ -209,9 +203,8 @@ public class MetacardImplTest {
     @Test
     public void testUpdatingWrappedMetacardFields() {
         HashSet<AttributeDescriptor> descriptors = new HashSet<AttributeDescriptor>();
-        descriptors.add(new AttributeDescriptorImpl("test-string", true /* indexed */,
-                true /* stored */, false /* tokenized */, false /* multivalued */,
-                BasicTypes.STRING_TYPE));
+        descriptors.add(new AttributeDescriptorImpl("test-string", true /* indexed */, true /* stored */,
+                false /* tokenized */, false /* multivalued */, BasicTypes.STRING_TYPE));
         MetacardType testType = new MetacardTypeImpl("test.type", descriptors);
 
         MetacardImpl mi = new MetacardImpl(mc);
@@ -265,8 +258,8 @@ public class MetacardImplTest {
     }
 
     @Test
-    public void testSerializationSingle() throws IOException, ClassNotFoundException,
-        URISyntaxException {
+    public void testSerializationSingle()
+            throws IOException, ClassNotFoundException, URISyntaxException {
 
         MetacardImpl metacard = new MetacardImpl();
 
@@ -333,8 +326,8 @@ public class MetacardImplTest {
     }
 
     @Test
-    public void testSerializationSingleWrapped() throws IOException, ClassNotFoundException,
-        URISyntaxException {
+    public void testSerializationSingleWrapped()
+            throws IOException, ClassNotFoundException, URISyntaxException {
 
         MetacardImpl innerMetacard = new MetacardImpl();
 
@@ -446,8 +439,8 @@ public class MetacardImplTest {
     }
 
     @Test
-    public void testSerializingEmptyWrappedMetacardType() throws IOException,
-        ClassNotFoundException {
+    public void testSerializingEmptyWrappedMetacardType()
+            throws IOException, ClassNotFoundException {
 
         MetacardImpl metacard = new MetacardImpl(new MetacardImpl(new EmptyMetacardType()));
 
@@ -475,7 +468,8 @@ public class MetacardImplTest {
      * A test where a metacardType is not defined but there are attributes in the metacard
      */
     @Test()
-    public void testDeserializingUndefinedMetacardType() throws IOException, ClassNotFoundException {
+    public void testDeserializingUndefinedMetacardType()
+            throws IOException, ClassNotFoundException {
         MetacardImpl metacard = new MetacardImpl(new EmptyMetacardType());
 
         metacard.setTitle("someTitle");

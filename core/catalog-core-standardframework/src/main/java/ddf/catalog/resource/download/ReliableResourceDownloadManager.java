@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.resource.download;
 
 import java.io.IOException;
@@ -46,10 +45,10 @@ import ddf.catalog.resourceretriever.ResourceRetriever;
  */
 public class ReliableResourceDownloadManager {
 
+    static final int ONE_SECOND_IN_MS = 1000;
+
     private static final Logger LOGGER = LoggerFactory
             .getLogger(ReliableResourceDownloadManager.class);
-
-    static final int ONE_SECOND_IN_MS = 1000;
 
     private DownloadsStatusEventPublisher eventPublisher;
 
@@ -73,7 +72,9 @@ public class ReliableResourceDownloadManager {
      * @param downloadStatusInfo
      *            reference to the {@link DownloadStatusInfo}
      */
-    public ReliableResourceDownloadManager(ResourceCache resourceCache, DownloadsStatusEventPublisher eventPublisher, DownloadsStatusEventListener eventListener, DownloadStatusInfo downloadStatusInfo) {
+    public ReliableResourceDownloadManager(ResourceCache resourceCache,
+            DownloadsStatusEventPublisher eventPublisher,
+            DownloadsStatusEventListener eventListener, DownloadStatusInfo downloadStatusInfo) {
         this.downloaderConfig.setResourceCache(resourceCache);
         this.eventPublisher = eventPublisher;
         this.downloaderConfig.setEventPublisher(this.eventPublisher);
@@ -138,8 +139,9 @@ public class ReliableResourceDownloadManager {
         // TODO - this should be before retrieveResource() but eventPublisher requires a
         // resourceResponse and that resource response must have a resource request in it (to get
         // USER property)
-        eventPublisher.postRetrievalStatus(resourceResponse, ProductRetrievalStatus.STARTED,
-                metacard, null, 0L, downloadIdentifier);
+        eventPublisher
+                .postRetrievalStatus(resourceResponse, ProductRetrievalStatus.STARTED, metacard,
+                        null, 0L, downloadIdentifier);
 
         AtomicBoolean downloadStarted = new AtomicBoolean(Boolean.FALSE);
         ReliableResourceDownloader downloader = new ReliableResourceDownloader(downloaderConfig,

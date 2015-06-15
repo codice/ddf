@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.util;
 
 import java.util.regex.Matcher;
@@ -34,18 +33,17 @@ import com.vividsolutions.jts.io.WKTReader;
  * different format of MULTIPOINT. The previous example would denormalize as
  * <code>MULTIPOINT (0 0, 10 10)</code>
  * </p>
- * 
+ *
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class WktStandard {
 
     private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
-    private static final Pattern WKT_MULTIPOINT_PATTERN = Pattern
-            .compile(
-                    "MULTIPOINT\\s*\\(((\\s*\\(\\s*\\-?\\d+(\\.\\d*)?\\s+\\-?\\d+(\\.\\d*)?\\s*\\)\\s*,?\\s*)+)\\)",
-                    Pattern.CASE_INSENSITIVE);
+    private static final Pattern WKT_MULTIPOINT_PATTERN = Pattern.compile(
+            "MULTIPOINT\\s*\\(((\\s*\\(\\s*\\-?\\d+(\\.\\d*)?\\s+\\-?\\d+(\\.\\d*)?\\s*\\)\\s*,?\\s*)+)\\)",
+            Pattern.CASE_INSENSITIVE);
 
     /**
      * Hiding class constructor since this is a utility class
@@ -56,8 +54,8 @@ public class WktStandard {
 
     /**
      * Normalize the given WKT to conform to the WKT grammar.
-     * 
-     * 
+     *
+     *
      * @param wkt
      *            WKT to normalize
      * @return normalized WKT
@@ -78,7 +76,7 @@ public class WktStandard {
 
     /**
      * Denormalize the given WKT to support backwards compatibility.
-     * 
+     *
      * @param wkt
      *            wkt to denormalize
      * @return denormalized WKT
@@ -96,10 +94,9 @@ public class WktStandard {
                 String currentMultiPoint = matcher.group(0);
                 String currentMultiPointText = matcher.group(1);
 
-                matcher.appendReplacement(
-                        resultWkt,
-                        currentMultiPoint.replace(currentMultiPointText,
-                                currentMultiPointText.replaceAll("[\\(\\)]", "")));
+                matcher.appendReplacement(resultWkt, currentMultiPoint
+                                .replace(currentMultiPointText,
+                                        currentMultiPointText.replaceAll("[\\(\\)]", "")));
             }
             matcher.appendTail(resultWkt);
 

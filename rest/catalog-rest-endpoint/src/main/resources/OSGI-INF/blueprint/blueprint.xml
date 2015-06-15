@@ -10,20 +10,21 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/ -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
 
   http://cxf.apache.org/blueprint/jaxrs http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
-	<reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper" />
-	<reference id="catalog" interface="ddf.catalog.CatalogFramework" />
-	<reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder" />  
-    <reference id="tikaMimeTypeResolver" interface="ddf.mime.MimeTypeResolver" />
+	<reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
+	<reference id="catalog" interface="ddf.catalog.CatalogFramework"/>
+	<reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+    <reference id="tikaMimeTypeResolver" interface="ddf.mime.MimeTypeResolver"/>
     
 
-	<reference-list id="metacardTransformerRefList" interface="ddf.catalog.transform.MetacardTransformer" availability="optional">
+	<reference-list id="metacardTransformerRefList"
+                    interface="ddf.catalog.transform.MetacardTransformer" availability="optional">
 		<reference-listener bind-method="bind" unbind-method="unbind">
 			<bean class="org.codice.ddf.endpoints.rest.action.ActionProviderRegistryProxy">
 				<argument ref="blueprintBundleContext"/>
@@ -32,15 +33,15 @@
 	</reference-list>
 
 	<bean id="restSvc" class="org.codice.ddf.endpoints.rest.RESTEndpoint">
-		<argument ref="catalog" />
-		<property name="filterBuilder" ref="filterBuilder" />
-		<property name="mimeTypeToTransformerMapper" ref="transformerMapper" />
-        <property name="tikaMimeTypeResolver" ref="tikaMimeTypeResolver" />
+		<argument ref="catalog"/>
+		<property name="filterBuilder" ref="filterBuilder"/>
+		<property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
+        <property name="tikaMimeTypeResolver" ref="tikaMimeTypeResolver"/>
 	</bean>
 
 	<jaxrs:server id="restService" address="/catalog">
 		<jaxrs:serviceBeans>
-			<ref component-id="restSvc" />
+			<ref component-id="restSvc"/>
 		</jaxrs:serviceBeans>
 
         <jaxrs:inInterceptors>
@@ -54,16 +55,18 @@
         </jaxrs:outInterceptors>
     </jaxrs:server>
 
-	<bean id="viewActionProvider" class="org.codice.ddf.endpoints.rest.action.ViewMetacardActionProvider">
-		<argument value="catalog.data.metacard.view" />
+	<bean id="viewActionProvider"
+          class="org.codice.ddf.endpoints.rest.action.ViewMetacardActionProvider">
+		<argument value="catalog.data.metacard.view"/>
 	</bean>
 
 	<service ref="viewActionProvider" interface="ddf.action.ActionProvider">
 		<service-properties>
-			<entry key="id" value="catalog.data.metacard.view" />
+			<entry key="id" value="catalog.data.metacard.view"/>
 		</service-properties>
 	</service>
 
-	<service ref="viewActionProvider" interface="org.codice.ddf.configuration.ConfigurationWatcher" />
+	<service ref="viewActionProvider"
+             interface="org.codice.ddf.configuration.ConfigurationWatcher"/>
 
 </blueprint>

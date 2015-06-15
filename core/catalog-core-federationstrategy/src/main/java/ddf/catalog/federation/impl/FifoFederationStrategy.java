@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.federation.impl;
 
 import java.io.Serializable;
@@ -50,7 +49,7 @@ import ddf.catalog.source.Source;
  * The Class {@code FifoFederationStrategy} represents a First In First Out (FIFO) federation
  * strategy that returns results in the order they are received. This means that the first results
  * received by this strategy are the first results sent back to the client.
- * 
+ *
  */
 public class FifoFederationStrategy implements FederationStrategy {
 
@@ -69,7 +68,7 @@ public class FifoFederationStrategy implements FederationStrategy {
 
     /**
      * Instantiates a {@code FifoFederationStrategy} with the provided {@link ExecutorService}.
-     * 
+     *
      * @param queryExecutorService
      *            the {@link ExecutorService} for queries
      */
@@ -110,8 +109,9 @@ public class FifoFederationStrategy implements FederationStrategy {
             resultsToSkip = offset - 1;
         }
 
-        queryExecutorService.submit(new FifoQueryMonitor(queryExecutorService, futures,
-                queryResponse, modifiedQueryRequest.getQuery(), resultsToSkip));
+        queryExecutorService
+                .submit(new FifoQueryMonitor(queryExecutorService, futures, queryResponse,
+                        modifiedQueryRequest.getQuery(), resultsToSkip));
 
         return executePostFederationPlugins(queryResponse);
     }
@@ -143,17 +143,17 @@ public class FifoFederationStrategy implements FederationStrategy {
                                 modifiedQueryRequest = service
                                         .process(source, modifiedQueryRequest);
                             } catch (PluginExecutionException e) {
-                                LOGGER.warn(
-                                        "Error executing PreFederatedQueryPlugin: "
-                                                + e.getMessage(), e);
+                                LOGGER.warn("Error executing PreFederatedQueryPlugin: " + e
+                                                .getMessage(), e);
                             }
                         }
                     } catch (StopProcessingException e) {
                         LOGGER.warn("Plugin stopped processing: ", e);
                     }
-                    futures.put(source, queryExecutorService.submit(new CallableSourceResponse(
-                            source, modifiedQueryRequest.getQuery(), modifiedQueryRequest
-                                    .getProperties())));
+                    futures.put(source, queryExecutorService
+                            .submit(new CallableSourceResponse(source,
+                                    modifiedQueryRequest.getQuery(),
+                                    modifiedQueryRequest.getProperties())));
                 } else {
                     LOGGER.warn("Duplicate source found with name " + source.getId()
                             + ". Ignoring second one.");
@@ -211,12 +211,13 @@ public class FifoFederationStrategy implements FederationStrategy {
                     elapsedTime);
             sourceResponse.getProperties().put(QueryResponse.ELAPSED_TIME, elapsedTime);
             return sourceResponse;
-        };
+        }
+
     }
 
     /**
      * Gets the time remaining before the timeout on a query
-     * 
+     *
      * @param deadline
      *            - the deadline for the timeout to occur
      * @return the time remaining prior to the timeout
@@ -254,15 +255,15 @@ public class FifoFederationStrategy implements FederationStrategy {
             for (final Map.Entry<Source, Future<SourceResponse>> entry : futures.entrySet()) {
                 Source site = entry.getKey();
                 // Add a List of siteIds so endpoints know what sites got queried
-                Serializable siteListObject = returnResults.getProperties().get(
-                        QueryResponse.SITE_LIST);
+                Serializable siteListObject = returnResults.getProperties()
+                        .get(QueryResponse.SITE_LIST);
                 if (siteListObject != null && siteListObject instanceof List<?>) {
                     ((List) siteListObject).add(site.getId());
                 } else {
                     siteListObject = new ArrayList<String>();
                     ((List) siteListObject).add(site.getId());
-                    returnResults.getProperties().put(QueryResponse.SITE_LIST,
-                            (Serializable) siteListObject);
+                    returnResults.getProperties()
+                            .put(QueryResponse.SITE_LIST, (Serializable) siteListObject);
                 }
                 updateSites(1);
                 pool.submit(new SourceQueryThread(site, entry.getValue(), returnResults, pageSize));
@@ -281,11 +282,11 @@ public class FifoFederationStrategy implements FederationStrategy {
 
         private class SourceQueryThread implements Runnable {
 
-            private long maxResults = 0;
-
             Future<SourceResponse> curFuture = null;
 
             QueryResponseImpl returnResults = null;
+
+            private long maxResults = 0;
 
             private Source site = null;
 
@@ -302,9 +303,11 @@ public class FifoFederationStrategy implements FederationStrategy {
                 SourceResponse sourceResponse = null;
                 Set<ProcessingDetails> processingDetails = returnResults.getProcessingDetails();
                 try {
-                    sourceResponse = query.getTimeoutMillis() < 1 ? curFuture.get() : curFuture
-                            .get(getTimeRemaining(System.currentTimeMillis()
-                                    + query.getTimeoutMillis()), TimeUnit.MILLISECONDS);
+                    sourceResponse = query.getTimeoutMillis() < 1 ?
+                            curFuture.get() :
+                            curFuture.get(getTimeRemaining(
+                                    System.currentTimeMillis() + query.getTimeoutMillis()),
+                                    TimeUnit.MILLISECONDS);
                     sourceResponse = curFuture.get();
                 } catch (Exception e) {
                     LOGGER.warn("Federated query returned exception " + e.getMessage());
@@ -346,8 +349,8 @@ public class FifoFederationStrategy implements FederationStrategy {
                         }
                     }
 
-                    returnResults.getProperties().put(site.getId(),
-                            (Serializable) newSourceProperties);
+                    returnResults.getProperties()
+                            .put(site.getId(), (Serializable) newSourceProperties);
                     Map<String, Serializable> originalSourceProperties = sourceResponse
                             .getProperties();
                     if (originalSourceProperties != null) {

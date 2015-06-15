@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -122,15 +121,16 @@ import ddf.catalog.util.impl.SourcePollerRunner;
 public class CatalogFrameworkImplTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFrameworkImplTest.class);
 
-
     @Rule
     public MethodRule watchman = new TestWatchman() {
         public void starting(FrameworkMethod method) {
-            LOGGER.debug("***************************  STARTING: {}  **************************\n", method.getName());
+            LOGGER.debug("***************************  STARTING: {}  **************************\n",
+                    method.getName());
         }
 
         public void finished(FrameworkMethod method) {
-            LOGGER.debug("***************************  END: {}  **************************\n", method.getName());
+            LOGGER.debug("***************************  END: {}  **************************\n",
+                    method.getName());
         }
     };
 
@@ -217,8 +217,8 @@ public class CatalogFrameworkImplTest {
 
         Metacard insertedCard = response.getCreatedMetacards().get(0);
         List<Entry<Serializable, Metacard>> updatedEntries = new ArrayList<Entry<Serializable, Metacard>>();
-        updatedEntries.add(new SimpleEntry<Serializable, Metacard>(insertedCard.getId(),
-                insertedCard));
+        updatedEntries
+                .add(new SimpleEntry<Serializable, Metacard>(insertedCard.getId(), insertedCard));
         UpdateRequest request = new UpdateRequestImpl(updatedEntries, Metacard.ID, null);
         // send update to framework
         List<Update> returnedCards = framework.update(request).getUpdatedMetacards();
@@ -228,8 +228,8 @@ public class CatalogFrameworkImplTest {
 
         // make sure that the event was posted correctly
         assertTrue(eventAdmin.wasEventPosted());
-        assertEquals(eventAdmin.getLastEvent(), returnedCards.get(returnedCards.size() - 1)
-                .getOldMetacard());
+        assertEquals(eventAdmin.getLastEvent(),
+                returnedCards.get(returnedCards.size() - 1).getOldMetacard());
 
     }
 
@@ -334,8 +334,8 @@ public class CatalogFrameworkImplTest {
 
         // make sure that the event was posted correctly
         assertTrue(eventAdmin.wasEventPosted());
-        assertEquals(eventAdmin.getLastEvent(), returnedCards.get(returnedCards.size() - 1)
-                .getOldMetacard());
+        assertEquals(eventAdmin.getLastEvent(),
+                returnedCards.get(returnedCards.size() - 1).getOldMetacard());
     }
 
     /**
@@ -372,8 +372,8 @@ public class CatalogFrameworkImplTest {
      */
     @Test
     @Ignore
-    public void testGetResource_WhenNonNullResourceRequest_ExpectPostResourcePluginToReceiveResourceResponseWithNonNullResourceRequest()
-        throws Exception {
+    public void testGetResourceWhenNonNullResourceRequestExpectPostResourcePluginToReceiveResourceResponseWithNonNullResourceRequest()
+            throws Exception {
 
         // Setup
         /*
@@ -400,8 +400,8 @@ public class CatalogFrameworkImplTest {
          * returns a ResourceResponse with a non-null ResourceRequest, so we return our
          * mockResouceResponse that contains a non-null ResourceRequest.
          */
-        when(mockPostResourcePlugin.process(isA(ResourceResponse.class))).thenReturn(
-                mockResourceResponse);
+        when(mockPostResourcePlugin.process(isA(ResourceResponse.class)))
+                .thenReturn(mockResourceResponse);
 
         List<PostResourcePlugin> mockPostResourcePlugins = new ArrayList<PostResourcePlugin>();
         mockPostResourcePlugins.add(mockPostResourcePlugin);
@@ -411,8 +411,8 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PostIngestPlugin>(), new ArrayList<PreQueryPlugin>(),
                 new ArrayList<PostQueryPlugin>(), new ArrayList<PreResourcePlugin>(),
                 mockPostResourcePlugins, new ArrayList<ConnectedSource>(),
-                new ArrayList<FederatedSource>(), new ArrayList<ResourceReader>(), null, null,
-                null, null, null, null, null) {
+                new ArrayList<FederatedSource>(), new ArrayList<ResourceReader>(), null, null, null,
+                null, null, null, null) {
             @Override
             protected URI getResourceURI(ResourceRequest resourceRequest, String site,
                     boolean isEnterprise, StringBuilder federatedSite,
@@ -425,13 +425,14 @@ public class CatalogFrameworkImplTest {
                 }
 
                 return uri;
-            };
-            
+            }
+
+
             @Override
             protected ResourceInfo getResourceInfo(ResourceRequest resourceRequest, String site,
                     boolean isEnterprise, StringBuilder federatedSite,
-                    Map<String, Serializable> requestProperties) throws ResourceNotSupportedException,
-                ResourceNotFoundException {
+                    Map<String, Serializable> requestProperties)
+                    throws ResourceNotSupportedException, ResourceNotFoundException {
                 URI uri = null;
                 Metacard metacard = new MetacardImpl();
 
@@ -439,7 +440,7 @@ public class CatalogFrameworkImplTest {
                     uri = new URI("myURI");
                 } catch (URISyntaxException e) {
                 }
-                
+
                 return new ResourceInfo(metacard, uri);
             }
 
@@ -448,8 +449,10 @@ public class CatalogFrameworkImplTest {
                     Map<String, Serializable> properties) {
                 Resource mockResource = mock(Resource.class);
                 ResourceResponse resourceResponse = new ResourceResponseImpl(mockResource);
-                LOGGER.debug("resourceResponse.getResource() returned: {}", resourceResponse.getResource());
-                LOGGER.debug("resourceResponse.getRequest() expected returned value: null;  actual returned value: {}",
+                LOGGER.debug("resourceResponse.getResource() returned: {}",
+                        resourceResponse.getResource());
+                LOGGER.debug(
+                        "resourceResponse.getRequest() expected returned value: null;  actual returned value: {}",
                         resourceResponse.getRequest());
                 assertNull(resourceResponse.getRequest());
                 // Returns a ResourceResponse with a null ResourceRequest.
@@ -462,17 +465,17 @@ public class CatalogFrameworkImplTest {
         catalogFrameworkUnderTest.setId(sourceId);
         ResourceCache resourceCache = mock(ResourceCache.class);
         when(resourceCache.containsValid(isA(String.class), isA(Metacard.class))).thenReturn(false);
-//        ResourceResponse resourceResponseInCache = new ResourceResponseImpl(mockResource);
-//        when(resourceCache.put(isA(Metacard.class), isA(ResourceResponse.class),
-//             isA(ResourceRetriever.class), isA(Boolean.class))).thenReturn(resourceResponseInCache);
+        //        ResourceResponse resourceResponseInCache = new ResourceResponseImpl(mockResource);
+        //        when(resourceCache.put(isA(Metacard.class), isA(ResourceResponse.class),
+        //             isA(ResourceRetriever.class), isA(Boolean.class))).thenReturn(resourceResponseInCache);
         catalogFrameworkUnderTest.setProductCache(resourceCache);
 
         String resourceSiteName = "myId";
 
         // Execute
         LOGGER.debug("Testing CatalogFramework.getResource(ResourceRequest, String)...");
-        ResourceResponse resourceResponse = catalogFrameworkUnderTest.getResource(
-                mockResourceRequest, resourceSiteName);
+        ResourceResponse resourceResponse = catalogFrameworkUnderTest
+                .getResource(mockResourceRequest, resourceSiteName);
         LOGGER.debug("resourceResponse: {}", resourceResponse);
 
         // Verify
@@ -481,8 +484,7 @@ public class CatalogFrameworkImplTest {
          * contains a non-null ResourceRequest.
          */
         verify(mockPostResourcePlugin).process(argument.capture());
-        assertNotNull(
-                "PostResourcePlugin received a ResourceResponse with a null ResourceRequest.",
+        assertNotNull("PostResourcePlugin received a ResourceResponse with a null ResourceRequest.",
                 argument.getValue().getRequest());
 
         /*
@@ -494,7 +496,7 @@ public class CatalogFrameworkImplTest {
     }
 
     @Test(expected = FederationException.class)
-    public void testPreQuery_StopExecution() throws UnsupportedQueryException, FederationException {
+    public void testPreQueryStopExecution() throws UnsupportedQueryException, FederationException {
 
         SourcePoller poller = mock(SourcePoller.class);
         when(poller.getCachedSource(isA(Source.class))).thenReturn(null);
@@ -512,9 +514,10 @@ public class CatalogFrameworkImplTest {
         PreQueryPlugin stopQueryPlugin = new PreQueryPlugin() {
 
             @Override
-            public QueryRequest process(QueryRequest input) throws PluginExecutionException,
-                StopProcessingException {
-                throw new StopProcessingException("Testing that the framework will stop the query.");
+            public QueryRequest process(QueryRequest input)
+                    throws PluginExecutionException, StopProcessingException {
+                throw new StopProcessingException(
+                        "Testing that the framework will stop the query.");
             }
         };
 
@@ -524,30 +527,32 @@ public class CatalogFrameworkImplTest {
                 Arrays.asList(stopQueryPlugin), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), federationStrategy, null, null, poller, null, null, null);
+                new ArrayList<ResourceReader>(), federationStrategy, null, null, poller, null, null,
+                null);
 
         framework.bind(provider);
         framework.query(request);
     }
 
     @Test(expected = FederationException.class)
-    public void testPostQuery_StopExecution() throws UnsupportedQueryException, FederationException {
+    public void testPostQueryStopExecution()
+            throws UnsupportedQueryException, FederationException {
 
         SourcePoller poller = mock(SourcePoller.class);
 
         when(poller.getCachedSource(isA(Source.class))).thenReturn(null);
 
-
         BundleContext context = null;
 
         FilterFactory filterFactory = new FilterFactoryImpl();
 
-        Filter filter = filterFactory.like(filterFactory.property(Metacard.METADATA), "goodyear",
-                "*", "?", "/", false);
+        Filter filter = filterFactory
+                .like(filterFactory.property(Metacard.METADATA), "goodyear", "*", "?", "/", false);
 
         QueryRequest request = new QueryRequestImpl(new QueryImpl(filter));
 
-        SourceResponseImpl sourceResponse = new SourceResponseImpl(request, new ArrayList<Result>());
+        SourceResponseImpl sourceResponse = new SourceResponseImpl(request,
+                new ArrayList<Result>());
 
         QueryResponseImpl queryResponse = new QueryResponseImpl(sourceResponse, "anyId");
 
@@ -557,15 +562,16 @@ public class CatalogFrameworkImplTest {
 
         FederationStrategy federationStrategy = mock(FederationStrategy.class);
 
-        when(federationStrategy.federate(isA(List.class), isA(QueryRequest.class))).thenReturn(
-                queryResponse);
+        when(federationStrategy.federate(isA(List.class), isA(QueryRequest.class)))
+                .thenReturn(queryResponse);
 
         PostQueryPlugin stopQueryPlugin = new PostQueryPlugin() {
 
             @Override
-            public QueryResponse process(QueryResponse input) throws PluginExecutionException,
-                StopProcessingException {
-                throw new StopProcessingException("Testing that the framework will stop the query.");
+            public QueryResponse process(QueryResponse input)
+                    throws PluginExecutionException, StopProcessingException {
+                throw new StopProcessingException(
+                        "Testing that the framework will stop the query.");
             }
 
         };
@@ -608,26 +614,18 @@ public class CatalogFrameworkImplTest {
                 new HashSet<ContentType>(), true, new Date());
         List<FederatedSource> federatedSources = createDefaultFederatedSourceList(true);
 
-        // Set<Source> expectedSourceSet = new HashSet<Source>();
-        // add framework as a site
-        // add local provider
-        // expectedSourceSet.add(provider);
-        // add all of the federated sites
-        // expectedSourceSet.addAll(federatedSources);
-
         // Mock register the provider in the container
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
         when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
-
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
                 Collections.singletonList((CatalogProvider) provider), null,
                 new ArrayList<PreIngestPlugin>(), new ArrayList<PostIngestPlugin>(),
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
-                new ArrayList<ConnectedSource>(), federatedSources,
-                new ArrayList<ResourceReader>(), null, null, null, mockPoller, null, null, null);
+                new ArrayList<ConnectedSource>(), federatedSources, new ArrayList<ResourceReader>(),
+                null, null, null, mockPoller, null, null, null);
         framework.bind(provider);
         framework.setId("ddf");
 
@@ -677,8 +675,8 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreIngestPlugin>(), new ArrayList<PostIngestPlugin>(),
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
-                new ArrayList<ConnectedSource>(), federatedSources,
-                new ArrayList<ResourceReader>(), null, null, null, mockPoller, null, null, null);
+                new ArrayList<ConnectedSource>(), federatedSources, new ArrayList<ResourceReader>(),
+                null, null, null, mockPoller, null, null, null);
 
         SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
         SourceInfoResponse response = null;
@@ -713,8 +711,8 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PreIngestPlugin>(), new ArrayList<PostIngestPlugin>(),
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
-                new ArrayList<ConnectedSource>(), federatedSources,
-                new ArrayList<ResourceReader>(), null, null, null, poller, null, null, null);
+                new ArrayList<ConnectedSource>(), federatedSources, new ArrayList<ResourceReader>(),
+                null, null, null, poller, null, null, null);
 
         SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
         SourceInfoResponse response = null;
@@ -755,7 +753,6 @@ public class CatalogFrameworkImplTest {
         // Mock the source poller
         SourcePoller mockPoller = mock(SourcePoller.class);
         when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
-
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(null, (CatalogProvider) null,
                 new ArrayList<PreIngestPlugin>(), new ArrayList<PostIngestPlugin>(),
@@ -845,7 +842,7 @@ public class CatalogFrameworkImplTest {
     /**
      * Tests that the framework properly throws a catalog exception when the local provider is not
      * available for create.
-     * 
+     *
      * @throws SourceUnavailableException
      */
     @Test(expected = SourceUnavailableException.class)
@@ -873,7 +870,7 @@ public class CatalogFrameworkImplTest {
     /**
      * Tests that the framework properly throws a catalog exception when the local provider is not
      * available for update by id.
-     * 
+     *
      * @throws IngestException
      * @throws SourceUnavailableException
      */
@@ -893,8 +890,8 @@ public class CatalogFrameworkImplTest {
             metacards.add(newCard);
             uris.add(new URI("uri:///1234"));
 
-            UpdateRequest update = new UpdateRequestImpl(
-                    (URI[]) uris.toArray(new URI[uris.size()]), metacards);
+            UpdateRequest update = new UpdateRequestImpl((URI[]) uris.toArray(new URI[uris.size()]),
+                    metacards);
 
             framework.update(update);
         } catch (URISyntaxException e) {
@@ -907,7 +904,7 @@ public class CatalogFrameworkImplTest {
     /**
      * Tests that the framework properly throws a catalog exception when the local provider is not
      * available for update by identifier.
-     * 
+     *
      * @throws IngestException
      * @throws SourceUnavailableException
      */
@@ -928,8 +925,8 @@ public class CatalogFrameworkImplTest {
             metacards.add(newCard);
             uris.add(new URI("uri:////1234"));
 
-            UpdateRequest update = new UpdateRequestImpl(
-                    (URI[]) uris.toArray(new URI[uris.size()]), metacards);
+            UpdateRequest update = new UpdateRequestImpl((URI[]) uris.toArray(new URI[uris.size()]),
+                    metacards);
 
             framework.update(update);
         } catch (URISyntaxException e) {
@@ -942,7 +939,7 @@ public class CatalogFrameworkImplTest {
     /**
      * Tests that the framework properly throws a catalog exception when the local provider is not
      * available for delete by id.
-     * 
+     *
      * @throws IngestException
      * @throws SourceUnavailableException
      */
@@ -970,7 +967,7 @@ public class CatalogFrameworkImplTest {
     /**
      * Tests that the framework properly throws a catalog exception when the local provider is not
      * available for delete by identifier.
-     * 
+     *
      * @throws IngestException
      * @throws SourceUnavailableException
      */
@@ -1000,9 +997,9 @@ public class CatalogFrameworkImplTest {
     /**
      * Tests that the framework properly throws a catalog exception when there are no sites
      * (federated or local) that are available to perform the query.
-     * 
+     *
      * @throws SourceUnavailableException
-     * 
+     *
      */
     @Ignore
     @Test(expected = SourceUnavailableException.class)
@@ -1023,7 +1020,7 @@ public class CatalogFrameworkImplTest {
     /**
      * Tests that the framework properly throws a catalog exception when the query being passed in
      * is null.
-     * 
+     *
      * @throws UnsupportedQueryException
      */
     @Test(expected = UnsupportedQueryException.class)
@@ -1046,7 +1043,7 @@ public class CatalogFrameworkImplTest {
     /**
      * Tests that the framework properly throws a catalog exception when the federated query being
      * passed in is null.
-     * 
+     *
      * @throws UnsupportedQueryException
      */
     @Test(expected = UnsupportedQueryException.class)
@@ -1146,27 +1143,6 @@ public class CatalogFrameworkImplTest {
         }
 
     }
-
-    // @Test( expected = CatalogException.class )
-    // public void testProviderRuntimeExceptionOnRead() throws CatalogException
-    // {
-    // MockEventProcessor eventAdmin = new MockEventProcessor();
-    // MockExceptionProvider provider = new MockExceptionProvider( "Provider",
-    // "Provider", "v1.0", "DDF",
-    // new HashSet<MetacardType>(), true, new Date() );
-    // CatalogFramework framework = this.createDummyCatalogFramework(provider,
-    // eventAdmin);
-    //
-    // MetacardImpl newCard = new MetacardImpl( );
-    // newCard.setId( null );
-    //
-    // List<String> ids = new ArrayList<String>();
-    // ids.add( newCard.getId() );
-    //
-    // // send read to framework
-    // // framework.read( null, ids );
-    //
-    // }
 
     @Test(expected = IngestException.class)
     public void testProviderRuntimeExceptionOnUpdateByID() throws IngestException {
@@ -1282,9 +1258,9 @@ public class CatalogFrameworkImplTest {
      * Tests that you can get a resource's (product) options. Covers the case where the source ID
      * specified is actually the local catalog provider's site name (so this reduces down to a
      * getResourceOptions for local provider); and the case where a federated source is specified.
-     * 
+     *
      * Test for DDF-1763.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -1361,8 +1337,8 @@ public class CatalogFrameworkImplTest {
         ids.add(framework.getId());
 
         // site name = local provider
-        Map<String, Set<String>> optionsMap = framework.getResourceOptions(metacardId,
-                localProviderName);
+        Map<String, Set<String>> optionsMap = framework
+                .getResourceOptions(metacardId, localProviderName);
         LOGGER.debug("localProvider optionsMap = {}", optionsMap);
         assertThat(optionsMap, hasEntry("RESOURCE_OPTION", supportedOptions));
 
@@ -1442,8 +1418,8 @@ public class CatalogFrameworkImplTest {
         ResourceCache resourceCache = mock(ResourceCache.class);
         Resource mockResource = mock(Resource.class);
         when(resourceCache.containsValid(isA(String.class), isA(Metacard.class))).thenReturn(true);
-        when(resourceCache.getValid(isA(String.class), isA(Metacard.class))).thenReturn(
-                mockResource);
+        when(resourceCache.getValid(isA(String.class), isA(Metacard.class)))
+                .thenReturn(mockResource);
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
                 Collections.singletonList((CatalogProvider) provider), null,
@@ -1462,8 +1438,6 @@ public class CatalogFrameworkImplTest {
         }
         ids.add(framework.getId());
 
-
-
         ResourceRequestById request = new ResourceRequestById(metacardId);
 
         ResourceResponse response = framework.getResource(request, federatedSite1Name);
@@ -1474,13 +1448,13 @@ public class CatalogFrameworkImplTest {
     /**
      * Tests that multiple ResourceReaders with the same scheme will be invoked if the first one did
      * not return a Response.
-     * 
+     *
      * @throws Exception
      */
     @Test
     @Ignore  //CACHE
     public void testGetResourceToTestSecondResourceReaderWithSameSchemeGetsCalledIfFirstDoesNotReturnAnything()
-        throws Exception {
+            throws Exception {
         String localProviderName = "ddf";
         String metacardId = "123";
         final String EXPECTED = "result from mockResourceResponse2";
@@ -1521,8 +1495,8 @@ public class CatalogFrameworkImplTest {
         ResourceRequest mockResourceRequest = mock(ResourceRequest.class);
         URI myURI = new URI("DAD", "host", "/path", "fragment");
         when(mockResourceRequest.getAttributeValue()).thenReturn(myURI);
-        when(mockResourceRequest.getAttributeName()).thenReturn(
-                new String(ResourceRequest.GET_RESOURCE_BY_PRODUCT_URI));
+        when(mockResourceRequest.getAttributeName())
+                .thenReturn(new String(ResourceRequest.GET_RESOURCE_BY_PRODUCT_URI));
 
         Result result = mock(Result.class);
         Metacard metacard = mock(Metacard.class);
@@ -1549,16 +1523,16 @@ public class CatalogFrameworkImplTest {
         when(mockResource.getName()).thenReturn(EXPECTED);
         ResourceResponse mockResourceResponse2 = mock(ResourceResponse.class);
         when(mockResourceResponse2.getResource()).thenReturn(mockResource);
-        when(resourceReader2.retrieveResource(any(URI.class), anyMap())).thenReturn(
-                mockResourceResponse2);
+        when(resourceReader2.retrieveResource(any(URI.class), anyMap()))
+                .thenReturn(mockResourceResponse2);
 
         CatalogFrameworkImpl framework = new CatalogFrameworkImpl(
                 Collections.singletonList((CatalogProvider) provider), null,
                 new ArrayList<PreIngestPlugin>(), new ArrayList<PostIngestPlugin>(),
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
-                new ArrayList<ConnectedSource>(), null, resourceReaders, strategy, null,
-                null, mockPoller, null, null, null);
+                new ArrayList<ConnectedSource>(), null, resourceReaders, strategy, null, null,
+                mockPoller, null, null, null);
         framework.bind(provider);
         framework.setId(DDF);
 
@@ -1605,8 +1579,8 @@ public class CatalogFrameworkImplTest {
                 new ArrayList<PostIngestPlugin>(), new ArrayList<PreQueryPlugin>(),
                 new ArrayList<PostQueryPlugin>(), new ArrayList<PreResourcePlugin>(),
                 new ArrayList<PostResourcePlugin>(), new ArrayList<ConnectedSource>(),
-                new ArrayList<FederatedSource>(), new ArrayList<ResourceReader>(), null, null,
-                null, mockPoller, null, null, null);
+                new ArrayList<FederatedSource>(), new ArrayList<ResourceReader>(), null, null, null,
+                mockPoller, null, null, null);
         framework.bind(provider);
 
         return framework;

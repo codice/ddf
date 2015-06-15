@@ -1,23 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.filter.delegate;
-
-import ddf.catalog.filter.FilterDelegate;
 
 import java.util.Date;
 import java.util.List;
+
+import ddf.catalog.filter.FilterDelegate;
 
 public class FilterToTextDelegate extends FilterDelegate<String> {
 
@@ -144,7 +143,8 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
 
     // PropertyIsNotEqualTo
     @Override
-    public String propertyIsNotEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
+    public String propertyIsNotEqualTo(String propertyName, String literal,
+            boolean isCaseSensitive) {
         return propertyName + "!=" + literal;
     }
 
@@ -365,7 +365,8 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
 
     // PropertyIsBetween
     @Override
-    public String propertyIsBetween(String propertyName, String lowerBoundary, String upperBoundary) {
+    public String propertyIsBetween(String propertyName, String lowerBoundary,
+            String upperBoundary) {
         return lowerBoundary + "<=" + propertyName + "<=" + upperBoundary;
     }
 
@@ -395,12 +396,14 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
     }
 
     @Override
-    public String propertyIsBetween(String propertyName, double lowerBoundary, double upperBoundary) {
+    public String propertyIsBetween(String propertyName, double lowerBoundary,
+            double upperBoundary) {
         return lowerBoundary + "d<=" + propertyName + "<=" + upperBoundary + "d";
     }
 
     @Override
-    public String propertyIsBetween(String propertyName, Object lowerBoundary, Object upperBoundary) {
+    public String propertyIsBetween(String propertyName, Object lowerBoundary,
+            Object upperBoundary) {
         return lowerBoundary + "o<=" + propertyName + "<=" + upperBoundary + "o";
     }
 

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.metrics;
 
 import java.util.Date;
@@ -21,10 +20,10 @@ import ddf.catalog.filter.FilterDelegate;
 
 /**
  * Filter delegate to determine the types of filter features being used.
- * 
+ *
  * @author Phillip Klinefelter
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
 
@@ -211,7 +210,8 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsNotEqualTo(String propertyName, String literal, boolean isCaseSensitive) {
+    public Boolean propertyIsNotEqualTo(String propertyName, String literal,
+            boolean isCaseSensitive) {
         if (isCaseSensitive) {
             this.isCaseSensitive = true;
         }
@@ -429,7 +429,8 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsBetween(String propertyName, String lowerBoundary, String upperBoundary) {
+    public Boolean propertyIsBetween(String propertyName, String lowerBoundary,
+            String upperBoundary) {
         return isComparison = true;
     }
 
@@ -444,7 +445,8 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsBetween(String propertyName, short lowerBoundary, short upperBoundary) {
+    public Boolean propertyIsBetween(String propertyName, short lowerBoundary,
+            short upperBoundary) {
         return isComparison = true;
     }
 
@@ -454,17 +456,20 @@ public class QueryTypeFilterDelegate extends FilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsBetween(String propertyName, float lowerBoundary, float upperBoundary) {
+    public Boolean propertyIsBetween(String propertyName, float lowerBoundary,
+            float upperBoundary) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsBetween(String propertyName, double lowerBoundary, double upperBoundary) {
+    public Boolean propertyIsBetween(String propertyName, double lowerBoundary,
+            double upperBoundary) {
         return isComparison = true;
     }
 
     @Override
-    public Boolean propertyIsBetween(String propertyName, Object lowerBoundary, Object upperBoundary) {
+    public Boolean propertyIsBetween(String propertyName, Object lowerBoundary,
+            Object upperBoundary) {
         return isComparison = true;
     }
 

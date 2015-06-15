@@ -1,23 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.cache.impl;
+
+import java.util.Set;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceRequest;
-
-import java.util.Set;
 
 public class CacheKey {
 
@@ -57,7 +56,8 @@ public class CacheKey {
         // option when generating the unique cache key.
         for (String propertyName : names) {
             if (propertyName.equals(ResourceRequest.OPTION_ARGUMENT)) {
-                properties = "_" + propertyName + "-" + resourceRequest.getPropertyValue(propertyName);
+                properties =
+                        "_" + propertyName + "-" + resourceRequest.getPropertyValue(propertyName);
             }
         }
 

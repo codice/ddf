@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.metrics.source;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -24,7 +23,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,7 +185,7 @@ public class SourceMetricsImplTest {
     }
 
     @Test
-    public void testDeleteSource_BlankSourceId() throws Exception {
+    public void testDeleteSourceBlankSourceId() throws Exception {
         String sourceId = "cp-1";
         String metricName = SourceMetrics.QUERIES_SCOPE;
 
@@ -223,7 +221,7 @@ public class SourceMetricsImplTest {
     }
 
     @Test
-    public void testGetRrdFilename_DashesNumbers() throws Exception {
+    public void testGetRrdFilenameDashesNumbers() throws Exception {
         String sourceId = "dib30rhel-58";
         String collectorName = SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
 
@@ -235,7 +233,7 @@ public class SourceMetricsImplTest {
     }
 
     @Test
-    public void testGetRrdFilename_NonAlphanumerics() throws Exception {
+    public void testGetRrdFilenameNonAlphanumerics() throws Exception {
         String sourceId = "dib30rh%^&*()$e#@!l-58";
         String collectorName = SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
 

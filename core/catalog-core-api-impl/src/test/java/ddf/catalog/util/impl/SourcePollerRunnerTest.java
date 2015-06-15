@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.util.impl;
 
 import static org.junit.Assert.assertEquals;
@@ -29,14 +28,10 @@ import org.junit.Test;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.source.Source;
-import ddf.catalog.util.impl.CachedSource;
-import ddf.catalog.util.impl.SourcePollerRunner;
-import ddf.catalog.util.impl.SourceStatus;
 
 public class SourcePollerRunnerTest {
 
-    private Source createDefaultFederatedSource(boolean avail,
-            Set<ContentType> types) {
+    private Source createDefaultFederatedSource(boolean avail, Set<ContentType> types) {
         Source source = mock(Source.class);
 
         when(source.isAvailable()).thenReturn(avail);
@@ -65,7 +60,7 @@ public class SourcePollerRunnerTest {
         do {
             Thread.yield();
             cached = runner.getCachedSource(source);
-            if(cached != null) {
+            if (cached != null) {
                 status = cached.getSourceStatus();
             }
         } while (status == null || status == SourceStatus.UNCHECKED);
@@ -78,7 +73,7 @@ public class SourcePollerRunnerTest {
             cached.getTitle();
             cached.getOrganization();
             cached.getId();
-            cached.getDescription();            
+            cached.getDescription();
         }
         assertEquals(SourceStatus.AVAILABLE, cached.getSourceStatus());
         assertEquals(true, cached.isAvailable());
@@ -104,7 +99,7 @@ public class SourcePollerRunnerTest {
         do {
             Thread.yield();
             cached = runner.getCachedSource(source);
-            if(cached != null) {
+            if (cached != null) {
                 status = cached.getSourceStatus();
             }
         } while (status == null || status == SourceStatus.UNCHECKED);

@@ -1,18 +1,60 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.source.opensearch;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.util.ParameterParser;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.opengis.filter.Filter;
+import org.osgi.framework.InvalidSyntaxException;
+
+import junit.framework.Assert;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
@@ -33,46 +75,6 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import junit.framework.Assert;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.util.ParameterParser;
-import org.apache.cxf.jaxrs.client.Client;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.opengis.filter.Filter;
-import org.osgi.framework.InvalidSyntaxException;
-
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests parts of the {@link OpenSearchSource}
@@ -93,6 +95,173 @@ public class TestOpenSearchSource {
 
     private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
+    private static InputStream getSampleAtomStream() {
+        String response =
+                "<feed xmlns=\"http://www.w3.org/2005/Atom\" xmlns:os=\"http://a9.com/-/spec/opensearch/1.1/\">\r\n"
+                        + "    <title type=\"text\">Query Response</title>\r\n"
+                        + "    <updated>2013-01-31T23:22:37.298Z</updated>\r\n"
+                        + "    <id>urn:uuid:a27352c9-f935-45f0-9b8c-5803095164bb</id>\r\n"
+                        + "    <link href=\"#\" rel=\"self\" />\r\n" + "    <author>\r\n"
+                        + "        <name>Codice</name>\r\n" + "    </author>\r\n"
+                        + "    <generator version=\"2.1.0.20130129-1341\">ddf123</generator>\r\n"
+                        + "    <os:totalResults>1</os:totalResults>\r\n"
+                        + "    <os:itemsPerPage>10</os:itemsPerPage>\r\n"
+                        + "    <os:startIndex>1</os:startIndex>\r\n"
+                        + "    <entry xmlns:relevance=\"http://a9.com/-/opensearch/extensions/relevance/1.0/\" xmlns:fs=\"http://a9.com/-/opensearch/extensions/federation/1.0/\"\r\n"
+                        + "        xmlns:georss=\"http://www.georss.org/georss\">\r\n"
+                        + "        <fs:resultSource fs:sourceId=\"ddf123\" />\r\n"
+                        + "        <relevance:score>0.19</relevance:score>\r\n"
+                        + "        <id>urn:catalog:id:ee7a161e01754b9db1872bfe39d1ea09</id>\r\n"
+                        + "        <title type=\"text\">F-15 lands in Libya; Crew Picked Up</title>\r\n"
+                        + "        <updated>2013-01-31T23:22:31.648Z</updated>\r\n"
+                        + "        <published>2013-01-31T23:22:31.648Z</published>\r\n"
+                        + "        <link href=\"http://123.45.67.123:8181/services/catalog/ddf123/ee7a161e01754b9db1872bfe39d1ea09\" rel=\"alternate\" title=\"View Complete Metacard\" />\r\n"
+                        + "        <category term=\"Resource\" />\r\n"
+                        + "        <georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
+                        + "            <gml:Point>\r\n"
+                        + "                <gml:pos>32.8751900768792 13.1874561309814</gml:pos>\r\n"
+                        + "            </gml:Point>\r\n" + "        </georss:where>\r\n"
+                        + "        <content type=\"application/xml\">\r\n"
+                        + "            <ns3:metacard xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns1=\"http://www.opengis.net/gml\"\r\n"
+                        + "                xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" ns1:id=\"4535c53fc8bc4404a1d32a5ce7a29585\">\r\n"
+                        + "                <ns3:type>ddf.metacard</ns3:type>\r\n"
+                        + "                <ns3:source>ddf.distribution</ns3:source>\r\n"
+                        + "                <ns3:geometry name=\"location\">\r\n"
+                        + "                    <ns3:value>\r\n"
+                        + "                        <ns1:Point>\r\n"
+                        + "                            <ns1:pos>32.8751900768792 13.1874561309814</ns1:pos>\r\n"
+                        + "                        </ns1:Point>\r\n"
+                        + "                    </ns3:value>\r\n"
+                        + "                </ns3:geometry>\r\n"
+                        + "                <ns3:dateTime name=\"created\">\r\n"
+                        + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
+                        + "                </ns3:dateTime>\r\n"
+                        + "                <ns3:dateTime name=\"modified\">\r\n"
+                        + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
+                        + "                </ns3:dateTime>\r\n"
+                        + "                <ns3:stringxml name=\"metadata\">\r\n"
+                        + "                    <ns3:value>\r\n"
+                        + "                        <ns6:xml xmlns:ns6=\"urn:sample:namespace\" xmlns=\"urn:sample:namespace\">Example description.</ns6:xml>\r\n"
+                        + "                    </ns3:value>\r\n"
+                        + "                </ns3:stringxml>\r\n"
+                        + "                <ns3:string name=\"metadata-content-type-version\">\r\n"
+                        + "                    <ns3:value>myVersion</ns3:value>\r\n"
+                        + "                </ns3:string>\r\n"
+                        + "                <ns3:string name=\"metadata-content-type\">\r\n"
+                        + "                    <ns3:value>myType</ns3:value>\r\n"
+                        + "                </ns3:string>\r\n"
+                        + "                <ns3:string name=\"title\">\r\n"
+                        + "                    <ns3:value>Example title</ns3:value>\r\n"
+                        + "                </ns3:string>\r\n" + "            </ns3:metacard>\r\n"
+                        + "        </content>\r\n" + "    </entry>\r\n" + "</feed>";
+        return new ByteArrayInputStream(response.getBytes());
+
+    }
+
+    private static InputStream getSampleRssStream() {
+        String response =
+                "<rss version=\"2.0\" xmlns:os=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\"><channel>\r\n"
+                        + "    <title type=\"text\">Query Response</title>\r\n"
+                        + "    <lastBuildDate>2013-01-31T23:22:37.298Z</lastBuildDate>\r\n"
+                        + "    <guid>urn:uuid:a27352c9-f935-45f0-9b8c-5803095164bb</guid>\r\n"
+                        + "    <link href=\"#\" rel=\"self\" />\r\n" + "    <managingEditor>\r\n"
+                        + "        Codice\r\n" + "    </managingEditor>\r\n"
+                        + "    <generator>ddf123</generator>\r\n"
+                        + "    <os:totalResults>1</os:totalResults>\r\n"
+                        + "    <os:itemsPerPage>10</os:itemsPerPage>\r\n"
+                        + "    <os:startIndex>1</os:startIndex>\r\n"
+                        + "    <item xmlns:relevance=\"http://a9.com/-/opensearch/extensions/relevance/1.0/\" xmlns:fs=\"http://a9.com/-/opensearch/extensions/federation/1.0/\"\r\n"
+                        + "        xmlns:georss=\"http://www.georss.org/georss\">\r\n"
+                        + "        <fs:resultSource fs:sourceId=\"ddf123\" />\r\n"
+                        + "        <relevance:score>0.19</relevance:score>\r\n"
+                        + "        <guid>urn:catalog:id:ee7a161e01754b9db1872bfe39d1ea09</guid>\r\n"
+                        + "        <title type=\"text\">F-15 lands in Libya; Crew Picked Up</title>\r\n"
+                        + "        <pubDate>2013-01-31T23:22:31.648Z</pubDate>\r\n"
+                        + "        <link href=\"http://123.45.67.123:8181/services/catalog/ddf123/ee7a161e01754b9db1872bfe39d1ea09\" rel=\"alternate\" title=\"View Complete Metacard\" />\r\n"
+                        + "        <category>Resource</category>\r\n"
+                        + "        <georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
+                        + "            <gml:Point>\r\n"
+                        + "                <gml:pos>32.8751900768792 13.1874561309814</gml:pos>\r\n"
+                        + "            </gml:Point>\r\n" + "        </georss:where>\r\n"
+                        + "        <content:encoded>\r\n"
+                        + "            <![CDATA[<ns3:metacard xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns1=\"http://www.opengis.net/gml\"\r\n"
+                        + "                xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" ns1:id=\"4535c53fc8bc4404a1d32a5ce7a29585\">\r\n"
+                        + "                <ns3:type>ddf.metacard</ns3:type>\r\n"
+                        + "                <ns3:source>ddf.distribution</ns3:source>\r\n"
+                        + "                <ns3:geometry name=\"location\">\r\n"
+                        + "                    <ns3:value>\r\n"
+                        + "                        <ns1:Point>\r\n"
+                        + "                            <ns1:pos>32.8751900768792 13.1874561309814</ns1:pos>\r\n"
+                        + "                        </ns1:Point>\r\n"
+                        + "                    </ns3:value>\r\n"
+                        + "                </ns3:geometry>\r\n"
+                        + "                <ns3:dateTime name=\"created\">\r\n"
+                        + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
+                        + "                </ns3:dateTime>\r\n"
+                        + "                <ns3:dateTime name=\"modified\">\r\n"
+                        + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
+                        + "                </ns3:dateTime>\r\n"
+                        + "                <ns3:stringxml name=\"metadata\">\r\n"
+                        + "                    <ns3:value>\r\n"
+                        + "                        <ns6:xml xmlns:ns6=\"urn:sample:namespace\" xmlns=\"urn:sample:namespace\">Example description.</ns6:xml>\r\n"
+                        + "                    </ns3:value>\r\n"
+                        + "                </ns3:stringxml>\r\n"
+                        + "                <ns3:string name=\"metadata-content-type-version\">\r\n"
+                        + "                    <ns3:value>myVersion</ns3:value>\r\n"
+                        + "                </ns3:string>\r\n"
+                        + "                <ns3:string name=\"metadata-content-type\">\r\n"
+                        + "                    <ns3:value>myType</ns3:value>\r\n"
+                        + "                </ns3:string>\r\n"
+                        + "                <ns3:string name=\"title\">\r\n"
+                        + "                    <ns3:value>Example title</ns3:value>\r\n"
+                        + "                </ns3:string>\r\n" + "            </ns3:metacard>]]>\r\n"
+                        + "        </content:encoded>\r\n" + "    </item>\r\n" + "</channel></rss>";
+        return new ByteArrayInputStream(response.getBytes());
+
+    }
+
+    private static InputStream getBinaryData() {
+
+        byte[] sampleBytes = {80, 81, 82};
+
+        return new ByteArrayInputStream(sampleBytes);
+    }
+
+    private static InputStream getSampleXmlStream() {
+
+        String response = "\r\n"
+                + "            <ns3:metacard xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns1=\"http://www.opengis.net/gml\"\r\n"
+                + "                xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" ns1:id=\"4535c53fc8bc4404a1d32a5ce7a29585\">\r\n"
+                + "                <ns3:type>ddf.metacard</ns3:type>\r\n"
+                + "                <ns3:source>ddf.distribution</ns3:source>\r\n"
+                + "                <ns3:geometry name=\"location\">\r\n"
+                + "                    <ns3:value>\r\n" + "                        <ns1:Point>\r\n"
+                + "                            <ns1:pos>32.8751900768792 13.1874561309814</ns1:pos>\r\n"
+                + "                        </ns1:Point>\r\n"
+                + "                    </ns3:value>\r\n" + "                </ns3:geometry>\r\n"
+                + "                <ns3:dateTime name=\"created\">\r\n"
+                + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
+                + "                </ns3:dateTime>\r\n"
+                + "                <ns3:dateTime name=\"modified\">\r\n"
+                + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
+                + "                </ns3:dateTime>\r\n"
+                + "                <ns3:stringxml name=\"metadata\">\r\n"
+                + "                    <ns3:value>\r\n"
+                + "                        <ns6:xml xmlns:ns6=\"urn:sample:namespace\" xmlns=\"urn:sample:namespace\">Example description.</ns6:xml>\r\n"
+                + "                    </ns3:value>\r\n" + "                </ns3:stringxml>\r\n"
+                + "                <ns3:string name=\"metadata-content-type-version\">\r\n"
+                + "                    <ns3:value>myVersion</ns3:value>\r\n"
+                + "                </ns3:string>\r\n"
+                + "                <ns3:string name=\"metadata-content-type\">\r\n"
+                + "                    <ns3:value>myType</ns3:value>\r\n"
+                + "                </ns3:string>\r\n"
+                + "                <ns3:string name=\"title\">\r\n"
+                + "                    <ns3:value>Example title</ns3:value>\r\n"
+                + "                </ns3:string>\r\n" + "            </ns3:metacard>\r\n";
+
+        return new ByteArrayInputStream(response.getBytes());
+    }
+
     /**
      * Tests the proper query is sent to the remote source for query by id.
      *
@@ -101,7 +270,7 @@ public class TestOpenSearchSource {
      * @throws MalformedURLException
      */
     @Test
-    public void testQuery_ById() throws UnsupportedQueryException, IOException {
+    public void testQueryById() throws UnsupportedQueryException, IOException {
         WebClient client = mock(WebClient.class);
 
         Response clientResponse = mock(Response.class);
@@ -146,7 +315,7 @@ public class TestOpenSearchSource {
     @Test
     @Ignore
     // Ignored because Content Type support has yet to be added.
-    public void testQuery_ByContentType()
+    public void testQueryByContentType()
             throws UnsupportedQueryException, IOException, URISyntaxException {
 
         // given
@@ -167,7 +336,7 @@ public class TestOpenSearchSource {
     }
 
     @Test
-    public void testQuery_BySearchPhrase()
+    public void testQueryBySearchPhrase()
             throws UnsupportedQueryException, URISyntaxException, IOException {
         WebClient client = mock(WebClient.class);
 
@@ -209,7 +378,7 @@ public class TestOpenSearchSource {
     }
 
     @Test
-    public void testQuery_BySearchPhraseRss()
+    public void testQueryBySearchPhraseRss()
             throws UnsupportedQueryException, URISyntaxException, IOException {
         WebClient client = mock(WebClient.class);
 
@@ -251,7 +420,7 @@ public class TestOpenSearchSource {
     }
 
     @Test
-    public void testQuery_BySearchPhrase_ContentTypeSet()
+    public void testQueryBySearchPhraseContentTypeSet()
             throws UnsupportedQueryException, URISyntaxException, IOException {
         WebClient client = mock(WebClient.class);
 
@@ -307,7 +476,7 @@ public class TestOpenSearchSource {
     }
 
     @Test
-    public void testQuery_BySearchPhrase_ContentTypeSetRss()
+    public void testQueryBySearchPhraseContentTypeSetRss()
             throws UnsupportedQueryException, URISyntaxException, IOException {
         WebClient client = mock(WebClient.class);
 
@@ -596,7 +765,7 @@ public class TestOpenSearchSource {
 
     // DDF-161
     @Test
-    public void testQuery_QueryByMetacardIdFollowedByAnyTextQuery() throws Exception {
+    public void testQueryQueryByMetacardIdFollowedByAnyTextQuery() throws Exception {
 
         WebClient client = mock(WebClient.class);
 
@@ -653,7 +822,7 @@ public class TestOpenSearchSource {
 
     // DDF-161
     @Test
-    public void testQuery_QueryByMetacardIdFollowedByAnyTextQueryRss() throws Exception {
+    public void testQueryQueryByMetacardIdFollowedByAnyTextQueryRss() throws Exception {
 
         WebClient client = mock(WebClient.class);
 
@@ -833,174 +1002,11 @@ public class TestOpenSearchSource {
         return "<xml></xml>";
     }
 
-    private static InputStream getSampleAtomStream() {
-        String response =
-                "<feed xmlns=\"http://www.w3.org/2005/Atom\" xmlns:os=\"http://a9.com/-/spec/opensearch/1.1/\">\r\n"
-                        + "    <title type=\"text\">Query Response</title>\r\n"
-                        + "    <updated>2013-01-31T23:22:37.298Z</updated>\r\n"
-                        + "    <id>urn:uuid:a27352c9-f935-45f0-9b8c-5803095164bb</id>\r\n"
-                        + "    <link href=\"#\" rel=\"self\" />\r\n" + "    <author>\r\n"
-                        + "        <name>Codice</name>\r\n" + "    </author>\r\n"
-                        + "    <generator version=\"2.1.0.20130129-1341\">ddf123</generator>\r\n"
-                        + "    <os:totalResults>1</os:totalResults>\r\n"
-                        + "    <os:itemsPerPage>10</os:itemsPerPage>\r\n"
-                        + "    <os:startIndex>1</os:startIndex>\r\n"
-                        + "    <entry xmlns:relevance=\"http://a9.com/-/opensearch/extensions/relevance/1.0/\" xmlns:fs=\"http://a9.com/-/opensearch/extensions/federation/1.0/\"\r\n"
-                        + "        xmlns:georss=\"http://www.georss.org/georss\">\r\n"
-                        + "        <fs:resultSource fs:sourceId=\"ddf123\" />\r\n"
-                        + "        <relevance:score>0.19</relevance:score>\r\n"
-                        + "        <id>urn:catalog:id:ee7a161e01754b9db1872bfe39d1ea09</id>\r\n"
-                        + "        <title type=\"text\">F-15 lands in Libya; Crew Picked Up</title>\r\n"
-                        + "        <updated>2013-01-31T23:22:31.648Z</updated>\r\n"
-                        + "        <published>2013-01-31T23:22:31.648Z</published>\r\n"
-                        + "        <link href=\"http://123.45.67.123:8181/services/catalog/ddf123/ee7a161e01754b9db1872bfe39d1ea09\" rel=\"alternate\" title=\"View Complete Metacard\" />\r\n"
-                        + "        <category term=\"Resource\" />\r\n"
-                        + "        <georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
-                        + "            <gml:Point>\r\n"
-                        + "                <gml:pos>32.8751900768792 13.1874561309814</gml:pos>\r\n"
-                        + "            </gml:Point>\r\n" + "        </georss:where>\r\n"
-                        + "        <content type=\"application/xml\">\r\n"
-                        + "            <ns3:metacard xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns1=\"http://www.opengis.net/gml\"\r\n"
-                        + "                xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" ns1:id=\"4535c53fc8bc4404a1d32a5ce7a29585\">\r\n"
-                        + "                <ns3:type>ddf.metacard</ns3:type>\r\n"
-                        + "                <ns3:source>ddf.distribution</ns3:source>\r\n"
-                        + "                <ns3:geometry name=\"location\">\r\n"
-                        + "                    <ns3:value>\r\n"
-                        + "                        <ns1:Point>\r\n"
-                        + "                            <ns1:pos>32.8751900768792 13.1874561309814</ns1:pos>\r\n"
-                        + "                        </ns1:Point>\r\n"
-                        + "                    </ns3:value>\r\n"
-                        + "                </ns3:geometry>\r\n"
-                        + "                <ns3:dateTime name=\"created\">\r\n"
-                        + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
-                        + "                </ns3:dateTime>\r\n"
-                        + "                <ns3:dateTime name=\"modified\">\r\n"
-                        + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
-                        + "                </ns3:dateTime>\r\n"
-                        + "                <ns3:stringxml name=\"metadata\">\r\n"
-                        + "                    <ns3:value>\r\n"
-                        + "                        <ns6:xml xmlns:ns6=\"urn:sample:namespace\" xmlns=\"urn:sample:namespace\">Example description.</ns6:xml>\r\n"
-                        + "                    </ns3:value>\r\n"
-                        + "                </ns3:stringxml>\r\n"
-                        + "                <ns3:string name=\"metadata-content-type-version\">\r\n"
-                        + "                    <ns3:value>myVersion</ns3:value>\r\n"
-                        + "                </ns3:string>\r\n"
-                        + "                <ns3:string name=\"metadata-content-type\">\r\n"
-                        + "                    <ns3:value>myType</ns3:value>\r\n"
-                        + "                </ns3:string>\r\n"
-                        + "                <ns3:string name=\"title\">\r\n"
-                        + "                    <ns3:value>Example title</ns3:value>\r\n"
-                        + "                </ns3:string>\r\n" + "            </ns3:metacard>\r\n"
-                        + "        </content>\r\n" + "    </entry>\r\n" + "</feed>";
-        return new ByteArrayInputStream(response.getBytes());
-
-    }
-
-    private static InputStream getSampleRssStream() {
-        String response =
-                "<rss version=\"2.0\" xmlns:os=\"http://a9.com/-/spec/opensearch/1.1/\" xmlns:content=\"http://purl.org/rss/1.0/modules/content/\"><channel>\r\n"
-                        + "    <title type=\"text\">Query Response</title>\r\n"
-                        + "    <lastBuildDate>2013-01-31T23:22:37.298Z</lastBuildDate>\r\n"
-                        + "    <guid>urn:uuid:a27352c9-f935-45f0-9b8c-5803095164bb</guid>\r\n"
-                        + "    <link href=\"#\" rel=\"self\" />\r\n" + "    <managingEditor>\r\n"
-                        + "        Codice\r\n" + "    </managingEditor>\r\n"
-                        + "    <generator>ddf123</generator>\r\n"
-                        + "    <os:totalResults>1</os:totalResults>\r\n"
-                        + "    <os:itemsPerPage>10</os:itemsPerPage>\r\n"
-                        + "    <os:startIndex>1</os:startIndex>\r\n"
-                        + "    <item xmlns:relevance=\"http://a9.com/-/opensearch/extensions/relevance/1.0/\" xmlns:fs=\"http://a9.com/-/opensearch/extensions/federation/1.0/\"\r\n"
-                        + "        xmlns:georss=\"http://www.georss.org/georss\">\r\n"
-                        + "        <fs:resultSource fs:sourceId=\"ddf123\" />\r\n"
-                        + "        <relevance:score>0.19</relevance:score>\r\n"
-                        + "        <guid>urn:catalog:id:ee7a161e01754b9db1872bfe39d1ea09</guid>\r\n"
-                        + "        <title type=\"text\">F-15 lands in Libya; Crew Picked Up</title>\r\n"
-                        + "        <pubDate>2013-01-31T23:22:31.648Z</pubDate>\r\n"
-                        + "        <link href=\"http://123.45.67.123:8181/services/catalog/ddf123/ee7a161e01754b9db1872bfe39d1ea09\" rel=\"alternate\" title=\"View Complete Metacard\" />\r\n"
-                        + "        <category>Resource</category>\r\n"
-                        + "        <georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
-                        + "            <gml:Point>\r\n"
-                        + "                <gml:pos>32.8751900768792 13.1874561309814</gml:pos>\r\n"
-                        + "            </gml:Point>\r\n" + "        </georss:where>\r\n"
-                        + "        <content:encoded>\r\n"
-                        + "            <![CDATA[<ns3:metacard xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns1=\"http://www.opengis.net/gml\"\r\n"
-                        + "                xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" ns1:id=\"4535c53fc8bc4404a1d32a5ce7a29585\">\r\n"
-                        + "                <ns3:type>ddf.metacard</ns3:type>\r\n"
-                        + "                <ns3:source>ddf.distribution</ns3:source>\r\n"
-                        + "                <ns3:geometry name=\"location\">\r\n"
-                        + "                    <ns3:value>\r\n"
-                        + "                        <ns1:Point>\r\n"
-                        + "                            <ns1:pos>32.8751900768792 13.1874561309814</ns1:pos>\r\n"
-                        + "                        </ns1:Point>\r\n"
-                        + "                    </ns3:value>\r\n"
-                        + "                </ns3:geometry>\r\n"
-                        + "                <ns3:dateTime name=\"created\">\r\n"
-                        + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
-                        + "                </ns3:dateTime>\r\n"
-                        + "                <ns3:dateTime name=\"modified\">\r\n"
-                        + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
-                        + "                </ns3:dateTime>\r\n"
-                        + "                <ns3:stringxml name=\"metadata\">\r\n"
-                        + "                    <ns3:value>\r\n"
-                        + "                        <ns6:xml xmlns:ns6=\"urn:sample:namespace\" xmlns=\"urn:sample:namespace\">Example description.</ns6:xml>\r\n"
-                        + "                    </ns3:value>\r\n"
-                        + "                </ns3:stringxml>\r\n"
-                        + "                <ns3:string name=\"metadata-content-type-version\">\r\n"
-                        + "                    <ns3:value>myVersion</ns3:value>\r\n"
-                        + "                </ns3:string>\r\n"
-                        + "                <ns3:string name=\"metadata-content-type\">\r\n"
-                        + "                    <ns3:value>myType</ns3:value>\r\n"
-                        + "                </ns3:string>\r\n"
-                        + "                <ns3:string name=\"title\">\r\n"
-                        + "                    <ns3:value>Example title</ns3:value>\r\n"
-                        + "                </ns3:string>\r\n" + "            </ns3:metacard>]]>\r\n"
-                        + "        </content:encoded>\r\n" + "    </item>\r\n" + "</channel></rss>";
-        return new ByteArrayInputStream(response.getBytes());
-
-    }
-
-    private static InputStream getBinaryData() {
-
-        byte[] sampleBytes = {80, 81, 82};
-
-        return new ByteArrayInputStream(sampleBytes);
-    }
-
-    private static InputStream getSampleXmlStream() {
-
-        String response = "\r\n"
-                + "            <ns3:metacard xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns1=\"http://www.opengis.net/gml\"\r\n"
-                + "                xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" ns1:id=\"4535c53fc8bc4404a1d32a5ce7a29585\">\r\n"
-                + "                <ns3:type>ddf.metacard</ns3:type>\r\n"
-                + "                <ns3:source>ddf.distribution</ns3:source>\r\n"
-                + "                <ns3:geometry name=\"location\">\r\n"
-                + "                    <ns3:value>\r\n" + "                        <ns1:Point>\r\n"
-                + "                            <ns1:pos>32.8751900768792 13.1874561309814</ns1:pos>\r\n"
-                + "                        </ns1:Point>\r\n"
-                + "                    </ns3:value>\r\n" + "                </ns3:geometry>\r\n"
-                + "                <ns3:dateTime name=\"created\">\r\n"
-                + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
-                + "                </ns3:dateTime>\r\n"
-                + "                <ns3:dateTime name=\"modified\">\r\n"
-                + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
-                + "                </ns3:dateTime>\r\n"
-                + "                <ns3:stringxml name=\"metadata\">\r\n"
-                + "                    <ns3:value>\r\n"
-                + "                        <ns6:xml xmlns:ns6=\"urn:sample:namespace\" xmlns=\"urn:sample:namespace\">Example description.</ns6:xml>\r\n"
-                + "                    </ns3:value>\r\n" + "                </ns3:stringxml>\r\n"
-                + "                <ns3:string name=\"metadata-content-type-version\">\r\n"
-                + "                    <ns3:value>myVersion</ns3:value>\r\n"
-                + "                </ns3:string>\r\n"
-                + "                <ns3:string name=\"metadata-content-type\">\r\n"
-                + "                    <ns3:value>myType</ns3:value>\r\n"
-                + "                </ns3:string>\r\n"
-                + "                <ns3:string name=\"title\">\r\n"
-                + "                    <ns3:value>Example title</ns3:value>\r\n"
-                + "                </ns3:string>\r\n" + "            </ns3:metacard>\r\n";
-
-        return new ByteArrayInputStream(response.getBytes());
-    }
-
     private class FirstArgumentCapture implements Answer<BinaryContent> {
+
+        private InputStream returnInputStream;
+
+        private String inputArg;
 
         public FirstArgumentCapture() {
             this.returnInputStream = getSampleXmlStream();
@@ -1009,10 +1015,6 @@ public class TestOpenSearchSource {
         public FirstArgumentCapture(InputStream inputStream) {
             this.returnInputStream = inputStream;
         }
-
-        private InputStream returnInputStream;
-
-        private String inputArg;
 
         public String getInputArg() {
             return inputArg;
@@ -1030,6 +1032,8 @@ public class TestOpenSearchSource {
 
     private class OverridenOpenSearchSource extends OpenSearchSource {
 
+        private InputTransformer transformer;
+
         /**
          * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
          * overwritten using the setter methods.
@@ -1040,8 +1044,6 @@ public class TestOpenSearchSource {
         public OverridenOpenSearchSource(FilterAdapter filterAdapter) {
             super(filterAdapter);
         }
-
-        private InputTransformer transformer;
 
         protected void setInputTransformer(InputTransformer inputTransformer) {
             transformer = inputTransformer;

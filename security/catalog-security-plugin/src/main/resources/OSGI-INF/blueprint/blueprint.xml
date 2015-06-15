@@ -14,8 +14,8 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="securityPlugin" class="ddf.catalog.security.plugin.SecurityPlugin" />
+    <bean id="securityPlugin" class="ddf.catalog.security.plugin.SecurityPlugin"/>
 
-    <service ref="securityPlugin" auto-export="interfaces" ranking="0" />
+    <service ref="securityPlugin" auto-export="interfaces" ranking="0"/>
 
 </blueprint>

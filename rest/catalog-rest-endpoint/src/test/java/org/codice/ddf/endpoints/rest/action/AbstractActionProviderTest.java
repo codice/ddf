@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.endpoints.rest.action;
 
 import java.util.HashMap;
@@ -70,8 +69,8 @@ public class AbstractActionProviderTest {
                 SAMPLE_SERVICES_ROOT, SAMPLE_SOURCE_NAME);
     }
 
-    protected Map<String, String> createMap(String protocol, String ip, String port, String contextRoot,
-            String sourceName) {
+    protected Map<String, String> createMap(String protocol, String ip, String port,
+            String contextRoot, String sourceName) {
 
         Map<String, String> settings = new HashMap<String, String>();
 

@@ -1,43 +1,18 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.resource.impl;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.impl.ResourceResponseImpl;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceReader;
-import ddf.mime.MimeTypeMapper;
-import ddf.mime.MimeTypeResolutionException;
-import ddf.security.SecurityConstants;
-import ddf.security.Subject;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
-import org.apache.tika.Tika;
-import org.apache.tika.metadata.HttpHeaders;
-import org.codice.ddf.security.common.jaxrs.RestSecurity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -51,8 +26,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
+import org.apache.tika.Tika;
+import org.apache.tika.metadata.HttpHeaders;
+import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ddf.catalog.data.Metacard;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.impl.ResourceResponseImpl;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceReader;
+import ddf.mime.MimeTypeMapper;
+import ddf.mime.MimeTypeResolutionException;
+import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+
 /**
- * A URLResourceReader retrieves a {@link Resource} from a local or remote file system using a
+ * A URLResourceReader retrieves a {@link ddf.catalog.resource.Resource} from a local or remote file system using a
  * {@link URI}. The {@link URI} is used to specify the file location. A URLResourceReader supports
  * {@link URI}s with HTTP, HTTPS, and file schemes.
  */
@@ -69,7 +69,7 @@ public class URLResourceReader implements ResourceReader {
 
     private static final String SHORTNAME = "URLResourceReader";
 
-    private static final String TITLE = "URL Resource Reader";
+    private static final String TITLE = "URL ddf.catalog.resource.Resource Reader";
 
     private static final String DESCRIPTION = "Retrieves a file from a remote file system.";
 
@@ -108,6 +108,10 @@ public class URLResourceReader implements ResourceReader {
         this.mimeTypeMapper = mimeTypeMapper;
     }
 
+    public static Set<String> getURLSupportedSchemes() {
+        return qualifierSet;
+    }
+
     @Override
     public String getVersion() {
         return VERSION;
@@ -143,10 +147,6 @@ public class URLResourceReader implements ResourceReader {
         return qualifierSet;
     }
 
-    public static Set<String> getURLSupportedSchemes() {
-        return qualifierSet;
-    }
-
     public MimeTypeMapper getMimeTypeMapper() {
         return mimeTypeMapper;
     }
@@ -156,15 +156,15 @@ public class URLResourceReader implements ResourceReader {
     }
 
     /**
-     * Retrieves a {@link Resource} based on a {@link URI} and provided arguments. A connection is
-     * made to the {@link URI} to obtain the {@link Resource}'s {@link InputStream} and build a
+     * Retrieves a {@link ddf.catalog.resource.Resource} based on a {@link URI} and provided arguments. A connection is
+     * made to the {@link URI} to obtain the {@link ddf.catalog.resource.Resource}'s {@link InputStream} and build a
      * {@link ResourceResponse} from that. If the {@link URI}'s scheme is HTTP or HTTPS, the
-     * {@link Resource}'s name gets set to the {@link URI} passed in, otherwise, if it is a file
+     * {@link ddf.catalog.resource.Resource}'s name gets set to the {@link URI} passed in, otherwise, if it is a file
      * scheme, the name is set to the actual file name.
      *
-     * @param resourceURI A {@link URI} that defines what {@link Resource} to retrieve and how to do it.
+     * @param resourceURI A {@link URI} that defines what {@link ddf.catalog.resource.Resource} to retrieve and how to do it.
      * @param properties  Any additional arguments that should be passed to the {@link ResourceReader}.
-     * @return A {@link ResourceResponse} containing the retrieved {@link Resource}.
+     * @return A {@link ResourceResponse} containing the retrieved {@link ddf.catalog.resource.Resource}.
      */
     @Override
     public ResourceResponse retrieveResource(URI resourceURI, Map<String, Serializable> properties)
@@ -181,8 +181,8 @@ public class URLResourceReader implements ResourceReader {
             LOGGER.debug("bytesToSkip: {}", bytesToSkip);
         }
 
-        if (resourceURI.getScheme().equals(URL_HTTP_SCHEME)
-                || resourceURI.getScheme().equals(URL_HTTPS_SCHEME)) {
+        if (resourceURI.getScheme().equals(URL_HTTP_SCHEME) || resourceURI.getScheme()
+                .equals(URL_HTTPS_SCHEME)) {
             LOGGER.debug("Resource URI is HTTP or HTTPS");
             String fileAddress = resourceURI.toURL().getFile();
             LOGGER.debug("resource name: {}", fileAddress);
@@ -194,10 +194,11 @@ public class URLResourceReader implements ResourceReader {
             LOGGER.debug("resource name: {}", fileName);
             return retrieveFileProduct(resourceURI, fileName, bytesToSkip);
         } else {
-            ResourceNotFoundException ce = new ResourceNotFoundException("Resource qualifier ( "
-                    + resourceURI.getScheme() + " ) not valid. " + URLResourceReader.TITLE
-                    + " requires a qualifier of " + URL_HTTP_SCHEME + " or " + URL_HTTPS_SCHEME
-                    + " or " + URL_FILE_SCHEME);
+            ResourceNotFoundException ce = new ResourceNotFoundException(
+                    "Resource qualifier ( " + resourceURI.getScheme() + " ) not valid. "
+                            + URLResourceReader.TITLE + " requires a qualifier of "
+                            + URL_HTTP_SCHEME + " or " + URL_HTTPS_SCHEME + " or "
+                            + URL_FILE_SCHEME);
             throw ce;
         }
     }
@@ -209,10 +210,9 @@ public class URLResourceReader implements ResourceReader {
             LOGGER.debug("Opening connection to: {}", resourceURI.toString());
             connection = resourceURI.toURL().openConnection();
 
-            productName = StringUtils
-                    .defaultIfBlank(handleContentDispositionHeader(
+            productName = StringUtils.defaultIfBlank(handleContentDispositionHeader(
                             connection.getHeaderField(HttpHeaders.CONTENT_DISPOSITION)),
-                            productName);
+                    productName);
 
             String mimeType = getMimeType(resourceURI, productName);
 
@@ -224,8 +224,8 @@ public class URLResourceReader implements ResourceReader {
                     FilenameUtils.getName(productName)));
         } catch (MimeTypeResolutionException | IOException e) {
             LOGGER.error("Error retrieving resource", e);
-            throw new ResourceNotFoundException("Unable to retrieve resource at: "
-                    + resourceURI.toString(), e);
+            throw new ResourceNotFoundException(
+                    "Unable to retrieve resource at: " + resourceURI.toString(), e);
         }
     }
 
@@ -288,8 +288,8 @@ public class URLResourceReader implements ResourceReader {
                     FilenameUtils.getName(productName)));
         } catch (MimeTypeResolutionException | IOException | WebApplicationException e) {
             LOGGER.error("Error retrieving resource", e);
-            throw new ResourceNotFoundException("Unable to retrieve resource at: "
-                    + resourceURI.toString(), e);
+            throw new ResourceNotFoundException(
+                    "Unable to retrieve resource at: " + resourceURI.toString(), e);
         }
     }
 
@@ -364,8 +364,7 @@ public class URLResourceReader implements ResourceReader {
             LOGGER.debug("Skipping {} bytes", bytesToSkip);
             long bytesSkipped = is.skip(Long.valueOf(bytesToSkip));
             if (Long.valueOf(bytesToSkip) != bytesSkipped) {
-                LOGGER.debug(
-                        "Did not skip specified bytes while retrieving resource."
+                LOGGER.debug("Did not skip specified bytes while retrieving resource."
                                 + " Bytes to skip: {} -- Skipped Bytes: {}", bytesToSkip,
                         bytesSkipped);
             }

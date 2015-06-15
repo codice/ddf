@@ -1,18 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.security.plugin;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
@@ -26,10 +30,6 @@ import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SecurityConstants;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Security-based plugin that looks for a subject using SecurityUtils and adds it to the current
@@ -76,13 +76,14 @@ public class SecurityPlugin implements PreQueryPlugin, PreIngestPlugin, PreResou
 
     private void setSubject(Operation operation) {
         try {
-            Object requestSubject = operation.getProperties().get(SecurityConstants.SECURITY_SUBJECT);
+            Object requestSubject = operation.getProperties()
+                    .get(SecurityConstants.SECURITY_SUBJECT);
             Subject subject = null;
             if (!(requestSubject instanceof ddf.security.Subject)) {
                 subject = SecurityUtils.getSubject();
                 if (subject instanceof ddf.security.Subject) {
-                    operation.getProperties()
-                            .put(SecurityConstants.SECURITY_SUBJECT, (ddf.security.Subject) subject);
+                    operation.getProperties().put(SecurityConstants.SECURITY_SUBJECT,
+                            (ddf.security.Subject) subject);
                     LOGGER.debug(
                             "Copied security subject from SecurityUtils  to operation property for legacy and multi-thread support.");
                 } else {

@@ -12,15 +12,15 @@
  **/ -->
  
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
+		>
 
 	<bean id="xmlMetacardTransformer"
-		class="ddf.catalog.services.transformer.xml.XmlMetacardTransformer" />
+          class="ddf.catalog.services.transformer.xml.XmlMetacardTransformer"/>
 
 	<service ref="xmlMetacardTransformer" interface="ddf.catalog.transform.MetacardTransformer">
 		<service-properties>
-			<entry key="shortname" value="xml" />
-			<entry key="title" value="View as XML..." />
+			<entry key="shortname" value="xml"/>
+			<entry key="title" value="View as XML..."/>
 		</service-properties>
 	</service>
 

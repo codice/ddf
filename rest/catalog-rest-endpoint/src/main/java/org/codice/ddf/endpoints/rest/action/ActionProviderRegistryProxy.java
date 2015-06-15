@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.endpoints.rest.action;
 
 import java.util.Dictionary;
@@ -32,26 +31,26 @@ import ddf.catalog.Constants;
 /**
  * Registers {@link ActionProvider} objects into the Service Registry based upon the services
  * provided by other objects.
- * 
+ *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public class ActionProviderRegistryProxy {
+
+    static final String ACTION_ID_PREFIX = "catalog.data.metacard.";
 
     private static final String WATCHER_INTERFACE_NAME = ConfigurationWatcher.class.getName();
 
     private static final String PROVIDER_INTERFACE_NAME = ActionProvider.class.getName();
 
-    static final String ACTION_ID_PREFIX = "catalog.data.metacard.";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActionProviderRegistryProxy.class);
 
     private Map<ServiceReference, ServiceRegistration> actionProviderRegistry = new HashMap<ServiceReference, ServiceRegistration>();
 
     private Map<ServiceReference, ServiceRegistration> configWatcherRegistry = new HashMap<ServiceReference, ServiceRegistration>();
 
     private BundleContext bundleContext;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ActionProviderRegistryProxy.class);
 
     public ActionProviderRegistryProxy(BundleContext bundleContext) {
 
@@ -69,9 +68,8 @@ public class ActionProviderRegistryProxy {
 
             transformerId = reference.getProperty(Constants.SERVICE_ID).toString();
 
-        }
         // backwards compatibility
-        else if (reference.getProperty(Constants.SERVICE_SHORTNAME) != null) {
+        } else if (reference.getProperty(Constants.SERVICE_SHORTNAME) != null) {
 
             transformerId = reference.getProperty(Constants.SERVICE_SHORTNAME).toString();
         }
@@ -89,14 +87,15 @@ public class ActionProviderRegistryProxy {
 
         actionProviderProperties.put(Constants.SERVICE_ID, actionProviderId);
 
-        ServiceRegistration actionServiceRegistration = bundleContext.registerService(
-                PROVIDER_INTERFACE_NAME, provider, actionProviderProperties);
+        ServiceRegistration actionServiceRegistration = bundleContext
+                .registerService(PROVIDER_INTERFACE_NAME, provider, actionProviderProperties);
 
-        ServiceRegistration configWatchServiceRegistration = bundleContext.registerService(
-                WATCHER_INTERFACE_NAME, provider, actionProviderProperties);
+        ServiceRegistration configWatchServiceRegistration = bundleContext
+                .registerService(WATCHER_INTERFACE_NAME, provider, actionProviderProperties);
 
         LOGGER.info("Registered new {} [{}]", PROVIDER_INTERFACE_NAME, actionServiceRegistration);
-        LOGGER.info("Registered new {} [{}]", WATCHER_INTERFACE_NAME, configWatchServiceRegistration);
+        LOGGER.info("Registered new {} [{}]", WATCHER_INTERFACE_NAME,
+                configWatchServiceRegistration);
 
         actionProviderRegistry.put(reference, actionServiceRegistration);
         configWatcherRegistry.put(reference, configWatchServiceRegistration);
@@ -113,7 +112,8 @@ public class ActionProviderRegistryProxy {
 
         if (actionProviderRegistration != null) {
             actionProviderRegistration.unregister();
-            LOGGER.info("Unregistered {} [{}]", PROVIDER_INTERFACE_NAME, actionProviderRegistration);
+            LOGGER.info("Unregistered {} [{}]", PROVIDER_INTERFACE_NAME,
+                    actionProviderRegistration);
         }
 
         if (configWatcherRegistration != null) {

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.federation.layered.replication;
 
 import java.io.IOException;
@@ -40,14 +39,14 @@ import ddf.catalog.transform.MetacardTransformer;
 
 public class RestReplicatorPlugin implements PostIngestPlugin {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestReplicatorPlugin.class);
+
     /**
      * A configurable property of parent's location.
      */
     private String parentAddress = null;
 
     private MetacardTransformer transformer = null;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestReplicatorPlugin.class);
 
     private WebClient client;
 
@@ -129,8 +128,8 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
             updateClient.type(MediaType.APPLICATION_JSON);
 
-            if (input == null || input.getDeletedMetacards() == null
-                    || input.getDeletedMetacards().isEmpty()) {
+            if (input == null || input.getDeletedMetacards() == null || input.getDeletedMetacards()
+                    .isEmpty()) {
                 return input;
             }
 
@@ -173,7 +172,8 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
             client = WebClient.create(this.parentAddress, true);
 
-            LOGGER.debug("Changed the parent address property from [{}] to [{}]", previous, this.parentAddress);
+            LOGGER.debug("Changed the parent address property from [{}] to [{}]", previous,
+                    this.parentAddress);
         }
 
     }

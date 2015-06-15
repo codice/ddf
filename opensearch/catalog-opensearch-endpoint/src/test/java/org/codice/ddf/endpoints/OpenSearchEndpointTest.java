@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 
 package org.codice.ddf.endpoints;
 
@@ -59,14 +58,14 @@ public class OpenSearchEndpointTest {
      * Test method for
      * {@link org.codice.ddf.endpoints.OpenSearchEndpoint#processQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, javax.ws.rs.core.UriInfo, java.lang.String, java.lang.String)}
      * .
-     * 
+     *
      * This test will verify that the string "local" in the sources passed to
      * OpenSearchEndpoint.processQuery is replaced with the local site name (in this case the mocked
      * name "TestSiteName"). The QueryRequest object is checked when the framework.query is called
      * to retrieve the OpenSearchQuery, which contains the Set of sites. An assertion within the
      * Answer object for the call framework.query checks that the sites Set is contains the
      * TEST_SITE_NAME.
-     * 
+     *
      * @throws URISyntaxException
      * @throws FederationException
      * @throws SourceUnavailableException
@@ -76,12 +75,12 @@ public class OpenSearchEndpointTest {
      */
     @SuppressWarnings("unchecked")
     @Test
-    public void testProcessQueryForProperHandlingOfSiteNameLOCAL() throws URISyntaxException,
-        UnsupportedQueryException, SourceUnavailableException, FederationException,
-        UnsupportedEncodingException, CatalogTransformerException {
+    public void testProcessQueryForProperHandlingOfSiteNameLOCAL()
+            throws URISyntaxException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException, UnsupportedEncodingException, CatalogTransformerException {
 
         // ***Test setup***
-        final String TEST_SITE_NAME = "TestSiteName";
+        final String testSiteName = "TestSiteName";
 
         CatalogFramework mockFramework = mock(CatalogFramework.class);
         FilterBuilder mockFilterBuilder = mock(FilterBuilder.class);
@@ -123,7 +122,7 @@ public class OpenSearchEndpointTest {
                 // ***Test verification***
                 // This assert is the whole point of this unit test
                 Assert.assertTrue(((OpenSearchQuery) queryRequest.getQuery()).getSiteIds()
-                        .contains(TEST_SITE_NAME));
+                        .contains(testSiteName));
 
                 return new QueryResponseImpl(queryRequest);
             }
@@ -135,22 +134,22 @@ public class OpenSearchEndpointTest {
         InputStream is = new ByteArrayInputStream("Test String From InputStream".getBytes("UTF-8"));
         when(mockBinaryContent.getInputStream()).thenReturn(is);
         when(mockBinaryContent.getMimeTypeValue()).thenReturn("text/plain");
-        when(mockFramework.transform(any(QueryResponse.class), anyString(), anyMap())).thenReturn(
-                mockBinaryContent);
+        when(mockFramework.transform(any(QueryResponse.class), anyString(), anyMap()))
+                .thenReturn(mockBinaryContent);
 
         OpenSearchEndpoint osEndPoint = new OpenSearchEndpoint(mockFramework, mockFilterBuilder);
 
         // Call ddfConfigurationUpdated to set the id values to the site name we want
         // local to be replaced with
         Map<String, String> ddfProperties = new HashMap<String, String>();
-        ddfProperties.put("id", TEST_SITE_NAME);
+        ddfProperties.put("id", testSiteName);
         osEndPoint.configurationUpdateCallback(ddfProperties);
 
         // ***Test Execution***
         osEndPoint
-                .processQuery(searchTerms, null, sources, null, null, count, null, null, null,
-                        null, null, null, null, null, null, null, null, null, mockUriInfo, null,
-                        null, null);
+                .processQuery(searchTerms, null, sources, null, null, count, null, null, null, null,
+                        null, null, null, null, null, null, null, null, mockUriInfo, null, null,
+                        null);
 
     }
 }

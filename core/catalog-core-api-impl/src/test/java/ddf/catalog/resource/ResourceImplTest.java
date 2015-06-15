@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.resource;
 
 import static org.junit.Assert.assertEquals;
@@ -22,39 +21,22 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.activation.FileDataSource;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.activation.MimetypesFileTypeMap;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.internal.runners.statements.Fail;
 import org.junit.runner.notification.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.data.MetacardCreationException;
-import ddf.catalog.event.DeliveryException;
-import ddf.catalog.event.EventException;
-import ddf.catalog.event.InvalidSubscriptionException;
-import ddf.catalog.event.SubscriptionExistsException;
-import ddf.catalog.event.SubscriptionNotFoundException;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.plugin.PluginExecutionException;
-import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.impl.ResourceImpl;
-import ddf.catalog.source.IngestException;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.transform.CatalogTransformerException;
 
 public class ResourceImplTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceImplTest.class);
 
-    private static final String testName = ResourceImplTest.class.getSimpleName();
+    private static final String TEST_NAME = ResourceImplTest.class.getSimpleName();
 
     private File content;
 
@@ -77,14 +59,14 @@ public class ResourceImplTest {
         InputStream is;
         try {
             is = new FileInputStream(content);
-            ResourceImpl ri = new ResourceImpl(is, testName);
+            ResourceImpl ri = new ResourceImpl(is, TEST_NAME);
             ri.setSize(content.length());
             assertEquals(is, ri.getInputStream());
             assertEquals(null, ri.getMimeType());
             assertEquals(content.length(), ri.getSize());
             assertNotNull(ri.toString());
 
-            ri = new ResourceImpl(is, mimeType, testName);
+            ri = new ResourceImpl(is, mimeType, TEST_NAME);
             ri.setSize(content.length());
             assertEquals(is, ri.getInputStream());
             assertEquals(mimeType.toString(), ri.getMimeType().toString());
@@ -92,7 +74,7 @@ public class ResourceImplTest {
             assertEquals(mimeType.toString(), ri.getMimeTypeValue());
             assertNotNull(ri.toString());
 
-            ri = new ResourceImpl(is, mimeType.toString(), testName);
+            ri = new ResourceImpl(is, mimeType.toString(), TEST_NAME);
             ri.setSize(content.length());
             assertEquals(is, ri.getInputStream());
             assertEquals(mimeType.toString(), ri.getMimeType().toString());
@@ -108,7 +90,7 @@ public class ResourceImplTest {
     @Test
     public void testResourceImplNullInputStream() {
         InputStream is = null;
-        ResourceImpl ri = new ResourceImpl(is, mimeType, testName);
+        ResourceImpl ri = new ResourceImpl(is, mimeType, TEST_NAME);
         ri.setSize(content.length());
         assertEquals(is, ri.getInputStream());
         assertEquals(mimeType.toString(), ri.getMimeType().toString());
@@ -124,10 +106,10 @@ public class ResourceImplTest {
             LOGGER.error("IO Failure", e);
             new Failure(null, e);
         }
-        ResourceImpl ri = new ResourceImpl(is, (MimeType) null, testName);
+        ResourceImpl ri = new ResourceImpl(is, (MimeType) null, TEST_NAME);
         assertEquals(null, ri.getMimeType());
 
-        ri = new ResourceImpl(is, (String) null, testName);
+        ri = new ResourceImpl(is, (String) null, TEST_NAME);
         assertEquals(null, ri.getMimeType());
     }
 
@@ -136,7 +118,7 @@ public class ResourceImplTest {
         InputStream is;
         try {
             is = new FileInputStream(content);
-            ResourceImpl ri = new ResourceImpl(is, mimeType, testName);
+            ResourceImpl ri = new ResourceImpl(is, mimeType, TEST_NAME);
             assertEquals(-1, ri.getSize());
         } catch (IOException e) {
             LOGGER.error("IO Failure", e);
@@ -149,8 +131,8 @@ public class ResourceImplTest {
         InputStream is;
         try {
             is = new FileInputStream(content);
-            ResourceImpl ri = new ResourceImpl(is, mimeType, testName);
-            ri.setSize(-20l);
+            ResourceImpl ri = new ResourceImpl(is, mimeType, TEST_NAME);
+            ri.setSize(-20L);
             assertEquals(-1, ri.getSize());
         } catch (IOException e) {
             LOGGER.error("IO Failure", e);

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.cache.impl;
 
 import java.io.File;
@@ -37,20 +36,25 @@ import ddf.catalog.resource.data.ReliableResourceComparator;
 
 public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, HazelcastInstanceAware {
 
+    private static final String CACHE_DIR_SIZE = "cache.dir.size";
+
+    private static final String PRODUCT_CACHE_NAME = "Product_Cache";
+
+    private static final int DEFAULT_PAGE_SIZE = 10;
+
     private static Logger logger = LoggerFactory.getLogger(ProductCacheDirListener.class);
 
-    private static final String CACHE_DIR_SIZE = "cache.dir.size";
-    private static final String PRODUCT_CACHE_NAME = "Product_Cache";
-    private static final int DEFAULT_PAGE_SIZE = 10;
     private IMap<String, ReliableResource> map;
+
     private IAtomicLong cacheDirSize;
+
     private long maxDirSizeBytes;
 
     private Set<String> manuallyEvictedEntries = Collections.synchronizedSet(new HashSet<String>());
 
     /**
      * Constructor for new Hazelcast listener
-     * 
+     *
      * @param maxDirSizeBytes: If 0, no size limit will be enforced.
      */
     public ProductCacheDirListener(final long maxDirSizeBytes) {
@@ -73,7 +77,8 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
 
             long currentCacheDirSize = cacheDirSize.addAndGet(resource.getSize());
             if (maxDirSizeBytes > 0 && maxDirSizeBytes < currentCacheDirSize) {
-                PagingPredicate pp = new PagingPredicate(new ReliableResourceComparator(), DEFAULT_PAGE_SIZE);
+                PagingPredicate pp = new PagingPredicate(new ReliableResourceComparator(),
+                        DEFAULT_PAGE_SIZE);
                 Collection<ReliableResource> lruResourceEntries = map.values(pp);
 
                 Iterator<ReliableResource> itr = lruResourceEntries.iterator();
@@ -138,7 +143,7 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
         }
         cacheDirSize.addAndGet(-rr.getSize());
     }
-    
+
     public long getMaxDirSizeBytes() {
         return maxDirSizeBytes;
     }

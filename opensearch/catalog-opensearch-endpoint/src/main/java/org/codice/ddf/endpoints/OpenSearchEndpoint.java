@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.endpoints;
 
 import java.io.Serializable;
@@ -59,10 +58,6 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
 
     private static final String UPDATE_QUERY_INTERVAL = "interval";
 
-    private final CatalogFramework framework;
-
-    private final FilterBuilder filterBuilder;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchEndpoint.class);
 
     private static final String DEFAULT_SORT_FIELD = "relevance";
@@ -81,6 +76,10 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
 
     private static final String LOCAL = "local";
 
+    private final CatalogFramework framework;
+
+    private final FilterBuilder filterBuilder;
+
     // DDF Site Name
     private String localSiteName = null;
 
@@ -90,7 +89,7 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
     }
 
     /**
-     * 
+     *
      * @param searchTerms
      *            Space delimited list of search terms.
      * @param maxResults
@@ -178,8 +177,8 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
 
             if (!(StringUtils.isEmpty(sources))) {
                 LOGGER.debug("Received site names from client.");
-                Set<String> siteSet = new HashSet<String>(Arrays.asList(StringUtils
-                        .stripAll(sources.split(","))));
+                Set<String> siteSet = new HashSet<String>(
+                        Arrays.asList(StringUtils.stripAll(sources.split(","))));
 
                 // This code block is for backward compatibility to support src=local.
                 // Since local is a magic work, not in any specification, weneed to
@@ -190,8 +189,9 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
                 }
 
                 if (siteSet.contains(framework.getId()) && siteSet.size() == 1) {
-                    LOGGER.debug("Only local site specified, saving overhead and just performing a local query on "
-                            + framework.getId() + ".");
+                    LOGGER.debug(
+                            "Only local site specified, saving overhead and just performing a local query on "
+                                    + framework.getId() + ".");
                 } else {
                     LOGGER.debug("Querying site set: " + siteSet);
                     query.setSiteIds(siteSet);
@@ -214,9 +214,8 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
 
             // temporal
             // single temporal criterion per query
-            if ((dateStart != null && !dateStart.trim().isEmpty())
-                    || (dateEnd != null && !dateEnd.trim().isEmpty())
-                    || (dateOffset != null && !dateOffset.trim().isEmpty())) {
+            if ((dateStart != null && !dateStart.trim().isEmpty()) || (dateEnd != null && !dateEnd
+                    .trim().isEmpty()) || (dateOffset != null && !dateOffset.trim().isEmpty())) {
                 query.addTemporalFilter(dateStart, dateEnd, dateOffset);
             }
 
@@ -255,7 +254,7 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
 
     /**
      * Creates SpatialCriterion based on the input parameters, any null values will be ignored
-     * 
+     *
      * @param geometry
      *            - the geo to search over
      * @param polygon
@@ -294,7 +293,7 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
 
     /**
      * Executes the OpenSearchQuery and formulates the response
-     * 
+     *
      * @param format
      *            - of the results in the response
      *
@@ -365,8 +364,8 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
                         new ArrayList<Result>(), 0);
 
                 // pass in the format for the transform
-                BinaryContent content = framework.transform(queryResponseQueue, queryFormat,
-                        arguments);
+                BinaryContent content = framework
+                        .transform(queryResponseQueue, queryFormat, arguments);
                 if (null != content) {
                     response = Response.ok(content.getInputStream(), content.getMimeTypeValue())
                             .build();
@@ -402,7 +401,7 @@ public class OpenSearchEndpoint implements ConfigurationWatcher, OpenSearch {
 
     /**
      * Creates a new query from the incoming parameters
-     * 
+     *
      * @param startIndexStr
      *            - Start index for the query
      * @param countStr

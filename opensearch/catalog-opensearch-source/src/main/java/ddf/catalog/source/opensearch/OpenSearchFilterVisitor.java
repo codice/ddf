@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.source.opensearch;
 
 import java.util.ArrayList;
@@ -51,14 +50,10 @@ import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 
 public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
-    private static XLogger logger = new XLogger(
-            LoggerFactory.getLogger(OpenSearchFilterVisitor.class));
-
     private static final String ONLY_AND_MSG = "Opensearch only supports AND operations for non-contextual criteria.";
 
-    private enum NestedTypes {
-        AND, OR, NOT
-    }
+    private static XLogger logger = new XLogger(
+            LoggerFactory.getLogger(OpenSearchFilterVisitor.class));
 
     private List<Filter> filters;
 
@@ -351,8 +346,9 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
         String searchPhrase = likeFilter.getLiteral();
         logger.debug("searchPhrase = [" + searchPhrase + "]");
         if (contextualSearch != null) {
-            contextualSearch.setSearchPhrase(contextualSearch.getSearchPhrase() + " "
-                    + curNest.toString() + " " + searchPhrase);
+            contextualSearch.setSearchPhrase(
+                    contextualSearch.getSearchPhrase() + " " + curNest.toString() + " "
+                            + searchPhrase);
         } else {
             contextualSearch = new ContextualSearch(selectors, searchPhrase,
                     likeFilter.isMatchingCase());
@@ -399,6 +395,10 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
     public SpatialFilter getSpatialSearch() {
         return spatialSearch;
+    }
+
+    private enum NestedTypes {
+        AND, OR, NOT
     }
 
 }

@@ -1,31 +1,25 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.cache.impl;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.MapStoreConfig;
-import com.hazelcast.config.XmlConfigBuilder;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import ddf.catalog.cache.ResourceCacheInterface;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.data.ReliableResource;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,12 +28,19 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MapStoreConfig;
+import com.hazelcast.config.XmlConfigBuilder;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+
+import ddf.catalog.cache.ResourceCacheInterface;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.data.ReliableResource;
 
 public class ResourceCache implements ResourceCacheInterface {
 
@@ -49,15 +50,15 @@ public class ResourceCache implements ResourceCacheInterface {
 
     private static final String PRODUCT_CACHE_NAME = "Product_Cache";
 
-    private static final long BYTES_IN_MEGABYTES = FileUtils.ONE_MB;
-
-    private static final long DEFAULT_MAX_CACHE_DIR_SIZE_BYTES = 10737418240L;  //10 GB
-
     /**
      * Default location for product-cache directory, <INSTALL_DIR>/data/product-cache
      */
     public static final String DEFAULT_PRODUCT_CACHE_DIRECTORY =
             "data" + File.separator + PRODUCT_CACHE_NAME;
+
+    private static final long BYTES_IN_MEGABYTES = FileUtils.ONE_MB;
+
+    private static final long DEFAULT_MAX_CACHE_DIR_SIZE_BYTES = 10737418240L;  //10 GB
 
     private List<String> pendingCache = new ArrayList<String>();
 
@@ -70,7 +71,8 @@ public class ResourceCache implements ResourceCacheInterface {
 
     private IMap<Object, Object> cache;
 
-    private ProductCacheDirListener<Object, Object> cacheListener = new ProductCacheDirListener<Object, Object>(DEFAULT_MAX_CACHE_DIR_SIZE_BYTES);
+    private ProductCacheDirListener<Object, Object> cacheListener = new ProductCacheDirListener<Object, Object>(
+            DEFAULT_MAX_CACHE_DIR_SIZE_BYTES);
 
     private BundleContext context;
 
@@ -137,7 +139,8 @@ public class ResourceCache implements ResourceCacheInterface {
             } else {
                 MapStoreConfig mapStoreConfig = mapConfig.getMapStoreConfig();
                 if (null != mapStoreConfig) {
-                    LOGGER.debug("mapStoreConfig factoryClassName = {}", mapStoreConfig.getFactoryClassName());
+                    LOGGER.debug("mapStoreConfig factoryClassName = {}",
+                            mapStoreConfig.getFactoryClassName());
                 }
             }
         }
@@ -149,14 +152,18 @@ public class ResourceCache implements ResourceCacheInterface {
         instance.shutdown();
     }
 
+    public long getCacheDirMaxSizeMegabytes() {
+        LOGGER.debug("Getting max size for cache directory.");
+        return cacheListener.getMaxDirSizeBytes() / BYTES_IN_MEGABYTES;
+    }
+
     public void setCacheDirMaxSizeMegabytes(long cacheDirMaxSizeMegabytes) {
         LOGGER.debug("Setting max size for cache directory: {}", cacheDirMaxSizeMegabytes);
         cacheListener.setMaxDirSizeBytes(cacheDirMaxSizeMegabytes * BYTES_IN_MEGABYTES);
     }
 
-    public long getCacheDirMaxSizeMegabytes() {
-        LOGGER.debug("Getting max size for cache directory.");
-        return cacheListener.getMaxDirSizeBytes() / BYTES_IN_MEGABYTES;
+    public String getProductCacheDirectory() {
+        return productCacheDirectory;
     }
 
     public void setProductCacheDirectory(final String productCacheDirectory) {
@@ -167,8 +174,8 @@ public class ResourceCache implements ResourceCacheInterface {
             File directory = new File(path);
 
             // Create the directory if it doesn't exist
-            if ((!directory.exists() && directory.mkdirs())
-                    || (directory.isDirectory() && directory.canRead() && directory.canWrite())) {
+            if ((!directory.exists() && directory.mkdirs()) || (directory.isDirectory() && directory
+                    .canRead() && directory.canWrite())) {
                 LOGGER.debug("Setting product cache directory to: {}", path);
                 newProductCacheDirectoryDir = path;
             }
@@ -181,8 +188,8 @@ public class ResourceCache implements ResourceCacheInterface {
                 final File karafHomeDir = new File(System.getProperty(KARAF_HOME));
 
                 if (karafHomeDir.isDirectory()) {
-                    final File fspDir = new File(karafHomeDir + File.separator
-                            + DEFAULT_PRODUCT_CACHE_DIRECTORY);
+                    final File fspDir = new File(
+                            karafHomeDir + File.separator + DEFAULT_PRODUCT_CACHE_DIRECTORY);
 
                     // if directory does not exist, try to create it
                     if (fspDir.isDirectory() || fspDir.mkdirs()) {
@@ -211,8 +218,8 @@ public class ResourceCache implements ResourceCacheInterface {
         LOGGER.debug("Set product cache directory to: {}", this.productCacheDirectory);
     }
 
-    public String getProductCacheDirectory() {
-        return productCacheDirectory;
+    public BundleContext getContext() {
+        return context;
     }
 
     public void setContext(BundleContext context) {
@@ -220,17 +227,13 @@ public class ResourceCache implements ResourceCacheInterface {
         this.context = context;
     }
 
-    public BundleContext getContext() {
-        return context;
+    public String getXmlConfigFilename() {
+        return xmlConfigFilename;
     }
 
     public void setXmlConfigFilename(String xmlConfigFilename) {
         LOGGER.debug("Setting xmlConfigFilename to: {}", xmlConfigFilename);
         this.xmlConfigFilename = xmlConfigFilename;
-    }
-
-    public String getXmlConfigFilename() {
-        return xmlConfigFilename;
     }
 
     /**
@@ -305,16 +308,22 @@ public class ResourceCache implements ResourceCacheInterface {
         // cache directory has had files deleted from it.
         if (cachedResource != null) {
             if (!validateCacheEntry(cachedResource, latestMetacard)) {
-                throw new IllegalArgumentException("Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: " + key);
+                throw new IllegalArgumentException(
+                        "Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: "
+                                + key);
             }
 
             if (cachedResource.hasProduct()) {
                 LOGGER.debug("EXITING: get() for key {}", key);
                 return cachedResource;
             } else {
-                LOGGER.debug("Entry found in the cache, but no product found in cache directory for key = {}", key);
+                LOGGER.debug(
+                        "Entry found in the cache, but no product found in cache directory for key = {}",
+                        key);
                 cache.remove(key);
-                throw new IllegalArgumentException("Entry found in the cache, but no product found in cache directory for key = " + key);
+                throw new IllegalArgumentException(
+                        "Entry found in the cache, but no product found in cache directory for key = "
+                                + key);
             }
         } else {
             LOGGER.debug("No product found in cache for key = {}", key);
@@ -338,7 +347,9 @@ public class ResourceCache implements ResourceCacheInterface {
 
         boolean result;
         try {
-            result = cachedResource != null ? (validateCacheEntry(cachedResource, latestMetacard)) : false;
+            result = cachedResource != null ?
+                    (validateCacheEntry(cachedResource, latestMetacard)) :
+                    false;
         } catch (IllegalArgumentException e) {
             LOGGER.debug(e.getMessage());
             return false;
@@ -376,7 +387,8 @@ public class ResourceCache implements ResourceCacheInterface {
         } else {
             File cachedFile = new File(cachedResource.getFilePath());
             if (!FileUtils.deleteQuietly(cachedFile)) {
-                LOGGER.debug("File was not removed from cache directory.  File Path: {}", cachedResource.getFilePath());
+                LOGGER.debug("File was not removed from cache directory.  File Path: {}",
+                        cachedResource.getFilePath());
             }
 
             cache.remove(cachedResource.getKey());

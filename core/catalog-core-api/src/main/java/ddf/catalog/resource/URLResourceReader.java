@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.resource;
 
 import java.io.BufferedInputStream;
@@ -41,7 +40,7 @@ import ddf.mime.MimeTypeMapper;
  * system using a {@link URI}. The {@link URI} is used to specify the file
  * location. A URLResourceReader supports {@link URI}s with HTTP, HTTPS, and
  * file schemes.
- * 
+ *
  * @deprecated - URLResourceReader has been moved to
  *             catalog-core-urlresourcereader, a separate bundle containing this
  *             ResourceReader implementation
@@ -54,7 +53,8 @@ public class URLResourceReader implements ResourceReader {
 
     private static final String URL_FILE_SCHEME = "file";
 
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(URLResourceReader.class));
+    private static final XLogger LOGGER = new XLogger(
+            LoggerFactory.getLogger(URLResourceReader.class));
 
     private static final String VERSION = "1.0";
 
@@ -69,6 +69,7 @@ public class URLResourceReader implements ResourceReader {
     private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
 
     private static Set<String> qualifierSet;
+
     static {
         qualifierSet = new HashSet<String>(3);
         qualifierSet.add(URL_HTTP_SCHEME);
@@ -83,14 +84,19 @@ public class URLResourceReader implements ResourceReader {
      * Default URLResourceReader constructor.
      */
     public URLResourceReader() {
-        logger.debug("INSIDE: resource-impl.URLResourceReader default constructor");
+        LOGGER.debug("INSIDE: resource-impl.URLResourceReader default constructor");
     }
 
     public URLResourceReader(MimeTypeMapper mimeTypeMapper) {
-        logger.debug("INSIDE: resource-impl.URLResourceReader constructor to set mimeTypeMapper");
-        if (mimeTypeMapper == null)
-            logger.debug("mimeTypeMapper is NULL");
+        LOGGER.debug("INSIDE: resource-impl.URLResourceReader constructor to set mimeTypeMapper");
+        if (mimeTypeMapper == null) {
+            LOGGER.debug("mimeTypeMapper is NULL");
+        }
         this.mimeTypeMapper = mimeTypeMapper;
+    }
+
+    public static Set<String> getURLSupportedSchemes() {
+        return qualifierSet;
     }
 
     @Override
@@ -120,15 +126,11 @@ public class URLResourceReader implements ResourceReader {
 
     /**
      * Supported schemes are HTTP, HTTPS, and file
-     * 
+     *
      * @return set of supported schemes
      */
     @Override
     public Set<String> getSupportedSchemes() {
-        return qualifierSet;
-    }
-
-    public static Set<String> getURLSupportedSchemes() {
         return qualifierSet;
     }
 
@@ -137,7 +139,7 @@ public class URLResourceReader implements ResourceReader {
     }
 
     public void setMimeTypeMapper(MimeTypeMapper mimeTypeMapper) {
-        logger.debug("Setting mimeTypeMapper");
+        LOGGER.debug("Setting mimeTypeMapper");
         this.mimeTypeMapper = mimeTypeMapper;
     }
 
@@ -147,7 +149,7 @@ public class URLResourceReader implements ResourceReader {
      * {@link ResourceResponse} from that. If the {@link URI}'s scheme is HTTP or HTTPS, the
      * {@link Resource}'s name gets set to the {@link URI} passed in, otherwise, if it is a file
      * scheme, the name is set to the actual file name.
-     * 
+     *
      * @param resourceURI
      *            A {@link URI} that defines what {@link Resource} to retrieve and how to do it.
      * @param properties
@@ -156,47 +158,48 @@ public class URLResourceReader implements ResourceReader {
      */
     @Override
     public ResourceResponse retrieveResource(URI resourceURI, Map<String, Serializable> properties)
-        throws IOException, ResourceNotFoundException {
+            throws IOException, ResourceNotFoundException {
         String methodName = "getResource";
-        logger.entry(methodName);
+        LOGGER.entry(methodName);
 
         if (resourceURI == null) {
-            logger.warn("Resource URI was null");
+            LOGGER.warn("Resource URI was null");
             throw new ResourceNotFoundException("Unable to find resource");
         }
 
-        if (resourceURI.getScheme().equals(URL_HTTP_SCHEME)
-                || resourceURI.getScheme().equals(URL_HTTPS_SCHEME)) {
-            logger.debug("Resource URI is HTTP or HTTPS");
+        if (resourceURI.getScheme().equals(URL_HTTP_SCHEME) || resourceURI.getScheme()
+                .equals(URL_HTTPS_SCHEME)) {
+            LOGGER.debug("Resource URI is HTTP or HTTPS");
             URL url = resourceURI.toURL();
-            logger.debug("resource name: " + url.getFile());
+            LOGGER.debug("resource name: " + url.getFile());
             return doRetrieveProduct(resourceURI, url.getFile());
 
         } else if (resourceURI.getScheme().equals(URL_FILE_SCHEME)) {
-            logger.debug("Resource URI is a File");
+            LOGGER.debug("Resource URI is a File");
             File filePathName = new File(resourceURI);
             String fileName = filePathName.getName();
-            logger.debug("resource name: " + fileName);
+            LOGGER.debug("resource name: " + fileName);
             return doRetrieveProduct(resourceURI, fileName);
         } else {
-            ResourceNotFoundException ce = new ResourceNotFoundException("Resource qualifier ( "
-                    + resourceURI.getScheme() + " ) not valid. " + URLResourceReader.TITLE
-                    + " requires a qualifier of " + URL_HTTP_SCHEME + " or " + URL_HTTPS_SCHEME
-                    + " or " + URL_FILE_SCHEME);
-            logger.throwing(XLogger.Level.DEBUG, ce);
-            logger.exit(methodName);
+            ResourceNotFoundException ce = new ResourceNotFoundException(
+                    "Resource qualifier ( " + resourceURI.getScheme() + " ) not valid. "
+                            + URLResourceReader.TITLE + " requires a qualifier of "
+                            + URL_HTTP_SCHEME + " or " + URL_HTTPS_SCHEME + " or "
+                            + URL_FILE_SCHEME);
+            LOGGER.throwing(XLogger.Level.DEBUG, ce);
+            LOGGER.exit(methodName);
             throw ce;
         }
     }
 
     private ResourceResponse doRetrieveProduct(URI resourceURI, String productName)
-        throws IOException, ResourceNotFoundException {
-        logger.trace("ENTERING: doRetrieveProduct");
+            throws IOException, ResourceNotFoundException {
+        LOGGER.trace("ENTERING: doRetrieveProduct");
         try {
-            logger.debug("Creating URL for path: " + resourceURI.getPath());
+            LOGGER.debug("Creating URL for path: " + resourceURI.getPath());
 
             URL url = resourceURI.toURL();
-            logger.debug("Opening connection to: " + resourceURI.toString());
+            LOGGER.debug("Opening connection to: " + resourceURI.toString());
             URLConnection conn = url.openConnection();
 
             // Determine the mime type in a hierarchical fashion. The hierarchy is based on the
@@ -210,7 +213,7 @@ public class URLResourceReader implements ResourceReader {
 
             String mimeType = null;
             if (mimeTypeMapper == null) {
-                logger.warn("mimeTypeMapper is NULL");
+                LOGGER.warn("mimeTypeMapper is NULL");
             } else {
                 // Extract the file extension (if any) from the URL's file
                 int index = url.getFile().lastIndexOf(".");
@@ -227,15 +230,14 @@ public class URLResourceReader implements ResourceReader {
                     // C:\workspaces\ddf_sprints\ddf\catalog\resource\./src/test/resources/data/JpegWithoutExtension
                     // When this occurs move on to alternate mime type resolution approaches.
                     if (!fileExtension.contains("\\") && !fileExtension.contains("/")) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("url.getFile() = " + url.getFile()
-                                    + ",   fileExtension = " + fileExtension);
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("url.getFile() = " + url.getFile() + ",   fileExtension = "
+                                    + fileExtension);
                         }
                         mimeType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);
                     } else {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("fileExtension = "
-                                    + fileExtension
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("fileExtension = " + fileExtension
                                     + " is not valid - proceeding with alternate mime type resolution");
                         }
                     }
@@ -249,10 +251,10 @@ public class URLResourceReader implements ResourceReader {
                 // Use Apache Tika to detect mime type from URL
                 Tika tika = new Tika();
                 mimeType = tika.detect(url);
-                logger.debug("Tika determined mimeType for url = " + mimeType);
+                LOGGER.debug("Tika determined mimeType for url = " + mimeType);
             } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("mimeType = " + mimeType + " set by MimeTypeMapper");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("mimeType = " + mimeType + " set by MimeTypeMapper");
                 }
             }
 
@@ -271,32 +273,32 @@ public class URLResourceReader implements ResourceReader {
                 mimeType = "application/unknown";
             }
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("mimeType set to: " + mimeType);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("mimeType set to: " + mimeType);
             }
             InputStream is = conn.getInputStream();
-            if (logger.isDebugEnabled()) {
-                logger.debug("url file: " + url.getFile());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("url file: " + url.getFile());
             }
 
-            logger.trace("EXITING: doRetrieveProduct");
+            LOGGER.trace("EXITING: doRetrieveProduct");
 
-            return new ResourceResponseImpl(new ResourceImpl(new BufferedInputStream(is), mimeType,
-                    productName));
+            return new ResourceResponseImpl(
+                    new ResourceImpl(new BufferedInputStream(is), mimeType, productName));
         } catch (IOException e) {
-            logger.error("IOException on retrieving resource", e);
+            LOGGER.error("IOException on retrieving resource", e);
             throw e;
         } catch (Exception e) {
-            logger.error("Error retrieving resource", e);
-            throw new ResourceNotFoundException("Unable to retrieve resource at: "
-                    + resourceURI.toString(), e);
+            LOGGER.error("Error retrieving resource", e);
+            throw new ResourceNotFoundException(
+                    "Unable to retrieve resource at: " + resourceURI.toString(), e);
         }
     }
 
     @Override
     public Set<String> getOptions(Metacard metacard) {
-        logger.trace("ENTERING/EXITING: getOptions");
-        logger.debug("URLResourceReader getOptions doesn't support options, returning empty set.");
+        LOGGER.trace("ENTERING/EXITING: getOptions");
+        LOGGER.debug("URLResourceReader getOptions doesn't support options, returning empty set.");
         return Collections.emptySet();
     }
 }

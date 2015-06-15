@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package org.codice.ddf.commands.catalog;
 
 import java.util.ArrayList;
@@ -161,16 +160,15 @@ public class MigrateCommand extends DuplicateCommands {
 
         console.println();
         long end = System.currentTimeMillis();
-        String completed = String.format(
-                " %d record(s) replicated; %d record(s) failed; completed in %3.3f seconds.",
-                ingestCount.get(), failedCount.get(), (end - start) / MILLISECONDS_PER_SECOND);
+        String completed = String
+                .format(" %d record(s) replicated; %d record(s) failed; completed in %3.3f seconds.",
+                        ingestCount.get(), failedCount.get(),
+                        (end - start) / MILLISECONDS_PER_SECOND);
         LOGGER.info("Replication Complete: {}", completed);
         console.println(completed);
 
         return null;
     }
-
-
 
     @Override
     protected List<Metacard> query(CatalogFacade framework, int startIndex, Filter filter) {
@@ -188,10 +186,12 @@ public class MigrateCommand extends DuplicateCommands {
             printErrorMessage(String.format("Received error from Framework: %s%n", e.getMessage()));
             return null;
         } catch (SourceUnavailableException e) {
-            printErrorMessage(String.format("Received error from Frameworks: %s%n", e.getMessage()));
+            printErrorMessage(
+                    String.format("Received error from Frameworks: %s%n", e.getMessage()));
             return null;
         } catch (FederationException e) {
-            printErrorMessage(String.format("Received error from Frameworks: %s%n", e.getMessage()));
+            printErrorMessage(
+                    String.format("Received error from Frameworks: %s%n", e.getMessage()));
             return null;
         }
         if (response.getProcessingDetails() != null && !response.getProcessingDetails().isEmpty()) {

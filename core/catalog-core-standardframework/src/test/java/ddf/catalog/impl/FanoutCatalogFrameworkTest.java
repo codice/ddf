@@ -1,28 +1,25 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import ddf.catalog.source.CatalogProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -31,7 +28,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.impl.MockFederationStrategy;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceInfoRequest;
@@ -45,6 +41,7 @@ import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.PreResourcePlugin;
 import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceUnavailableException;
@@ -69,13 +66,13 @@ public class FanoutCatalogFrameworkTest {
         SourcePollerRunner runner = new SourcePollerRunner();
         SourcePoller poller = new SourcePoller(runner);
         ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
-        framework = new CatalogFrameworkImpl(new ArrayList<CatalogProvider>(),
-                null, new ArrayList<PreIngestPlugin>(), postIngestPlugins,
+        framework = new CatalogFrameworkImpl(new ArrayList<CatalogProvider>(), null,
+                new ArrayList<PreIngestPlugin>(), postIngestPlugins,
                 new ArrayList<PreQueryPlugin>(), new ArrayList<PostQueryPlugin>(),
                 new ArrayList<PreResourcePlugin>(), new ArrayList<PostResourcePlugin>(),
                 new ArrayList<ConnectedSource>(), new ArrayList<FederatedSource>(),
-                new ArrayList<ResourceReader>(), new MockFederationStrategy(), null, null,
-                poller, null, null, null);
+                new ArrayList<ResourceReader>(), new MockFederationStrategy(), null, null, poller,
+                null, null, null);
         framework.setId(NEW_SOURCE_ID);
         framework.setFanoutEnabled(true);
     }
@@ -203,7 +200,7 @@ public class FanoutCatalogFrameworkTest {
     /**
      * This test is to verify that an NPE will not be thrown if {@code source.getContentTypes}
      * returns null.
-     * 
+     *
      * @throws SourceUnavailableException
      */
     @Test

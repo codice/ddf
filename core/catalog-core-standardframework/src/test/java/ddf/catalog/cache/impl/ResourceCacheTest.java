@@ -1,24 +1,36 @@
 /**
  * Copyright (c) Codice Foundation
- *
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- *
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
+ */
 package ddf.catalog.cache.impl;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.data.ReliableResource;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Calendar;
+
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.shiro.cache.CacheException;
 import org.junit.After;
@@ -29,24 +41,18 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Calendar;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.data.ReliableResource;
 
 public class ResourceCacheTest {
+    private static final String TEST_PATH = "/src/main/resources/";
+
+    private static Logger logger = LoggerFactory.getLogger(ResourceCacheTest.class);
+
     public String workingDir;
 
     public ResourceCache resourceCache;
@@ -57,25 +63,20 @@ public class ResourceCacheTest {
 
     private String defaultProductCacheDirectory;
 
-    private static Logger logger = LoggerFactory.getLogger(ResourceCacheTest.class);
-
-    private static final String TEST_PATH = "/src/main/resources/";
-
     @Before
     public void setUp() throws MalformedURLException {
 
         // Set system property that Hazelcast uses for its XML Config file
         String xmlConfigFilename = "reliableResource-hazelcast.xml";
-        String xmlConfigLocation = System.getProperty("user.dir") + TEST_PATH
-                + xmlConfigFilename;
+        String xmlConfigLocation = System.getProperty("user.dir") + TEST_PATH + xmlConfigFilename;
 
         // Simulates how DDF script starts up setting KARAF_HOME
         //        workingDir = System.getProperty("user.dir") + File.separator + "target";
         workingDir = System.getProperty("user.dir");
         System.setProperty("karaf.home", workingDir);
 
-        defaultProductCacheDirectory = workingDir + File.separator
-                + ResourceCache.DEFAULT_PRODUCT_CACHE_DIRECTORY;
+        defaultProductCacheDirectory =
+                workingDir + File.separator + ResourceCache.DEFAULT_PRODUCT_CACHE_DIRECTORY;
 
         // Simulates how blueprint creates the ResourceCache instance
         //        instance = mock(HazelcastInstance.class);
@@ -144,8 +145,8 @@ public class ResourceCacheTest {
         File rrCachedFile = new File(productLocation);
         String key = "ddf-1-abc123";
         MetacardImpl metacard = new MetacardImpl();
-        ReliableResource reliableResource = new ReliableResource(key, rrCachedFile.getAbsolutePath(),
-                new MimeType(), fileName, metacard);
+        ReliableResource reliableResource = new ReliableResource(key,
+                rrCachedFile.getAbsolutePath(), new MimeType(), fileName, metacard);
 
         // Return null when adding as pending entry; return resource when doing get(key)
         //        when(cache.get(key)).thenReturn(null).thenReturn(reliableResource);
@@ -153,7 +154,8 @@ public class ResourceCacheTest {
         resourceCache.addPendingCacheEntry(reliableResource);
         assertTrue(resourceCache.isPending(key));
         resourceCache.put(reliableResource);
-        assertTrue(assertReliableResourceEquals(reliableResource, resourceCache.getValid(key, metacard)));
+        assertTrue(assertReliableResourceEquals(reliableResource,
+                resourceCache.getValid(key, metacard)));
         assertFalse(resourceCache.isPending(key));
     }
 
@@ -166,18 +168,20 @@ public class ResourceCacheTest {
      * @throws IOException
      */
     @Test
-    public void testPutThenGetNotPending() throws CacheException, MimeTypeParseException, IOException {
+    public void testPutThenGetNotPending()
+            throws CacheException, MimeTypeParseException, IOException {
         String fileName = "15bytes.txt";
         String productLocation = System.getProperty("user.dir") + "/src/test/resources/" + fileName;
         File rrCachedFile = new File(productLocation);
         String key = "ddf-1-abc123";
         MetacardImpl metacard = new MetacardImpl();
-        ReliableResource reliableResource = new ReliableResource(key, rrCachedFile.getAbsolutePath(),
-                new MimeType(), fileName, metacard);
+        ReliableResource reliableResource = new ReliableResource(key,
+                rrCachedFile.getAbsolutePath(), new MimeType(), fileName, metacard);
 
         resourceCache.put(reliableResource);
         assertFalse(resourceCache.isPending(key));
-        assertTrue(assertReliableResourceEquals(reliableResource, resourceCache.getValid(key, metacard)));
+        assertTrue(assertReliableResourceEquals(reliableResource,
+                resourceCache.getValid(key, metacard)));
     }
 
     @Test(expected = Exception.class)
@@ -186,7 +190,8 @@ public class ResourceCacheTest {
     }
 
     @Test(expected = Exception.class)
-    public void testGetWhenNoProductInCache() throws Exception, MimeTypeParseException, IOException {
+    public void testGetWhenNoProductInCache()
+            throws Exception, MimeTypeParseException, IOException {
         String key = "ddf-1-abc123";
         resourceCache.getValid(key, new MetacardImpl());
     }
@@ -200,7 +205,8 @@ public class ResourceCacheTest {
      * @throws IOException
      */
     @Test(expected = Exception.class)
-    public void testGetWhenNoProductInCacheDirectory() throws Exception, MimeTypeParseException, IOException {
+    public void testGetWhenNoProductInCacheDirectory()
+            throws Exception, MimeTypeParseException, IOException {
         ReliableResource reliableResource = mock(ReliableResource.class);
         String key = "ddf-1-abc123";
         MetacardImpl metacard = new MetacardImpl();
@@ -248,7 +254,8 @@ public class ResourceCacheTest {
         File cachedResourceFile = new File(cachedResourceFilePath);
         assertTrue(cachedResourceFile.exists());
 
-        ReliableResource cachedResource = new ReliableResource(cachedResourceMetacardKey, cachedResourceFilePath, null, null, metacard);
+        ReliableResource cachedResource = new ReliableResource(cachedResourceMetacardKey,
+                cachedResourceFilePath, null, null, metacard);
         resourceCache.validateCacheEntry(cachedResource, metacard1);
         assertFalse(cachedResourceFile.exists());
     }
@@ -293,13 +300,15 @@ public class ResourceCacheTest {
         File cachedResourceFile = new File(cachedResourceFilePath);
         assertTrue(cachedResourceFile.exists());
 
-        resourceCache.put(new ReliableResource(cachedResourceMetacardKey, cachedResourceFilePath, null, "name", cachedMetacard));
+        resourceCache
+                .put(new ReliableResource(cachedResourceMetacardKey, cachedResourceFilePath, null,
+                        "name", cachedMetacard));
         assertFalse(resourceCache.containsValid(cachedResourceMetacardKey, latestMetacard));
         assertFalse(cachedResourceFile.exists());
     }
 
     @Test
-    public void testContainsTrueInvalid2_CantFindFile() throws URISyntaxException, Exception {
+    public void testContainsTrueInvalid2CantFindFile() throws URISyntaxException, Exception {
         MetacardImpl cachedMetacard = generateMetacard();
         cachedMetacard.setId("different-id");
         MetacardImpl latestMetacard = generateMetacard();
@@ -311,7 +320,8 @@ public class ResourceCacheTest {
 
     private void simulateAddFileToCacheDir(String fileName) throws IOException {
         String originalFilePath = System.getProperty("user.dir") + File.separator +
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + fileName;
+                "src" + File.separator + "test" + File.separator + "resources" + File.separator
+                + fileName;
         String destinationFilePath = defaultProductCacheDirectory + File.separator + fileName;
         FileUtils.copyFile(new File(originalFilePath), new File(destinationFilePath));
     }
@@ -362,7 +372,8 @@ public class ResourceCacheTest {
                         result = rrActual.getSize() == expected.getSize();
 
                         if (result) {
-                            result = rrActual.getLastTouchedMillis() == expected.getLastTouchedMillis();
+                            result = rrActual.getLastTouchedMillis() == expected
+                                    .getLastTouchedMillis();
                         }
                     }
                 }

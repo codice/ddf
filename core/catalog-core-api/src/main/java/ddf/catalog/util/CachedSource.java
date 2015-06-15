@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 
 package ddf.catalog.util;
 
@@ -37,21 +36,25 @@ import ddf.catalog.source.UnsupportedQueryException;
 @Deprecated
 public class CachedSource implements Source {
 
-    private static XLogger logger = new XLogger(
-            LoggerFactory.getLogger(CachedSource.class));
+    private static final String VERSION = "version";
+
+    private static final String ID = "id";
+
+    private static final String TITLE = "title";
+
+    private static final String DESCRIPTION = "description";
+
+    private static final String ORGANIZATION = "organization";
+
+    private static XLogger logger = new XLogger(LoggerFactory.getLogger(CachedSource.class));
 
     private Source source;
 
     private Set<ContentType> cachedContentTypes;
+
     private Map<String, String> cachedAttributes;
 
     private SourceStatus sourceStatus;
-    
-    private static final String VERSION = "version";
-    private static final String ID = "id";
-    private static final String TITLE = "title";
-    private static final String DESCRIPTION = "description";
-    private static final String ORGANIZATION = "organization";
 
     public CachedSource(Source source) {
         this.source = source;
@@ -65,9 +68,17 @@ public class CachedSource implements Source {
         return cachedAttributes.get(VERSION);
     }
 
+    private void setVersion(String version) {
+        cachedAttributes.put(VERSION, version);
+    }
+
     @Override
     public String getId() {
         return cachedAttributes.get(ID);
+    }
+
+    private void setId(String id) {
+        cachedAttributes.put(ID, id);
     }
 
     @Override
@@ -75,14 +86,26 @@ public class CachedSource implements Source {
         return cachedAttributes.get(TITLE);
     }
 
+    private void setTitle(String title) {
+        cachedAttributes.put(TITLE, title);
+    }
+
     @Override
     public String getDescription() {
         return cachedAttributes.get(DESCRIPTION);
     }
 
+    private void setDescription(String description) {
+        cachedAttributes.put(DESCRIPTION, description);
+    }
+
     @Override
     public String getOrganization() {
         return cachedAttributes.get(ORGANIZATION);
+    }
+
+    private void setOrganization(String organization) {
+        cachedAttributes.put(ORGANIZATION, organization);
     }
 
     @Override
@@ -96,8 +119,7 @@ public class CachedSource implements Source {
     }
 
     @Override
-    public SourceResponse query(QueryRequest request)
-            throws UnsupportedQueryException {
+    public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
         return source.query(request);
     }
 
@@ -106,15 +128,23 @@ public class CachedSource implements Source {
         return cachedContentTypes;
     }
 
+    private void setContentTypes(Set<ContentType> contentTypes) {
+        this.cachedContentTypes = contentTypes;
+    }
+
     /**
      * Returns the known SourceStatus of this Cached Source. The value
      * represents the cached status of the last check for the source. It can
      * either be available, unavailable, or never been tested (unchecked).
-     * 
+     *
      * @return The SourceStatus for this Source
      */
     public SourceStatus getSourceStatus() {
         return sourceStatus;
+    }
+
+    private void setSourceStatus(SourceStatus sourceStatus) {
+        this.sourceStatus = sourceStatus;
     }
 
     /**
@@ -124,12 +154,11 @@ public class CachedSource implements Source {
      */
     public void checkStatus() {
         try {
-            logger.debug("Checking Source [{}] with id [{}] availability.",
-                    source, source.getId());
+            logger.debug("Checking Source [{}] with id [{}] availability.", source, source.getId());
 
             if (source.isAvailable()) {
-                logger.debug("Source [{}] with id [{}] is available.  "
-                        + "Updating cached values.", source, source.getId());
+                logger.debug("Source [{}] with id [{}] is available.  " + "Updating cached values.",
+                        source, source.getId());
                 setContentTypes(source.getContentTypes());
                 setId(source.getId());
                 setTitle(source.getTitle());
@@ -138,24 +167,24 @@ public class CachedSource implements Source {
                 setVersion(source.getVersion());
                 setSourceStatus(SourceStatus.AVAILABLE);
             } else {
-                logger.debug("Source [{}] with id [{}] is not available.  "
-                        + "Clearing cached values", source, source.getId());
+                logger.debug(
+                        "Source [{}] with id [{}] is not available.  " + "Clearing cached values",
+                        source, source.getId());
                 setSourceStatus(SourceStatus.UNAVAILABLE);
                 clearContentTypes();
             }
         } catch (Exception e) {
-            logger.debug(
-                    "Failed to check Source [{}] with id [{}]] availability.  "
+            logger.debug("Failed to check Source [{}] with id [{}]] availability.  "
                             + "Clearing cached values.", source, source.getId());
             setSourceStatus(SourceStatus.UNAVAILABLE);
             clearContentTypes();
 
         }
     }
-    
+
     /**
      * Returns the value of an arbitrary attribute
-     * 
+     *
      * @param attr The attribute value requested
      * @return The attribute Value
      */
@@ -163,35 +192,7 @@ public class CachedSource implements Source {
         return cachedAttributes.get(attr);
     }
 
-    private void setContentTypes(Set<ContentType> contentTypes) {
-        this.cachedContentTypes = contentTypes;
-    }
-
     private void clearContentTypes() {
-        this.cachedContentTypes = Collections.<ContentType> emptySet();
-    }
-
-    private void setSourceStatus(SourceStatus sourceStatus) {
-        this.sourceStatus = sourceStatus;
-    }
-
-    private void setVersion(String version) {
-        cachedAttributes.put(VERSION, version);
-    }
-    
-    private void setId(String id) {
-        cachedAttributes.put(ID, id);
-    }
-
-    private void setTitle(String title) {
-        cachedAttributes.put(TITLE, title);
-    }
-   
-    private void setDescription(String description) {
-        cachedAttributes.put(DESCRIPTION, description);
-    }
-    
-    private void setOrganization(String organization) {
-        cachedAttributes.put(ORGANIZATION, organization);
+        this.cachedContentTypes = Collections.<ContentType>emptySet();
     }
 }

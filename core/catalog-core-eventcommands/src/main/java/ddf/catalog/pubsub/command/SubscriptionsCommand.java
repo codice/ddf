@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.pubsub.command;
 
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ public class SubscriptionsCommand extends OsgiCommandSupport {
     }
 
     protected List<String> getSubscriptions(String id, boolean ldapFilter)
-        throws InvalidSyntaxException {
+            throws InvalidSyntaxException {
         List<String> subscriptionIds = new ArrayList<String>();
 
         String subscriptionIdFilter = null;
@@ -48,13 +47,14 @@ public class SubscriptionsCommand extends OsgiCommandSupport {
             subscriptionIdFilter = "(subscription-id=" + id + ")";
         }
         LOGGER.debug("subscriptionIdFilter = {}", subscriptionIdFilter);
-        ServiceReference[] serviceReferences = bundleContext.getServiceReferences(SERVICE_PID,
-                subscriptionIdFilter);
+        ServiceReference[] serviceReferences = bundleContext
+                .getServiceReferences(SERVICE_PID, subscriptionIdFilter);
 
         if (serviceReferences == null || serviceReferences.length == 0) {
             LOGGER.debug("Found no service references for {}", SERVICE_PID);
         } else {
-            LOGGER.debug("Found {} service references for {}", serviceReferences.length, SERVICE_PID);
+            LOGGER.debug("Found {} service references for {}", serviceReferences.length,
+                    SERVICE_PID);
 
             for (ServiceReference ref : serviceReferences) {
                 String[] propertyKeys = ref.getPropertyKeys();

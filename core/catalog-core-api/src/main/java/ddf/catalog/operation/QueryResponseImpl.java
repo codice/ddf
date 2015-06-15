@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.operation;
 
 import java.io.Serializable;
@@ -31,17 +30,18 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 
 /**
- * 
+ *
  * @deprecated As of release 2.3.0, replaced by
  *             ddf.catalog.operation.impl.QueryResponseImpl
- * 
+ *
  */
 @Deprecated
 public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements QueryResponse {
 
-    private static final XLogger logger = new XLogger(LoggerFactory.getLogger(QueryResponseImpl.class));
+    private static final XLogger LOGGER = new XLogger(
+            LoggerFactory.getLogger(QueryResponseImpl.class));
 
-    protected static Result POISON_PILL_RESULT = new POISON_PILL_RESULT();
+    protected static Result poisonPillResult = new POISON_PILL_RESULT();
 
     protected long hits;
 
@@ -55,7 +55,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
 
     /**
      * Instantiates a new QueryResponseImpl with a $(@link QueryRequest)
-     * 
+     *
      * @param request
      *            the request
      */
@@ -66,7 +66,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
     /**
      * Instantiates a new QueryResponseImpl with a $(@link QueryRequest) and and a ${@link Map} of
      * properties
-     * 
+     *
      * @param request
      *            the request
      * @param properties
@@ -78,7 +78,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
     /**
      * Instantiates a new QueryResponseImpl with a $(@link QueryRequest) and and a ${@link List} of
      * results
-     * 
+     *
      * @param request
      *            the request
      * @param results
@@ -91,7 +91,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
     /**
      * Instantiates a new QueryResponseImpl with a $(@link QueryRequest), a ${@link List} of
      * results, a closeResultQueue indicator, and a number of hits to return
-     * 
+     *
      * @param request
      *            the request
      * @param results
@@ -108,7 +108,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
      * Instantiates a new QueryResponseImpl with a $(@link QueryRequest), a ${@link List} of
      * results, a closeResultQueue indicator, a number of hits to return, and a ${@link Map} of
      * properties
-     * 
+     *
      * @param request
      *            the request
      * @param results
@@ -122,8 +122,9 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
             long hits, Map<String, Serializable> properties) {
         super(request, properties);
         this.hits = hits;
-        queue = results == null ? new LinkedBlockingQueue<Result>()
-                : new LinkedBlockingQueue<Result>(results);
+        queue = results == null ?
+                new LinkedBlockingQueue<Result>() :
+                new LinkedBlockingQueue<Result>(results);
         resultList = new ArrayList<Result>();
         if (closeResultQueue) {
             closeResultQueue();
@@ -132,13 +133,14 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
 
     /**
      * Construct from an underlying {@link SourceResponse}
-     * 
+     *
      * @param response
      * @param sourceId
      */
     public QueryResponseImpl(SourceResponse response, String sourceId) {
-        this(response == null ? null : response.getRequest(), response == null ? null : response
-                .getResults(), response == null ? -1 : response.getHits());
+        this(response == null ? null : response.getRequest(),
+                response == null ? null : response.getResults(),
+                response == null ? -1 : response.getHits());
         Set<? extends SourceProcessingDetails> sourceDetails = null;
         if (response != null) {
             sourceDetails = response.getProcessingDetails();
@@ -198,7 +200,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
 
     /**
      * Adds a ${@link Result} to this QueryResponse, and specifies whether or not to close the queue
-     * 
+     *
      * @param result
      *            the result
      * @param closeQueue
@@ -225,7 +227,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
     /**
      * Adds a ${@link List} of ${@link Result}s to this QueryResponse, and specifies whether or not
      * to close the queue
-     * 
+     *
      * @param results
      *            the results
      * @param closeQueue
@@ -254,7 +256,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
 
     public void closeResultQueue() {
         isQueueClosed = true;
-        queue.add(POISON_PILL_RESULT);
+        queue.add(poisonPillResult);
     }
 
     @Override
@@ -269,7 +271,8 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
             try {
                 result = queue.poll(timeout, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
-                logger.warn("QueryResponseImpl queue thread was interrputed.  Returning null for last result");
+                LOGGER.warn(
+                        "QueryResponseImpl queue thread was interrputed.  Returning null for last result");
             }
         }
         return result;
@@ -294,18 +297,19 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
 
     /**
      * Returns a result off of the queue
-     * 
+     *
      * @return result the result
      */
     private Result handleTake() {
         Result result = null;
         try {
             result = queue.take();
-            if (result == POISON_PILL_RESULT) {
+            if (result == poisonPillResult) {
                 result = null;
             }
         } catch (InterruptedException e) {
-            logger.warn("QueryResponseImpl queue thread was interrputed.  Returning null for last result");
+            LOGGER.warn(
+                    "QueryResponseImpl queue thread was interrputed.  Returning null for last result");
         }
         return result;
     }

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.transformer.attribute;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -39,15 +38,16 @@ import ddf.catalog.transform.MetacardTransformer;
 
 /**
  * Unit tests the {@link AttributeMetacardTransformer}
- * 
+ *
  */
 public class TestAttributeMetacardTransformer {
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(TestAttributeMetacardTransformer.class);
 
     private static MimeType jpegMimeType = null;
 
     private static MimeType xmlMimeType = null;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestAttributeMetacardTransformer.class);
 
     static {
         try {
@@ -66,7 +66,7 @@ public class TestAttributeMetacardTransformer {
 
     /**
      * Tests case of null {@link Metacard}
-     * 
+     *
      * @throws CatalogTransformerException
      */
     @Test(expected = CatalogTransformerException.class)
@@ -76,7 +76,7 @@ public class TestAttributeMetacardTransformer {
 
     /**
      * Tests case where metacard's thumbnail is null.
-     * 
+     *
      * @throws CatalogTransformerException
      */
     @Test(expected = CatalogTransformerException.class)
@@ -88,7 +88,7 @@ public class TestAttributeMetacardTransformer {
 
     /**
      * Tests case where metacard's metadata is null.
-     * 
+     *
      * @throws CatalogTransformerException
      */
     @Test(expected = CatalogTransformerException.class)
@@ -100,7 +100,7 @@ public class TestAttributeMetacardTransformer {
 
     /**
      * Tests that the bytes returned are correct and MIME Type is correct.
-     * 
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      */
@@ -113,7 +113,7 @@ public class TestAttributeMetacardTransformer {
 
     /**
      * Tests that the String returned is correct and MIME Type is correct.
-     * 
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      */
@@ -126,7 +126,7 @@ public class TestAttributeMetacardTransformer {
 
     /**
      * Tests that the bytes are faithfully returned with correct MIME Type.
-     * 
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      */
@@ -139,7 +139,7 @@ public class TestAttributeMetacardTransformer {
 
     /**
      * Tests correct behavior of empty string for metadata
-     * 
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      */
@@ -151,7 +151,7 @@ public class TestAttributeMetacardTransformer {
 
     /**
      * Tests exception thrown for {@code null} string
-     * 
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      */
@@ -163,7 +163,7 @@ public class TestAttributeMetacardTransformer {
 
     /**
      * Tests exception thrown for {@code null} string
-     * 
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      */
@@ -172,8 +172,8 @@ public class TestAttributeMetacardTransformer {
 
         Metacard mockMetacard = mock(Metacard.class);
 
-        when(mockMetacard.getAttribute(isA(String.class))).thenReturn(
-                new AttributeImpl(Metacard.METADATA, new Date()));
+        when(mockMetacard.getAttribute(isA(String.class)))
+                .thenReturn(new AttributeImpl(Metacard.METADATA, new Date()));
 
         METADATA_TRANSFORMER.transform(mockMetacard, null);
 
@@ -181,7 +181,7 @@ public class TestAttributeMetacardTransformer {
 
     /**
      * Tests toString
-     * 
+     *
      * @throws CatalogTransformerException
      * @throws IOException
      */
@@ -192,20 +192,21 @@ public class TestAttributeMetacardTransformer {
 
         LOGGER.debug(transformerToString);
 
-        assertEquals(MetacardTransformer.class.getName() + " {Impl="
-                + AttributeMetacardTransformer.class.getName() + ", attributeName="
-                + Metacard.THUMBNAIL + ", id=" + Metacard.THUMBNAIL + ", MIME Type=" + jpegMimeType
-                + "}", transformerToString);
+        assertEquals(
+                MetacardTransformer.class.getName() + " {Impl=" + AttributeMetacardTransformer.class
+                        .getName() + ", attributeName=" + Metacard.THUMBNAIL + ", id="
+                        + Metacard.THUMBNAIL + ", MIME Type=" + jpegMimeType + "}",
+                transformerToString);
 
     }
 
-    private void simpleBytesTransform(byte[] thumbnailBytes) throws CatalogTransformerException,
-        IOException {
+    private void simpleBytesTransform(byte[] thumbnailBytes)
+            throws CatalogTransformerException, IOException {
         Metacard mockMetacard = mock(Metacard.class);
 
         when(mockMetacard.getThumbnail()).thenReturn(thumbnailBytes);
-        when(mockMetacard.getAttribute(Metacard.THUMBNAIL)).thenReturn(
-                new AttributeImpl(Metacard.THUMBNAIL, thumbnailBytes));
+        when(mockMetacard.getAttribute(Metacard.THUMBNAIL))
+                .thenReturn(new AttributeImpl(Metacard.THUMBNAIL, thumbnailBytes));
 
         BinaryContent content = THUMBNAIL_TRANSFORMER.transform(mockMetacard, null);
 
@@ -214,12 +215,12 @@ public class TestAttributeMetacardTransformer {
         assertEquals("Mime type failed to match.", jpegMimeType, content.getMimeType());
     }
 
-    private void simpleStringTransform(String metadata) throws CatalogTransformerException,
-        IOException {
+    private void simpleStringTransform(String metadata)
+            throws CatalogTransformerException, IOException {
         Metacard mockMetacard = mock(Metacard.class);
 
-        when(mockMetacard.getAttribute(isA(String.class))).thenReturn(
-                new AttributeImpl(Metacard.METADATA, metadata));
+        when(mockMetacard.getAttribute(isA(String.class)))
+                .thenReturn(new AttributeImpl(Metacard.METADATA, metadata));
 
         BinaryContent content = METADATA_TRANSFORMER.transform(mockMetacard, null);
 

@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 
 package ddf.catalog.pubsub;
 
@@ -55,11 +54,10 @@ import ddf.catalog.pubsub.internal.SubscriptionFilterVisitor;
 import ddf.catalog.pubsub.predicate.Predicate;
 
 public class EventProcessorImpl implements EventProcessor, EventHandler, PostIngestPlugin {
-    public static enum DateType {
-        modified, effective, expiration, created
-    };
-
     public static final double EQUATORIAL_RADIUS_IN_METERS = 6378137.0;
+
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventProcessorImpl.class);
 
     protected EventAdmin eventAdmin;
 
@@ -72,8 +70,6 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
     protected CatalogFramework catalog;
 
     private Map<String, ServiceRegistration> existingSubscriptions;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EventProcessorImpl.class);
 
     public EventProcessorImpl() {
         LOGGER.debug("INSIDE: EventProcessorImpl default constructor");
@@ -106,147 +102,10 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
         LOGGER.trace("EXITING: EventProcessorImpl constructor");
     }
 
-    public void init() {
-        String methodName = "init";
-        LOGGER.debug("ENTERING: {}", methodName);
-
-        LOGGER.debug("EXITING: {}", methodName);
-
-    }
-
-    public void destroy() {
-        String methodName = "destroy";
-        LOGGER.debug("ENTERING: {}", methodName);
-
-        LOGGER.debug("EXITING: {}", methodName);
-    }
-
-    /**
-     * By default the Felix EventAdmin implementation has a timeout of 5000 ms. Your event handler
-     * has to return from the handle event method in this time frame. If it does not, it gets
-     * Blacklisted. Therefore, this method processes its events in a separate thread than the
-     * EventAdmin who called it.
-     */
-    public void handleEvent(Event event) {
-        String methodName = "handleEvent";
-        LOGGER.debug("ENTERING: {}", methodName);
-
-        LOGGER.debug("Received event: {}", event.getTopic());
-
-        if (!existingSubscriptions.isEmpty()) {
-            String topic = event.getTopic();
-            Metacard entry = (Metacard) event.getProperty(EventProcessor.EVENT_METACARD);
-            LOGGER.debug("metacard ID = {}", entry.getId());
-
-            new PubSubThread(entry, topic, eventAdmin).start();
-        } else {
-            LOGGER.debug("No existing subscriptions, so no need to handle event since there is no one listening ...");
-        }
-
-        LOGGER.debug("EXITING: {}", methodName);
-    }
-
-    @Override
-    public String createSubscription(Subscription subscription) throws InvalidSubscriptionException {
-        String uuid = UUID.randomUUID().toString();
-        try {
-            createSubscription(subscription, uuid);
-        } catch (SubscriptionExistsException e) {
-            // This is extremely unlikely to happen. A UUID should never match
-            // another subscription ID
-            LOGGER.debug("UUID matched previously registered subscription.", e);
-            throw new InvalidSubscriptionException(e);
-        }
-
-        return uuid;
-    }
-
-    @Override
-    public void createSubscription(Subscription subscription, String subscriptionId)
-        throws InvalidSubscriptionException, SubscriptionExistsException {
-        String methodName = "createSubscription";
-        LOGGER.debug("ENTERING: {}", methodName);
-
-        LOGGER.info("Creating Evaluation Criteria... ");
-
-        try {
-            for (PreSubscriptionPlugin plugin : preSubscription) {
-                LOGGER.debug("Processing subscription with preSubscription plugin");
-                subscription = plugin.process(subscription);
-            }
-
-            SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
-            Predicate finalPredicate = (Predicate) subscription.accept(visitor, null);
-            LOGGER.debug("predicate from filter visitor: {}", finalPredicate);
-
-            String[] topics = new String[] {PubSubConstants.PUBLISHED_EVENT_TOPIC_NAME};
-
-            Dictionary<String, String[]> props = new Hashtable<String, String[]>();
-            props.put(EventConstants.EVENT_TOPIC, topics);
-            ServiceRegistration serviceRegistration = bundleContext.registerService(
-                    EventHandler.class.getName(), new PublishedEventHandler(finalPredicate,
-                            subscription, preDelivery, catalog), props);
-
-            existingSubscriptions.put(subscriptionId, serviceRegistration);
-
-            LOGGER.debug("Subscription {} created.", subscriptionId);
-        } catch (Exception e) {
-            LOGGER.error("Error while creating subscription predicate: ", e);
-            throw new InvalidSubscriptionException(e);
-        }
-
-        LOGGER.debug("EXITING: {}", methodName);
-    }
-
-    @Override
-    public void updateSubscription(Subscription subscription, String subscriptionId)
-        throws SubscriptionNotFoundException {
-        String methodName = "updateSubscription";
-        LOGGER.debug("ENTERING: {}", methodName);
-
-        try {
-            deleteSubscription(subscriptionId);
-
-            createSubscription(subscription, subscriptionId);
-
-            LOGGER.debug("Updated {}", subscriptionId);
-        } catch (Exception e) {
-            LOGGER.error("Could not update subscription", e);
-            throw new SubscriptionNotFoundException(e);
-        }
-
-        LOGGER.debug("EXITING: {}", methodName);
-    }
-
-    @Override
-    public void deleteSubscription(String subscriptionId) throws SubscriptionNotFoundException {
-        String methodName = "deleteSubscription";
-        LOGGER.debug("ENTERING: {}", methodName);
-
-        try {
-            LOGGER.info("Removing subscription: {}", subscriptionId);
-            ServiceRegistration sr = (ServiceRegistration) existingSubscriptions
-                    .get(subscriptionId);
-            if (sr != null) {
-                sr.unregister();
-                LOGGER.debug("Removal complete");
-                existingSubscriptions.remove(subscriptionId);
-            } else {
-                LOGGER.info("Unable to find existing subscription: {}.  May already be deleted.", subscriptionId);
-            }
-
-        } catch (Exception e) {
-            LOGGER.debug("Could not delete subscription for {}", subscriptionId);
-            LOGGER.error("Exception deleting subscription", e);
-        }
-
-        LOGGER.debug("EXITING: " + methodName);
-    }
-
     /**
      * Processes an entry by adding properties from the metacard to the event. Then the eventAdmin
      * is used to post the metacard properties as a single event.
-     * 
+     *
      * @param metacard
      *            - the metacard to process
      * @param operation
@@ -276,14 +135,16 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
                 URI uri = metacard.getResourceURI();
                 if (uri != null) {
                     String productUri = uri.toString();
-                    LOGGER.debug("Processing incoming entry.  Adding DAD URI to event properties: {}", productUri);
+                    LOGGER.debug(
+                            "Processing incoming entry.  Adding DAD URI to event properties: {}",
+                            productUri);
                     // TODO: probably just get this info from the Metacard, Probably don't need to
                     // create new property for this
                     properties.put(PubSubConstants.HEADER_DAD_KEY, productUri);
                 }
             } catch (Exception e) {
-                LOGGER.warn(
-                        "Unable to obtain resource URL, will not be considered in subscription", e);
+                LOGGER.warn("Unable to obtain resource URL, will not be considered in subscription",
+                        e);
             }
 
             // CONTENT TYPE INFORMATION
@@ -331,8 +192,8 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
             }
 
             if (eventAdmin != null) {
-                eventAdmin.postEvent(new Event(PubSubConstants.PUBLISHED_EVENT_TOPIC_NAME,
-                        properties));
+                eventAdmin.postEvent(
+                        new Event(PubSubConstants.PUBLISHED_EVENT_TOPIC_NAME, properties));
             } else {
                 LOGGER.warn("Unable to post event since eventAdmin is null.");
             }
@@ -341,6 +202,147 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
         }
 
         LOGGER.debug("EXITING: {}", methodName);
+    }
+
+    public void init() {
+        String methodName = "init";
+        LOGGER.debug("ENTERING: {}", methodName);
+
+        LOGGER.debug("EXITING: {}", methodName);
+
+    }
+
+    public void destroy() {
+        String methodName = "destroy";
+        LOGGER.debug("ENTERING: {}", methodName);
+
+        LOGGER.debug("EXITING: {}", methodName);
+    }
+
+    /**
+     * By default the Felix EventAdmin implementation has a timeout of 5000 ms. Your event handler
+     * has to return from the handle event method in this time frame. If it does not, it gets
+     * Blacklisted. Therefore, this method processes its events in a separate thread than the
+     * EventAdmin who called it.
+     */
+    public void handleEvent(Event event) {
+        String methodName = "handleEvent";
+        LOGGER.debug("ENTERING: {}", methodName);
+
+        LOGGER.debug("Received event: {}", event.getTopic());
+
+        if (!existingSubscriptions.isEmpty()) {
+            String topic = event.getTopic();
+            Metacard entry = (Metacard) event.getProperty(EventProcessor.EVENT_METACARD);
+            LOGGER.debug("metacard ID = {}", entry.getId());
+
+            new PubSubThread(entry, topic, eventAdmin).start();
+        } else {
+            LOGGER.debug(
+                    "No existing subscriptions, so no need to handle event since there is no one listening ...");
+        }
+
+        LOGGER.debug("EXITING: {}", methodName);
+    }
+
+    @Override
+    public String createSubscription(Subscription subscription)
+            throws InvalidSubscriptionException {
+        String uuid = UUID.randomUUID().toString();
+        try {
+            createSubscription(subscription, uuid);
+        } catch (SubscriptionExistsException e) {
+            // This is extremely unlikely to happen. A UUID should never match
+            // another subscription ID
+            LOGGER.debug("UUID matched previously registered subscription.", e);
+            throw new InvalidSubscriptionException(e);
+        }
+
+        return uuid;
+    }
+
+    @Override
+    public void createSubscription(Subscription subscription, String subscriptionId)
+            throws InvalidSubscriptionException, SubscriptionExistsException {
+        String methodName = "createSubscription";
+        LOGGER.debug("ENTERING: {}", methodName);
+
+        LOGGER.info("Creating Evaluation Criteria... ");
+
+        try {
+            for (PreSubscriptionPlugin plugin : preSubscription) {
+                LOGGER.debug("Processing subscription with preSubscription plugin");
+                subscription = plugin.process(subscription);
+            }
+
+            SubscriptionFilterVisitor visitor = new SubscriptionFilterVisitor();
+            Predicate finalPredicate = (Predicate) subscription.accept(visitor, null);
+            LOGGER.debug("predicate from filter visitor: {}", finalPredicate);
+
+            String[] topics = new String[] {PubSubConstants.PUBLISHED_EVENT_TOPIC_NAME};
+
+            Dictionary<String, String[]> props = new Hashtable<String, String[]>();
+            props.put(EventConstants.EVENT_TOPIC, topics);
+            ServiceRegistration serviceRegistration = bundleContext
+                    .registerService(EventHandler.class.getName(),
+                            new PublishedEventHandler(finalPredicate, subscription, preDelivery,
+                                    catalog), props);
+
+            existingSubscriptions.put(subscriptionId, serviceRegistration);
+
+            LOGGER.debug("Subscription {} created.", subscriptionId);
+        } catch (Exception e) {
+            LOGGER.error("Error while creating subscription predicate: ", e);
+            throw new InvalidSubscriptionException(e);
+        }
+
+        LOGGER.debug("EXITING: {}", methodName);
+    }
+
+    @Override
+    public void updateSubscription(Subscription subscription, String subscriptionId)
+            throws SubscriptionNotFoundException {
+        String methodName = "updateSubscription";
+        LOGGER.debug("ENTERING: {}", methodName);
+
+        try {
+            deleteSubscription(subscriptionId);
+
+            createSubscription(subscription, subscriptionId);
+
+            LOGGER.debug("Updated {}", subscriptionId);
+        } catch (Exception e) {
+            LOGGER.error("Could not update subscription", e);
+            throw new SubscriptionNotFoundException(e);
+        }
+
+        LOGGER.debug("EXITING: {}", methodName);
+    }
+
+    @Override
+    public void deleteSubscription(String subscriptionId) throws SubscriptionNotFoundException {
+        String methodName = "deleteSubscription";
+        LOGGER.debug("ENTERING: {}", methodName);
+
+        try {
+            LOGGER.info("Removing subscription: {}", subscriptionId);
+            ServiceRegistration sr = (ServiceRegistration) existingSubscriptions
+                    .get(subscriptionId);
+            if (sr != null) {
+                sr.unregister();
+                LOGGER.debug("Removal complete");
+                existingSubscriptions.remove(subscriptionId);
+            } else {
+                LOGGER.info("Unable to find existing subscription: {}.  May already be deleted.",
+                        subscriptionId);
+            }
+
+        } catch (Exception e) {
+            LOGGER.debug("Could not delete subscription for {}", subscriptionId);
+            LOGGER.error("Exception deleting subscription", e);
+        }
+
+        LOGGER.debug("EXITING: " + methodName);
     }
 
     public Predicate createFinalPredicate(Subscription subscription) {
@@ -377,7 +379,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 
     /**
      * Posts a Metacard to a given topic
-     * 
+     *
      * @param topic
      *            - The topic to post the event
      * @param card
@@ -434,6 +436,10 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
         }
         LOGGER.trace("EXITING: process (DeleteResponse)");
         return deleteResponse;
+    }
+
+    public static enum DateType {
+        modified, effective, expiration, created
     }
 
 }

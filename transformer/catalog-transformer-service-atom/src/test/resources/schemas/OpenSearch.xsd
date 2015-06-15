@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- thanks to http://weblogs.asp.net/wkriebel/archive/2008/02/04/opensearch-xsd.aspx -->
-<xs:schema targetNamespace="http://a9.com/-/spec/opensearch/1.1/"
-    elementFormDefault="qualified"
-    xmlns="http://a9.com/-/spec/opensearch/1.1/"
-    xmlns:mstns="http://a9.com/-/spec/opensearch/1.1/"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
->
+<xs:schema xmlns:mstns="http://a9.com/-/spec/opensearch/1.1/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://a9.com/-/spec/opensearch/1.1/"
+           elementFormDefault="qualified"
+           xmlns="http://a9.com/-/spec/opensearch/1.1/"
+        >
   <xs:annotation>
     <xs:documentation>Based on http://www.opensearch.org/Specifications/OpenSearch/1.1</xs:documentation>
   </xs:annotation>
@@ -271,7 +271,8 @@
           </xs:simpleType>
 
         </xs:element>
-        <xs:element type="xs:string" name="AdultContent" minOccurs="0" maxOccurs="1" default="false">
+        <xs:element type="xs:string" name="AdultContent" minOccurs="0" maxOccurs="1"
+                    default="false">
           <xs:annotation>
             <xs:documentation>
               Contains a boolean value that should be set to true if the search results may contain material intended only for adults.

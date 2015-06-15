@@ -1,29 +1,26 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.data;
 
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Date;
 
-import ddf.catalog.data.AttributeType.AttributeFormat;
-import ddf.catalog.source.Source;
 
 /**
  * A {@link Metacard} is a container for Metadata.
- * 
+ *
  * It is modeled after the OGC SimpleFeature and does two additional things:
  * <ol>
  * <li/>Represents a resource.
@@ -34,7 +31,7 @@ import ddf.catalog.source.Source;
  * The {@link Metacard} can include key/value-style {@link Attribute}s, and includes several
  * standard properties: id, title, document, location, source name, dates(created, modified,
  * effective, expiration), and thumbnail.
- * 
+ *
  * @see BasicTypes
  * @see BasicTypes#BASIC_METACARD
  */
@@ -61,14 +58,14 @@ public interface Metacard extends Serializable {
 
     /**
      * Attribute name for the ID of the source where the {@link Metacard} is cataloged.
-     * 
+     *
      * @deprecated
      */
     public static final String SOURCE_ID = "source-id";
 
     /**
      * Attribute name for querying the metadata content type of a {@link Metacard}.
-     * 
+     *
      * @see MetacardType
      */
     public static final String CONTENT_TYPE = "metadata-content-type";
@@ -87,7 +84,7 @@ public interface Metacard extends Serializable {
     // Stored Metacard properties
     /**
      * {@link Attribute} name for accessing the ID of the {@link Metacard}. <br/>
-     * Every {@link Source} is required to return this attribute.
+     * Every {@link ddf.catalog.source.Source} is required to return this attribute.
      */
     public static final String ID = "id";
 
@@ -162,7 +159,7 @@ public interface Metacard extends Serializable {
     /**
      * {@link Attribute} name for accessing the security relevant markings on the product that this
      * {@link Metacard} represents.
-     * 
+     *
      * @deprecated Not to be used anymore, replaced with SECURITY attribute.
      */
     public static final String SECURITY_MATCH_ALL = "security-match-all";
@@ -170,7 +167,7 @@ public interface Metacard extends Serializable {
     /**
      * {@link Attribute} name for accessing the security relevant markings on the product that this
      * {@link Metacard} represents.
-     * 
+     *
      * @deprecated Not to be used anymore, replaced with SECURITY attribute.
      */
     public static final String SECURITY_MATCH_ONE = "security-match-one";
@@ -178,14 +175,14 @@ public interface Metacard extends Serializable {
     /**
      * {@link Attribute} name for accessing the security relevant markings on the product that this
      * {@link Metacard} represents.
-     * 
+     *
      * @since DDF-2.2.0.RC1
      */
     public static final String SECURITY = "security";
 
     /**
      * Returns {@link Attribute} for given attribute name.
-     * 
+     *
      * @param name
      *            name of attribute
      * @return {@link Attribute} for given name, or <code>null</code> if not available
@@ -194,7 +191,7 @@ public interface Metacard extends Serializable {
 
     /**
      * Sets {@link Attribute} with new attribute.
-     * 
+     *
      * @param attribute
      *            new {@link Attribute} to set
      */
@@ -202,7 +199,7 @@ public interface Metacard extends Serializable {
 
     /**
      * Return the {@link MetacardType} of this {@link Metacard}.
-     * 
+     *
      * @return {@link MetacardType} - the type of this {@link Metacard}, MetacardType is required
      *         and must not be <code>null</code>
      */
@@ -211,22 +208,14 @@ public interface Metacard extends Serializable {
     // Shortcuts
 
     /**
-     * Sets the source ID of the source the metacard is located. <br/>
-     * 
-     * @param sourceId
-     *            unique name of source location of metacard
-     */
-    public void setSourceId(String sourceId);
-
-    /**
-     * 
+     *
      * Returns the ID of this {@link Metacard}. <br/>
      * Convenience method for <code>
      * {@link #getAttribute getAttribute}({@link Metacard#ID})
      * </code>
-     * 
+     *
      * @return unique identifier of the Metacard
-     * 
+     *
      * @see Metacard#ID
      */
     public String getId();
@@ -236,9 +225,9 @@ public interface Metacard extends Serializable {
      * Convenience method for <code>
      * {@link #getAttribute getAttribute}({@link Metacard#METADATA})
      * </code>
-     * 
+     *
      * @return XML metadata
-     * 
+     *
      * @see Metacard#METADATA
      */
     public String getMetadata();
@@ -248,9 +237,9 @@ public interface Metacard extends Serializable {
      * Convenience method for <code>
      * {@link #getAttribute getAttribute}({@link Metacard#CREATED})
      * </code>
-     * 
+     *
      * @return {@link Date} - when this {@link Metacard} was created.
-     * 
+     *
      * @see Metacard#CREATED
      */
     public Date getCreatedDate();
@@ -260,9 +249,9 @@ public interface Metacard extends Serializable {
      * Convenience method for <code>
      * {@link #getAttribute getAttribute}({@link Metacard#MODIFIED})
      * </code>
-     * 
+     *
      * @return {@link Date} - when this {@link Metacard} was last modified.
-     * 
+     *
      * @see Metacard#MODIFIED
      */
     public Date getModifiedDate();
@@ -272,10 +261,10 @@ public interface Metacard extends Serializable {
      * Convenience method for <code>
      * {@link #getAttribute getAttribute}({@link Metacard#EXPIRATION})
      * </code>
-     * 
+     *
      * @return {@link Date} - when this {@link Metacard} expires and should be removed from any
      *         stores.
-     * 
+     *
      * @see Metacard#EXPIRATION
      */
     public Date getExpirationDate();
@@ -285,10 +274,10 @@ public interface Metacard extends Serializable {
      * Convenience method for <code>
      * {@link #getAttribute getAttribute}({@link Metacard#EFFECTIVE})
      * </code>
-     * 
+     *
      * @return {@link Date} - when the information represented by this {@link Metacard} was last
      *         known to be valid.
-     * 
+     *
      * @see Metacard#EFFECTIVE
      */
     public Date getEffectiveDate();
@@ -298,27 +287,35 @@ public interface Metacard extends Serializable {
      * Convenience method for <code>
      * {@link #getAttribute getAttribute}({@link Metacard#GEOGRAPHY})
      * </code>
-     * 
+     *
      * @return {@link String} - WKT-defined geospatial object, returns null if not applicable
-     * 
+     *
      * @see Metacard#GEOGRAPHY
      */
     public String getLocation();
 
     /**
      * Returns the source ID of the source the metacard is located. <br/>
-     * 
+     *
      */
     public String getSourceId();
+
+    /**
+     * Sets the source ID of the source the metacard is located. <br/>
+     *
+     * @param sourceId
+     *            unique name of source location of metacard
+     */
+    public void setSourceId(String sourceId);
 
     /**
      * Returns the title of this {@link Metacard}. <br/>
      * Convenience method for <code>
      * {@link #getAttribute getAttribute}({@link Metacard#TITLE})
      * </code>
-     * 
+     *
      * @return Title of the {@link Metacard}
-     * 
+     *
      * @see Metacard#TITLE
      */
     public String getTitle();
@@ -328,16 +325,16 @@ public interface Metacard extends Serializable {
      * Convenience method for <code>
      * new URI({@link #getAttribute getAttribute}({@link Metacard#RESOURCE_URI}));
      * </code>
-     * 
+     *
      * @return {@link URI} - a {@link URI} representation of the {@link Metacard}'s
      *         {@link Metacard#RESOURCE_URI Resource URI} which itself is stored as a
-     *         {@link AttributeFormat#STRING String AttributeFormat}
+     *         {@link ddf.catalog.data.AttributeType.AttributeFormat#STRING String ddf.catalog.data.AttributeType.AttributeFormat}
      */
     public URI getResourceURI();
 
     /**
      * This is the size of the resource which may or may not contain a unit.
-     * 
+     *
      * @return {@link String} - {@link String} representation of the size
      */
     public String getResourceSize();
@@ -347,9 +344,9 @@ public interface Metacard extends Serializable {
      * Convenience method for <code>
      * {@link #getAttribute getAttribute}({@link Metacard#THUMBNAIL})
      * </code>
-     * 
+     *
      * @return thumbnail for the {@link Metacard}
-     * 
+     *
      * @see Metacard#THUMBNAIL
      */
     public byte[] getThumbnail();
@@ -359,9 +356,9 @@ public interface Metacard extends Serializable {
      * Convenience method for <code>
      * {@link #getAttribute getAttribute}({@link Metacard#CONTENT_TYPE})
      * </code>
-     * 
+     *
      * @return name of content type of the {@link Metacard}
-     * 
+     *
      * @see Metacard#CONTENT_TYPE
      */
     public String getContentTypeName();
@@ -371,9 +368,9 @@ public interface Metacard extends Serializable {
      * Convenience method for <code>
      * {@link #getAttribute getAttribute}({@link Metacard#CONTENT_TYPE_VERSION})
      * </code>
-     * 
+     *
      * @return version of content type of the {@link Metacard}
-     * 
+     *
      * @see Metacard#CONTENT_TYPE_VERSION
      */
     public String getContentTypeVersion();
@@ -384,9 +381,9 @@ public interface Metacard extends Serializable {
      * Convenience method for <code>
      * {@link #getAttribute getAttribute}({@link Metacard#TARGET_NAMESPACE})
      * </code>
-     * 
+     *
      * @return {@link URI} - the sub-type, null if unused
-     * 
+     *
      * @see Metacard#TARGET_NAMESPACE
      */
     public URI getContentTypeNamespace();

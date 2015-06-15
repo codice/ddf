@@ -1,17 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog.util.impl;
 
 import org.slf4j.Logger;
@@ -22,9 +21,9 @@ import ddf.catalog.util.Describable;
 /**
  * Default implementation of the Describable interface, providing basic setter/getter methods for a
  * describable item's ID, title, version, organization, and description.
- * 
+ *
  * @author ddf.isgs@lmco.com
- * 
+ *
  */
 public abstract class DescribableImpl implements Describable {
 
@@ -52,7 +51,7 @@ public abstract class DescribableImpl implements Describable {
 
     /**
      * Sets the version of the describable item.
-     * 
+     *
      * @param version
      */
     public void setVersion(String version) {
@@ -71,22 +70,22 @@ public abstract class DescribableImpl implements Describable {
     }
 
     /**
-     * @deprecated
-     * @param shortname
-     */
-    public void setShortname(String shortname) {
-        this.id = shortname;
-    }
-
-    /**
      * Sets the ID of the describable item.
-     * 
+     *
      * @param id
      */
     public void setId(String id) {
         LOGGER.debug("ENTERING: setId - id = {}", id);
         this.id = id;
         LOGGER.debug("EXITING: setId");
+    }
+
+    /**
+     * @deprecated
+     * @param shortname
+     */
+    public void setShortname(String shortname) {
+        this.id = shortname;
     }
 
     /*
@@ -101,7 +100,7 @@ public abstract class DescribableImpl implements Describable {
 
     /**
      * Sets the title of the describable item.
-     * 
+     *
      * @param title
      */
     public void setTitle(String title) {
@@ -122,7 +121,7 @@ public abstract class DescribableImpl implements Describable {
 
     /**
      * Sets the description of the describable item.
-     * 
+     *
      * @param description
      */
     public void setDescription(String description) {
@@ -143,7 +142,7 @@ public abstract class DescribableImpl implements Describable {
 
     /**
      * Sets the organization of the describable item.
-     * 
+     *
      * @param organization
      */
     public void setOrganization(String organization) {

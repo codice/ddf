@@ -1,26 +1,24 @@
 /**
  * Copyright (c) Codice Foundation
- * 
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * 
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- * 
- **/
+ */
 package ddf.catalog;
 
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.event.EventProcessor;
 
 /**
  * The Constants class is used to capture key values that can be re-used throughout DDF.
- * 
+ *
  * @author ddf.isgs@lmco.com
  */
 public final class Constants {
@@ -33,11 +31,11 @@ public final class Constants {
 
     /**
      * The Constant LOCAL_SITE_ID_VALUE. public final static String LOCAL_SITE_ID_VALUE = "local";
-     * 
+     *
      */
     /**
      * The constant SERVICE_SHORTNAME.
-     * 
+     *
      * @deprecated use {@link #SERVICE_ID}
      */
     public static final String SERVICE_SHORTNAME = "shortname";
@@ -71,35 +69,35 @@ public final class Constants {
 
     /**
      * The constant EVENTS_ENTRY_NAME.
-     * 
+     *
      * @deprecated Use {@link EventProcessor#EVENT_METACARD} instead
      */
     public static final String EVENTS_ENTRY_NAME = EventProcessor.EVENT_METACARD;
 
     /**
      * The constant EVENTS_TIME_NAME.
-     * 
+     *
      * @deprecated Use {@link EventProcessor#EVENT_TIME} instead
      */
     public static final String EVENTS_TIME_NAME = EventProcessor.EVENT_TIME;
 
     /**
      * The constant EVENTS_TOPIC_CREATED.
-     * 
+     *
      * @deprecated Use {@link EventProcessor#EVENTS_TOPIC_CREATED} instead
      */
     public static final String EVENTS_TOPIC_CREATED = EventProcessor.EVENTS_TOPIC_CREATED;
 
     /**
      * The constant EVENTS_TOPIC_UPDATED.
-     * 
+     *
      * @deprecated Use {@link EventProcessor#EVENTS_TOPIC_UPDATED} instead
      */
     public static final String EVENTS_TOPIC_UPDATED = EventProcessor.EVENTS_TOPIC_UPDATED;
 
     /**
      * The constant EVENTS_TOPIC_DELETED.
-     * 
+     *
      * @deprecated Use {@link EventProcessor#EVENTS_TOPIC_DELETED} instead
      */
     public static final String EVENTS_TOPIC_DELETED = EventProcessor.EVENTS_TOPIC_DELETED;
@@ -124,7 +122,7 @@ public final class Constants {
     public static final String SORT_POLICY_VALUE_DISTANCE = Result.DISTANCE;
 
     /**
-     * @deprecated Use the appropriate temporal field from {@link Metacard}
+     * @deprecated Use the appropriate temporal field from {@link ddf.catalog.data.Metacard}
      */
     public static final String SORT_POLICY_VALUE_TEMPORAL = "TEMPORAL";
 
