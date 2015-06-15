@@ -57,6 +57,24 @@
             <plugin>
                 <groupId>com.github.sixro</groupId>
                 <artifactId>confluence-maven-plugin</artifactId>
+                <version>1.0.3</version>
+                <executions>
+                    <execution>
+                        <id>confluence-upload</id>
+                        <goals>
+                            <goal>generate</goal>
+                            <goal>deploy</goal>
+                        </goals>
+                        <phase>install</phase>
+                        <configuration>
+                            <serverId>ddf-confluence</serverId>
+                            <endpoint>http://tools.codice.org/wiki</endpoint>
+                            <!-- The wiki space docs will be uploaded to. Change this property on major releases -->
+                            <spaceKey>DDFTEM</spaceKey>
+                            <parentTitle>DDF Home</parentTitle>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
